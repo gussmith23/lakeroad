@@ -2,42 +2,29 @@
 
 (require rosette)
 
+; number of bits which a LUT takes as input
 (define input-width 6)
+; number of bits which a LUT outputs
+(define output-width 2)
 
-(define-symbolic lut-a (bitvector (* 2 (expt 2 input-width))))
+; the LUT contains an `output-width`-sized entry for each of the possible `2^input-width` entries.
+(define-symbolic lut-a (bitvector (* output-width (expt 2 input-width))))
 (define-symbolic inputs-a (bitvector input-width))
+; The output of a LUT is simply the `output-width`-length bitvector at the entry pointed to by
+; `inputs-a`, when interpreted as an integer.
 (define output-a 
   (let ((i (bitvector->integer inputs-a)))
-    (extract (+ 1 (* 2 i)) (* 2 i) lut-a)))
+    (extract 
+     (+ (- output-width 1) (* output-width i)) 
+     (* output-width i) 
+     lut-a)))
 
-(define-symbolic lut-b (bitvector (* 2 (expt 2 input-width))))
-(define-symbolic inputs-b (bitvector input-width))
-(define output-b 
-  (let ((i (bitvector->integer inputs-b)))
-    (extract (+ 1 (* 2 i)) (* 2 i) lut-b)))
-
-(define-symbolic lut-c (bitvector (* 2 (expt 2 input-width))))
-(define-symbolic inputs-c (bitvector input-width))
-(define output-c 
-  (let ((i (bitvector->integer inputs-c)))
-    (extract (+ 1 (* 2 i)) (* 2 i) lut-c)))
-
-(define-symbolic lut-d (bitvector (* 2 (expt 2 input-width))))
-(define-symbolic inputs-d (bitvector input-width))
-(define output-d 
-  (let ((i (bitvector->integer inputs-d)))
-    (extract (+ 1 (* 2 i)) (* 2 i) lut-d)))
-
-(synthesize
- #:forall (list inputs-a)
- #:guarantee 
- (assert (bveq (bvand (bit inputs-a 1)
-                      (bit inputs-a 0))
-               (bit output-a 0))))
-
-(assert (bveq (bvand (bit inputs-a 1)
-                     (bit inputs-a 0))
-              (bit output-a 0)))
+(define m (synthesize
+           #:forall (list inputs-a)
+           #:guarantee 
+           (assert (bveq (bvand (bit 1 inputs-a)
+                                (bit 0 inputs-a))
+                         (bit 0 output-a)))))
 
 ; lut has input width of 2, what's the value of memory that implements AND
 
