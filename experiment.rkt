@@ -1,30 +1,28 @@
 #lang racket
 
-(require rosette)
+(require rosette
+         rosette/lib/synthax)
 
-; number of bits which a LUT takes as input
-(define input-width 6)
-; number of bits which a LUT outputs
-(define output-width 2)
-
-; the LUT contains an `output-width`-sized entry for each of the possible `2^input-width` entries.
-(define-symbolic lut-a (bitvector (* output-width (expt 2 input-width))))
-(define-symbolic inputs-a (bitvector input-width))
 ; The output of a LUT is simply the `output-width`-length bitvector at the entry pointed to by
 ; `inputs-a`, when interpreted as an integer.
-(define output-a 
-  (let ((i (bitvector->integer inputs-a)))
-    (extract 
-     (+ (- output-width 1) (* output-width i)) 
-     (* output-width i) 
-     lut-a)))
+(define 
+  (lut output-width memory inputs) 
+  (let* ((i (bitvector->natural inputs))
+         (low (* output-width i))
+         (high (+ (- output-width 1) low)))
+    (extract high low memory)))
+
+(define input-width 6)
+(define output-width 2)
+; The LUT contains an `output-width`-sized entry for each of the possible `2^input-width` entries.
+(define-symbolic memory (bitvector (* output-width (expt 2 input-width))))
+(define-symbolic inputs (bitvector input-width))
 
 (define m (synthesize
-           #:forall (list inputs-a)
+           #:forall (list inputs)
            #:guarantee 
-           (assert (bveq (bvand (bit 1 inputs-a)
-                                (bit 0 inputs-a))
-                         (bit 0 output-a)))))
+           (assert (bveq (bvand (bit 1 inputs) (bit 0 inputs))
+                         (bit 0 (lut output-width memory inputs))))))
 
 ; lut has input width of 2, what's the value of memory that implements AND
 
