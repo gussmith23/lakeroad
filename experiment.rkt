@@ -3,6 +3,17 @@
 (require rosette
          rosette/lib/synthax)
 
+; An `input-width`-sized vector of bits to serve as the inputs to a LUT.
+(define (generate-inputs input-width)
+  (define-symbolic* inputs (bitvector input-width))
+  inputs)
+
+; A LUT's memory contains an `output-width`-sized entry for each of the possible `2^input-width`
+; entries.
+(define (generate-memory input-width output-width)
+  (define-symbolic* memory (bitvector (* output-width (expt 2 input-width))))
+  memory)
+
 ; The output of a LUT is simply the `output-width`-length bitvector at the entry pointed to by
 ; `inputs-a`, when interpreted as an integer.
 (define 
@@ -14,10 +25,8 @@
 
 (define input-width 6)
 (define output-width 2)
-; The LUT contains an `output-width`-sized entry for each of the possible `2^input-width` entries.
-(define-symbolic memory (bitvector (* output-width (expt 2 input-width))))
-(define-symbolic inputs (bitvector input-width))
-
+(define memory (generate-memory input-width output-width))
+(define inputs (generate-inputs input-width))
 (define m (synthesize
            #:forall (list inputs)
            #:guarantee 
