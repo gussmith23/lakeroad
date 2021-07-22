@@ -33,6 +33,11 @@
            (assert (bveq (bvand (bit 1 inputs) (bit 0 inputs))
                          (bit 0 (lut output-width memory inputs))))))
 
+; my question: how does data get fed into a slice? in how many ways can the e.g. 8 bits that are
+; loaded from a bram end up at the inputs to the luts at the start of a slice? can those 8 bits be fed
+; into the first and second luts only, for example? can a single bit be fed into each of the 8 luts
+; across two slices? can two bits be fed into each of the four luts in a single slice?
+
 ; lut has input width of 2, what's the value of memory that implements AND
 
 ; cool first target: from 1. slice description and 2. highl evel program (e.g. add), find a "clever"
