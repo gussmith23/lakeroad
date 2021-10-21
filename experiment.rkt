@@ -1,7 +1,6 @@
 #lang racket
 
-(require rosette
-         rosette/lib/synthax)
+(require rosette)
 
 ; An `input-width`-sized vector of bits to serve as the inputs to a LUT.
 (define (generate-inputs input-width)
@@ -33,6 +32,14 @@
            (assert (bveq (bvand (bit 1 inputs) (bit 0 inputs))
                          (bit 0 (lut output-width memory inputs))))))
 
+(print m)
+
+(define 7-series-input-width 6)
+(define 7-series-output-width 2)
+(define a-memory (generate-memory 6 2))
+(define a-inputs (generate-inputs 6))
+
+
 ; my question: how does data get fed into a slice? in how many ways can the e.g. 8 bits that are
 ; loaded from a bram end up at the inputs to the luts at the start of a slice? can those 8 bits be fed
 ; into the first and second luts only, for example? can a single bit be fed into each of the 8 luts
@@ -51,3 +58,7 @@
 ; back in alex aiken talk is an example of sw people loosening structure adding structure helps guide
 ; the search is this an artifact of old systems being so small? so they were much smaller and the
 ; problem was easier
+
+; Should we focus on logic or DSP slices? Talking with Luis, it seems like DSPs are the most important
+; thing. So if we don't have DSP functionality, then we don't do much. And if this approach doesn't
+; work  with DSPs, then we should focus on something else.
