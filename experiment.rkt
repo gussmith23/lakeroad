@@ -62,3 +62,29 @@
 ; Should we focus on logic or DSP slices? Talking with Luis, it seems like DSPs are the most important
 ; thing. So if we don't have DSP functionality, then we don't do much. And if this approach doesn't
 ; work  with DSPs, then we should focus on something else.
+
+
+; There are no loops!
+;
+; Basically whatever data you want can get wherever you want in the slice.
+;
+; But then the question is: that blows the problem up hugely, does it not? We basically have to ask
+; the synthesizer: what bits do you want to send to which inputs AND how will you configure the slice.
+; I don't know much about synthesis, but that seems a bit crazy.
+;
+; Perhaps it's safe to make the assumption that we'll always input the data as bit0s into lut0, bit1s
+; into lut1, etc., and that we'll read the data out in the same way. It's probably best to make that
+; assumption for now, and make it more complex later as needed.
+;
+; But part of me also feels that the actual novelty here would be in making no assumptions about what
+; is wired to where. As long as the wiring assignments produced are actually possible, why does it
+; matter?
+;
+; How would it be done? We would need to produce 1. a mapping from bits of the logical inputs to
+; actual slice inputs, 2. the slice configuration, and 3. a mapping from the bits of the slice outputs
+; to the logical outputs.
+
+; What does a mapping of logical bits to slice inputs look like? How is represented? We could just
+; basically give every LUT input a variable, which represents the index into which it indexes the
+; inputs (if we view the inputs as a concatenated list of bits). We could also include hardcoded 0 and
+; 1 inputs.
