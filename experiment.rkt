@@ -155,10 +155,9 @@
 ; Physical bit 0 goes to logical bit 0.
 (or (= (physical-to-logical-input 6 8 0) 0) (error "error"))
 ; Physical bit 1 (LUT 0 input 1) goes to logical input 1 bit 0.
-(or (= (logical-to-physical-input 6 8 1) 8) (error "error"))
-; Logical bit 9 (logical input 1 bit 1) goes to LUT 1 bit 1.
-; TODO
-;(or (= (logical-to-physical-input 6 8 9) 7) (error "error"))
+(or (= (physical-to-logical-input 6 8 1) 8) (error "error"))
+; Physical bit 9 (LUT 1 bit 3) goes to logical input 3 bit 1.
+(or (= (physical-to-logical-input 6 8 9) 25) (error "error"))
 
 (define a-out (lut 7-series-output-width a-memory (extract 47 42 physical-inputs)))
 (define b-out (lut 7-series-output-width a-memory (extract 41 36 physical-inputs)))
