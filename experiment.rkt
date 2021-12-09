@@ -138,26 +138,26 @@
 ; Note that we determine logical bit ID by concatenating all logical inputs. If we have two logical 8
 ; bit inputs, then L0Bit0 = 0, L1Bit0 = 8. There's probably a better way to do this, though.
 ; Assumes all inputs have the same bitwidth.
-(define (logical-to-physical-input num-lut-inputs bitwidth logical-bit)
+(define (logical-to-physical-bit num-lut-inputs bitwidth logical-bit)
   (let-values ([(lut-bit lut-index) (quotient/remainder logical-bit bitwidth)])
     (+ (* lut-index num-lut-inputs) lut-bit)))
 ; use a better assert
 ; Logical bit 0 goes to LUT 0 bit 0.
-(or (= (logical-to-physical-input 6 8 0) 0) (error "error"))
+(or (= (logical-to-physical-bit 6 8 0) 0) (error "error"))
 ; Logical bit 1 (logical input 0 bit 1) goes to LUT 1 bit 0.
-(or (= (logical-to-physical-input 6 8 1) 6) (error "error"))
+(or (= (logical-to-physical-bit 6 8 1) 6) (error "error"))
 ; Logical bit 9 (logical input 1 bit 1) goes to LUT 1 bit 1.
-(or (= (logical-to-physical-input 6 8 9) 7) (error "error"))
+(or (= (logical-to-physical-bit 6 8 9) 7) (error "error"))
 
-(define (physical-to-logical-input num-lut-inputs bitwidth physical-bit)
+(define (physical-to-logical-bit num-lut-inputs bitwidth physical-bit)
   (let-values ([(logical-bit-index logical-input-index) (quotient/remainder physical-bit num-lut-inputs)])
     (+ (* logical-input-index bitwidth) logical-bit-index)))
 ; Physical bit 0 goes to logical bit 0.
-(or (= (physical-to-logical-input 6 8 0) 0) (error "error"))
+(or (= (physical-to-logical-bit 6 8 0) 0) (error "error"))
 ; Physical bit 1 (LUT 0 input 1) goes to logical input 1 bit 0.
-(or (= (physical-to-logical-input 6 8 1) 8) (error "error"))
+(or (= (physical-to-logical-bit 6 8 1) 8) (error "error"))
 ; Physical bit 9 (LUT 1 bit 3) goes to logical input 3 bit 1.
-(or (= (physical-to-logical-input 6 8 9) 25) (error "error"))
+(or (= (physical-to-logical-bit 6 8 9) 25) (error "error"))
 
 (define a-out (lut 7-series-output-width a-memory (extract 47 42 physical-inputs)))
 (define b-out (lut 7-series-output-width a-memory (extract 41 36 physical-inputs)))
@@ -167,3 +167,19 @@
 (define f-out (lut 7-series-output-width a-memory (extract 17 12 physical-inputs)))
 (define g-out (lut 7-series-output-width a-memory (extract 11 6 physical-inputs)))
 (define h-out (lut 7-series-output-width a-memory (extract 5 0 physical-inputs)))
+
+; Carry in.
+(define-symbolic cin (bitvector 1))
+
+; We define O5 as the 1th output and O6 as the 0th.
+(define (O5 outputs) (extract 1 1 outputs))
+(define (O6 outputs) (extract 0 0 outputs))
+
+; MUXCY in fig 2-4.
+(define (muxcy s di prev-muxcy) (if s di prev-muxcy))
+
+; O0 in Fig 2-4 in Ultrascale CLB user guide
+(define o0 (xor (extract 1 1 a-out) cin))
+(define muxcy0 (if (extract 0 0 a-out) ())
+
+(define o1 (xor (extract 1 1 b-out) cin))
