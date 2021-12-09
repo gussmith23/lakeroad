@@ -175,17 +175,18 @@
 (define (O5 outputs) (extract 1 1 outputs))
 (define (O6 outputs) (extract 0 0 outputs))
 
-; MUXCY in fig 2-4.
-(define (muxcy s di prev-muxcy) (if (bitvector->bool s) di prev-muxcy))
-; O0..O7 in Fig 2-4.
-(define (carryo s prev-muxcy) (bvxor s prev-muxcy))
+; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4.
+(define (carry-co s di prev-muxcy) (if (bitvector->bool s) di prev-muxcy))
+; Carry signals O0..O7 (aka sum value) in Fig 2-4.
+(define (carry-o s prev-muxcy) (bvxor s prev-muxcy))
 ; Wrapper to make things easier.
 ; Returns (carry0, muxcy)
 (define (carry-layer outputs prev-muxcy)
-  (values (carryo (O6 outputs) prev-muxcy)
-          (muxcy (O6 outputs) (O5 outputs) prev-muxcy)))
+  (values (carry-o (O6 outputs) prev-muxcy)
+          (carry-co (O6 outputs) (O5 outputs) prev-muxcy)))
 
-(define-values (carryo0 muxcy0) (carry-layer a-out cin))
+; Get the sum bit and the carry bit.
+(define-values (carry-o0 carry-co0) (carry-layer a-out cin))
 
 ; Takes two bitvectors of the same length (can be extended to differing lengths, i'm sure) and adds
 ; them, returning a bitvector of the same length plus a bit representing the carry. For now, assuming
@@ -201,3 +202,14 @@
 (let-values ([(s c) (our-add (bv 2 2) (bv 2 2))])
   (or (bveq s (bv 0 2)) (error "error"))
   (or (bveq c (bv 1 1)) (error "error")))
+
+(define m0
+  (synthesize
+   #:forall (list physical-inputs)
+   #:guarantee
+   (let-values
+       ([(s c)
+         (our-add (extract 0 0 physical-inputs) (extract 1 1 physical-inputs))])
+     (assert (bveq carry-co0 c))
+     (assert (bveq carry-o0 s)))))
+(print m0)
