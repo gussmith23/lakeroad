@@ -177,9 +177,12 @@
 
 ; MUXCY in fig 2-4.
 (define (muxcy s di prev-muxcy) (if s di prev-muxcy))
+; O0..O7 in Fig 2-4.
+(define (carryo s prev-muxcy) (xor s prev-muxcy))
+; Wrapper to make things easier.
+; Returns (carry0, muxcy)
+(define (carry-layer outputs prev-muxcy)
+  (values (carryo (O6 outputs) prev-muxcy)
+          (muxcy (O6 outputs) (O5 outputs) prev-muxcy)))
 
-; O0 in Fig 2-4 in Ultrascale CLB user guide
-(define o0 (xor (extract 1 1 a-out) cin))
-(define muxcy0 (if (extract 0 0 a-out) ())
-
-(define o1 (xor (extract 1 1 b-out) cin))
+(define-values (carryo0 muxcy0) (carry-layer a-out cin))
