@@ -176,9 +176,9 @@
 (define (O6 outputs) (extract 0 0 outputs))
 
 ; MUXCY in fig 2-4.
-(define (muxcy s di prev-muxcy) (if s di prev-muxcy))
+(define (muxcy s di prev-muxcy) (if (bitvector->bool s) di prev-muxcy))
 ; O0..O7 in Fig 2-4.
-(define (carryo s prev-muxcy) (xor s prev-muxcy))
+(define (carryo s prev-muxcy) (bvxor s prev-muxcy))
 ; Wrapper to make things easier.
 ; Returns (carry0, muxcy)
 (define (carry-layer outputs prev-muxcy)
