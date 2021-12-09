@@ -186,3 +186,18 @@
           (muxcy (O6 outputs) (O5 outputs) prev-muxcy)))
 
 (define-values (carryo0 muxcy0) (carry-layer a-out cin))
+
+; Takes two bitvectors of the same length (can be extended to differing lengths, i'm sure) and adds
+; them, returning a bitvector of the same length plus a bit representing the carry. For now, assuming
+; unsigned numbers, but could probably be extended to handle two's complement.
+(define (our-add bv0 bv1)
+  (let ((l (length (bitvector->bits bv0))))
+    (assert (= l (length (bitvector->bits bv1))))
+    (let ((sum
+           (bvadd (zero-extend bv0 (bitvector (+ l 1))) (zero-extend bv1 (bitvector (+ l 1))))))
+      (values
+       (extract (- l 1) 0 sum)
+       (extract l l sum)))))
+(let-values ([(s c) (our-add (bv 2 2) (bv 2 2))])
+  (or (bveq s (bv 0 2)) (error "error"))
+  (or (bveq c (bv 1 1)) (error "error")))
