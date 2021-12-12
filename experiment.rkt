@@ -160,13 +160,13 @@
 (or (= (physical-to-logical-bit 6 8 9) 25) (error "error"))
 
 (define a-out (lut 7-series-output-width a-memory (extract 47 42 physical-inputs)))
-(define b-out (lut 7-series-output-width a-memory (extract 41 36 physical-inputs)))
-(define c-out (lut 7-series-output-width a-memory (extract 35 30 physical-inputs)))
-(define d-out (lut 7-series-output-width a-memory (extract 29 24 physical-inputs)))
-(define e-out (lut 7-series-output-width a-memory (extract 23 18 physical-inputs)))
-(define f-out (lut 7-series-output-width a-memory (extract 17 12 physical-inputs)))
-(define g-out (lut 7-series-output-width a-memory (extract 11 6 physical-inputs)))
-(define h-out (lut 7-series-output-width a-memory (extract 5 0 physical-inputs)))
+(define b-out (lut 7-series-output-width b-memory (extract 41 36 physical-inputs)))
+(define c-out (lut 7-series-output-width c-memory (extract 35 30 physical-inputs)))
+(define d-out (lut 7-series-output-width d-memory (extract 29 24 physical-inputs)))
+(define e-out (lut 7-series-output-width e-memory (extract 23 18 physical-inputs)))
+(define f-out (lut 7-series-output-width f-memory (extract 17 12 physical-inputs)))
+(define g-out (lut 7-series-output-width g-memory (extract 11 6 physical-inputs)))
+(define h-out (lut 7-series-output-width h-memory (extract 5 0 physical-inputs)))
 
 ; Carry in.
 (define-symbolic cin (bitvector 1))
@@ -175,31 +175,31 @@
 (define (O5 outputs) (extract 1 1 outputs))
 (define (O6 outputs) (extract 0 0 outputs))
 
-; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4.
-(define (carry-co s di prev-muxcy) (if (bitvector->bool s) di prev-muxcy))
+; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4. Note that, to implement a mux with
+; "if", the "then" and "else" clauses are in reverse order from the usual mux input order!
+(define (carry-co s di prev-muxcy) (if (bitvector->bool s) prev-muxcy di))
 ; Carry signals O0..O7 (aka sum value) in Fig 2-4.
 (define (carry-o s prev-muxcy) (bvxor s prev-muxcy))
 ; Wrapper to make things easier.
 ; Returns (carry0, muxcy)
 (define (carry-layer outputs prev-muxcy)
-  (values (carry-o (O6 outputs) prev-muxcy)
-          (carry-co (O6 outputs) (O5 outputs) prev-muxcy)))
+  (list (carry-o (O6 outputs) prev-muxcy)
+        (carry-co (O6 outputs) (O5 outputs) prev-muxcy)))
 
 ; Get the sum bit and the carry bit.
-(define-values (carry-o0 carry-co0) (carry-layer a-out cin))
+(match-define (list carry-o0 carry-co0) (carry-layer a-out cin))
 
 ; Takes two bitvectors of the same length (can be extended to differing lengths, i'm sure) and adds
 ; them, returning a bitvector of the same length plus a bit representing the carry. For now, assuming
 ; unsigned numbers, but could probably be extended to handle two's complement.
 (define (our-add bv0 bv1)
-  (let ((l (length (bitvector->bits bv0))))
-    (assert (= l (length (bitvector->bits bv1))))
-    (let ((sum
-           (bvadd (zero-extend bv0 (bitvector (+ l 1))) (zero-extend bv1 (bitvector (+ l 1))))))
-      (values
-       (extract (- l 1) 0 sum)
-       (extract l l sum)))))
-(let-values ([(s c) (our-add (bv 2 2) (bv 2 2))])
+  (let* ((l (length (bitvector->bits bv0)))
+         (sum
+          (bvadd (zero-extend bv0 (bitvector (+ l 1))) (zero-extend bv1 (bitvector (+ l 1))))))
+    (list
+     (extract (- l 1) 0 sum)
+     (extract l l sum))))
+(match-let ([(list s c) (our-add (bv 2 2) (bv 2 2))])
   (or (bveq s (bv 0 2)) (error "error"))
   (or (bveq c (bv 1 1)) (error "error")))
 
@@ -207,9 +207,43 @@
   (synthesize
    #:forall (list physical-inputs)
    #:guarantee
-   (let-values
-       ([(s c)
-         (our-add (extract 0 0 physical-inputs) (extract 1 1 physical-inputs))])
+   (match-let
+       ([(list s c)
+         (our-add (extract 43 43 physical-inputs) (extract 42 42 physical-inputs))])
      (assert (bveq carry-co0 c))
      (assert (bveq carry-o0 s)))))
 (print m0)
+
+(define m1
+  (synthesize
+   #:forall (list physical-inputs)
+   #:guarantee
+   (let-values
+       ([(s c)
+         (our-add (extract 43 43 physical-inputs) (extract 42 42 physical-inputs))])
+     (assert (>= 0 (bitvector->natural s))))))
+m1
+
+; Another experiment. Shrinking this to a 2 input 2 output lut. I'm struggling to get this to
+; synthesize, and i'm trying to minimize the expressions involved.
+;
+; Nevermind. The bug was that I was implementing mux incorrectly with if. This now synthesizes.
+(clear-vc!)
+(define-symbolic* in (bitvector 2))
+(define-symbolic* lutmem (bitvector 8))
+(define-symbolic* cin0 (bitvector 1))
+; complete-solution basically says: if lutmem is not defined in the solution (because the synthesizer
+; discovers it can be anything), then set it to its default value.
+(define m2
+  (match-let
+      ([(list o co) (carry-layer (lut 2 lutmem in) cin0)]
+       [(list actual-o actual-co) (our-add (extract 0 0 in) (extract 1 1 in))])
+    (complete-solution
+     (synthesize
+      #:forall (list in)
+      #:guarantee
+      (begin
+        (assert (bveq o actual-o))
+        (assert (bveq co actual-co))))
+     (list lutmem))))
+m2
