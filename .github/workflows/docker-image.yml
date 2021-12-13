@@ -15,6 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
+      id: build
       run: |
         export TAG=lakeroad:$(date +%s)
         echo "::set-output name=TAG::$TAG"
@@ -23,4 +24,4 @@ jobs:
           --file Dockerfile \
           --tag $TAG
     - name: Run the experiment
-      run: docker run racket experiment.rkt
+      run: docker run ${{ steps.build.outputs.TAG }} racket experiment.rkt
