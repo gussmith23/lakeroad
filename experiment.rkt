@@ -188,6 +188,13 @@
 
 ; Get the sum bit and the carry bit.
 (match-define (list carry-o0 carry-co0) (carry-layer a-out cin))
+(match-define (list carry-o1 carry-co1) (carry-layer b-out carry-co0))
+(match-define (list carry-o2 carry-co2) (carry-layer c-out carry-co1))
+(match-define (list carry-o3 carry-co3) (carry-layer d-out carry-co2))
+(match-define (list carry-o4 carry-co4) (carry-layer e-out carry-co3))
+(match-define (list carry-o5 carry-co5) (carry-layer f-out carry-co4))
+(match-define (list carry-o6 carry-co6) (carry-layer g-out carry-co5))
+(match-define (list carry-o7 carry-co7) (carry-layer h-out carry-co6))
 
 ; Takes two bitvectors of the same length (can be extended to differing lengths, i'm sure) and adds
 ; them, returning a bitvector of the same length plus a bit representing the carry. For now, assuming
@@ -247,3 +254,53 @@ m1
         (assert (bveq co actual-co))))
      (list lutmem))))
 m2
+
+(define logical-input-0
+  (concat
+   (extract 0 0 physical-inputs)
+   (extract 6 6 physical-inputs)
+   (extract 12 12 physical-inputs)
+   (extract 18 18 physical-inputs)
+   (extract 24 24 physical-inputs)
+   (extract 30 30 physical-inputs)
+   (extract 36 36 physical-inputs)
+   (extract 42 42 physical-inputs)
+   ))
+(define logical-input-1
+  (concat
+   (extract 1 1 physical-inputs)
+   (extract 7 7 physical-inputs)
+   (extract 13 13 physical-inputs)
+   (extract 19 19 physical-inputs)
+   (extract 25 25 physical-inputs)
+   (extract 31 31 physical-inputs)
+   (extract 37 37 physical-inputs)
+   (extract 43 43 physical-inputs)
+   ))
+
+(define logical-output
+  (concat
+   carry-o7
+   carry-o6
+   carry-o5
+   carry-o4
+   carry-o3
+   carry-o2
+   carry-o1
+   carry-o0
+   ))
+
+(define logical-carry-out carry-co7)
+
+(define m3
+  (time
+   (synthesize
+    #:forall (list physical-inputs)
+    #:guarantee
+    (match-let
+        ([(list s c)
+          (our-add logical-input-0 logical-input-1)])
+      (assert (bveq logical-carry-out c))
+      (assert (bveq logical-output s))))))
+(print "m3")
+(print m3)
