@@ -30,6 +30,8 @@ RUN raco setup --doc-index --force-user-docs
 #RUN sed -i s/\"--\"/\"--\",\"-t\"/ racket-trusted/kernel.json
 #RUN sed -i s/\"display_name\":\"Racket\"/\"display_name\":\"Racket \(trusted\)\"/ racket-trusted/kernel.json
 
+RUN raco pkg install --batch rosette
+
 WORKDIR /root/
 COPY ./experiment.rkt ./experiment.rkt
 CMD [ "racket", "experiment.rkt" ]
