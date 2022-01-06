@@ -304,3 +304,46 @@ m2
       (assert (bveq logical-output s))))))
 (print "m3")
 (print m3)
+
+; 2022 01 06
+; It's an ISA
+; But what does that mean?
+; We're going from incredibly low-level and expressive (verilog) UP to much more constrained (FPGA).
+; Everything can be instructions.
+; But it's not exactly an ISA. or it's different from CPUs.
+; Spatial instructions vs time multiplexed instructions.
+; These are spatial instructions. 
+; ISA: bag of instructions that defines an architecture. Doens't have to do with time/space.
+; Example of "praying for" the synthesizer to map stuff to BRAMs instead of LUTs
+; when is LUT inferred over BRAM? when data is acccessed in the same cycle! 
+; Example of Dan P havign Black Parrot map to luts and having to fix it to map to BRAMs.
+; comparison to vector typesi n llvm IR: promotion: things are expressed as vector types, but if we
+; can't vecgtorize then it's not like it crashes, it just decomposes it into simpler instructions.
+; but in the temporal world, you can always take more time, there's infinite time. but on the FPGA
+; there's not infinite space. so that's a core difference. decoposing a BRAM into LUTs may not always
+; possible, whereas it's alwyas possible to decompose a vector instructions into smaller instructions.
+;
+; So the goal is to determine an ISA for FPGAs. 
+; LLVM assembly for FPGAs.
+; Even if you make new memories, they're likely the same. There's some core set of abstractions
+; that FPGAs use.
+;
+; Work backwards. Goal is LLVM ASM for FPGAs.
+; 
+; Luis thinks that what we have so far will already wow people.
+; BUT HOW IS THIS ALREADY DONE?
+; They get verilog, they turn everything to a DAG of gates, and not or etc,
+; then they do logical optimization, logical equivalences to remove operations and optimize.
+; Then they do clustering.
+; This is a leftover from the ASIC world, where you'd get a tech library which is already at the gate
+; level. FPGA devs were like, ok, let's use the same flow, but then at the end we'll have a step
+; that raises the level of abstraction back up.
+
+; Bit hack book doing bit operations -- that could be a good place to start for probrams. Emina 
+; used it for Rosette stuff.
+; https://mangpo.net/papers/mangpo_phd_thesis.pdf pg 49
+; What are the bithacks she's talking about here? That's what we should be using.
+; https://github.com/mangpo/chlorophyll/tree/master/examples/bithack
+;
+; It would be most impressive to have Xilinx plus Utah, two completely diff arches
+; Or Xilinx and Lattice.
