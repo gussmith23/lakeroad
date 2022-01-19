@@ -24,4 +24,4 @@ jobs:
           --file Dockerfile \
           --tag $TAG
     - name: Run the experiment
-      run: docker run ${{ steps.build.outputs.TAG }} racket experiment.rkt
+      run: docker run ${{ steps.build.outputs.TAG }} raco test *.rkt

@@ -141,23 +141,29 @@
 (define (logical-to-physical-bit num-lut-inputs bitwidth logical-bit)
   (let-values ([(lut-bit lut-index) (quotient/remainder logical-bit bitwidth)])
     (+ (* lut-index num-lut-inputs) lut-bit)))
+(module+ test
+(require rackunit)
 ; use a better assert
 ; Logical bit 0 goes to LUT 0 bit 0.
-(or (= (logical-to-physical-bit 6 8 0) 0) (error "error"))
+(check-eq? (logical-to-physical-bit 6 8 0) 0)
 ; Logical bit 1 (logical input 0 bit 1) goes to LUT 1 bit 0.
-(or (= (logical-to-physical-bit 6 8 1) 6) (error "error"))
+(check-eq? (logical-to-physical-bit 6 8 1) 6)
 ; Logical bit 9 (logical input 1 bit 1) goes to LUT 1 bit 1.
-(or (= (logical-to-physical-bit 6 8 9) 7) (error "error"))
+(check-eq? (logical-to-physical-bit 6 8 9) 7)
+)
 
 (define (physical-to-logical-bit num-lut-inputs bitwidth physical-bit)
   (let-values ([(logical-bit-index logical-input-index) (quotient/remainder physical-bit num-lut-inputs)])
     (+ (* logical-input-index bitwidth) logical-bit-index)))
+(module+ test
+(require rackunit)
 ; Physical bit 0 goes to logical bit 0.
-(or (= (physical-to-logical-bit 6 8 0) 0) (error "error"))
+(check-eq? (physical-to-logical-bit 6 8 0) 0)
 ; Physical bit 1 (LUT 0 input 1) goes to logical input 1 bit 0.
-(or (= (physical-to-logical-bit 6 8 1) 8) (error "error"))
+(check-eq? (physical-to-logical-bit 6 8 1) 8)
 ; Physical bit 9 (LUT 1 bit 3) goes to logical input 3 bit 1.
-(or (= (physical-to-logical-bit 6 8 9) 25) (error "error"))
+(check-eq? (physical-to-logical-bit 6 8 9) 25)
+)
 
 (define a-out (lut 7-series-output-width a-memory (extract 47 42 physical-inputs)))
 (define b-out (lut 7-series-output-width b-memory (extract 41 36 physical-inputs)))
@@ -209,6 +215,8 @@
 (match-let ([(list s c) (our-add (bv 2 2) (bv 2 2))])
   (or (bveq s (bv 0 2)) (error "error"))
   (or (bveq c (bv 1 1)) (error "error")))
+
+(module+ test
 
 (define m0
   (synthesize
@@ -304,6 +312,7 @@ m2
       (assert (bveq logical-output s))))))
 (print "m3")
 (print m3)
+)
 
 ; 2022 01 06
 ; It's an ISA
