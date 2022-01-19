@@ -142,28 +142,28 @@
   (let-values ([(lut-bit lut-index) (quotient/remainder logical-bit bitwidth)])
     (+ (* lut-index num-lut-inputs) lut-bit)))
 (module+ test
-(require rackunit)
-; use a better assert
-; Logical bit 0 goes to LUT 0 bit 0.
-(check-eq? (logical-to-physical-bit 6 8 0) 0)
-; Logical bit 1 (logical input 0 bit 1) goes to LUT 1 bit 0.
-(check-eq? (logical-to-physical-bit 6 8 1) 6)
-; Logical bit 9 (logical input 1 bit 1) goes to LUT 1 bit 1.
-(check-eq? (logical-to-physical-bit 6 8 9) 7)
-)
+  (require rackunit)
+  ; use a better assert
+  ; Logical bit 0 goes to LUT 0 bit 0.
+  (check-eq? (logical-to-physical-bit 6 8 0) 0)
+  ; Logical bit 1 (logical input 0 bit 1) goes to LUT 1 bit 0.
+  (check-eq? (logical-to-physical-bit 6 8 1) 6)
+  ; Logical bit 9 (logical input 1 bit 1) goes to LUT 1 bit 1.
+  (check-eq? (logical-to-physical-bit 6 8 9) 7)
+  )
 
 (define (physical-to-logical-bit num-lut-inputs bitwidth physical-bit)
   (let-values ([(logical-bit-index logical-input-index) (quotient/remainder physical-bit num-lut-inputs)])
     (+ (* logical-input-index bitwidth) logical-bit-index)))
 (module+ test
-(require rackunit)
-; Physical bit 0 goes to logical bit 0.
-(check-eq? (physical-to-logical-bit 6 8 0) 0)
-; Physical bit 1 (LUT 0 input 1) goes to logical input 1 bit 0.
-(check-eq? (physical-to-logical-bit 6 8 1) 8)
-; Physical bit 9 (LUT 1 bit 3) goes to logical input 3 bit 1.
-(check-eq? (physical-to-logical-bit 6 8 9) 25)
-)
+  (require rackunit)
+  ; Physical bit 0 goes to logical bit 0.
+  (check-eq? (physical-to-logical-bit 6 8 0) 0)
+  ; Physical bit 1 (LUT 0 input 1) goes to logical input 1 bit 0.
+  (check-eq? (physical-to-logical-bit 6 8 1) 8)
+  ; Physical bit 9 (LUT 1 bit 3) goes to logical input 3 bit 1.
+  (check-eq? (physical-to-logical-bit 6 8 9) 25)
+  )
 
 (define a-out (lut 7-series-output-width a-memory (extract 47 42 physical-inputs)))
 (define b-out (lut 7-series-output-width b-memory (extract 41 36 physical-inputs)))
@@ -218,101 +218,101 @@
 
 (module+ test
 
-(define m0
-  (synthesize
-   #:forall (list physical-inputs)
-   #:guarantee
-   (match-let
-       ([(list s c)
-         (our-add (extract 43 43 physical-inputs) (extract 42 42 physical-inputs))])
-     (assert (bveq carry-co0 c))
-     (assert (bveq carry-o0 s)))))
-(print m0)
+  (define m0
+    (synthesize
+     #:forall (list physical-inputs)
+     #:guarantee
+     (match-let
+         ([(list s c)
+           (our-add (extract 43 43 physical-inputs) (extract 42 42 physical-inputs))])
+       (assert (bveq carry-co0 c))
+       (assert (bveq carry-o0 s)))))
+  (print m0)
 
-(define m1
-  (synthesize
-   #:forall (list physical-inputs)
-   #:guarantee
-   (let-values
-       ([(s c)
-         (our-add (extract 43 43 physical-inputs) (extract 42 42 physical-inputs))])
-     (assert (>= 0 (bitvector->natural s))))))
-m1
+  (define m1
+    (synthesize
+     #:forall (list physical-inputs)
+     #:guarantee
+     (let-values
+         ([(s c)
+           (our-add (extract 43 43 physical-inputs) (extract 42 42 physical-inputs))])
+       (assert (>= 0 (bitvector->natural s))))))
+  m1
 
-; Another experiment. Shrinking this to a 2 input 2 output lut. I'm struggling to get this to
-; synthesize, and i'm trying to minimize the expressions involved.
-;
-; Nevermind. The bug was that I was implementing mux incorrectly with if. This now synthesizes.
-(clear-vc!)
-(define-symbolic* in (bitvector 2))
-(define-symbolic* lutmem (bitvector 8))
-(define-symbolic* cin0 (bitvector 1))
-; complete-solution basically says: if lutmem is not defined in the solution (because the synthesizer
-; discovers it can be anything), then set it to its default value.
-(define m2
-  (match-let
-      ([(list o co) (carry-layer (lut 2 lutmem in) cin0)]
-       [(list actual-o actual-co) (our-add (extract 0 0 in) (extract 1 1 in))])
-    (complete-solution
-     (synthesize
-      #:forall (list in)
-      #:guarantee
-      (begin
-        (assert (bveq o actual-o))
-        (assert (bveq co actual-co))))
-     (list lutmem))))
-m2
-
-(define logical-input-0
-  (concat
-   (extract 0 0 physical-inputs)
-   (extract 6 6 physical-inputs)
-   (extract 12 12 physical-inputs)
-   (extract 18 18 physical-inputs)
-   (extract 24 24 physical-inputs)
-   (extract 30 30 physical-inputs)
-   (extract 36 36 physical-inputs)
-   (extract 42 42 physical-inputs)
-   ))
-(define logical-input-1
-  (concat
-   (extract 1 1 physical-inputs)
-   (extract 7 7 physical-inputs)
-   (extract 13 13 physical-inputs)
-   (extract 19 19 physical-inputs)
-   (extract 25 25 physical-inputs)
-   (extract 31 31 physical-inputs)
-   (extract 37 37 physical-inputs)
-   (extract 43 43 physical-inputs)
-   ))
-
-(define logical-output
-  (concat
-   carry-o7
-   carry-o6
-   carry-o5
-   carry-o4
-   carry-o3
-   carry-o2
-   carry-o1
-   carry-o0
-   ))
-
-(define logical-carry-out carry-co7)
-
-(define m3
-  (time
-   (synthesize
-    #:forall (list physical-inputs)
-    #:guarantee
+  ; Another experiment. Shrinking this to a 2 input 2 output lut. I'm struggling to get this to
+  ; synthesize, and i'm trying to minimize the expressions involved.
+  ;
+  ; Nevermind. The bug was that I was implementing mux incorrectly with if. This now synthesizes.
+  (clear-vc!)
+  (define-symbolic* in (bitvector 2))
+  (define-symbolic* lutmem (bitvector 8))
+  (define-symbolic* cin0 (bitvector 1))
+  ; complete-solution basically says: if lutmem is not defined in the solution (because the synthesizer
+  ; discovers it can be anything), then set it to its default value.
+  (define m2
     (match-let
-        ([(list s c)
-          (our-add logical-input-0 logical-input-1)])
-      (assert (bveq logical-carry-out c))
-      (assert (bveq logical-output s))))))
-(print "m3")
-(print m3)
-)
+        ([(list o co) (carry-layer (lut 2 lutmem in) cin0)]
+         [(list actual-o actual-co) (our-add (extract 0 0 in) (extract 1 1 in))])
+      (complete-solution
+       (synthesize
+        #:forall (list in)
+        #:guarantee
+        (begin
+          (assert (bveq o actual-o))
+          (assert (bveq co actual-co))))
+       (list lutmem))))
+  m2
+
+  (define logical-input-0
+    (concat
+     (extract 0 0 physical-inputs)
+     (extract 6 6 physical-inputs)
+     (extract 12 12 physical-inputs)
+     (extract 18 18 physical-inputs)
+     (extract 24 24 physical-inputs)
+     (extract 30 30 physical-inputs)
+     (extract 36 36 physical-inputs)
+     (extract 42 42 physical-inputs)
+     ))
+  (define logical-input-1
+    (concat
+     (extract 1 1 physical-inputs)
+     (extract 7 7 physical-inputs)
+     (extract 13 13 physical-inputs)
+     (extract 19 19 physical-inputs)
+     (extract 25 25 physical-inputs)
+     (extract 31 31 physical-inputs)
+     (extract 37 37 physical-inputs)
+     (extract 43 43 physical-inputs)
+     ))
+
+  (define logical-output
+    (concat
+     carry-o7
+     carry-o6
+     carry-o5
+     carry-o4
+     carry-o3
+     carry-o2
+     carry-o1
+     carry-o0
+     ))
+
+  (define logical-carry-out carry-co7)
+
+  (define m3
+    (time
+     (synthesize
+      #:forall (list physical-inputs)
+      #:guarantee
+      (match-let
+          ([(list s c)
+            (our-add logical-input-0 logical-input-1)])
+        (assert (bveq logical-carry-out c))
+        (assert (bveq logical-output s))))))
+  (print "m3")
+  (print m3)
+  )
 
 ; 2022 01 06
 ; It's an ISA
@@ -321,10 +321,10 @@ m2
 ; Everything can be instructions.
 ; But it's not exactly an ISA. or it's different from CPUs.
 ; Spatial instructions vs time multiplexed instructions.
-; These are spatial instructions. 
+; These are spatial instructions.
 ; ISA: bag of instructions that defines an architecture. Doens't have to do with time/space.
 ; Example of "praying for" the synthesizer to map stuff to BRAMs instead of LUTs
-; when is LUT inferred over BRAM? when data is acccessed in the same cycle! 
+; when is LUT inferred over BRAM? when data is acccessed in the same cycle!
 ; Example of Dan P havign Black Parrot map to luts and having to fix it to map to BRAMs.
 ; comparison to vector typesi n llvm IR: promotion: things are expressed as vector types, but if we
 ; can't vecgtorize then it's not like it crashes, it just decomposes it into simpler instructions.
@@ -332,13 +332,13 @@ m2
 ; there's not infinite space. so that's a core difference. decoposing a BRAM into LUTs may not always
 ; possible, whereas it's alwyas possible to decompose a vector instructions into smaller instructions.
 ;
-; So the goal is to determine an ISA for FPGAs. 
+; So the goal is to determine an ISA for FPGAs.
 ; LLVM assembly for FPGAs.
 ; Even if you make new memories, they're likely the same. There's some core set of abstractions
 ; that FPGAs use.
 ;
 ; Work backwards. Goal is LLVM ASM for FPGAs.
-; 
+;
 ; Luis thinks that what we have so far will already wow people.
 ; BUT HOW IS THIS ALREADY DONE?
 ; They get verilog, they turn everything to a DAG of gates, and not or etc,
@@ -348,7 +348,7 @@ m2
 ; level. FPGA devs were like, ok, let's use the same flow, but then at the end we'll have a step
 ; that raises the level of abstraction back up.
 
-; Bit hack book doing bit operations -- that could be a good place to start for probrams. Emina 
+; Bit hack book doing bit operations -- that could be a good place to start for probrams. Emina
 ; used it for Rosette stuff.
 ; https://mangpo.net/papers/mangpo_phd_thesis.pdf pg 49
 ; What are the bithacks she's talking about here? That's what we should be using.
