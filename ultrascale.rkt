@@ -2,7 +2,7 @@
 
 (require rosette)
 
-(provide ultrascale-clb)
+(provide ultrascale-clb ultrascale-logical-to-physical-inputs)
 
 ; The output of a LUT is simply the `output-width`-length bitvector at the entry pointed to by
 ; `inputs-a`, when interpreted as an integer.
@@ -82,3 +82,35 @@
      carry-o2
      carry-o1
      carry-o0)))
+
+; A simple logical-to-physical inputs function, in which the first (least significant) bit of each
+; logical input is mapped to LUT A (logical input 0 in the least significant place), the second bit is
+; mapped to LUT B, etc.
+(define (ultrascale-logical-to-physical-inputs
+         logical-input-0
+         logical-input-1
+         logical-input-2
+         logical-input-3
+         logical-input-4
+         logical-input-5)
+  (let
+      ([helper
+        (lambda (idx)
+          (concat
+           (extract idx idx logical-input-0)
+           (extract idx idx logical-input-1)
+           (extract idx idx logical-input-2)
+           (extract idx idx logical-input-3)
+           (extract idx idx logical-input-4)
+           (extract idx idx logical-input-5)
+           )
+          )])
+    (list
+     (helper 0)
+     (helper 1)
+     (helper 2)
+     (helper 3)
+     (helper 4)
+     (helper 5)
+     (helper 6)
+     (helper 7))))
