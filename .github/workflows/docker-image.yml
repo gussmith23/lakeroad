@@ -19,6 +19,7 @@ jobs:
       run: |
         export TAG=lakeroad:$(date +%s)
         echo "::set-output name=tag::$TAG"
+        echo "value of TAG: $TAG"
         docker build \
           . \
           --file Dockerfile \
