@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.build.output.tag }}
+      tag: ${{ steps.build.outputs.tag }}
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
