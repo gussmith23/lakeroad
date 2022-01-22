@@ -72,6 +72,25 @@
        (assume (bvzero? logical-input-4))
        (assume (bvzero? logical-input-5))
        (assert (bveq (f logical-input-0 logical-input-1) out)))))))
+; Helper for 2 input functions. We could extend this.
+(define (helper4 f)
+  (println f)
+  (println
+   (time
+    (synthesize
+     #:forall (list
+               logical-input-0
+               logical-input-1
+               logical-input-2
+               logical-input-3
+               logical-input-4
+               logical-input-5
+               )
+     #:guarantee
+     (begin
+       (assume (bvzero? logical-input-4))
+       (assume (bvzero? logical-input-5))
+       (assert (bveq (f logical-input-0 logical-input-1 logical-input-2 logical-input-3) out)))))))
 
 (helper floor-avg)
 (helper bithack3)
@@ -79,3 +98,4 @@
 (helper bithack1)
 (helper ceil-avg)
 (helper bvadd)
+(helper4 cycle)
