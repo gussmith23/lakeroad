@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      run: docker run ${{ needs.build.outputs.tag }} bash -c 'raco pkg install --batch fmt && raco fmt *.rkt && [ -z "$(git status --porcelain)"]'
+    - run: docker run ${{ needs.build.outputs.tag }} bash -c 'raco pkg install --batch fmt && raco fmt *.rkt && [ -z "$(git status --porcelain)"]'
 
   run-tests:
     runs-on: ubuntu-latest
