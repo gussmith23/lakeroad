@@ -1,4 +1,4 @@
-from ubuntu:20.04
+FROM ubuntu:20.04
 
 # Get add-apt-repository
 RUN apt update
