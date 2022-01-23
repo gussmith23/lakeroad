@@ -16,17 +16,21 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y racket
         raco pkg install --no-docs --deps search-auto --batch fmt
-        raco fmt *.rkt
+    - run: |
+        raco fmt -i *.rkt
         [ -z "$(git status --porcelain)"]
 
   run-tests:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: |
+    - id: build
+      run: |
         export TAG=lakeroad:$(date +%s)
+        echo "::set-output name=tag::$TAG"
+    - run: |
         DOCKER_BUILDKIT=1 docker build \
           . \
           --file Dockerfile \
-          --tag $TAG
-        docker run $TAG bash -c 'raco test *.rkt'
+          --tag ${{ steps.build.outputs.tag }}
+        docker run ${{ steps.build.outputs.tag }} bash -c 'raco test *.rkt'
