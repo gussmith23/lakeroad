@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        apt-get install -y racket
+        sudo apt-get install -y racket
         raco pkg install --batch fmt
         raco fmt *.rkt
         [ -z "$(git status --porcelain)"]
