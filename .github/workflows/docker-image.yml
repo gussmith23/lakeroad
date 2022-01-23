@@ -26,6 +26,5 @@ jobs:
         DOCKER_BUILDKIT=1 docker build \
           . \
           --file Dockerfile \
-          --tag $TAG \
-          --output type=tar,dest=/tmp/lakeroad.tar
+          --tag $TAG
         docker run $TAG bash -c 'raco test *.rkt'
