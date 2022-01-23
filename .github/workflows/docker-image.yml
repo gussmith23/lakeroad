@@ -22,12 +22,8 @@ jobs:
         docker build \
           . \
           --file Dockerfile \
-          --tag $TAG
-    - uses: docker/build-push-action@v2
-      with:
-        context: .
-        tags: $TAG
-        outputs: type=docker,dest=/tmp/lakeroad.tar
+          --tag $TAG \
+          --output type=tar,dest=/tmp/lakeroad.tar
     - uses: actions/upload-artifact@v2
       with:
         name: lakeroad
