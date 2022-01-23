@@ -12,8 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        sudo apt-get install --deps search-auto -y racket
-        raco pkg install --batch fmt
+        sudo apt-get install -y racket
+        raco pkg install --deps search-auto --batch fmt
         raco fmt *.rkt
         [ -z "$(git status --porcelain)"]
 
