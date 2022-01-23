@@ -12,6 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
+        sudo add-apt-repository ppa:plt/racket
+        sudo apt-get update
         sudo apt-get install -y racket
         raco pkg install --no-docs --deps search-auto --batch fmt
         raco fmt *.rkt
