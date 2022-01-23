@@ -33,4 +33,4 @@ RUN raco setup --doc-index --force-user-docs
 RUN raco pkg install --deps search-auto --batch rosette
 
 WORKDIR /root/
-ADD ./*.rkt ./
+ADD ./racket ./racket

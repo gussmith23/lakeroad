@@ -17,5 +17,5 @@ jobs:
         sudo apt-get install -y racket
         raco pkg install --no-docs --deps search-auto --batch fmt
     - run: |
-        raco fmt -i *.rkt
+        raco fmt -i racket/*.rkt
         [ -z "$(git status --porcelain)" ]

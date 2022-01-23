@@ -20,4 +20,4 @@ jobs:
           . \
           --file Dockerfile \
           --tag ${{ steps.build.outputs.tag }}
-        docker run ${{ steps.build.outputs.tag }} bash -c 'raco test *.rkt'
+        docker run ${{ steps.build.outputs.tag }} bash -c 'raco test racket/*.rkt'
