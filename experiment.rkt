@@ -15,29 +15,23 @@
 
 ; The output of a LUT is simply the `output-width`-length bitvector at the entry pointed to by
 ; `inputs-a`, when interpreted as an integer.
-(define
-  (lut output-width memory inputs)
-  (let* ((i (bitvector->natural inputs))
-         (low (* output-width i))
-         (high (+ (- output-width 1) low)))
+(define (lut output-width memory inputs)
+  (let* ([i (bitvector->natural inputs)] [low (* output-width i)] [high (+ (- output-width 1) low)])
     (extract high low memory)))
 
 (define input-width 6)
 (define output-width 2)
 (define memory (generate-memory input-width output-width))
 (define inputs (generate-inputs input-width))
-(define m (synthesize
-           #:forall (list inputs)
-           #:guarantee
-           (assert (bveq (bvand (bit 1 inputs) (bit 0 inputs))
-                         (bit 0 (lut output-width memory inputs))))))
+(define m
+  (synthesize #:forall (list inputs)
+              #:guarantee (assert (bveq (bvand (bit 1 inputs) (bit 0 inputs))
+                                        (bit 0 (lut output-width memory inputs))))))
 
 (print m)
 
 (define 7-series-input-width 6)
 (define 7-series-output-width 2)
-
-
 
 ; my question: how does data get fed into a slice? in how many ways can the e.g. 8 bits that are
 ; loaded from a bram end up at the inputs to the luts at the start of a slice? can those 8 bits be fed
@@ -61,7 +55,6 @@
 ; Should we focus on logic or DSP slices? Talking with Luis, it seems like DSPs are the most important
 ; thing. So if we don't have DSP functionality, then we don't do much. And if this approach doesn't
 ; work  with DSPs, then we should focus on something else.
-
 
 ; There are no loops!
 ;
@@ -149,11 +142,11 @@
   ; Logical bit 1 (logical input 0 bit 1) goes to LUT 1 bit 0.
   (check-eq? (logical-to-physical-bit 6 8 1) 6)
   ; Logical bit 9 (logical input 1 bit 1) goes to LUT 1 bit 1.
-  (check-eq? (logical-to-physical-bit 6 8 9) 7)
-  )
+  (check-eq? (logical-to-physical-bit 6 8 9) 7))
 
 (define (physical-to-logical-bit num-lut-inputs bitwidth physical-bit)
-  (let-values ([(logical-bit-index logical-input-index) (quotient/remainder physical-bit num-lut-inputs)])
+  (let-values ([(logical-bit-index logical-input-index)
+                (quotient/remainder physical-bit num-lut-inputs)])
     (+ (* logical-input-index bitwidth) logical-bit-index)))
 (module+ test
   (require rackunit)
@@ -162,8 +155,7 @@
   ; Physical bit 1 (LUT 0 input 1) goes to logical input 1 bit 0.
   (check-eq? (physical-to-logical-bit 6 8 1) 8)
   ; Physical bit 9 (LUT 1 bit 3) goes to logical input 3 bit 1.
-  (check-eq? (physical-to-logical-bit 6 8 9) 25)
-  )
+  (check-eq? (physical-to-logical-bit 6 8 9) 25))
 
 (define a-out (lut 7-series-output-width a-memory (extract 47 42 physical-inputs)))
 (define b-out (lut 7-series-output-width b-memory (extract 41 36 physical-inputs)))
@@ -178,19 +170,22 @@
 (define-symbolic cin (bitvector 1))
 
 ; We define O5 as the 1th output and O6 as the 0th.
-(define (O5 outputs) (extract 1 1 outputs))
-(define (O6 outputs) (extract 0 0 outputs))
+(define (O5 outputs)
+  (extract 1 1 outputs))
+(define (O6 outputs)
+  (extract 0 0 outputs))
 
 ; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4. Note that, to implement a mux with
 ; "if", the "then" and "else" clauses are in reverse order from the usual mux input order!
-(define (carry-co s di prev-muxcy) (if (bitvector->bool s) prev-muxcy di))
+(define (carry-co s di prev-muxcy)
+  (if (bitvector->bool s) prev-muxcy di))
 ; Carry signals O0..O7 (aka sum value) in Fig 2-4.
-(define (carry-o s prev-muxcy) (bvxor s prev-muxcy))
+(define (carry-o s prev-muxcy)
+  (bvxor s prev-muxcy))
 ; Wrapper to make things easier.
 ; Returns (carry0, muxcy)
 (define (carry-layer outputs prev-muxcy)
-  (list (carry-o (O6 outputs) prev-muxcy)
-        (carry-co (O6 outputs) (O5 outputs) prev-muxcy)))
+  (list (carry-o (O6 outputs) prev-muxcy) (carry-co (O6 outputs) (O5 outputs) prev-muxcy)))
 
 ; Get the sum bit and the carry bit.
 (match-define (list carry-o0 carry-co0) (carry-layer a-out cin))
@@ -206,37 +201,29 @@
 ; them, returning a bitvector of the same length plus a bit representing the carry. For now, assuming
 ; unsigned numbers, but could probably be extended to handle two's complement.
 (define (our-add bv0 bv1)
-  (let* ((l (length (bitvector->bits bv0)))
-         (sum
-          (bvadd (zero-extend bv0 (bitvector (+ l 1))) (zero-extend bv1 (bitvector (+ l 1))))))
-    (list
-     (extract (- l 1) 0 sum)
-     (extract l l sum))))
+  (let* ([l (length (bitvector->bits bv0))]
+         [sum (bvadd (zero-extend bv0 (bitvector (+ l 1))) (zero-extend bv1 (bitvector (+ l 1))))])
+    (list (extract (- l 1) 0 sum) (extract l l sum))))
 (match-let ([(list s c) (our-add (bv 2 2) (bv 2 2))])
-  (or (bveq s (bv 0 2)) (error "error"))
-  (or (bveq c (bv 1 1)) (error "error")))
+           (or (bveq s (bv 0 2)) (error "error"))
+           (or (bveq c (bv 1 1)) (error "error")))
 
 (module+ test
 
   (define m0
-    (synthesize
-     #:forall (list physical-inputs)
-     #:guarantee
-     (match-let
-         ([(list s c)
-           (our-add (extract 43 43 physical-inputs) (extract 42 42 physical-inputs))])
-       (assert (bveq carry-co0 c))
-       (assert (bveq carry-o0 s)))))
+    (synthesize #:forall (list physical-inputs)
+                #:guarantee (match-let ([(list s c)
+                                         (our-add (extract 43 43 physical-inputs)
+                                                  (extract 42 42 physical-inputs))])
+                                       (assert (bveq carry-co0 c))
+                                       (assert (bveq carry-o0 s)))))
   (print m0)
 
   (define m1
-    (synthesize
-     #:forall (list physical-inputs)
-     #:guarantee
-     (let-values
-         ([(s c)
-           (our-add (extract 43 43 physical-inputs) (extract 42 42 physical-inputs))])
-       (assert (>= 0 (bitvector->natural s))))))
+    (synthesize #:forall (list physical-inputs)
+                #:guarantee (let-values ([(s c) (our-add (extract 43 43 physical-inputs)
+                                                         (extract 42 42 physical-inputs))])
+                              (assert (>= 0 (bitvector->natural s))))))
   m1
 
   ; Another experiment. Shrinking this to a 2 input 2 output lut. I'm struggling to get this to
@@ -250,69 +237,46 @@
   ; complete-solution basically says: if lutmem is not defined in the solution (because the synthesizer
   ; discovers it can be anything), then set it to its default value.
   (define m2
-    (match-let
-        ([(list o co) (carry-layer (lut 2 lutmem in) cin0)]
-         [(list actual-o actual-co) (our-add (extract 0 0 in) (extract 1 1 in))])
-      (complete-solution
-       (synthesize
-        #:forall (list in)
-        #:guarantee
-        (begin
-          (assert (bveq o actual-o))
-          (assert (bveq co actual-co))))
-       (list lutmem))))
+    (match-let ([(list o co) (carry-layer (lut 2 lutmem in) cin0)]
+                [(list actual-o actual-co) (our-add (extract 0 0 in) (extract 1 1 in))])
+               (complete-solution (synthesize #:forall (list in)
+                                              #:guarantee (begin
+                                                            (assert (bveq o actual-o))
+                                                            (assert (bveq co actual-co))))
+                                  (list lutmem))))
   m2
 
   (define logical-input-0
-    (concat
-     (extract 0 0 physical-inputs)
-     (extract 6 6 physical-inputs)
-     (extract 12 12 physical-inputs)
-     (extract 18 18 physical-inputs)
-     (extract 24 24 physical-inputs)
-     (extract 30 30 physical-inputs)
-     (extract 36 36 physical-inputs)
-     (extract 42 42 physical-inputs)
-     ))
+    (concat (extract 0 0 physical-inputs)
+            (extract 6 6 physical-inputs)
+            (extract 12 12 physical-inputs)
+            (extract 18 18 physical-inputs)
+            (extract 24 24 physical-inputs)
+            (extract 30 30 physical-inputs)
+            (extract 36 36 physical-inputs)
+            (extract 42 42 physical-inputs)))
   (define logical-input-1
-    (concat
-     (extract 1 1 physical-inputs)
-     (extract 7 7 physical-inputs)
-     (extract 13 13 physical-inputs)
-     (extract 19 19 physical-inputs)
-     (extract 25 25 physical-inputs)
-     (extract 31 31 physical-inputs)
-     (extract 37 37 physical-inputs)
-     (extract 43 43 physical-inputs)
-     ))
+    (concat (extract 1 1 physical-inputs)
+            (extract 7 7 physical-inputs)
+            (extract 13 13 physical-inputs)
+            (extract 19 19 physical-inputs)
+            (extract 25 25 physical-inputs)
+            (extract 31 31 physical-inputs)
+            (extract 37 37 physical-inputs)
+            (extract 43 43 physical-inputs)))
 
   (define logical-output
-    (concat
-     carry-o7
-     carry-o6
-     carry-o5
-     carry-o4
-     carry-o3
-     carry-o2
-     carry-o1
-     carry-o0
-     ))
+    (concat carry-o7 carry-o6 carry-o5 carry-o4 carry-o3 carry-o2 carry-o1 carry-o0))
 
   (define logical-carry-out carry-co7)
 
   (define m3
-    (time
-     (synthesize
-      #:forall (list physical-inputs)
-      #:guarantee
-      (match-let
-          ([(list s c)
-            (our-add logical-input-0 logical-input-1)])
-        (assert (bveq logical-carry-out c))
-        (assert (bveq logical-output s))))))
+    (time (synthesize #:forall (list physical-inputs)
+                      #:guarantee (match-let ([(list s c) (our-add logical-input-0 logical-input-1)])
+                                             (assert (bveq logical-carry-out c))
+                                             (assert (bveq logical-output s))))))
   (print "m3")
-  (print m3)
-  )
+  (print m3))
 
 ; 2022 01 06
 ; It's an ISA

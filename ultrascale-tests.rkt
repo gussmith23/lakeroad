@@ -1,9 +1,8 @@
 #lang racket
 
-(require
-  "ultrascale.rkt"
-  rosette
-  "programs-to-synthesize.rkt")
+(require "ultrascale.rkt"
+         rosette
+         "programs-to-synthesize.rkt")
 
 (define-symbolic* cin (bitvector 1))
 (define-symbolic* lut-memory-a (bitvector 128))
@@ -23,38 +22,34 @@
 (define-symbolic* logical-input-5 (bitvector 8))
 
 (define out
-  (apply
-   ultrascale-clb
-   cin
-   lut-memory-a
-   lut-memory-b
-   lut-memory-c
-   lut-memory-d
-   lut-memory-e
-   lut-memory-f
-   lut-memory-g
-   lut-memory-h
-   (ultrascale-logical-to-physical-inputs
-    logical-input-0
-    logical-input-1
-    logical-input-2
-    logical-input-3
-    logical-input-4
-    logical-input-5)))
+  (apply ultrascale-clb
+         cin
+         lut-memory-a
+         lut-memory-b
+         lut-memory-c
+         lut-memory-d
+         lut-memory-e
+         lut-memory-f
+         lut-memory-g
+         lut-memory-h
+         (ultrascale-logical-to-physical-inputs logical-input-0
+                                                logical-input-1
+                                                logical-input-2
+                                                logical-input-3
+                                                logical-input-4
+                                                logical-input-5)))
 
 (define (helper f)
   (println f)
   (println
    (time
     (synthesize
-     #:forall (list
-               logical-input-0
-               logical-input-1
-               logical-input-2
-               logical-input-3
-               logical-input-4
-               logical-input-5
-               )
+     #:forall (list logical-input-0
+                    logical-input-1
+                    logical-input-2
+                    logical-input-3
+                    logical-input-4
+                    logical-input-5)
      #:guarantee
      (begin
        ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
@@ -75,22 +70,19 @@
 ; Helper for 2 input functions. We could extend this.
 (define (helper4 f)
   (println f)
-  (println
-   (time
-    (synthesize
-     #:forall (list
-               logical-input-0
-               logical-input-1
-               logical-input-2
-               logical-input-3
-               logical-input-4
-               logical-input-5
-               )
-     #:guarantee
-     (begin
-       (assume (bvzero? logical-input-4))
-       (assume (bvzero? logical-input-5))
-       (assert (bveq (f logical-input-0 logical-input-1 logical-input-2 logical-input-3) out)))))))
+  (println (time (synthesize
+                  #:forall (list logical-input-0
+                                 logical-input-1
+                                 logical-input-2
+                                 logical-input-3
+                                 logical-input-4
+                                 logical-input-5)
+                  #:guarantee
+                  (begin
+                    (assume (bvzero? logical-input-4))
+                    (assume (bvzero? logical-input-5))
+                    (assert (bveq (f logical-input-0 logical-input-1 logical-input-2 logical-input-3)
+                                  out)))))))
 
 (helper floor-avg)
 (helper bithack3)

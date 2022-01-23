@@ -2,14 +2,24 @@
 
 (require rosette)
 
-(provide ceil-avg bithack1 bithack2 bithack3 floor-avg cycle)
+(provide ceil-avg
+         bithack1
+         bithack2
+         bithack3
+         floor-avg
+         cycle)
 
 ; https://github.com/mangpo/chlorophyll/tree/ab6d4268c5d12aa66eff817c678aaf7ebf935ba7/examples/bithack
-(define (ceil-avg x y) (bvsub (bvor x y) (bvashr (bvxor x y) (bv 1 (length (bitvector->bits x))))))
-(define (bithack1 x y) (bvsub x (bvand x y)))
-(define (bithack2 x y) (bvnot (bvsub x y)))
-(define (bithack3 x y) (bvxor (bvxor x y) (bvand x y)))
-(define (floor-avg x y) (bvadd (bvand x y) (bvashr (bvxor x y) (bv 1 (length (bitvector->bits x))))))
+(define (ceil-avg x y)
+  (bvsub (bvor x y) (bvashr (bvxor x y) (bv 1 (length (bitvector->bits x))))))
+(define (bithack1 x y)
+  (bvsub x (bvand x y)))
+(define (bithack2 x y)
+  (bvnot (bvsub x y)))
+(define (bithack3 x y)
+  (bvxor (bvxor x y) (bvand x y)))
+(define (floor-avg x y)
+  (bvadd (bvand x y) (bvashr (bvxor x y) (bv 1 (length (bitvector->bits x))))))
 ; I'm not sure we can implement this one; I think it's specific to the bitwidth of c ints (32? 64?)
 ; Given that its magic numbers are larger than 8 bits, it def won't work here.
 (define (bithack-count x)
