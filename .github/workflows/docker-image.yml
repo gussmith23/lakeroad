@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        sudo apt-get install -y racket
+        sudo apt-get install --deps search-auto -y racket
         raco pkg install --batch fmt
         raco fmt *.rkt
         [ -z "$(git status --porcelain)"]
@@ -21,15 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - id: generate-tag
-      run: |
-        export TAG=lakeroad:$(date +%s)
-        echo "::set-output name=tag::$TAG"
-        echo "value of TAG: $TAG"
     - run: |
+        export TAG=lakeroad:$(date +%s)
         DOCKER_BUILDKIT=1 docker build \
           . \
           --file Dockerfile \
           --tag $TAG \
           --output type=tar,dest=/tmp/lakeroad.tar
-    - run: docker run $TAG bash -c 'raco test *.rkt'
+        docker run $TAG bash -c 'raco test *.rkt'
