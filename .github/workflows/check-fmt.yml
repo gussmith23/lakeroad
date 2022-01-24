@@ -16,6 +16,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y racket
         raco pkg install --no-docs --deps search-auto --batch fmt
-    - run: |
+    - name: Racket format check
+      run: |
         raco fmt -i racket/*.rkt
         [ -z "$(git status --porcelain)" ]
+    - name: Rust format check
+      run: cargo fmt --manifest-path ./rust/Cargo.toml -- --check

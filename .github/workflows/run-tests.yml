@@ -15,9 +15,13 @@ jobs:
       run: |
         export TAG=lakeroad:$(date +%s)
         echo "::set-output name=tag::$TAG"
-    - run: |
+    - name: Build Docker image
+      run: |
         DOCKER_BUILDKIT=1 docker build \
           . \
           --file Dockerfile \
           --tag ${{ steps.build.outputs.tag }}
-        docker run ${{ steps.build.outputs.tag }} bash -c 'raco test racket/*.rkt'
+    - name: Run Rust tests
+      run: docker run ${{ steps.build.outputs.tag }} cargo test --manifest-path rust/Cargo.toml 
+    - name: Run Racket tests
+      run: docker run ${{ steps.build.outputs.tag }} bash -c 'raco test racket/*.rkt'
