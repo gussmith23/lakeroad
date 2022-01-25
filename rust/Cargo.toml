@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 egg = "0.7"
+rayon = "1.5"
