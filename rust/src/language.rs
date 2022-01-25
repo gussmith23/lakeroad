@@ -234,9 +234,12 @@ mod tests {
         )
         .unwrap();
 
+        let (expr, map) = to_racket(expr, (expr.as_ref().len() - 1).into());
+        assert_eq!(*map.get("x").unwrap(), 8);
+        assert_eq!(*map.get("y").unwrap(), 8);
         assert_eq!(
-            to_racket(expr, (expr.as_ref().len() - 1).into()).0.unwrap(),
-            ""
+            expr.unwrap(),
+            "(bvsub (bvor x y) (bvashr (bvxor x y) (bv 1 8)))"
         );
     }
 
