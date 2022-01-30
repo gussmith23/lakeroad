@@ -963,8 +963,6 @@ mod tests {
             simplify_concat(),
         ]);
 
-        runner.egraph.dot().to_pdf("tmp.pdf").unwrap();
-
         find_isa_instructions(&runner.egraph)
             .par_iter()
             .for_each(|expr| {
