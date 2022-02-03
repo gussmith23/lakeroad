@@ -27,6 +27,10 @@ define_language! {
         // (placeholder <name: String> <bitwidth: Num>)
         "placeholder" = Placeholder([Id; 2]),
 
+        // Unary operator.
+        // (unop <op: Op> <bitwidth: Num> <arg>)
+        "unop" = UnOp([Id; 3]),
+
         // Binary operator.
         // (binop <op: Op> <bitwidth: Num> <arg0> <arg1>)
         "binop" = BinOp([Id; 4]),
@@ -73,6 +77,9 @@ define_language! {
 pub enum Op {
     And,
     Or,
+    Not,
+    Sub,
+    Xor,
 }
 impl Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -82,6 +89,9 @@ impl Display for Op {
             match self {
                 Op::And => "and",
                 Op::Or => "or",
+                Op::Not => "not",
+                Op::Sub => "sub",
+                Op::Xor => "xor",
             }
         )
     }
@@ -93,6 +103,9 @@ impl FromStr for Op {
         match s {
             "and" => Ok(Op::And),
             "or" => Ok(Op::Or),
+            "not" => Ok(Op::Not),
+            "sub" => Ok(Op::Sub),
+            "xor" => Ok(Op::Xor),
             _ => Err(()),
         }
     }
@@ -261,6 +274,22 @@ impl Analysis<Language> for LanguageAnalysis {
                     _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
                 }
             }
+            &Language::UnOp([op_id, bitwidth_id, arg_id]) => {
+                match (
+                    &egraph[op_id].data,
+                    &egraph[bitwidth_id].data,
+                    &egraph[arg_id].data,
+                ) {
+                    (Op(_), Num(out_bitwidth), Signal(arg_bitwidth)) => {
+                        assert_eq!(
+                            *arg_bitwidth, *out_bitwidth as usize,
+                            "bitwidths must match"
+                        );
+                        Signal(*out_bitwidth as usize)
+                    }
+                    _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
+                }
+            }
             Language::Op(op) => Op(op.clone()),
             &Language::Hole([bw_id]) => match &egraph[bw_id].data {
                 Num(v) => Signal(*v as usize),
@@ -352,11 +381,25 @@ fn to_racket_helper(
                 Language::Op(op) => match op {
                     Op::And => "bvand",
                     Op::Or => "bvor",
+                    Op::Sub => "bvsub",
+                    Op::Xor => "bvxor",
+                    _ => panic!(),
                 },
                 _ => panic!(),
             },
             a = to_racket_helper(expr, a_id, map).unwrap(),
             b = to_racket_helper(expr, b_id, map).unwrap()
+        )),
+        Language::UnOp([op_id, _bw_id, arg_id]) => Some(format!(
+            "({op} {a})",
+            op = match &expr[op_id] {
+                Language::Op(op) => match op {
+                    Op::Not => "bvnot",
+                    _ => panic!(),
+                },
+                _ => panic!(),
+            },
+            a = to_racket_helper(expr, arg_id, map).unwrap(),
         )),
         Language::Hole(_) => todo!(),
         Language::List(_) => todo!(),
@@ -543,6 +586,18 @@ pub fn introduce_hole_op_both() -> Rewrite<Language, LanguageAnalysis> {
                 "(apply-new (binop ?op ?bw (hole ?bw) (hole ?bw)) (list (apply-new ?ast0 ?args0) (apply-new ?ast1 ?args1)))")
 }
 
+pub fn unary0() -> Rewrite<Language, LanguageAnalysis> {
+    rewrite!("unary0";
+                "(unop ?op ?bw (apply-new ?ast ?args))" => 
+                "(apply-new (unop ?op ?bw ?ast) ?args)")
+}
+
+pub fn unary1() -> Rewrite<Language, LanguageAnalysis> {
+    rewrite!("unary1";
+                "(unop ?op ?bw (apply-new ?ast ?args))" => 
+                "(apply-new (unop ?op ?bw (hole ?bw)) (list (apply-new ?ast ?args)))")
+}
+
 fn extract_ast(
     egraph: &EGraph<Language, LanguageAnalysis>,
     ast_id: Id,
@@ -577,6 +632,12 @@ fn extract_ast_helper(
             let new_a_id = extract_ast_helper(egraph, a_id, expr, args);
             let new_b_id = extract_ast_helper(egraph, b_id, expr, args);
             expr.add(Language::BinOp([new_op_id, new_bw_id, new_a_id, new_b_id]))
+        }
+        &Language::UnOp([op_id, bw_id, arg_id]) => {
+            let new_op_id = extract_ast_helper(egraph, op_id, expr, args);
+            let new_bw_id = extract_ast_helper(egraph, bw_id, expr, args);
+            let new_arg_id = extract_ast_helper(egraph, arg_id, expr, args);
+            expr.add(Language::UnOp([new_op_id, new_bw_id, new_arg_id]))
         }
         &Language::Hole([bw_id]) => {
             let new_bw_id = extract_ast_helper(egraph, bw_id, expr, args);
@@ -966,15 +1027,87 @@ mod tests {
             simplify_concat(),
         ]);
 
-        find_isa_instructions(&runner.egraph)
+        let isa_instrs: Vec<_> = find_isa_instructions(&runner.egraph)
             .par_iter()
-            .for_each(|expr| {
+            .filter(|expr| {
                 if let (Some(racket_str), map) = to_racket(&expr, (expr.as_ref().len() - 1).into())
                 {
-                    if call_racket(racket_str.clone(), &map) {
-                        println!("{}", racket_str);
-                    }
+                    println!("Attempting: {}", racket_str);
+                    call_racket(racket_str, &map)
+                } else {
+                    false
                 }
-            });
+            })
+            .cloned()
+            .collect();
+
+        println!("ISA:");
+        isa_instrs
+            .iter()
+            .for_each(|v| println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap()));
+    }
+
+    #[test_log::test]
+    fn explore_three_expressions() {
+        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
+
+        // https://github.com/mangpo/chlorophyll/tree/master/examples/bithack
+        // Bithack 1.
+        let _bithack1_id = egraph.add_expr(
+            &RecExpr::from_str(
+                "
+(binop sub 8 (var x 8) (binop and 8 (var x 8) (var y 8)))
+",
+            )
+            .unwrap(),
+        );
+        // Bithack 2.
+        let _bithack2_id = egraph.add_expr(
+            &RecExpr::from_str(
+                "
+(unop not 8 (binop sub 8 (var x 8) (var y 8)))
+",
+            )
+            .unwrap(),
+        );
+        // Bithack 3.
+        let _bithack3_id = egraph.add_expr(
+            &RecExpr::from_str(
+                "
+(binop xor 8 (binop xor 8 (var x 8) (var y 8)) (binop and 8 (var x 8) (var y 8)))
+",
+            )
+            .unwrap(),
+        );
+
+        let runner = Runner::default().with_egraph(egraph).run(&vec![
+            introduce_hole_var(),
+            fuse_op(),
+            introduce_hole_op_both(),
+            introduce_hole_op_left(),
+            introduce_hole_op_right(),
+            simplify_concat(),
+            unary0(),
+            unary1(),
+        ]);
+
+        let isa_instrs: Vec<_> = find_isa_instructions(&runner.egraph)
+            .par_iter()
+            .filter(|expr| {
+                if let (Some(racket_str), map) = to_racket(&expr, (expr.as_ref().len() - 1).into())
+                {
+                    println!("Attempting: {}", racket_str);
+                    call_racket(racket_str, &map)
+                } else {
+                    false
+                }
+            })
+            .cloned()
+            .collect();
+
+        println!("ISA:");
+        isa_instrs
+            .iter()
+            .for_each(|v| println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap()));
     }
 }
