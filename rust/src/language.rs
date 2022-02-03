@@ -516,6 +516,9 @@ pub fn introduce_hole_var() -> Rewrite<Language, LanguageAnalysis> {
                 "(var ?a ?bw)" => "(apply-new (hole ?bw) (list (var ?a ?bw)))")
 }
 
+// This shouldn't be called fusion. Or, more specifically, the next two rewrites
+// are also fusion in different forms. So only labeling this rewrite as fusion
+// is misleading.
 pub fn fuse_op() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("fuse-op";
                 "(binop ?op ?bw (apply-new ?ast0 ?args0) (apply-new ?ast1 ?args1))" => 
