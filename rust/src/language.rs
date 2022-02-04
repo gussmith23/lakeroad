@@ -8,8 +8,8 @@ use std::{
 
 use crate::language::LanguageAnalysisData::*;
 use egg::{
-    define_language, rewrite, Analysis, Applier, AstSize, DidMerge, EGraph, Extractor, Id, Pattern,
-    RecExpr, Rewrite, Searcher, Var,
+    define_language, rewrite, Analysis, Applier, AstSize, DidMerge, EGraph, Extractor, Id,
+    Language as LanguageTrait, Pattern, RecExpr, Rewrite, Searcher, Var,
 };
 use rand::{distributions::Alphanumeric, Rng};
 use rayon::prelude::*;
@@ -20,7 +20,7 @@ define_language! {
         // (apply <f: func> <identifier: String> <value: concrete>)
         "apply" = Apply([Id; 3]),
 
-        // (apply-new <ast: hole, or ops eventually leading to holes>
+        // (apply-new <instr>
         //            <args: list>)
         "apply-new" = ApplyNew([Id; 2]),
 
@@ -52,7 +52,8 @@ define_language! {
         // numbers.)
         "canonical-args" = CanonicalArgs(Box<[Id]>),
 
-        // (instr ?ast ?canonical-args)
+        // (instr <ast: a tree of binops/unops where the leaves are holes>
+        //        ?canonical-args)
         // An instruction.
         "instr" = Instr([Id; 2]),
 
@@ -339,9 +340,9 @@ impl Analysis<Language> for LanguageAnalysis {
                 ),
                 _ => panic!(),
             },
-            &Language::ApplyNew([ast_id, _args_id]) => match &egraph[ast_id].data {
-                s @ Signal(_) => s.clone(),
-                _ => panic!(),
+            &Language::ApplyNew([instr_id, _args_id]) => match &egraph[instr_id].data {
+                Instr(v) => Signal(*v),
+                other @ _ => panic!("Expected instruction, found:\n{:#?}", other),
             },
         }
     }
@@ -590,7 +591,8 @@ pub fn rewrite_right() -> Rewrite<Language, LanguageAnalysis> {
 
 pub fn introduce_hole_var() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-var";
-                "(var ?a ?bw)" => "(apply-new (hole ?bw) (list (var ?a ?bw)))")
+                "(var ?a ?bw)" =>
+                "(apply-new (instr (hole ?bw) (canonicalize (list (var ?a ?bw)))) (list (var ?a ?bw)))")
 }
 
 // This shouldn't be called fusion. Or, more specifically, the next two rewrites
@@ -598,38 +600,67 @@ pub fn introduce_hole_var() -> Rewrite<Language, LanguageAnalysis> {
 // is misleading.
 pub fn fuse_op() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("fuse-op";
-                "(binop ?op ?bw (apply-new ?ast0 ?args0) (apply-new ?ast1 ?args1))" => 
-                "(apply-new (binop ?op ?bw ?ast0 ?ast1) (concat ?args0 ?args1))")
+                "(binop ?op ?bw
+                  (apply-new (instr ?ast0 ?canonical-args0) ?args0)
+                  (apply-new (instr ?ast1 ?canonical-args1) ?args1))" => 
+                "(apply-new
+                  (instr (binop ?op ?bw ?ast0 ?ast1) (canonicalize (concat ?args0 ?args1)))
+                  (concat ?args0 ?args1))")
 }
 
 pub fn introduce_hole_op_left() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-left";
-                "(binop ?op ?bw (apply-new ?ast0 ?args0) (apply-new ?ast1 ?args1))" => 
-                "(apply-new (binop ?op ?bw (hole ?bw) ?ast1) (concat (list (apply-new ?ast0 ?args0)) ?args1))")
+                "(binop ?op ?bw
+                  (apply-new (instr ?ast0 ?canonical-args0) ?args0)
+                  (apply-new (instr ?ast1 ?canonical-args1) ?args1))" => 
+                "(apply-new 
+                  (instr
+                   (binop ?op ?bw (hole ?bw) ?ast1)
+                   (canonicalize (concat (list (apply-new (instr ?ast0 ?canonical-args0) ?args0)) ?args1)))
+                  (concat (list (apply-new (instr ?ast0 ?canonical-args0) ?args0)) ?args1))")
 }
 
 pub fn introduce_hole_op_right() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-right";
-                "(binop ?op ?bw (apply-new ?ast0 ?args0) (apply-new ?ast1 ?args1))" => 
-                "(apply-new (binop ?op ?bw ?ast0 (hole ?bw)) (concat ?args0 (list (apply-new ?ast1 ?args1))))")
+                "(binop ?op ?bw
+                  (apply-new (instr ?ast0 ?canonical-args0) ?args0)
+                  (apply-new (instr ?ast1 ?canonical-args1) ?args1))" => 
+                "(apply-new 
+                  (instr
+                   (binop ?op ?bw ?ast0 (hole ?bw))
+                   (canonicalize (concat ?args0 (list (apply-new (instr ?ast1 ?canonical-args1) ?args1)))))
+                  (concat ?args0 (list (apply-new (instr ?ast1 ?canonical-args1) ?args1))))")
 }
 
 pub fn introduce_hole_op_both() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-both";
-                "(binop ?op ?bw (apply-new ?ast0 ?args0) (apply-new ?ast1 ?args1))" => 
-                "(apply-new (binop ?op ?bw (hole ?bw) (hole ?bw)) (list (apply-new ?ast0 ?args0) (apply-new ?ast1 ?args1)))")
+                "(binop ?op ?bw
+                  (apply-new (instr ?ast0 ?canonical-args0) ?args0)
+                  (apply-new (instr ?ast1 ?canonical-args1) ?args1))" => 
+                "(apply-new 
+                  (instr
+                   (binop ?op ?bw (hole ?bw) (hole ?bw))
+                   (canonicalize
+                    (list
+                     (apply-new (instr ?ast0 ?canonical-args0) ?args0)
+                     (apply-new (instr ?ast1 ?canonical-args1) ?args1))))
+                  (list
+                   (apply-new (instr ?ast0 ?canonical-args0) ?args0)
+                   (apply-new (instr ?ast1 ?canonical-args1) ?args1)))")
 }
 
 pub fn unary0() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary0";
-                "(unop ?op ?bw (apply-new ?ast ?args))" => 
-                "(apply-new (unop ?op ?bw ?ast) ?args)")
+                "(unop ?op ?bw (apply-new (instr ?ast ?canonical-args) ?args))" => 
+                "(apply-new (instr (unop ?op ?bw ?ast) (canonicalize ?args)) ?args)")
 }
 
 pub fn unary1() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary1";
-                "(unop ?op ?bw (apply-new ?ast ?args))" => 
-                "(apply-new (unop ?op ?bw (hole ?bw)) (list (apply-new ?ast ?args)))")
+                "(unop ?op ?bw (apply-new (instr ?ast ?canonical-args) ?args))" => 
+                "(apply-new
+                  (instr (unop ?op ?bw (hole ?bw)) (canonicalize (list (apply-new (instr ?ast ?canonical-args) ?args))))
+                  (list (apply-new (instr ?ast ?canonical-args) ?args)))")
 }
 
 pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
@@ -680,14 +711,24 @@ pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
 fn extract_ast(
     egraph: &EGraph<Language, LanguageAnalysis>,
     ast_id: Id,
-    list_id: Id,
+    canonical_args_id: Id,
 ) -> RecExpr<Language> {
     let mut expr = RecExpr::default();
-    let mut args = match &egraph[list_id].data {
-        List(v) => Vec::from(v.clone()),
-        _ => panic!(),
-    };
-    extract_ast_helper(egraph, ast_id, &mut expr, &mut args);
+    let mut canonical_args = egraph[canonical_args_id]
+        .iter()
+        .find(|l| match l {
+            crate::language::Language::CanonicalArgs(_) => true,
+            _ => false,
+        })
+        .unwrap()
+        .children()
+        .iter()
+        .map(|id| match &egraph[*id].data {
+            Num(v) => usize::try_from(*v).unwrap(),
+            _ => panic!(),
+        })
+        .collect::<Vec<_>>();
+    extract_ast_helper(egraph, ast_id, &mut expr, &mut canonical_args);
     expr
 }
 
@@ -698,7 +739,7 @@ fn extract_ast_helper(
     egraph: &EGraph<Language, LanguageAnalysis>,
     id: Id,
     expr: &mut RecExpr<Language>,
-    args: &mut Vec<Id>,
+    args: &mut Vec<usize>,
 ) -> Id {
     match {
         assert_eq!(egraph[id].nodes.len(), 1);
@@ -722,70 +763,7 @@ fn extract_ast_helper(
             let new_bw_id = extract_ast_helper(egraph, bw_id, expr, args);
             assert!(!args.is_empty());
             let arg_id = args.remove(0);
-            // let var_nodes = egraph[arg_id]
-            //     .nodes
-            //     .iter()
-            //     .filter(|v| match v {
-            //         Language::ApplyNew(_) => false,
-            //         Language::BinOp(_) => false,
-            //         Language::Var(_) => true,
-            //         _ => panic!(),
-            //     })
-            //     .collect::<Vec<_>>();
-            // let binop_nodes = egraph[arg_id]
-            //     .nodes
-            //     .iter()
-            //     .filter(|v| match v {
-            //         Language::ApplyNew(_) => false,
-            //         Language::BinOp(_) => true,
-            //         Language::Var(_) => false,
-            //         _ => panic!(),
-            //     })
-            //     .collect::<Vec<_>>();
-
-            // The arg should either be a binop or a var. It shouldn't be both
-            // or neither. Note: this is probably wrong, especially once we add
-            // rewrites which simplify binops to vars. E.g. (and a a) => a. So
-            // this will probably fail soon. It's probably just simpler to
-            // search for a var and use it if it's found, and to otherwise
-            // create a new var, and just not worry about the binops at all.
-            // Still not sure what to do in the case of multiple vars being
-            // found. The vars are equal, so I guess we could just pick a
-            // canonical var? e.g. lexicographically by name?
-            // assert!(
-            //     (var_nodes.is_empty() && !binop_nodes.is_empty())
-            //         || (!var_nodes.is_empty() && binop_nodes.is_empty())
-            // );
-
-            // Actually, after typing all of that, I just decided to implement
-            // it. Idk if it's right, but it's much simpler. So the new idea is:
-            // there are three cases: there's no var, there's a single var,
-            // there's multiple vars. If there's no var, we create a fresh one
-            // with a random string. If there's one var, we use it. If there's
-            // multiple vars, they've all been proven to be equal, so we take
-            // the canonical var of them, which we define as the one with
-            // lexicographically the "minimum" name.
-            let mut var_names = egraph[arg_id]
-                .nodes
-                .iter()
-                .filter_map(|v| match v {
-                    Language::ApplyNew(_) => None,
-                    Language::BinOp(_) => None,
-                    &Language::Var([name_id, _]) => match &egraph[name_id].data {
-                        _String(s) => Some(s.clone()),
-                        _ => panic!(),
-                    },
-                    _ => panic!(),
-                })
-                .collect::<Vec<_>>();
-
-            let name = if !var_names.is_empty() {
-                var_names.sort();
-                var_names[0].clone()
-            } else {
-                format!("var_from_eclass_{}", arg_id)
-            };
-
+            let name = format!("var{}", arg_id);
             let name_id = expr.add(Language::String(name));
             expr.add(Language::Var([name_id, new_bw_id]))
         }
@@ -799,11 +777,11 @@ pub fn find_isa_instructions(
 ) -> Vec<RecExpr<Language>> {
     let mut out = Vec::default();
     let ast_var: Var = "?ast".parse().unwrap();
-    let list_var: Var = "?list".parse().unwrap();
+    let canonical_args_var: Var = "?canonical-args".parse().unwrap();
     for search_match in format!(
-        "(apply-new {} {})",
+        "(instr {} {})",
         ast_var.to_string(),
-        list_var.to_string()
+        canonical_args_var.to_string()
     )
     .parse::<Pattern<_>>()
     .unwrap()
@@ -811,8 +789,8 @@ pub fn find_isa_instructions(
     {
         for subst in search_match.substs {
             let ast_id = subst[ast_var];
-            let list_id = subst[list_var];
-            out.push(extract_ast(egraph, ast_id, list_id));
+            let canonical_args_id = subst[canonical_args_var];
+            out.push(extract_ast(egraph, ast_id, canonical_args_id));
         }
     }
 
@@ -1103,7 +1081,10 @@ mod tests {
             introduce_hole_op_both(),
             introduce_hole_op_left(),
             introduce_hole_op_right(),
+            unary0(),
+            unary1(),
             simplify_concat(),
+            canonicalize(),
         ]);
 
         let isa_instrs: Vec<_> = find_isa_instructions(&runner.egraph)
@@ -1168,6 +1149,7 @@ mod tests {
             simplify_concat(),
             unary0(),
             unary1(),
+            canonicalize(),
         ]);
 
         let isa_instrs: Vec<_> = find_isa_instructions(&runner.egraph)
