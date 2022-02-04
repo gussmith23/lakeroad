@@ -43,6 +43,15 @@ define_language! {
 
         "concat" = Concat([Id;2]),
 
+        // Canonicalizes a list of args.
+        // (canonicalize (list <args...>)) -> (canonical-args ...)
+        "canonicalize" = Canonicalize([Id; 1]),
+
+        // Canonical args are simply a list of natural numbers, starting with 0
+        // and increasing by 1 (but allowing repetitions of previously-seen
+        // numbers.)
+        "canonical-args" = CanonicalArgs(Box<[Id]>),
+
         // (<op> a b)
         "+'" = AddNew([Id; 2]),
         "-'" = SubNew([Id; 2]),
@@ -128,6 +137,7 @@ pub enum LanguageAnalysisData {
     Num(i64),
     Op(Op),
     List(Box<[Id]>),
+    Empty,
 }
 fn merge_args(
     args0: &HashMap<String, usize>,
@@ -148,6 +158,17 @@ impl Analysis<Language> for LanguageAnalysis {
 
     fn make(egraph: &EGraph<Language, Self>, enode: &Language) -> Self::Data {
         match enode {
+            &Language::Canonicalize([list_id]) => match &egraph[list_id].data {
+                List(_) => Empty,
+                _ => panic!(),
+            },
+            Language::CanonicalArgs(ids) => {
+                ids.iter().for_each(|v| match &egraph[*v].data {
+                    Num(_) => (),
+                    _ => panic!(),
+                });
+                Empty
+            }
             &Language::Placeholder([name_id, bitwidth_id]) => {
                 let (name, bitwidth) = match (&egraph[name_id].data, &egraph[bitwidth_id].data) {
                     (_String(name), Num(bitwidth)) => (name, bitwidth),
@@ -411,6 +432,7 @@ fn to_racket_helper(
         Language::XorNew(_) => todo!(),
         Language::AlgebraicShiftRightNew(_) => todo!(),
         Language::Op(_) => todo!(),
+        Language::CanonicalArgs(_) | Language::Canonicalize(_) => panic!(),
     }
 }
 
@@ -596,6 +618,51 @@ pub fn unary1() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary1";
                 "(unop ?op ?bw (apply-new ?ast ?args))" => 
                 "(apply-new (unop ?op ?bw (hole ?bw)) (list (apply-new ?ast ?args)))")
+}
+
+pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
+    struct Impl(Var);
+    impl Applier<Language, LanguageAnalysis> for Impl {
+        fn apply_one(
+            &self,
+            egraph: &mut EGraph<Language, LanguageAnalysis>,
+            eclass: Id,
+            subst: &egg::Subst,
+            _searcher_ast: Option<&egg::PatternAst<Language>>,
+            _rule_name: egg::Symbol,
+        ) -> Vec<Id> {
+            let ids = match &egraph[subst[self.0]].data {
+                List(v) => v.clone(),
+                _ => panic!(),
+            };
+
+            let mut next = 0;
+            let mut map = HashMap::new();
+            for id in ids.iter() {
+                if !map.contains_key(id) {
+                    map.insert(id, next);
+                    next += 1;
+                }
+            }
+
+            let new_list = ids
+                .iter()
+                .cloned()
+                .map(|id| egraph.add(crate::language::Language::Num(*map.get(&id).unwrap())))
+                .collect::<Vec<_>>();
+
+            let canonical_args_id = egraph.add(crate::language::Language::CanonicalArgs(
+                new_list.into_boxed_slice(),
+            ));
+
+            egraph.union(eclass, canonical_args_id);
+
+            vec![eclass, canonical_args_id]
+        }
+    }
+
+    rewrite!("canonicalize";
+                "(canonicalize ?list)" => { Impl("?list".parse().unwrap()) })
 }
 
 fn extract_ast(
@@ -1109,5 +1176,21 @@ mod tests {
         isa_instrs
             .iter()
             .for_each(|v| println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap()));
+    }
+
+    #[test_log::test]
+    fn test_canonicalize() {
+        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
+        let id = egraph.add_expr(&RecExpr::from_str("(canonicalize (list 1 3 2 3))").unwrap());
+
+        let runner = Runner::default()
+            .with_egraph(egraph)
+            .run(&vec![canonicalize()]);
+
+        "(canonical-args 0 1 2 1)"
+            .parse::<Pattern<_>>()
+            .unwrap()
+            .search_eclass(&runner.egraph, id)
+            .unwrap();
     }
 }
