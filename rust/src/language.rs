@@ -52,6 +52,10 @@ define_language! {
         // numbers.)
         "canonical-args" = CanonicalArgs(Box<[Id]>),
 
+        // (instr ?ast ?canonical-args)
+        // An instruction.
+        "instr" = Instr([Id; 2]),
+
         // (<op> a b)
         "+'" = AddNew([Id; 2]),
         "-'" = SubNew([Id; 2]),
@@ -137,6 +141,8 @@ pub enum LanguageAnalysisData {
     Num(i64),
     Op(Op),
     List(Box<[Id]>),
+    /// An instruction. The usize represents its output bitwidth.
+    Instr(usize),
     Empty,
 }
 fn merge_args(
@@ -158,6 +164,12 @@ impl Analysis<Language> for LanguageAnalysis {
 
     fn make(egraph: &EGraph<Language, Self>, enode: &Language) -> Self::Data {
         match enode {
+            &Language::Instr([ast_id, canonical_args_id]) => {
+                match (&egraph[ast_id].data, &egraph[canonical_args_id].data) {
+                    (Signal(v), Empty) => Instr(*v),
+                    _ => panic!(),
+                }
+            }
             &Language::Canonicalize([list_id]) => match &egraph[list_id].data {
                 List(_) => Empty,
                 _ => panic!(),
@@ -432,7 +444,7 @@ fn to_racket_helper(
         Language::XorNew(_) => todo!(),
         Language::AlgebraicShiftRightNew(_) => todo!(),
         Language::Op(_) => todo!(),
-        Language::CanonicalArgs(_) | Language::Canonicalize(_) => panic!(),
+        Language::CanonicalArgs(_) | Language::Canonicalize(_) | Language::Instr(_) => panic!(),
     }
 }
 
