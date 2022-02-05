@@ -787,6 +787,16 @@ pub fn find_isa_instructions(
     .unwrap()
     .search(egraph)
     {
+        // I'm not sure if either of these will always be true. For now it's
+        // simpler to assume they are true and then deal with it when they're
+        // not. Basically, we're assuming that every (instr ?ast ?args) instance
+        // is unique. If these fail, it probably means that instructions were
+        // proven to be equivalent, which is actually cool and good but I just
+        // haven't thought about what to do in that case. Do we just take one
+        // instruction? Whatever we do, we'll need to make a more informed
+        // decision.
+        assert_eq!(search_match.substs.len(), 1);
+        assert_eq!(egraph[search_match.eclass].nodes.len(), 1);
         for subst in search_match.substs {
             let ast_id = subst[ast_var];
             let canonical_args_id = subst[canonical_args_var];
