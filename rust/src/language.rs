@@ -11,21 +11,13 @@ use egg::{
     define_language, rewrite, Analysis, Applier, AstSize, DidMerge, EGraph, Extractor, Id,
     Language as LanguageTrait, Pattern, RecExpr, Rewrite, Searcher, Var,
 };
-use rand::{distributions::Alphanumeric, Rng};
 use rayon::prelude::*;
 
 define_language! {
     pub enum Language {
-
-        // (apply <f: func> <identifier: String> <value: concrete>)
-        "apply" = Apply([Id; 3]),
-
-        // (apply-new <instr>
-        //            <args: list>)
-        "apply-new" = ApplyNew([Id; 2]),
-
-        // (placeholder <name: String> <bitwidth: Num>)
-        "placeholder" = Placeholder([Id; 2]),
+        // (apply <instr>
+        //        <args: list>)
+        "apply" = Apply([Id; 2]),
 
         // Unary operator.
         // (unop <op: Op> <bitwidth: Num> <arg>)
@@ -57,29 +49,11 @@ define_language! {
         // An instruction.
         "instr" = Instr([Id; 2]),
 
-        // (<op> a b)
-        "+'" = AddNew([Id; 2]),
-        "-'" = SubNew([Id; 2]),
-        "|'" = OrNew([Id; 2]),
-        "&'" = AndNew([Id; 2]),
-        "^'" = XorNew([Id; 2]),
-        "asr'" = AlgebraicShiftRightNew([Id; 2]),
-
         // (var <name: String> <bitwidth: Num>)
         "var" = Var([Id; 2]),
+
         // (const <val: Num> <bitwidth: Num>)
         "const" = Const([Id; 2]),
-
-        // (<op> a b)
-        "+" = Add([Id; 2]),
-        "-" = Sub([Id; 2]),
-        "|" = Or([Id; 2]),
-        "&" = And([Id; 2]),
-        "^" = Xor([Id; 2]),
-
-        // (asr a <c: Const>)
-        // We only support shifting by a constant for now.
-        "asr" = AlgebraicShiftRight([Id; 2]),
 
         Op(Op),
         Num(i64),
@@ -94,6 +68,7 @@ pub enum Op {
     Not,
     Sub,
     Xor,
+    Asr,
 }
 impl Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -106,6 +81,7 @@ impl Display for Op {
                 Op::Not => "not",
                 Op::Sub => "sub",
                 Op::Xor => "xor",
+                Op::Asr => "asr",
             }
         )
     }
@@ -120,6 +96,7 @@ impl FromStr for Op {
             "not" => Ok(Op::Not),
             "sub" => Ok(Op::Sub),
             "xor" => Ok(Op::Xor),
+            "asr" => Ok(Op::Asr),
             _ => Err(()),
         }
     }
@@ -146,20 +123,6 @@ pub enum LanguageAnalysisData {
     Instr(usize),
     Empty,
 }
-fn merge_args(
-    args0: &HashMap<String, usize>,
-    args1: &HashMap<String, usize>,
-) -> HashMap<String, usize> {
-    let mut out = args0.clone();
-    for (name, bitwidth) in args1 {
-        if out.contains_key(name) {
-            assert_eq!(out[name], *bitwidth);
-        } else {
-            out.insert(name.clone(), *bitwidth);
-        }
-    }
-    out
-}
 impl Analysis<Language> for LanguageAnalysis {
     type Data = LanguageAnalysisData;
 
@@ -182,111 +145,11 @@ impl Analysis<Language> for LanguageAnalysis {
                 });
                 Empty
             }
-            &Language::Placeholder([name_id, bitwidth_id]) => {
-                let (name, bitwidth) = match (&egraph[name_id].data, &egraph[bitwidth_id].data) {
-                    (_String(name), Num(bitwidth)) => (name, bitwidth),
-                    _ => panic!(),
-                };
-                Function {
-                    args: vec![(name.clone(), *bitwidth as usize)].drain(..).collect(),
-                    ret: *bitwidth as usize,
-                }
-            }
-            &Language::AddNew([a_id, b_id])
-            | &Language::SubNew([a_id, b_id])
-            | &Language::OrNew([a_id, b_id])
-            | &Language::AndNew([a_id, b_id])
-            | &Language::XorNew([a_id, b_id])
-            | &Language::AlgebraicShiftRightNew([a_id, b_id]) => {
-                match (&egraph[a_id].data, &egraph[b_id].data) {
-                    (
-                        Function {
-                            args: args0,
-                            ret: ret0,
-                        },
-                        Function {
-                            args: args1,
-                            ret: ret1,
-                        },
-                    ) => {
-                        assert_eq!(ret0, ret1, "bitwidths must match");
-                        Function {
-                            args: merge_args(args0, args1),
-                            ret: *ret0,
-                        }
-                    }
-                    _ => panic!(),
-                }
-            }
-            &Language::Apply([f_id, identifier_id, value_id]) => match (
-                &egraph[f_id].data,
-                &egraph[identifier_id].data,
-                &egraph[value_id].data,
-            ) {
-                (Function { args, ret }, _String(identifier), Signal(arg_bitwidth)) => {
-                    let mut args = args.clone();
-                    assert!(!args.is_empty());
-                    assert!(args.contains_key(identifier));
-                    assert_eq!(args[identifier] /* bw of placeholder */, *arg_bitwidth);
-                    args.remove(identifier).unwrap();
-
-                    if args.is_empty() {
-                        // Function is fully applied! Return a concrete value.
-                        Signal(*ret)
-                    } else {
-                        // Function isn't yet fully applied; return a new Function.
-                        Function { args, ret: *ret }
-                    }
-                }
-                (
-                    Function {
-                        args: args0,
-                        ret: ret0,
-                    },
-                    _String(identifier),
-                    Function {
-                        args: args1,
-                        ret: ret1,
-                    },
-                ) => {
-                    // Here, we're replacing a placeholder in a function with
-                    // another function. To do so, we need to make sure that the
-                    // function's return is the same as the placeholder. Then,
-                    // we "prepend" the args0 list with the args1 list. This can
-                    // be achieved by removing the first arg of args0 to make
-                    // args0', and then merging args1 and args0' (in that
-                    // order.)
-                    assert!(!args0.is_empty());
-                    assert_eq!(args0[identifier], *ret1);
-                    // TODO(@gussmith23) Unnecessary copying.
-                    let mut args0_new = args0.clone();
-                    args0_new.remove(identifier).unwrap();
-                    let args = merge_args(&args0_new, args1);
-
-                    Function { args, ret: *ret0 }
-                }
-                _ => panic!(),
-            },
-
             Language::Var([.., bitwidth_id]) | Language::Const([.., bitwidth_id]) => {
                 match &egraph[*bitwidth_id].data {
                     &Num(v) => {
                         assert!(v > 0, "expect bitwidths to be positive");
                         Signal(v as usize)
-                    }
-                    _ => panic!(),
-                }
-            }
-            Language::Add([a_id, b_id])
-            | Language::Sub([a_id, b_id])
-            | Language::Or([a_id, b_id])
-            | Language::And([a_id, b_id])
-            | Language::Xor([a_id, b_id])
-            | Language::AlgebraicShiftRight([a_id, b_id]) => {
-                match (&egraph[*a_id].data, &egraph[*b_id].data) {
-                    (Signal(a_bitwidth), Signal(b_bitwidth)) => {
-                        assert_eq!(a_bitwidth, b_bitwidth, "bitwidths must match");
-                        Signal(*a_bitwidth)
                     }
                     _ => panic!(),
                 }
@@ -340,7 +203,7 @@ impl Analysis<Language> for LanguageAnalysis {
                 ),
                 _ => panic!(),
             },
-            &Language::ApplyNew([instr_id, _args_id]) => match &egraph[instr_id].data {
+            &Language::Apply([instr_id, _args_id]) => match &egraph[instr_id].data {
                 Instr(v) => Signal(*v),
                 other @ _ => panic!("Expected instruction, found:\n{:#?}", other),
             },
@@ -385,30 +248,9 @@ fn to_racket_helper(
                 _ => panic!(),
             },
         )),
-        Language::Add([a_id, b_id])
-        | Language::Sub([a_id, b_id])
-        | Language::Or([a_id, b_id])
-        | Language::And([a_id, b_id])
-        | Language::Xor([a_id, b_id])
-        | Language::AlgebraicShiftRight([a_id, b_id]) => Some(format!(
-            "({op} {a} {b})",
-            op = match expr[id] {
-                Language::Add(_) => "bvadd",
-                Language::Sub(_) => "bvsub",
-                Language::Or(_) => "bvor",
-                Language::And(_) => "bvand",
-                Language::Xor(_) => "bvxor",
-                Language::AlgebraicShiftRight(_) => "bvashr",
-                _ => unreachable!(),
-            },
-            a = to_racket_helper(expr, a_id, map).unwrap(),
-            b = to_racket_helper(expr, b_id, map).unwrap()
-        )),
         Language::Num(_) => None,
         Language::String(_) => None,
         Language::Apply(_) => todo!(),
-        Language::ApplyNew(_) => todo!(),
-        Language::Placeholder(_) => todo!(),
         Language::BinOp([op_id, _bw_id, a_id, b_id]) => Some(format!(
             "({op} {a} {b})",
             op = match &expr[op_id] {
@@ -417,6 +259,7 @@ fn to_racket_helper(
                     Op::Or => "bvor",
                     Op::Sub => "bvsub",
                     Op::Xor => "bvxor",
+                    Op::Asr => "bvashr",
                     _ => panic!(),
                 },
                 _ => panic!(),
@@ -438,12 +281,6 @@ fn to_racket_helper(
         Language::Hole(_) => todo!(),
         Language::List(_) => todo!(),
         Language::Concat(_) => todo!(),
-        Language::AddNew(_) => todo!(),
-        Language::SubNew(_) => todo!(),
-        Language::OrNew(_) => todo!(),
-        Language::AndNew(_) => todo!(),
-        Language::XorNew(_) => todo!(),
-        Language::AlgebraicShiftRightNew(_) => todo!(),
         Language::Op(_) => todo!(),
         Language::CanonicalArgs(_) | Language::Canonicalize(_) | Language::Instr(_) => panic!(),
     }
@@ -487,112 +324,10 @@ pub fn call_racket(expr: String, map: &HashMap<String, usize>) -> bool {
     output.status.success()
 }
 
-pub fn explore(egraph: &EGraph<Language, LanguageAnalysis>, _id: Id) -> HashMap<Id, bool> {
-    let extractor = Extractor::new(egraph, AstSize);
-    let out: HashMap<Id, bool> = egraph
-        .classes()
-        .par_bridge()
-        .map(|eclass| {
-            let (_, expr) = extractor.find_best(eclass.id);
-            let (racket_expr, map) = to_racket(&expr, (expr.as_ref().len() - 1).into());
-            if racket_expr.is_none() {
-                println!("Not attempting to synthesize:\n{}", expr.pretty(80));
-                (eclass.id, false)
-            } else {
-                println!("Attempting to synthesize:\n{}", expr.pretty(80),);
-                let result = call_racket(racket_expr.unwrap(), &map);
-                (eclass.id, result)
-            }
-        })
-        .collect();
-
-    println!("ISA:");
-    for (k, v) in out.iter() {
-        if *v {
-            println!("{}", extractor.find_best(*k).1.pretty(80))
-        }
-    }
-
-    out
-}
-
-pub fn rewrite_left() -> Rewrite<Language, LanguageAnalysis> {
-    struct Impl(Var);
-    impl Applier<Language, LanguageAnalysis> for Impl {
-        fn apply_one(
-            &self,
-            egraph: &mut EGraph<Language, LanguageAnalysis>,
-            eclass: Id,
-            subst: &egg::Subst,
-            searcher_ast: Option<&egg::PatternAst<Language>>,
-            rule_name: egg::Symbol,
-        ) -> Vec<Id> {
-            let bw = match &egraph[subst[self.0]].data {
-                Function { ret, .. } => ret,
-                Signal(bw) => bw,
-                _ => panic!(),
-            };
-            format!(
-                "(apply (&' (placeholder {name} {bw}) ?b) {name} {var})",
-                name = rand::thread_rng()
-                    .sample_iter(&Alphanumeric)
-                    .take(7)
-                    .map(char::from)
-                    .collect::<String>(),
-                bw = bw,
-                var = self.0.to_string()
-            )
-            .parse::<Pattern<_>>()
-            .unwrap()
-            .apply_one(egraph, eclass, subst, searcher_ast, rule_name)
-        }
-    }
-    let v: Var = "?a".parse().unwrap();
-    rewrite!("rewrite";
-        {format!("(&' {} ?b)", v.to_string()).parse::<Pattern<_>>().unwrap() } => { Impl(v) }
-    )
-}
-pub fn rewrite_right() -> Rewrite<Language, LanguageAnalysis> {
-    struct Impl(Var);
-    impl Applier<Language, LanguageAnalysis> for Impl {
-        fn apply_one(
-            &self,
-            egraph: &mut EGraph<Language, LanguageAnalysis>,
-            eclass: Id,
-            subst: &egg::Subst,
-            searcher_ast: Option<&egg::PatternAst<Language>>,
-            rule_name: egg::Symbol,
-        ) -> Vec<Id> {
-            let bw = match &egraph[subst[self.0]].data {
-                Function { ret, .. } => ret,
-                Signal(bw) => bw,
-                _ => panic!(),
-            };
-            format!(
-                "(apply (&' ?a (placeholder {name} {bw})) {name} {var})",
-                name = rand::thread_rng()
-                    .sample_iter(&Alphanumeric)
-                    .take(7)
-                    .map(char::from)
-                    .collect::<String>(),
-                bw = bw,
-                var = self.0.to_string()
-            )
-            .parse::<Pattern<_>>()
-            .unwrap()
-            .apply_one(egraph, eclass, subst, searcher_ast, rule_name)
-        }
-    }
-    let v: Var = "?b".parse().unwrap();
-    rewrite!("rewrite-right";
-        {format!("(&' ?a {})", v.to_string()).parse::<Pattern<_>>().unwrap() } => { Impl(v) }
-    )
-}
-
 pub fn introduce_hole_var() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-var";
                 "(var ?a ?bw)" =>
-                "(apply-new (instr (hole ?bw) (canonicalize (list (var ?a ?bw)))) (list (var ?a ?bw)))")
+                "(apply (instr (hole ?bw) (canonicalize (list (var ?a ?bw)))) (list (var ?a ?bw)))")
 }
 
 // This shouldn't be called fusion. Or, more specifically, the next two rewrites
@@ -601,9 +336,9 @@ pub fn introduce_hole_var() -> Rewrite<Language, LanguageAnalysis> {
 pub fn fuse_op() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("fuse-op";
                 "(binop ?op ?bw
-                  (apply-new (instr ?ast0 ?canonical-args0) ?args0)
-                  (apply-new (instr ?ast1 ?canonical-args1) ?args1))" => 
-                "(apply-new
+                  (apply (instr ?ast0 ?canonical-args0) ?args0)
+                  (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
+                "(apply
                   (instr (binop ?op ?bw ?ast0 ?ast1) (canonicalize (concat ?args0 ?args1)))
                   (concat ?args0 ?args1))")
 }
@@ -611,56 +346,56 @@ pub fn fuse_op() -> Rewrite<Language, LanguageAnalysis> {
 pub fn introduce_hole_op_left() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-left";
                 "(binop ?op ?bw
-                  (apply-new (instr ?ast0 ?canonical-args0) ?args0)
-                  (apply-new (instr ?ast1 ?canonical-args1) ?args1))" => 
-                "(apply-new 
+                  (apply (instr ?ast0 ?canonical-args0) ?args0)
+                  (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
+                "(apply 
                   (instr
                    (binop ?op ?bw (hole ?bw) ?ast1)
-                   (canonicalize (concat (list (apply-new (instr ?ast0 ?canonical-args0) ?args0)) ?args1)))
-                  (concat (list (apply-new (instr ?ast0 ?canonical-args0) ?args0)) ?args1))")
+                   (canonicalize (concat (list (apply (instr ?ast0 ?canonical-args0) ?args0)) ?args1)))
+                  (concat (list (apply (instr ?ast0 ?canonical-args0) ?args0)) ?args1))")
 }
 
 pub fn introduce_hole_op_right() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-right";
                 "(binop ?op ?bw
-                  (apply-new (instr ?ast0 ?canonical-args0) ?args0)
-                  (apply-new (instr ?ast1 ?canonical-args1) ?args1))" => 
-                "(apply-new 
+                  (apply (instr ?ast0 ?canonical-args0) ?args0)
+                  (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
+                "(apply 
                   (instr
                    (binop ?op ?bw ?ast0 (hole ?bw))
-                   (canonicalize (concat ?args0 (list (apply-new (instr ?ast1 ?canonical-args1) ?args1)))))
-                  (concat ?args0 (list (apply-new (instr ?ast1 ?canonical-args1) ?args1))))")
+                   (canonicalize (concat ?args0 (list (apply (instr ?ast1 ?canonical-args1) ?args1)))))
+                  (concat ?args0 (list (apply (instr ?ast1 ?canonical-args1) ?args1))))")
 }
 
 pub fn introduce_hole_op_both() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-both";
                 "(binop ?op ?bw
-                  (apply-new (instr ?ast0 ?canonical-args0) ?args0)
-                  (apply-new (instr ?ast1 ?canonical-args1) ?args1))" => 
-                "(apply-new 
+                  (apply (instr ?ast0 ?canonical-args0) ?args0)
+                  (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
+                "(apply 
                   (instr
                    (binop ?op ?bw (hole ?bw) (hole ?bw))
                    (canonicalize
                     (list
-                     (apply-new (instr ?ast0 ?canonical-args0) ?args0)
-                     (apply-new (instr ?ast1 ?canonical-args1) ?args1))))
+                     (apply (instr ?ast0 ?canonical-args0) ?args0)
+                     (apply (instr ?ast1 ?canonical-args1) ?args1))))
                   (list
-                   (apply-new (instr ?ast0 ?canonical-args0) ?args0)
-                   (apply-new (instr ?ast1 ?canonical-args1) ?args1)))")
+                   (apply (instr ?ast0 ?canonical-args0) ?args0)
+                   (apply (instr ?ast1 ?canonical-args1) ?args1)))")
 }
 
 pub fn unary0() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary0";
-                "(unop ?op ?bw (apply-new (instr ?ast ?canonical-args) ?args))" => 
-                "(apply-new (instr (unop ?op ?bw ?ast) (canonicalize ?args)) ?args)")
+                "(unop ?op ?bw (apply (instr ?ast ?canonical-args) ?args))" => 
+                "(apply (instr (unop ?op ?bw ?ast) (canonicalize ?args)) ?args)")
 }
 
 pub fn unary1() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary1";
-                "(unop ?op ?bw (apply-new (instr ?ast ?canonical-args) ?args))" => 
-                "(apply-new
-                  (instr (unop ?op ?bw (hole ?bw)) (canonicalize (list (apply-new (instr ?ast ?canonical-args) ?args))))
-                  (list (apply-new (instr ?ast ?canonical-args) ?args)))")
+                "(unop ?op ?bw (apply (instr ?ast ?canonical-args) ?args))" => 
+                "(apply
+                  (instr (unop ?op ?bw (hole ?bw)) (canonicalize (list (apply (instr ?ast ?canonical-args) ?args))))
+                  (list (apply (instr ?ast ?canonical-args) ?args)))")
 }
 
 pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
@@ -885,7 +620,7 @@ mod tests {
 
         let id = egraph.add_expr(
             &RecExpr::from_str(
-                "(- (| (var x 8) (var y 8)) (asr (^ (var x 8) (var y 8)) (const 1 8)))",
+            "(binop sub 8 (binop or 8 (var x 8) (var y 8)) (binop asr 8 (binop xor 8 (var x 8) (var y 8)) (const 1 8)))",
             )
             .unwrap(),
         );
@@ -899,7 +634,7 @@ mod tests {
     #[test]
     fn ceil_avg_to_racket() {
         let expr = &RecExpr::from_str(
-            "(- (| (var x 8) (var y 8)) (asr (^ (var x 8) (var y 8)) (const 1 8)))",
+            "(binop sub 8 (binop or 8 (var x 8) (var y 8)) (binop asr 8 (binop xor 8 (var x 8) (var y 8)) (const 1 8)))",
         )
         .unwrap();
 
@@ -915,162 +650,13 @@ mod tests {
     #[test]
     fn ceil_avg_to_racket_call_racket() {
         let expr = &RecExpr::from_str(
-            "(- (| (var x 8) (var y 8)) (asr (^ (var x 8) (var y 8)) (const 1 8)))",
+            "(binop sub 8 (binop or 8 (var x 8) (var y 8)) (binop asr 8 (binop xor 8 (var x 8) (var y 8)) (const 1 8)))",
         )
         .unwrap();
 
         let (expr, map) = to_racket(expr, (expr.as_ref().len() - 1).into());
 
         assert!(!call_racket(expr.unwrap(), &map));
-    }
-
-    #[test]
-    fn ceil_avg_explore() {
-        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
-
-        let id = egraph.add_expr(
-            &RecExpr::from_str(
-                "(- (| (var x 8) (var y 8)) (asr (^ (var x 8) (var y 8)) (const 1 8)))",
-            )
-            .unwrap(),
-        );
-
-        explore(&egraph, id);
-    }
-
-    #[test]
-    fn apply() {
-        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
-        let id = egraph.add_expr(
-            &RecExpr::from_str(
-                "
-(apply
- (&' 
-  (placeholder a 8)
-  (|' (placeholder b 8) (placeholder a 8)))
- a
- (var x 8)
-)
-",
-            )
-            .unwrap(),
-        );
-
-        match &egraph[id].data {
-            Function { args, ret } => {
-                assert_eq!(*args, [("b".to_string(), 8)].into_iter().collect());
-                assert_eq!(*ret, 8);
-            }
-            _ => panic!(),
-        }
-
-        let id = egraph.add_expr(
-            &RecExpr::from_str(
-                "
-(apply
- (apply
-  (&' 
-   (placeholder a 8)
-   (|' (placeholder b 8) (placeholder a 8)))
-  a
-  (var x 8)
- )
- b
- (var y 8)
-)
-",
-            )
-            .unwrap(),
-        );
-
-        match &egraph[id].data {
-            Signal(bw) => {
-                assert_eq!(*bw, 8);
-            }
-            _ => panic!(),
-        }
-    }
-
-    #[test]
-    fn apply_fn_to_fn() {
-        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
-        let id = egraph.add_expr(
-            &RecExpr::from_str(
-                "
-(apply
- (&' 
-  (placeholder a 8)
-  (|' (placeholder b 8) (placeholder a 8)))
- a
- (|' (placeholder c 8) (placeholder b 8))
-)
-",
-            )
-            .unwrap(),
-        );
-
-        match &egraph[id].data {
-            Function { args, ret } => {
-                assert_eq!(
-                    *args,
-                    [("c".to_string(), 8), ("b".to_string(), 8)]
-                        .into_iter()
-                        .collect()
-                );
-                assert_eq!(*ret, 8);
-            }
-            _ => panic!(),
-        }
-
-        let id = egraph.add_expr(
-            &RecExpr::from_str(
-                "
-(apply
- (apply
-  (&' 
-   (placeholder a 8)
-   (|' (placeholder b 8) (placeholder a 8)))
-  a
-  (|' (placeholder c 8) (placeholder b 8))
- )
- c
- (var y 8)
-)
-",
-            )
-            .unwrap(),
-        );
-
-        match &egraph[id].data {
-            Function { args, ret } => {
-                assert_eq!(*args, [("b".to_string(), 8)].into_iter().collect());
-                assert_eq!(*ret, 8);
-            }
-            _ => panic!(),
-        }
-    }
-
-    #[test_log::test]
-    fn rewrite() {
-        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
-        let _id = egraph.add_expr(
-            &RecExpr::from_str(
-                "
-(apply
- (&' 
-  (placeholder a 8)
-  (|' (placeholder b 8) (placeholder a 8)))
- a
- (|' (placeholder c 8) (placeholder b 8))
-)
-",
-            )
-            .unwrap(),
-        );
-
-        let _runner = Runner::default()
-            .with_egraph(egraph)
-            .run(vec![&rewrite_left(), &rewrite_right()]);
     }
 
     #[test_log::test]
