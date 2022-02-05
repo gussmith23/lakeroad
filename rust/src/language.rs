@@ -509,7 +509,7 @@ fn extract_ast_helper(
 
 pub fn find_isa_instructions(
     egraph: &EGraph<Language, LanguageAnalysis>,
-) -> Vec<RecExpr<Language>> {
+) -> Vec<(Id, RecExpr<Language>)> {
     let mut out = Vec::default();
     let ast_var: Var = "?ast".parse().unwrap();
     let canonical_args_var: Var = "?canonical-args".parse().unwrap();
@@ -535,7 +535,10 @@ pub fn find_isa_instructions(
         for subst in search_match.substs {
             let ast_id = subst[ast_var];
             let canonical_args_id = subst[canonical_args_var];
-            out.push(extract_ast(egraph, ast_id, canonical_args_id));
+            out.push((
+                search_match.eclass,
+                extract_ast(egraph, ast_id, canonical_args_id),
+            ));
         }
     }
 
@@ -685,7 +688,7 @@ mod tests {
 
         let isa_instrs: Vec<_> = find_isa_instructions(&runner.egraph)
             .par_iter()
-            .filter(|expr| {
+            .filter(|(_, expr)| {
                 if let (Some(racket_str), map) = to_racket(&expr, (expr.as_ref().len() - 1).into())
                 {
                     println!("Attempting: {}", racket_str);
@@ -698,9 +701,9 @@ mod tests {
             .collect();
 
         println!("ISA:");
-        isa_instrs
-            .iter()
-            .for_each(|v| println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap()));
+        isa_instrs.iter().for_each(|(_, v)| {
+            println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap())
+        });
     }
 
     #[test_log::test]
@@ -750,7 +753,7 @@ mod tests {
 
         let isa_instrs: Vec<_> = find_isa_instructions(&runner.egraph)
             .par_iter()
-            .filter(|expr| {
+            .filter(|(_, expr)| {
                 if let (Some(racket_str), map) = to_racket(&expr, (expr.as_ref().len() - 1).into())
                 {
                     println!("Attempting: {}", racket_str);
@@ -763,9 +766,9 @@ mod tests {
             .collect();
 
         println!("ISA:");
-        isa_instrs
-            .iter()
-            .for_each(|v| println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap()));
+        isa_instrs.iter().for_each(|(_, v)| {
+            println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap())
+        });
     }
 
     #[test_log::test]
