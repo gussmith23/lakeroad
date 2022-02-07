@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fmt::Display,
     io::Write,
     process::{Command, Stdio},
@@ -609,6 +609,46 @@ pub fn explore_new(egraph: &EGraph<Language, LanguageAnalysis>, _id: Id) -> Hash
     out
 }
 
+pub fn instr_appears_in_program(
+    egraph: &EGraph<Language, LanguageAnalysis>,
+    instr_id: Id,
+    program_root: Id,
+) -> bool {
+    let mut worklist: HashSet<Id> = HashSet::new();
+    worklist.insert(program_root);
+    let mut visited: HashSet<Id> = HashSet::new();
+
+    while !worklist.is_empty() {
+        // Get next Id and remove it from the worklist.
+        let this = *worklist.iter().next().unwrap();
+        assert!(worklist.remove(&this));
+        assert!(visited.insert(this));
+
+        if this == instr_id {
+            return true;
+        }
+
+        for enode in &egraph[this].nodes {
+            let ids = match enode {
+                Language::Const(ids)
+                | Language::Var(ids)
+                | Language::Instr(ids)
+                | Language::Concat(ids)
+                | Language::Apply(ids) => ids.to_vec(),
+                Language::UnOp(ids) => ids.to_vec(),
+                Language::BinOp(ids) => ids.to_vec(),
+                Language::Canonicalize(ids) | Language::Hole(ids) => ids.to_vec(),
+                Language::CanonicalArgs(ids) | Language::List(ids) => ids.to_vec(),
+                Language::Op(_) | Language::Num(_) | Language::String(_) => vec![],
+            };
+
+            worklist.extend(ids.iter().filter(|id| !visited.contains(id)));
+        }
+    }
+
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use std::str::FromStr;
@@ -766,8 +806,17 @@ mod tests {
             .collect();
 
         println!("ISA:");
-        isa_instrs.iter().for_each(|(_, v)| {
-            println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap())
+        isa_instrs.iter().for_each(|(instr_id, v)| {
+            println!(
+                "{} appears in:\nprogram {} {}\nprogram {} {}\nprogram {} {}",
+                to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap(),
+                _bithack1_id,
+                instr_appears_in_program(&runner.egraph, *instr_id, _bithack1_id),
+                _bithack2_id,
+                instr_appears_in_program(&runner.egraph, *instr_id, _bithack2_id),
+                _bithack3_id,
+                instr_appears_in_program(&runner.egraph, *instr_id, _bithack3_id),
+            )
         });
     }
 
