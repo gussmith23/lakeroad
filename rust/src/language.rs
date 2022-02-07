@@ -14,46 +14,64 @@ use egg::{
 use rayon::prelude::*;
 
 define_language! {
+    /// Expressions (Exprs) in our language can be constructed two ways: first,
+    /// by directly constructing an expression by combining `var`s and `const`s
+    /// with `unop` and `binop` operator applications. They can also be
+    /// indirectly constructed by `apply`ing instructions onto arguments, which
+    /// are themselves expressions. The intention behind having these two
+    /// methods is so that we can ingest programs in the first form (which is
+    /// easy to compile to or to write by hand) and then rewrite to the second
+    /// form, which is harder to write but is useful for enumerating the space
+    /// of possible instructions in the ISA.
     pub enum Language {
-        // (apply <instr>
-        //        <args: list>)
-        "apply" = Apply([Id; 2]),
 
-        // Unary operator.
-        // (unop <op: Op> <bitwidth: Num> <arg>)
+        // (var name: String bitwidth: Num) -> Expr
+        "var" = Var([Id; 2]),
+
+        // (const val: Num bitwidth: Num) -> Expr
+        "const" = Const([Id; 2]),
+
+        // Operator application. When applied to an expression, returns an
+        // expression; when applied to an AST, returns an AST.
+        //
+        // (unop op: Op bitwidth: Num arg: Expr or AST) -> Expr or AST
         "unop" = UnOp([Id; 3]),
-
-        // Binary operator.
-        // (binop <op: Op> <bitwidth: Num> <arg0> <arg1>)
+        // (binop op: Op bitwidth: Num arg0,arg1: Expr or AST) -> Expr or AST
         "binop" = BinOp([Id; 4]),
 
+        // (apply instr: Instr args: List of Exprs) -> Expr
+        "apply" = Apply([Id; 2]),
+
         // Hole.
-        // (hole <bitwidth: int>)
+        // (hole bitwidth: Num) -> AST
         "hole" = Hole([Id; 1]),
 
         "list" = List(Box<[Id]>),
 
+        // (concat l0: List l1: List) -> List
         "concat" = Concat([Id;2]),
 
         // Canonicalizes a list of args.
-        // (canonicalize (list <args...>)) -> (canonical-args ...)
+        // (canonicalize (list args...: Expr))
+        //   gets rewritten to (canonical-args ids...: Num)
         "canonicalize" = Canonicalize([Id; 1]),
 
         // Canonical args are simply a list of natural numbers, starting with 0
         // and increasing by 1 (but allowing repetitions of previously-seen
         // numbers.)
+        // Canonical args are paired with an AST to construct an instruction.
         "canonical-args" = CanonicalArgs(Box<[Id]>),
 
-        // (instr <ast: a tree of binops/unops where the leaves are holes>
-        //        ?canonical-args)
+        // (instr ast: AST canonical-args: List) -> Instr
         // An instruction.
+        // For example, the instruction
+        // (instr (binop and 8 (hole 8) (hole 8)) (canonical-args 0 1))
+        // represents an AND instruction whose two holes are filled with two
+        // different variables, e.g. (and x y), while
+        // (instr (binop and 8 (hole 8) (hole 8)) (canonical-args 0 0))
+        // represents an AND instruction whose two holes are filled with the
+        // same variable, e.g. (and x x).
         "instr" = Instr([Id; 2]),
-
-        // (var <name: String> <bitwidth: Num>)
-        "var" = Var([Id; 2]),
-
-        // (const <val: Num> <bitwidth: Num>)
-        "const" = Const([Id; 2]),
 
         Op(Op),
         Num(i64),
