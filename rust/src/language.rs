@@ -11,6 +11,7 @@ use egg::{
     define_language, rewrite, Analysis, Applier, AstSize, DidMerge, EGraph, Extractor, Id,
     Language as LanguageTrait, Pattern, RecExpr, Rewrite, Searcher, Var,
 };
+use rand::prelude::IteratorRandom;
 use rayon::prelude::*;
 
 define_language! {
@@ -677,6 +678,115 @@ pub fn instr_appears_in_program(
     false
 }
 
+/// Extract a random implementation of an expression in an egraph.
+/// Only extracts (apply ...) nodes.
+/// If an eclass contains a var node, the var variant is automatically
+/// extracted.
+fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExpr<Language> {
+    let new_nodes = egraph
+        .classes()
+        .filter_map(|eclass| {
+            // Important: if an eclass contains a var, automatically select
+            // the var. This prevents infinite loops where we select
+            // (var x) = (apply (instr (hole) _) [(var x)])
+            // = (apply (instr (hole) _) [(apply (instr (hole) _) [(var x)])])
+            if let Some(var_node) = eclass.nodes.iter().find(|l| match l {
+                Language::Var(_) => true,
+                _ => false,
+            }) {
+                return Some((eclass.id, var_node.clone()));
+            }
+            eclass
+                .nodes
+                .iter()
+                .enumerate()
+                //.filter(|(i, _)| enodes_to_filter.contains(&(eclass.id, *i)))
+                .filter(|(_, l)| match l {
+                    Language::Var(_) => true,
+                    Language::Const(_) => todo!(),
+                    Language::UnOp(_) => false,
+                    Language::BinOp(_) => false,
+                    Language::Apply(_) => true,
+                    Language::Hole(_) => true,
+                    Language::UnOpAst(_) => true,
+                    Language::BinOpAst(_) => true,
+                    Language::List(_) => true,
+                    Language::Concat(_) => false,
+                    Language::Canonicalize(_) => false,
+                    Language::CanonicalArgs(_) => true,
+                    Language::Instr(_) => true,
+                    Language::Op(_) => true,
+                    Language::Num(_) => true,
+                    Language::String(_) => true,
+                })
+                .choose(&mut rand::thread_rng())
+                .map(|(_, node)| (eclass.id, node.clone()))
+        })
+        .collect::<HashMap<_, _>>();
+
+    let mut out = RecExpr::default();
+    fn _recursively_build(
+        id: Id,
+        in_expr: &HashMap<Id, Language>,
+        out_expr: &mut RecExpr<Language>,
+        egraph: &EGraph<Language, LanguageAnalysis>,
+    ) -> Option<Id> {
+        if !in_expr.contains_key(&egraph.find(id)) {
+            return None;
+        }
+        let mut new_node = in_expr.get(&egraph.find(id)).unwrap().clone();
+        let new_ids = new_node
+            .children()
+            .iter()
+            .map(|id| _recursively_build(*id, in_expr, out_expr, egraph))
+            .collect::<Vec<_>>();
+        if new_ids.iter().any(Option::is_none) {
+            return None;
+        }
+        new_node
+            .children_mut()
+            .iter_mut()
+            .enumerate()
+            .for_each(|(i, id)| *id = new_ids[i].unwrap());
+
+        Some(out_expr.add(new_node))
+    }
+    _recursively_build(egraph.find(id), &new_nodes, &mut out, egraph);
+
+    out
+}
+
+/// Randomly sample implementations of the program and count how many times the
+/// requested instruction appears. enodes_to_filter are (eclass id, enode index)
+/// pairs indicating enodes to filter out. Currently we pass in the results of
+/// find_cycles.
+///
+/// This currently doesn't work. I'd like to get it working, but it's requiring
+/// a lot more effort than I originally thought. I thought there'd be a simple
+/// way to do this...
+pub fn sample_instr_in_program(
+    egraph: &EGraph<Language, LanguageAnalysis>,
+    instr: &RecExpr<Language>,
+    program_root: Id,
+    num_samples: usize,
+) -> usize {
+    let mut count = 0;
+
+    for _ in 0..num_samples {
+        let expr = extract_random(egraph, program_root);
+
+        let mut egraph = EGraph::<_, LanguageAnalysis>::default();
+        egraph.add_expr(&expr);
+        egraph.rebuild();
+
+        if let Some(_) = egraph.lookup_expr(&instr) {
+            count += 1;
+        }
+    }
+
+    count
+}
+
 #[cfg(test)]
 mod tests {
     use std::str::FromStr;
@@ -862,5 +972,84 @@ mod tests {
             .unwrap()
             .search_eclass(&runner.egraph, id)
             .unwrap();
+    }
+
+    #[test_log::test]
+    fn test_extract_random() {
+        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
+
+        // https://github.com/mangpo/chlorophyll/tree/master/examples/bithack
+        // Bithack 1.
+        let bithack1_id = egraph.add_expr(
+            &RecExpr::from_str(
+                "
+(binop sub 8 (var x 8) (binop and 8 (var x 8) (var y 8)))
+",
+            )
+            .unwrap(),
+        );
+
+        extract_random(&egraph, bithack1_id);
+    }
+
+    #[test_log::test]
+    fn test_sample_instr_in_program() {
+        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
+
+        // https://github.com/mangpo/chlorophyll/tree/master/examples/bithack
+        // Bithack 1.
+        let _bithack1_id = egraph.add_expr(
+            &RecExpr::from_str(
+                "
+(binop sub 8 (var x 8) (binop and 8 (var x 8) (var y 8)))
+",
+            )
+            .unwrap(),
+        );
+        // Bithack 2.
+        let _bithack2_id = egraph.add_expr(
+            &RecExpr::from_str(
+                "
+(unop not 8 (binop sub 8 (var x 8) (var y 8)))
+",
+            )
+            .unwrap(),
+        );
+        // Bithack 3.
+        let _bithack3_id = egraph.add_expr(
+            &RecExpr::from_str(
+                "
+(binop xor 8 (binop xor 8 (var x 8) (var y 8)) (binop and 8 (var x 8) (var y 8)))
+",
+            )
+            .unwrap(),
+        );
+
+        let runner = Runner::default().with_egraph(egraph).run(&vec![
+            introduce_hole_var(),
+            fuse_op(),
+            introduce_hole_op_both(),
+            introduce_hole_op_left(),
+            introduce_hole_op_right(),
+            simplify_concat(),
+            unary0(),
+            unary1(),
+            canonicalize(),
+        ]);
+
+        let and_instr =
+            RecExpr::from_str("(instr (binop-ast and 8 (hole 8) (hole 8)) (canonical-args 0 1))")
+                .unwrap();
+        let sub_instr =
+            RecExpr::from_str("(instr (binop-ast sub 8 (hole 8) (hole 8)) (canonical-args 0 1))")
+                .unwrap();
+        println!(
+            "And appears: {} times",
+            sample_instr_in_program(&runner.egraph, &and_instr, _bithack1_id, 1000)
+        );
+        println!(
+            "Sub appears: {} times",
+            sample_instr_in_program(&runner.egraph, &sub_instr, _bithack1_id, 1000)
+        );
     }
 }
