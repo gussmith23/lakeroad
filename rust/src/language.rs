@@ -31,12 +31,11 @@ define_language! {
         // (const val: Num bitwidth: Num) -> Expr
         "const" = Const([Id; 2]),
 
-        // Operator application. When applied to an expression, returns an
-        // expression; when applied to an AST, returns an AST.
+        // Operator application for expressions.
         //
-        // (unop op: Op bitwidth: Num arg: Expr or AST) -> Expr or AST
+        // (unop op: Op bitwidth: Num arg: Expr) -> Expr
         "unop" = UnOp([Id; 3]),
-        // (binop op: Op bitwidth: Num arg0,arg1: Expr or AST) -> Expr or AST
+        // (binop op: Op bitwidth: Num arg0,arg1: Expr) -> Expr
         "binop" = BinOp([Id; 4]),
 
         // (apply instr: Instr args: List of Exprs) -> Expr
@@ -45,6 +44,13 @@ define_language! {
         // Hole.
         // (hole bitwidth: Num) -> AST
         "hole" = Hole([Id; 1]),
+
+        // Operator application for ASTs.
+        //
+        // (unop-ast op: Op bitwidth: Num arg: AST) -> AST
+        "unop-ast" = UnOpAst([Id; 3]),
+        // (binop-ast op: Op bitwidth: Num arg0,arg1: AST) -> AST
+        "binop-ast" = BinOpAst([Id; 4]),
 
         "list" = List(Box<[Id]>),
 
@@ -174,7 +180,8 @@ impl Analysis<Language> for LanguageAnalysis {
             }
             Language::Num(v) => Num(*v),
             Language::String(v) => _String(v.clone()),
-            &Language::BinOp([op_id, bitwidth_id, a_id, b_id]) => {
+            &Language::BinOp([op_id, bitwidth_id, a_id, b_id])
+            | &Language::BinOpAst([op_id, bitwidth_id, a_id, b_id]) => {
                 match (
                     &egraph[op_id].data,
                     &egraph[bitwidth_id].data,
@@ -189,7 +196,8 @@ impl Analysis<Language> for LanguageAnalysis {
                     _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
                 }
             }
-            &Language::UnOp([op_id, bitwidth_id, arg_id]) => {
+            &Language::UnOp([op_id, bitwidth_id, arg_id])
+            | &Language::UnOpAst([op_id, bitwidth_id, arg_id]) => {
                 match (
                     &egraph[op_id].data,
                     &egraph[bitwidth_id].data,
@@ -297,6 +305,8 @@ fn to_racket_helper(
             a = to_racket_helper(expr, arg_id, map).unwrap(),
         )),
         Language::Hole(_) => todo!(),
+        Language::BinOpAst(_) => todo!(),
+        Language::UnOpAst(_) => todo!(),
         Language::List(_) => todo!(),
         Language::Concat(_) => todo!(),
         Language::Op(_) => todo!(),
@@ -357,7 +367,7 @@ pub fn fuse_op() -> Rewrite<Language, LanguageAnalysis> {
                   (apply (instr ?ast0 ?canonical-args0) ?args0)
                   (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
                 "(apply
-                  (instr (binop ?op ?bw ?ast0 ?ast1) (canonicalize (concat ?args0 ?args1)))
+                  (instr (binop-ast ?op ?bw ?ast0 ?ast1) (canonicalize (concat ?args0 ?args1)))
                   (concat ?args0 ?args1))")
 }
 
@@ -368,7 +378,7 @@ pub fn introduce_hole_op_left() -> Rewrite<Language, LanguageAnalysis> {
                   (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
                 "(apply 
                   (instr
-                   (binop ?op ?bw (hole ?bw) ?ast1)
+                   (binop-ast ?op ?bw (hole ?bw) ?ast1)
                    (canonicalize (concat (list (apply (instr ?ast0 ?canonical-args0) ?args0)) ?args1)))
                   (concat (list (apply (instr ?ast0 ?canonical-args0) ?args0)) ?args1))")
 }
@@ -380,7 +390,7 @@ pub fn introduce_hole_op_right() -> Rewrite<Language, LanguageAnalysis> {
                   (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
                 "(apply 
                   (instr
-                   (binop ?op ?bw ?ast0 (hole ?bw))
+                   (binop-ast ?op ?bw ?ast0 (hole ?bw))
                    (canonicalize (concat ?args0 (list (apply (instr ?ast1 ?canonical-args1) ?args1)))))
                   (concat ?args0 (list (apply (instr ?ast1 ?canonical-args1) ?args1))))")
 }
@@ -392,7 +402,7 @@ pub fn introduce_hole_op_both() -> Rewrite<Language, LanguageAnalysis> {
                   (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
                 "(apply 
                   (instr
-                   (binop ?op ?bw (hole ?bw) (hole ?bw))
+                   (binop-ast ?op ?bw (hole ?bw) (hole ?bw))
                    (canonicalize
                     (list
                      (apply (instr ?ast0 ?canonical-args0) ?args0)
@@ -405,14 +415,14 @@ pub fn introduce_hole_op_both() -> Rewrite<Language, LanguageAnalysis> {
 pub fn unary0() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary0";
                 "(unop ?op ?bw (apply (instr ?ast ?canonical-args) ?args))" => 
-                "(apply (instr (unop ?op ?bw ?ast) (canonicalize ?args)) ?args)")
+                "(apply (instr (unop-ast ?op ?bw ?ast) (canonicalize ?args)) ?args)")
 }
 
 pub fn unary1() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary1";
                 "(unop ?op ?bw (apply (instr ?ast ?canonical-args) ?args))" => 
                 "(apply
-                  (instr (unop ?op ?bw (hole ?bw)) (canonicalize (list (apply (instr ?ast ?canonical-args) ?args))))
+                  (instr (unop-ast ?op ?bw (hole ?bw)) (canonicalize (list (apply (instr ?ast ?canonical-args) ?args))))
                   (list (apply (instr ?ast ?canonical-args) ?args)))")
 }
 
@@ -499,14 +509,14 @@ fn extract_ast_helper(
         &egraph[id].nodes[0]
     } {
         Language::Op(op) => expr.add(Language::Op(op.clone())),
-        &Language::BinOp([op_id, bw_id, a_id, b_id]) => {
+        &Language::BinOpAst([op_id, bw_id, a_id, b_id]) => {
             let new_op_id = extract_ast_helper(egraph, op_id, expr, args);
             let new_bw_id = extract_ast_helper(egraph, bw_id, expr, args);
             let new_a_id = extract_ast_helper(egraph, a_id, expr, args);
             let new_b_id = extract_ast_helper(egraph, b_id, expr, args);
             expr.add(Language::BinOp([new_op_id, new_bw_id, new_a_id, new_b_id]))
         }
-        &Language::UnOp([op_id, bw_id, arg_id]) => {
+        &Language::UnOpAst([op_id, bw_id, arg_id]) => {
             let new_op_id = extract_ast_helper(egraph, op_id, expr, args);
             let new_bw_id = extract_ast_helper(egraph, bw_id, expr, args);
             let new_arg_id = extract_ast_helper(egraph, arg_id, expr, args);
@@ -653,8 +663,8 @@ pub fn instr_appears_in_program(
                 | Language::Instr(ids)
                 | Language::Concat(ids)
                 | Language::Apply(ids) => ids.to_vec(),
-                Language::UnOp(ids) => ids.to_vec(),
-                Language::BinOp(ids) => ids.to_vec(),
+                Language::UnOp(ids) | Language::UnOpAst(ids) => ids.to_vec(),
+                Language::BinOp(ids) | Language::BinOpAst(ids) => ids.to_vec(),
                 Language::Canonicalize(ids) | Language::Hole(ids) => ids.to_vec(),
                 Language::CanonicalArgs(ids) | Language::List(ids) => ids.to_vec(),
                 Language::Op(_) | Language::Num(_) | Language::String(_) => vec![],
