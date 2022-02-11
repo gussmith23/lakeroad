@@ -1,0 +1,1 @@
+(binop sub 8 (var x 8) (binop and 8 (var x 8) (var y 8)))

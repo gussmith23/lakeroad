@@ -94,6 +94,10 @@ pub enum Op {
     Sub,
     Xor,
     Asr,
+    Eq,
+    Neg,
+    Lsr,
+    Add,
 }
 impl Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -107,6 +111,10 @@ impl Display for Op {
                 Op::Sub => "sub",
                 Op::Xor => "xor",
                 Op::Asr => "asr",
+                Op::Eq => "eq",
+                Op::Neg => "neg",
+                Op::Lsr => "lsr",
+                Op::Add => "add",
             }
         )
     }
@@ -122,6 +130,10 @@ impl FromStr for Op {
             "sub" => Ok(Op::Sub),
             "xor" => Ok(Op::Xor),
             "asr" => Ok(Op::Asr),
+            "eq" => Ok(Op::Eq),
+            "neg" => Ok(Op::Neg),
+            "lsr" => Ok(Op::Lsr),
+            "add" => Ok(Op::Add),
             _ => Err(()),
         }
     }

@@ -1,0 +1,1 @@
+(binop xor 8 (binop xor 8 (binop lsr 8 (binop and 8 (binop xor 8 (var x 8) (binop asr 8 (var x 8) (var k 8))) (var m 8)) (var k 8)) (binop and 8 (binop xor 8 (var x 8) (binop asr 8 (var x 8) (var k 8))) (var m 8))) (var x 8))
