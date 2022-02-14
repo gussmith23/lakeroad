@@ -821,6 +821,8 @@ mod tests {
 
     use egg::{RecExpr, Runner};
 
+    use crate::example_programs;
+
     use super::*;
 
     #[test]
@@ -1079,5 +1081,71 @@ mod tests {
             "Sub appears: {} times",
             sample_instr_in_program(&runner.egraph, &sub_instr, _bithack1_id, 1000)
         );
+    }
+
+    #[test_log::test]
+    fn explore_many_programs() {
+        let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
+        for (_, program) in example_programs::all_programs() {
+            egraph.add_expr(&program);
+        }
+
+        let runner = Runner::default().with_egraph(egraph).run(&vec![
+            introduce_hole_var(),
+            fuse_op(),
+            introduce_hole_op_both(),
+            introduce_hole_op_left(),
+            introduce_hole_op_right(),
+            simplify_concat(),
+            unary0(),
+            unary1(),
+            canonicalize(),
+        ]);
+
+        let potential_isa_instrs: Vec<_> = find_isa_instructions(&runner.egraph);
+        println!("{} potential ISA instructions.", potential_isa_instrs.len());
+
+        let isa_instrs = potential_isa_instrs
+            .par_iter()
+            .enumerate()
+            .filter(|(i, (_, expr))| {
+                if let (Some(racket_str), map) = to_racket(&expr, (expr.as_ref().len() - 1).into())
+                {
+                    if call_racket(racket_str.clone(), &map) {
+                        println!(
+                            "({}/{}) Successfully synthesized: {}",
+                            i,
+                            potential_isa_instrs.len(),
+                            racket_str
+                        );
+                        true
+                    } else {
+                        println!(
+                            "({}/{}) Couldn't synthesize: {}",
+                            i,
+                            potential_isa_instrs.len(),
+                            racket_str
+                        );
+
+                        false
+                    }
+                } else {
+                    println!(
+                        "({}/{}) Couldn't convert to Racket: {}",
+                        i,
+                        potential_isa_instrs.len(),
+                        expr
+                    );
+                    false
+                }
+            })
+            .map(|t| t.1)
+            .cloned()
+            .collect::<Vec<_>>();
+
+        println!("ISA:");
+        isa_instrs.iter().for_each(|(_instr_id, v)| {
+            println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap(),)
+        });
     }
 }
