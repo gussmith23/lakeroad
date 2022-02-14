@@ -15,22 +15,22 @@
 
   (define prog (eval (read (open-input-string file-contents)) ns))
 
-  (define-symbolic* cin (bitvector 1))
-  (define-symbolic* lut-memory-a (bitvector 128))
-  (define-symbolic* lut-memory-b (bitvector 128))
-  (define-symbolic* lut-memory-c (bitvector 128))
-  (define-symbolic* lut-memory-d (bitvector 128))
-  (define-symbolic* lut-memory-e (bitvector 128))
-  (define-symbolic* lut-memory-f (bitvector 128))
-  (define-symbolic* lut-memory-g (bitvector 128))
-  (define-symbolic* lut-memory-h (bitvector 128))
+  (define-symbolic cin (bitvector 1))
+  (define-symbolic lut-memory-a (bitvector 128))
+  (define-symbolic lut-memory-b (bitvector 128))
+  (define-symbolic lut-memory-c (bitvector 128))
+  (define-symbolic lut-memory-d (bitvector 128))
+  (define-symbolic lut-memory-e (bitvector 128))
+  (define-symbolic lut-memory-f (bitvector 128))
+  (define-symbolic lut-memory-g (bitvector 128))
+  (define-symbolic lut-memory-h (bitvector 128))
 
-  (define-symbolic* logical-input-0 (bitvector 8))
-  (define-symbolic* logical-input-1 (bitvector 8))
-  (define-symbolic* logical-input-2 (bitvector 8))
-  (define-symbolic* logical-input-3 (bitvector 8))
-  (define-symbolic* logical-input-4 (bitvector 8))
-  (define-symbolic* logical-input-5 (bitvector 8))
+  (define-symbolic logical-input-0 (bitvector 8))
+  (define-symbolic logical-input-1 (bitvector 8))
+  (define-symbolic logical-input-2 (bitvector 8))
+  (define-symbolic logical-input-3 (bitvector 8))
+  (define-symbolic logical-input-4 (bitvector 8))
+  (define-symbolic logical-input-5 (bitvector 8))
 
   (define out
     (apply ultrascale-clb
