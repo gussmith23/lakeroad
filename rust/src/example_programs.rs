@@ -75,6 +75,7 @@ mod tests {
                     "bithack_cycle",
                     "bithack_exchange",
                     "bithack_floor_avg",
+                    "bithack_roundpower",
                 ]
                 .drain(..)
                 .map(str::to_string)
