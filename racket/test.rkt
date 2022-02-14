@@ -49,6 +49,33 @@
                                                   logical-input-3
                                                   logical-input-4
                                                   logical-input-5)))
+
+  ; Unused logical inputs which we will assume are zero.
+  (define assume-zero
+    (match (procedure-arity prog)
+      [1 (list logical-input-1 logical-input-2 logical-input-3 logical-input-4 logical-input-5)]
+      [2 (list logical-input-2 logical-input-3 logical-input-4 logical-input-5)]
+      [3 (list logical-input-3 logical-input-4 logical-input-5)]
+      [4 (list logical-input-4 logical-input-5)]
+      [5 (list logical-input-5)]
+      [6 (list)]))
+
+  ; Used logical inputs.
+  (define inputs
+    (match (procedure-arity prog)
+      [1 (list logical-input-0)]
+      [2 (list logical-input-0 logical-input-1)]
+      [3 (list logical-input-0 logical-input-1 logical-input-2)]
+      [4 (list logical-input-0 logical-input-1 logical-input-2 logical-input-3)]
+      [5 (list logical-input-0 logical-input-1 logical-input-2 logical-input-3 logical-input-4)]
+      [6
+       (list logical-input-0
+             logical-input-1
+             logical-input-2
+             logical-input-3
+             logical-input-4
+             logical-input-5)]))
+
   (define model
     (synthesize #:forall (list logical-input-0
                                logical-input-1
@@ -57,11 +84,11 @@
                                logical-input-4
                                logical-input-5)
                 #:guarantee (begin
-                              (assume (bvzero? logical-input-2))
-                              (assume (bvzero? logical-input-3))
-                              (assume (bvzero? logical-input-4))
-                              (assume (bvzero? logical-input-5))
-                              (assert (bveq (prog logical-input-0 logical-input-1) out)))))
+                              ; Assume unused logical inputs are zero.
+                              (for-each (lambda (v) (assume (bvzero? v))) assume-zero)
+                              ; Assert that the function applied over the inputs equals the expected
+                              ; output.
+                              (assert (bveq (apply prog inputs) out)))))
 
   ; For now just return whether or not we could synthesize anything.
   (exit (if (unsat? model) 1 0)))
