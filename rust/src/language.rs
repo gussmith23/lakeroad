@@ -290,6 +290,19 @@ fn to_racket_helper(
         Language::Num(_) => None,
         Language::String(_) => None,
         Language::Apply(_) => todo!(),
+        Language::BinOp([op_id, bw_id, a_id, b_id])
+            if matches!(&expr[op_id], Language::Op(Op::Eq)) =>
+        {
+            Some(format!(
+                "(bool->bitvector (bveq {a} {b}) (bitvector {bw}))",
+                a = to_racket_helper(expr, a_id, map).unwrap(),
+                b = to_racket_helper(expr, b_id, map).unwrap(),
+                bw = match &expr[bw_id] {
+                    Language::Num(v) => v,
+                    _ => panic!(),
+                }
+            ))
+        }
         Language::BinOp([op_id, _bw_id, a_id, b_id]) => Some(format!(
             "({op} {a} {b})",
             op = match &expr[op_id] {
@@ -299,7 +312,9 @@ fn to_racket_helper(
                     Op::Sub => "bvsub",
                     Op::Xor => "bvxor",
                     Op::Asr => "bvashr",
-                    _ => panic!(),
+                    Op::Lsr => "bvlshr",
+                    Op::Eq => unreachable!("Should be implemented above."),
+                    _ => todo!("{}", op),
                 },
                 _ => panic!(),
             },
@@ -311,7 +326,8 @@ fn to_racket_helper(
             op = match &expr[op_id] {
                 Language::Op(op) => match op {
                     Op::Not => "bvnot",
-                    _ => panic!(),
+                    Op::Neg => "bvneg",
+                    _ => todo!("{}", op),
                 },
                 _ => panic!(),
             },
