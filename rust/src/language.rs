@@ -403,42 +403,42 @@ pub fn fuse_op() -> Rewrite<Language, LanguageAnalysis> {
 pub fn introduce_hole_op_left() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-left";
                 "(binop ?op ?bw
-                  (apply (instr ?ast0 ?canonical-args0) ?args0)
+                  ?left
                   (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
                 "(apply 
                   (instr
                    (binop-ast ?op ?bw (hole ?bw) ?ast1)
-                   (canonicalize (concat (list (apply (instr ?ast0 ?canonical-args0) ?args0)) ?args1)))
-                  (concat (list (apply (instr ?ast0 ?canonical-args0) ?args0)) ?args1))")
+                   (canonicalize (concat (list ?left) ?args1)))
+                  (concat (list ?left) ?args1))")
 }
 
 pub fn introduce_hole_op_right() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-right";
                 "(binop ?op ?bw
                   (apply (instr ?ast0 ?canonical-args0) ?args0)
-                  (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
+                  ?right)" => 
                 "(apply 
                   (instr
                    (binop-ast ?op ?bw ?ast0 (hole ?bw))
-                   (canonicalize (concat ?args0 (list (apply (instr ?ast1 ?canonical-args1) ?args1)))))
-                  (concat ?args0 (list (apply (instr ?ast1 ?canonical-args1) ?args1))))")
+                   (canonicalize (concat ?args0 (list ?right))))
+                  (concat ?args0 (list ?right)))")
 }
 
 pub fn introduce_hole_op_both() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-op-both";
                 "(binop ?op ?bw
-                  (apply (instr ?ast0 ?canonical-args0) ?args0)
-                  (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
+                  ?a
+                  ?b)" => 
                 "(apply 
                   (instr
                    (binop-ast ?op ?bw (hole ?bw) (hole ?bw))
                    (canonicalize
                     (list
-                     (apply (instr ?ast0 ?canonical-args0) ?args0)
-                     (apply (instr ?ast1 ?canonical-args1) ?args1))))
+                     ?a
+                     ?b)))
                   (list
-                   (apply (instr ?ast0 ?canonical-args0) ?args0)
-                   (apply (instr ?ast1 ?canonical-args1) ?args1)))")
+                   ?a
+                   ?b))")
 }
 
 pub fn unary0() -> Rewrite<Language, LanguageAnalysis> {
