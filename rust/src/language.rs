@@ -500,76 +500,13 @@ pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
                 "(canonicalize ?list)" => { Impl("?list".parse().unwrap()) })
 }
 
-fn extract_ast(
-    egraph: &EGraph<Language, LanguageAnalysis>,
-    ast_id: Id,
-    canonical_args_id: Id,
-) -> RecExpr<Language> {
-    let mut expr = RecExpr::default();
-    let mut canonical_args = egraph[canonical_args_id]
-        .iter()
-        .find(|l| match l {
-            crate::language::Language::CanonicalArgs(_) => true,
-            _ => false,
-        })
-        .unwrap()
-        .children()
-        .iter()
-        .map(|id| match &egraph[*id].data {
-            Num(v) => usize::try_from(*v).unwrap(),
-            _ => panic!(),
-        })
-        .collect::<Vec<_>>();
-    extract_ast_helper(egraph, ast_id, &mut expr, &mut canonical_args);
-    expr
-}
-
-/// args: a mutable list of the args to be swapped in for each hole, in
-/// sequential order, assuming we traverse to the holes depth-first,
-/// left-to-right.
-fn extract_ast_helper(
-    egraph: &EGraph<Language, LanguageAnalysis>,
-    id: Id,
-    expr: &mut RecExpr<Language>,
-    args: &mut Vec<usize>,
-) -> Id {
-    match {
-        assert_eq!(egraph[id].nodes.len(), 1);
-        &egraph[id].nodes[0]
-    } {
-        Language::Op(op) => expr.add(Language::Op(op.clone())),
-        &Language::BinOpAst([op_id, bw_id, a_id, b_id]) => {
-            let new_op_id = extract_ast_helper(egraph, op_id, expr, args);
-            let new_bw_id = extract_ast_helper(egraph, bw_id, expr, args);
-            let new_a_id = extract_ast_helper(egraph, a_id, expr, args);
-            let new_b_id = extract_ast_helper(egraph, b_id, expr, args);
-            expr.add(Language::BinOp([new_op_id, new_bw_id, new_a_id, new_b_id]))
-        }
-        &Language::UnOpAst([op_id, bw_id, arg_id]) => {
-            let new_op_id = extract_ast_helper(egraph, op_id, expr, args);
-            let new_bw_id = extract_ast_helper(egraph, bw_id, expr, args);
-            let new_arg_id = extract_ast_helper(egraph, arg_id, expr, args);
-            expr.add(Language::UnOp([new_op_id, new_bw_id, new_arg_id]))
-        }
-        &Language::Hole([bw_id]) => {
-            let new_bw_id = extract_ast_helper(egraph, bw_id, expr, args);
-            assert!(!args.is_empty());
-            let arg_id = args.remove(0);
-            let name = format!("var{}", arg_id);
-            let name_id = expr.add(Language::String(name));
-            expr.add(Language::Var([name_id, new_bw_id]))
-        }
-        &Language::Num(v) => expr.add(Language::Num(v)),
-        _ => panic!(),
-    }
-}
-
 pub fn find_isa_instructions(
     egraph: &EGraph<Language, LanguageAnalysis>,
 ) -> Vec<(Id, RecExpr<Language>)> {
     let mut out = Vec::default();
     let ast_var: Var = "?ast".parse().unwrap();
     let canonical_args_var: Var = "?canonical-args".parse().unwrap();
+    let extractor = Extractor::new(egraph, AstSize);
     for search_match in format!(
         "(instr {} {})",
         ast_var.to_string(),
@@ -579,6 +516,10 @@ pub fn find_isa_instructions(
     .unwrap()
     .search(egraph)
     {
+        //
+        let (_, expr) = extractor.find_best(search_match.eclass);
+        out.push((search_match.eclass, expr));
+
         // I'm not sure if either of these will always be true. For now it's
         // simpler to assume they are true and then deal with it when they're
         // not. Basically, we're assuming that every (instr ?ast ?args) instance
@@ -587,16 +528,16 @@ pub fn find_isa_instructions(
         // haven't thought about what to do in that case. Do we just take one
         // instruction? Whatever we do, we'll need to make a more informed
         // decision.
-        assert_eq!(search_match.substs.len(), 1);
-        assert_eq!(egraph[search_match.eclass].nodes.len(), 1);
-        for subst in search_match.substs {
-            let ast_id = subst[ast_var];
-            let canonical_args_id = subst[canonical_args_var];
-            out.push((
-                search_match.eclass,
-                extract_ast(egraph, ast_id, canonical_args_id),
-            ));
-        }
+        // assert_eq!(search_match.substs.len(), 1);
+        // assert_eq!(egraph[search_match.eclass].nodes.len(), 1);
+        // for subst in search_match.substs {
+        //     let ast_id = subst[ast_var];
+        //     let canonical_args_id = subst[canonical_args_var];
+        //     out.push((
+        //         search_match.eclass,
+        //         extract_ast(egraph, ast_id, canonical_args_id),
+        //     ));
+        // }
     }
 
     out
@@ -724,14 +665,14 @@ fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExp
             }) {
                 return Some((eclass.id, var_node.clone()));
             }
-            eclass
+            let tmp = eclass
                 .nodes
                 .iter()
                 .enumerate()
                 //.filter(|(i, _)| enodes_to_filter.contains(&(eclass.id, *i)))
                 .filter(|(_, l)| match l {
                     Language::Var(_) => true,
-                    Language::Const(_) => todo!(),
+                    Language::Const(_) => true,
                     Language::UnOp(_) => false,
                     Language::BinOp(_) => false,
                     Language::Apply(_) => true,
@@ -739,7 +680,7 @@ fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExp
                     Language::UnOpAst(_) => true,
                     Language::BinOpAst(_) => true,
                     Language::List(_) => true,
-                    Language::Concat(_) => false,
+                    Language::Concat(_) => true,
                     Language::Canonicalize(_) => false,
                     Language::CanonicalArgs(_) => true,
                     Language::Instr(_) => true,
@@ -748,7 +689,11 @@ fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExp
                     Language::String(_) => true,
                 })
                 .choose(&mut rand::thread_rng())
-                .map(|(_, node)| (eclass.id, node.clone()))
+                .map(|(_, node)| (eclass.id, node.clone()));
+            if tmp.is_none() {
+                println!("eclass empty after filtering: {:?}", eclass);
+            }
+            tmp
         })
         .collect::<HashMap<_, _>>();
 
@@ -1086,66 +1031,88 @@ mod tests {
     #[test_log::test]
     fn explore_many_programs() {
         let mut egraph: EGraph<Language, LanguageAnalysis> = EGraph::default();
+        let mut ids = Vec::new();
         for (_, program) in example_programs::all_programs() {
-            egraph.add_expr(&program);
+            ids.push(egraph.add_expr(&program));
         }
 
-        let runner = Runner::default().with_egraph(egraph).run(&vec![
-            introduce_hole_var(),
-            fuse_op(),
-            introduce_hole_op_both(),
-            introduce_hole_op_left(),
-            introduce_hole_op_right(),
-            simplify_concat(),
-            unary0(),
-            unary1(),
-            canonicalize(),
-        ]);
+        let runner = Runner::default()
+            .with_egraph(egraph)
+            .with_iter_limit(300)
+            .run(&vec![
+                introduce_hole_var(),
+                fuse_op(),
+                introduce_hole_op_both(),
+                introduce_hole_op_left(),
+                introduce_hole_op_right(),
+                simplify_concat(),
+                unary0(),
+                unary1(),
+                canonicalize(),
+            ]);
+
+        runner.print_report();
+
+        // Ensure everything gets canonicalized. If you get errors in
+        // extract_ast, it may be because not everything got canonicalized.
+        let runner = Runner::default()
+            .with_egraph(runner.egraph)
+            .with_node_limit(1000000)
+            .run(&vec![canonicalize()]);
+
+        runner.print_report();
 
         let potential_isa_instrs: Vec<_> = find_isa_instructions(&runner.egraph);
         println!("{} potential ISA instructions.", potential_isa_instrs.len());
 
-        let isa_instrs = potential_isa_instrs
-            .par_iter()
-            .enumerate()
-            .filter(|(i, (_, expr))| {
-                if let (Some(racket_str), map) = to_racket(&expr, (expr.as_ref().len() - 1).into())
-                {
-                    if call_racket(racket_str.clone(), &map) {
-                        println!(
-                            "({}/{}) Successfully synthesized: {}",
-                            i,
-                            potential_isa_instrs.len(),
-                            racket_str
-                        );
-                        true
-                    } else {
-                        println!(
-                            "({}/{}) Couldn't synthesize: {}",
-                            i,
-                            potential_isa_instrs.len(),
-                            racket_str
-                        );
+        // Each ID is one of the input programs; each instruction is a potential instruction.
+        // histogram[id][instr] = number of times instr appears in a random impl of the program.
+        let mut histogram: Vec<Vec<usize>> = vec![vec![0; potential_isa_instrs.len()]; ids.len()];
 
-                        false
-                    }
-                } else {
-                    println!(
-                        "({}/{}) Couldn't convert to Racket: {}",
-                        i,
-                        potential_isa_instrs.len(),
-                        expr
-                    );
-                    false
+        const NUM_SAMPLES: usize = 10;
+
+        for (id_i, id) in ids.iter().enumerate() {
+            // TODO this is a hack.
+            if extract_random(&runner.egraph, *id).as_ref().is_empty() {
+                continue;
+            }
+            for _ in 0..NUM_SAMPLES {
+                let mut tmp_egr: EGraph<Language, LanguageAnalysis> = EGraph::default();
+                let mut random_impl = extract_random(&runner.egraph, *id);
+                while random_impl.as_ref().is_empty() {
+                    random_impl = extract_random(&runner.egraph, *id);
                 }
-            })
-            .map(|t| t.1)
-            .cloned()
-            .collect::<Vec<_>>();
+                tmp_egr.add_expr(&random_impl);
+                tmp_egr.rebuild();
 
-        println!("ISA:");
-        isa_instrs.iter().for_each(|(_instr_id, v)| {
-            println!("{}", to_racket(v, (v.as_ref().len() - 1).into()).0.unwrap(),)
-        });
+                for (instr_i, (_, instr)) in potential_isa_instrs.iter().enumerate() {
+                    //println!("is\n{}\nin\n{}", instr.pretty(80), random_impl.pretty(80));
+                    if matches!(tmp_egr.lookup_expr(&instr), Some(_)) {
+                        histogram[id_i][instr_i] = histogram[id_i][instr_i] + 1;
+                    }
+                }
+            }
+        }
+
+        let mut histogram: Vec<_> = potential_isa_instrs
+            .iter()
+            .enumerate()
+            .map(|(instr_i, (_, instr))| {
+                let count = histogram
+                    .iter()
+                    .map(|l| l[instr_i])
+                    .reduce(|a, b| a + b)
+                    .unwrap();
+                (instr, count)
+            })
+            .collect();
+        histogram.sort_by_key(|v| v.1);
+        for (instr, count) in histogram {
+            println!(
+                "Instruction\n{}\nappears {} times.",
+                instr.pretty(1000),
+                count
+            );
+        }
     }
 }
