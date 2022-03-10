@@ -17,6 +17,7 @@
   (check-equal? (lut 2 (bv #b0110 4) (bv 1 1)) (bv #b01 2)))
 
 ; We define O5 as the 1th output and O6 as the 0th.
+; This may need to be changed -- I'm not sure what the actual order is inside a lookup table.
 (define (O5 outputs)
   (extract 1 1 outputs))
 (define (O6 outputs)
