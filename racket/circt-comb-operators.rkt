@@ -34,7 +34,8 @@
 (define circt-comb-or bvor)
 (define (circt-comb-parity a)
   (foldl bvxor (bv 0 1) (bitvector->bits a)))
-; TODO: replicate?
+; TODO: replicate? --> concat, extract, replciate are "wire" instructions that don't consuem resources
+; they also force thinking about sizes
 (define circt-comb-shl bvshl)
 (define circt-comb-shrs bvashr)
 (define circt-comb-shru bvlshr)
