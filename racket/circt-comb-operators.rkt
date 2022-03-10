@@ -19,7 +19,7 @@
          circt-comb-xor)
 
 (define circt-comb-add bvadd)
-(define circt-comb-and bvadd)
+(define circt-comb-and bvand)
 ; TODO: concat?
 (define circt-comb-divs bvsdiv)
 (define circt-comb-divu bvudiv)
