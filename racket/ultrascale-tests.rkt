@@ -2,7 +2,8 @@
 
 (require "ultrascale.rkt"
          rosette
-         "programs-to-synthesize.rkt")
+         "programs-to-synthesize.rkt"
+         "circt-comb-operators.rkt")
 
 (define-symbolic* cin (bitvector 1))
 (define-symbolic* lut-memory-a (bitvector 128))
@@ -83,7 +84,56 @@
                     (assume (bvzero? logical-input-5))
                     (assert (bveq (f logical-input-0 logical-input-1 logical-input-2 logical-input-3)
                                   out)))))))
+; TODO(@gussmith23) Copy and pasted code. Doesn't need to be this way. Better code in test.rkt.
+(define (helper3 f)
+  (println f)
+  (println (time (synthesize #:forall (list logical-input-0
+                                            logical-input-1
+                                            logical-input-2
+                                            logical-input-3
+                                            logical-input-4
+                                            logical-input-5)
+                             #:guarantee
+                             (begin
+                               (assume (bvzero? logical-input-3))
+                               (assume (bvzero? logical-input-4))
+                               (assume (bvzero? logical-input-5))
+                               (assert (bveq (f logical-input-0 logical-input-1 logical-input-2)
+                                             out)))))))
+(define (helper1 f)
+  (println f)
+  (println (time (synthesize #:forall (list logical-input-0
+                                            logical-input-1
+                                            logical-input-2
+                                            logical-input-3
+                                            logical-input-4
+                                            logical-input-5)
+                             #:guarantee (begin
+                                           (assume (bvzero? logical-input-1))
+                                           (assume (bvzero? logical-input-2))
+                                           (assume (bvzero? logical-input-3))
+                                           (assume (bvzero? logical-input-4))
+                                           (assume (bvzero? logical-input-5))
+                                           (assert (bveq (f logical-input-0) out)))))))
 
+; CIRCT Comb dialect.
+(helper circt-comb-add)
+(helper circt-comb-and)
+(helper circt-comb-divs)
+(helper circt-comb-divu)
+(helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))))
+(helper circt-comb-mods)
+(helper circt-comb-mul)
+(helper3 circt-comb-mux)
+(helper circt-comb-or)
+(helper1 (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))))
+(helper circt-comb-shl)
+(helper circt-comb-shrs)
+(helper circt-comb-shru)
+(helper circt-comb-sub)
+(helper circt-comb-xor)
+
+; Bithack examples.
 (helper floor-avg)
 (helper bithack3)
 (helper bithack2)
