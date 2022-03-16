@@ -21,7 +21,5 @@ jobs:
           . \
           --file Dockerfile \
           --tag ${{ steps.build.outputs.tag }}
-    - name: Run Rust tests
-      run: docker run ${{ steps.build.outputs.tag }} cargo test --manifest-path rust/Cargo.toml -- --nocapture
-    - name: Run Racket tests
-      run: docker run ${{ steps.build.outputs.tag }} bash -c 'raco test racket/*.rkt'
+    - name: Run tests
+      run: docker run ${{ steps.build.outputs.tag }} ./run-tests.sh

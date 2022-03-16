@@ -43,3 +43,5 @@ ADD ./rust ./rust
 
 # Build Rust package.
 RUN cargo build --manifest-path ./rust/Cargo.toml
+
+ADD ./run-tests.sh ./run-tests.sh
