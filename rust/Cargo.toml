@@ -10,7 +10,7 @@ egg = "0.7"
 env_logger = "0.9.0"
 rand = "0.8.4"
 rayon = "1.5"
-test-log = "0.2.8"
+test-log = "=0.2.8" # TODO(@gussmith23) Change to 0.2 when https://github.com/d-e-s-o/test-log/issues/22 resolves.
 
 [dev-dependencies]
 walkdir = "2.3.2"
