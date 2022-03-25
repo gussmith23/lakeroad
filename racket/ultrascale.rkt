@@ -7,6 +7,7 @@
 
 ; The output of a LUT is simply the `output-width`-length bitvector at the entry pointed to by
 ; `inputs-a`, when interpreted as an integer.
+; It's probably worth putting this somewhere more generally usable.
 (define (lut output-width memory inputs)
   (let* ([i (bitvector->natural inputs)] [low (* output-width i)] [high (+ (- output-width 1) low)])
     (extract high low memory)))
