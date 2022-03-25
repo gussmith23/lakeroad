@@ -22,4 +22,4 @@ jobs:
           --file Dockerfile \
           --tag ${{ steps.build.outputs.tag }}
     - name: Run tests
-      run: docker run ${{ steps.build.outputs.tag }} ./run-tests.sh
+      run: docker run ${{ steps.build.outputs.tag }} bash run-tests.sh
