@@ -17,12 +17,22 @@
   (check-equal? (lut 2 (bv #b0110 4) (bv 0 1)) (bv #b10 2))
   (check-equal? (lut 2 (bv #b0110 4) (bv 1 1)) (bv #b01 2)))
 
-; We define O5 as the 1th output and O6 as the 0th.
-; This may need to be changed -- I'm not sure what the actual order is inside a lookup table.
-(define (O5 outputs)
-  (extract 1 1 outputs))
-(define (O6 outputs)
-  (extract 0 0 outputs))
+; LUT6_2 primitive described on page 37 of
+; https://www.xilinx.com/support/documentation/user_guides/ug574-ultrascale-clb.pdf
+;
+; memory is expected to be in the format specified in the guide: a 64-bit bitvector. The bit ordering
+; is the same; the most significant 32 bits controlk the O6 LUT5, while the lower 32 bits control the
+; O5 LUT5.
+;
+; inputs is a 6-bit bitvector, corresponding to I0 (LSB) through I5 (MSB) in figure 3-1.
+;
+; Returns the O5 and O6 signals.
+(define (ultrascale-lut6-2 memory inputs)
+  (let* ([lut5-0 (lut 1 (extract 63 32 memory) (extract 4 0 inputs))]
+         [lut5-1 (lut 1 (extract 31 0 memory) (extract 4 0 inputs))]
+         [O6 (if (bitvector->bool (bit 5 inputs)) lut5-0 lut5-1)]
+         [O5 lut5-1])
+    (list O5 O6)))
 
 ; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4. Note that, to implement a mux with
 ; "if", the "then" and "else" clauses are in reverse order from the usual mux input order!
@@ -34,7 +44,7 @@
 ; Wrapper to make things easier.
 ; Returns (carry0, muxcy)
 (define (carry-layer outputs prev-muxcy)
-  (list (carry-o (O6 outputs) prev-muxcy) (carry-co (O6 outputs) (O5 outputs) prev-muxcy)))
+  (match-let ([(list O5 O6) outputs]) (list (carry-o O6 prev-muxcy) (carry-co O6 O5 prev-muxcy))))
 
 (define ultrascale-input-width 6)
 (define ultrascale-output-width 2)
@@ -57,14 +67,14 @@
                         lut-input-f
                         lut-input-g
                         lut-input-h)
-  (match-let* ([a-out (lut ultrascale-output-width lut-memory-a lut-input-a)]
-               [b-out (lut ultrascale-output-width lut-memory-b lut-input-b)]
-               [c-out (lut ultrascale-output-width lut-memory-c lut-input-c)]
-               [d-out (lut ultrascale-output-width lut-memory-d lut-input-d)]
-               [e-out (lut ultrascale-output-width lut-memory-e lut-input-e)]
-               [f-out (lut ultrascale-output-width lut-memory-f lut-input-f)]
-               [g-out (lut ultrascale-output-width lut-memory-g lut-input-g)]
-               [h-out (lut ultrascale-output-width lut-memory-h lut-input-h)]
+  (match-let* ([a-out (ultrascale-lut6-2 lut-memory-a lut-input-a)]
+               [b-out (ultrascale-lut6-2 lut-memory-b lut-input-b)]
+               [c-out (ultrascale-lut6-2 lut-memory-c lut-input-c)]
+               [d-out (ultrascale-lut6-2 lut-memory-d lut-input-d)]
+               [e-out (ultrascale-lut6-2 lut-memory-e lut-input-e)]
+               [f-out (ultrascale-lut6-2 lut-memory-f lut-input-f)]
+               [g-out (ultrascale-lut6-2 lut-memory-g lut-input-g)]
+               [h-out (ultrascale-lut6-2 lut-memory-h lut-input-h)]
                [(list carry-o0 carry-co0) (carry-layer a-out cin)]
                [(list carry-o1 carry-co1) (carry-layer b-out carry-co0)]
                [(list carry-o2 carry-co2) (carry-layer c-out carry-co1)]
