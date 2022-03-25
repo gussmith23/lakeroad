@@ -989,7 +989,8 @@ mod tests {
             })
             .collect();
         histogram.sort_by_key(|v| v.1);
-        for (instr, count) in histogram {
+        println!("Top 25 most frequent instructions:");
+        for (instr, count) in &histogram[histogram.len() - 25..] {
             println!(
                 "Instruction\n{}\nappears {} times.",
                 instr.pretty(1000),
