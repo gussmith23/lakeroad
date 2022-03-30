@@ -59,6 +59,14 @@
                         lut-memory-f
                         lut-memory-g
                         lut-memory-h
+                        mux-selector-a
+                        mux-selector-b
+                        mux-selector-c
+                        mux-selector-d
+                        mux-selector-e
+                        mux-selector-f
+                        mux-selector-g
+                        mux-selector-h
                         lut-input-a
                         lut-input-b
                         lut-input-c
@@ -67,23 +75,41 @@
                         lut-input-f
                         lut-input-g
                         lut-input-h)
-  (match-let* ([a-out (ultrascale-lut6-2 lut-memory-a lut-input-a)]
-               [b-out (ultrascale-lut6-2 lut-memory-b lut-input-b)]
-               [c-out (ultrascale-lut6-2 lut-memory-c lut-input-c)]
-               [d-out (ultrascale-lut6-2 lut-memory-d lut-input-d)]
-               [e-out (ultrascale-lut6-2 lut-memory-e lut-input-e)]
-               [f-out (ultrascale-lut6-2 lut-memory-f lut-input-f)]
-               [g-out (ultrascale-lut6-2 lut-memory-g lut-input-g)]
-               [h-out (ultrascale-lut6-2 lut-memory-h lut-input-h)]
-               [(list carry-o0 carry-co0) (carry-layer a-out cin)]
-               [(list carry-o1 carry-co1) (carry-layer b-out carry-co0)]
-               [(list carry-o2 carry-co2) (carry-layer c-out carry-co1)]
-               [(list carry-o3 carry-co3) (carry-layer d-out carry-co2)]
-               [(list carry-o4 carry-co4) (carry-layer e-out carry-co3)]
-               [(list carry-o5 carry-co5) (carry-layer f-out carry-co4)]
-               [(list carry-o6 carry-co6) (carry-layer g-out carry-co5)]
-               [(list carry-o7 carry-co7) (carry-layer h-out carry-co6)])
-              (concat carry-o7 carry-o6 carry-o5 carry-o4 carry-o3 carry-o2 carry-o1 carry-o0)))
+
+  (match-let*
+   ([a-out (ultrascale-lut6-2 lut-memory-a lut-input-a)]
+    [b-out (ultrascale-lut6-2 lut-memory-b lut-input-b)]
+    [c-out (ultrascale-lut6-2 lut-memory-c lut-input-c)]
+    [d-out (ultrascale-lut6-2 lut-memory-d lut-input-d)]
+    [e-out (ultrascale-lut6-2 lut-memory-e lut-input-e)]
+    [f-out (ultrascale-lut6-2 lut-memory-f lut-input-f)]
+    [g-out (ultrascale-lut6-2 lut-memory-g lut-input-g)]
+    [h-out (ultrascale-lut6-2 lut-memory-h lut-input-h)]
+    [(list carry-o0 carry-co0) (carry-layer a-out cin)]
+    [(list carry-o1 carry-co1) (carry-layer b-out carry-co0)]
+    [(list carry-o2 carry-co2) (carry-layer c-out carry-co1)]
+    [(list carry-o3 carry-co3) (carry-layer d-out carry-co2)]
+    [(list carry-o4 carry-co4) (carry-layer e-out carry-co3)]
+    [(list carry-o5 carry-co5) (carry-layer f-out carry-co4)]
+    [(list carry-o6 carry-co6) (carry-layer g-out carry-co5)]
+    [(list carry-o7 carry-co7) (carry-layer h-out carry-co6)]
+    [a-mux-out
+     (list-ref (list (first a-out) (second a-out) carry-o0) (bitvector->natural mux-selector-a))]
+    [b-mux-out
+     (list-ref (list (first b-out) (second b-out) carry-o1) (bitvector->natural mux-selector-b))]
+    [c-mux-out
+     (list-ref (list (first c-out) (second c-out) carry-o2) (bitvector->natural mux-selector-c))]
+    [d-mux-out
+     (list-ref (list (first d-out) (second d-out) carry-o3) (bitvector->natural mux-selector-d))]
+    [e-mux-out
+     (list-ref (list (first e-out) (second e-out) carry-o4) (bitvector->natural mux-selector-e))]
+    [f-mux-out
+     (list-ref (list (first f-out) (second f-out) carry-o5) (bitvector->natural mux-selector-f))]
+    [g-mux-out
+     (list-ref (list (first g-out) (second g-out) carry-o6) (bitvector->natural mux-selector-g))]
+    [h-mux-out
+     (list-ref (list (first h-out) (second h-out) carry-o7) (bitvector->natural mux-selector-h))])
+   (concat h-mux-out g-mux-out f-mux-out e-mux-out d-mux-out c-mux-out b-mux-out a-mux-out)))
 
 ; A simple logical-to-physical inputs function, in which the first (least significant) bit of each
 ; logical input is mapped to LUT A (logical input 0 in the least significant place), the second bit is
