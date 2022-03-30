@@ -101,6 +101,9 @@
   (if (sat? soln) (pretty-print (model soln)) (println soln))
   (displayln ""))
 
+; Simple test: identify function.
+(helper (lambda (a) a) 1)
+
 ; CIRCT Comb dialect.
 (helper circt-comb-add 2)
 (helper circt-comb-and 2)
