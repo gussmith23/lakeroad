@@ -1,3 +1,4 @@
+; "Deep" tests, in which we see if we can synthesize functions using multiple CLBs in sequence.
 #lang racket
 
 (require "ultrascale.rkt"
