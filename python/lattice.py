@@ -41,7 +41,7 @@ class MUX:
 
 
 class Slice:
-    def __init__(self, prefix):
+    def __init__(self, prefix, solver):
         self.prefix = prefix
         self.solver = solver
         self.lut4_0 = LUT4(prefix + "_lut_0")
