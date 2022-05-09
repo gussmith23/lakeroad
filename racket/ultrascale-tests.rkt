@@ -69,9 +69,10 @@
         logical-input-5))
 
 (define (helper f arity)
-  (println f)
-  (define soln
-    (time
+  (match-let
+   ([soln
+     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
      (synthesize
       #:forall logical-inputs
       #:guarantee
@@ -100,37 +101,51 @@
           (assume (bvzero? logical-input)))
 
         ; Assert that the output of the CLB implements the requested function f.
-        (assert (bveq (apply f (take logical-inputs arity)) out))))))
+        (assert (bveq (apply f (take logical-inputs arity)) out))))])
+   ; Print the output. Unwrap the model if there is one, so that all of the values print.
+   ;;;  (println f)
+   ;;;  (if (sat? soln) (pretty-print (model soln)) (println soln))
+   ;;;  (displayln "")
+   soln))
 
-  ; Print the output. Unwrap the model if there is one, so that all of the values print.
-  (if (sat? soln) (pretty-print (model soln)) (println soln))
-  (displayln ""))
+; Even in files that are just full of tests, I still stick the tests in a submodule. This is mainly to
+; allow for opening the file in an interpreter without running all the tests. To run tests, run
+; `raco test <filename>`.
+(module+ test
+  (require rackunit)
 
-; Simple test: identify function.
-(helper (lambda (a) a) 1)
+  ; Test synthesis of various functions on UltraScale+.
+  ; If any test starts failing, it's presumably because our UltraScale+ model changed. The question
+  ; is, was the change correct?
+  ; If a check-true test fails, then the model became less flexible.
+  ; If a check-false test fails, then the model became more flexible.
+  ; It's up to you to determine whether the change was correct!
 
-; CIRCT Comb dialect.
-(helper circt-comb-add 2)
-(helper circt-comb-and 2)
-(helper circt-comb-divs 2)
-(helper circt-comb-divu 2)
-(helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)
-(helper circt-comb-mods 2)
-(helper circt-comb-mul 2)
-(helper circt-comb-mux 3)
-(helper circt-comb-or 2)
-(helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)
-(helper circt-comb-shl 2)
-(helper circt-comb-shrs 2)
-(helper circt-comb-shru 2)
-(helper circt-comb-sub 2)
-(helper circt-comb-xor 2)
+  ; Simple test: identify function.
+  (check-true (sat? (helper (lambda (a) a) 1)))
 
-; Bithack examples.
-(helper floor-avg 2)
-(helper bithack3 2)
-(helper bithack2 2)
-(helper bithack1 2)
-(helper ceil-avg 2)
-(helper bvadd 2)
-(helper cycle 4)
+  ; CIRCT Comb dialect.
+  (check-true (sat? (helper circt-comb-add 2)))
+  (check-true (sat? (helper circt-comb-and 2)))
+  (check-false (sat? (helper circt-comb-divs 2)))
+  (check-false (sat? (helper circt-comb-divu 2)))
+  (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
+  (check-false (sat? (helper circt-comb-mods 2)))
+  (check-false (sat? (helper circt-comb-mul 2)))
+  (check-true (sat? (helper circt-comb-mux 3)))
+  (check-true (sat? (helper circt-comb-or 2)))
+  (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
+  (check-false (sat? (helper circt-comb-shl 2)))
+  (check-false (sat? (helper circt-comb-shrs 2)))
+  (check-false (sat? (helper circt-comb-shru 2)))
+  (check-true (sat? (helper circt-comb-sub 2)))
+  (check-true (sat? (helper circt-comb-xor 2)))
+
+  ; Bithack examples.
+  (check-false (sat? (helper floor-avg 2)))
+  (check-true (sat? (helper bithack3 2)))
+  (check-false (sat? (helper bithack2 2)))
+  (check-true (sat? (helper bithack1 2)))
+  (check-false (sat? (helper ceil-avg 2)))
+  (check-true (sat? (helper bvadd 2)))
+  (check-false (sat? (helper cycle 4))))
