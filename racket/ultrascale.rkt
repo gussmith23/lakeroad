@@ -5,17 +5,21 @@
 (provide ultrascale-clb
          ultrascale-logical-to-physical-inputs)
 
-; The output of a LUT is simply the `output-width`-length bitvector at the entry pointed to by
+; The output of a LUT is simply the bit at the entry pointed to by
 ; `inputs-a`, when interpreted as an integer.
 ; It's probably worth putting this somewhere more generally usable.
-(define (lut output-width memory inputs)
-  (let* ([i (bitvector->natural inputs)] [low (* output-width i)] [high (+ (- output-width 1) low)])
-    (extract high low memory)))
+; LUTs must return only one bit. TODO: figure out how to return multiple bits while still using
+; theory of bitvectors only. The old solution used theory of integers to index into the bitvector.
+(define (lut memory inputs)
+  (let* ([inputs (zero-extend inputs (bitvector (length (bitvector->bits memory))))])
+    (bit 0 (bvlshr memory inputs))))
 
 (module+ test
   (require rackunit)
-  (check-equal? (lut 2 (bv #b0110 4) (bv 0 1)) (bv #b10 2))
-  (check-equal? (lut 2 (bv #b0110 4) (bv 1 1)) (bv #b01 2)))
+  (check-equal? (lut (bv #b0110 4) (bv 0 1)) (bv #b0 1))
+  (check-equal? (lut (bv #b0110 4) (bv 1 1)) (bv #b1 1))
+  (check-equal? (lut (bv #b0110 4) (bv 2 2)) (bv #b1 1))
+  (check-equal? (lut (bv #b0110 4) (bv 3 2)) (bv #b0 1)))
 
 ; LUT6_2 primitive described on page 37 of
 ; https://www.xilinx.com/support/documentation/user_guides/ug574-ultrascale-clb.pdf
@@ -28,8 +32,8 @@
 ;
 ; Returns the O5 and O6 signals.
 (define (ultrascale-lut6-2 memory inputs)
-  (let* ([lut5-0 (lut 1 (extract 63 32 memory) (extract 4 0 inputs))]
-         [lut5-1 (lut 1 (extract 31 0 memory) (extract 4 0 inputs))]
+  (let* ([lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
+         [lut5-1 (lut (extract 31 0 memory) (extract 4 0 inputs))]
          [O6 (if (bitvector->bool (bit 5 inputs)) lut5-0 lut5-1)]
          [O5 lut5-1])
     (list O5 O6)))
@@ -93,22 +97,22 @@
     [(list carry-o5 carry-co5) (carry-layer f-out carry-co4)]
     [(list carry-o6 carry-co6) (carry-layer g-out carry-co5)]
     [(list carry-o7 carry-co7) (carry-layer h-out carry-co6)]
-    [a-mux-out
-     (list-ref (list (first a-out) (second a-out) carry-o0) (bitvector->natural mux-selector-a))]
-    [b-mux-out
-     (list-ref (list (first b-out) (second b-out) carry-o1) (bitvector->natural mux-selector-b))]
-    [c-mux-out
-     (list-ref (list (first c-out) (second c-out) carry-o2) (bitvector->natural mux-selector-c))]
-    [d-mux-out
-     (list-ref (list (first d-out) (second d-out) carry-o3) (bitvector->natural mux-selector-d))]
-    [e-mux-out
-     (list-ref (list (first e-out) (second e-out) carry-o4) (bitvector->natural mux-selector-e))]
-    [f-mux-out
-     (list-ref (list (first f-out) (second f-out) carry-o5) (bitvector->natural mux-selector-f))]
-    [g-mux-out
-     (list-ref (list (first g-out) (second g-out) carry-o6) (bitvector->natural mux-selector-g))]
-    [h-mux-out
-     (list-ref (list (first h-out) (second h-out) carry-o7) (bitvector->natural mux-selector-h))])
+    [mux-helper
+     (lambda (out carry selector)
+       (assert (not (bveq selector (bv 3 2))))
+       (if (bveq selector (bv 0 2))
+           (first out)
+           (if (bveq selector (bv 1 2))
+               (second out)
+               (if (bveq selector (bv 2 2)) carry (error "shouldn't hit this")))))]
+    [a-mux-out (mux-helper a-out carry-o0 mux-selector-a)]
+    [b-mux-out (mux-helper b-out carry-o1 mux-selector-b)]
+    [c-mux-out (mux-helper c-out carry-o2 mux-selector-c)]
+    [d-mux-out (mux-helper d-out carry-o3 mux-selector-d)]
+    [e-mux-out (mux-helper e-out carry-o4 mux-selector-e)]
+    [f-mux-out (mux-helper f-out carry-o5 mux-selector-f)]
+    [g-mux-out (mux-helper g-out carry-o6 mux-selector-g)]
+    [h-mux-out (mux-helper h-out carry-o7 mux-selector-h)])
    (concat h-mux-out g-mux-out f-mux-out e-mux-out d-mux-out c-mux-out b-mux-out a-mux-out)))
 
 ; A simple logical-to-physical inputs function, in which the first (least significant) bit of each
