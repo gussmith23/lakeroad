@@ -133,3 +133,111 @@
                           (extract idx idx logical-input-4)
                           (extract idx idx logical-input-5)))])
     (list (helper 0) (helper 1) (helper 2) (helper 3) (helper 4) (helper 5) (helper 6) (helper 7))))
+
+; A helper function which first creates symbolic variables for all of the programmable state of the
+; LUT, and then calls the CLB function with the provided inputs.
+(define (ultrascale-plus-clb-helper physical-inputs)
+
+  ; The programmable state of the CLB.
+  (define-symbolic* cin (bitvector 1))
+  (define-symbolic* lut-memory-a (bitvector 64))
+  (define-symbolic* lut-memory-b (bitvector 64))
+  (define-symbolic* lut-memory-c (bitvector 64))
+  (define-symbolic* lut-memory-d (bitvector 64))
+  (define-symbolic* lut-memory-e (bitvector 64))
+  (define-symbolic* lut-memory-f (bitvector 64))
+  (define-symbolic* lut-memory-g (bitvector 64))
+  (define-symbolic* lut-memory-h (bitvector 64))
+  (define-symbolic* mux-selector-a (bitvector 2))
+  (define-symbolic* mux-selector-b (bitvector 2))
+  (define-symbolic* mux-selector-c (bitvector 2))
+  (define-symbolic* mux-selector-d (bitvector 2))
+  (define-symbolic* mux-selector-e (bitvector 2))
+  (define-symbolic* mux-selector-f (bitvector 2))
+  (define-symbolic* mux-selector-g (bitvector 2))
+  (define-symbolic* mux-selector-h (bitvector 2))
+  (assert (not (bveq mux-selector-a (bv 3 2))))
+  (assert (not (bveq mux-selector-b (bv 3 2))))
+  (assert (not (bveq mux-selector-c (bv 3 2))))
+  (assert (not (bveq mux-selector-d (bv 3 2))))
+  (assert (not (bveq mux-selector-e (bv 3 2))))
+  (assert (not (bveq mux-selector-f (bv 3 2))))
+  (assert (not (bveq mux-selector-g (bv 3 2))))
+  (assert (not (bveq mux-selector-h (bv 3 2))))
+
+  (apply ultrascale-clb
+         cin
+         lut-memory-a
+         lut-memory-b
+         lut-memory-c
+         lut-memory-d
+         lut-memory-e
+         lut-memory-f
+         lut-memory-g
+         lut-memory-h
+         mux-selector-a
+         mux-selector-b
+         mux-selector-c
+         mux-selector-d
+         mux-selector-e
+         mux-selector-f
+         mux-selector-g
+         mux-selector-h
+         physical-inputs))
+
+; Compile a Rosette model to Verilog.
+(define (compile-to-verilog model)
+  "TODO")
+
+(module+ test
+  (require rackunit
+           rosette/solver/smt/boolector)
+
+  (current-solver (boolector))
+
+  (define-symbolic logical-input-0 (bitvector 8))
+  (define-symbolic logical-input-1 (bitvector 8))
+  (define-symbolic logical-input-2 (bitvector 8))
+  (define-symbolic logical-input-3 (bitvector 8))
+  (define-symbolic logical-input-4 (bitvector 8))
+  (define-symbolic logical-input-5 (bitvector 8))
+  (define logical-inputs
+    (list logical-input-0
+          logical-input-1
+          logical-input-2
+          logical-input-3
+          logical-input-4
+          logical-input-5))
+
+  (define out
+    (ultrascale-plus-clb-helper (apply ultrascale-logical-to-physical-inputs logical-inputs)))
+
+  (define solution
+    (synthesize #:forall logical-inputs
+                #:guarantee (begin
+                              (for ([v (list-tail logical-inputs 2)])
+                                (assume (bvzero? v)))
+                              (assert (bveq out (bvadd logical-input-0 logical-input-1))))))
+  (check-true (sat? solution))
+
+  (define (run-add a b)
+    (let ([expr (evaluate out
+                          (sat (hash logical-input-0
+                                     a
+                                     logical-input-1
+                                     b
+                                     logical-input-2
+                                     (bv 0 8)
+                                     logical-input-3
+                                     (bv 0 8)
+                                     logical-input-4
+                                     (bv 0 8)
+                                     logical-input-5
+                                     (bv 0 8))))])
+      (evaluate expr (complete-solution solution (symbolics expr)))))
+  (check-equal? (run-add (bv 0 8) (bv 0 8)) (bv 0 8))
+  (check-equal? (run-add (bv 1 8) (bv 7 8)) (bv 8 8))
+  (check-equal? (run-add (bv 10 8) (bv 230 8)) (bv 240 8))
+  (check-equal? (run-add (bv 30 8) (bv 3 8)) (bv 33 8))
+
+  (check-equal? "TODO(@gussmith23): insert correct verilog" (compile-to-verilog (model solution))))
