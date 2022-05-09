@@ -54,6 +54,7 @@
 (define ultrascale-output-width 2)
 
 ; Returns the physical outputs of the CLB.
+; TODO(@gussmith23) Rename to ultrascale-plus-clb.
 (define (ultrascale-clb cin
                         lut-memory-a
                         lut-memory-b
