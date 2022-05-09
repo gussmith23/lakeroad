@@ -4,7 +4,10 @@
 (require "ultrascale.rkt"
          rosette
          "programs-to-synthesize.rkt"
-         "circt-comb-operators.rkt")
+         "circt-comb-operators.rkt"
+         rosette/solver/smt/boolector)
+
+(current-solver (boolector))
 
 (define-symbolic cin-0 (bitvector 1))
 (define-symbolic lut-memory-a-0 (bitvector 64))
@@ -23,14 +26,6 @@
 (define-symbolic mux-selector-f-0 (bitvector 2))
 (define-symbolic mux-selector-g-0 (bitvector 2))
 (define-symbolic mux-selector-h-0 (bitvector 2))
-(assert (< (bitvector->natural mux-selector-a-0) 3))
-(assert (< (bitvector->natural mux-selector-b-0) 3))
-(assert (< (bitvector->natural mux-selector-c-0) 3))
-(assert (< (bitvector->natural mux-selector-d-0) 3))
-(assert (< (bitvector->natural mux-selector-e-0) 3))
-(assert (< (bitvector->natural mux-selector-f-0) 3))
-(assert (< (bitvector->natural mux-selector-g-0) 3))
-(assert (< (bitvector->natural mux-selector-h-0) 3))
 
 (define-symbolic logical-input-0-0 (bitvector 8))
 (define-symbolic logical-input-1-0 (bitvector 8))
@@ -90,14 +85,6 @@
 (define-symbolic mux-selector-f-1 (bitvector 2))
 (define-symbolic mux-selector-g-1 (bitvector 2))
 (define-symbolic mux-selector-h-1 (bitvector 2))
-(assert (< (bitvector->natural mux-selector-a-1) 3))
-(assert (< (bitvector->natural mux-selector-b-1) 3))
-(assert (< (bitvector->natural mux-selector-c-1) 3))
-(assert (< (bitvector->natural mux-selector-d-1) 3))
-(assert (< (bitvector->natural mux-selector-e-1) 3))
-(assert (< (bitvector->natural mux-selector-f-1) 3))
-(assert (< (bitvector->natural mux-selector-g-1) 3))
-(assert (< (bitvector->natural mux-selector-h-1) 3))
 
 (define out-1
   (ultrascale-clb cin-1
@@ -126,7 +113,7 @@
                   (zero-extend (bit 6 out-0) (bitvector 6))
                   (zero-extend (bit 7 out-0) (bitvector 6))))
 
-(define (helper f arity)
+(define (helper-old f arity)
   (println f)
   (define soln
     (time
@@ -154,28 +141,87 @@
   (if (sat? soln) (pretty-print (model soln)) (println soln))
   (displayln ""))
 
-; CIRCT Comb dialect.
-(helper circt-comb-add 2)
-(helper circt-comb-and 2)
-(helper circt-comb-divs 2)
-(helper circt-comb-divu 2)
-(helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)
-(helper circt-comb-mods 2)
-(helper circt-comb-mul 2)
-(helper circt-comb-mux 3)
-(helper circt-comb-or 2)
-(helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)
-(helper circt-comb-shl 2)
-(helper circt-comb-shrs 2)
-(helper circt-comb-shru 2)
-(helper circt-comb-sub 2)
-(helper circt-comb-xor 2)
+; TODO(@gussmith23) Copied (and modified) from ultrascale-tests.rkt. Should share more code.
+(define (helper f arity)
+  (match-let
+   ([soln
+     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+     (synthesize
+      #:forall logical-inputs-0
+      #:guarantee
+      (begin
 
-; Bithack examples.
-(helper floor-avg 2)
-(helper bithack3 2)
-(helper bithack2 2)
-(helper bithack1 2)
-(helper ceil-avg 2)
-(helper bvadd 2)
-(helper cycle 4)
+        (assert (not (bveq mux-selector-a-0 (bv 3 2))))
+        (assert (not (bveq mux-selector-b-0 (bv 3 2))))
+        (assert (not (bveq mux-selector-c-0 (bv 3 2))))
+        (assert (not (bveq mux-selector-d-0 (bv 3 2))))
+        (assert (not (bveq mux-selector-e-0 (bv 3 2))))
+        (assert (not (bveq mux-selector-f-0 (bv 3 2))))
+        (assert (not (bveq mux-selector-g-0 (bv 3 2))))
+        (assert (not (bveq mux-selector-h-0 (bv 3 2))))
+        (assert (not (bveq mux-selector-a-1 (bv 3 2))))
+        (assert (not (bveq mux-selector-b-1 (bv 3 2))))
+        (assert (not (bveq mux-selector-c-1 (bv 3 2))))
+        (assert (not (bveq mux-selector-d-1 (bv 3 2))))
+        (assert (not (bveq mux-selector-e-1 (bv 3 2))))
+        (assert (not (bveq mux-selector-f-1 (bv 3 2))))
+        (assert (not (bveq mux-selector-g-1 (bv 3 2))))
+        (assert (not (bveq mux-selector-h-1 (bv 3 2))))
+
+        ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
+        ; we tell the solver that they're unused and unimportant, and setting them to a constant value
+        ; is the way to this.
+        ; When these aren't set, synthesis takes about 10-20x longer (20mins vs 1.5mins). In this case,
+        ; we synthesize a LUT that is correct for inputs 0 and 1 regardless of the settings of the
+        ; other inputs. I'm not sure if that's useful. I also wonder if there's a faster way to get
+        ; the same result. E.g. either 1. assume 2-5 are all 0 and then manually edit the resulting LUT
+        ; and duplicate the "correct" parts of the LUT memory into the rest of the LUT memory, OR, 2.,
+        ; a more graceful solution, `assume` some predicates that basically say that 2-5 "don't matter"
+        ; and that the outputs for a given 0 and 1 should be the same for any 2-5.
+        (for ([logical-input (list-tail logical-inputs-0 arity)])
+          (assume (bvzero? logical-input)))
+
+        ; Assert that the output of the CLB implements the requested function f.
+        (assert (bveq (apply f (take logical-inputs-0 arity)) out-1))))])
+   ; Print the output. Unwrap the model if there is one, so that all of the values print.
+   ;;;  (println f)
+   ;;;  (if (sat? soln) (pretty-print (model soln)) (println soln))
+   ;;;  (displayln "")
+   soln))
+
+(module+ test
+  (require rackunit)
+
+  ; TODO(@gussmith23) Lots of duplication from ultrascale-tests.rkt.
+
+  ; Simple test: identify function.
+  (check-true (sat? (helper (lambda (a) a) 1)))
+
+  ; CIRCT Comb dialect.
+  (check-true (sat? (helper circt-comb-add 2)))
+  (check-true (sat? (helper circt-comb-and 2)))
+  (check-false (sat? (helper circt-comb-divs 2)))
+  (check-false (sat? (helper circt-comb-divu 2)))
+  (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
+  (check-false (sat? (helper circt-comb-mods 2)))
+  (check-false (sat? (helper circt-comb-mul 2)))
+  (check-true (sat? (helper circt-comb-mux 3)))
+  (check-true (sat? (helper circt-comb-or 2)))
+  (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
+  (check-false (sat? (helper circt-comb-shl 2)))
+  (check-false (sat? (helper circt-comb-shrs 2)))
+  (check-false (sat? (helper circt-comb-shru 2)))
+  (check-true (sat? (helper circt-comb-sub 2)))
+  (check-true (sat? (helper circt-comb-xor 2)))
+
+  ; Bithack examples.
+  (check-false (sat? (helper floor-avg 2)))
+  (check-true (sat? (helper bithack3 2)))
+  ; bithack2 is currently the only example of a function that becomes possible to synthesize when
+  ; we use more resources. That's definitely not correct, and I'm pretty sure it's due to routing.
+  (check-true (sat? (helper bithack2 2)))
+  (check-true (sat? (helper bithack1 2)))
+  (check-false (sat? (helper ceil-avg 2)))
+  (check-true (sat? (helper bvadd 2)))
+  (check-false (sat? (helper cycle 4))))
