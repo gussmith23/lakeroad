@@ -165,29 +165,192 @@
   (assert (not (bveq mux-selector-g (bv 3 2))))
   (assert (not (bveq mux-selector-h (bv 3 2))))
 
-  (apply ultrascale-clb
-         cin
-         lut-memory-a
-         lut-memory-b
-         lut-memory-c
-         lut-memory-d
-         lut-memory-e
-         lut-memory-f
-         lut-memory-g
-         lut-memory-h
-         mux-selector-a
-         mux-selector-b
-         mux-selector-c
-         mux-selector-d
-         mux-selector-e
-         mux-selector-f
-         mux-selector-g
-         mux-selector-h
-         physical-inputs))
+  (values cin
+          lut-memory-a
+          lut-memory-b
+          lut-memory-c
+          lut-memory-d
+          lut-memory-e
+          lut-memory-f
+          lut-memory-g
+          lut-memory-h
+          mux-selector-a
+          mux-selector-b
+          mux-selector-c
+          mux-selector-d
+          mux-selector-e
+          mux-selector-f
+          mux-selector-g
+          mux-selector-h
+          (apply ultrascale-clb
+                 cin
+                 lut-memory-a
+                 lut-memory-b
+                 lut-memory-c
+                 lut-memory-d
+                 lut-memory-e
+                 lut-memory-f
+                 lut-memory-g
+                 lut-memory-h
+                 mux-selector-a
+                 mux-selector-b
+                 mux-selector-c
+                 mux-selector-d
+                 mux-selector-e
+                 mux-selector-f
+                 mux-selector-g
+                 mux-selector-h
+                 physical-inputs)))
 
-; Compile a Rosette model to Verilog.
-(define (compile-to-verilog model)
-  "TODO")
+; Compile a Rosette model of a UltraScale+ CLB to Verilog.
+; Model: the model, containing the settings of all values.
+; Everything else: the list of symbolic variables.
+; TODO(@gussmith) Make more ergonomic.
+(define (compile-clb-to-verilog model
+                                cin
+                                lut-memory-a
+                                lut-memory-b
+                                lut-memory-c
+                                lut-memory-d
+                                lut-memory-e
+                                lut-memory-f
+                                lut-memory-g
+                                lut-memory-h
+                                mux-selector-a
+                                mux-selector-b
+                                mux-selector-c
+                                mux-selector-d
+                                mux-selector-e
+                                mux-selector-f
+                                mux-selector-g
+                                mux-selector-h)
+  (pretty-display model)
+  (pretty-display (hash-ref model cin))
+
+  (define out
+    (format
+     #<<here-string-delimiter
+module example(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h, out);
+  input [5:0] input_a;
+  wire [5:0] input_a;
+  input [5:0] input_b;
+  wire [5:0] input_b;
+  input [5:0] input_c;
+  wire [5:0] input_c;
+  input [5:0] input_d;
+  wire [5:0] input_d;
+  input [5:0] input_e;
+  wire [5:0] input_e;
+  input [5:0] input_f;
+  wire [5:0] input_f;
+  input [5:0] input_g;
+  wire [5:0] input_g;
+  input [5:0] input_h;
+  wire [5:0] input_h;
+  output [7:0] out;
+  wire [7:0] out;
+  LUT6 #(
+    .INIT(64'h~x)
+  ) _LUT_A (
+    .I0(input_a[0]),
+    .I1(input_a[1]),
+    .I2(input_a[2]),
+    .I3(input_a[3]),
+    .I4(input_a[4]),
+    .I5(input_a[5]),
+    .O(out[0])
+  );
+  LUT6 #(
+    .INIT(64'h~x)
+  ) _LUT_B (
+    .I0(input_b[0]),
+    .I1(input_b[1]),
+    .I2(input_b[2]),
+    .I3(input_b[3]),
+    .I4(input_b[4]),
+    .I5(input_b[5]),
+    .O(out[1])
+  );
+  LUT6 #(
+    .INIT(64'h~x)
+  ) _LUT_C (
+    .I0(input_c[0]),
+    .I1(input_c[1]),
+    .I2(input_c[2]),
+    .I3(input_c[3]),
+    .I4(input_c[4]),
+    .I5(input_c[5]),
+    .O(out[2])
+  );
+  LUT6 #(
+    .INIT(64'h~x)
+  ) _LUT_D (
+    .I0(input_d[0]),
+    .I1(input_d[1]),
+    .I2(input_d[2]),
+    .I3(input_d[3]),
+    .I4(input_d[4]),
+    .I5(input_d[5]),
+    .O(out[3])
+  );
+  LUT6 #(
+    .INIT(64'h~x)
+  ) _LUT_E (
+    .I0(input_e[0]),
+    .I1(input_e[1]),
+    .I2(input_e[2]),
+    .I3(input_e[3]),
+    .I4(input_e[4]),
+    .I5(input_e[5]),
+    .O(out[4])
+  );
+  LUT6 #(
+    .INIT(64'h~x)
+  ) _LUT_F (
+    .I0(input_f[0]),
+    .I1(input_f[1]),
+    .I2(input_f[2]),
+    .I3(input_f[3]),
+    .I4(input_f[4]),
+    .I5(input_f[5]),
+    .O(out[5])
+  );
+  LUT6 #(
+    .INIT(64'h~x)
+  ) _LUT_G (
+    .I0(input_g[0]),
+    .I1(input_g[1]),
+    .I2(input_g[2]),
+    .I3(input_g[3]),
+    .I4(input_g[4]),
+    .I5(input_g[5]),
+    .O(out[6])
+  );
+  LUT6 #(
+    .INIT(64'h~x)
+  ) _LUT_H (
+    .I0(input_h[0]),
+    .I1(input_h[1]),
+    .I2(input_h[2]),
+    .I3(input_h[3]),
+    .I4(input_h[4]),
+    .I5(input_h[5]),
+    .O(out[7])
+  );
+endmodule
+
+here-string-delimiter
+     ; This comment prevents the autoformatter from breaking the here string.
+     (bitvector->natural (hash-ref model lut-memory-a))
+     (bitvector->natural (hash-ref model lut-memory-b))
+     (bitvector->natural (hash-ref model lut-memory-c))
+     (bitvector->natural (hash-ref model lut-memory-d))
+     (bitvector->natural (hash-ref model lut-memory-e))
+     (bitvector->natural (hash-ref model lut-memory-f))
+     (bitvector->natural (hash-ref model lut-memory-g))
+     (bitvector->natural (hash-ref model lut-memory-h))))
+
+  out)
 
 (module+ test
   (require rackunit
@@ -209,7 +372,23 @@
           logical-input-4
           logical-input-5))
 
-  (define out
+  (define-values (cin lut-memory-a
+                      lut-memory-b
+                      lut-memory-c
+                      lut-memory-d
+                      lut-memory-e
+                      lut-memory-f
+                      lut-memory-g
+                      lut-memory-h
+                      mux-selector-a
+                      mux-selector-b
+                      mux-selector-c
+                      mux-selector-d
+                      mux-selector-e
+                      mux-selector-f
+                      mux-selector-g
+                      mux-selector-h
+                      out)
     (ultrascale-plus-clb-helper (apply ultrascale-logical-to-physical-inputs logical-inputs)))
 
   (define solution
@@ -217,7 +396,16 @@
                 #:guarantee (begin
                               (for ([v (list-tail logical-inputs 2)])
                                 (assume (bvzero? v)))
-                              (assert (bveq out (bvadd logical-input-0 logical-input-1))))))
+                              (assume (bveq cin (bv 0 1)))
+                              (assume (bveq mux-selector-a (bv 1 2)))
+                              (assume (bveq mux-selector-b (bv 1 2)))
+                              (assume (bveq mux-selector-c (bv 1 2)))
+                              (assume (bveq mux-selector-d (bv 1 2)))
+                              (assume (bveq mux-selector-e (bv 1 2)))
+                              (assume (bveq mux-selector-f (bv 1 2)))
+                              (assume (bveq mux-selector-g (bv 1 2)))
+                              (assume (bveq mux-selector-h (bv 1 2)))
+                              (assert (bveq out (bvand logical-input-0 logical-input-1))))))
   (check-true (sat? solution))
 
   (define (run-add a b)
@@ -240,4 +428,24 @@
   (check-equal? (run-add (bv 10 8) (bv 230 8)) (bv 240 8))
   (check-equal? (run-add (bv 30 8) (bv 3 8)) (bv 33 8))
 
-  (check-equal? "TODO(@gussmith23): insert correct verilog" (compile-to-verilog (model solution))))
+  (define verilog
+    (compile-clb-to-verilog (model solution)
+                            cin
+                            lut-memory-a
+                            lut-memory-b
+                            lut-memory-c
+                            lut-memory-d
+                            lut-memory-e
+                            lut-memory-f
+                            lut-memory-g
+                            lut-memory-h
+                            mux-selector-a
+                            mux-selector-b
+                            mux-selector-c
+                            mux-selector-d
+                            mux-selector-e
+                            mux-selector-f
+                            mux-selector-g
+                            mux-selector-h))
+  (check-equal? "TODO(@gussmith23): insert correct verilog" verilog)
+  (displayln verilog))
