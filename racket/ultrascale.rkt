@@ -453,5 +453,118 @@ here-string-delimiter
                             mux-selector-f
                             mux-selector-g
                             mux-selector-h))
-  (check-equal? "TODO(@gussmith23): insert correct verilog" verilog)
-  (displayln verilog))
+  (define v
+    #<<here-string-delimiter
+module example(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h, out);
+  input [5:0] input_a;
+  wire [5:0] input_a;
+  input [5:0] input_b;
+  wire [5:0] input_b;
+  input [5:0] input_c;
+  wire [5:0] input_c;
+  input [5:0] input_d;
+  wire [5:0] input_d;
+  input [5:0] input_e;
+  wire [5:0] input_e;
+  input [5:0] input_f;
+  wire [5:0] input_f;
+  input [5:0] input_g;
+  wire [5:0] input_g;
+  input [5:0] input_h;
+  wire [5:0] input_h;
+  output [7:0] out;
+  wire [7:0] out;
+  LUT6 #(
+    .INIT(64'hfffffffffffffff8)
+  ) _LUT_A (
+    .I0(input_a[0]),
+    .I1(input_a[1]),
+    .I2(input_a[2]),
+    .I3(input_a[3]),
+    .I4(input_a[4]),
+    .I5(input_a[5]),
+    .O(out[0])
+  );
+  LUT6 #(
+    .INIT(64'hfffffffffffffff8)
+  ) _LUT_B (
+    .I0(input_b[0]),
+    .I1(input_b[1]),
+    .I2(input_b[2]),
+    .I3(input_b[3]),
+    .I4(input_b[4]),
+    .I5(input_b[5]),
+    .O(out[1])
+  );
+  LUT6 #(
+    .INIT(64'hfffffffffffffff8)
+  ) _LUT_C (
+    .I0(input_c[0]),
+    .I1(input_c[1]),
+    .I2(input_c[2]),
+    .I3(input_c[3]),
+    .I4(input_c[4]),
+    .I5(input_c[5]),
+    .O(out[2])
+  );
+  LUT6 #(
+    .INIT(64'hfffffffffffffff8)
+  ) _LUT_D (
+    .I0(input_d[0]),
+    .I1(input_d[1]),
+    .I2(input_d[2]),
+    .I3(input_d[3]),
+    .I4(input_d[4]),
+    .I5(input_d[5]),
+    .O(out[3])
+  );
+  LUT6 #(
+    .INIT(64'hfffffffffffffff8)
+  ) _LUT_E (
+    .I0(input_e[0]),
+    .I1(input_e[1]),
+    .I2(input_e[2]),
+    .I3(input_e[3]),
+    .I4(input_e[4]),
+    .I5(input_e[5]),
+    .O(out[4])
+  );
+  LUT6 #(
+    .INIT(64'hfffffffffffffff8)
+  ) _LUT_F (
+    .I0(input_f[0]),
+    .I1(input_f[1]),
+    .I2(input_f[2]),
+    .I3(input_f[3]),
+    .I4(input_f[4]),
+    .I5(input_f[5]),
+    .O(out[5])
+  );
+  LUT6 #(
+    .INIT(64'hfffffffffffffff8)
+  ) _LUT_G (
+    .I0(input_g[0]),
+    .I1(input_g[1]),
+    .I2(input_g[2]),
+    .I3(input_g[3]),
+    .I4(input_g[4]),
+    .I5(input_g[5]),
+    .O(out[6])
+  );
+  LUT6 #(
+    .INIT(64'hfffffffffffffff8)
+  ) _LUT_H (
+    .I0(input_h[0]),
+    .I1(input_h[1]),
+    .I2(input_h[2]),
+    .I3(input_h[3]),
+    .I4(input_h[4]),
+    .I5(input_h[5]),
+    .O(out[7])
+  );
+endmodule
+
+here-string-delimiter
+    ; Comment needed so formatter doesn't break here string
+    )
+  (check-equal? v verilog))
