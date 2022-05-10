@@ -213,7 +213,8 @@
 ; Model: the model, containing the settings of all values.
 ; Everything else: the list of symbolic variables.
 ; TODO(@gussmith) Make more ergonomic.
-(define (compile-clb-to-verilog model
+(define (compile-clb-to-verilog module-name
+                                model
                                 cin
                                 lut-memory-a
                                 lut-memory-b
@@ -231,13 +232,11 @@
                                 mux-selector-f
                                 mux-selector-g
                                 mux-selector-h)
-  (pretty-display model)
-  (pretty-display (hash-ref model cin))
 
   (define out
     (format
      #<<here-string-delimiter
-module example(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h, out);
+module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h, out);
   input [5:0] input_a;
   wire [5:0] input_a;
   input [5:0] input_b;
@@ -348,6 +347,7 @@ endmodule
 
 here-string-delimiter
      ; This comment prevents the autoformatter from breaking the here string.
+     module-name
      (bitvector->natural (hash-ref model lut-memory-a))
      (bitvector->natural (hash-ref model lut-memory-b))
      (bitvector->natural (hash-ref model lut-memory-c))
@@ -435,7 +435,8 @@ here-string-delimiter
   (check-equal? (run-and (bv 10 8) (bv 230 8)) (bvand (bv 10 8) (bv 230 8)))
 
   (define verilog
-    (compile-clb-to-verilog (model solution)
+    (compile-clb-to-verilog "example"
+                            (model solution)
                             cin
                             lut-memory-a
                             lut-memory-b
