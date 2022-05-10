@@ -3,7 +3,8 @@
 (require rosette)
 
 (provide ultrascale-clb
-         ultrascale-logical-to-physical-inputs)
+         ultrascale-logical-to-physical-inputs
+         compile-clb-to-verilog)
 
 ; The output of a LUT is simply the bit at the entry pointed to by
 ; `inputs-a`, when interpreted as an integer.

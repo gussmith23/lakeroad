@@ -149,3 +149,143 @@
   (check-false (sat? (helper ceil-avg 2)))
   (check-true (sat? (helper bvadd 2)))
   (check-false (sat? (helper cycle 4))))
+
+(define (end-to-end-test f arity c-operator)
+  (if (not (equal? arity 2)) (error "only arity 2 supported right now") '())
+
+  (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
+  ;(displayln verilator-make-dir)
+
+  (define soln
+    ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+    ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+    (synthesize
+     #:forall logical-inputs
+     #:guarantee
+     (begin
+
+       (assert (not (bveq mux-selector-a (bv 3 2))))
+       (assert (not (bveq mux-selector-b (bv 3 2))))
+       (assert (not (bveq mux-selector-c (bv 3 2))))
+       (assert (not (bveq mux-selector-d (bv 3 2))))
+       (assert (not (bveq mux-selector-e (bv 3 2))))
+       (assert (not (bveq mux-selector-f (bv 3 2))))
+       (assert (not (bveq mux-selector-g (bv 3 2))))
+       (assert (not (bveq mux-selector-h (bv 3 2))))
+
+       ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
+       ; we tell the solver that they're unused and unimportant, and setting them to a constant value
+       ; is the way to this.
+       ; When these aren't set, synthesis takes about 10-20x longer (20mins vs 1.5mins). In this case,
+       ; we synthesize a LUT that is correct for inputs 0 and 1 regardless of the settings of the
+       ; other inputs. I'm not sure if that's useful. I also wonder if there's a faster way to get
+       ; the same result. E.g. either 1. assume 2-5 are all 0 and then manually edit the resulting LUT
+       ; and duplicate the "correct" parts of the LUT memory into the rest of the LUT memory, OR, 2.,
+       ; a more graceful solution, `assume` some predicates that basically say that 2-5 "don't matter"
+       ; and that the outputs for a given 0 and 1 should be the same for any 2-5.
+       (for ([logical-input (list-tail logical-inputs arity)])
+         (assume (bvzero? logical-input)))
+
+       ; Assert that the output of the CLB implements the requested function f.
+       (assert (bveq (apply f (take logical-inputs arity)) out)))))
+
+  (define verilog-source
+    (compile-clb-to-verilog "example"
+                            (model soln)
+                            cin
+                            lut-memory-a
+                            lut-memory-b
+                            lut-memory-c
+                            lut-memory-d
+                            lut-memory-e
+                            lut-memory-f
+                            lut-memory-g
+                            lut-memory-h
+                            mux-selector-a
+                            mux-selector-b
+                            mux-selector-c
+                            mux-selector-d
+                            mux-selector-e
+                            mux-selector-f
+                            mux-selector-g
+                            mux-selector-h))
+  (define verilog-file (make-temporary-file "rkttmp~a.v"))
+  (call-with-output-file verilog-file (lambda (out) (display verilog-source out)) #:exists 'update)
+  ;(displayln verilog-file)
+  (define verilated-type-name
+    (format "V~a" (path-replace-extension (file-name-from-path verilog-file) "")))
+
+  (define testbench-source
+    (format
+     #<<here-string-delimiter
+#include "~a"
+#include "verilated.h"
+
+int run(~a *top, int a, int b)
+{
+  top->input_a = ((a & (1 << 0)) >> 0) | (((b & (1 << 0)) >> 0) << 1);
+  top->input_b = ((a & (1 << 1)) >> 1) | (((b & (1 << 1)) >> 1) << 1);
+  top->input_c = ((a & (1 << 2)) >> 2) | (((b & (1 << 2)) >> 2) << 1);
+  top->input_d = ((a & (1 << 3)) >> 3) | (((b & (1 << 3)) >> 3) << 1);
+  top->input_e = ((a & (1 << 4)) >> 4) | (((b & (1 << 4)) >> 4) << 1);
+  top->input_f = ((a & (1 << 5)) >> 5) | (((b & (1 << 5)) >> 5) << 1);
+  top->input_g = ((a & (1 << 6)) >> 6) | (((b & (1 << 6)) >> 6) << 1);
+  top->input_h = ((a & (1 << 7)) >> 7) | (((b & (1 << 7)) >> 7) << 1);
+  top->eval();
+  return top->out;
+}
+
+int main(int argc, char **argv, char **env)
+{
+  VerilatedContext *contextp = new VerilatedContext;
+  contextp->commandArgs(argc, argv);
+  ~a *top = new ~a{contextp};
+
+  for (int a = 0; a <= 255; a++)
+  {
+    for (int b = 0; b <= 255; b++)
+    {
+      int out = run(top, a, b);
+      //printf("%d & %d == %d, should equal %d\n", a, b, out, a & b);
+      //printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
+      assert(out == (a ~a b));
+    }
+  }
+
+  delete top;
+  delete contextp;
+  return 0;
+}
+
+here-string-delimiter
+     ;
+     (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
+     verilated-type-name
+     verilated-type-name
+     verilated-type-name
+     c-operator))
+
+  (define testbench-file (make-temporary-file "rkttmp~a.cc"))
+  (call-with-output-file testbench-file
+                         (lambda (out) (display testbench-source out))
+                         #:exists 'update)
+  ;(displayln testbench-file)
+
+  ; TODO(@gussmith23) hardcoded dir
+  (if (not
+       (system
+        (format
+         "verilator -Wall -Wno-TIMESCALEMOD -Wno-DECLFILENAME --Mdir ~a --cc ~a -I /Users/gus/lakeroad-evaluation/verilator-unisims/LUT6.v --build --exe ~a"
+         verilator-make-dir
+         verilog-file
+         testbench-file)))
+      (error "Verilator failed")
+      '())
+
+  (system* (build-path verilator-make-dir verilated-type-name)))
+
+(module+ test
+  (require rackunit)
+  (check-true (end-to-end-test bvand 2 "&"))
+  (check-true (end-to-end-test bvxor 2 "^"))
+  (check-true (end-to-end-test bvor 2 "|")))
