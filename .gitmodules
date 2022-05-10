@@ -1,0 +1,3 @@
+[submodule "verilator-unisims"]
+	path = verilator-unisims
+	url = https://github.com/oliverbunting/verilator-unisims

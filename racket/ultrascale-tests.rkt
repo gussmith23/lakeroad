@@ -271,13 +271,18 @@ here-string-delimiter
                          #:exists 'update)
   ;(displayln testbench-file)
 
+  (if (not (getenv "LAKEROAD_DIR")) (error "LAKEROAD_DIR must be set to base dir of Lakeroad") '())
+  (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator-unisims"))
+  (displayln verilator-unisims-dir)
+
   ; TODO(@gussmith23) hardcoded dir
   (if (not
        (system
         (format
-         "verilator -Wall -Wno-TIMESCALEMOD -Wno-DECLFILENAME --Mdir ~a --cc ~a -I /Users/gus/lakeroad-evaluation/verilator-unisims/LUT6.v --build --exe ~a"
+         "verilator -Wall -Wno-TIMESCALEMOD -Wno-DECLFILENAME --Mdir ~a --cc ~a -I ~a/LUT6.v --build --exe ~a"
          verilator-make-dir
          verilog-file
+         verilator-unisims-dir
          testbench-file)))
       (error "Verilator failed")
       '())
