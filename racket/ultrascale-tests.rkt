@@ -78,15 +78,6 @@
       #:guarantee
       (begin
 
-        (assert (not (bveq mux-selector-a (bv 3 2))))
-        (assert (not (bveq mux-selector-b (bv 3 2))))
-        (assert (not (bveq mux-selector-c (bv 3 2))))
-        (assert (not (bveq mux-selector-d (bv 3 2))))
-        (assert (not (bveq mux-selector-e (bv 3 2))))
-        (assert (not (bveq mux-selector-f (bv 3 2))))
-        (assert (not (bveq mux-selector-g (bv 3 2))))
-        (assert (not (bveq mux-selector-h (bv 3 2))))
-
         ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
         ; we tell the solver that they're unused and unimportant, and setting them to a constant value
         ; is the way to this.
