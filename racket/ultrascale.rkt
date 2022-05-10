@@ -133,12 +133,12 @@
                                                logical-input-4
                                                logical-input-5)
   (let ([helper (lambda (idx)
-                  (concat (extract idx idx logical-input-0)
-                          (extract idx idx logical-input-1)
-                          (extract idx idx logical-input-2)
-                          (extract idx idx logical-input-3)
+                  (concat (extract idx idx logical-input-5)
                           (extract idx idx logical-input-4)
-                          (extract idx idx logical-input-5)))])
+                          (extract idx idx logical-input-3)
+                          (extract idx idx logical-input-2)
+                          (extract idx idx logical-input-1)
+                          (extract idx idx logical-input-0)))])
     (list (helper 0) (helper 1) (helper 2) (helper 3) (helper 4) (helper 5) (helper 6) (helper 7))))
 
 ; A helper function which first creates symbolic variables for all of the programmable state of the
