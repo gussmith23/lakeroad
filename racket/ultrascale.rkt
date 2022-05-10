@@ -38,6 +38,13 @@
          [O5 lut5-1])
     (list O5 O6)))
 
+(module+ test
+  (require rackunit)
+  (check-equal? (second (ultrascale-lut6-2 (bv #x0000000000000008 64) (bv 0 6))) (bv 0 1))
+  (check-equal? (second (ultrascale-lut6-2 (bv #x0000000000000008 64) (bv 1 6))) (bv 0 1))
+  (check-equal? (second (ultrascale-lut6-2 (bv #x0000000000000008 64) (bv 2 6))) (bv 0 1))
+  (check-equal? (second (ultrascale-lut6-2 (bv #x0000000000000008 64) (bv 3 6))) (bv 1 1)))
+
 ; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4. Note that, to implement a mux with
 ; "if", the "then" and "else" clauses are in reverse order from the usual mux input order!
 (define (carry-co s di prev-muxcy)
@@ -408,7 +415,7 @@ here-string-delimiter
                               (assert (bveq out (bvand logical-input-0 logical-input-1))))))
   (check-true (sat? solution))
 
-  (define (run-add a b)
+  (define (run-and a b)
     (let ([expr (evaluate out
                           (sat (hash logical-input-0
                                      a
@@ -423,10 +430,9 @@ here-string-delimiter
                                      logical-input-5
                                      (bv 0 8))))])
       (evaluate expr (complete-solution solution (symbolics expr)))))
-  (check-equal? (run-add (bv 0 8) (bv 0 8)) (bv 0 8))
-  (check-equal? (run-add (bv 1 8) (bv 7 8)) (bv 8 8))
-  (check-equal? (run-add (bv 10 8) (bv 230 8)) (bv 240 8))
-  (check-equal? (run-add (bv 30 8) (bv 3 8)) (bv 33 8))
+  (check-equal? (run-and (bv 0 8) (bv 0 8)) (bvand (bv 0 8) (bv 0 8)))
+  (check-equal? (run-and (bv 1 8) (bv 7 8)) (bvand (bv 1 8) (bv 7 8)))
+  (check-equal? (run-and (bv 10 8) (bv 230 8)) (bvand (bv 10 8) (bv 230 8)))
 
   (define verilog
     (compile-clb-to-verilog (model solution)
