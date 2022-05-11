@@ -139,7 +139,7 @@
   ; Bithack examples.
   (check-false (sat? (helper floor-avg 2)))
   (check-true (sat? (helper bithack3 2)))
-  (check-false (sat? (helper bithack2 2)))
+  (check-true (sat? (helper bithack2 2)))
   (check-true (sat? (helper bithack1 2)))
   (check-false (sat? (helper ceil-avg 2)))
   (check-true (sat? (helper bvadd 2)))
