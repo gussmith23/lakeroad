@@ -34,6 +34,8 @@
 (define-symbolic logical-input-4 (bitvector 8))
 (define-symbolic logical-input-5 (bitvector 8))
 
+(define-symbolic mask (bitvector 48))
+
 (define out
   (apply ultrascale-clb
          cin
@@ -53,12 +55,13 @@
          mux-selector-f
          mux-selector-g
          mux-selector-h
-         (ultrascale-logical-to-physical-inputs logical-input-0
-                                                logical-input-1
-                                                logical-input-2
-                                                logical-input-3
-                                                logical-input-4
-                                                logical-input-5)))
+         (ultrascale-logical-to-physical-inputs-with-mask mask
+                                                          (list logical-input-0
+                                                                logical-input-1
+                                                                logical-input-2
+                                                                logical-input-3
+                                                                logical-input-4
+                                                                logical-input-5))))
 
 (define logical-inputs
   (list logical-input-0
@@ -69,6 +72,7 @@
         logical-input-5))
 
 (define (helper f arity)
+  (if (equal? arity 6) (error "arity 6 not supported yet") '())
   (match-let
    ([soln
      ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
@@ -164,6 +168,9 @@
        (assert (not (bveq mux-selector-g (bv 3 2))))
        (assert (not (bveq mux-selector-h (bv 3 2))))
 
+       ; Mask not yet fully implemented. (current impl is buggy; I think we need the carry chain.)
+       (assert (bvzero? mask))
+
        ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
        ; we tell the solver that they're unused and unimportant, and setting them to a constant value
        ; is the way to this.
@@ -199,7 +206,8 @@
                             mux-selector-e
                             mux-selector-f
                             mux-selector-g
-                            mux-selector-h))
+                            mux-selector-h
+                            mask))
   (define verilog-file (make-temporary-file "rkttmp~a.v"))
   (call-with-output-file verilog-file (lambda (out) (display verilog-source out)) #:exists 'update)
   ;(displayln verilog-file)
@@ -270,7 +278,7 @@ here-string-delimiter
   (if (not
        (system
         (format
-         "verilator -Wall -Wno-TIMESCALEMOD -Wno-DECLFILENAME --Mdir ~a --cc ~a -I ~a/LUT6.v --build --exe ~a"
+         "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING --Mdir ~a --cc ~a -I ~a/LUT6_2.v --build --exe ~a"
          verilator-make-dir
          verilog-file
          verilator-unisims-dir

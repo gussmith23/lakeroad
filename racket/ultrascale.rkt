@@ -4,6 +4,7 @@
 
 (provide ultrascale-clb
          ultrascale-logical-to-physical-inputs
+         ultrascale-logical-to-physical-inputs-with-mask
          compile-clb-to-verilog)
 
 ; The output of a LUT is simply the bit at the entry pointed to by
@@ -142,6 +143,40 @@
                           (extract idx idx logical-input-0)))])
     (list (helper 0) (helper 1) (helper 2) (helper 3) (helper 4) (helper 5) (helper 6) (helper 7))))
 
+; Same as above, but uses a symbolic mask which sets inputs to high when the bit is set to 1.
+(define (ultrascale-logical-to-physical-inputs-with-mask mask inputs)
+  (match-let*
+   ([(list logical-input-0
+           logical-input-1
+           logical-input-2
+           logical-input-3
+           logical-input-4
+           logical-input-5)
+     inputs]
+    [helper
+     (lambda (idx)
+       (concat (extract idx idx logical-input-5)
+               (extract idx idx logical-input-4)
+               (extract idx idx logical-input-3)
+               (extract idx idx logical-input-2)
+               (extract idx idx logical-input-1)
+               (extract idx idx logical-input-0)))]
+    [physical-inputs
+     (list (helper 0) (helper 1) (helper 2) (helper 3) (helper 4) (helper 5) (helper 6) (helper 7))]
+    [physical-inputs (apply concat physical-inputs)]
+    ; mask is in the order (MSB left) [bit 5 of lut a, bit 4 of lut a, ...]
+    [physical-inputs (bvor mask physical-inputs)]
+    [physical-inputs
+     (list (extract 47 42 physical-inputs)
+           (extract 41 36 physical-inputs)
+           (extract 35 30 physical-inputs)
+           (extract 29 24 physical-inputs)
+           (extract 23 18 physical-inputs)
+           (extract 17 12 physical-inputs)
+           (extract 11 6 physical-inputs)
+           (extract 5 0 physical-inputs))])
+   physical-inputs))
+
 ; A helper function which first creates symbolic variables for all of the programmable state of the
 ; LUT, and then calls the CLB function with the provided inputs.
 (define (ultrascale-plus-clb-helper physical-inputs)
@@ -232,7 +267,8 @@
                                 mux-selector-e
                                 mux-selector-f
                                 mux-selector-g
-                                mux-selector-h)
+                                mux-selector-h
+                                mask)
 
   (define out
     (format
@@ -256,93 +292,93 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
   wire [5:0] input_h;
   output [7:0] out;
   wire [7:0] out;
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_A (
-    .I0(input_a[0]),
-    .I1(input_a[1]),
-    .I2(input_a[2]),
-    .I3(input_a[3]),
-    .I4(input_a[4]),
-    .I5(input_a[5]),
-    .O(out[0])
+    .I5(~a),
+    .I4(~a),
+    .I3(~a),
+    .I2(~a),
+    .I1(~a),
+    .I0(~a),
+    .O6(out[0])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_B (
-    .I0(input_b[0]),
-    .I1(input_b[1]),
-    .I2(input_b[2]),
-    .I3(input_b[3]),
-    .I4(input_b[4]),
-    .I5(input_b[5]),
-    .O(out[1])
+    .I5(~a),
+    .I4(~a),
+    .I3(~a),
+    .I2(~a),
+    .I1(~a),
+    .I0(~a),
+    .O6(out[1])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_C (
-    .I0(input_c[0]),
-    .I1(input_c[1]),
-    .I2(input_c[2]),
-    .I3(input_c[3]),
-    .I4(input_c[4]),
-    .I5(input_c[5]),
-    .O(out[2])
+    .I5(~a),
+    .I4(~a),
+    .I3(~a),
+    .I2(~a),
+    .I1(~a),
+    .I0(~a),
+    .O6(out[2])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_D (
-    .I0(input_d[0]),
-    .I1(input_d[1]),
-    .I2(input_d[2]),
-    .I3(input_d[3]),
-    .I4(input_d[4]),
-    .I5(input_d[5]),
-    .O(out[3])
+    .I5(~a),
+    .I4(~a),
+    .I3(~a),
+    .I2(~a),
+    .I1(~a),
+    .I0(~a),
+    .O6(out[3])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_E (
-    .I0(input_e[0]),
-    .I1(input_e[1]),
-    .I2(input_e[2]),
-    .I3(input_e[3]),
-    .I4(input_e[4]),
-    .I5(input_e[5]),
-    .O(out[4])
+    .I5(~a),
+    .I4(~a),
+    .I3(~a),
+    .I2(~a),
+    .I1(~a),
+    .I0(~a),
+    .O6(out[4])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_F (
-    .I0(input_f[0]),
-    .I1(input_f[1]),
-    .I2(input_f[2]),
-    .I3(input_f[3]),
-    .I4(input_f[4]),
-    .I5(input_f[5]),
-    .O(out[5])
+    .I5(~a),
+    .I4(~a),
+    .I3(~a),
+    .I2(~a),
+    .I1(~a),
+    .I0(~a),
+    .O6(out[5])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_G (
-    .I0(input_g[0]),
-    .I1(input_g[1]),
-    .I2(input_g[2]),
-    .I3(input_g[3]),
-    .I4(input_g[4]),
-    .I5(input_g[5]),
-    .O(out[6])
+    .I5(~a),
+    .I4(~a),
+    .I3(~a),
+    .I2(~a),
+    .I1(~a),
+    .I0(~a),
+    .O6(out[6])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_H (
-    .I0(input_h[0]),
-    .I1(input_h[1]),
-    .I2(input_h[2]),
-    .I3(input_h[3]),
-    .I4(input_h[4]),
-    .I5(input_h[5]),
-    .O(out[7])
+    .I5(~a),
+    .I4(~a),
+    .I3(~a),
+    .I2(~a),
+    .I1(~a),
+    .I0(~a),
+    .O6(out[7])
   );
 endmodule
 
@@ -350,13 +386,61 @@ here-string-delimiter
      ; This comment prevents the autoformatter from breaking the here string.
      module-name
      (bitvector->natural (hash-ref model lut-memory-a))
+     (if (bitvector->bool (bit 47 (hash-ref model mask))) "1'b1" "input_a[5]")
+     (if (bitvector->bool (bit 46 (hash-ref model mask))) "1'b1" "input_a[4]")
+     (if (bitvector->bool (bit 45 (hash-ref model mask))) "1'b1" "input_a[3]")
+     (if (bitvector->bool (bit 44 (hash-ref model mask))) "1'b1" "input_a[2]")
+     (if (bitvector->bool (bit 43 (hash-ref model mask))) "1'b1" "input_a[1]")
+     (if (bitvector->bool (bit 42 (hash-ref model mask))) "1'b1" "input_a[0]")
      (bitvector->natural (hash-ref model lut-memory-b))
+     (if (bitvector->bool (bit 41 (hash-ref model mask))) "1'b1" "input_b[5]")
+     (if (bitvector->bool (bit 40 (hash-ref model mask))) "1'b1" "input_b[4]")
+     (if (bitvector->bool (bit 39 (hash-ref model mask))) "1'b1" "input_b[3]")
+     (if (bitvector->bool (bit 38 (hash-ref model mask))) "1'b1" "input_b[2]")
+     (if (bitvector->bool (bit 37 (hash-ref model mask))) "1'b1" "input_b[1]")
+     (if (bitvector->bool (bit 36 (hash-ref model mask))) "1'b1" "input_b[0]")
      (bitvector->natural (hash-ref model lut-memory-c))
+     (if (bitvector->bool (bit 35 (hash-ref model mask))) "1'b1" "input_c[5]")
+     (if (bitvector->bool (bit 34 (hash-ref model mask))) "1'b1" "input_c[4]")
+     (if (bitvector->bool (bit 33 (hash-ref model mask))) "1'b1" "input_c[3]")
+     (if (bitvector->bool (bit 32 (hash-ref model mask))) "1'b1" "input_c[2]")
+     (if (bitvector->bool (bit 31 (hash-ref model mask))) "1'b1" "input_c[1]")
+     (if (bitvector->bool (bit 30 (hash-ref model mask))) "1'b1" "input_c[0]")
      (bitvector->natural (hash-ref model lut-memory-d))
+     (if (bitvector->bool (bit 29 (hash-ref model mask))) "1'b1" "input_d[5]")
+     (if (bitvector->bool (bit 28 (hash-ref model mask))) "1'b1" "input_d[4]")
+     (if (bitvector->bool (bit 27 (hash-ref model mask))) "1'b1" "input_d[3]")
+     (if (bitvector->bool (bit 26 (hash-ref model mask))) "1'b1" "input_d[2]")
+     (if (bitvector->bool (bit 25 (hash-ref model mask))) "1'b1" "input_d[1]")
+     (if (bitvector->bool (bit 24 (hash-ref model mask))) "1'b1" "input_d[0]")
      (bitvector->natural (hash-ref model lut-memory-e))
+     (if (bitvector->bool (bit 23 (hash-ref model mask))) "1'b1" "input_e[5]")
+     (if (bitvector->bool (bit 22 (hash-ref model mask))) "1'b1" "input_e[4]")
+     (if (bitvector->bool (bit 21 (hash-ref model mask))) "1'b1" "input_e[3]")
+     (if (bitvector->bool (bit 20 (hash-ref model mask))) "1'b1" "input_e[2]")
+     (if (bitvector->bool (bit 19 (hash-ref model mask))) "1'b1" "input_e[1]")
+     (if (bitvector->bool (bit 18 (hash-ref model mask))) "1'b1" "input_e[0]")
      (bitvector->natural (hash-ref model lut-memory-f))
+     (if (bitvector->bool (bit 17 (hash-ref model mask))) "1'b1" "input_f[5]")
+     (if (bitvector->bool (bit 16 (hash-ref model mask))) "1'b1" "input_f[4]")
+     (if (bitvector->bool (bit 15 (hash-ref model mask))) "1'b1" "input_f[3]")
+     (if (bitvector->bool (bit 14 (hash-ref model mask))) "1'b1" "input_f[2]")
+     (if (bitvector->bool (bit 13 (hash-ref model mask))) "1'b1" "input_f[1]")
+     (if (bitvector->bool (bit 12 (hash-ref model mask))) "1'b1" "input_f[0]")
      (bitvector->natural (hash-ref model lut-memory-g))
-     (bitvector->natural (hash-ref model lut-memory-h))))
+     (if (bitvector->bool (bit 11 (hash-ref model mask))) "1'b1" "input_g[5]")
+     (if (bitvector->bool (bit 10 (hash-ref model mask))) "1'b1" "input_g[4]")
+     (if (bitvector->bool (bit 9 (hash-ref model mask))) "1'b1" "input_g[3]")
+     (if (bitvector->bool (bit 8 (hash-ref model mask))) "1'b1" "input_g[2]")
+     (if (bitvector->bool (bit 7 (hash-ref model mask))) "1'b1" "input_g[1]")
+     (if (bitvector->bool (bit 6 (hash-ref model mask))) "1'b1" "input_g[0]")
+     (bitvector->natural (hash-ref model lut-memory-h))
+     (if (bitvector->bool (bit 5 (hash-ref model mask))) "1'b1" "input_h[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask))) "1'b1" "input_h[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask))) "1'b1" "input_h[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask))) "1'b1" "input_h[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask))) "1'b1" "input_h[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask))) "1'b1" "input_h[0]")))
 
   out)
 
@@ -397,7 +481,9 @@ here-string-delimiter
                       mux-selector-g
                       mux-selector-h
                       out)
-    (ultrascale-plus-clb-helper (apply ultrascale-logical-to-physical-inputs logical-inputs)))
+    (ultrascale-plus-clb-helper
+     (ultrascale-logical-to-physical-inputs-with-mask mask logical-inputs)))
+  (define-symbolic mask (bitvector 48))
 
   (define solution
     (synthesize #:forall logical-inputs
@@ -454,7 +540,8 @@ here-string-delimiter
                             mux-selector-e
                             mux-selector-f
                             mux-selector-g
-                            mux-selector-h))
+                            mux-selector-h
+                            mask))
   (define v
     #<<here-string-delimiter
 module example(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h, out);
