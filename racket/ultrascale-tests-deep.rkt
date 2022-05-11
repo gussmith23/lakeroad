@@ -34,6 +34,8 @@
 (define-symbolic logical-input-4-0 (bitvector 8))
 (define-symbolic logical-input-5-0 (bitvector 8))
 
+(define-symbolic mask (bitvector 48))
+
 (define out-0
   (apply ultrascale-clb
          cin-0
@@ -53,12 +55,13 @@
          mux-selector-f-0
          mux-selector-g-0
          mux-selector-h-0
-         (ultrascale-logical-to-physical-inputs logical-input-0-0
-                                                logical-input-1-0
-                                                logical-input-2-0
-                                                logical-input-3-0
-                                                logical-input-4-0
-                                                logical-input-5-0)))
+         (ultrascale-logical-to-physical-inputs-with-mask mask
+                                                          (list logical-input-0-0
+                                                                logical-input-1-0
+                                                                logical-input-2-0
+                                                                logical-input-3-0
+                                                                logical-input-4-0
+                                                                logical-input-5-0))))
 
 (define logical-inputs-0
   (list logical-input-0-0
@@ -151,23 +154,6 @@
       #:forall logical-inputs-0
       #:guarantee
       (begin
-
-        (assert (not (bveq mux-selector-a-0 (bv 3 2))))
-        (assert (not (bveq mux-selector-b-0 (bv 3 2))))
-        (assert (not (bveq mux-selector-c-0 (bv 3 2))))
-        (assert (not (bveq mux-selector-d-0 (bv 3 2))))
-        (assert (not (bveq mux-selector-e-0 (bv 3 2))))
-        (assert (not (bveq mux-selector-f-0 (bv 3 2))))
-        (assert (not (bveq mux-selector-g-0 (bv 3 2))))
-        (assert (not (bveq mux-selector-h-0 (bv 3 2))))
-        (assert (not (bveq mux-selector-a-1 (bv 3 2))))
-        (assert (not (bveq mux-selector-b-1 (bv 3 2))))
-        (assert (not (bveq mux-selector-c-1 (bv 3 2))))
-        (assert (not (bveq mux-selector-d-1 (bv 3 2))))
-        (assert (not (bveq mux-selector-e-1 (bv 3 2))))
-        (assert (not (bveq mux-selector-f-1 (bv 3 2))))
-        (assert (not (bveq mux-selector-g-1 (bv 3 2))))
-        (assert (not (bveq mux-selector-h-1 (bv 3 2))))
 
         ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
         ; we tell the solver that they're unused and unimportant, and setting them to a constant value
