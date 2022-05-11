@@ -9,17 +9,33 @@ RUN add-apt-repository ppa:plt/racket
 
 ## Install dependencies
 # apt dependencies
-RUN apt install -y      \
-  boolector \
+RUN apt install -y \
+  autoconf \
+  bison \
+  ccache \
   cmake \
-          curl \
+  curl \
+  flex \
+  g++ \
   git \
-          python3-pip   \
-  verilator \
-          racket        \
-          libzmq3-dev
+  git \
+  libfl-dev \
+  libfl2 \
+  libgoogle-perftools-dev \
+  libzmq3-dev \
+  make \
+  numactl \
+  perl \
+  perl-doc \
+  python3 \
+  python3-pip \
+  racket \
+  zlib1g \
+  zlib1g-dev \
+  zlibc
 
 # Build and install latest boolector.
+WORKDIR /root
 RUN git clone https://github.com/boolector/boolector \
   && cd boolector \
   && git checkout 3.2.2 \
@@ -27,10 +43,21 @@ RUN git clone https://github.com/boolector/boolector \
   && ./contrib/setup-btor2tools.sh \
   && ./configure.sh && cd build && make install
 
+# Build and install latest Verilator.
+RUN  git clone https://github.com/verilator/verilator \
+  && unset VERILATOR_ROOT \
+  && cd verilator \
+  && git checkout v4.222 \
+  && autoconf \
+  && ./configure \
+  && make -j `nproc` \
+  && make install
 
 # pip dependencies
-COPY requirements.txt requirements.txt
+WORKDIR /root/lakeroad
+ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+
 # raco (Racket) dependencies
 # First, fix https://github.com/racket/racket/issues/2691
 RUN raco setup --doc-index --force-user-docs
@@ -51,12 +78,13 @@ ENV PATH="/root/.cargo/bin:$PATH"
 
 RUN raco pkg install --deps search-auto --batch rosette
 
-WORKDIR /root/
-ADD ./racket ./racket
-ADD ./rust ./rust
-ADD ./verilator-unisims ./verilator-unisims
+WORKDIR /root/lakeroad
+ADD ./ ./
+
+ENV LAKEROAD_DIR=/root/lakeroad
 
 # Build Rust package.
-RUN cargo build --manifest-path ./rust/Cargo.toml
+RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
 
-ADD ./run-tests.sh ./run-tests.sh
+WORKDIR /root/lakeroad
+CMD [ "/bin/bash", "run-tests.sh" ]
