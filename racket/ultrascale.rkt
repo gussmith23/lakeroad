@@ -464,6 +464,8 @@ here-string-delimiter
           logical-input-4
           logical-input-5))
 
+  (define-symbolic mask (bitvector 48))
+
   (define-values (cin lut-memory-a
                       lut-memory-b
                       lut-memory-c
@@ -483,23 +485,34 @@ here-string-delimiter
                       out)
     (ultrascale-plus-clb-helper
      (ultrascale-logical-to-physical-inputs-with-mask mask logical-inputs)))
-  (define-symbolic mask (bitvector 48))
 
   (define solution
-    (synthesize #:forall logical-inputs
-                #:guarantee (begin
-                              (for ([v (list-tail logical-inputs 2)])
-                                (assume (bvzero? v)))
-                              (assume (bveq cin (bv 0 1)))
-                              (assume (bveq mux-selector-a (bv 1 2)))
-                              (assume (bveq mux-selector-b (bv 1 2)))
-                              (assume (bveq mux-selector-c (bv 1 2)))
-                              (assume (bveq mux-selector-d (bv 1 2)))
-                              (assume (bveq mux-selector-e (bv 1 2)))
-                              (assume (bveq mux-selector-f (bv 1 2)))
-                              (assume (bveq mux-selector-g (bv 1 2)))
-                              (assume (bveq mux-selector-h (bv 1 2)))
-                              (assert (bveq out (bvand logical-input-0 logical-input-1))))))
+    (synthesize
+     #:forall logical-inputs
+     #:guarantee
+     (begin
+       (for ([v (list-tail logical-inputs 2)])
+         (assume (bvzero? v)))
+       ; this is really dumb, i shouldn't be synthesizing here, i should be manually making a solution.
+       (assert (bvzero? mask))
+       (assert (bveq cin (bv 0 1)))
+       (assert (bveq mux-selector-a (bv 1 2)))
+       (assert (bveq mux-selector-b (bv 1 2)))
+       (assert (bveq mux-selector-c (bv 1 2)))
+       (assert (bveq mux-selector-d (bv 1 2)))
+       (assert (bveq mux-selector-e (bv 1 2)))
+       (assert (bveq mux-selector-f (bv 1 2)))
+       (assert (bveq mux-selector-g (bv 1 2)))
+       (assert (bveq mux-selector-h (bv 1 2)))
+       (assert (bveq lut-memory-a (bv #xfffffffffffffff8 64)))
+       (assert (bveq lut-memory-b (bv #xfffffffffffffff8 64)))
+       (assert (bveq lut-memory-c (bv #xfffffffffffffff8 64)))
+       (assert (bveq lut-memory-d (bv #xfffffffffffffff8 64)))
+       (assert (bveq lut-memory-e (bv #xfffffffffffffff8 64)))
+       (assert (bveq lut-memory-f (bv #xfffffffffffffff8 64)))
+       (assert (bveq lut-memory-g (bv #xfffffffffffffff8 64)))
+       (assert (bveq lut-memory-h (bv #xfffffffffffffff8 64)))
+       (assert (bveq out (bvand logical-input-0 logical-input-1))))))
   (check-true (sat? solution))
 
   (define (run-and a b)
@@ -563,93 +576,93 @@ module example(input_a, input_b, input_c, input_d, input_e, input_f, input_g, in
   wire [5:0] input_h;
   output [7:0] out;
   wire [7:0] out;
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'hfffffffffffffff8)
   ) _LUT_A (
-    .I0(input_a[0]),
-    .I1(input_a[1]),
-    .I2(input_a[2]),
-    .I3(input_a[3]),
-    .I4(input_a[4]),
     .I5(input_a[5]),
-    .O(out[0])
+    .I4(input_a[4]),
+    .I3(input_a[3]),
+    .I2(input_a[2]),
+    .I1(input_a[1]),
+    .I0(input_a[0]),
+    .O6(out[0])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'hfffffffffffffff8)
   ) _LUT_B (
-    .I0(input_b[0]),
-    .I1(input_b[1]),
-    .I2(input_b[2]),
-    .I3(input_b[3]),
-    .I4(input_b[4]),
     .I5(input_b[5]),
-    .O(out[1])
+    .I4(input_b[4]),
+    .I3(input_b[3]),
+    .I2(input_b[2]),
+    .I1(input_b[1]),
+    .I0(input_b[0]),
+    .O6(out[1])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'hfffffffffffffff8)
   ) _LUT_C (
-    .I0(input_c[0]),
-    .I1(input_c[1]),
-    .I2(input_c[2]),
-    .I3(input_c[3]),
-    .I4(input_c[4]),
     .I5(input_c[5]),
-    .O(out[2])
+    .I4(input_c[4]),
+    .I3(input_c[3]),
+    .I2(input_c[2]),
+    .I1(input_c[1]),
+    .I0(input_c[0]),
+    .O6(out[2])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'hfffffffffffffff8)
   ) _LUT_D (
-    .I0(input_d[0]),
-    .I1(input_d[1]),
-    .I2(input_d[2]),
-    .I3(input_d[3]),
-    .I4(input_d[4]),
     .I5(input_d[5]),
-    .O(out[3])
+    .I4(input_d[4]),
+    .I3(input_d[3]),
+    .I2(input_d[2]),
+    .I1(input_d[1]),
+    .I0(input_d[0]),
+    .O6(out[3])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'hfffffffffffffff8)
   ) _LUT_E (
-    .I0(input_e[0]),
-    .I1(input_e[1]),
-    .I2(input_e[2]),
-    .I3(input_e[3]),
-    .I4(input_e[4]),
     .I5(input_e[5]),
-    .O(out[4])
+    .I4(input_e[4]),
+    .I3(input_e[3]),
+    .I2(input_e[2]),
+    .I1(input_e[1]),
+    .I0(input_e[0]),
+    .O6(out[4])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'hfffffffffffffff8)
   ) _LUT_F (
-    .I0(input_f[0]),
-    .I1(input_f[1]),
-    .I2(input_f[2]),
-    .I3(input_f[3]),
-    .I4(input_f[4]),
     .I5(input_f[5]),
-    .O(out[5])
+    .I4(input_f[4]),
+    .I3(input_f[3]),
+    .I2(input_f[2]),
+    .I1(input_f[1]),
+    .I0(input_f[0]),
+    .O6(out[5])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'hfffffffffffffff8)
   ) _LUT_G (
-    .I0(input_g[0]),
-    .I1(input_g[1]),
-    .I2(input_g[2]),
-    .I3(input_g[3]),
-    .I4(input_g[4]),
     .I5(input_g[5]),
-    .O(out[6])
+    .I4(input_g[4]),
+    .I3(input_g[3]),
+    .I2(input_g[2]),
+    .I1(input_g[1]),
+    .I0(input_g[0]),
+    .O6(out[6])
   );
-  LUT6 #(
+  LUT6_2 #(
     .INIT(64'hfffffffffffffff8)
   ) _LUT_H (
-    .I0(input_h[0]),
-    .I1(input_h[1]),
-    .I2(input_h[2]),
-    .I3(input_h[3]),
-    .I4(input_h[4]),
     .I5(input_h[5]),
-    .O(out[7])
+    .I4(input_h[4]),
+    .I3(input_h[3]),
+    .I2(input_h[2]),
+    .I1(input_h[1]),
+    .I0(input_h[0]),
+    .O6(out[7])
   );
 endmodule
 
