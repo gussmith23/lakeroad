@@ -10,10 +10,24 @@ RUN add-apt-repository ppa:plt/racket
 ## Install dependencies
 # apt dependencies
 RUN apt install -y      \
+  boolector \
+  cmake \
           curl \
+  git \
           python3-pip   \
+  verilator \
           racket        \
           libzmq3-dev
+
+# Build and install latest boolector.
+RUN git clone https://github.com/boolector/boolector \
+  && cd boolector \
+  && git checkout 3.2.2 \
+  && ./contrib/setup-lingeling.sh \
+  && ./contrib/setup-btor2tools.sh \
+  && ./configure.sh && cd build && make install
+
+
 # pip dependencies
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
@@ -40,6 +54,7 @@ RUN raco pkg install --deps search-auto --batch rosette
 WORKDIR /root/
 ADD ./racket ./racket
 ADD ./rust ./rust
+ADD ./verilator-unisims ./verilator-unisims
 
 # Build Rust package.
 RUN cargo build --manifest-path ./rust/Cargo.toml
