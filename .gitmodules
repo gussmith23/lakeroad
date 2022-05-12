@@ -1,3 +1,6 @@
 [submodule "verilator-unisims"]
 	path = verilator-unisims
 	url = https://github.com/oliverbunting/verilator-unisims
+[submodule "verilator_xilinx"]
+	path = verilator_xilinx
+	url = https://github.com/fredrequin/verilator_xilinx
