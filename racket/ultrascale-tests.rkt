@@ -271,16 +271,17 @@ here-string-delimiter
   ;(displayln testbench-file)
 
   (if (not (getenv "LAKEROAD_DIR")) (error "LAKEROAD_DIR must be set to base dir of Lakeroad") '())
-  (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator-unisims"))
+  (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
   (displayln verilator-unisims-dir)
 
   ; TODO(@gussmith23) hardcoded dir
   (if (not
        (system
         (format
-         "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING --Mdir ~a --cc ~a -I ~a/LUT6_2.v --build --exe ~a"
+         "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING --Mdir ~a --cc ~a -I ~a/CARRY8.v -I ~a/LUT6_2.v --build --exe ~a"
          verilator-make-dir
          verilog-file
+         verilator-unisims-dir
          verilator-unisims-dir
          testbench-file)))
       (error "Verilator failed")
