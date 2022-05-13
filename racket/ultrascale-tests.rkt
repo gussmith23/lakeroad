@@ -146,7 +146,7 @@
   (check-false (sat? (helper cycle 4))))
 
 (define (end-to-end-test f arity c-operator)
-  (if (not (equal? arity 2)) (error "only arity 2 supported right now") '())
+  (if (> arity 3) (error "only arity 2 or 3 supported right now") '())
 
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
   ;(displayln verilator-make-dir)
@@ -217,22 +217,24 @@
 #include "~a"
 #include "verilated.h"
 
-int run(~a *top, uint8_t a, uint8_t b)
+int run(~a *top, uint8_t a, uint8_t b, uint8_t c)
 {
-  top->input_a = ((a & (1 << 0)) >> 0) | (((b & (1 << 0)) >> 0) << 1);
-  top->input_b = ((a & (1 << 1)) >> 1) | (((b & (1 << 1)) >> 1) << 1);
-  top->input_c = ((a & (1 << 2)) >> 2) | (((b & (1 << 2)) >> 2) << 1);
-  top->input_d = ((a & (1 << 3)) >> 3) | (((b & (1 << 3)) >> 3) << 1);
-  top->input_e = ((a & (1 << 4)) >> 4) | (((b & (1 << 4)) >> 4) << 1);
-  top->input_f = ((a & (1 << 5)) >> 5) | (((b & (1 << 5)) >> 5) << 1);
-  top->input_g = ((a & (1 << 6)) >> 6) | (((b & (1 << 6)) >> 6) << 1);
-  top->input_h = ((a & (1 << 7)) >> 7) | (((b & (1 << 7)) >> 7) << 1);
+  top->input_a = ((a & (1 << 0)) >> 0) | (((b & (1 << 0)) >> 0) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_b = ((a & (1 << 1)) >> 1) | (((b & (1 << 1)) >> 1) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_c = ((a & (1 << 2)) >> 2) | (((b & (1 << 2)) >> 2) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_d = ((a & (1 << 3)) >> 3) | (((b & (1 << 3)) >> 3) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_e = ((a & (1 << 4)) >> 4) | (((b & (1 << 4)) >> 4) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_f = ((a & (1 << 5)) >> 5) | (((b & (1 << 5)) >> 5) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_g = ((a & (1 << 6)) >> 6) | (((b & (1 << 6)) >> 6) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_h = ((a & (1 << 7)) >> 7) | (((b & (1 << 7)) >> 7) << 1) | (((c & (1 << 0)) >> 0) << 2);
   top->eval();
   return top->out;
 }
 
 int main(int argc, char **argv, char **env)
 {
+  int c_bound = ~a;
+
   VerilatedContext *contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
   ~a *top = new ~a{contextp};
@@ -241,13 +243,17 @@ int main(int argc, char **argv, char **env)
   {
     for (int b_val = 0; b_val <= 255; b_val++)
     {
+    for (int c_val = 0; c_val <= c_bound; c_val++)
+    {
       uint8_t a = (uint8_t)a_val;
       uint8_t b = (uint8_t)b_val;
-      uint8_t out = run(top, a, b);
-      uint8_t expected =  ~a;
-      //printf("~a with a=%d and b=%d == %d, should equal %d\n", a, b, out, expected);
+      uint8_t c = (uint8_t)c_val;
+      uint8_t out = run(top, a, b, c);
+      uint8_t expected = ~a;
+      printf("~a with a=%d b=%d c=%d == %d, should equal %d\n", a, b, c, out, expected);
       //printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
       assert(out == expected);
+    }
     }
   }
 
@@ -260,6 +266,7 @@ here-string-delimiter
      ;
      (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
      verilated-type-name
+     (if (>= arity 3) "255" "0") ; c goes from 0-255 if arity >= 3; otherwise it's always 0.
      verilated-type-name
      verilated-type-name
      c-operator
