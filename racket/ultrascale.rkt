@@ -270,6 +270,12 @@
                                 mux-selector-h
                                 mask)
 
+  (define (mux-codegen-helper v idx-str)
+    (if (bveq v (bv 0 2))
+        (format "_luts_O5[~a]" idx-str)
+        (if (bveq v (bv 1 2))
+            (format "_luts_O6[~a]" idx-str)
+            (if (bveq v (bv 2 2)) (format "_O[~a]" idx-str) (error "shouldn't hit this")))))
   (define out
     (format
      #<<here-string-delimiter
@@ -292,6 +298,11 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
   wire [5:0] input_h;
   output [7:0] out;
   wire [7:0] out;
+  wire [7:0] _luts_O5;
+  wire [7:0] _luts_O6;
+  wire [7:0] _O;
+  wire [7:0] _CO;
+
   LUT6_2 #(
     .INIT(64'h~x)
   ) _LUT_A (
@@ -301,7 +312,8 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
     .I2(~a),
     .I1(~a),
     .I0(~a),
-    .O6(out[0])
+    .O5(_luts_O5[0]),
+    .O6(_luts_O6[0])
   );
   LUT6_2 #(
     .INIT(64'h~x)
@@ -312,7 +324,8 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
     .I2(~a),
     .I1(~a),
     .I0(~a),
-    .O6(out[1])
+    .O5(_luts_O5[1]),
+    .O6(_luts_O6[1])
   );
   LUT6_2 #(
     .INIT(64'h~x)
@@ -323,7 +336,8 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
     .I2(~a),
     .I1(~a),
     .I0(~a),
-    .O6(out[2])
+    .O5(_luts_O5[2]),
+    .O6(_luts_O6[2])
   );
   LUT6_2 #(
     .INIT(64'h~x)
@@ -334,7 +348,8 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
     .I2(~a),
     .I1(~a),
     .I0(~a),
-    .O6(out[3])
+    .O5(_luts_O5[3]),
+    .O6(_luts_O6[3])
   );
   LUT6_2 #(
     .INIT(64'h~x)
@@ -345,7 +360,8 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
     .I2(~a),
     .I1(~a),
     .I0(~a),
-    .O6(out[4])
+    .O5(_luts_O5[4]),
+    .O6(_luts_O6[4])
   );
   LUT6_2 #(
     .INIT(64'h~x)
@@ -356,7 +372,8 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
     .I2(~a),
     .I1(~a),
     .I0(~a),
-    .O6(out[5])
+    .O5(_luts_O5[5]),
+    .O6(_luts_O6[5])
   );
   LUT6_2 #(
     .INIT(64'h~x)
@@ -367,7 +384,8 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
     .I2(~a),
     .I1(~a),
     .I0(~a),
-    .O6(out[6])
+    .O5(_luts_O5[6]),
+    .O6(_luts_O6[6])
   );
   LUT6_2 #(
     .INIT(64'h~x)
@@ -378,8 +396,27 @@ module ~a(input_a, input_b, input_c, input_d, input_e, input_f, input_g, input_h
     .I2(~a),
     .I1(~a),
     .I0(~a),
-    .O6(out[7])
+    .O5(_luts_O5[7]),
+    .O6(_luts_O6[7])
   );
+
+  CARRY8 _CARRY (
+    .CI_TOP(1'b0),
+    .CI(~a),
+    .DI(_luts_O5),
+    .S(_luts_O6),
+    .O(_O),
+    .CO(_CO)
+  );
+
+  assign out[7] = ~a;
+  assign out[6] = ~a;
+  assign out[5] = ~a;
+  assign out[4] = ~a;
+  assign out[3] = ~a;
+  assign out[2] = ~a;
+  assign out[1] = ~a;
+  assign out[0] = ~a;
 endmodule
 
 here-string-delimiter
@@ -440,7 +477,19 @@ here-string-delimiter
      (if (bitvector->bool (bit 3 (hash-ref model mask))) "1'b1" "input_h[3]")
      (if (bitvector->bool (bit 2 (hash-ref model mask))) "1'b1" "input_h[2]")
      (if (bitvector->bool (bit 1 (hash-ref model mask))) "1'b1" "input_h[1]")
-     (if (bitvector->bool (bit 0 (hash-ref model mask))) "1'b1" "input_h[0]")))
+     (if (bitvector->bool (bit 0 (hash-ref model mask))) "1'b1" "input_h[0]")
+     ; Carry in.
+     (if (bitvector->bool (hash-ref model cin)) "1'b1" "1'b0")
+     ; Output assignment.
+     ; TODO this isn't exactly right...
+     (mux-codegen-helper (hash-ref model mux-selector-h) "7")
+     (mux-codegen-helper (hash-ref model mux-selector-g) "6")
+     (mux-codegen-helper (hash-ref model mux-selector-f) "5")
+     (mux-codegen-helper (hash-ref model mux-selector-e) "4")
+     (mux-codegen-helper (hash-ref model mux-selector-d) "3")
+     (mux-codegen-helper (hash-ref model mux-selector-c) "2")
+     (mux-codegen-helper (hash-ref model mux-selector-b) "1")
+     (mux-codegen-helper (hash-ref model mux-selector-a) "0")))
 
   out)
 
