@@ -217,7 +217,7 @@
 #include "~a"
 #include "verilated.h"
 
-int run(~a *top, int a, int b)
+int run(~a *top, uint8_t a, uint8_t b)
 {
   top->input_a = ((a & (1 << 0)) >> 0) | (((b & (1 << 0)) >> 0) << 1);
   top->input_b = ((a & (1 << 1)) >> 1) | (((b & (1 << 1)) >> 1) << 1);
@@ -237,14 +237,17 @@ int main(int argc, char **argv, char **env)
   contextp->commandArgs(argc, argv);
   ~a *top = new ~a{contextp};
 
-  for (int a = 0; a <= 255; a++)
+  for (int a_val = 0; a_val <= 255; a_val++)
   {
-    for (int b = 0; b <= 255; b++)
+    for (int b_val = 0; b_val <= 255; b_val++)
     {
-      int out = run(top, a, b);
-      //printf("%d & %d == %d, should equal %d\n", a, b, out, a & b);
+      uint8_t a = (uint8_t)a_val;
+      uint8_t b = (uint8_t)b_val;
+      uint8_t out = run(top, a, b);
+      uint8_t expected =  a ~a b;
+      //printf("%d ~a %d == %d, should equal %d\n", a, b, out, expected);
       //printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
-      assert(out == (a ~a b));
+      assert(out == expected);
     }
   }
 
@@ -259,6 +262,7 @@ here-string-delimiter
      verilated-type-name
      verilated-type-name
      verilated-type-name
+     c-operator
      c-operator))
 
   (define testbench-file (make-temporary-file "rkttmp~a.cc"))
