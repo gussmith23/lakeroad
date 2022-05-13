@@ -192,7 +192,7 @@
   (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
   (check-false (sat? (helper circt-comb-mods 2)))
   (check-false (sat? (helper circt-comb-mul 2)))
-  (check-true (sat? (helper circt-comb-mux 3)))
+  (check-false (sat? (helper circt-comb-mux 3)))
   (check-true (sat? (helper circt-comb-or 2)))
   (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
   (check-false (sat? (helper circt-comb-shl 2)))
