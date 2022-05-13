@@ -168,9 +168,6 @@
        (assert (not (bveq mux-selector-g (bv 3 2))))
        (assert (not (bveq mux-selector-h (bv 3 2))))
 
-       ; Mask not yet fully implemented. (current impl is buggy; I think we need the carry chain.)
-       (assert (bvzero? mask))
-
        ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
        ; we tell the solver that they're unused and unimportant, and setting them to a constant value
        ; is the way to this.
