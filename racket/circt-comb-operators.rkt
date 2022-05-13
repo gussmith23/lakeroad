@@ -30,7 +30,7 @@
 ; TODO: modu
 (define circt-comb-mul bvmul)
 (define (circt-comb-mux cond true-value false-value)
-  (if cond true-value false-value))
+  (if (not (bvzero? cond)) true-value false-value))
 (define circt-comb-or bvor)
 (define (circt-comb-parity a)
   (foldl bvxor (bv 0 1) (bitvector->bits a)))
