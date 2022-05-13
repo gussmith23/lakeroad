@@ -294,4 +294,6 @@ here-string-delimiter
   (require rackunit)
   (check-true (end-to-end-test bvand 2 "&"))
   (check-true (end-to-end-test bvxor 2 "^"))
-  (check-true (end-to-end-test bvor 2 "|")))
+  (check-true (end-to-end-test bvor 2 "|"))
+  (check-true (end-to-end-test bvadd 2 "+"))
+  (check-true (end-to-end-test bvsub 2 "-")))
