@@ -244,8 +244,8 @@ int main(int argc, char **argv, char **env)
       uint8_t a = (uint8_t)a_val;
       uint8_t b = (uint8_t)b_val;
       uint8_t out = run(top, a, b);
-      uint8_t expected =  a ~a b;
-      //printf("%d ~a %d == %d, should equal %d\n", a, b, out, expected);
+      uint8_t expected =  ~a;
+      //printf("~a with a=%d and b=%d == %d, should equal %d\n", a, b, out, expected);
       //printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
       assert(out == expected);
     }
@@ -292,8 +292,8 @@ here-string-delimiter
 
 (module+ test
   (require rackunit)
-  (check-true (end-to-end-test bvand 2 "&"))
-  (check-true (end-to-end-test bvxor 2 "^"))
-  (check-true (end-to-end-test bvor 2 "|"))
-  (check-true (end-to-end-test bvadd 2 "+"))
-  (check-true (end-to-end-test bvsub 2 "-")))
+  (check-true (end-to-end-test bvand 2 "a & b"))
+  (check-true (end-to-end-test bvxor 2 "a ^ b"))
+  (check-true (end-to-end-test bvor 2 "a | b"))
+  (check-true (end-to-end-test bvadd 2 "a + b"))
+  (check-true (end-to-end-test bvsub 2 "a - b")))
