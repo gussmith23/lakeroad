@@ -296,4 +296,7 @@ here-string-delimiter
   (check-true (end-to-end-test bvxor 2 "a ^ b"))
   (check-true (end-to-end-test bvor 2 "a | b"))
   (check-true (end-to-end-test bvadd 2 "a + b"))
-  (check-true (end-to-end-test bvsub 2 "a - b")))
+  (check-true (end-to-end-test bvsub 2 "a - b"))
+  (check-true (end-to-end-test bithack1 2 "a - (a & b)"))
+  (check-true (end-to-end-test bithack2 2 "~(a - b)"))
+  (check-true (end-to-end-test bithack3 2 "(a ^ b) ^ (a & b)")))
