@@ -4,3 +4,6 @@
 [submodule "verilator_xilinx"]
 	path = verilator_xilinx
 	url = https://github.com/fredrequin/verilator_xilinx
+[submodule "Nitro-Parts-lib-Xilinx"]
+	path = Nitro-Parts-lib-Xilinx
+	url = https://github.com/nachiket/Nitro-Parts-lib-Xilinx

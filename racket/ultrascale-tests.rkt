@@ -458,10 +458,9 @@ here-string-delimiter
   (if (not
        (system
         (format
-         "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING --Mdir ~a --cc ~a -I ~a/CARRY8.v -I ~a/LUT6_2.v --build --exe ~a"
+         "verilator --Mdir ~a --cc ~a -I ~a/CARRY8.v -I $LAKEROAD_DIR/Nitro-Parts-lib-Xilinx/DSP48E2.v --build --exe ~a"
          verilator-make-dir
          verilog-file
-         verilator-unisims-dir
          verilator-unisims-dir
          testbench-file)))
       (error "Verilator failed")
