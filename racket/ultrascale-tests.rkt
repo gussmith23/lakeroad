@@ -37,24 +37,24 @@
 (define-symbolic mask (bitvector 48))
 
 (define out
-  (apply ultrascale-clb
+  (apply interpret-ultrascale-plus-clb
+         (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-memory-a)
+                              (ultrascale-plus-lut6-2 lut-memory-b)
+                              (ultrascale-plus-lut6-2 lut-memory-c)
+                              (ultrascale-plus-lut6-2 lut-memory-d)
+                              (ultrascale-plus-lut6-2 lut-memory-e)
+                              (ultrascale-plus-lut6-2 lut-memory-f)
+                              (ultrascale-plus-lut6-2 lut-memory-g)
+                              (ultrascale-plus-lut6-2 lut-memory-h)
+                              mux-selector-a
+                              mux-selector-b
+                              mux-selector-c
+                              mux-selector-d
+                              mux-selector-e
+                              mux-selector-f
+                              mux-selector-g
+                              mux-selector-h)
          cin
-         lut-memory-a
-         lut-memory-b
-         lut-memory-c
-         lut-memory-d
-         lut-memory-e
-         lut-memory-f
-         lut-memory-g
-         lut-memory-h
-         mux-selector-a
-         mux-selector-b
-         mux-selector-c
-         mux-selector-d
-         mux-selector-e
-         mux-selector-f
-         mux-selector-g
-         mux-selector-h
          (ultrascale-logical-to-physical-inputs-with-mask mask
                                                           (list logical-input-0
                                                                 logical-input-1

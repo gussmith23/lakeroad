@@ -33,16 +33,16 @@
   (define-symbolic logical-input-5 (bitvector 8))
 
   (define out
-    (apply ultrascale-clb
+    (apply interpret-ultrascale-plus-clb
+           (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-memory-a)
+                                (ultrascale-plus-lut6-2 lut-memory-b)
+                                (ultrascale-plus-lut6-2 lut-memory-c)
+                                (ultrascale-plus-lut6-2 lut-memory-d)
+                                (ultrascale-plus-lut6-2 lut-memory-e)
+                                (ultrascale-plus-lut6-2 lut-memory-f)
+                                (ultrascale-plus-lut6-2 lut-memory-g)
+                                (ultrascale-plus-lut6-2 lut-memory-h))
            cin
-           lut-memory-a
-           lut-memory-b
-           lut-memory-c
-           lut-memory-d
-           lut-memory-e
-           lut-memory-f
-           lut-memory-g
-           lut-memory-h
            (ultrascale-logical-to-physical-inputs logical-input-0
                                                   logical-input-1
                                                   logical-input-2

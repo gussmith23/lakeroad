@@ -1,11 +1,17 @@
-#lang racket
+#lang errortrace racket
 
 (require rosette)
 
-(provide ultrascale-clb
+(provide interpret-ultrascale-plus-clb
          ultrascale-logical-to-physical-inputs
          ultrascale-logical-to-physical-inputs-with-mask
+         ultrascale-plus-clb
+         ultrascale-plus-lut6-2
          compile-clb-to-verilog)
+
+; Contains the state for a LUT6_2.
+; memory is the LUT's memory: (bitvector 64).
+(struct ultrascale-plus-lut6-2 (memory))
 
 ; The output of a LUT is simply the bit at the entry pointed to by
 ; `inputs-a`, when interpreted as an integer.
@@ -26,15 +32,14 @@
 ; LUT6_2 primitive described on page 37 of
 ; https://www.xilinx.com/support/documentation/user_guides/ug574-ultrascale-clb.pdf
 ;
-; memory is expected to be in the format specified in the guide: a 64-bit bitvector. The bit ordering
-; is the same; the most significant 32 bits controlk the O6 LUT5, while the lower 32 bits control the
-; O5 LUT5.
+; lut is the lut6-2 struct.
 ;
 ; inputs is a 6-bit bitvector, corresponding to I0 (LSB) through I5 (MSB) in figure 3-1.
 ;
 ; Returns the O5 and O6 signals.
-(define (ultrascale-lut6-2 memory inputs)
-  (let* ([lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
+(define (interpret-ultrascale-plus-lut6-2 lut6-2 inputs)
+  (let* ([memory (ultrascale-plus-lut6-2-memory lut6-2)]
+         [lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
          [lut5-1 (lut (extract 31 0 memory) (extract 4 0 inputs))]
          [O6 (if (bitvector->bool (bit 5 inputs)) lut5-0 lut5-1)]
          [O5 lut5-1])
@@ -42,10 +47,22 @@
 
 (module+ test
   (require rackunit)
-  (check-equal? (second (ultrascale-lut6-2 (bv #x0000000000000008 64) (bv 0 6))) (bv 0 1))
-  (check-equal? (second (ultrascale-lut6-2 (bv #x0000000000000008 64) (bv 1 6))) (bv 0 1))
-  (check-equal? (second (ultrascale-lut6-2 (bv #x0000000000000008 64) (bv 2 6))) (bv 0 1))
-  (check-equal? (second (ultrascale-lut6-2 (bv #x0000000000000008 64) (bv 3 6))) (bv 1 1)))
+  (check-equal? (second (interpret-ultrascale-plus-lut6-2
+                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64))
+                         (bv 0 6)))
+                (bv 0 1))
+  (check-equal? (second (interpret-ultrascale-plus-lut6-2
+                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64))
+                         (bv 1 6)))
+                (bv 0 1))
+  (check-equal? (second (interpret-ultrascale-plus-lut6-2
+                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64))
+                         (bv 2 6)))
+                (bv 0 1))
+  (check-equal?
+   (second (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-lut6-2 (bv #x0000000000000008 64))
+                                             (bv 3 6)))
+   (bv 1 1)))
 
 ; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4. Note that, to implement a mux with
 ; "if", the "then" and "else" clauses are in reverse order from the usual mux input order!
@@ -62,67 +79,89 @@
 (define ultrascale-input-width 6)
 (define ultrascale-output-width 2)
 
+; Implementation translated from
+; https://github.com/fredrequin/verilator_xilinx/blob/352de831223a65e8eca3f6abe5c11217863a9dd3/CARRY8.v
+(define (interpret-ultrascale-plus-carry8 d s ci)
+  (let* ([w_CO0 (if (bitvector->bool (bit 0 s)) ci (bit 0 d))]
+         [w_CO1 (if (bitvector->bool (bit 1 s)) w_CO0 (bit 1 d))]
+         [w_CO2 (if (bitvector->bool (bit 2 s)) w_CO1 (bit 2 d))]
+         [w_CO3 (if (bitvector->bool (bit 3 s)) w_CO2 (bit 3 d))]
+         [w_CO4 (if (bitvector->bool (bit 4 s)) w_CO3 (bit 4 d))]
+         [w_CO5 (if (bitvector->bool (bit 5 s)) w_CO4 (bit 5 d))]
+         [w_CO6 (if (bitvector->bool (bit 6 s)) w_CO5 (bit 6 d))]
+         [w_CO7 (if (bitvector->bool (bit 7 s)) w_CO6 (bit 7 d))]
+         [CO (concat w_CO7 w_CO6 w_CO5 w_CO4 w_CO3 w_CO2 w_CO1 w_CO0)]
+         [O (bvxor s (concat w_CO6 w_CO5 w_CO4 w_CO3 w_CO2 w_CO1 w_CO0 ci))])
+    (list O CO)))
+
+; Defines the programmable state of an UltraScale+ CLB.
+(struct ultrascale-plus-clb
+        (lut-a lut-b
+               lut-c
+               lut-d
+               lut-e
+               lut-f
+               lut-g
+               lut-h
+               mux-selector-a
+               mux-selector-b
+               mux-selector-c
+               mux-selector-d
+               mux-selector-e
+               mux-selector-f
+               mux-selector-g
+               mux-selector-h))
+
 ; Returns the physical outputs of the CLB.
 ; TODO(@gussmith23) Rename to ultrascale-plus-clb.
-(define (ultrascale-clb cin
-                        lut-memory-a
-                        lut-memory-b
-                        lut-memory-c
-                        lut-memory-d
-                        lut-memory-e
-                        lut-memory-f
-                        lut-memory-g
-                        lut-memory-h
-                        mux-selector-a
-                        mux-selector-b
-                        mux-selector-c
-                        mux-selector-d
-                        mux-selector-e
-                        mux-selector-f
-                        mux-selector-g
-                        mux-selector-h
-                        lut-input-a
-                        lut-input-b
-                        lut-input-c
-                        lut-input-d
-                        lut-input-e
-                        lut-input-f
-                        lut-input-g
-                        lut-input-h)
+(define (interpret-ultrascale-plus-clb clb
+                                       cin
+                                       lut-input-a
+                                       lut-input-b
+                                       lut-input-c
+                                       lut-input-d
+                                       lut-input-e
+                                       lut-input-f
+                                       lut-input-g
+                                       lut-input-h)
 
   (match-let*
-   ([a-out (ultrascale-lut6-2 lut-memory-a lut-input-a)]
-    [b-out (ultrascale-lut6-2 lut-memory-b lut-input-b)]
-    [c-out (ultrascale-lut6-2 lut-memory-c lut-input-c)]
-    [d-out (ultrascale-lut6-2 lut-memory-d lut-input-d)]
-    [e-out (ultrascale-lut6-2 lut-memory-e lut-input-e)]
-    [f-out (ultrascale-lut6-2 lut-memory-f lut-input-f)]
-    [g-out (ultrascale-lut6-2 lut-memory-g lut-input-g)]
-    [h-out (ultrascale-lut6-2 lut-memory-h lut-input-h)]
-    [(list carry-o0 carry-co0) (carry-layer a-out cin)]
-    [(list carry-o1 carry-co1) (carry-layer b-out carry-co0)]
-    [(list carry-o2 carry-co2) (carry-layer c-out carry-co1)]
-    [(list carry-o3 carry-co3) (carry-layer d-out carry-co2)]
-    [(list carry-o4 carry-co4) (carry-layer e-out carry-co3)]
-    [(list carry-o5 carry-co5) (carry-layer f-out carry-co4)]
-    [(list carry-o6 carry-co6) (carry-layer g-out carry-co5)]
-    [(list carry-o7 carry-co7) (carry-layer h-out carry-co6)]
+   ([(list a-o5 a-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-a clb) lut-input-a)]
+    [(list b-o5 b-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-b clb) lut-input-b)]
+    [(list c-o5 c-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-c clb) lut-input-c)]
+    [(list d-o5 d-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-d clb) lut-input-d)]
+    [(list e-o5 e-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-e clb) lut-input-e)]
+    [(list f-o5 f-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-f clb) lut-input-f)]
+    [(list g-o5 g-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-g clb) lut-input-g)]
+    [(list h-o5 h-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-h clb) lut-input-h)]
+    [(list carry-o carry-co)
+     (interpret-ultrascale-plus-carry8 (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
+                                       (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
+                                       cin)]
+    [(list carry-o0 carry-co0) (list (bit 0 carry-o) (bit 0 carry-co))]
+    [(list carry-o1 carry-co1) (list (bit 1 carry-o) (bit 1 carry-co))]
+    [(list carry-o2 carry-co2) (list (bit 2 carry-o) (bit 2 carry-co))]
+    [(list carry-o3 carry-co3) (list (bit 3 carry-o) (bit 3 carry-co))]
+    [(list carry-o4 carry-co4) (list (bit 4 carry-o) (bit 4 carry-co))]
+    [(list carry-o5 carry-co5) (list (bit 5 carry-o) (bit 5 carry-co))]
+    [(list carry-o6 carry-co6) (list (bit 6 carry-o) (bit 6 carry-co))]
+    [(list carry-o7 carry-co7) (list (bit 7 carry-o) (bit 7 carry-co))]
     [mux-helper
-     (lambda (out carry selector)
+     (lambda (o5 o6 carry selector)
        (assert (not (bveq selector (bv 3 2))))
        (if (bveq selector (bv 0 2))
-           (first out)
+           o5
            (if (bveq selector (bv 1 2))
-               (second out)
+               o6
                (if (bveq selector (bv 2 2)) carry (error "shouldn't hit this")))))]
-    [a-mux-out (mux-helper a-out carry-o0 mux-selector-a)]
-    [b-mux-out (mux-helper b-out carry-o1 mux-selector-b)]
-    [c-mux-out (mux-helper c-out carry-o2 mux-selector-c)]
-    [d-mux-out (mux-helper d-out carry-o3 mux-selector-d)]
-    [e-mux-out (mux-helper e-out carry-o4 mux-selector-e)]
-    [f-mux-out (mux-helper f-out carry-o5 mux-selector-f)]
-    [g-mux-out (mux-helper g-out carry-o6 mux-selector-g)]
-    [h-mux-out (mux-helper h-out carry-o7 mux-selector-h)])
+    [a-mux-out (mux-helper a-o5 a-o6 carry-o0 (ultrascale-plus-clb-mux-selector-a clb))]
+    [b-mux-out (mux-helper b-o5 b-o6 carry-o1 (ultrascale-plus-clb-mux-selector-b clb))]
+    [c-mux-out (mux-helper c-o5 c-o6 carry-o2 (ultrascale-plus-clb-mux-selector-c clb))]
+    [d-mux-out (mux-helper d-o5 d-o6 carry-o3 (ultrascale-plus-clb-mux-selector-d clb))]
+    [e-mux-out (mux-helper e-o5 e-o6 carry-o4 (ultrascale-plus-clb-mux-selector-e clb))]
+    [f-mux-out (mux-helper f-o5 f-o6 carry-o5 (ultrascale-plus-clb-mux-selector-f clb))]
+    [g-mux-out (mux-helper g-o5 g-o6 carry-o6 (ultrascale-plus-clb-mux-selector-g clb))]
+    [h-mux-out (mux-helper h-o5 h-o6 carry-o7 (ultrascale-plus-clb-mux-selector-h clb))])
    (concat h-mux-out g-mux-out f-mux-out e-mux-out d-mux-out c-mux-out b-mux-out a-mux-out)))
 
 ; A simple logical-to-physical inputs function, in which the first (least significant) bit of each
@@ -225,7 +264,7 @@
           mux-selector-f
           mux-selector-g
           mux-selector-h
-          (apply ultrascale-clb
+          (apply interpret-ultrascale-plus-clb
                  cin
                  lut-memory-a
                  lut-memory-b
