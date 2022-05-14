@@ -307,3 +307,167 @@ here-string-delimiter
   (check-true (end-to-end-test bithack1 2 "a - (a & b)"))
   (check-true (end-to-end-test bithack2 2 "~(a - b)"))
   (check-true (end-to-end-test bithack3 2 "(a ^ b) ^ (a & b)")))
+
+(define (end-to-end-dsp-test)
+  (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
+  ;(displayln verilator-make-dir)
+
+  ;;; (define soln
+  ;;;   ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+  ;;;   ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+  ;;;   (synthesize
+  ;;;    #:forall logical-inputs
+  ;;;    #:guarantee
+  ;;;    (begin
+
+  ;;;      (assert (not (bveq mux-selector-a (bv 3 2))))
+  ;;;      (assert (not (bveq mux-selector-b (bv 3 2))))
+  ;;;      (assert (not (bveq mux-selector-c (bv 3 2))))
+  ;;;      (assert (not (bveq mux-selector-d (bv 3 2))))
+  ;;;      (assert (not (bveq mux-selector-e (bv 3 2))))
+  ;;;      (assert (not (bveq mux-selector-f (bv 3 2))))
+  ;;;      (assert (not (bveq mux-selector-g (bv 3 2))))
+  ;;;      (assert (not (bveq mux-selector-h (bv 3 2))))
+
+  ;;;      ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
+  ;;;      ; we tell the solver that they're unused and unimportant, and setting them to a constant value
+  ;;;      ; is the way to this.
+  ;;;      ; When these aren't set, synthesis takes about 10-20x longer (20mins vs 1.5mins). In this case,
+  ;;;      ; we synthesize a LUT that is correct for inputs 0 and 1 regardless of the settings of the
+  ;;;      ; other inputs. I'm not sure if that's useful. I also wonder if there's a faster way to get
+  ;;;      ; the same result. E.g. either 1. assume 2-5 are all 0 and then manually edit the resulting LUT
+  ;;;      ; and duplicate the "correct" parts of the LUT memory into the rest of the LUT memory, OR, 2.,
+  ;;;      ; a more graceful solution, `assume` some predicates that basically say that 2-5 "don't matter"
+  ;;;      ; and that the outputs for a given 0 and 1 should be the same for any 2-5.
+  ;;;      (for ([logical-input (list-tail logical-inputs arity)])
+  ;;;        (assume (bvzero? logical-input)))
+
+  ;;;      ; Assert that the output of the CLB implements the requested function f.
+  ;;;      (assert (bveq (apply f (take logical-inputs arity)) out)))))
+
+  (define dsp-source
+    (compile-ultrascale-plus-dsp48e2 (ultrascale-plus-dsp48e2) "p" "clk" "a" "b" "c" "ce" "rst"))
+
+  (define verilog-source
+    (format
+     #<<here-string-delimiter
+module dsp(
+p, clk, a, b, c, ce, rst
+);
+  output [47:0] p;
+  wire [47:0] p;
+  input clk;
+  wire clk;
+  input rst;
+  wire rst;
+  input ce;
+  wire ce;
+    input  [29:0] a;
+    wire  [29:0] a;
+    input  [17:0] b;
+    wire  [17:0] b;
+    input  [47:0] c;
+    wire  [47:0] c;
+
+~a
+
+endmodule
+
+here-string-delimiter
+     ;
+     dsp-source))
+
+  (define verilog-file (make-temporary-file "rkttmp~a.v"))
+  (call-with-output-file verilog-file (lambda (out) (display verilog-source out)) #:exists 'update)
+  ;(displayln verilog-file)
+  (define verilated-type-name
+    (format "V~a" (path-replace-extension (file-name-from-path verilog-file) "")))
+
+  (define testbench-source
+    (format
+     #<<here-string-delimiter
+#include "~a"
+#include "verilated.h"
+
+int run(~a *top, uint8_t a, uint8_t b, uint8_t c)
+{
+  top->input_a = ((a & (1 << 0)) >> 0) | (((b & (1 << 0)) >> 0) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_b = ((a & (1 << 1)) >> 1) | (((b & (1 << 1)) >> 1) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_c = ((a & (1 << 2)) >> 2) | (((b & (1 << 2)) >> 2) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_d = ((a & (1 << 3)) >> 3) | (((b & (1 << 3)) >> 3) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_e = ((a & (1 << 4)) >> 4) | (((b & (1 << 4)) >> 4) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_f = ((a & (1 << 5)) >> 5) | (((b & (1 << 5)) >> 5) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_g = ((a & (1 << 6)) >> 6) | (((b & (1 << 6)) >> 6) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->input_h = ((a & (1 << 7)) >> 7) | (((b & (1 << 7)) >> 7) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->eval();
+  return top->out;
+}
+
+int main(int argc, char **argv, char **env)
+{
+  int c_bound = ~a;
+
+  VerilatedContext *contextp = new VerilatedContext;
+  contextp->commandArgs(argc, argv);
+  ~a *top = new ~a{contextp};
+
+  for (int a_val = 0; a_val <= 255; a_val++)
+  {
+    for (int b_val = 0; b_val <= 255; b_val++)
+    {
+    for (int c_val = 0; c_val <= c_bound; c_val++)
+    {
+      uint8_t a = (uint8_t)a_val;
+      uint8_t b = (uint8_t)b_val;
+      uint8_t c = (uint8_t)c_val;
+      uint8_t out = run(top, a, b, c);
+      uint8_t expected = ~a;
+      //printf("~a with a=%d b=%d c=%d == %d, should equal %d\n", a, b, c, out, expected);
+      //printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
+      assert(out == expected);
+    }
+    }
+  }
+
+  delete top;
+  delete contextp;
+  return 0;
+}
+
+here-string-delimiter
+     ;
+     (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
+     verilated-type-name
+     (if #f "255" "0") ; c goes from 0-255 if arity >= 3; otherwise it's always 0.
+     verilated-type-name
+     verilated-type-name
+     "+"
+     "+"))
+
+  (define testbench-file (make-temporary-file "rkttmp~a.cc"))
+  (call-with-output-file testbench-file
+                         (lambda (out) (display testbench-source out))
+                         #:exists 'update)
+  ;(displayln testbench-file)
+
+  (if (not (getenv "LAKEROAD_DIR")) (error "LAKEROAD_DIR must be set to base dir of Lakeroad") '())
+  (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+  (displayln verilator-unisims-dir)
+
+  ; TODO(@gussmith23) hardcoded dir
+  (if (not
+       (system
+        (format
+         "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING --Mdir ~a --cc ~a -I ~a/CARRY8.v -I ~a/LUT6_2.v --build --exe ~a"
+         verilator-make-dir
+         verilog-file
+         verilator-unisims-dir
+         verilator-unisims-dir
+         testbench-file)))
+      (error "Verilator failed")
+      '())
+
+  (system* (build-path verilator-make-dir verilated-type-name)))
+
+(module+ test
+  (end-to-end-dsp-test))
