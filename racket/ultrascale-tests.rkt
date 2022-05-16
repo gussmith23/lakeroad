@@ -308,7 +308,7 @@ here-string-delimiter
   (check-true (end-to-end-test bithack2 2 "~(a - b)"))
   (check-true (end-to-end-test bithack3 2 "(a ^ b) ^ (a & b)")))
 
-(define (end-to-end-dsp-test)
+(define (end-to-end-dsp-test expected-expression-str)
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
   ;(displayln verilator-make-dir)
 
@@ -389,18 +389,45 @@ here-string-delimiter
 #include "~a"
 #include "verilated.h"
 
-int run(~a *top, uint8_t a, uint8_t b, uint8_t c)
+double sc_time_stamp() { return 0; }
+
+int run(~a *top, int a, int b, int c)
 {
-  top->input_a = ((a & (1 << 0)) >> 0) | (((b & (1 << 0)) >> 0) << 1) | (((c & (1 << 0)) >> 0) << 2);
-  top->input_b = ((a & (1 << 1)) >> 1) | (((b & (1 << 1)) >> 1) << 1) | (((c & (1 << 0)) >> 0) << 2);
-  top->input_c = ((a & (1 << 2)) >> 2) | (((b & (1 << 2)) >> 2) << 1) | (((c & (1 << 0)) >> 0) << 2);
-  top->input_d = ((a & (1 << 3)) >> 3) | (((b & (1 << 3)) >> 3) << 1) | (((c & (1 << 0)) >> 0) << 2);
-  top->input_e = ((a & (1 << 4)) >> 4) | (((b & (1 << 4)) >> 4) << 1) | (((c & (1 << 0)) >> 0) << 2);
-  top->input_f = ((a & (1 << 5)) >> 5) | (((b & (1 << 5)) >> 5) << 1) | (((c & (1 << 0)) >> 0) << 2);
-  top->input_g = ((a & (1 << 6)) >> 6) | (((b & (1 << 6)) >> 6) << 1) | (((c & (1 << 0)) >> 0) << 2);
-  top->input_h = ((a & (1 << 7)) >> 7) | (((b & (1 << 7)) >> 7) << 1) | (((c & (1 << 0)) >> 0) << 2);
+  top->a = a;
+  top->b = b;
+  top->c = c;
+  top->ce = 1;
+
+  top->rst = 1;
+  top->clk = 0;
   top->eval();
-  return top->out;
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->rst = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+
+  return top->p;
 }
 
 int main(int argc, char **argv, char **env)
@@ -417,12 +444,12 @@ int main(int argc, char **argv, char **env)
     {
     for (int c_val = 0; c_val <= c_bound; c_val++)
     {
-      uint8_t a = (uint8_t)a_val;
-      uint8_t b = (uint8_t)b_val;
-      uint8_t c = (uint8_t)c_val;
+      uint8_t a = a_val;
+      uint8_t b = b_val;
+      uint8_t c = c_val;
       uint8_t out = run(top, a, b, c);
-      uint8_t expected = ~a;
-      //printf("~a with a=%d b=%d c=%d == %d, should equal %d\n", a, b, c, out, expected);
+      uint8_t expected = ~a; //TODO what should this be?
+      printf("~a with a=%d b=%d c=%d == %d, should equal %d\n", a, b, c, out, expected);
       //printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
       assert(out == expected);
     }
@@ -441,8 +468,8 @@ here-string-delimiter
      (if #f "255" "0") ; c goes from 0-255 if arity >= 3; otherwise it's always 0.
      verilated-type-name
      verilated-type-name
-     "+"
-     "+"))
+     expected-expression-str
+     expected-expression-str))
 
   (define testbench-file (make-temporary-file "rkttmp~a.cc"))
   (call-with-output-file testbench-file
@@ -458,10 +485,9 @@ here-string-delimiter
   (if (not
        (system
         (format
-         "verilator --Mdir ~a --cc ~a -I ~a/CARRY8.v -I $LAKEROAD_DIR/Nitro-Parts-lib-Xilinx/DSP48E2.v --build --exe ~a"
+         "verilator -Wno-LATCH -Wno-TIMESCALEMOD -DXIL_XECLIB -Wno-STMTDLY -Wno-COMBDLY -Wno-WIDTH -Wno-BLKANDNBLK -Wno-CASEX -Wno-UNOPTFLAT --Mdir ~a --cc ~a -I $LAKEROAD_DIR/Nitro-Parts-lib-Xilinx/DSP48E2.v --build --exe ~a"
          verilator-make-dir
          verilog-file
-         verilator-unisims-dir
          testbench-file)))
       (error "Verilator failed")
       '())
@@ -469,4 +495,4 @@ here-string-delimiter
   (system* (build-path verilator-make-dir verilated-type-name)))
 
 (module+ test
-  (end-to-end-dsp-test))
+  (end-to-end-dsp-test "a*b+c"))
