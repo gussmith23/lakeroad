@@ -9,6 +9,7 @@
          ultrascale-plus-lut6-2
          compile-clb-to-verilog
          compile-ultrascale-plus-dsp48e2
+         interpret-ultrascale-plus-dsp48e2
          ultrascale-plus-dsp48e2)
 
 ; Contains the state for a LUT6_2.
@@ -549,6 +550,7 @@ here-string-delimiter
 ; b: (bitvector 18)
 ; c: (bitvector 48)
 ; d: (bitvector 27)
+; output: (bitvector 48)
 (define (interpret-ultrascale-plus-dsp48e2 dsp a b c d)
   (let* ([a (sign-extend a (bitvector 48))]
          [b (sign-extend b (bitvector 48))]

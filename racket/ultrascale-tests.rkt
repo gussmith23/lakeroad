@@ -312,38 +312,25 @@ here-string-delimiter
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
   ;(displayln verilator-make-dir)
 
-  ;;; (define soln
-  ;;;   ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-  ;;;   ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-  ;;;   (synthesize
-  ;;;    #:forall logical-inputs
-  ;;;    #:guarantee
-  ;;;    (begin
+  (define-symbolic a (bitvector 30))
+  (define-symbolic b (bitvector 18))
+  (define-symbolic c (bitvector 48))
+  (define-symbolic d (bitvector 48))
+  (define dsp (ultrascale-plus-dsp48e2))
 
-  ;;;      (assert (not (bveq mux-selector-a (bv 3 2))))
-  ;;;      (assert (not (bveq mux-selector-b (bv 3 2))))
-  ;;;      (assert (not (bveq mux-selector-c (bv 3 2))))
-  ;;;      (assert (not (bveq mux-selector-d (bv 3 2))))
-  ;;;      (assert (not (bveq mux-selector-e (bv 3 2))))
-  ;;;      (assert (not (bveq mux-selector-f (bv 3 2))))
-  ;;;      (assert (not (bveq mux-selector-g (bv 3 2))))
-  ;;;      (assert (not (bveq mux-selector-h (bv 3 2))))
-
-  ;;;      ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
-  ;;;      ; we tell the solver that they're unused and unimportant, and setting them to a constant value
-  ;;;      ; is the way to this.
-  ;;;      ; When these aren't set, synthesis takes about 10-20x longer (20mins vs 1.5mins). In this case,
-  ;;;      ; we synthesize a LUT that is correct for inputs 0 and 1 regardless of the settings of the
-  ;;;      ; other inputs. I'm not sure if that's useful. I also wonder if there's a faster way to get
-  ;;;      ; the same result. E.g. either 1. assume 2-5 are all 0 and then manually edit the resulting LUT
-  ;;;      ; and duplicate the "correct" parts of the LUT memory into the rest of the LUT memory, OR, 2.,
-  ;;;      ; a more graceful solution, `assume` some predicates that basically say that 2-5 "don't matter"
-  ;;;      ; and that the outputs for a given 0 and 1 should be the same for any 2-5.
-  ;;;      (for ([logical-input (list-tail logical-inputs arity)])
-  ;;;        (assume (bvzero? logical-input)))
-
-  ;;;      ; Assert that the output of the CLB implements the requested function f.
-  ;;;      (assert (bveq (apply f (take logical-inputs arity)) out)))))
+  ; This synthesis doesn't actually do anything right now -- it basically just verifies that our very
+  ; simple DSP model implements fused multiply-add.
+  (define soln
+    (synthesize #:forall (list a b c d)
+                #:guarantee (begin
+                              (assume (bvzero? d))
+                              (let ([a-ext (sign-extend a (bitvector 48))]
+                                    [b-ext (sign-extend b (bitvector 48))]
+                                    [c-ext (sign-extend c (bitvector 48))])
+                                (assert (bveq (bvadd (bvmul a-ext b-ext) c-ext)
+                                              (interpret-ultrascale-plus-dsp48e2 dsp a b c d)))))))
+  (if (not (sat? soln)) (error "no model found") '())
+  (displayln (model soln))
 
   (define dsp-source
     (compile-ultrascale-plus-dsp48e2 (ultrascale-plus-dsp48e2) "p" "clk" "a" "b" "c" "ce" "rst"))
