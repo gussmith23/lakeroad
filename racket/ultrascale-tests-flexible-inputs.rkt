@@ -6,7 +6,6 @@
          rosette
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
-         racket/set
          rosette/solver/smt/boolector)
 
 (current-solver (boolector))
@@ -231,7 +230,7 @@
     physical-inputs))
 
 (define out
-  (apply ultrascale-clb
+  (apply interpret-ultrascale-plus-clb
          cin
          lut-memory-a
          lut-memory-b
