@@ -436,7 +436,7 @@ int main(int argc, char **argv, char **env)
       uint8_t c = c_val;
       uint8_t out = run(top, a, b, c);
       uint8_t expected = ~a; //TODO what should this be?
-      printf("~a with a=%d b=%d c=%d == %d, should equal %d\n", a, b, c, out, expected);
+      //printf("~a with a=%d b=%d c=%d == %d, should equal %d\n", a, b, c, out, expected);
       //printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
       assert(out == expected);
     }
