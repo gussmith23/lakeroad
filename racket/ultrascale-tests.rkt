@@ -307,3 +307,179 @@ here-string-delimiter
   (check-true (end-to-end-test bithack1 2 "a - (a & b)"))
   (check-true (end-to-end-test bithack2 2 "~(a - b)"))
   (check-true (end-to-end-test bithack3 2 "(a ^ b) ^ (a & b)")))
+
+(define (end-to-end-dsp-test expected-expression-str)
+  (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
+  ;(displayln verilator-make-dir)
+
+  (define-symbolic a (bitvector 30))
+  (define-symbolic b (bitvector 18))
+  (define-symbolic c (bitvector 48))
+  (define-symbolic d (bitvector 48))
+  (define dsp (ultrascale-plus-dsp48e2))
+
+  ; This synthesis doesn't actually do anything right now -- it basically just verifies that our very
+  ; simple DSP model implements fused multiply-add.
+  (define soln
+    (synthesize #:forall (list a b c d)
+                #:guarantee (begin
+                              (assume (bvzero? d))
+                              (let ([a-ext (sign-extend a (bitvector 48))]
+                                    [b-ext (sign-extend b (bitvector 48))]
+                                    [c-ext (sign-extend c (bitvector 48))])
+                                (assert (bveq (bvadd (bvmul a-ext b-ext) c-ext)
+                                              (interpret-ultrascale-plus-dsp48e2 dsp a b c d)))))))
+  (if (not (sat? soln)) (error "no model found") '())
+  (displayln (model soln))
+
+  (define dsp-source
+    (compile-ultrascale-plus-dsp48e2 (ultrascale-plus-dsp48e2) "p" "clk" "a" "b" "c" "ce" "rst"))
+
+  (define verilog-source
+    (format
+     #<<here-string-delimiter
+module dsp(
+p, clk, a, b, c, ce, rst
+);
+  output [47:0] p;
+  wire [47:0] p;
+  input clk;
+  wire clk;
+  input rst;
+  wire rst;
+  input ce;
+  wire ce;
+    input  [29:0] a;
+    wire  [29:0] a;
+    input  [17:0] b;
+    wire  [17:0] b;
+    input  [47:0] c;
+    wire  [47:0] c;
+
+~a
+
+endmodule
+
+here-string-delimiter
+     ;
+     dsp-source))
+
+  (define verilog-file (make-temporary-file "rkttmp~a.v"))
+  (call-with-output-file verilog-file (lambda (out) (display verilog-source out)) #:exists 'update)
+  ;(displayln verilog-file)
+  (define verilated-type-name
+    (format "V~a" (path-replace-extension (file-name-from-path verilog-file) "")))
+
+  (define testbench-source
+    (format
+     #<<here-string-delimiter
+#include "~a"
+#include "verilated.h"
+
+double sc_time_stamp() { return 0; }
+
+int run(~a *top, int a, int b, int c)
+{
+  top->a = a;
+  top->b = b;
+  top->c = c;
+  top->ce = 1;
+
+  top->rst = 1;
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->rst = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+
+  return top->p;
+}
+
+int main(int argc, char **argv, char **env)
+{
+  int c_bound = ~a;
+
+  VerilatedContext *contextp = new VerilatedContext;
+  contextp->commandArgs(argc, argv);
+  ~a *top = new ~a{contextp};
+
+  for (int a_val = 0; a_val <= 255; a_val++)
+  {
+    for (int b_val = 0; b_val <= 255; b_val++)
+    {
+    for (int c_val = 0; c_val <= c_bound; c_val++)
+    {
+      uint8_t a = a_val;
+      uint8_t b = b_val;
+      uint8_t c = c_val;
+      uint8_t out = run(top, a, b, c);
+      uint8_t expected = ~a; //TODO what should this be?
+      //printf("~a with a=%d b=%d c=%d == %d, should equal %d\n", a, b, c, out, expected);
+      //printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
+      assert(out == expected);
+    }
+    }
+  }
+
+  delete top;
+  delete contextp;
+  return 0;
+}
+
+here-string-delimiter
+     ;
+     (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
+     verilated-type-name
+     (if #f "255" "0") ; c goes from 0-255 if arity >= 3; otherwise it's always 0.
+     verilated-type-name
+     verilated-type-name
+     expected-expression-str
+     expected-expression-str))
+
+  (define testbench-file (make-temporary-file "rkttmp~a.cc"))
+  (call-with-output-file testbench-file
+                         (lambda (out) (display testbench-source out))
+                         #:exists 'update)
+  ;(displayln testbench-file)
+
+  (if (not (getenv "LAKEROAD_DIR")) (error "LAKEROAD_DIR must be set to base dir of Lakeroad") '())
+  (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+  (displayln verilator-unisims-dir)
+
+  ; TODO(@gussmith23) hardcoded dir
+  (if (not
+       (system
+        (format
+         "verilator -Wno-LATCH -Wno-TIMESCALEMOD -DXIL_XECLIB -Wno-STMTDLY -Wno-COMBDLY -Wno-WIDTH -Wno-BLKANDNBLK -Wno-CASEX -Wno-UNOPTFLAT --Mdir ~a --cc ~a -I $LAKEROAD_DIR/Nitro-Parts-lib-Xilinx/DSP48E2.v --build --exe ~a"
+         verilator-make-dir
+         verilog-file
+         testbench-file)))
+      (error "Verilator failed")
+      '())
+
+  (system* (build-path verilator-make-dir verilated-type-name)))
+
+(module+ test
+  (end-to-end-dsp-test "a*b+c"))
