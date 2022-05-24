@@ -6,7 +6,8 @@
          rosette
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
-         rosette/solver/smt/boolector)
+         rosette/solver/smt/boolector
+         rosette/lib/angelic)
 
 (current-solver (boolector))
 
@@ -43,6 +44,8 @@
 (define-symbolic logical-input-3 (bitvector 8))
 (define-symbolic logical-input-4 (bitvector 8))
 (define-symbolic logical-input-5 (bitvector 8))
+
+(define-symbolic mask (bitvector 48))
 
 ;; Takes in a list of 6 8-bit bitvectors. Returns a list of 8 6-bit bitvectors.
 (define (logical-to-physical logical-inputs)
@@ -229,31 +232,69 @@
 
     physical-inputs))
 
+; - Uses mask
+; - "default" routing, i.e. logical input 0 goes to lut input 0
+; - but each LUT can get any bit of the logical input (rather than LUT0 getting logical0_0, LUT1
+;   getting logical0_1)
+(define (logical-to-physical-0 mask inputs)
+  (match-let*
+   ([(list logical-input-0
+           logical-input-1
+           logical-input-2
+           logical-input-3
+           logical-input-4
+           logical-input-5)
+     inputs]
+    [helper
+     (lambda (idx)
+       (concat (apply choose* (bitvector->bits logical-input-5))
+               (apply choose* (bitvector->bits logical-input-4))
+               (apply choose* (bitvector->bits logical-input-3))
+               (apply choose* (bitvector->bits logical-input-2))
+               (apply choose* (bitvector->bits logical-input-1))
+               (apply choose* (bitvector->bits logical-input-0))))]
+    [physical-inputs
+     (list (helper 0) (helper 1) (helper 2) (helper 3) (helper 4) (helper 5) (helper 6) (helper 7))]
+    [physical-inputs (apply concat physical-inputs)]
+    ; mask is in the order (MSB left) [bit 5 of lut a, bit 4 of lut a, ...]
+    [physical-inputs (bvor mask physical-inputs)]
+    [physical-inputs
+     (list (extract 47 42 physical-inputs)
+           (extract 41 36 physical-inputs)
+           (extract 35 30 physical-inputs)
+           (extract 29 24 physical-inputs)
+           (extract 23 18 physical-inputs)
+           (extract 17 12 physical-inputs)
+           (extract 11 6 physical-inputs)
+           (extract 5 0 physical-inputs))])
+   physical-inputs))
+
 (define out
   (apply interpret-ultrascale-plus-clb
+         (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-memory-a)
+                              (ultrascale-plus-lut6-2 lut-memory-b)
+                              (ultrascale-plus-lut6-2 lut-memory-c)
+                              (ultrascale-plus-lut6-2 lut-memory-d)
+                              (ultrascale-plus-lut6-2 lut-memory-e)
+                              (ultrascale-plus-lut6-2 lut-memory-f)
+                              (ultrascale-plus-lut6-2 lut-memory-g)
+                              (ultrascale-plus-lut6-2 lut-memory-h)
+                              mux-selector-a
+                              mux-selector-b
+                              mux-selector-c
+                              mux-selector-d
+                              mux-selector-e
+                              mux-selector-f
+                              mux-selector-g
+                              mux-selector-h)
          cin
-         lut-memory-a
-         lut-memory-b
-         lut-memory-c
-         lut-memory-d
-         lut-memory-e
-         lut-memory-f
-         lut-memory-g
-         lut-memory-h
-         mux-selector-a
-         mux-selector-b
-         mux-selector-c
-         mux-selector-d
-         mux-selector-e
-         mux-selector-f
-         mux-selector-g
-         mux-selector-h
-         (logical-to-physical-simple (list logical-input-0
-                                           logical-input-1
-                                           logical-input-2
-                                           logical-input-3
-                                           logical-input-4
-                                           logical-input-5))))
+         (logical-to-physical-0 mask
+                                (list logical-input-0
+                                      logical-input-1
+                                      logical-input-2
+                                      logical-input-3
+                                      logical-input-4
+                                      logical-input-5))))
 
 (define logical-inputs
   (list logical-input-0
