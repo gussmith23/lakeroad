@@ -343,6 +343,9 @@
 (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)
 (helper circt-comb-mods 2)
 (helper circt-comb-mul 2)
+; We can make this one synthesize using logical-to-physical-0 and adding:
+; (assume (or (bvzero? logical-input-0) (bveq (bv 1 8) logical-input-0)))
+; to our assumptions in the synthesize call.
 (helper circt-comb-mux 3)
 (helper circt-comb-or 2)
 (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)
