@@ -3,52 +3,106 @@
 ;;; A key component of Lakeroad is determining how *logical* signals (e.g. an 8 bit input) get wired
 ;;; to *physical* inputs, e.g. the 48 input bits of a Xilinx UltraScale+ Configurable Logic Block.
 ;;; This module provides tools for representing these mappings.
-#lang racket
+#lang errortrace racket
 
 (require rosette)
+
+(provide interpret-logical-to-physical
+         bitwise-input-mapping)
 
 ;;; Represents a logical to physical mapping of inputs.
 ;;;
 ;;; bw: bitwidth of map indices.
-;;; f: a function taking a list of bitvectors and returning a list of bitvectors. the input list is
-;;;   (logical input 0, logical input 1, ...). the returned list is (physical input 0, physical input
-;;;   1, ...).
+;;; f: a Rosette function value (i.e. passes (fv? f)), symbolic or concrete.
 ;;; bits-per-group: Number of bits per physical input group.
-(struct logical-to-physical (f))
+(struct logical-to-physical (f bw bits-per-group))
 
-;;; logical-to-physical: logical-to-physical struct to interpret.
+;;; Interprets logical-to-physical-input mapping.
+;;;
+;;; if logical-to-physical is a Racket procedure, it runs the procedure directly. Otherwise, if it
+;;; is a logical-to-physical struct, it calls it via `helper`.
+;;;
+;;; logical-to-physical: either
+;;; - a function taking a list of bitvectors and returning a list of bitvectors. the input list is
+;;;    (logical input 0, logical input 1, ...). the returned list is (physical input 0, physical input
+;;;    1, ...).
+;;; - or logical-to-physical struct.
 ;;; inputs: list of logical input bitvectors: (logical input 0, logical input 1, ...).
 ;;; Returns: list of physical input bitvectors: (physical input 0, physical input 1, ...).
 (define (interpret-logical-to-physical logical-to-physical inputs)
-  (let ([f (logical-to-physical-f logical-to-physical)]) (f inputs)))
+  (if (procedure? logical-to-physical)
+      (logical-to-physical inputs)
+      (if (logical-to-physical? logical-to-physical)
+          (helper logical-to-physical inputs)
+          (error "unexpected type"))))
 
-;;; (define (todo logical-to-physical inputs)
-;;;   (let* (;;; First, creates one large bitvector in the following bit order:
-;;;          ;;; MSB of last input...LSB of last input:MSB of 2nd to last input...:...:MSB of i0...LSB i0
-;;;          ;;; Then converts to a list of bits, which reverses the bit order into lsb...msb order.
-;;;          [inputs (bitvector->bits (apply concat (reverse inputs)))]
-;;;          [inputs-length (length (bitvector->bits inputs))]
-;;;          [bw (logical-to-physical-bw logical-to-physical)]
-;;;          [map (logical-to-physical-map logical-to-physical)]
-;;;          ;;; 0..inputs-length-1
-;;;          [indices (map (lambda (v) (integer->bitvector v (bitvector bw))) (range inputs-length))]
-;;;          ;;; We assume this list is also in lsb...msb order, i.e.
-;;;          ;;; (lsb i0, ..., msb i0, lsb i1, ..., lsb in, ..., msb in)
-;;;          [outputs (map (lambda (idx)
-;;;                          (bit 0 (bvlshr inputs (zero-extend (map idx) (bitvector inputs-length)))))
-;;;                        indices)]
-;;;          [bits-per-group (logical-to-physical-bits-per-group logical-to-physical)]
-;;;          [num-groups (if (not (equal? (modulo inputs-length bits-per-group) 0))
-;;;                          (error "bits-per-group must divide inputs-length")
-;;;                          (/ inputs-length bits-per-group))]
-;;;          ;;; must reverse bits to get them back in msb..lsb order, and concat.
-;;;          [outputs (apply concat (reverse outputs))]
-;;;          ;;; Extract from right to left (bits-per-group-1 to 0 first, which we assume is o0, and so
-;;;          ;;; on.)
-;;;          [outputs
-;;;           (map (lambda (i) (extract (sub1 (* bits-per-group (+ i 1))) (* bits-per-group i) outputs))
-;;;                (range num-groups))])
-;;;     outputs))
+;;; Helper, which interprets a Rosette uninterpreted function value used as a logical-to-physical map.
+(define (helper logical-to-physical inputs)
+  (let* (;;; First, creates one large bitvector in the following bit order:
+         ;;; MSB of last input...LSB of last input:MSB of 2nd to last input...:...:MSB of i0...LSB i0
+         ;;; Then converts to a list of bits, which reverses the bit order into lsb...msb order.
+         [inputs (apply concat (reverse inputs))]
+         [inputs-length (length (bitvector->bits inputs))]
+         [bw (logical-to-physical-bw logical-to-physical)]
+         [f (logical-to-physical-f logical-to-physical)]
+         ;;; 0..inputs-length-1
+         [indices (map (lambda (v) (integer->bitvector v (bitvector bw))) (range inputs-length))]
+         ;;; We assume this list is also in lsb...msb order, i.e.
+         ;;; (lsb i0, ..., msb i0, lsb i1, ..., lsb in, ..., msb in)
+         [outputs (map (lambda (idx)
+                         (bit 0 (bvlshr inputs (zero-extend (f idx) (bitvector inputs-length)))))
+                       indices)]
+         [bits-per-group (logical-to-physical-bits-per-group logical-to-physical)]
+         [num-groups (if (not (equal? (modulo inputs-length bits-per-group) 0))
+                         (error "bits-per-group must divide inputs-length")
+                         (/ inputs-length bits-per-group))]
+         ;;; must reverse bits to get them back in msb..lsb order, and concat.
+         [outputs (apply concat (reverse outputs))]
+         ;;; Extract from right to left (bits-per-group-1 to 0 first, which we assume is o0, and so
+         ;;; on.)
+         [outputs
+          (map (lambda (i) (extract (sub1 (* bits-per-group (+ i 1))) (* bits-per-group i) outputs))
+               (range num-groups))])
+    outputs))
+
+(module+ test
+  (require rackunit
+           rosette/solver/smt/boolector)
+  (current-solver (boolector))
+
+  ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
+  (define-symbolic l-to-p-f (~> (bitvector 5) (bitvector 5)))
+  (define l-to-p (logical-to-physical l-to-p-f 5 4))
+  (define-symbolic a (bitvector 8))
+  (define-symbolic b (bitvector 8))
+  (define-symbolic c (bitvector 8))
+  (match-define (list o0 o1 o2 o3 o4 o5) (interpret-logical-to-physical l-to-p (list a b c)))
+  (define soln
+    (synthesize #:forall (list a b c)
+                #:guarantee (begin
+                              ;;; Make up some random constraints...
+                              (assert (bveq (bit 0 a) (bit 0 o1)))
+                              (assert (bveq (bit 1 a) (bit 2 o0)))
+                              (assert (bveq (extract 7 4 c) o4))
+                              ;;; This one reverses the bits (via bitvector->bits --> concat).
+                              (assert (bveq (apply concat (bitvector->bits (extract 3 1 b)))
+                                            (extract 2 0 o3))))))
+  (check-true (sat? soln))
+  ;;; Get the mapping function...
+  (define f (evaluate (logical-to-physical-f l-to-p) soln))
+
+  ;;; Helper to help us run checks. Checks that the logical index maps to the expected physical index.
+  (define (ch logical-idx physical-idx)
+    (check-equal? (f (bv physical-idx 5)) (bv logical-idx 5)))
+  (ch 1 2)
+  (ch 0 5)
+  (ch 20 16)
+  (ch 21 17)
+  (ch 22 18)
+  (ch 23 19)
+  (ch 11 12)
+  (ch 10 13)
+  (ch 9 14))
 
 (define (transpose inputs)
   (apply map concat (map bitvector->bits inputs)))
@@ -66,7 +120,7 @@
 ;;;
 ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern described
 ;;;   above.
-(define bitwise-input-mapping (logical-to-physical (lambda (inputs) (transpose inputs))))
+(define bitwise-input-mapping (lambda (inputs) (transpose inputs)))
 
 (module+ test
   (require rackunit)
