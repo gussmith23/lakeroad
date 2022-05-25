@@ -5,7 +5,6 @@
 
 (require "logical-to-physical.rkt")
 
-;;; TODO this is a really ugly way to write this.
 (define (interpret expr)
   (match expr
     [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs expr)]))
