@@ -3,5 +3,16 @@
 
 (provide interpret)
 
-(define (interpret expr inputs)
-  (error ""))
+(require "logical-to-physical.rkt")
+
+;;; TODO this is a really ugly way to write this.
+(define (interpret expr)
+  (match expr
+    [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs expr)]))
+
+(module+ test
+  (require rackunit
+           rosette)
+
+  (check-equal? (interpret `(logical-to-physical-inputs ,(lambda (x) x) ,(list (bv 1 1) (bv 0 1))))
+                (list (bv 1 1) (bv 0 1))))
