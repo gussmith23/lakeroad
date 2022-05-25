@@ -7,15 +7,23 @@
 
 (require rosette)
 
-(provide interpret-logical-to-physical
+(provide interpret-logical-to-physical-inputs
          bitwise-input-mapping)
 
-;;; Represents a logical to physical mapping of inputs.
-;;;
 ;;; bw: bitwidth of map indices.
 ;;; f: a Rosette function value (i.e. passes (fv? f)), symbolic or concrete.
 ;;; bits-per-group: Number of bits per physical input group.
-(struct logical-to-physical (f bw bits-per-group))
+(struct logical-to-physical-inputs-uf (f bw bits-per-group))
+
+;;; "Function" variant of logical-to-physical-inputs.
+;;;
+;;; Takes a function (not a Rosette uninterpreted function) which implements the logical-to-physical
+;;; mapping directly.
+;;;
+;;; f: a function taking a list of bitvectors and returning a list of bitvectors. the input list is
+;;;    (logical input 0, logical input 1, ...). the returned list is (physical input 0, physical input
+;;;    1, ...).
+(struct logical-to-physical-inputs-f (f))
 
 ;;; Interprets logical-to-physical-input mapping.
 ;;;
@@ -29,22 +37,22 @@
 ;;; - or logical-to-physical struct.
 ;;; inputs: list of logical input bitvectors: (logical input 0, logical input 1, ...).
 ;;; Returns: list of physical input bitvectors: (physical input 0, physical input 1, ...).
-(define (interpret-logical-to-physical logical-to-physical inputs)
-  (if (procedure? logical-to-physical)
-      (logical-to-physical inputs)
-      (if (logical-to-physical? logical-to-physical)
-          (helper logical-to-physical inputs)
-          (error "unexpected type"))))
+(define (interpret-logical-to-physical-inputs l-to-p inputs)
+  (if (logical-to-physical-inputs-f? l-to-p)
+      ((logical-to-physical-inputs-f-f l-to-p) inputs)
+      (if (logical-to-physical-inputs-uf? l-to-p) (helper l-to-p inputs) (error "unexpected type"))))
 
 ;;; Helper, which interprets a Rosette uninterpreted function value used as a logical-to-physical map.
-(define (helper logical-to-physical inputs)
+;;;
+;;; l-to-p-uf: logical-to-physical-inputs-uf
+(define (helper l-to-p-uf inputs)
   (let* (;;; First, creates one large bitvector in the following bit order:
          ;;; MSB of last input...LSB of last input:MSB of 2nd to last input...:...:MSB of i0...LSB i0
          ;;; Then converts to a list of bits, which reverses the bit order into lsb...msb order.
          [inputs (apply concat (reverse inputs))]
          [inputs-length (length (bitvector->bits inputs))]
-         [bw (logical-to-physical-bw logical-to-physical)]
-         [f (logical-to-physical-f logical-to-physical)]
+         [bw (logical-to-physical-inputs-uf-bw l-to-p-uf)]
+         [f (logical-to-physical-inputs-uf-f l-to-p-uf)]
          ;;; 0..inputs-length-1
          [indices (map (lambda (v) (integer->bitvector v (bitvector bw))) (range inputs-length))]
          ;;; We assume this list is also in lsb...msb order, i.e.
@@ -52,7 +60,7 @@
          [outputs (map (lambda (idx)
                          (bit 0 (bvlshr inputs (zero-extend (f idx) (bitvector inputs-length)))))
                        indices)]
-         [bits-per-group (logical-to-physical-bits-per-group logical-to-physical)]
+         [bits-per-group (logical-to-physical-inputs-uf-bits-per-group l-to-p-uf)]
          [num-groups (if (not (equal? (modulo inputs-length bits-per-group) 0))
                          (error "bits-per-group must divide inputs-length")
                          (/ inputs-length bits-per-group))]
@@ -72,11 +80,11 @@
 
   ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
   (define-symbolic l-to-p-f (~> (bitvector 5) (bitvector 5)))
-  (define l-to-p (logical-to-physical l-to-p-f 5 4))
+  (define l-to-p (logical-to-physical-inputs-uf l-to-p-f 5 4))
   (define-symbolic a (bitvector 8))
   (define-symbolic b (bitvector 8))
   (define-symbolic c (bitvector 8))
-  (match-define (list o0 o1 o2 o3 o4 o5) (interpret-logical-to-physical l-to-p (list a b c)))
+  (match-define (list o0 o1 o2 o3 o4 o5) (interpret-logical-to-physical-inputs l-to-p (list a b c)))
   (define soln
     (synthesize #:forall (list a b c)
                 #:guarantee (begin
@@ -89,7 +97,7 @@
                                             (extract 2 0 o3))))))
   (check-true (sat? soln))
   ;;; Get the mapping function...
-  (define f (evaluate (logical-to-physical-f l-to-p) soln))
+  (define f (evaluate (logical-to-physical-inputs-uf-f l-to-p) soln))
 
   ;;; Helper to help us run checks. Checks that the logical index maps to the expected physical index.
   (define (ch logical-idx physical-idx)
@@ -120,26 +128,28 @@
 ;;;
 ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern described
 ;;;   above.
-(define bitwise-input-mapping (lambda (inputs) (transpose inputs)))
+(define bitwise-input-mapping (logical-to-physical-inputs-f (lambda (inputs) (transpose inputs))))
 
 (module+ test
   (require rackunit)
-  (check-equal? (interpret-logical-to-physical bitwise-input-mapping (list (bv #b01 2) (bv #b10 2)))
+  (check-equal? (interpret-logical-to-physical-inputs bitwise-input-mapping
+                                                      (list (bv #b01 2) (bv #b10 2)))
                 (list (bv #b10 2) (bv #b01 2)))
-  (check-equal? (interpret-logical-to-physical bitwise-input-mapping (list (bv #b01 2)))
+  (check-equal? (interpret-logical-to-physical-inputs bitwise-input-mapping (list (bv #b01 2)))
                 (list (bv #b1 1) (bv #b0 1)))
-  (check-equal? (interpret-logical-to-physical bitwise-input-mapping (list (bv #b01 2)))
+  (check-equal? (interpret-logical-to-physical-inputs bitwise-input-mapping (list (bv #b01 2)))
                 (list (bv #b1 1) (bv #b0 1)))
   (check-exn
    (regexp
     "@map: arity mismatch;\n the expected number of arguments does not match the given number\n  expected: at least 2\n  given: 1")
    (lambda ()
-     (interpret-logical-to-physical bitwise-input-mapping (list))
+     (interpret-logical-to-physical-inputs bitwise-input-mapping (list))
      (list)))
   (check-exn
    (regexp
     "map: all lists must have same size\n  first list length: 2\n  other list length: 1\n  procedure: concat")
-   (lambda () (interpret-logical-to-physical bitwise-input-mapping (list (bv #b01 2) (bv #b1 1))))))
+   (lambda ()
+     (interpret-logical-to-physical-inputs bitwise-input-mapping (list (bv #b01 2) (bv #b1 1))))))
 
 ;;; Defines the bitwise physical-to-logical mapping for mapping physical outputs to logical outputs.
 ;;;
