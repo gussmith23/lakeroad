@@ -7,6 +7,49 @@
 
 (require rosette)
 
+;;; Represents a logical to physical mapping of inputs.
+;;;
+;;; bw: bitwidth of map indices.
+;;; f: a function taking a list of bitvectors and returning a list of bitvectors. the input list is
+;;;   (logical input 0, logical input 1, ...). the returned list is (physical input 0, physical input
+;;;   1, ...).
+;;; bits-per-group: Number of bits per physical input group.
+(struct logical-to-physical (f))
+
+;;; logical-to-physical: logical-to-physical struct to interpret.
+;;; inputs: list of logical input bitvectors: (logical input 0, logical input 1, ...).
+;;; Returns: list of physical input bitvectors: (physical input 0, physical input 1, ...).
+(define (interpret-logical-to-physical logical-to-physical inputs)
+  (let ([f (logical-to-physical-f logical-to-physical)]) (f inputs)))
+
+;;; (define (todo logical-to-physical inputs)
+;;;   (let* (;;; First, creates one large bitvector in the following bit order:
+;;;          ;;; MSB of last input...LSB of last input:MSB of 2nd to last input...:...:MSB of i0...LSB i0
+;;;          ;;; Then converts to a list of bits, which reverses the bit order into lsb...msb order.
+;;;          [inputs (bitvector->bits (apply concat (reverse inputs)))]
+;;;          [inputs-length (length (bitvector->bits inputs))]
+;;;          [bw (logical-to-physical-bw logical-to-physical)]
+;;;          [map (logical-to-physical-map logical-to-physical)]
+;;;          ;;; 0..inputs-length-1
+;;;          [indices (map (lambda (v) (integer->bitvector v (bitvector bw))) (range inputs-length))]
+;;;          ;;; We assume this list is also in lsb...msb order, i.e.
+;;;          ;;; (lsb i0, ..., msb i0, lsb i1, ..., lsb in, ..., msb in)
+;;;          [outputs (map (lambda (idx)
+;;;                          (bit 0 (bvlshr inputs (zero-extend (map idx) (bitvector inputs-length)))))
+;;;                        indices)]
+;;;          [bits-per-group (logical-to-physical-bits-per-group logical-to-physical)]
+;;;          [num-groups (if (not (equal? (modulo inputs-length bits-per-group) 0))
+;;;                          (error "bits-per-group must divide inputs-length")
+;;;                          (/ inputs-length bits-per-group))]
+;;;          ;;; must reverse bits to get them back in msb..lsb order, and concat.
+;;;          [outputs (apply concat (reverse outputs))]
+;;;          ;;; Extract from right to left (bits-per-group-1 to 0 first, which we assume is o0, and so
+;;;          ;;; on.)
+;;;          [outputs
+;;;           (map (lambda (i) (extract (sub1 (* bits-per-group (+ i 1))) (* bits-per-group i) outputs))
+;;;                (range num-groups))])
+;;;     outputs))
+
 (define (transpose inputs)
   (apply map concat (map bitvector->bits inputs)))
 
@@ -23,19 +66,26 @@
 ;;;
 ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern described
 ;;;   above.
-(define (bitwise-input-mapping inputs)
-  (transpose inputs))
+(define bitwise-input-mapping (logical-to-physical (lambda (inputs) (transpose inputs))))
 
 (module+ test
   (require rackunit)
-  (check-equal? (bitwise-input-mapping (list (bv #b01 2) (bv #b10 2))) (list (bv #b10 2) (bv #b01 2)))
-  (check-equal? (bitwise-input-mapping (list (bv #b01 2))) (list (bv #b1 1) (bv #b0 1)))
-  (check-equal? (bitwise-input-mapping (list (bv #b01 2))) (list (bv #b1 1) (bv #b0 1)))
-  (check-exn exn:fail?
-             (lambda ()
-               (bitwise-input-mapping (list))
-               (list)))
-  (check-exn exn:fail? (lambda () (bitwise-input-mapping (list (bv #b01 2) (bv #b1 1))))))
+  (check-equal? (interpret-logical-to-physical bitwise-input-mapping (list (bv #b01 2) (bv #b10 2)))
+                (list (bv #b10 2) (bv #b01 2)))
+  (check-equal? (interpret-logical-to-physical bitwise-input-mapping (list (bv #b01 2)))
+                (list (bv #b1 1) (bv #b0 1)))
+  (check-equal? (interpret-logical-to-physical bitwise-input-mapping (list (bv #b01 2)))
+                (list (bv #b1 1) (bv #b0 1)))
+  (check-exn
+   (regexp
+    "@map: arity mismatch;\n the expected number of arguments does not match the given number\n  expected: at least 2\n  given: 1")
+   (lambda ()
+     (interpret-logical-to-physical bitwise-input-mapping (list))
+     (list)))
+  (check-exn
+   (regexp
+    "map: all lists must have same size\n  first list length: 2\n  other list length: 1\n  procedure: concat")
+   (lambda () (interpret-logical-to-physical bitwise-input-mapping (list (bv #b01 2) (bv #b1 1))))))
 
 ;;; Defines the bitwise physical-to-logical mapping for mapping physical outputs to logical outputs.
 ;;;
