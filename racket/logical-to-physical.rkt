@@ -12,7 +12,13 @@
 
 ;;; Interprets logical-to-physical-input mapping.
 ;;;
-;;; There are two variants. The first variant uses a Rosette uninterpreted function to represent
+;;; There are two variants.
+;;;
+;;; Both variants take an interpreter function, to interpret unrecognized expressions.
+;;;
+;;; The second argument is an expression, whose syntax is defined below:
+;;;
+;;; The first variant uses a Rosette uninterpreted function to represent
 ;;; the underlying logical-to-physical mapping. The second variant allows a Racket function to be used
 ;;; directly.
 ;;;
@@ -30,12 +36,15 @@
 ;;; inputs: list of logical input bitvectors: (logical input 0, logical input 1, ...). These are
 ;;; assumed to be the same bitwidth and be in MSB..LSB order.
 ;;;
+;;; If neither of these variants are matched, then the expression is passed to the interpreter fn.
+;;;
 ;;; Returns: list of physical input bitvectors: (physical input 0, physical input 1, ...).
-(define (interpret-logical-to-physical-inputs expr)
+(define (interpret-logical-to-physical-inputs interpreter expr)
   (match expr
     [`(logical-to-physical-inputs ,uf ,bw ,bits-per-group ,inputs)
      (helper uf bw bits-per-group inputs)]
-    [`(logical-to-physical-inputs ,f ,inputs) (f inputs)]))
+    [`(logical-to-physical-inputs ,f ,inputs) (f inputs)]
+    [other (interpreter other)]))
 
 ;;; Helper, which interprets a Rosette uninterpreted function value used as a logical-to-physical map.
 ;;;
@@ -76,7 +85,7 @@
   (define-symbolic b (bitvector 8))
   (define-symbolic c (bitvector 8))
   (define expr `(logical-to-physical-inputs ,l-to-p-f 5 4 ,(list a b c)))
-  (match-define (list o0 o1 o2 o3 o4 o5) (interpret-logical-to-physical-inputs expr))
+  (match-define (list o0 o1 o2 o3 o4 o5) (interpret-logical-to-physical-inputs identity expr))
   (define soln
     (synthesize #:forall (list a b c)
                 #:guarantee (begin
@@ -127,12 +136,15 @@
 (module+ test
   (require rackunit)
   (check-equal? (interpret-logical-to-physical-inputs
+                 identity
                  `(logical-to-physical-inputs ,bitwise-input-mapping ,(list (bv #b01 2) (bv #b10 2))))
                 (list (bv #b10 2) (bv #b01 2)))
   (check-equal? (interpret-logical-to-physical-inputs
+                 identity
                  `(logical-to-physical-inputs ,bitwise-input-mapping ,(list (bv #b01 2))))
                 (list (bv #b1 1) (bv #b0 1)))
   (check-equal? (interpret-logical-to-physical-inputs
+                 identity
                  `(logical-to-physical-inputs ,bitwise-input-mapping ,(list (bv #b01 2))))
                 (list (bv #b1 1) (bv #b0 1)))
   (check-exn
@@ -140,6 +152,7 @@
     "@map: arity mismatch;\n the expected number of arguments does not match the given number\n  expected: at least 2\n  given: 1")
    (lambda ()
      (interpret-logical-to-physical-inputs
+      identity
       `(logical-to-physical-inputs ,bitwise-input-mapping ,(list)))
      (list)))
   (check-exn
@@ -147,6 +160,7 @@
     "map: all lists must have same size\n  first list length: 2\n  other list length: 1\n  procedure: concat")
    (lambda ()
      (interpret-logical-to-physical-inputs
+      identity
       `(logical-to-physical-inputs ,bitwise-input-mapping ,(list (bv #b01 2) (bv #b1 1)))))))
 
 ;;; Defines the bitwise physical-to-logical mapping for mapping physical outputs to logical outputs.
