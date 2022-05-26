@@ -1,7 +1,8 @@
 ; "Deep" tests, in which we see if we can synthesize functions using multiple CLBs in sequence.
 #lang racket
 
-(require "ultrascale.rkt"
+(require "interpreter.rkt"
+         "ultrascale.rkt"
          rosette
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
@@ -37,33 +38,31 @@
 (define-symbolic mask (bitvector 48))
 
 (define out-0
-  (interpret-ultrascale-plus-clb
-   identity
-   `(ultrascale-plus-clb ,cin-0
-                         ,lut-memory-a-0
-                         ,lut-memory-b-0
-                         ,lut-memory-c-0
-                         ,lut-memory-d-0
-                         ,lut-memory-e-0
-                         ,lut-memory-f-0
-                         ,lut-memory-g-0
-                         ,lut-memory-h-0
-                         ,mux-selector-a-0
-                         ,mux-selector-b-0
-                         ,mux-selector-c-0
-                         ,mux-selector-d-0
-                         ,mux-selector-e-0
-                         ,mux-selector-f-0
-                         ,mux-selector-g-0
-                         ,mux-selector-h-0
-                         ,@(ultrascale-logical-to-physical-inputs-with-mask
-                            mask
-                            (list logical-input-0-0
-                                  logical-input-1-0
-                                  logical-input-2-0
-                                  logical-input-3-0
-                                  logical-input-4-0
-                                  logical-input-5-0)))))
+  (interpret `(ultrascale-plus-clb ,cin-0
+                                   ,lut-memory-a-0
+                                   ,lut-memory-b-0
+                                   ,lut-memory-c-0
+                                   ,lut-memory-d-0
+                                   ,lut-memory-e-0
+                                   ,lut-memory-f-0
+                                   ,lut-memory-g-0
+                                   ,lut-memory-h-0
+                                   ,mux-selector-a-0
+                                   ,mux-selector-b-0
+                                   ,mux-selector-c-0
+                                   ,mux-selector-d-0
+                                   ,mux-selector-e-0
+                                   ,mux-selector-f-0
+                                   ,mux-selector-g-0
+                                   ,mux-selector-h-0
+                                   ,@(ultrascale-logical-to-physical-inputs-with-mask
+                                      mask
+                                      (list logical-input-0-0
+                                            logical-input-1-0
+                                            logical-input-2-0
+                                            logical-input-3-0
+                                            logical-input-4-0
+                                            logical-input-5-0)))))
 
 (define logical-inputs-0
   (list logical-input-0-0
@@ -92,32 +91,31 @@
 (define-symbolic mux-selector-h-1 (bitvector 2))
 
 (define out-1
-  (interpret-ultrascale-plus-clb identity
-                                 `(ultrascale-plus-clb ,cin-1
-                                                       ,lut-memory-a-1
-                                                       ,lut-memory-b-1
-                                                       ,lut-memory-c-1
-                                                       ,lut-memory-d-1
-                                                       ,lut-memory-e-1
-                                                       ,lut-memory-f-1
-                                                       ,lut-memory-g-1
-                                                       ,lut-memory-h-1
-                                                       ,mux-selector-a-1
-                                                       ,mux-selector-b-1
-                                                       ,mux-selector-c-1
-                                                       ,mux-selector-d-1
-                                                       ,mux-selector-e-1
-                                                       ,mux-selector-f-1
-                                                       ,mux-selector-g-1
-                                                       ,mux-selector-h-1
-                                                       ,(zero-extend (bit 0 out-0) (bitvector 6))
-                                                       ,(zero-extend (bit 1 out-0) (bitvector 6))
-                                                       ,(zero-extend (bit 2 out-0) (bitvector 6))
-                                                       ,(zero-extend (bit 3 out-0) (bitvector 6))
-                                                       ,(zero-extend (bit 4 out-0) (bitvector 6))
-                                                       ,(zero-extend (bit 5 out-0) (bitvector 6))
-                                                       ,(zero-extend (bit 6 out-0) (bitvector 6))
-                                                       ,(zero-extend (bit 7 out-0) (bitvector 6)))))
+  (interpret `(ultrascale-plus-clb ,cin-1
+                                   ,lut-memory-a-1
+                                   ,lut-memory-b-1
+                                   ,lut-memory-c-1
+                                   ,lut-memory-d-1
+                                   ,lut-memory-e-1
+                                   ,lut-memory-f-1
+                                   ,lut-memory-g-1
+                                   ,lut-memory-h-1
+                                   ,mux-selector-a-1
+                                   ,mux-selector-b-1
+                                   ,mux-selector-c-1
+                                   ,mux-selector-d-1
+                                   ,mux-selector-e-1
+                                   ,mux-selector-f-1
+                                   ,mux-selector-g-1
+                                   ,mux-selector-h-1
+                                   ,(zero-extend (bit 0 out-0) (bitvector 6))
+                                   ,(zero-extend (bit 1 out-0) (bitvector 6))
+                                   ,(zero-extend (bit 2 out-0) (bitvector 6))
+                                   ,(zero-extend (bit 3 out-0) (bitvector 6))
+                                   ,(zero-extend (bit 4 out-0) (bitvector 6))
+                                   ,(zero-extend (bit 5 out-0) (bitvector 6))
+                                   ,(zero-extend (bit 6 out-0) (bitvector 6))
+                                   ,(zero-extend (bit 7 out-0) (bitvector 6)))))
 
 (define (helper-old f arity)
   (println f)

@@ -10,7 +10,7 @@
   (match expr
     [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs interpret expr)]
     [`(physical-to-logical-mapping ,_ ...) (interpret-physical-to-logical-mapping interpret expr)]
-    [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus-clb interpret expr)]
+    [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
     ;;; Everything else gets returned as-is. This means that calling (interpret) on Racket expressions
     ;;; gives back Racket expressions, meaning we can use Racket expressions in our DSL.
     ;;; It would be better if we could have a way that would catch invalid syntax...
