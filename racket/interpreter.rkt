@@ -7,11 +7,19 @@
 
 (define (interpret expr)
   (match expr
-    [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs interpret expr)]))
+    [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs interpret expr)]
+    ;;; Everything else gets returned as-is. This means that calling (interpret) on Racket expressions
+    ;;; gives back Racket expressions, meaning we can use Racket expressions in our DSL.
+    [other other]))
 
 (module+ test
   (require rackunit
            rosette)
+
+  ;;; Interpreting Racket expressions should give back Racket expressions.
+  (check-equal? (interpret 1) 1)
+  (check-equal? (interpret (list 1 2 3)) (list 1 2 3))
+  (check-equal? (interpret 'test) 'test)
 
   (check-equal? (interpret `(logical-to-physical-inputs ,(lambda (x) x) ,(list (bv 1 1) (bv 0 1))))
                 (list (bv 1 1) (bv 0 1))))
