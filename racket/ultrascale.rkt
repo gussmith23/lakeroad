@@ -32,6 +32,11 @@
   (check-equal? (lut (bv #b0110 4) (bv 2 2)) (bv #b1 1))
   (check-equal? (lut (bv #b0110 4) (bv 3 2)) (bv #b0 1)))
 
+(define (interpret-ultrascale-plus-lut6-2 interpreter expr)
+  (match expr
+    [`(ultrascale-plus-lut6-2 ,memory ,inputs)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-lut6-2 memory) (interpreter inputs))]))
+
 ; LUT6_2 primitive described on page 37 of
 ; https://www.xilinx.com/support/documentation/user_guides/ug574-ultrascale-clb.pdf
 ;
@@ -40,7 +45,7 @@
 ; inputs is a 6-bit bitvector, corresponding to I0 (LSB) through I5 (MSB) in figure 3-1.
 ;
 ; Returns the O5 and O6 signals.
-(define (interpret-ultrascale-plus-lut6-2 lut6-2 inputs)
+(define (interpret-ultrascale-plus-lut6-2-impl lut6-2 inputs)
   (let* ([memory (ultrascale-plus-lut6-2-memory lut6-2)]
          [lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
          [lut5-1 (lut (extract 31 0 memory) (extract 4 0 inputs))]
@@ -51,21 +56,21 @@
 (module+ test
   (require rackunit)
   (check-equal? (second (interpret-ultrascale-plus-lut6-2
-                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64))
-                         (bv 0 6)))
+                         identity
+                         `(ultrascale-plus-lut6-2 ,(bv #x0000000000000008 64) ,(bv 0 6))))
                 (bv 0 1))
   (check-equal? (second (interpret-ultrascale-plus-lut6-2
-                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64))
-                         (bv 1 6)))
+                         identity
+                         `(ultrascale-plus-lut6-2 ,(bv #x0000000000000008 64) ,(bv 1 6))))
                 (bv 0 1))
   (check-equal? (second (interpret-ultrascale-plus-lut6-2
-                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64))
-                         (bv 2 6)))
+                         identity
+                         `(ultrascale-plus-lut6-2 ,(bv #x0000000000000008 64) ,(bv 2 6))))
                 (bv 0 1))
-  (check-equal?
-   (second (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-lut6-2 (bv #x0000000000000008 64))
-                                             (bv 3 6)))
-   (bv 1 1)))
+  (check-equal? (second (interpret-ultrascale-plus-lut6-2
+                         identity
+                         `(ultrascale-plus-lut6-2 ,(bv #x0000000000000008 64) ,(bv 3 6))))
+                (bv 1 1)))
 
 ; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4. Note that, to implement a mux with
 ; "if", the "then" and "else" clauses are in reverse order from the usual mux input order!
@@ -115,28 +120,89 @@
                mux-selector-g
                mux-selector-h))
 
+(define (interpret-ultrascale-plus-clb interpreter expr)
+  (match expr
+    [`(ultrascale-plus-clb ,cin
+                           ,lut-a
+                           ,lut-b
+                           ,lut-c
+                           ,lut-d
+                           ,lut-e
+                           ,lut-f
+                           ,lut-g
+                           ,lut-h
+                           ,mux-selector-a
+                           ,mux-selector-b
+                           ,mux-selector-c
+                           ,mux-selector-d
+                           ,mux-selector-e
+                           ,mux-selector-f
+                           ,mux-selector-g
+                           ,mux-selector-h
+                           ,lut-input-a
+                           ,lut-input-b
+                           ,lut-input-c
+                           ,lut-input-d
+                           ,lut-input-e
+                           ,lut-input-f
+                           ,lut-input-g
+                           ,lut-input-h)
+
+     (interpret-ultrascale-plus-clb-impl (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-a)
+                                                              (ultrascale-plus-lut6-2 lut-b)
+                                                              (ultrascale-plus-lut6-2 lut-c)
+                                                              (ultrascale-plus-lut6-2 lut-d)
+                                                              (ultrascale-plus-lut6-2 lut-e)
+                                                              (ultrascale-plus-lut6-2 lut-f)
+                                                              (ultrascale-plus-lut6-2 lut-g)
+                                                              (ultrascale-plus-lut6-2 lut-h)
+                                                              mux-selector-a
+                                                              mux-selector-b
+                                                              mux-selector-c
+                                                              mux-selector-d
+                                                              mux-selector-e
+                                                              mux-selector-f
+                                                              mux-selector-g
+                                                              mux-selector-h)
+                                         (interpreter cin)
+                                         (interpreter lut-input-a)
+                                         (interpreter lut-input-b)
+                                         (interpreter lut-input-c)
+                                         (interpreter lut-input-d)
+                                         (interpreter lut-input-e)
+                                         (interpreter lut-input-f)
+                                         (interpreter lut-input-g)
+                                         (interpreter lut-input-h))]))
+
 ; Returns the physical outputs of the CLB.
-; TODO(@gussmith23) Rename to ultrascale-plus-clb.
-(define (interpret-ultrascale-plus-clb clb
-                                       cin
-                                       lut-input-a
-                                       lut-input-b
-                                       lut-input-c
-                                       lut-input-d
-                                       lut-input-e
-                                       lut-input-f
-                                       lut-input-g
-                                       lut-input-h)
+(define (interpret-ultrascale-plus-clb-impl clb
+                                            cin
+                                            lut-input-a
+                                            lut-input-b
+                                            lut-input-c
+                                            lut-input-d
+                                            lut-input-e
+                                            lut-input-f
+                                            lut-input-g
+                                            lut-input-h)
 
   (match-let*
-   ([(list a-o5 a-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-a clb) lut-input-a)]
-    [(list b-o5 b-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-b clb) lut-input-b)]
-    [(list c-o5 c-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-c clb) lut-input-c)]
-    [(list d-o5 d-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-d clb) lut-input-d)]
-    [(list e-o5 e-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-e clb) lut-input-e)]
-    [(list f-o5 f-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-f clb) lut-input-f)]
-    [(list g-o5 g-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-g clb) lut-input-g)]
-    [(list h-o5 h-o6) (interpret-ultrascale-plus-lut6-2 (ultrascale-plus-clb-lut-h clb) lut-input-h)]
+   ([(list a-o5 a-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-a clb) lut-input-a)]
+    [(list b-o5 b-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-b clb) lut-input-b)]
+    [(list c-o5 c-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-c clb) lut-input-c)]
+    [(list d-o5 d-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-d clb) lut-input-d)]
+    [(list e-o5 e-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-e clb) lut-input-e)]
+    [(list f-o5 f-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-f clb) lut-input-f)]
+    [(list g-o5 g-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-g clb) lut-input-g)]
+    [(list h-o5 h-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-h clb) lut-input-h)]
     [(list carry-o carry-co)
      (interpret-ultrascale-plus-carry8 (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
                                        (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
