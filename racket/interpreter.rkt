@@ -3,12 +3,14 @@
 
 (provide interpret)
 
-(require "logical-to-physical.rkt")
+(require "logical-to-physical.rkt"
+         "ultrascale.rkt")
 
 (define (interpret expr)
   (match expr
     [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs interpret expr)]
     [`(physical-to-logical-mapping ,_ ...) (interpret-physical-to-logical-mapping interpret expr)]
+    [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus-clb interpret expr)]
     ;;; Everything else gets returned as-is. This means that calling (interpret) on Racket expressions
     ;;; gives back Racket expressions, meaning we can use Racket expressions in our DSL.
     ;;; It would be better if we could have a way that would catch invalid syntax...
@@ -27,4 +29,31 @@
                 (list (bv #b01 2)))
 
   (check-equal? (interpret `(logical-to-physical-inputs ,(lambda (x) x) ,(list (bv 1 1) (bv 0 1))))
-                (list (bv 1 1) (bv 0 1))))
+                (list (bv 1 1) (bv 0 1)))
+
+  (check-equal? (interpret `(ultrascale-plus-clb ,(bv 0 1)
+                                                 ,(bv 0 64)
+                                                 ,(bv 0 64)
+                                                 ,(bv 0 64)
+                                                 ,(bv 0 64)
+                                                 ,(bv 0 64)
+                                                 ,(bv 0 64)
+                                                 ,(bv 0 64)
+                                                 ,(bv 0 64)
+                                                 ,(bv 0 2)
+                                                 ,(bv 0 2)
+                                                 ,(bv 0 2)
+                                                 ,(bv 0 2)
+                                                 ,(bv 0 2)
+                                                 ,(bv 0 2)
+                                                 ,(bv 0 2)
+                                                 ,(bv 0 2)
+                                                 ,(bv 0 6)
+                                                 ,(bv 0 6)
+                                                 ,(bv 0 6)
+                                                 ,(bv 0 6)
+                                                 ,(bv 0 6)
+                                                 ,(bv 0 6)
+                                                 ,(bv 0 6)
+                                                 ,(bv 0 6)))
+                (bv 0 8)))
