@@ -7,7 +7,7 @@
 
 (define (interpret expr)
   (match expr
-    [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs expr)]))
+    [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs interpret expr)]))
 
 (module+ test
   (require rackunit
