@@ -1,6 +1,7 @@
 #lang errortrace racket
 
-(require "ultrascale.rkt"
+(require "interpreter.rkt"
+         "ultrascale.rkt"
          rosette
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
@@ -37,32 +38,31 @@
 (define-symbolic mask (bitvector 48))
 
 (define out
-  (interpret-ultrascale-plus-clb
-   identity
-   `(ultrascale-plus-clb ,cin
-                         ,lut-memory-a
-                         ,lut-memory-b
-                         ,lut-memory-c
-                         ,lut-memory-d
-                         ,lut-memory-e
-                         ,lut-memory-f
-                         ,lut-memory-g
-                         ,lut-memory-h
-                         ,mux-selector-a
-                         ,mux-selector-b
-                         ,mux-selector-c
-                         ,mux-selector-d
-                         ,mux-selector-e
-                         ,mux-selector-f
-                         ,mux-selector-g
-                         ,mux-selector-h
-                         ,@(ultrascale-logical-to-physical-inputs-with-mask mask
-                                                                            (list logical-input-0
-                                                                                  logical-input-1
-                                                                                  logical-input-2
-                                                                                  logical-input-3
-                                                                                  logical-input-4
-                                                                                  logical-input-5)))))
+  (interpret `(ultrascale-plus-clb ,cin
+                                   ,lut-memory-a
+                                   ,lut-memory-b
+                                   ,lut-memory-c
+                                   ,lut-memory-d
+                                   ,lut-memory-e
+                                   ,lut-memory-f
+                                   ,lut-memory-g
+                                   ,lut-memory-h
+                                   ,mux-selector-a
+                                   ,mux-selector-b
+                                   ,mux-selector-c
+                                   ,mux-selector-d
+                                   ,mux-selector-e
+                                   ,mux-selector-f
+                                   ,mux-selector-g
+                                   ,mux-selector-h
+                                   ,@(ultrascale-logical-to-physical-inputs-with-mask
+                                      mask
+                                      (list logical-input-0
+                                            logical-input-1
+                                            logical-input-2
+                                            logical-input-3
+                                            logical-input-4
+                                            logical-input-5)))))
 
 (define logical-inputs
   (list logical-input-0

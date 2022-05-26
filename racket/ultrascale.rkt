@@ -2,7 +2,7 @@
 
 (require rosette)
 
-(provide interpret-ultrascale-plus-clb
+(provide interpret-ultrascale-plus
          ultrascale-logical-to-physical-inputs
          ultrascale-logical-to-physical-inputs-with-mask
          ultrascale-plus-clb
@@ -120,7 +120,8 @@
                mux-selector-g
                mux-selector-h))
 
-(define (interpret-ultrascale-plus-clb interpreter expr)
+;;; Top level UltraScale+ interpreter.
+(define (interpret-ultrascale-plus interpreter expr)
   (match expr
     [`(ultrascale-plus-clb ,cin
                            ,lut-a
@@ -284,74 +285,6 @@
            (extract 11 6 physical-inputs)
            (extract 5 0 physical-inputs))])
    physical-inputs))
-
-; A helper function which first creates symbolic variables for all of the programmable state of the
-; LUT, and then calls the CLB function with the provided inputs.
-(define (ultrascale-plus-clb-helper physical-inputs)
-
-  ; The programmable state of the CLB.
-  (define-symbolic* cin (bitvector 1))
-  (define-symbolic* lut-memory-a (bitvector 64))
-  (define-symbolic* lut-memory-b (bitvector 64))
-  (define-symbolic* lut-memory-c (bitvector 64))
-  (define-symbolic* lut-memory-d (bitvector 64))
-  (define-symbolic* lut-memory-e (bitvector 64))
-  (define-symbolic* lut-memory-f (bitvector 64))
-  (define-symbolic* lut-memory-g (bitvector 64))
-  (define-symbolic* lut-memory-h (bitvector 64))
-  (define-symbolic* mux-selector-a (bitvector 2))
-  (define-symbolic* mux-selector-b (bitvector 2))
-  (define-symbolic* mux-selector-c (bitvector 2))
-  (define-symbolic* mux-selector-d (bitvector 2))
-  (define-symbolic* mux-selector-e (bitvector 2))
-  (define-symbolic* mux-selector-f (bitvector 2))
-  (define-symbolic* mux-selector-g (bitvector 2))
-  (define-symbolic* mux-selector-h (bitvector 2))
-  (assert (not (bveq mux-selector-a (bv 3 2))))
-  (assert (not (bveq mux-selector-b (bv 3 2))))
-  (assert (not (bveq mux-selector-c (bv 3 2))))
-  (assert (not (bveq mux-selector-d (bv 3 2))))
-  (assert (not (bveq mux-selector-e (bv 3 2))))
-  (assert (not (bveq mux-selector-f (bv 3 2))))
-  (assert (not (bveq mux-selector-g (bv 3 2))))
-  (assert (not (bveq mux-selector-h (bv 3 2))))
-
-  (values cin
-          lut-memory-a
-          lut-memory-b
-          lut-memory-c
-          lut-memory-d
-          lut-memory-e
-          lut-memory-f
-          lut-memory-g
-          lut-memory-h
-          mux-selector-a
-          mux-selector-b
-          mux-selector-c
-          mux-selector-d
-          mux-selector-e
-          mux-selector-f
-          mux-selector-g
-          mux-selector-h
-          (apply interpret-ultrascale-plus-clb
-                 cin
-                 lut-memory-a
-                 lut-memory-b
-                 lut-memory-c
-                 lut-memory-d
-                 lut-memory-e
-                 lut-memory-f
-                 lut-memory-g
-                 lut-memory-h
-                 mux-selector-a
-                 mux-selector-b
-                 mux-selector-c
-                 mux-selector-d
-                 mux-selector-e
-                 mux-selector-f
-                 mux-selector-g
-                 mux-selector-h
-                 physical-inputs)))
 
 ; Compile a Rosette model of a UltraScale+ CLB to Verilog.
 ; Model: the model, containing the settings of all values.

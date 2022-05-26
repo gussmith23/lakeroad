@@ -33,7 +33,7 @@
   (define-symbolic logical-input-5 (bitvector 8))
 
   (define out
-    (apply interpret-ultrascale-plus-clb
+    (apply interpret-ultrascale-plus
            (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-memory-a)
                                 (ultrascale-plus-lut6-2 lut-memory-b)
                                 (ultrascale-plus-lut6-2 lut-memory-c)
