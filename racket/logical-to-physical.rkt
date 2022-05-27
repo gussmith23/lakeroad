@@ -8,7 +8,7 @@
 (require rosette)
 
 (provide interpret-logical-to-physical-inputs
-         bitwise-input-mapping)
+         interpret-physical-to-logical-mapping)
 
 ;;; Interprets logical-to-physical-input mapping.
 ;;;
@@ -166,9 +166,20 @@
 ;;; Defines the bitwise physical-to-logical mapping for mapping physical outputs to logical outputs.
 ;;;
 ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
-(define (bitwise-output-mapping outputs)
-  (transpose (reverse outputs)))
+(define (bitwise-output-mapping logical-outputs)
+  (transpose (reverse logical-outputs)))
+
+;;; Interprets physical-to-logical mappings.
+;;; Expects a list of logical outputs in least significant->most significant order.
+;;; For example, in a Xilinx UltraScale+ CLB, this list would be (LUTA out, LUTB out, ...).
+(define (interpret-physical-to-logical-mapping interpreter expr)
+  (match expr
+    [`(physical-to-logical-mapping bitwise ,logical-outputs)
+     (bitwise-output-mapping logical-outputs)]))
 
 (module+ test
   (require rackunit)
-  (check-equal? (bitwise-output-mapping (list (bv #b1 1) (bv #b0 1))) (list (bv #b01 2))))
+  (check-equal? (interpret-physical-to-logical-mapping
+                 identity
+                 `(physical-to-logical-mapping bitwise ,(list (bv #b1 1) (bv #b0 1))))
+                (list (bv #b01 2))))
