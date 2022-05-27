@@ -1,6 +1,8 @@
 #lang racket
 
-; This is ecp5 specific for now, but we can make this more general?
+; A library for compiling to JSON to match the nextpnr spec, roughly defined at:
+; https://github.com/YosysHQ/yosys/blob/63c9c9be5c0b0cc2b7f4588f1ac8e72eabc6bd0a/backends/json/json.cc#L340
+;
 
 (require json)
 (require racket/format)
@@ -20,7 +22,7 @@
          make-module-attributes
          get-module-attribute
          make-module-attributes
-         ; port level functions
+         ; port functions
          make-ports
          make-port-details
          add-port
@@ -35,7 +37,13 @@
          add-cell
          add-cell-to-module-in-doc
          get-cell
-         get-cell-from-module-in-doc)
+         get-cell-from-module-in-doc
+         ; netname functions
+         make-netnames
+         make-net-details
+         add-net-details
+         get-net-details
+         get-net-details-from-module-in-doc)
 
 ; A helper function: keys in json dicts must be symbols, not strings.
 ; To make this easier we allow strings to be passed in as names and then
@@ -415,6 +423,10 @@
   (hash-ref netnames (as-symbol net-name)
             (lambda ()
               (error (format "Netnames ~a does not contain net-name ~a" netnames net-name)))))
+
+(define (get-net-details-from-module-in-doc doc mod-name net-name)
+  (get-cell (hash-ref (get-module-from-doc doc mod-name) 'netnames) net-name))
+
 (module+ test 
   (require rackunit)
   (let* ([a         (make-net-details (list  2  3  4  5))]
