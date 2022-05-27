@@ -8,7 +8,7 @@
 
 (define (interpret expr)
   (match expr
-    [`(logical-to-physical-inputs ,_ ...) (interpret-logical-to-physical-inputs interpret expr)]
+    [`(logical-to-physical-mapping ,_ ...) (interpret-logical-to-physical-mapping interpret expr)]
     [`(physical-to-logical-mapping ,_ ...) (interpret-physical-to-logical-mapping interpret expr)]
     [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
     ;;; Everything else gets returned as-is. This means that calling (interpret) on Racket expressions
@@ -28,8 +28,8 @@
   (check-equal? (interpret `(physical-to-logical-mapping bitwise ,(list (bv #b1 1) (bv #b0 1))))
                 (list (bv #b01 2)))
 
-  (check-equal? (interpret `(logical-to-physical-inputs ,(lambda (x) x) ,(list (bv 1 1) (bv 0 1))))
-                (list (bv 1 1) (bv 0 1)))
+  (check-equal? (interpret `(logical-to-physical-mapping bitwise ,(list (bv 1 1) (bv 0 1))))
+                (list (bv #b01 2)))
 
   (check-equal? (interpret `(ultrascale-plus-clb ,(bv 0 1)
                                                  ,(bv 0 64)
