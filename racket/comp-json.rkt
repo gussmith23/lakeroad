@@ -150,12 +150,17 @@
 ;            `make-netnames`
 ;
 ; Spec: https://github.com/uwsampl/lakeroad-evaluation/blob/461d27016826b5b4bcbbab6325343638cfb01639/instructions/pnr-experiments/nextpnr-json-docs.txt#L18-L43
-(define (make-module attrs ports cells netnames)
-  (make-hasheq (list (cons 'attributes attrs        )
-                     (cons 'ports      ports        )
-                     (cons 'cells      cells        )
-                     (cons 'memories   (make-hasheq))   ;; Empty for now
-                     (cons 'netnames   netnames     ))))
+(define (make-module ports
+                     cells
+                     netnames
+                     #:attributes [attrs '()]
+                     #:memories   [mems '()])
+  (let ([modul (hasheq-helper 'ports      ports
+                              'cells      cells
+                              'netnames   netnames)])
+    (when (not (empty? attrs)) (hash-set! modul 'attributes attrs))
+    (when (not (empty? mems )) (hash-set! modul 'memories   mems ))
+    modul))
 
 ; Add a module to the `modules` map, checking to ensure that there isn't a name
 ; conflict.
@@ -187,7 +192,7 @@
 
 (define (get-module-attribute mod attr)
   (let* ([attrs (hash-ref mod 'attributes
-                          (lambda () (error (format "Module ~a has no attributes" mod))))]
+                          (lambda () (hasheq)))]
          [a     (hash-ref attrs (as-symbol attr)
                           (lambda () (error (format "Attributes ~a has no attribute ~a" attrs attr))))])
     a))
@@ -214,7 +219,7 @@
          [ports     (make-ports 'a a 'b b 'out out)]
          [cells     "todo"]
          [netnames  "todo"]
-         [modul     (make-module attrs ports cells netnames)])
+         [modul     (make-module ports cells netnames #:attributes attrs)])
     (check-true (jsexpr? ports))
     (check-true (jsexpr? cells))
     (check-true (jsexpr? attrs))
@@ -342,11 +347,11 @@
     (when (not (empty? params)) (hash-set! cell 'parameters params))
     cell))
 
-(define (get-cell-port-direction cell port) 
+(define (get-cell-port-direction cell port)
   (hash-ref (hash-ref cell 'port_directions)
             (as-symbol port)))
 
-(define (get-cell-port-connection cell port) 
+(define (get-cell-port-connection cell port)
   (hash-ref (hash-ref cell 'connections)
             (as-symbol port)))
 
@@ -375,7 +380,7 @@
 (define (get-cell-from-module-in-doc doc mod-name cell-name)
   (get-cell (hash-ref (get-module-from-doc doc mod-name) 'cells) cell-name))
 
-(module+ test 
+(module+ test
   (require rackunit)
   (let* ([type        "LUT4"]
          [directions  (make-cell-port-directions (list "A" "B" "C" "D") (list "Z"))]
@@ -427,7 +432,7 @@
 (define (get-net-details-from-module-in-doc doc mod-name net-name)
   (get-cell (hash-ref (get-module-from-doc doc mod-name) 'netnames) net-name))
 
-(module+ test 
+(module+ test
   (require rackunit)
   (let* ([a         (make-net-details (list  2  3  4  5))]
          [b         (make-net-details (list  6  7  8  9))]
@@ -450,14 +455,91 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (make-lattice-lut4 init-mem A B C D Z #:attrs [attrs (hasheq)])
-  (hasheq-helper 'hide_name        0
-                 'parameters       (hasheq 'INIT init-mem)
-                 'attributes       attrs
-                 'port_directions  (make-cell-port-directions (list 'A 'B 'C 'D) (list 'Z))
-                 'connections      (make-cell-connections 'A A 'B B 'C C 'D D 'Z Z)))
+  (make-cell "LUT4"
+             (make-cell-port-directions (list 'A 'B 'C 'D) (list 'Z))
+             (make-cell-connections 'A A 'B B 'C C 'D D 'Z Z)
+             #:params (hasheq 'INIT init-mem)))
 
-(define (add-lattice-lut4 cells cell-name init-mem attrs port-dirs connections)
-  (let ([cell-name (as-symbol cell-name)])
-    (when (hash-has-key? cells cell-name)
-      (error (format "Encountered duplicate cell name ~a while generating lut4" cell-name)))
-    (hash-set! cells cell-name (make-lattice-lut4 init-mem attrs port-dirs connections))))
+; This function makes a 2-bit adder with the following design:
+; 
+;        +---------+
+; 1'0 ---|A       Z| ----------------+
+; 1'0 ---|B        |                 |
+; a[0]---|C        |                 |
+; b[0]---|D        |                 |
+;        +---------+                 +-------> out[0]
+;        (  LUT1   )                 +-------> out[1]
+;        ( 0x0ff0  )                 |
+;                                    |
+;        +---------+                 |
+; a[0]---|A       Z| ----------------+
+; b[0]---|B        |
+; a[1]---|C        |
+; b[1]---|D        |
+;        +---------+
+;        (  LUT2   )
+;        ( 0x8778  )
+;
+; This takes in two 2-bit inputs, `a` and `b`, and results in 2-bit output `out`
+;
+; In our design: 
+; + input  `a`   corresponds to bits 2 and 3
+; + input  `b`   corresponds to bits 4 and 5
+; + output `out` corresponds to bits 6 and 7
+(define (make-lattice-ecp5-2-bit-adder)
+  ;
+  (let* ([doc (make-lakeroad-json-doc)]
+         ; [====== Make Ports  ======]
+         ; We need to make two input ports, a and b, and one output port
+         ; + input  `a`   corresponds to bits 2 and 3
+         ; + input  `b`   corresponds to bits 4 and 5
+         ; + output `out` corresponds to bits 6 and 7
+         [a   (make-port-details "input"  (list 2 3))]
+         [b   (make-port-details "input"  (list 4 5))]
+         [out (make-port-details "output" (list 6 7))]
+
+         ; We store these in a `ports` map with `make-ports`
+         [ports (make-ports 'a a 'b b 'out out )]
+
+         ; [====== LUT 1  ======]
+         ; First we make LUT1 from our above diagram. This lut is assigned ot
+         ; out[0] in our HDL, which is translated to bit 6 in this
+         ; representation
+         ;
+         [A (make-literal-value 0 1)] ; LUT1.A gets literal bit '0'
+         [B (make-literal-value 0 1)] ; LUT1.B gets literal bit '0'
+         [C  2]                       ; LUT1.C gets a[0] (i.e., bit 2)
+         [D  4]                       ; LUT1.D gets b[0] (i.e., bit 4)
+         [Z  6]                       ; LUT1.Z goes to out[0] (i.e., bit 6)
+         [INIT (make-literal-value  #x0ff0 16)]
+         [LUT1 (make-lattice-lut4 INIT A B C D Z )]
+
+         ; [====== LUT 2  ======]
+         ; Next we make LUT2 from our above diagram. This lut is assigned to
+         ; out[1] in our HDL, which is translated to bit 7 in this
+         ; representation
+         ;
+         [A  2]    ; LUT2.A gets a[0] (i.e., bit 2)
+         [B  4]    ; LUT2.B gets b[0] (i.e., bit 4)
+         [C  3]    ; LUT2.C gets a[1] (i.e., bit 3)
+         [D  5]    ; LUT2.D gets b[1] (i.e., bit 5)
+         [Z  7]    ; LUT2.Z goes to out[1] (i.e., bit 7)
+         [INIT (make-literal-value  #x8778 16)]
+         [LUT2 (make-lattice-lut4 INIT A B C D Z )]
+         [cells (make-cells 'LUT1 LUT1 'LUT2 LUT2)]
+
+         ; [====== Netnames ======]
+         ; Now let's specify how things are linked together. This is pretty
+         ; straightforward since this design is so simple
+         [nn-a    (make-net-details (list 2 3))]
+         [nn-b    (make-net-details (list 4 5))]
+         [nn-out  (make-net-details (list 6 7))]
+         [netnames (make-netnames 'a nn-a 'b nn-b 'out nn-out)]
+
+         ; [====== Module ======]
+         ; Finally, let's combine this into a module and add it to our Lakeroad
+         ; JSON file.
+         [adder-2-bit (make-module ports cells netnames)])
+    (add-module-to-doc doc '2-bit-adder adder-2-bit)
+    doc))
+
