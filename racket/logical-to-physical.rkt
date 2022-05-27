@@ -175,7 +175,7 @@
 (define (interpret-physical-to-logical-mapping interpreter expr)
   (match expr
     [`(physical-to-logical-mapping bitwise ,logical-outputs)
-     (bitwise-output-mapping logical-outputs)]))
+     (bitwise-output-mapping (interpreter logical-outputs))]))
 
 (module+ test
   (require rackunit)
