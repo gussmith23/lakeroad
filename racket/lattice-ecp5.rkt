@@ -47,8 +47,9 @@
 ; Returns: the index of `inputs` into `memory` (see `lut` function defined above
 ; for details)
 (define (interpret-lattice-ecp5-lut4 lut4 inputs)
-  (let* ([memory (lattice-ecp5-lut4-memory lut4)])
-    (lut memory (extract 3 0 inputs))))
+  (when (not ((bitvector 4) inputs))
+    (error (format "Lattice-ECP5-LUT4 inputs must be 4-bit bitvectors, found ~a" inputs)))
+    (lut (lattice-ecp5-lut4-memory lut4) inputs))
 
 (module+ test
   (require rackunit)
@@ -158,45 +159,45 @@
 ;
 ; Diagramatically, this routing template looks like:
 ;
-;       in3-0 --> 0 +-------+     # LSB of input 3 goes to pin 0 of LUT A
-;       in2-0 --> 1 | LUT A |
-;       in1-0 --> 2 |       |
-;       in0-0 --> 3 +-------+
+;       in3-0 --> A +-------+     # LSB of input 3 goes to pin 0 of LUT A
+;       in2-0 --> B | LUT A |
+;       in1-0 --> C |       |
+;       in0-0 --> D +-------+
 ;
-;       in3-1 --> 0 +-------+
-;       in2-1 --> 1 | LUT B |
-;       in1-1 --> 2 |       |
-;       in0-1 --> 3 +-------+
+;       in3-1 --> A +-------+
+;       in2-1 --> B | LUT B |
+;       in1-1 --> C |       |
+;       in0-1 --> D +-------+
 ;
-;       in3-2 --> 0 +-------+
-;       in2-2 --> 1 | LUT C |
-;       in1-2 --> 2 |       |
-;       in0-2 --> 3 +-------+
+;       in3-2 --> A +-------+
+;       in2-2 --> B | LUT C |
+;       in1-2 --> C |       |
+;       in0-2 --> D +-------+
 ;
-;       in3-3 --> 0 +-------+
-;       in2-3 --> 1 | LUT D |
-;       in1-3 --> 2 |       |
-;       in0-3 --> 3 +-------+
+;       in3-3 --> A +-------+
+;       in2-3 --> B | LUT D |
+;       in1-3 --> C |       |
+;       in0-3 --> D +-------+
 ;
-;       in3-4 --> 0 +-------+
-;       in2-4 --> 1 | LUT E |
-;       in1-4 --> 2 |       |
-;       in0-4 --> 3 +-------+
+;       in3-4 --> A +-------+
+;       in2-4 --> B | LUT E |
+;       in1-4 --> C |       |
+;       in0-4 --> D +-------+
 ;
-;       in3-5 --> 0 +-------+
-;       in2-5 --> 1 | LUT F |
-;       in1-5 --> 2 |       |
-;       in0-5 --> 3 +-------+
+;       in3-5 --> A +-------+
+;       in2-5 --> B | LUT F |
+;       in1-5 --> C |       |
+;       in0-5 --> D +-------+
 ;
-;       in3-6 --> 0 +-------+
-;       in2-6 --> 1 | LUT G |
-;       in1-6 --> 2 |       |
-;       in0-6 --> 3 +-------+
+;       in3-6 --> A +-------+
+;       in2-6 --> B | LUT G |
+;       in1-6 --> C |       |
+;       in0-6 --> D +-------+
 ;
-;       in3-7 --> 0 +-------+
-;       in2-7 --> 1 | LUT H |
-;       in1-7 --> 2 |       |
-;       in0-7 --> 3 +-------+
+;       in3-7 --> A +-------+
+;       in2-7 --> B | LUT H |
+;       in1-7 --> C |       |
+;       in0-7 --> D +-------+
 (define (lattice-ecp5-logical-to-physical-inputs logical-input-0
                                                  logical-input-1
                                                  logical-input-2
