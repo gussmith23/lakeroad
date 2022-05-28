@@ -4,7 +4,9 @@
          rosette
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
-         rosette/solver/smt/boolector)
+         rosette/solver/smt/boolector
+         json
+         "comp-json.rkt")
 
 (current-solver (boolector))
 
@@ -52,44 +54,44 @@
 (define (helper f arity)
   (if (equal? arity 6) (error "arity 6 not supported yet") '())
   (match-let
-   ([soln
-     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix
-     ; well with synthesize.  And time just prints to stdout, which is not ideal
-     ; (but we could deal with it if necessary).
-     (synthesize
-      #:forall logical-inputs
-      #:guarantee
-      (begin
+      ([soln
+        ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix
+        ; well with synthesize.  And time just prints to stdout, which is not ideal
+        ; (but we could deal with it if necessary).
+        (synthesize
+         #:forall logical-inputs
+         #:guarantee
+         (begin
 
-        ; TODO: Make a github issue
-        ; Assume unused inputs are zero. We can set them to whatever we want,
-        ; but it's important that we tell the solver that they're unused and
-        ; unimportant, and setting them to a constant value is the way to this.
-        ;
-        ; When these aren't set, synthesis takes about 10-20x longer (20mins vs
-        ; 1.5mins). In this case, we synthesize a LUT that is correct for inputs
-        ; 0 and 1 regardless of the settings of the other inputs. I'm not sure
-        ; if that's useful. I also wonder if there's a faster way to get the
-        ; same result. E.g. either:
+           ; TODO: Make a github issue
+           ; Assume unused inputs are zero. We can set them to whatever we want,
+           ; but it's important that we tell the solver that they're unused and
+           ; unimportant, and setting them to a constant value is the way to this.
+           ;
+           ; When these aren't set, synthesis takes about 10-20x longer (20mins vs
+           ; 1.5mins). In this case, we synthesize a LUT that is correct for inputs
+           ; 0 and 1 regardless of the settings of the other inputs. I'm not sure
+           ; if that's useful. I also wonder if there's a faster way to get the
+           ; same result. E.g. either:
 
-        ; 1. assume 2-5 are all 0 and then manually edit the resulting LUT and
-        ;    duplicate the "correct" parts of the LUT memory into the rest of
-        ;    the LUT memory, OR,
+           ; 1. assume 2-5 are all 0 and then manually edit the resulting LUT and
+           ;    duplicate the "correct" parts of the LUT memory into the rest of
+           ;    the LUT memory, OR,
 
-        ; 2. a more graceful solution, `assume` some predicates that basically
-        ;    say that 2-5 "don't matter" and that the outputs for a given 0 and
-        ;    1 should be the same for any 2-5.
-        (for ([logical-input (list-tail logical-inputs arity)])
-          (assume (bvzero? logical-input)))
+           ; 2. a more graceful solution, `assume` some predicates that basically
+           ;    say that 2-5 "don't matter" and that the outputs for a given 0 and
+           ;    1 should be the same for any 2-5.
+           (for ([logical-input (list-tail logical-inputs arity)])
+             (assume (bvzero? logical-input)))
 
-        ; Assert that the output of the PFU implements the requested function f.
-        (assert (bveq (apply f (take logical-inputs arity)) out))))])
-   ; Print the output. Unwrap the model if there is one, so that all of the
-   ; values print.
-   ;(println f)
-   ;(if (sat? soln) (pretty-print (model soln)) (println soln))
-   ;(displayln "")
-   soln))
+           ; Assert that the output of the PFU implements the requested function f.
+           (assert (bveq (apply f (take logical-inputs arity)) out))))])
+    ; Print the output. Unwrap the model if there is one, so that all of the
+    ; values print.
+    ;(displayln f)
+    ;(if (sat? soln) (pretty-print (model soln)) (displayln soln))
+    ;(displayln "")
+    soln))
 
 (module+ test
   (require rackunit)
@@ -129,3 +131,194 @@
   (check-false (sat? (helper ceil-avg 2)))
   (check-false (sat? (helper bvadd 2)))
   (check-false (sat? (helper cycle 4))))
+
+(define (make-bits-list base len)
+  (sequence->list (in-inclusive-range base (- (+ base len) 1))))
+
+
+; Test function `f` of arity 2 which we will output to JSON module
+; `module-name`.
+;
+; This assumes routing for 8-bit bitwise operators
+;
+; Routing is as follows:
+(define (end-to-end-test-arity-2-bitwise-ops f module-name)
+
+  (define soln (helper f 2))
+  (when (not (sat? soln))
+    (error (format "Couldn't synthesize a program for module ~a" module-name)))
+
+  (define a-model (model soln))
+
+  (define json-doc (model->json-doc-arity-2-bitwise a-model module-name))
+
+
+  (define json-file (make-temporary-file "gen~a.json"))
+
+  (define fdout (open-output-file json-file #:exists 'replace))
+  (write-json json-doc fdout)
+  (close-output-port fdout)
+  (displayln (format "Wrote to ~a" json-file))
+
+  (run-nextpnr json-file)
+  #t)
+
+(module+ test 
+  (require rackunit)
+  (check-true (end-to-end-test-arity-2-bitwise-ops circt-comb-and "bitwise-and"))
+  (check-true (end-to-end-test-arity-2-bitwise-ops circt-comb-or "bitwise-or"))
+  (check-true (end-to-end-test-arity-2-bitwise-ops circt-comb-xor "bitwise-xor"))
+  (check-true (end-to-end-test-arity-2-bitwise-ops bithack1 "bithack1"))
+  (check-true (end-to-end-test-arity-2-bitwise-ops bithack3 "bithack3")))
+
+(define (run-nextpnr json-file)
+  (define pnr-log-file (format "~a.log" json-file))
+  (when (not (system (format "nextpnr-ecp5 --json ~a > ~a 2>&1" json-file pnr-log-file)))
+      (error "nextpnr failed")))
+
+; Given a model produced by Rosette (e.g., from `(model soln)`),
+; use this to create a JSON document. Used b
+(define (model->json-doc-arity-2-bitwise a-model module-name)
+  ; Helper function to make LUTs
+  (define (make-lattice-lut4 init-mem A B C D Z #:attrs [attrs (hasheq)])
+    (make-cell "LUT4"
+               (make-cell-port-directions (list 'A 'B 'C 'D) (list 'Z))
+               (make-cell-connections 'A A 'B B 'C C 'D D 'Z Z)
+               #:params (hasheq 'INIT init-mem)))
+
+  ; We will modify this to make a json document with our synthesized design
+  (let* ([doc     (make-lakeroad-json-doc)]
+         ; a corresponds to logical-input-0 (i think?)
+         ; a-bits corresponds to the port bits that we are outputting to JSON
+         ; Yosys 2-indexes these for some reason but I'm not sure why
+         ; Sticking with this for now, though we can experiment w/ running PnR
+         ; on some different formats
+         [a-bits    (make-bits-list  2 8)]
+         [a         (make-port-details "input"  a-bits)]
+         ; b corresponds to logical-input-1 (i think?)
+         [b-bits    (make-bits-list 10 8)]
+         [b         (make-port-details "input"  b-bits)]
+         ; out
+         [out-bits  (make-bits-list 18 8)]
+         [out       (make-port-details "output" out-bits)]
+
+         [ports     (make-ports 'a a 'b b 'out out)]
+
+         ; [====== LUT 0  ======]
+         ; Make LUT0. Each lut's inputs C and D are used in our current
+         ; configuration, while A and B are hardwired to `0`
+         ;
+         ; input 'a is attached to LUT.D
+         ; input 'b is attached to LUT.C
+         [D         (make-literal-value 0 1)]
+         [C         (make-literal-value 0 1)]
+         [B         (list-ref b-bits   0)]
+         [A         (list-ref a-bits   0)]
+         [Z         (list-ref out-bits 0)]
+         [INIT      (hash-ref a-model lut-memory-a)]
+         [INIT      (bitvector->natural INIT)]
+         [INIT      (make-literal-value INIT 16)]
+         [LUT0      (make-lattice-lut4 INIT A B C D Z)]
+
+         ; [====== LUT 1  ======]
+         [D         (make-literal-value 0 1)]
+         [C         (make-literal-value 0 1)]
+         [B         (list-ref b-bits   1)]
+         [A         (list-ref a-bits   1)]
+         [Z         (list-ref out-bits 1)]
+         [INIT      (hash-ref a-model lut-memory-a)]
+         [INIT      (bitvector->natural INIT)]
+         [INIT      (make-literal-value INIT 16)]
+         [LUT1      (make-lattice-lut4 INIT A B C D Z)]
+
+         ; [====== LUT 2  ======]
+         [D         (make-literal-value 0 1)]
+         [C         (make-literal-value 0 1)]
+         [B         (list-ref b-bits   2)]
+         [A         (list-ref a-bits   2)]
+         [Z         (list-ref out-bits 2)]
+         [INIT      (hash-ref a-model lut-memory-a)]
+         [INIT      (bitvector->natural INIT)]
+         [INIT      (make-literal-value INIT 16)]
+         [LUT2      (make-lattice-lut4 INIT A B C D Z)]
+
+         ; [====== LUT 3  ======]
+         [D         (make-literal-value 0 1)]
+         [C         (make-literal-value 0 1)]
+         [B         (list-ref b-bits   3)]
+         [A         (list-ref a-bits   3)]
+         [Z         (list-ref out-bits 3)]
+         [INIT      (hash-ref a-model lut-memory-a)]
+         [INIT      (bitvector->natural INIT)]
+         [INIT      (make-literal-value INIT 16)]
+         [LUT3      (make-lattice-lut4 INIT A B C D Z)]
+
+         ; [====== LUT 4  ======]
+         [D         (make-literal-value 0 1)]
+         [C         (make-literal-value 0 1)]
+         [B         (list-ref b-bits   4)]
+         [A         (list-ref a-bits   4)]
+         [Z         (list-ref out-bits 4)]
+         [INIT      (hash-ref a-model lut-memory-a)]
+         [INIT      (bitvector->natural INIT)]
+         [INIT      (make-literal-value INIT 16)]
+         [LUT4      (make-lattice-lut4 INIT A B C D Z)]
+
+         ; [====== LUT 5  ======]
+         [D         (make-literal-value 0 1)]
+         [C         (make-literal-value 0 1)]
+         [B         (list-ref b-bits   5)]
+         [A         (list-ref a-bits   5)]
+         [Z         (list-ref out-bits 5)]
+         [INIT      (hash-ref a-model lut-memory-a)]
+         [INIT      (bitvector->natural INIT)]
+         [INIT      (make-literal-value INIT 16)]
+         [LUT5      (make-lattice-lut4 INIT A B C D Z)]
+
+         ; [====== LUT 6  ======]
+         [D         (make-literal-value 0 1)]
+         [C         (make-literal-value 0 1)]
+         [B         (list-ref b-bits   6)]
+         [A         (list-ref a-bits   6)]
+         [Z         (list-ref out-bits 6)]
+         [INIT      (hash-ref a-model lut-memory-a)]
+         [INIT      (bitvector->natural INIT)]
+         [INIT      (make-literal-value INIT 16)]
+         [LUT6      (make-lattice-lut4 INIT A B C D Z)]
+
+         ; [====== LUT 7  ======]
+         [D         (make-literal-value 0 1)]
+         [C         (make-literal-value 0 1)]
+         [B         (list-ref b-bits   7)]
+         [A         (list-ref a-bits   7)]
+         [Z         (list-ref out-bits 7)]
+         [INIT      (hash-ref a-model lut-memory-a)]
+         [INIT      (bitvector->natural INIT)]
+         [INIT      (make-literal-value INIT 16)]
+         [LUT7      (make-lattice-lut4 INIT A B C D Z)]
+
+         ; [====== Cells  ======]
+         [cells (make-cells 'LUT4_A LUT0
+                            'LUT4_B LUT1
+                            'LUT4_C LUT2
+                            'LUT4_D LUT3
+                            'LUT4_E LUT4
+                            'LUT4_F LUT5
+                            'LUT4_G LUT6
+                            'LUT4_H LUT7)]
+
+         ; [====== Netnames ======]
+         ; Now let's specify how things are linked together. This is pretty
+         ; straightforward since this design is so simple
+         [nn-a    (make-net-details a-bits)]
+         [nn-b    (make-net-details b-bits)]
+         [nn-out  (make-net-details out-bits)]
+         [netnames (make-netnames 'a nn-a 'b nn-b 'out nn-out)]
+
+
+         ; [====== Module ======]
+         ; Finally, let's combine this into a module and add it to our Lakeroad
+         ; JSON file.
+         [modul (make-module ports cells netnames)])
+    (add-module-to-doc doc module-name modul)
+    doc))
