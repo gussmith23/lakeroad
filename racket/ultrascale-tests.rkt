@@ -5,28 +5,10 @@
          rosette
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
-         rosette/solver/smt/boolector)
+         rosette/solver/smt/boolector
+         rosette/lib/synthax)
 
 (current-solver (boolector))
-
-(define-symbolic cin (bitvector 1))
-(define-symbolic lut-memory-a (bitvector 64))
-(define-symbolic lut-memory-b (bitvector 64))
-(define-symbolic lut-memory-c (bitvector 64))
-(define-symbolic lut-memory-d (bitvector 64))
-(define-symbolic lut-memory-e (bitvector 64))
-(define-symbolic lut-memory-f (bitvector 64))
-(define-symbolic lut-memory-g (bitvector 64))
-(define-symbolic lut-memory-h (bitvector 64))
-
-(define-symbolic mux-selector-a (bitvector 2))
-(define-symbolic mux-selector-b (bitvector 2))
-(define-symbolic mux-selector-c (bitvector 2))
-(define-symbolic mux-selector-d (bitvector 2))
-(define-symbolic mux-selector-e (bitvector 2))
-(define-symbolic mux-selector-f (bitvector 2))
-(define-symbolic mux-selector-g (bitvector 2))
-(define-symbolic mux-selector-h (bitvector 2))
 
 (define-symbolic logical-input-0 (bitvector 8))
 (define-symbolic logical-input-1 (bitvector 8))
@@ -35,43 +17,40 @@
 (define-symbolic logical-input-4 (bitvector 8))
 (define-symbolic logical-input-5 (bitvector 8))
 
-(define-symbolic mask-a (bitvector 6))
-(define-symbolic mask-b (bitvector 6))
-(define-symbolic mask-c (bitvector 6))
-(define-symbolic mask-d (bitvector 6))
-(define-symbolic mask-e (bitvector 6))
-(define-symbolic mask-f (bitvector 6))
-(define-symbolic mask-g (bitvector 6))
-(define-symbolic mask-h (bitvector 6))
-(define out
-  (first (interpret `(physical-to-logical-mapping
-                      bitwise
-                      (ultrascale-plus-clb
-                       ,cin
-                       ,lut-memory-a
-                       ,lut-memory-b
-                       ,lut-memory-c
-                       ,lut-memory-d
-                       ,lut-memory-e
-                       ,lut-memory-f
-                       ,lut-memory-g
-                       ,lut-memory-h
-                       ,mux-selector-a
-                       ,mux-selector-b
-                       ,mux-selector-c
-                       ,mux-selector-d
-                       ,mux-selector-e
-                       ,mux-selector-f
-                       ,mux-selector-g
-                       ,mux-selector-h
-                       (logical-to-physical-mapping
-                        bitwise-with-mask
-                        (,mask-a ,mask-b ,mask-c ,mask-d ,mask-e ,mask-f ,mask-g ,mask-h)
-                        (,logical-input-0 ,logical-input-1
-                                          ,logical-input-2
-                                          ,logical-input-3
-                                          ,logical-input-4
-                                          ,logical-input-5)))))))
+(define expr
+  `(physical-to-logical-mapping
+    bitwise
+    (ultrascale-plus-clb ,(?? (bitvector 1))
+                         ,(?? (bitvector 64))
+                         ,(?? (bitvector 64))
+                         ,(?? (bitvector 64))
+                         ,(?? (bitvector 64))
+                         ,(?? (bitvector 64))
+                         ,(?? (bitvector 64))
+                         ,(?? (bitvector 64))
+                         ,(?? (bitvector 64))
+                         ,(?? (bitvector 2))
+                         ,(?? (bitvector 2))
+                         ,(?? (bitvector 2))
+                         ,(?? (bitvector 2))
+                         ,(?? (bitvector 2))
+                         ,(?? (bitvector 2))
+                         ,(?? (bitvector 2))
+                         ,(?? (bitvector 2))
+                         (logical-to-physical-mapping bitwise-with-mask
+                                                      (,(?? (bitvector 6)) ,(?? (bitvector 6))
+                                                                           ,(?? (bitvector 6))
+                                                                           ,(?? (bitvector 6))
+                                                                           ,(?? (bitvector 6))
+                                                                           ,(?? (bitvector 6))
+                                                                           ,(?? (bitvector 6))
+                                                                           ,(?? (bitvector 6)))
+                                                      (,logical-input-0 ,logical-input-1
+                                                                        ,logical-input-2
+                                                                        ,logical-input-3
+                                                                        ,logical-input-4
+                                                                        ,logical-input-5)))))
+(define out (first (interpret expr)))
 
 (define logical-inputs
   (list logical-input-0
@@ -185,9 +164,38 @@
        ; Assert that the output of the CLB implements the requested function f.
        (assert (bveq (apply f (take logical-inputs arity)) out)))))
 
+  (match-define `(physical-to-logical-mapping
+                  bitwise
+                  (ultrascale-plus-clb
+                   ,cin
+                   ,lut-memory-a
+                   ,lut-memory-b
+                   ,lut-memory-c
+                   ,lut-memory-d
+                   ,lut-memory-e
+                   ,lut-memory-f
+                   ,lut-memory-g
+                   ,lut-memory-h
+                   ,mux-selector-a
+                   ,mux-selector-b
+                   ,mux-selector-c
+                   ,mux-selector-d
+                   ,mux-selector-e
+                   ,mux-selector-f
+                   ,mux-selector-g
+                   ,mux-selector-h
+                   (logical-to-physical-mapping
+                    bitwise-with-mask
+                    (,mask-a ,mask-b ,mask-c ,mask-d ,mask-e ,mask-f ,mask-g ,mask-h)
+                    (,logical-input-0 ,logical-input-1
+                                      ,logical-input-2
+                                      ,logical-input-3
+                                      ,logical-input-4
+                                      ,logical-input-5))))
+    (evaluate expr soln))
+
   (define verilog-source
     (compile-clb-to-verilog "example"
-                            (model soln)
                             cin
                             lut-memory-a
                             lut-memory-b
