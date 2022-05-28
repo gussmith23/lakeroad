@@ -2,7 +2,6 @@
 #lang racket
 
 (require "interpreter.rkt"
-         "ultrascale.rkt"
          rosette
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
