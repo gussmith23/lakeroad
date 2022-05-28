@@ -1,15 +1,19 @@
+#lang errortrace racket
+
 ;;; Logical to physical (and vice versa) mapping tools for Lakeroad.
 ;;;
 ;;; A key component of Lakeroad is determining how *logical* signals (e.g. an 8 bit input) get wired
 ;;; to *physical* inputs, e.g. the 48 input bits of a Xilinx UltraScale+ Configurable Logic Block.
 ;;; This module provides tools for representing these mappings.
-#lang errortrace racket
 
 (provide interpret-logical-to-physical-mapping
          interpret-physical-to-logical-mapping)
 
 (require rosette
          rosette/lib/synthax)
+
+(define (transpose inputs)
+  (apply map concat (map bitvector->bits (reverse inputs))))
 
 ;;; Interprets logical-to-physical-input mapping.
 ;;;
@@ -59,6 +63,14 @@
     ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern
     ;;;   described above.
     [`(logical-to-physical-mapping bitwise ,inputs) (transpose (interpreter inputs))]
+    ;;;
+    ;;; Same as bitwise, but includes masks on the physical outputs.
+    ;;;
+    ;;; `masks` is a list of masks, one for each of the physical output bitvectors. Each mask is a
+    ;;; bitvector of the same length as its corresponding physical output. The mask is ORed with the
+    ;;; physical outputs before being returned.
+    [`(logical-to-physical-mapping bitwise-with-mask ,masks ,inputs)
+     (map bvor (transpose (interpreter inputs)) masks)]
     [other (interpreter other)]))
 
 ;;; Helper, which interprets a Rosette uninterpreted function value used as a logical-to-physical map.
@@ -92,10 +104,54 @@
 (module+ test
   (require rackunit
            rosette/solver/smt/boolector)
+
+  (current-solver (boolector))
+
+  (test-begin
+   (define-symbolic x (bitvector 3))
+   (define-symbolic y (bitvector 3))
+   (define expr
+     `(logical-to-physical-mapping bitwise-with-mask
+                                   ,(list (?? (bitvector 2)) (?? (bitvector 2)) (?? (bitvector 2)))
+                                   ,(list x y)))
+   (match-define (list o0 o1 o2) (interpret-logical-to-physical-mapping identity expr))
+   ;;; Simple case: none should be masked.
+   (define soln0
+     (synthesize #:forall (list x y)
+                 #:guarantee (begin
+                               (assert (bveq (bit 0 o0) (bit 0 x)))
+                               (assert (bveq (bit 1 o0) (bit 0 y)))
+                               (assert (bveq (bit 0 o1) (bit 1 x)))
+                               (assert (bveq (bit 1 o1) (bit 1 y)))
+                               (assert (bveq (bit 0 o2) (bit 2 x)))
+                               (assert (bveq (bit 1 o2) (bit 2 y))))))
+   (check-equal? (list 'logical-to-physical-mapping
+                       'bitwise-with-mask
+                       (list (bv #b00 2) (bv #b00 2) (bv #b00 2))
+                       (list x y))
+                 (evaluate expr soln0))
+   ;;; More complex case: some should be masked.
+   (define soln1
+     (synthesize #:forall (list x y)
+                 #:guarantee (begin
+                               (assert (bveq (bit 0 o0) (bv 1 1)))
+                               (assert (bveq (bit 1 o0) (bit 0 y)))
+                               (assert (bveq (bit 0 o1) (bit 1 x)))
+                               (assert (bveq (bit 1 o1) (bit 1 y)))
+                               (assert (bveq (bit 0 o2) (bv 1 1)))
+                               (assert (bveq (bit 1 o2) (bv 1 1))))))
+   (check-equal? (list 'logical-to-physical-mapping
+                       'bitwise-with-mask
+                       (list (bv #b01 2) (bv #b00 2) (bv #b11 2))
+                       (list x y))
+                 (evaluate expr soln1))))
+
+(module+ test
+  (require rackunit
+           rosette/solver/smt/boolector)
   (current-solver (boolector))
 
   ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
-  (define-symbolic l-to-p-f (~> (bitvector 5) (bitvector 5)))
   (define-symbolic a (bitvector 8))
   (define-symbolic b (bitvector 8))
   (define-symbolic c (bitvector 8))
@@ -130,9 +186,6 @@
   (ch 11 12)
   (ch 10 13)
   (ch 9 14))
-
-(define (transpose inputs)
-  (apply map concat (map bitvector->bits (reverse inputs))))
 
 (module+ test
   (require rackunit)
