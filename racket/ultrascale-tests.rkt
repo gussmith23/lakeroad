@@ -35,36 +35,43 @@
 (define-symbolic logical-input-4 (bitvector 8))
 (define-symbolic logical-input-5 (bitvector 8))
 
-(define-symbolic mask (bitvector 48))
-
+(define-symbolic mask-a (bitvector 6))
+(define-symbolic mask-b (bitvector 6))
+(define-symbolic mask-c (bitvector 6))
+(define-symbolic mask-d (bitvector 6))
+(define-symbolic mask-e (bitvector 6))
+(define-symbolic mask-f (bitvector 6))
+(define-symbolic mask-g (bitvector 6))
+(define-symbolic mask-h (bitvector 6))
 (define out
   (first (interpret `(physical-to-logical-mapping
                       bitwise
-                      (ultrascale-plus-clb ,cin
-                                           ,lut-memory-a
-                                           ,lut-memory-b
-                                           ,lut-memory-c
-                                           ,lut-memory-d
-                                           ,lut-memory-e
-                                           ,lut-memory-f
-                                           ,lut-memory-g
-                                           ,lut-memory-h
-                                           ,mux-selector-a
-                                           ,mux-selector-b
-                                           ,mux-selector-c
-                                           ,mux-selector-d
-                                           ,mux-selector-e
-                                           ,mux-selector-f
-                                           ,mux-selector-g
-                                           ,mux-selector-h
-                                           ,@(ultrascale-logical-to-physical-inputs-with-mask
-                                              mask
-                                              (list logical-input-0
-                                                    logical-input-1
-                                                    logical-input-2
-                                                    logical-input-3
-                                                    logical-input-4
-                                                    logical-input-5)))))))
+                      (ultrascale-plus-clb
+                       ,cin
+                       ,lut-memory-a
+                       ,lut-memory-b
+                       ,lut-memory-c
+                       ,lut-memory-d
+                       ,lut-memory-e
+                       ,lut-memory-f
+                       ,lut-memory-g
+                       ,lut-memory-h
+                       ,mux-selector-a
+                       ,mux-selector-b
+                       ,mux-selector-c
+                       ,mux-selector-d
+                       ,mux-selector-e
+                       ,mux-selector-f
+                       ,mux-selector-g
+                       ,mux-selector-h
+                       (logical-to-physical-mapping
+                        bitwise-with-mask
+                        (,mask-a ,mask-b ,mask-c ,mask-d ,mask-e ,mask-f ,mask-g ,mask-h)
+                        (,logical-input-0 ,logical-input-1
+                                          ,logical-input-2
+                                          ,logical-input-3
+                                          ,logical-input-4
+                                          ,logical-input-5)))))))
 
 (define logical-inputs
   (list logical-input-0
@@ -207,7 +214,14 @@
                             mux-selector-f
                             mux-selector-g
                             mux-selector-h
-                            mask))
+                            mask-a
+                            mask-b
+                            mask-c
+                            mask-d
+                            mask-e
+                            mask-f
+                            mask-g
+                            mask-h))
   (define verilog-file (make-temporary-file "rkttmp~a.v"))
   (call-with-output-file verilog-file (lambda (out) (display verilog-source out)) #:exists 'update)
   ;(displayln verilog-file)
