@@ -35,36 +35,44 @@
 (define-symbolic logical-input-4-0 (bitvector 8))
 (define-symbolic logical-input-5-0 (bitvector 8))
 
-(define-symbolic mask (bitvector 48))
+(define-symbolic mask-a (bitvector 6))
+(define-symbolic mask-b (bitvector 6))
+(define-symbolic mask-c (bitvector 6))
+(define-symbolic mask-d (bitvector 6))
+(define-symbolic mask-e (bitvector 6))
+(define-symbolic mask-f (bitvector 6))
+(define-symbolic mask-g (bitvector 6))
+(define-symbolic mask-h (bitvector 6))
 
 (define out-0
   (first (interpret `(physical-to-logical-mapping
                       bitwise
-                      (ultrascale-plus-clb ,cin-0
-                                           ,lut-memory-a-0
-                                           ,lut-memory-b-0
-                                           ,lut-memory-c-0
-                                           ,lut-memory-d-0
-                                           ,lut-memory-e-0
-                                           ,lut-memory-f-0
-                                           ,lut-memory-g-0
-                                           ,lut-memory-h-0
-                                           ,mux-selector-a-0
-                                           ,mux-selector-b-0
-                                           ,mux-selector-c-0
-                                           ,mux-selector-d-0
-                                           ,mux-selector-e-0
-                                           ,mux-selector-f-0
-                                           ,mux-selector-g-0
-                                           ,mux-selector-h-0
-                                           ,@(ultrascale-logical-to-physical-inputs-with-mask
-                                              mask
-                                              (list logical-input-0-0
-                                                    logical-input-1-0
-                                                    logical-input-2-0
-                                                    logical-input-3-0
-                                                    logical-input-4-0
-                                                    logical-input-5-0)))))))
+                      (ultrascale-plus-clb
+                       ,cin-0
+                       ,lut-memory-a-0
+                       ,lut-memory-b-0
+                       ,lut-memory-c-0
+                       ,lut-memory-d-0
+                       ,lut-memory-e-0
+                       ,lut-memory-f-0
+                       ,lut-memory-g-0
+                       ,lut-memory-h-0
+                       ,mux-selector-a-0
+                       ,mux-selector-b-0
+                       ,mux-selector-c-0
+                       ,mux-selector-d-0
+                       ,mux-selector-e-0
+                       ,mux-selector-f-0
+                       ,mux-selector-g-0
+                       ,mux-selector-h-0
+                       (logical-to-physical-mapping
+                        bitwise-with-mask
+                        (,mask-a ,mask-b ,mask-c ,mask-d ,mask-e ,mask-f ,mask-g ,mask-h)
+                        (,logical-input-0-0 ,logical-input-1-0
+                                            ,logical-input-2-0
+                                            ,logical-input-3-0
+                                            ,logical-input-4-0
+                                            ,logical-input-5-0)))))))
 
 (define logical-inputs-0
   (list logical-input-0-0
@@ -112,14 +120,14 @@
                                            ,mux-selector-f-1
                                            ,mux-selector-g-1
                                            ,mux-selector-h-1
-                                           ,(zero-extend (bit 0 out-0) (bitvector 6))
-                                           ,(zero-extend (bit 1 out-0) (bitvector 6))
-                                           ,(zero-extend (bit 2 out-0) (bitvector 6))
-                                           ,(zero-extend (bit 3 out-0) (bitvector 6))
-                                           ,(zero-extend (bit 4 out-0) (bitvector 6))
-                                           ,(zero-extend (bit 5 out-0) (bitvector 6))
-                                           ,(zero-extend (bit 6 out-0) (bitvector 6))
-                                           ,(zero-extend (bit 7 out-0) (bitvector 6)))))))
+                                           (,(zero-extend (bit 0 out-0) (bitvector 6))
+                                            ,(zero-extend (bit 1 out-0) (bitvector 6))
+                                            ,(zero-extend (bit 2 out-0) (bitvector 6))
+                                            ,(zero-extend (bit 3 out-0) (bitvector 6))
+                                            ,(zero-extend (bit 4 out-0) (bitvector 6))
+                                            ,(zero-extend (bit 5 out-0) (bitvector 6))
+                                            ,(zero-extend (bit 6 out-0) (bitvector 6))
+                                            ,(zero-extend (bit 7 out-0) (bitvector 6))))))))
 
 (define (helper-old f arity)
   (println f)

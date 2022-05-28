@@ -140,40 +140,42 @@
                            ,mux-selector-f
                            ,mux-selector-g
                            ,mux-selector-h
-                           ,lut-input-a
-                           ,lut-input-b
-                           ,lut-input-c
-                           ,lut-input-d
-                           ,lut-input-e
-                           ,lut-input-f
-                           ,lut-input-g
-                           ,lut-input-h)
+                           ,inputs)
 
-     (interpret-ultrascale-plus-clb-impl (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-a)
-                                                              (ultrascale-plus-lut6-2 lut-b)
-                                                              (ultrascale-plus-lut6-2 lut-c)
-                                                              (ultrascale-plus-lut6-2 lut-d)
-                                                              (ultrascale-plus-lut6-2 lut-e)
-                                                              (ultrascale-plus-lut6-2 lut-f)
-                                                              (ultrascale-plus-lut6-2 lut-g)
-                                                              (ultrascale-plus-lut6-2 lut-h)
-                                                              mux-selector-a
-                                                              mux-selector-b
-                                                              mux-selector-c
-                                                              mux-selector-d
-                                                              mux-selector-e
-                                                              mux-selector-f
-                                                              mux-selector-g
-                                                              mux-selector-h)
-                                         (interpreter cin)
-                                         (interpreter lut-input-a)
-                                         (interpreter lut-input-b)
-                                         (interpreter lut-input-c)
-                                         (interpreter lut-input-d)
-                                         (interpreter lut-input-e)
-                                         (interpreter lut-input-f)
-                                         (interpreter lut-input-g)
-                                         (interpreter lut-input-h))]))
+     (let* ([inputs (interpreter inputs)]
+            [lut-input-a (first inputs)]
+            [lut-input-b (second inputs)]
+            [lut-input-c (third inputs)]
+            [lut-input-d (fourth inputs)]
+            [lut-input-e (fifth inputs)]
+            [lut-input-f (sixth inputs)]
+            [lut-input-g (seventh inputs)]
+            [lut-input-h (eighth inputs)])
+       (interpret-ultrascale-plus-clb-impl (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-a)
+                                                                (ultrascale-plus-lut6-2 lut-b)
+                                                                (ultrascale-plus-lut6-2 lut-c)
+                                                                (ultrascale-plus-lut6-2 lut-d)
+                                                                (ultrascale-plus-lut6-2 lut-e)
+                                                                (ultrascale-plus-lut6-2 lut-f)
+                                                                (ultrascale-plus-lut6-2 lut-g)
+                                                                (ultrascale-plus-lut6-2 lut-h)
+                                                                mux-selector-a
+                                                                mux-selector-b
+                                                                mux-selector-c
+                                                                mux-selector-d
+                                                                mux-selector-e
+                                                                mux-selector-f
+                                                                mux-selector-g
+                                                                mux-selector-h)
+                                           (interpreter cin)
+                                           lut-input-a
+                                           lut-input-b
+                                           lut-input-c
+                                           lut-input-d
+                                           lut-input-e
+                                           lut-input-f
+                                           lut-input-g
+                                           lut-input-h))]))
 
 ; Returns the physical outputs of the CLB.
 (define (interpret-ultrascale-plus-clb-impl clb
@@ -308,7 +310,14 @@
                                 mux-selector-f
                                 mux-selector-g
                                 mux-selector-h
-                                mask)
+                                mask-a
+                                mask-b
+                                mask-c
+                                mask-d
+                                mask-e
+                                mask-f
+                                mask-g
+                                mask-h)
 
   (define (mux-codegen-helper v idx-str)
     (if (bveq v (bv 0 2))
@@ -463,61 +472,61 @@ here-string-delimiter
      ; This comment prevents the autoformatter from breaking the here string.
      module-name
      (bitvector->natural (hash-ref model lut-memory-a))
-     (if (bitvector->bool (bit 47 (hash-ref model mask))) "1'b1" "input_a[5]")
-     (if (bitvector->bool (bit 46 (hash-ref model mask))) "1'b1" "input_a[4]")
-     (if (bitvector->bool (bit 45 (hash-ref model mask))) "1'b1" "input_a[3]")
-     (if (bitvector->bool (bit 44 (hash-ref model mask))) "1'b1" "input_a[2]")
-     (if (bitvector->bool (bit 43 (hash-ref model mask))) "1'b1" "input_a[1]")
-     (if (bitvector->bool (bit 42 (hash-ref model mask))) "1'b1" "input_a[0]")
+     (if (bitvector->bool (bit 5 (hash-ref model mask-a))) "1'b1" "input_a[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask-a))) "1'b1" "input_a[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask-a))) "1'b1" "input_a[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask-a))) "1'b1" "input_a[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask-a))) "1'b1" "input_a[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask-a))) "1'b1" "input_a[0]")
      (bitvector->natural (hash-ref model lut-memory-b))
-     (if (bitvector->bool (bit 41 (hash-ref model mask))) "1'b1" "input_b[5]")
-     (if (bitvector->bool (bit 40 (hash-ref model mask))) "1'b1" "input_b[4]")
-     (if (bitvector->bool (bit 39 (hash-ref model mask))) "1'b1" "input_b[3]")
-     (if (bitvector->bool (bit 38 (hash-ref model mask))) "1'b1" "input_b[2]")
-     (if (bitvector->bool (bit 37 (hash-ref model mask))) "1'b1" "input_b[1]")
-     (if (bitvector->bool (bit 36 (hash-ref model mask))) "1'b1" "input_b[0]")
+     (if (bitvector->bool (bit 5 (hash-ref model mask-b))) "1'b1" "input_b[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask-b))) "1'b1" "input_b[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask-b))) "1'b1" "input_b[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask-b))) "1'b1" "input_b[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask-b))) "1'b1" "input_b[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask-b))) "1'b1" "input_b[0]")
      (bitvector->natural (hash-ref model lut-memory-c))
-     (if (bitvector->bool (bit 35 (hash-ref model mask))) "1'b1" "input_c[5]")
-     (if (bitvector->bool (bit 34 (hash-ref model mask))) "1'b1" "input_c[4]")
-     (if (bitvector->bool (bit 33 (hash-ref model mask))) "1'b1" "input_c[3]")
-     (if (bitvector->bool (bit 32 (hash-ref model mask))) "1'b1" "input_c[2]")
-     (if (bitvector->bool (bit 31 (hash-ref model mask))) "1'b1" "input_c[1]")
-     (if (bitvector->bool (bit 30 (hash-ref model mask))) "1'b1" "input_c[0]")
+     (if (bitvector->bool (bit 5 (hash-ref model mask-c))) "1'b1" "input_c[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask-c))) "1'b1" "input_c[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask-c))) "1'b1" "input_c[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask-c))) "1'b1" "input_c[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask-c))) "1'b1" "input_c[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask-c))) "1'b1" "input_c[0]")
      (bitvector->natural (hash-ref model lut-memory-d))
-     (if (bitvector->bool (bit 29 (hash-ref model mask))) "1'b1" "input_d[5]")
-     (if (bitvector->bool (bit 28 (hash-ref model mask))) "1'b1" "input_d[4]")
-     (if (bitvector->bool (bit 27 (hash-ref model mask))) "1'b1" "input_d[3]")
-     (if (bitvector->bool (bit 26 (hash-ref model mask))) "1'b1" "input_d[2]")
-     (if (bitvector->bool (bit 25 (hash-ref model mask))) "1'b1" "input_d[1]")
-     (if (bitvector->bool (bit 24 (hash-ref model mask))) "1'b1" "input_d[0]")
+     (if (bitvector->bool (bit 5 (hash-ref model mask-d))) "1'b1" "input_d[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask-d))) "1'b1" "input_d[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask-d))) "1'b1" "input_d[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask-d))) "1'b1" "input_d[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask-d))) "1'b1" "input_d[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask-d))) "1'b1" "input_d[0]")
      (bitvector->natural (hash-ref model lut-memory-e))
-     (if (bitvector->bool (bit 23 (hash-ref model mask))) "1'b1" "input_e[5]")
-     (if (bitvector->bool (bit 22 (hash-ref model mask))) "1'b1" "input_e[4]")
-     (if (bitvector->bool (bit 21 (hash-ref model mask))) "1'b1" "input_e[3]")
-     (if (bitvector->bool (bit 20 (hash-ref model mask))) "1'b1" "input_e[2]")
-     (if (bitvector->bool (bit 19 (hash-ref model mask))) "1'b1" "input_e[1]")
-     (if (bitvector->bool (bit 18 (hash-ref model mask))) "1'b1" "input_e[0]")
+     (if (bitvector->bool (bit 5 (hash-ref model mask-e))) "1'b1" "input_e[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask-e))) "1'b1" "input_e[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask-e))) "1'b1" "input_e[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask-e))) "1'b1" "input_e[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask-e))) "1'b1" "input_e[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask-e))) "1'b1" "input_e[0]")
      (bitvector->natural (hash-ref model lut-memory-f))
-     (if (bitvector->bool (bit 17 (hash-ref model mask))) "1'b1" "input_f[5]")
-     (if (bitvector->bool (bit 16 (hash-ref model mask))) "1'b1" "input_f[4]")
-     (if (bitvector->bool (bit 15 (hash-ref model mask))) "1'b1" "input_f[3]")
-     (if (bitvector->bool (bit 14 (hash-ref model mask))) "1'b1" "input_f[2]")
-     (if (bitvector->bool (bit 13 (hash-ref model mask))) "1'b1" "input_f[1]")
-     (if (bitvector->bool (bit 12 (hash-ref model mask))) "1'b1" "input_f[0]")
+     (if (bitvector->bool (bit 5 (hash-ref model mask-f))) "1'b1" "input_f[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask-f))) "1'b1" "input_f[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask-f))) "1'b1" "input_f[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask-f))) "1'b1" "input_f[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask-f))) "1'b1" "input_f[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask-f))) "1'b1" "input_f[0]")
      (bitvector->natural (hash-ref model lut-memory-g))
-     (if (bitvector->bool (bit 11 (hash-ref model mask))) "1'b1" "input_g[5]")
-     (if (bitvector->bool (bit 10 (hash-ref model mask))) "1'b1" "input_g[4]")
-     (if (bitvector->bool (bit 9 (hash-ref model mask))) "1'b1" "input_g[3]")
-     (if (bitvector->bool (bit 8 (hash-ref model mask))) "1'b1" "input_g[2]")
-     (if (bitvector->bool (bit 7 (hash-ref model mask))) "1'b1" "input_g[1]")
-     (if (bitvector->bool (bit 6 (hash-ref model mask))) "1'b1" "input_g[0]")
+     (if (bitvector->bool (bit 5 (hash-ref model mask-g))) "1'b1" "input_g[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask-g))) "1'b1" "input_g[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask-g))) "1'b1" "input_g[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask-g))) "1'b1" "input_g[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask-g))) "1'b1" "input_g[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask-g))) "1'b1" "input_g[0]")
      (bitvector->natural (hash-ref model lut-memory-h))
-     (if (bitvector->bool (bit 5 (hash-ref model mask))) "1'b1" "input_h[5]")
-     (if (bitvector->bool (bit 4 (hash-ref model mask))) "1'b1" "input_h[4]")
-     (if (bitvector->bool (bit 3 (hash-ref model mask))) "1'b1" "input_h[3]")
-     (if (bitvector->bool (bit 2 (hash-ref model mask))) "1'b1" "input_h[2]")
-     (if (bitvector->bool (bit 1 (hash-ref model mask))) "1'b1" "input_h[1]")
-     (if (bitvector->bool (bit 0 (hash-ref model mask))) "1'b1" "input_h[0]")
+     (if (bitvector->bool (bit 5 (hash-ref model mask-h))) "1'b1" "input_h[5]")
+     (if (bitvector->bool (bit 4 (hash-ref model mask-h))) "1'b1" "input_h[4]")
+     (if (bitvector->bool (bit 3 (hash-ref model mask-h))) "1'b1" "input_h[3]")
+     (if (bitvector->bool (bit 2 (hash-ref model mask-h))) "1'b1" "input_h[2]")
+     (if (bitvector->bool (bit 1 (hash-ref model mask-h))) "1'b1" "input_h[1]")
+     (if (bitvector->bool (bit 0 (hash-ref model mask-h))) "1'b1" "input_h[0]")
      ; Carry in.
      (if (bitvector->bool (hash-ref model cin)) "1'b1" "1'b0")
      ; Output assignment.
