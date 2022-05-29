@@ -49,6 +49,11 @@
     ;;; Variant which uses a Rosette uninterpreted function.
     [`(logical-to-physical-mapping uf ,uf ,bw ,bits-per-group ,inputs)
      (helper uf bw bits-per-group inputs)]
+    ;;;
+    ;;; Uses an uninterpreted function plus a mask.
+    [`(logical-to-physical-mapping uf-with-mask ,uf ,bw ,bits-per-group ,masks ,inputs)
+     (map bvor (helper uf bw bits-per-group inputs) masks)]
+    ;;;
     ;;; "Bitwise" logical-to-physical mapping.
     ;;;
     ;;; The "bitwise" logical to physical mapping groups the 0th bits of each logical input, the 1st
