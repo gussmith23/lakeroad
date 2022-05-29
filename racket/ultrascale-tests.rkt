@@ -10,12 +10,120 @@
 
 (current-solver (boolector))
 
+(define (helper f logical-inputs)
+  (when (>= (length logical-inputs) 6)
+    (error "arity 6 not supported yet; >6 not possible"))
+
+  (let* (;;; Make sure there are six logical inputs.
+         [padded-logical-inputs
+          (append logical-inputs (make-list (- 6 (length logical-inputs)) (bv 0 8)))]
+         ;;; Make sure the logical inputs are length 8.
+         [padded-logical-inputs (map (lambda (v) (zero-extend v (bitvector 8)))
+                                     padded-logical-inputs)]
+         [expr `(physical-to-logical-mapping
+                 bitwise
+                 (ultrascale-plus-clb ,(?? (bitvector 1))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      (logical-to-physical-mapping
+                                       bitwise-with-mask
+                                       (,(?? (bitvector 6)) ,(?? (bitvector 6))
+                                                            ,(?? (bitvector 6))
+                                                            ,(?? (bitvector 6))
+                                                            ,(?? (bitvector 6))
+                                                            ,(?? (bitvector 6))
+                                                            ,(?? (bitvector 6))
+                                                            ,(?? (bitvector 6)))
+                                       ,padded-logical-inputs)))]
+
+         [out (first (interpret expr))]
+         ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+         ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+         [soln (synthesize #:forall padded-logical-inputs
+                           #:guarantee
+                           (begin
+                             ; Assert that the output of the CLB implements the requested function f.
+                             (assert (bveq (apply f logical-inputs) out))))])
+    soln))
+
+; Even in files that are just full of tests, I still stick the tests in a submodule. This is mainly to
+; allow for opening the file in an interpreter without running all the tests. To run tests, run
+; `raco test <filename>`.
+(module+ test
+  (require rackunit)
+
+  ; Test synthesis of various functions on UltraScale+.
+  ; If any test starts failing, it's presumably because our UltraScale+ model changed. The question
+  ; is, was the change correct?
+  ; If a check-true test fails, then the model became less flexible.
+  ; If a check-false test fails, then the model became more flexible.
+  ; It's up to you to determine whether the change was correct!
+
+  (define-symbolic 8bit-a (bitvector 8))
+  (define-symbolic 8bit-b (bitvector 8))
+  (define-symbolic 8bit-c (bitvector 8))
+  (define-symbolic 8bit-d (bitvector 8))
+  (define-symbolic 1bit-e (bitvector 8))
+
+  ; Simple test: identify function.
+  (check-true (sat? (helper (lambda (a) a) (list 8bit-a))))
+
+  ; CIRCT Comb dialect.
+  (check-true (sat? (helper circt-comb-add (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper circt-comb-and (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper circt-comb-divs (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper circt-comb-divu (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8)))
+                             (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper circt-comb-mods (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper circt-comb-mul (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b))))
+  (check-true (sat? (helper circt-comb-or (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8)))
+                             (list 8bit-a))))
+  (check-false (sat? (helper circt-comb-shl (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper circt-comb-shru (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper circt-comb-sub (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper circt-comb-xor (list 8bit-a 8bit-b))))
+
+  ; Bithack examples.
+  (check-false (sat? (helper floor-avg (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper bithack3 (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper bithack2 (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper bithack1 (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper ceil-avg (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper bvadd (list 8bit-a 8bit-b))))
+  (check-false (sat? (helper cycle (list 8bit-a 8bit-b 8bit-c 8bit-d)))))
+
 (define-symbolic logical-input-0 (bitvector 8))
 (define-symbolic logical-input-1 (bitvector 8))
 (define-symbolic logical-input-2 (bitvector 8))
 (define-symbolic logical-input-3 (bitvector 8))
 (define-symbolic logical-input-4 (bitvector 8))
 (define-symbolic logical-input-5 (bitvector 8))
+
+(define logical-inputs
+  (list logical-input-0
+        logical-input-1
+        logical-input-2
+        logical-input-3
+        logical-input-4
+        logical-input-5))
 
 (define expr
   `(physical-to-logical-mapping
@@ -45,94 +153,9 @@
                                                                            ,(?? (bitvector 6))
                                                                            ,(?? (bitvector 6))
                                                                            ,(?? (bitvector 6)))
-                                                      (,logical-input-0 ,logical-input-1
-                                                                        ,logical-input-2
-                                                                        ,logical-input-3
-                                                                        ,logical-input-4
-                                                                        ,logical-input-5)))))
+                                                      ,logical-inputs))))
+
 (define out (first (interpret expr)))
-
-(define logical-inputs
-  (list logical-input-0
-        logical-input-1
-        logical-input-2
-        logical-input-3
-        logical-input-4
-        logical-input-5))
-
-(define (helper f arity)
-  (if (equal? arity 6) (error "arity 6 not supported yet") '())
-  (match-let
-   ([soln
-     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-     (synthesize
-      #:forall logical-inputs
-      #:guarantee
-      (begin
-
-        ; Assume unused inputs are zero. We can set them to whatever we want, but it's important that
-        ; we tell the solver that they're unused and unimportant, and setting them to a constant value
-        ; is the way to this.
-        ; When these aren't set, synthesis takes about 10-20x longer (20mins vs 1.5mins). In this case,
-        ; we synthesize a LUT that is correct for inputs 0 and 1 regardless of the settings of the
-        ; other inputs. I'm not sure if that's useful. I also wonder if there's a faster way to get
-        ; the same result. E.g. either 1. assume 2-5 are all 0 and then manually edit the resulting LUT
-        ; and duplicate the "correct" parts of the LUT memory into the rest of the LUT memory, OR, 2.,
-        ; a more graceful solution, `assume` some predicates that basically say that 2-5 "don't matter"
-        ; and that the outputs for a given 0 and 1 should be the same for any 2-5.
-        (for ([logical-input (list-tail logical-inputs arity)])
-          (assume (bvzero? logical-input)))
-
-        ; Assert that the output of the CLB implements the requested function f.
-        (assert (bveq (apply f (take logical-inputs arity)) out))))])
-   ; Print the output. Unwrap the model if there is one, so that all of the values print.
-   ;;;  (println f)
-   ;;;  (if (sat? soln) (pretty-print (model soln)) (println soln))
-   ;;;  (displayln "")
-   soln))
-
-; Even in files that are just full of tests, I still stick the tests in a submodule. This is mainly to
-; allow for opening the file in an interpreter without running all the tests. To run tests, run
-; `raco test <filename>`.
-(module+ test
-  (require rackunit)
-
-  ; Test synthesis of various functions on UltraScale+.
-  ; If any test starts failing, it's presumably because our UltraScale+ model changed. The question
-  ; is, was the change correct?
-  ; If a check-true test fails, then the model became less flexible.
-  ; If a check-false test fails, then the model became more flexible.
-  ; It's up to you to determine whether the change was correct!
-
-  ; Simple test: identify function.
-  (check-true (sat? (helper (lambda (a) a) 1)))
-
-  ; CIRCT Comb dialect.
-  (check-true (sat? (helper circt-comb-add 2)))
-  (check-true (sat? (helper circt-comb-and 2)))
-  (check-false (sat? (helper circt-comb-divs 2)))
-  (check-false (sat? (helper circt-comb-divu 2)))
-  (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
-  (check-false (sat? (helper circt-comb-mods 2)))
-  (check-false (sat? (helper circt-comb-mul 2)))
-  (check-false (sat? (helper circt-comb-mux 3)))
-  (check-true (sat? (helper circt-comb-or 2)))
-  (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
-  (check-false (sat? (helper circt-comb-shl 2)))
-  (check-false (sat? (helper circt-comb-shrs 2)))
-  (check-false (sat? (helper circt-comb-shru 2)))
-  (check-true (sat? (helper circt-comb-sub 2)))
-  (check-true (sat? (helper circt-comb-xor 2)))
-
-  ; Bithack examples.
-  (check-false (sat? (helper floor-avg 2)))
-  (check-true (sat? (helper bithack3 2)))
-  (check-true (sat? (helper bithack2 2)))
-  (check-true (sat? (helper bithack1 2)))
-  (check-false (sat? (helper ceil-avg 2)))
-  (check-true (sat? (helper bvadd 2)))
-  (check-false (sat? (helper cycle 4))))
 
 (define (end-to-end-test f arity c-operator)
   (if (> arity 3) (error "only arity 2 or 3 supported right now") '())
