@@ -40,7 +40,13 @@
                                       ,(?? (bitvector 2))
                                       ,(?? (bitvector 2))
                                       (logical-to-physical-mapping
-                                       bitwise-with-mask
+                                       uf-constrained
+                                       ,(?? (~> (bitvector 6) (bitvector 6))) ; uf
+                                       6 ; uf-bw
+                                       6 ; num-logical-inputs
+                                       8 ; logical-input-width
+                                       8 ; num-physical-inputs
+                                       6 ; physical-input-width
                                        (,(?? (bitvector 6)) ,(?? (bitvector 6))
                                                             ,(?? (bitvector 6))
                                                             ,(?? (bitvector 6))
@@ -91,7 +97,7 @@
                              (list 8bit-a 8bit-b))))
   (check-false (sat? (helper circt-comb-mods (list 8bit-a 8bit-b))))
   (check-false (sat? (helper circt-comb-mul (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b))))
+  (check-true (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b))))
   (check-true (sat? (helper circt-comb-or (list 8bit-a 8bit-b))))
   (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8)))
                              (list 8bit-a))))
