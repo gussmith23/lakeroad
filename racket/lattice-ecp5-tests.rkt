@@ -203,99 +203,38 @@
          [out       (make-port-details "output" out-bits)]
 
          [ports     (make-ports 'a a 'b b 'out out)]
+         ; lut-helper: create the nth LUT4. This requires six values:
+         ;
+         ; INPUTS: LUT.A, LUT.B, LUT.C, and LUT.D must be wired to literal bit
+         ;     values or bit numbers
+         ;
+         ; OUTPUT: LUT.Z must be wired to an output location
+         ;
+         ; INIT: the INIT value of a LUT determines the function it computes
+         [lut-helper (lambda (n)
+                       (let* ([D         (make-literal-value 0 1)]
+                              [C         (make-literal-value 0 1)]
+                              [B         (list-ref b-bits   n)]
+                              [A         (list-ref a-bits   n)]
+                              [Z         (list-ref out-bits n)]
+                              [INIT      (hash-ref a-model lut-memory-a)]
+                              [INIT      (bitvector->natural INIT)]
+                              [INIT      (make-literal-value INIT 16)])
+                         (make-lattice-lut4 INIT A B C D Z)))]
 
-         ; [====== LUT 0  ======]
-         ; Make LUT0. Each lut's inputs C and D are used in our current
-         ; configuration, while A and B are hardwired to `0`
+         ; Each lut's inputs A and B are used in our current configuration,
+         ; while C and D are hardwired to `0`
          ;
          ; input 'a is attached to LUT.D
          ; input 'b is attached to LUT.C
-         [D         (make-literal-value 0 1)]
-         [C         (make-literal-value 0 1)]
-         [B         (list-ref b-bits   0)]
-         [A         (list-ref a-bits   0)]
-         [Z         (list-ref out-bits 0)]
-         [INIT      (hash-ref a-model lut-memory-a)]
-         [INIT      (bitvector->natural INIT)]
-         [INIT      (make-literal-value INIT 16)]
-         [LUT0      (make-lattice-lut4 INIT A B C D Z)]
-
-         ; [====== LUT 1  ======]
-         [D         (make-literal-value 0 1)]
-         [C         (make-literal-value 0 1)]
-         [B         (list-ref b-bits   1)]
-         [A         (list-ref a-bits   1)]
-         [Z         (list-ref out-bits 1)]
-         [INIT      (hash-ref a-model lut-memory-a)]
-         [INIT      (bitvector->natural INIT)]
-         [INIT      (make-literal-value INIT 16)]
-         [LUT1      (make-lattice-lut4 INIT A B C D Z)]
-
-         ; [====== LUT 2  ======]
-         [D         (make-literal-value 0 1)]
-         [C         (make-literal-value 0 1)]
-         [B         (list-ref b-bits   2)]
-         [A         (list-ref a-bits   2)]
-         [Z         (list-ref out-bits 2)]
-         [INIT      (hash-ref a-model lut-memory-a)]
-         [INIT      (bitvector->natural INIT)]
-         [INIT      (make-literal-value INIT 16)]
-         [LUT2      (make-lattice-lut4 INIT A B C D Z)]
-
-         ; [====== LUT 3  ======]
-         [D         (make-literal-value 0 1)]
-         [C         (make-literal-value 0 1)]
-         [B         (list-ref b-bits   3)]
-         [A         (list-ref a-bits   3)]
-         [Z         (list-ref out-bits 3)]
-         [INIT      (hash-ref a-model lut-memory-a)]
-         [INIT      (bitvector->natural INIT)]
-         [INIT      (make-literal-value INIT 16)]
-         [LUT3      (make-lattice-lut4 INIT A B C D Z)]
-
-         ; [====== LUT 4  ======]
-         [D         (make-literal-value 0 1)]
-         [C         (make-literal-value 0 1)]
-         [B         (list-ref b-bits   4)]
-         [A         (list-ref a-bits   4)]
-         [Z         (list-ref out-bits 4)]
-         [INIT      (hash-ref a-model lut-memory-a)]
-         [INIT      (bitvector->natural INIT)]
-         [INIT      (make-literal-value INIT 16)]
-         [LUT4      (make-lattice-lut4 INIT A B C D Z)]
-
-         ; [====== LUT 5  ======]
-         [D         (make-literal-value 0 1)]
-         [C         (make-literal-value 0 1)]
-         [B         (list-ref b-bits   5)]
-         [A         (list-ref a-bits   5)]
-         [Z         (list-ref out-bits 5)]
-         [INIT      (hash-ref a-model lut-memory-a)]
-         [INIT      (bitvector->natural INIT)]
-         [INIT      (make-literal-value INIT 16)]
-         [LUT5      (make-lattice-lut4 INIT A B C D Z)]
-
-         ; [====== LUT 6  ======]
-         [D         (make-literal-value 0 1)]
-         [C         (make-literal-value 0 1)]
-         [B         (list-ref b-bits   6)]
-         [A         (list-ref a-bits   6)]
-         [Z         (list-ref out-bits 6)]
-         [INIT      (hash-ref a-model lut-memory-a)]
-         [INIT      (bitvector->natural INIT)]
-         [INIT      (make-literal-value INIT 16)]
-         [LUT6      (make-lattice-lut4 INIT A B C D Z)]
-
-         ; [====== LUT 7  ======]
-         [D         (make-literal-value 0 1)]
-         [C         (make-literal-value 0 1)]
-         [B         (list-ref b-bits   7)]
-         [A         (list-ref a-bits   7)]
-         [Z         (list-ref out-bits 7)]
-         [INIT      (hash-ref a-model lut-memory-a)]
-         [INIT      (bitvector->natural INIT)]
-         [INIT      (make-literal-value INIT 16)]
-         [LUT7      (make-lattice-lut4 INIT A B C D Z)]
+         [LUT0      (lut-helper 0)]
+         [LUT1      (lut-helper 1)]
+         [LUT2      (lut-helper 2)]
+         [LUT3      (lut-helper 3)]
+         [LUT4      (lut-helper 4)]
+         [LUT5      (lut-helper 5)]
+         [LUT6      (lut-helper 6)]
+         [LUT7      (lut-helper 7)]
 
          ; [====== Cells  ======]
          [cells (make-cells 'LUT4_A LUT0
