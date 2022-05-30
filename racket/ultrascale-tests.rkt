@@ -77,7 +77,7 @@
   (define-symbolic 8bit-b (bitvector 8))
   (define-symbolic 8bit-c (bitvector 8))
   (define-symbolic 8bit-d (bitvector 8))
-  (define-symbolic 1bit-e (bitvector 8))
+  (define-symbolic 1bit-e (bitvector 1))
 
   ; Simple test: identify function.
   (check-true (sat? (helper (lambda (a) a) (list 8bit-a))))
