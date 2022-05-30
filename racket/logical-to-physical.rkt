@@ -76,6 +76,40 @@
     ;;; physical outputs before being returned.
     [`(logical-to-physical-mapping bitwise-with-mask ,masks ,inputs)
      (map bvor (transpose (interpreter inputs)) masks)]
+    ;;;
+    ;;; Like bitwise mapping, but a bit more flexible. Logical input n always maps to bit n of each
+    ;;; LUT, but any bit of logical input n can go to bit n of any LUT. (In bitwise, we require that
+    ;;; bit 0 of logical input 0 goes to LUT0, bit 1 of logical input 0 goes to LUT1, etc.)
+    ;;;
+    ;;; Specifically implemented to enable mux, without breaking anything else.
+    ;;;
+    ;;; This is a generic template that can be copied: constrain a UF via asserts and then pass the UF
+    ;;; to `helper`. We could probably make a helper function for this.
+    [`(logical-to-physical-mapping uf-constrained
+                                   ;;; (~> (bitvector uf-bw) (bitvector uf-bw))
+                                   ,uf
+                                   ,uf-bw
+                                   ,num-logical-inputs
+                                   ,logical-input-width
+                                   ,num-physical-inputs
+                                   ,physical-input-width
+                                   ,masks
+                                   ,inputs)
+     (begin
+       ;;; Constrain the underlying uninterpreted function.
+       (for* ([physical-i (range num-physical-inputs)] [physical-bit-i (range physical-input-width)])
+         (define uf-output (uf (bv (+ (* physical-i physical-input-width) physical-bit-i) uf-bw)))
+         ;;; Logical indexes of all the bits of the logical input corresponding to (physical-i (i.e.
+         ;;; LUT idx), physical-bit-idx).
+         (define valid-logical-idxs
+           (for/list ([logical-bit-i (range logical-input-width)])
+             (bv (+ (* logical-input-width physical-bit-i) logical-bit-i) uf-bw)))
+         ;;; This physical input must take one of the above logical inputs.
+         (assert (for/fold ([cond #f]) ([valid-logical-idx valid-logical-idxs])
+                   (|| cond (bveq uf-output valid-logical-idx)))))
+
+       ; Map according to the uninterpreted function and apply mask.
+       (map bvor (helper uf uf-bw physical-input-width inputs) masks))]
     [other (interpreter other)]))
 
 ;;; Helper, which interprets a Rosette uninterpreted function value used as a logical-to-physical map.
