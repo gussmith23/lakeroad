@@ -49,16 +49,17 @@
 ; To make this easier we allow strings to be passed in as names and then
 ; sanitize them to symbols
 (define (as-symbol s)
-  (cond [(symbol? s) s]
-        [(string? s) (string->symbol s)]
-        [else        (error (format "(as-symbol ~a): Unrecognized type" s))]))
+  (cond
+    [(symbol? s) s]
+    [(string? s) (string->symbol s)]
+    [else (error (format "(as-symbol ~a): Unrecognized type" s))]))
 
 (define (make-literal-value n prec)
   (~a (number->string n 2) #:width prec #:align 'right #:pad-string "0"))
 
 (define (make-literal-value-list ns prec)
-  (for/list ([n ns]) (make-literal-value n prec)))
-
+  (for/list ([n ns])
+    (make-literal-value n prec)))
 
 (module+ test
   (require rackunit)
@@ -84,10 +85,7 @@
 ; + #:valfn: a function to apply to values before they are inserted. This allows
 ;       this helper function to be customized. Default is the `identity`
 ;       function
-(define (hasheq-helper #:base [base 'nil]
-                       #:keyfn [keyfn as-symbol]
-                       #:valfn [valfn identity]
-                       . vals)
+(define (hasheq-helper #:base [base 'nil] #:keyfn [keyfn as-symbol] #:valfn [valfn identity] . vals)
   (when (odd? (length vals))
     (error (format "hasheq-helper expects even number of values: ~a" vals)))
 
@@ -98,36 +96,35 @@
   ; + Inserts a key-value pair into the table
   (define (helper-insert ht k v)
     (or (string? k) (symbol? k) (error (format "Invalid key ~a: expected string? or symbol?" k)))
-    (let ([k2 (keyfn k)]
-          [v2 (valfn v)])
-      (when (hash-has-key? ht k) (error (format "Table ~a already has key ~a (from key ~a)" ht k2 k)))
+    (let ([k2 (keyfn k)] [v2 (valfn v)])
+      (when (hash-has-key? ht k)
+        (error (format "Table ~a already has key ~a (from key ~a)" ht k2 k)))
       (hash-set! ht k2 v2)))
 
   ; Recursively match key-value pairs and insert them
   (define (helper-traverse ht xs)
     (match xs
-      [(cons k (cons v xs))  (begin (helper-insert ht k v)
-                                    (helper-traverse ht xs))]
-      [(cons x '())          (error (format "Single trailing element ~a" x))]
-      ['()                   ht]
-      [_                     (error "Illegal state")]))
-  (let ([ht (if (equal? base 'nil) (make-hasheq) base)])
-    (helper-traverse ht vals)))
+      [(cons k (cons v xs))
+       (begin
+         (helper-insert ht k v)
+         (helper-traverse ht xs))]
+      [(cons x '()) (error (format "Single trailing element ~a" x))]
+      ['() ht]
+      [_ (error "Illegal state")]))
+  (let ([ht (if (equal? base 'nil) (make-hasheq) base)]) (helper-traverse ht vals)))
 
 ; Create a top-level Lakeroad JSON document
 ;
 ; Spec: https://github.com/uwsampl/lakeroad-evaluation/blob/461d27016826b5b4bcbbab6325343638cfb01639/instructions/pnr-experiments/nextpnr-json-docs.txt#L15
-(define (make-lakeroad-json-doc #:modules [modules '()]
-                                #:creator [creator "Lakeroad"])
-  (hasheq-helper 'creator creator
-                 'modules (apply hasheq-helper modules)))
+(define (make-lakeroad-json-doc #:modules [modules '()] #:creator [creator "Lakeroad"])
+  (hasheq-helper 'creator creator 'modules (apply hasheq-helper modules)))
 
 (module+ test
   (require rackunit)
   (let ([json-doc (make-lakeroad-json-doc)])
     ; Sanity check base template
-    (check-equal? json-doc (make-hasheq (list (cons 'creator "Lakeroad"   )
-                                              (cons 'modules (hasheq-helper)))))))
+    (check-equal? json-doc
+                  (make-hasheq (list (cons 'creator "Lakeroad") (cons 'modules (hasheq-helper)))))))
 
 (define (get-modules doc)
   (hash-ref doc 'modules))
@@ -150,16 +147,12 @@
 ;            `make-netnames`
 ;
 ; Spec: https://github.com/uwsampl/lakeroad-evaluation/blob/461d27016826b5b4bcbbab6325343638cfb01639/instructions/pnr-experiments/nextpnr-json-docs.txt#L18-L43
-(define (make-module ports
-                     cells
-                     netnames
-                     #:attributes [attrs '()]
-                     #:memories   [mems '()])
-  (let ([modul (hasheq-helper 'ports      ports
-                              'cells      cells
-                              'netnames   netnames)])
-    (when (not (empty? attrs)) (hash-set! modul 'attributes attrs))
-    (when (not (empty? mems )) (hash-set! modul 'memories   mems ))
+(define (make-module ports cells netnames #:attributes [attrs '()] #:memories [mems '()])
+  (let ([modul (hasheq-helper 'ports ports 'cells cells 'netnames netnames)])
+    (when (not (empty? attrs))
+      (hash-set! modul 'attributes attrs))
+    (when (not (empty? mems))
+      (hash-set! modul 'memories mems))
     modul))
 
 ; Add a module to the `modules` map, checking to ensure that there isn't a name
@@ -173,8 +166,7 @@
     (hash-set! modules mod-name mod)))
 
 (define (add-module-to-doc doc mod-name mod)
-  (let* ([modules (get-modules doc)]
-         [mod-name (as-symbol mod-name)])
+  (let* ([modules (get-modules doc)] [mod-name (as-symbol mod-name)])
     (when (hash-has-key? mod mod-name)
       (error (format "Encountered duplicate module name ~a while generating lut4" mod-name)))
     (hash-set! modules mod-name mod)))
@@ -184,19 +176,17 @@
 (define (get-module modules mod-name)
   (hash-ref modules
             (as-symbol mod-name)
-            (lambda () (error
-                        (format "Modules ~a does not contain module ~a" modules mod-name)))))
+            (lambda () (error (format "Modules ~a does not contain module ~a" modules mod-name)))))
 
 (define (get-module-from-doc doc mod-name)
   (get-module (get-modules doc) mod-name))
 
 (define (get-module-attribute mod attr)
-  (let* ([attrs (hash-ref mod 'attributes
-                          (lambda () (hasheq)))]
-         [a     (hash-ref attrs (as-symbol attr)
-                          (lambda () (error (format "Attributes ~a has no attribute ~a" attrs attr))))])
+  (let* ([attrs (hash-ref mod 'attributes (lambda () (hasheq)))]
+         [a (hash-ref attrs
+                      (as-symbol attr)
+                      (lambda () (error (format "Attributes ~a has no attribute ~a" attrs attr))))])
     a))
-
 
 ; Create attributes for a module.
 ;
@@ -210,16 +200,16 @@
   ; This test ensures that a Lakeroad JSON file, created by `make-lakeroad-json`,
   ; is well formed.
   (require rackunit)
-  (let* ([json-doc  (make-lakeroad-json-doc)]
-         [modules   (get-modules json-doc)]
-         [attrs     (make-module-attributes 'hdlname "my-module")]
-         [a         (make-port-details "input" (list 2 3 4 5))]
-         [b         (make-port-details "input" (list 6 7 8 9))]
-         [out       (make-port-details "input" (list 10 11 12 13))]
-         [ports     (make-ports 'a a 'b b 'out out)]
-         [cells     "todo"]
-         [netnames  "todo"]
-         [modul     (make-module ports cells netnames #:attributes attrs)])
+  (let* ([json-doc (make-lakeroad-json-doc)]
+         [modules (get-modules json-doc)]
+         [attrs (make-module-attributes 'hdlname "my-module")]
+         [a (make-port-details "input" (list 2 3 4 5))]
+         [b (make-port-details "input" (list 6 7 8 9))]
+         [out (make-port-details "input" (list 10 11 12 13))]
+         [ports (make-ports 'a a 'b b 'out out)]
+         [cells "todo"]
+         [netnames "todo"]
+         [modul (make-module ports cells netnames #:attributes attrs)])
     (check-true (jsexpr? ports))
     (check-true (jsexpr? cells))
     (check-true (jsexpr? attrs))
@@ -227,19 +217,18 @@
 
     (add-module-to-doc json-doc "test-module" modul)
 
-    (check-true (jsexpr? modul)    (format "Module ~a is not a jsexpr" modul))
+    (check-true (jsexpr? modul) (format "Module ~a is not a jsexpr" modul))
     (check-true (jsexpr? json-doc) (format "Lakeroad JSON File ~a is not a jsexpr" json-doc))
 
     ; Let's check modules for well-formedness
-    (let* ([ms (hash-ref json-doc 'modules)]
-           [m (get-module ms "test-module")])
+    (let* ([ms (hash-ref json-doc 'modules)] [m (get-module ms "test-module")])
       (check-true (jsexpr? ms))
-      (check-true   (hash-has-key? ms 'test-module))
-      (check-false  (hash-has-key? ms "test-module"))
-      (check-equal? (hash-ref m 'cells)       "todo")
-      (check-equal? (hash-ref m 'netnames)    "todo")
-      (check-equal? (hash-ref m 'ports)       ports)
-      (check-equal? (hash-ref m 'attributes)  (hasheq-helper 'hdlname "my-module"))
+      (check-true (hash-has-key? ms 'test-module))
+      (check-false (hash-has-key? ms "test-module"))
+      (check-equal? (hash-ref m 'cells) "todo")
+      (check-equal? (hash-ref m 'netnames) "todo")
+      (check-equal? (hash-ref m 'ports) ports)
+      (check-equal? (hash-ref m 'attributes) (hasheq-helper 'hdlname "my-module"))
       (check-equal? (get-module-attribute m "hdlname") "my-module")
       (check-equal? (get-module-attribute m 'hdlname) "my-module"))))
 
@@ -258,20 +247,19 @@
 ; + upto: 1 if bit indexing is MSB first
 ;
 ; Spec: https://github.com/uwsampl/lakeroad-evaluation/blob/461d27016826b5b4bcbbab6325343638cfb01639/instructions/pnr-experiments/nextpnr-json-docs.txt#L52-L58
-(define (make-port-details direction
-                           bits
-                           #:signed [signed 0]
-                           #:offset [offset 0]
-                           #:upto [upto 0])
+(define (make-port-details direction bits #:signed [signed 0] #:offset [offset 0] #:upto [upto 0])
   ; ensure that `direction` is valid
   (when (not (set-member? (set "input" "output" "inout") direction))
-    (error
-     (format "Invalid port direction ~a: must ben in <\"input\", \"output\", \"inout\">" direction)))
+    (error (format "Invalid port direction ~a: must ben in <\"input\", \"output\", \"inout\">"
+                   direction)))
   (let ([port-details (make-ports 'direction direction 'bits bits)])
     ; Then add optional port details
-    (when (not (zero? signed)) (hash-set! port-details 'signed 1))
-    (when (not (zero? offset)) (hash-set! port-details 'offset offset))
-    (when (not (zero? upto))   (hash-set! port-details 'upto   1))
+    (when (not (zero? signed))
+      (hash-set! port-details 'signed 1))
+    (when (not (zero? offset))
+      (hash-set! port-details 'offset offset))
+    (when (not (zero? upto))
+      (hash-set! port-details 'upto 1))
     port-details))
 
 ; Modify a `ports` hash-eq to map a name to a `port-details`.  `port-details`
@@ -286,31 +274,30 @@
 (define (get-port ports port-name)
   (hash-ref ports
             (as-symbol port-name)
-            (lambda ()
-              (error (format "Ports ~a does not contain port ~a" ports port-name)))))
+            (lambda () (error (format "Ports ~a does not contain port ~a" ports port-name)))))
 
 (module+ test
   (require rackunit)
   (let ([pd (make-port-details "input" (list 2 3 4))])
-    (check-equal? (hash-ref pd 'direction)           "input")
-    (check-equal? (hash-ref pd 'bits)                (list 2 3 4))
+    (check-equal? (hash-ref pd 'direction) "input")
+    (check-equal? (hash-ref pd 'bits) (list 2 3 4))
     (check-equal? (hash-ref pd 'signed 'NOT-PRESENT) 'NOT-PRESENT)
     (check-equal? (hash-ref pd 'offset 'NOT-PRESENT) 'NOT-PRESENT)
-    (check-equal? (hash-ref pd 'upto   'NOT-PRESENT) 'NOT-PRESENT))
+    (check-equal? (hash-ref pd 'upto 'NOT-PRESENT) 'NOT-PRESENT))
 
   ; Checking optional arguments
   (let ([pd (make-port-details "input" (list 2 3 4) #:signed 1 #:offset 3)])
     (check-equal? (hash-ref pd 'signed 'NOT-PRESENT) 1)
     (check-equal? (hash-ref pd 'offset 'NOT-PRESENT) 3)
-    (check-equal? (hash-ref pd 'upto   'NOT-PRESENT) 'NOT-PRESENT))
+    (check-equal? (hash-ref pd 'upto 'NOT-PRESENT) 'NOT-PRESENT))
 
   (let ([pd (make-port-details "input" (list 2 3 4) #:upto 1)])
-    (check-equal? (hash-ref pd 'upto   'NOT-PRESENT) 1))
+    (check-equal? (hash-ref pd 'upto 'NOT-PRESENT) 1))
 
-  (let* ([ports  (make-ports)]
-         [a      (make-port-details "input"  (list 2 3 4 5))]
-         [b      (make-port-details "input"  (list 6 7 8 9))]
-         [out    (make-port-details "output" (list 10 11 12 13))])
+  (let* ([ports (make-ports)]
+         [a (make-port-details "input" (list 2 3 4 5))]
+         [b (make-port-details "input" (list 6 7 8 9))]
+         [out (make-port-details "output" (list 10 11 12 13))])
     (add-port ports "a" a)
     (check-true (hash-has-key? ports 'a))
     (check-equal? (get-port ports "a") a)
@@ -326,34 +313,40 @@
 
 (define (make-cell-port-directions inputs outputs)
   (apply hasheq-helper
-         (flatten (list
-                   (for/list ([input  inputs ]) (cons input "input"))
-                   (for/list ([output outputs]) (cons output "output"))))))
+         (flatten (list (for/list ([input inputs])
+                          (cons input "input"))
+                        (for/list ([output outputs])
+                          (cons output "output"))))))
 
 (define make-cell-connections (curry hasheq-helper #:valfn list))
 
 (define (make-cell type
                    port-directions
                    connections
-                   #:attrs      [attrs (hasheq)]
-                   #:hide-name  [hide-name 0   ]
-                   #:params     [params    '() ])
-  (let ([cell (hasheq-helper 'type            type
-                             'port_directions port-directions
-                             'connections     connections
-                             'attributes      attrs
-                             'hide_name       hide-name
-                             'parameters      params)])
-    (when (not (empty? params)) (hash-set! cell 'parameters params))
+                   #:attrs [attrs (hasheq)]
+                   #:hide-name [hide-name 0]
+                   #:params [params '()])
+  (let ([cell (hasheq-helper 'type
+                             type
+                             'port_directions
+                             port-directions
+                             'connections
+                             connections
+                             'attributes
+                             attrs
+                             'hide_name
+                             hide-name
+                             'parameters
+                             params)])
+    (when (not (empty? params))
+      (hash-set! cell 'parameters params))
     cell))
 
 (define (get-cell-port-direction cell port)
-  (hash-ref (hash-ref cell 'port_directions)
-            (as-symbol port)))
+  (hash-ref (hash-ref cell 'port_directions) (as-symbol port)))
 
 (define (get-cell-port-connection cell port)
-  (hash-ref (hash-ref cell 'connections)
-            (as-symbol port)))
+  (hash-ref (hash-ref cell 'connections) (as-symbol port)))
 
 ; Modify a `cells` hash-eq to map a name to a `cell`.  `cell`
 ; should be created with `(make-port-details)`
@@ -364,8 +357,7 @@
     (hash-set! cells name cell)))
 
 (define (add-cell-to-module-in-doc doc mod-name cell-name cell)
-  (let* ([mod  (get-module-from-doc doc mod-name)]
-         [cells (hash-ref 'cells mod)])
+  (let* ([mod (get-module-from-doc doc mod-name)] [cells (hash-ref 'cells mod)])
     (add-cell cells cell-name cell)))
 
 ; A helper function to get a module from modules by name.
@@ -374,21 +366,16 @@
 (define (get-cell cells cell-name)
   (hash-ref cells
             (as-symbol cell-name)
-            (lambda () (error
-                        (format "Cells ~a does not contain cell name ~a" cells cell-name)))))
+            (lambda () (error (format "Cells ~a does not contain cell name ~a" cells cell-name)))))
 
 (define (get-cell-from-module-in-doc doc mod-name cell-name)
   (get-cell (hash-ref (get-module-from-doc doc mod-name) 'cells) cell-name))
 
 (module+ test
   (require rackunit)
-  (let* ([type        "LUT4"]
-         [directions  (make-cell-port-directions (list "A" "B" "C" "D") (list "Z"))]
-         [connections (make-cell-connections "A" "0"
-                                             "B" "0"
-                                             "C" 2
-                                             "D" 6
-                                             "Z" 10)]
+  (let* ([type "LUT4"]
+         [directions (make-cell-port-directions (list "A" "B" "C" "D") (list "Z"))]
+         [connections (make-cell-connections "A" "0" "B" "0" "C" 2 "D" 6 "Z" 10)]
          [cell (make-cell type directions connections)])
     (check-equal? (get-cell-port-direction cell "A") "input")
     (check-equal? (get-cell-port-direction cell "B") "input")
@@ -405,18 +392,21 @@
 (define make-netnames hasheq-helper)
 
 (define (make-net-details bits
-                          #:hide-name  [hide-name 0]
+                          #:hide-name [hide-name 0]
                           #:attributes [attrs '()]
-                          #:upto       [upto 0]
-                          #:signed     [signed 0]
-                          #:offset     [offset 0])
+                          #:upto [upto 0]
+                          #:signed [signed 0]
+                          #:offset [offset 0])
   (let* ([nn (hasheq-helper 'bits bits 'hide_name hide-name)])
-    (when (not (empty? attrs))  (hash-set! nn 'attributes attrs))
-    (when (not (zero?  upto))   (hash-set! nn 'upto       upto))
-    (when (not (zero?  signed)) (hash-set! nn 'signed     signed))
-    (when (not (zero?  offset)) (hash-set! nn 'offset     offset))
+    (when (not (empty? attrs))
+      (hash-set! nn 'attributes attrs))
+    (when (not (zero? upto))
+      (hash-set! nn 'upto upto))
+    (when (not (zero? signed))
+      (hash-set! nn 'signed signed))
+    (when (not (zero? offset))
+      (hash-set! nn 'offset offset))
     nn))
-
 
 (define (add-net-details netnames name net-details)
   (let ([name (as-symbol name)])
@@ -425,29 +415,30 @@
     (hash-set! netnames name net-details)))
 
 (define (get-net-details netnames net-name)
-  (hash-ref netnames (as-symbol net-name)
-            (lambda ()
-              (error (format "Netnames ~a does not contain net-name ~a" netnames net-name)))))
+  (hash-ref
+   netnames
+   (as-symbol net-name)
+   (lambda () (error (format "Netnames ~a does not contain net-name ~a" netnames net-name)))))
 
 (define (get-net-details-from-module-in-doc doc mod-name net-name)
   (get-cell (hash-ref (get-module-from-doc doc mod-name) 'netnames) net-name))
 
 (module+ test
   (require rackunit)
-  (let* ([a         (make-net-details (list  2  3  4  5))]
-         [b         (make-net-details (list  6  7  8  9))]
-         [out       (make-net-details (list 10 11 12 13))]
+  (let* ([a (make-net-details (list 2 3 4 5))]
+         [b (make-net-details (list 6 7 8 9))]
+         [out (make-net-details (list 10 11 12 13))]
          [LUT_Z_1_B (make-net-details (list 14) #:hide-name 1)]
 
          [netnames (make-netnames 'a a 'b b 'out out 'LUT_Z_1_B LUT_Z_1_B)])
-    (check-equal? (hash-ref (get-net-details netnames 'a)         'bits) (list  2  3  4  5))
-    (check-equal? (hash-ref (get-net-details netnames 'b)         'bits) (list  6  7  8  9))
-    (check-equal? (hash-ref (get-net-details netnames 'out)       'bits) (list 10 11 12 13))
+    (check-equal? (hash-ref (get-net-details netnames 'a) 'bits) (list 2 3 4 5))
+    (check-equal? (hash-ref (get-net-details netnames 'b) 'bits) (list 6 7 8 9))
+    (check-equal? (hash-ref (get-net-details netnames 'out) 'bits) (list 10 11 12 13))
     (check-equal? (hash-ref (get-net-details netnames 'LUT_Z_1_B) 'bits) (list 14))
 
-    (check-equal? (hash-ref (get-net-details netnames 'a)         'hide_name) 0)
-    (check-equal? (hash-ref (get-net-details netnames 'b)         'hide_name) 0)
-    (check-equal? (hash-ref (get-net-details netnames 'out)       'hide_name) 0)
+    (check-equal? (hash-ref (get-net-details netnames 'a) 'hide_name) 0)
+    (check-equal? (hash-ref (get-net-details netnames 'b) 'hide_name) 0)
+    (check-equal? (hash-ref (get-net-details netnames 'out) 'hide_name) 0)
     (check-equal? (hash-ref (get-net-details netnames 'LUT_Z_1_B) 'hide_name) 1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -461,7 +452,7 @@
              #:params (hasheq 'INIT init-mem)))
 
 ; This function makes a 2-bit adder with the following design:
-; 
+;
 ;        +---------+
 ; 1'0 ---|A       Z| ----------------+
 ; 1'0 ---|B        |                 |
@@ -482,7 +473,7 @@
 ;
 ; This takes in two 2-bit inputs, `a` and `b`, and results in 2-bit output `out`
 ;
-; In our design: 
+; In our design:
 ; + input  `a`   corresponds to bits 2 and 3
 ; + input  `b`   corresponds to bits 4 and 5
 ; + output `out` corresponds to bits 6 and 7
@@ -494,12 +485,12 @@
          ; + input  `a`   corresponds to bits 2 and 3
          ; + input  `b`   corresponds to bits 4 and 5
          ; + output `out` corresponds to bits 6 and 7
-         [a   (make-port-details "input"  (list 2 3))]
-         [b   (make-port-details "input"  (list 4 5))]
+         [a (make-port-details "input" (list 2 3))]
+         [b (make-port-details "input" (list 4 5))]
          [out (make-port-details "output" (list 6 7))]
 
          ; We store these in a `ports` map with `make-ports`
-         [ports (make-ports 'a a 'b b 'out out )]
+         [ports (make-ports 'a a 'b b 'out out)]
 
          ; [====== LUT 1  ======]
          ; First we make LUT1 from our above diagram. This lut is assigned ot
@@ -508,32 +499,32 @@
          ;
          [A (make-literal-value 0 1)] ; LUT1.A gets literal bit '0'
          [B (make-literal-value 0 1)] ; LUT1.B gets literal bit '0'
-         [C  2]                       ; LUT1.C gets a[0] (i.e., bit 2)
-         [D  4]                       ; LUT1.D gets b[0] (i.e., bit 4)
-         [Z  6]                       ; LUT1.Z goes to out[0] (i.e., bit 6)
-         [INIT (make-literal-value  #x0ff0 16)]
-         [LUT1 (make-lattice-lut4 INIT A B C D Z )]
+         [C 2] ; LUT1.C gets a[0] (i.e., bit 2)
+         [D 4] ; LUT1.D gets b[0] (i.e., bit 4)
+         [Z 6] ; LUT1.Z goes to out[0] (i.e., bit 6)
+         [INIT (make-literal-value #x0ff0 16)]
+         [LUT1 (make-lattice-lut4 INIT A B C D Z)]
 
          ; [====== LUT 2  ======]
          ; Next we make LUT2 from our above diagram. This lut is assigned to
          ; out[1] in our HDL, which is translated to bit 7 in this
          ; representation
          ;
-         [A  2]    ; LUT2.A gets a[0] (i.e., bit 2)
-         [B  4]    ; LUT2.B gets b[0] (i.e., bit 4)
-         [C  3]    ; LUT2.C gets a[1] (i.e., bit 3)
-         [D  5]    ; LUT2.D gets b[1] (i.e., bit 5)
-         [Z  7]    ; LUT2.Z goes to out[1] (i.e., bit 7)
-         [INIT (make-literal-value  #x8778 16)]
-         [LUT2 (make-lattice-lut4 INIT A B C D Z )]
+         [A 2] ; LUT2.A gets a[0] (i.e., bit 2)
+         [B 4] ; LUT2.B gets b[0] (i.e., bit 4)
+         [C 3] ; LUT2.C gets a[1] (i.e., bit 3)
+         [D 5] ; LUT2.D gets b[1] (i.e., bit 5)
+         [Z 7] ; LUT2.Z goes to out[1] (i.e., bit 7)
+         [INIT (make-literal-value #x8778 16)]
+         [LUT2 (make-lattice-lut4 INIT A B C D Z)]
          [cells (make-cells 'LUT1 LUT1 'LUT2 LUT2)]
 
          ; [====== Netnames ======]
          ; Now let's specify how things are linked together. This is pretty
          ; straightforward since this design is so simple
-         [nn-a    (make-net-details (list 2 3))]
-         [nn-b    (make-net-details (list 4 5))]
-         [nn-out  (make-net-details (list 6 7))]
+         [nn-a (make-net-details (list 2 3))]
+         [nn-b (make-net-details (list 4 5))]
+         [nn-out (make-net-details (list 6 7))]
          [netnames (make-netnames 'a nn-a 'b nn-b 'out nn-out)]
 
          ; [====== Module ======]
@@ -542,4 +533,3 @@
          [adder-2-bit (make-module ports cells netnames)])
     (add-module-to-doc doc '2-bit-adder adder-2-bit)
     doc))
-
