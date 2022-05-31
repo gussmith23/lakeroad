@@ -263,17 +263,17 @@
     ;;; outputs.
     ;;;
     ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
-    [`(physical-to-logical-mapping bitwise ,logical-outputs)
+    [`(physical-to-logical-mapping (bitwise) ,logical-outputs)
      (transpose (interpreter logical-outputs))]
     ;;; Variant which uses a Rosette uninterpreted function.
-    [`(physical-to-logical-mapping uf ,uf ,bw ,bits-per-group ,logical-outputs)
+    [`(physical-to-logical-mapping (uf ,uf ,bw ,bits-per-group) ,logical-outputs)
      (helper uf bw bits-per-group (interpreter logical-outputs))]))
 
 (module+ test
   (require rackunit)
   (check-equal? (interpret-physical-to-logical-mapping
                  identity
-                 `(physical-to-logical-mapping bitwise ,(list (bv #b1 1) (bv #b0 1))))
+                 `(physical-to-logical-mapping (bitwise) ,(list (bv #b1 1) (bv #b0 1))))
                 (list (bv #b01 2)))
 
   ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
@@ -287,10 +287,7 @@
    (define-symbolic logical-out-g (bitvector 1))
    (define-symbolic logical-out-h (bitvector 1))
    (define expr
-     `(physical-to-logical-mapping uf
-                                   ,(?? (~> (bitvector 3) (bitvector 3)))
-                                   3
-                                   8
+     `(physical-to-logical-mapping (uf ,(?? (~> (bitvector 3) (bitvector 3))) 3 8)
                                    ,(list logical-out-a
                                           logical-out-b
                                           logical-out-c

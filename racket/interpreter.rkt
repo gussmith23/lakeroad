@@ -25,7 +25,7 @@
   (check-equal? (interpret (list 1 2 3)) (list 1 2 3))
   (check-equal? (interpret 'test) 'test)
 
-  (check-equal? (interpret `(physical-to-logical-mapping bitwise ,(list (bv #b1 1) (bv #b0 1))))
+  (check-equal? (interpret `(physical-to-logical-mapping (bitwise) ,(list (bv #b1 1) (bv #b0 1))))
                 (list (bv #b01 2)))
 
   (check-equal? (interpret `(logical-to-physical-mapping bitwise ,(list (bv 1 1) (bv 0 1))))

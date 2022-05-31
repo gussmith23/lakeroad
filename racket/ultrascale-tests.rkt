@@ -21,7 +21,7 @@
          [padded-logical-inputs (map (lambda (v) (zero-extend v (bitvector 8)))
                                      padded-logical-inputs)]
          [expr `(physical-to-logical-mapping
-                 bitwise
+                 (bitwise)
                  (ultrascale-plus-clb ,(?? (bitvector 1))
                                       ,(?? (bitvector 64))
                                       ,(?? (bitvector 64))
@@ -133,7 +133,7 @@
 
 (define expr
   `(physical-to-logical-mapping
-    bitwise
+    (bitwise)
     (ultrascale-plus-clb ,(?? (bitvector 1))
                          ,(?? (bitvector 64))
                          ,(?? (bitvector 64))
@@ -194,7 +194,7 @@
        (assert (bveq (apply f (take logical-inputs arity)) out)))))
 
   (match-define `(physical-to-logical-mapping
-                  bitwise
+                  (bitwise)
                   (ultrascale-plus-clb
                    ,cin
                    ,lut-memory-a

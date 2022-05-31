@@ -45,7 +45,7 @@
 
 (define out-0
   (first (interpret `(physical-to-logical-mapping
-                      bitwise
+                      (bitwise)
                       (ultrascale-plus-clb
                        ,cin-0
                        ,lut-memory-a-0
@@ -101,7 +101,7 @@
 
 (define out-1
   (first (interpret `(physical-to-logical-mapping
-                      bitwise
+                      (bitwise)
                       (ultrascale-plus-clb ,cin-1
                                            ,lut-memory-a-1
                                            ,lut-memory-b-1
