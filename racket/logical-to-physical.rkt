@@ -267,7 +267,14 @@
      (transpose (interpreter logical-outputs))]
     ;;; Variant which uses a Rosette uninterpreted function.
     [`(physical-to-logical-mapping (uf ,uf ,bw ,bits-per-group) ,logical-outputs)
-     (helper uf bw bits-per-group (interpreter logical-outputs))]))
+     (helper uf bw bits-per-group (interpreter logical-outputs))]
+    ;;;
+    ;;; Choose one of the bits to be the output.
+    [`(physical-to-logical-mapping (choose-one ,idx) ,logical-outputs)
+     (let* ([logical-outputs (apply concat logical-outputs)])
+       (bit 0
+            (bvlshr logical-outputs
+                    (zero-extend idx (bitvector (length (bitvector->bits logical-outputs)))))))]))
 
 (module+ test
   (require rackunit)
@@ -314,4 +321,19 @@
                                  (extract 4 1 physical-out)))
                    (assert (bveq (concat logical-out-f logical-out-g logical-out-h)
                                  (extract 7 5 physical-out))))))
-   (check-true (sat? soln))))
+   (check-true (sat? soln)))
+
+  (test-begin
+   (check-equal? (bv 0 1)
+                 (interpret-physical-to-logical-mapping
+                  identity
+                  `(physical-to-logical-mapping
+                    (choose-one ,(bv 0 3))
+                    ,(list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1)))))
+   (check-equal?
+    (bv 1 1)
+    (interpret-physical-to-logical-mapping
+     identity
+     `(physical-to-logical-mapping
+       (choose-one ,(bv 7 3))
+       ,(list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1)))))))
