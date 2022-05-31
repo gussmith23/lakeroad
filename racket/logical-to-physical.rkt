@@ -264,11 +264,57 @@
     ;;;
     ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
     [`(physical-to-logical-mapping bitwise ,logical-outputs)
-     (transpose (interpreter logical-outputs))]))
+     (transpose (interpreter logical-outputs))]
+    ;;; Variant which uses a Rosette uninterpreted function.
+    [`(physical-to-logical-mapping uf ,uf ,bw ,bits-per-group ,logical-outputs)
+     (helper uf bw bits-per-group (interpreter logical-outputs))]))
 
 (module+ test
   (require rackunit)
   (check-equal? (interpret-physical-to-logical-mapping
                  identity
                  `(physical-to-logical-mapping bitwise ,(list (bv #b1 1) (bv #b0 1))))
-                (list (bv #b01 2))))
+                (list (bv #b01 2)))
+
+  ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
+  (test-begin
+   (define-symbolic logical-out-a (bitvector 1))
+   (define-symbolic logical-out-b (bitvector 1))
+   (define-symbolic logical-out-c (bitvector 1))
+   (define-symbolic logical-out-d (bitvector 1))
+   (define-symbolic logical-out-e (bitvector 1))
+   (define-symbolic logical-out-f (bitvector 1))
+   (define-symbolic logical-out-g (bitvector 1))
+   (define-symbolic logical-out-h (bitvector 1))
+   (define expr
+     `(physical-to-logical-mapping uf
+                                   ,(?? (~> (bitvector 3) (bitvector 3)))
+                                   3
+                                   8
+                                   ,(list logical-out-a
+                                          logical-out-b
+                                          logical-out-c
+                                          logical-out-d
+                                          logical-out-e
+                                          logical-out-f
+                                          logical-out-g
+                                          logical-out-h)))
+   (match-define (list physical-out) (interpret-physical-to-logical-mapping identity expr))
+   (define soln
+     (synthesize #:forall (list logical-out-a
+                                logical-out-b
+                                logical-out-c
+                                logical-out-d
+                                logical-out-e
+                                logical-out-f
+                                logical-out-g
+                                logical-out-h)
+                 #:guarantee
+                 (begin
+                   ;;; Make up some random constraints...
+                   (assert (bveq logical-out-a (bit 0 physical-out)))
+                   (assert (bveq (concat logical-out-e logical-out-d logical-out-c logical-out-b)
+                                 (extract 4 1 physical-out)))
+                   (assert (bveq (concat logical-out-f logical-out-g logical-out-h)
+                                 (extract 7 5 physical-out))))))
+   (check-true (sat? soln))))
