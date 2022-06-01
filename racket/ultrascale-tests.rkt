@@ -6,7 +6,8 @@
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
          rosette/solver/smt/boolector
-         rosette/lib/synthax)
+         rosette/lib/synthax
+         "utils.rkt")
 
 (current-solver (boolector))
 
@@ -20,9 +21,15 @@
          ;;; to enable two distinct outputs.
          [padded-logical-inputs
           (append logical-inputs (make-list (- 6 (length logical-inputs)) (bv #xff 8)))]
+         ;;; Replicate any 1-bit inputs to length 8.
+         [padded-logical-inputs
+          (map (lambda (v) (if (equal? 1 (bvlen v)) (apply concat (make-list 8 v)) v))
+               padded-logical-inputs)]
          ;;; Make sure the logical inputs are length 8.
-         [padded-logical-inputs (map (lambda (v) (zero-extend v (bitvector 8)))
-                                     padded-logical-inputs)]
+         [_unused (map (lambda (v)
+                         (when (not (equal? 8 (bvlen v)))
+                           (error "All inputs must end up with length 8")))
+                       padded-logical-inputs)]
          [expr `(physical-to-logical-mapping
                  ,(choose '(bitwise) `(choose-one ,(bv 0 1)))
                  (ultrascale-plus-clb ,(?? (bitvector 1))
@@ -42,15 +49,7 @@
                                       ,(?? (bitvector 2))
                                       ,(?? (bitvector 2))
                                       ,(?? (bitvector 2))
-                                      (logical-to-physical-mapping
-                                       uf-constrained
-                                       ,(?? (~> (bitvector 6) (bitvector 6))) ; uf
-                                       6 ; uf-bw
-                                       6 ; num-logical-inputs
-                                       8 ; logical-input-width
-                                       8 ; num-physical-inputs
-                                       6 ; physical-input-width
-                                       ,padded-logical-inputs)))]
+                                      (logical-to-physical-mapping bitwise ,padded-logical-inputs)))]
 
          [out (first (interpret expr))]
          ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
