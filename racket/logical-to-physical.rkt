@@ -294,8 +294,7 @@
      ['(bitwise) (transpose (interpreter logical-outputs))]
      ;;;
      ;;; Same as bitwise, but reverse.
-     [`(bitwise-reverse)
-      (transpose (map (lambda (v) (apply concat (bitvector->bits v)))) (interpreter logical-outputs))]
+     [`(bitwise-reverse) (transpose (reverse (interpreter logical-outputs)))]
      ;;; Variant which uses a Rosette uninterpreted function.
      [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group (interpreter logical-outputs))]
      ;;;
@@ -313,6 +312,11 @@
                  identity
                  `(physical-to-logical-mapping (bitwise) ,(list (bv #b1 1) (bv #b0 1))))
                 (list (bv #b01 2)))
+
+  (check-equal? (interpret-physical-to-logical-mapping
+                 identity
+                 `(physical-to-logical-mapping (bitwise-reverse) ,(list (bv #b1 1) (bv #b0 1))))
+                (list (bv #b10 2)))
 
   ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
   (test-begin
