@@ -189,51 +189,49 @@
                                             lut-input-g
                                             lut-input-h)
 
-  (match-let* ([(list a-o5 a-o6)
-                (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-a clb) lut-input-a)]
-               [(list b-o5 b-o6)
-                (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-b clb) lut-input-b)]
-               [(list c-o5 c-o6)
-                (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-c clb) lut-input-c)]
-               [(list d-o5 d-o6)
-                (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-d clb) lut-input-d)]
-               [(list e-o5 e-o6)
-                (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-e clb) lut-input-e)]
-               [(list f-o5 f-o6)
-                (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-f clb) lut-input-f)]
-               [(list g-o5 g-o6)
-                (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-g clb) lut-input-g)]
-               [(list h-o5 h-o6)
-                (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-h clb) lut-input-h)]
-               [(list carry-o carry-co)
-                (interpret-ultrascale-plus-carry8 (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
-                                                  (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
-                                                  cin)]
-               [(list carry-o0 carry-co0) (list (bit 0 carry-o) (bit 0 carry-co))]
-               [(list carry-o1 carry-co1) (list (bit 1 carry-o) (bit 1 carry-co))]
-               [(list carry-o2 carry-co2) (list (bit 2 carry-o) (bit 2 carry-co))]
-               [(list carry-o3 carry-co3) (list (bit 3 carry-o) (bit 3 carry-co))]
-               [(list carry-o4 carry-co4) (list (bit 4 carry-o) (bit 4 carry-co))]
-               [(list carry-o5 carry-co5) (list (bit 5 carry-o) (bit 5 carry-co))]
-               [(list carry-o6 carry-co6) (list (bit 6 carry-o) (bit 6 carry-co))]
-               [(list carry-o7 carry-co7) (list (bit 7 carry-o) (bit 7 carry-co))]
-               [mux-helper
-                (lambda (o5 o6 carry selector)
-                  (assert (not (bveq selector (bv 3 2))))
-                  (if (bveq selector (bv 0 2))
-                      o5
-                      (if (bveq selector (bv 1 2))
-                          o6
-                          (if (bveq selector (bv 2 2)) carry (error "shouldn't hit this")))))]
-               [a-mux-out (mux-helper a-o5 a-o6 carry-o0 (ultrascale-plus-clb-mux-selector-a clb))]
-               [b-mux-out (mux-helper b-o5 b-o6 carry-o1 (ultrascale-plus-clb-mux-selector-b clb))]
-               [c-mux-out (mux-helper c-o5 c-o6 carry-o2 (ultrascale-plus-clb-mux-selector-c clb))]
-               [d-mux-out (mux-helper d-o5 d-o6 carry-o3 (ultrascale-plus-clb-mux-selector-d clb))]
-               [e-mux-out (mux-helper e-o5 e-o6 carry-o4 (ultrascale-plus-clb-mux-selector-e clb))]
-               [f-mux-out (mux-helper f-o5 f-o6 carry-o5 (ultrascale-plus-clb-mux-selector-f clb))]
-               [g-mux-out (mux-helper g-o5 g-o6 carry-o6 (ultrascale-plus-clb-mux-selector-g clb))]
-               [h-mux-out (mux-helper h-o5 h-o6 carry-o7 (ultrascale-plus-clb-mux-selector-h clb))])
-              (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out)))
+  (match-let*
+   ([(list a-o5 a-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-a clb) lut-input-a)]
+    [(list b-o5 b-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-b clb) lut-input-b)]
+    [(list c-o5 c-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-c clb) lut-input-c)]
+    [(list d-o5 d-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-d clb) lut-input-d)]
+    [(list e-o5 e-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-e clb) lut-input-e)]
+    [(list f-o5 f-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-f clb) lut-input-f)]
+    [(list g-o5 g-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-g clb) lut-input-g)]
+    [(list h-o5 h-o6)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-h clb) lut-input-h)]
+    [(list carry-o carry-co)
+     (interpret-ultrascale-plus-carry8 (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
+                                       (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
+                                       cin)]
+    [(list carry-o0 carry-co0) (list (bit 0 carry-o) (bit 0 carry-co))]
+    [(list carry-o1 carry-co1) (list (bit 1 carry-o) (bit 1 carry-co))]
+    [(list carry-o2 carry-co2) (list (bit 2 carry-o) (bit 2 carry-co))]
+    [(list carry-o3 carry-co3) (list (bit 3 carry-o) (bit 3 carry-co))]
+    [(list carry-o4 carry-co4) (list (bit 4 carry-o) (bit 4 carry-co))]
+    [(list carry-o5 carry-co5) (list (bit 5 carry-o) (bit 5 carry-co))]
+    [(list carry-o6 carry-co6) (list (bit 6 carry-o) (bit 6 carry-co))]
+    [(list carry-o7 carry-co7) (list (bit 7 carry-o) (bit 7 carry-co))]
+    [mux-helper
+     (lambda (o5 o6 carry-o carry-co selector)
+       (if (bveq selector (bv 0 2))
+           o5
+           (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
+    [a-mux-out (mux-helper a-o5 a-o6 carry-o0 carry-co0 (ultrascale-plus-clb-mux-selector-a clb))]
+    [b-mux-out (mux-helper b-o5 b-o6 carry-o1 carry-co1 (ultrascale-plus-clb-mux-selector-b clb))]
+    [c-mux-out (mux-helper c-o5 c-o6 carry-o2 carry-co2 (ultrascale-plus-clb-mux-selector-c clb))]
+    [d-mux-out (mux-helper d-o5 d-o6 carry-o3 carry-co3 (ultrascale-plus-clb-mux-selector-d clb))]
+    [e-mux-out (mux-helper e-o5 e-o6 carry-o4 carry-co4 (ultrascale-plus-clb-mux-selector-e clb))]
+    [f-mux-out (mux-helper f-o5 f-o6 carry-o5 carry-co5 (ultrascale-plus-clb-mux-selector-f clb))]
+    [g-mux-out (mux-helper g-o5 g-o6 carry-o6 carry-co6 (ultrascale-plus-clb-mux-selector-g clb))]
+    [h-mux-out (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-mux-selector-h clb))])
+   (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out)))
 
 ; A simple logical-to-physical inputs function, in which the first (least significant) bit of each
 ; logical input is mapped to LUT A (logical input 0 in the least significant place), the second bit is
@@ -323,7 +321,7 @@
         (format "_luts_O5[~a]" idx-str)
         (if (bveq v (bv 1 2))
             (format "_luts_O6[~a]" idx-str)
-            (if (bveq v (bv 2 2)) (format "_O[~a]" idx-str) (error "shouldn't hit this")))))
+            (if (bveq v (bv 2 2)) (format "_O[~a]" idx-str) (format "_CO[~a]" idx-str)))))
   (define out
     (format
      #<<here-string-delimiter
