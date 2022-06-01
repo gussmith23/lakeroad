@@ -45,96 +45,99 @@
 ;;;
 ;;; Returns: list of physical input bitvectors: (physical input 0, physical input 1, ...).
 (define (interpret-logical-to-physical-mapping interpreter expr)
-  (match expr
-    ;;; Variant which uses a Rosette uninterpreted function.
-    [`(logical-to-physical-mapping uf ,uf ,bw ,bits-per-group ,inputs)
-     (helper uf bw bits-per-group inputs)]
-    ;;;
-    ;;; Uses an uninterpreted function plus a mask.
-    [`(logical-to-physical-mapping uf-with-mask ,uf ,bw ,bits-per-group ,masks ,inputs)
-     (map bvor (helper uf bw bits-per-group inputs) masks)]
-    ;;;
-    ;;; "Bitwise" logical-to-physical mapping.
-    ;;;
-    ;;; The "bitwise" logical to physical mapping groups the 0th bits of each logical input, the 1st
-    ;;; bit, the 2nd bit, etc., together into groups, with groups ordered from least significant up to
-    ;;; most significant. E.g., if we had two 8-bit inputs, the bitwise mapping would return a list of
-    ;;; pairs containing the pair of their 0th bits, the pair of their 1st bits, etc. up to the pair
-    ;;; of their 7th bit.
-    ;;;
-    ;;; Args:
-    ;;;   inputs: the list of logical inputs. Expects a list of Rosette bitvectors of the same length.
-    ;;;
-    ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern
-    ;;;   described above.
-    [`(logical-to-physical-mapping bitwise ,inputs) (transpose (interpreter inputs))]
-    ;;;
-    ;;; Same as bitwise, but includes masks on the physical outputs.
-    ;;;
-    ;;; `masks` is a list of masks, one for each of the physical output bitvectors. Each mask is a
-    ;;; bitvector of the same length as its corresponding physical output. The mask is ORed with the
-    ;;; physical outputs before being returned.
-    [`(logical-to-physical-mapping bitwise-with-mask ,masks ,inputs)
-     (map bvor (transpose (interpreter inputs)) masks)]
-    ;;;
-    ;;; Like bitwise mapping, but a bit more flexible. Logical input n always maps to bit n of each
-    ;;; LUT, but any bit of logical input n can go to bit n of any LUT. (In bitwise, we require that
-    ;;; bit 0 of logical input 0 goes to LUT0, bit 1 of logical input 0 goes to LUT1, etc.)
-    ;;;
-    ;;; Specifically implemented to enable mux, without breaking anything else.
-    ;;;
-    ;;; This is a generic template that can be copied: constrain a UF via asserts and then pass the UF
-    ;;; to `helper`. We could probably make a helper function for this.
-    [`(logical-to-physical-mapping uf-constrained
-                                   ;;; (~> (bitvector uf-bw) (bitvector uf-bw))
-                                   ,uf
-                                   ,uf-bw
-                                   ,num-logical-inputs
-                                   ,logical-input-width
-                                   ,num-physical-inputs
-                                   ,physical-input-width
-                                   ,inputs)
-     (begin
-       ;;; Constrain the underlying uninterpreted function.
-       (for* ([physical-i (range num-physical-inputs)] [physical-bit-i (range physical-input-width)])
-         (define uf-output (uf (bv (+ (* physical-i physical-input-width) physical-bit-i) uf-bw)))
-         ;;; Logical indexes of all the bits of the logical input corresponding to (physical-i (i.e.
-         ;;; LUT idx), physical-bit-idx).
-         (define valid-logical-idxs
-           (for/list ([logical-bit-i (range logical-input-width)])
-             (bv (+ (* logical-input-width physical-bit-i) logical-bit-i) uf-bw)))
-         ;;; This physical input must take one of the above logical inputs.
-         (assert (for/fold ([cond #f]) ([valid-logical-idx valid-logical-idxs])
-                   (|| cond (bveq uf-output valid-logical-idx)))))
+  (match-define `(logical-to-physical-mapping ,f ,inputs) expr)
+  (for/all
+   ([f f])
+   (match f
+     ;;; Variant which uses a Rosette uninterpreted function.
+     [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group inputs)]
+     ;;;
+     ;;; Uses an uninterpreted function plus a mask.
+     [`(uf-with-mask ,uf ,bw ,bits-per-group ,masks)
+      (map bvor (helper uf bw bits-per-group inputs) masks)]
+     ;;;
+     ;;; "Bitwise" logical-to-physical mapping.
+     ;;;
+     ;;; The "bitwise" logical to physical mapping groups the 0th bits of each logical input, the 1st
+     ;;; bit, the 2nd bit, etc., together into groups, with groups ordered from least significant up to
+     ;;; most significant. E.g., if we had two 8-bit inputs, the bitwise mapping would return a list of
+     ;;; pairs containing the pair of their 0th bits, the pair of their 1st bits, etc. up to the pair
+     ;;; of their 7th bit.
+     ;;;
+     ;;; Args:
+     ;;;   inputs: the list of logical inputs. Expects a list of Rosette bitvectors of the same length.
+     ;;;
+     ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern
+     ;;;   described above.
+     ['(bitwise) (transpose (interpreter inputs))]
+     ;;;
+     ;;; Same as bitwise, but includes masks on the physical outputs.
+     ;;;
+     ;;; `masks` is a list of masks, one for each of the physical output bitvectors. Each mask is a
+     ;;; bitvector of the same length as its corresponding physical output. The mask is ORed with the
+     ;;; physical outputs before being returned.
+     [`(bitwise-with-mask ,masks) (map bvor (transpose (interpreter inputs)) masks)]
+     ;;;
+     ;;; Same as bitwise, but reverse.
+     ['(bitwise-reverse)
+      (transpose (map (lambda (v) (apply concat (bitvector->bits v))) (interpreter inputs)))]
+     ;;;
+     ;;; Like bitwise mapping, but a bit more flexible. Logical input n always maps to bit n of each
+     ;;; LUT, but any bit of logical input n can go to bit n of any LUT. (In bitwise, we require that
+     ;;; bit 0 of logical input 0 goes to LUT0, bit 1 of logical input 0 goes to LUT1, etc.)
+     ;;;
+     ;;; Specifically implemented to enable mux, without breaking anything else.
+     ;;;
+     ;;; This is a generic template that can be copied: constrain a UF via asserts and then pass the UF
+     ;;; to `helper`. We could probably make a helper function for this.
+     [;;; (~> (bitvector uf-bw) (bitvector uf-bw))
+      `(uf-constrained ,uf
+                       ,uf-bw
+                       ,num-logical-inputs
+                       ,logical-input-width
+                       ,num-physical-inputs
+                       ,physical-input-width)
+      (begin
+        ;;; Constrain the underlying uninterpreted function.
+        (for* ([physical-i (range num-physical-inputs)] [physical-bit-i (range physical-input-width)])
+          (define uf-output (uf (bv (+ (* physical-i physical-input-width) physical-bit-i) uf-bw)))
+          ;;; Logical indexes of all the bits of the logical input corresponding to (physical-i (i.e.
+          ;;; LUT idx), physical-bit-idx).
+          (define valid-logical-idxs
+            (for/list ([logical-bit-i (range logical-input-width)])
+              (bv (+ (* logical-input-width physical-bit-i) logical-bit-i) uf-bw)))
+          ;;; This physical input must take one of the above logical inputs.
+          (assert (for/fold ([cond #f]) ([valid-logical-idx valid-logical-idxs])
+                    (|| cond (bveq uf-output valid-logical-idx)))))
 
-       ; Map according to the uninterpreted function.
-       (helper uf uf-bw physical-input-width inputs))]
-    [`(logical-to-physical-mapping uf-constrained-with-mask
-                                   ;;; (~> (bitvector uf-bw) (bitvector uf-bw))
-                                   ,uf
-                                   ,uf-bw
-                                   ,num-logical-inputs
-                                   ,logical-input-width
-                                   ,num-physical-inputs
-                                   ,physical-input-width
-                                   ,masks
-                                   ,inputs)
-     (begin
-       ;;; Constrain the underlying uninterpreted function.
-       (for* ([physical-i (range num-physical-inputs)] [physical-bit-i (range physical-input-width)])
-         (define uf-output (uf (bv (+ (* physical-i physical-input-width) physical-bit-i) uf-bw)))
-         ;;; Logical indexes of all the bits of the logical input corresponding to (physical-i (i.e.
-         ;;; LUT idx), physical-bit-idx).
-         (define valid-logical-idxs
-           (for/list ([logical-bit-i (range logical-input-width)])
-             (bv (+ (* logical-input-width physical-bit-i) logical-bit-i) uf-bw)))
-         ;;; This physical input must take one of the above logical inputs.
-         (assert (for/fold ([cond #f]) ([valid-logical-idx valid-logical-idxs])
-                   (|| cond (bveq uf-output valid-logical-idx)))))
+        ; Map according to the uninterpreted function.
+        (helper uf uf-bw physical-input-width inputs))]
+     [`(logical-to-physical-mapping uf-constrained-with-mask
+                                    ;;; (~> (bitvector uf-bw) (bitvector uf-bw))
+                                    ,uf
+                                    ,uf-bw
+                                    ,num-logical-inputs
+                                    ,logical-input-width
+                                    ,num-physical-inputs
+                                    ,physical-input-width
+                                    ,masks
+                                    ,inputs)
+      (begin
+        ;;; Constrain the underlying uninterpreted function.
+        (for* ([physical-i (range num-physical-inputs)] [physical-bit-i (range physical-input-width)])
+          (define uf-output (uf (bv (+ (* physical-i physical-input-width) physical-bit-i) uf-bw)))
+          ;;; Logical indexes of all the bits of the logical input corresponding to (physical-i (i.e.
+          ;;; LUT idx), physical-bit-idx).
+          (define valid-logical-idxs
+            (for/list ([logical-bit-i (range logical-input-width)])
+              (bv (+ (* logical-input-width physical-bit-i) logical-bit-i) uf-bw)))
+          ;;; This physical input must take one of the above logical inputs.
+          (assert (for/fold ([cond #f]) ([valid-logical-idx valid-logical-idxs])
+                    (|| cond (bveq uf-output valid-logical-idx)))))
 
-       ; Map according to the uninterpreted function and apply mask.
-       (map bvor (helper uf uf-bw physical-input-width inputs) masks))]
-    [other (interpreter other)]))
+        ; Map according to the uninterpreted function and apply mask.
+        (map bvor (helper uf uf-bw physical-input-width inputs) masks))]
+     [other (interpreter other)])))
 
 ;;; Helper, which interprets a Rosette uninterpreted function value used as a logical-to-physical map.
 ;;;
@@ -170,44 +173,41 @@
 
   (current-solver (boolector))
 
-  (test-begin
-   (define-symbolic x (bitvector 3))
-   (define-symbolic y (bitvector 3))
-   (define expr
-     `(logical-to-physical-mapping bitwise-with-mask
-                                   ,(list (?? (bitvector 2)) (?? (bitvector 2)) (?? (bitvector 2)))
-                                   ,(list x y)))
-   (match-define (list o0 o1 o2) (interpret-logical-to-physical-mapping identity expr))
-   ;;; Simple case: none should be masked.
-   (define soln0
-     (synthesize #:forall (list x y)
-                 #:guarantee (begin
-                               (assert (bveq (bit 0 o0) (bit 0 x)))
-                               (assert (bveq (bit 1 o0) (bit 0 y)))
-                               (assert (bveq (bit 0 o1) (bit 1 x)))
-                               (assert (bveq (bit 1 o1) (bit 1 y)))
-                               (assert (bveq (bit 0 o2) (bit 2 x)))
-                               (assert (bveq (bit 1 o2) (bit 2 y))))))
-   (check-equal? (list 'logical-to-physical-mapping
-                       'bitwise-with-mask
-                       (list (bv #b00 2) (bv #b00 2) (bv #b00 2))
-                       (list x y))
-                 (evaluate expr soln0))
-   ;;; More complex case: some should be masked.
-   (define soln1
-     (synthesize #:forall (list x y)
-                 #:guarantee (begin
-                               (assert (bveq (bit 0 o0) (bv 1 1)))
-                               (assert (bveq (bit 1 o0) (bit 0 y)))
-                               (assert (bveq (bit 0 o1) (bit 1 x)))
-                               (assert (bveq (bit 1 o1) (bit 1 y)))
-                               (assert (bveq (bit 0 o2) (bv 1 1)))
-                               (assert (bveq (bit 1 o2) (bv 1 1))))))
-   (check-equal? (list 'logical-to-physical-mapping
-                       'bitwise-with-mask
-                       (list (bv #b01 2) (bv #b00 2) (bv #b11 2))
-                       (list x y))
-                 (evaluate expr soln1))))
+  (test-begin (define-symbolic x (bitvector 3))
+              (define-symbolic y (bitvector 3))
+              (define expr
+                `(logical-to-physical-mapping
+                  (bitwise-with-mask ,(list (?? (bitvector 2)) (?? (bitvector 2)) (?? (bitvector 2))))
+                  ,(list x y)))
+              (match-define (list o0 o1 o2) (interpret-logical-to-physical-mapping identity expr))
+              ;;; Simple case: none should be masked.
+              (define soln0
+                (synthesize #:forall (list x y)
+                            #:guarantee (begin
+                                          (assert (bveq (bit 0 o0) (bit 0 x)))
+                                          (assert (bveq (bit 1 o0) (bit 0 y)))
+                                          (assert (bveq (bit 0 o1) (bit 1 x)))
+                                          (assert (bveq (bit 1 o1) (bit 1 y)))
+                                          (assert (bveq (bit 0 o2) (bit 2 x)))
+                                          (assert (bveq (bit 1 o2) (bit 2 y))))))
+              (check-equal? (list 'logical-to-physical-mapping
+                                  `(bitwise-with-mask ,(list (bv #b00 2) (bv #b00 2) (bv #b00 2)))
+                                  (list x y))
+                            (evaluate expr soln0))
+              ;;; More complex case: some should be masked.
+              (define soln1
+                (synthesize #:forall (list x y)
+                            #:guarantee (begin
+                                          (assert (bveq (bit 0 o0) (bv 1 1)))
+                                          (assert (bveq (bit 1 o0) (bit 0 y)))
+                                          (assert (bveq (bit 0 o1) (bit 1 x)))
+                                          (assert (bveq (bit 1 o1) (bit 1 y)))
+                                          (assert (bveq (bit 0 o2) (bv 1 1)))
+                                          (assert (bveq (bit 1 o2) (bv 1 1))))))
+              (check-equal? (list 'logical-to-physical-mapping
+                                  `(bitwise-with-mask ,(list (bv #b01 2) (bv #b00 2) (bv #b11 2)))
+                                  (list x y))
+                            (evaluate expr soln1))))
 
 (module+ test
   (require rackunit
@@ -219,7 +219,7 @@
   (define-symbolic b (bitvector 8))
   (define-symbolic c (bitvector 8))
   (define expr
-    `(logical-to-physical-mapping uf ,(?? (~> (bitvector 5) (bitvector 5))) 5 4 ,(list a b c)))
+    `(logical-to-physical-mapping (uf ,(?? (~> (bitvector 5) (bitvector 5))) 5 4) ,(list a b c)))
   (match-define (list o0 o1 o2 o3 o4 o5) (interpret-logical-to-physical-mapping identity expr))
   (define soln
     (synthesize #:forall (list a b c)
@@ -235,7 +235,7 @@
   ;;; Get the mapping function...
   (define f
     (match (evaluate expr soln)
-      [`(logical-to-physical-mapping uf ,f ,bw ,bits-per-group ,inputs) f]))
+      [`(logical-to-physical-mapping (uf ,f ,bw ,bits-per-group) ,inputs) f]))
 
   ;;; Helper to help us run checks. Checks that the logical index maps to the expected physical index.
   (define (ch logical-idx physical-idx)
@@ -254,21 +254,21 @@
   (require rackunit)
   (check-equal? (interpret-logical-to-physical-mapping
                  identity
-                 `(logical-to-physical-mapping bitwise ,(list (bv #b01 2) (bv #b10 2))))
+                 `(logical-to-physical-mapping (bitwise) ,(list (bv #b01 2) (bv #b10 2))))
                 (list (bv #b01 2) (bv #b10 2)))
   (check-equal? (interpret-logical-to-physical-mapping
                  identity
-                 `(logical-to-physical-mapping bitwise ,(list (bv #b01 2))))
+                 `(logical-to-physical-mapping (bitwise) ,(list (bv #b01 2))))
                 (list (bv #b1 1) (bv #b0 1)))
   (check-equal? (interpret-logical-to-physical-mapping
                  identity
-                 `(logical-to-physical-mapping bitwise ,(list (bv #b01 2))))
+                 `(logical-to-physical-mapping (bitwise) ,(list (bv #b01 2))))
                 (list (bv #b1 1) (bv #b0 1)))
   (check-exn
    (regexp
     "@map: arity mismatch;\n the expected number of arguments does not match the given number\n  expected: at least 2\n  given: 1")
    (lambda ()
-     (interpret-logical-to-physical-mapping identity `(logical-to-physical-mapping bitwise ,(list)))
+     (interpret-logical-to-physical-mapping identity `(logical-to-physical-mapping (bitwise) ,(list)))
      (list)))
   (check-exn
    (regexp
@@ -276,7 +276,7 @@
    (lambda ()
      (interpret-logical-to-physical-mapping
       identity
-      `(logical-to-physical-mapping bitwise ,(list (bv #b01 2) (bv #b1 1)))))))
+      `(logical-to-physical-mapping (bitwise) ,(list (bv #b01 2) (bv #b1 1)))))))
 
 ;;; Interprets physical-to-logical mappings.
 ;;; Expects a list of logical outputs in least significant->most significant order.
@@ -292,6 +292,10 @@
      ;;;
      ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
      ['(bitwise) (transpose (interpreter logical-outputs))]
+     ;;;
+     ;;; Same as bitwise, but reverse.
+     [`(bitwise-reverse)
+      (transpose (map (lambda (v) (apply concat (bitvector->bits v))) (interpreter logical-outputs)))]
      ;;; Variant which uses a Rosette uninterpreted function.
      [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group (interpreter logical-outputs))]
      ;;;

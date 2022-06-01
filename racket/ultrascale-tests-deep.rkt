@@ -65,8 +65,8 @@
                        ,mux-selector-g-0
                        ,mux-selector-h-0
                        (logical-to-physical-mapping
-                        bitwise-with-mask
-                        (,mask-a ,mask-b ,mask-c ,mask-d ,mask-e ,mask-f ,mask-g ,mask-h)
+                        (bitwise-with-mask
+                         (,mask-a ,mask-b ,mask-c ,mask-d ,mask-e ,mask-f ,mask-g ,mask-h))
                         (,logical-input-0-0 ,logical-input-1-0
                                             ,logical-input-2-0
                                             ,logical-input-3-0

@@ -32,24 +32,25 @@
                        padded-logical-inputs)]
          [expr `(physical-to-logical-mapping
                  ,(choose '(bitwise) `(choose-one ,(bv 0 1)))
-                 (ultrascale-plus-clb ,(?? (bitvector 1))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      (logical-to-physical-mapping bitwise ,padded-logical-inputs)))]
+                 (ultrascale-plus-clb
+                  ,(?? (bitvector 1))
+                  ,(?? (bitvector 64))
+                  ,(?? (bitvector 64))
+                  ,(?? (bitvector 64))
+                  ,(?? (bitvector 64))
+                  ,(?? (bitvector 64))
+                  ,(?? (bitvector 64))
+                  ,(?? (bitvector 64))
+                  ,(?? (bitvector 64))
+                  ,(?? (bitvector 2))
+                  ,(?? (bitvector 2))
+                  ,(?? (bitvector 2))
+                  ,(?? (bitvector 2))
+                  ,(?? (bitvector 2))
+                  ,(?? (bitvector 2))
+                  ,(?? (bitvector 2))
+                  ,(?? (bitvector 2))
+                  (logical-to-physical-mapping (bitwise) ,padded-logical-inputs)))]
 
          [out (first (interpret expr))]
          ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
@@ -182,15 +183,15 @@
                          ,(?? (bitvector 2))
                          ,(?? (bitvector 2))
                          ,(?? (bitvector 2))
-                         (logical-to-physical-mapping bitwise-with-mask
-                                                      (,(?? (bitvector 6)) ,(?? (bitvector 6))
-                                                                           ,(?? (bitvector 6))
-                                                                           ,(?? (bitvector 6))
-                                                                           ,(?? (bitvector 6))
-                                                                           ,(?? (bitvector 6))
-                                                                           ,(?? (bitvector 6))
-                                                                           ,(?? (bitvector 6)))
-                                                      ,logical-inputs))))
+                         (logical-to-physical-mapping
+                          (bitwise-with-mask (,(?? (bitvector 6)) ,(?? (bitvector 6))
+                                                                  ,(?? (bitvector 6))
+                                                                  ,(?? (bitvector 6))
+                                                                  ,(?? (bitvector 6))
+                                                                  ,(?? (bitvector 6))
+                                                                  ,(?? (bitvector 6))
+                                                                  ,(?? (bitvector 6))))
+                          ,logical-inputs))))
 
 (define out (first (interpret expr)))
 
@@ -245,8 +246,8 @@
                    ,mux-selector-g
                    ,mux-selector-h
                    (logical-to-physical-mapping
-                    bitwise-with-mask
-                    (,mask-a ,mask-b ,mask-c ,mask-d ,mask-e ,mask-f ,mask-g ,mask-h)
+                    (bitwise-with-mask
+                     (,mask-a ,mask-b ,mask-c ,mask-d ,mask-e ,mask-f ,mask-g ,mask-h))
                     (,logical-input-0 ,logical-input-1
                                       ,logical-input-2
                                       ,logical-input-3
