@@ -15,6 +15,8 @@
   (when (>= (length logical-inputs) 6)
     (error "arity 6 not supported yet; >6 not possible"))
 
+  (displayln (format "~a with inputs ~a" f logical-inputs))
+
   (let* (;;; Make sure there are six logical inputs.
          ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for
          ;;; the sixth input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high
