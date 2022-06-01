@@ -33,26 +33,27 @@
                            (error "All inputs must end up with length 8")))
                        padded-logical-inputs)]
          [expr `(physical-to-logical-mapping
-                 ,(choose '(bitwise) `(choose-one ,(bv 0 1)))
-                 (ultrascale-plus-clb
-                  ,(?? (bitvector 1))
-                  ,(?? (bitvector 64))
-                  ,(?? (bitvector 64))
-                  ,(?? (bitvector 64))
-                  ,(?? (bitvector 64))
-                  ,(?? (bitvector 64))
-                  ,(?? (bitvector 64))
-                  ,(?? (bitvector 64))
-                  ,(?? (bitvector 64))
-                  ,(?? (bitvector 2))
-                  ,(?? (bitvector 2))
-                  ,(?? (bitvector 2))
-                  ,(?? (bitvector 2))
-                  ,(?? (bitvector 2))
-                  ,(?? (bitvector 2))
-                  ,(?? (bitvector 2))
-                  ,(?? (bitvector 2))
-                  (logical-to-physical-mapping (bitwise) ,padded-logical-inputs)))]
+                 ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+                 (ultrascale-plus-clb ,(?? (bitvector 1))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 64))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      ,(?? (bitvector 2))
+                                      (logical-to-physical-mapping
+                                       ,(choose '(bitwise) '(bitwise-reverse))
+                                       ,padded-logical-inputs)))]
 
          [out (first (interpret expr))]
          ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
@@ -85,6 +86,29 @@
 
   ; Simple test: identity function.
   (check-true (sat? (helper (lambda (a) a) (list 8bit-a))))
+
+  ;;; "Hard" instructions (mul, shift) where one input is constant.
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 0 8)))))
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 1 8)))))
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 2 8)))))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 3 8)))))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 4 8)))))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 5 8)))))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 6 8)))))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 7 8)))))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 8 8)))))
+
+  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 0 8)))))
+  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 1 8)))))
+  (check-false (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)))))
+
+  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 0 8)))))
+  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)))))
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)))))
+
+  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 0 8)))))
+  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 1 8)))))
+  (check-false (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)))))
 
   ; CIRCT Comb dialect.
   (check-true (sat? (helper circt-comb-add (list 8bit-a 8bit-b))))
