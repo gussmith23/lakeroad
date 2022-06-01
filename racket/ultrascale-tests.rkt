@@ -165,40 +165,40 @@
         logical-input-4
         logical-input-5))
 
-(define expr
-  `(physical-to-logical-mapping
-    (bitwise)
-    (ultrascale-plus-clb ,(?? (bitvector 1))
-                         ,(?? (bitvector 64))
-                         ,(?? (bitvector 64))
-                         ,(?? (bitvector 64))
-                         ,(?? (bitvector 64))
-                         ,(?? (bitvector 64))
-                         ,(?? (bitvector 64))
-                         ,(?? (bitvector 64))
-                         ,(?? (bitvector 64))
-                         ,(?? (bitvector 2))
-                         ,(?? (bitvector 2))
-                         ,(?? (bitvector 2))
-                         ,(?? (bitvector 2))
-                         ,(?? (bitvector 2))
-                         ,(?? (bitvector 2))
-                         ,(?? (bitvector 2))
-                         ,(?? (bitvector 2))
-                         (logical-to-physical-mapping
-                          (bitwise-with-mask (,(?? (bitvector 6)) ,(?? (bitvector 6))
-                                                                  ,(?? (bitvector 6))
-                                                                  ,(?? (bitvector 6))
-                                                                  ,(?? (bitvector 6))
-                                                                  ,(?? (bitvector 6))
-                                                                  ,(?? (bitvector 6))
-                                                                  ,(?? (bitvector 6))))
-                          ,logical-inputs))))
-
-(define out (first (interpret expr)))
-
 (define (end-to-end-test f arity c-operator)
   (if (> arity 3) (error "only arity 2 or 3 supported right now") '())
+
+  (define expr
+    `(physical-to-logical-mapping
+      (bitwise)
+      (ultrascale-plus-clb ,(?? (bitvector 1))
+                           ,(?? (bitvector 64))
+                           ,(?? (bitvector 64))
+                           ,(?? (bitvector 64))
+                           ,(?? (bitvector 64))
+                           ,(?? (bitvector 64))
+                           ,(?? (bitvector 64))
+                           ,(?? (bitvector 64))
+                           ,(?? (bitvector 64))
+                           ,(?? (bitvector 2))
+                           ,(?? (bitvector 2))
+                           ,(?? (bitvector 2))
+                           ,(?? (bitvector 2))
+                           ,(?? (bitvector 2))
+                           ,(?? (bitvector 2))
+                           ,(?? (bitvector 2))
+                           ,(?? (bitvector 2))
+                           (logical-to-physical-mapping
+                            (bitwise-with-mask (,(?? (bitvector 6)) ,(?? (bitvector 6))
+                                                                    ,(?? (bitvector 6))
+                                                                    ,(?? (bitvector 6))
+                                                                    ,(?? (bitvector 6))
+                                                                    ,(?? (bitvector 6))
+                                                                    ,(?? (bitvector 6))
+                                                                    ,(?? (bitvector 6))))
+                            ,logical-inputs))))
+
+  (define out (first (interpret expr)))
 
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
   ;(displayln verilator-make-dir)
