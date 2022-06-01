@@ -295,7 +295,7 @@
      ;;;
      ;;; Same as bitwise, but reverse.
      [`(bitwise-reverse)
-      (transpose (map (lambda (v) (apply concat (bitvector->bits v))) (interpreter logical-outputs)))]
+      (transpose (map (lambda (v) (apply concat (bitvector->bits v)))) (interpreter logical-outputs))]
      ;;; Variant which uses a Rosette uninterpreted function.
      [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group (interpreter logical-outputs))]
      ;;;
