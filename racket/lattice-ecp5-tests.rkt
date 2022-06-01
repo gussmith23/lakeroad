@@ -1,12 +1,13 @@
 #lang racket
 
-(require "lattice-ecp5.rkt"
-         rosette
-         "programs-to-synthesize.rkt"
-         "circt-comb-operators.rkt"
+(require rosette
          rosette/solver/smt/boolector
          json
-         "comp-json.rkt")
+         "lattice-ecp5.rkt"
+         "programs-to-synthesize.rkt"
+         "circt-comb-operators.rkt"
+         "comp-json.rkt"
+         "utils.rkt")
 
 (current-solver (boolector))
 
@@ -153,6 +154,11 @@
   (displayln (format "Wrote to ~a" json-file))
 
   (run-nextpnr json-file)
+
+  ; Next, let's run Verilator. Start by translating json-file to a verilog file
+
+  (define verilog-file (string-append (string-trim (path->string json-file) ".json") ".sv"))
+  (json->verilog json-file verilog-file)
   #t)
 
 (module+ test
