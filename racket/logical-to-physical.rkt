@@ -93,6 +93,30 @@
                                    ,logical-input-width
                                    ,num-physical-inputs
                                    ,physical-input-width
+                                   ,inputs)
+     (begin
+       ;;; Constrain the underlying uninterpreted function.
+       (for* ([physical-i (range num-physical-inputs)] [physical-bit-i (range physical-input-width)])
+         (define uf-output (uf (bv (+ (* physical-i physical-input-width) physical-bit-i) uf-bw)))
+         ;;; Logical indexes of all the bits of the logical input corresponding to (physical-i (i.e.
+         ;;; LUT idx), physical-bit-idx).
+         (define valid-logical-idxs
+           (for/list ([logical-bit-i (range logical-input-width)])
+             (bv (+ (* logical-input-width physical-bit-i) logical-bit-i) uf-bw)))
+         ;;; This physical input must take one of the above logical inputs.
+         (assert (for/fold ([cond #f]) ([valid-logical-idx valid-logical-idxs])
+                   (|| cond (bveq uf-output valid-logical-idx)))))
+
+       ; Map according to the uninterpreted function.
+       (helper uf uf-bw physical-input-width inputs))]
+    [`(logical-to-physical-mapping uf-constrained-with-mask
+                                   ;;; (~> (bitvector uf-bw) (bitvector uf-bw))
+                                   ,uf
+                                   ,uf-bw
+                                   ,num-logical-inputs
+                                   ,logical-input-width
+                                   ,num-physical-inputs
+                                   ,physical-input-width
                                    ,masks
                                    ,inputs)
      (begin

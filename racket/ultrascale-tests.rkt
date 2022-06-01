@@ -15,8 +15,11 @@
     (error "arity 6 not supported yet; >6 not possible"))
 
   (let* (;;; Make sure there are six logical inputs.
+         ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for
+         ;;; the sixth input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high
+         ;;; to enable two distinct outputs.
          [padded-logical-inputs
-          (append logical-inputs (make-list (- 6 (length logical-inputs)) (bv 0 8)))]
+          (append logical-inputs (make-list (- 6 (length logical-inputs)) (bv #xff 8)))]
          ;;; Make sure the logical inputs are length 8.
          [padded-logical-inputs (map (lambda (v) (zero-extend v (bitvector 8)))
                                      padded-logical-inputs)]
@@ -47,13 +50,6 @@
                                        8 ; logical-input-width
                                        8 ; num-physical-inputs
                                        6 ; physical-input-width
-                                       (,(?? (bitvector 6)) ,(?? (bitvector 6))
-                                                            ,(?? (bitvector 6))
-                                                            ,(?? (bitvector 6))
-                                                            ,(?? (bitvector 6))
-                                                            ,(?? (bitvector 6))
-                                                            ,(?? (bitvector 6))
-                                                            ,(?? (bitvector 6)))
                                        ,padded-logical-inputs)))]
 
          [out (first (interpret expr))]
