@@ -80,7 +80,7 @@
   (define-symbolic 8bit-d (bitvector 8))
   (define-symbolic 1bit-e (bitvector 1))
 
-  ; Simple test: identify function.
+  ; Simple test: identity function.
   (check-true (sat? (helper (lambda (a) a) (list 8bit-a))))
 
   ; CIRCT Comb dialect.
