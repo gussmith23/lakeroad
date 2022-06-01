@@ -258,23 +258,25 @@
 ;;; Expects a list of logical outputs in least significant->most significant order.
 ;;; For example, in a Xilinx UltraScale+ CLB, this list would be (LUTA out, LUTB out, ...).
 (define (interpret-physical-to-logical-mapping interpreter expr)
-  (match expr
-    ;;; Defines the bitwise physical-to-logical mapping for mapping physical outputs to logical
-    ;;; outputs.
-    ;;;
-    ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
-    [`(physical-to-logical-mapping (bitwise) ,logical-outputs)
-     (transpose (interpreter logical-outputs))]
-    ;;; Variant which uses a Rosette uninterpreted function.
-    [`(physical-to-logical-mapping (uf ,uf ,bw ,bits-per-group) ,logical-outputs)
-     (helper uf bw bits-per-group (interpreter logical-outputs))]
-    ;;;
-    ;;; Choose one of the bits to be the output.
-    [`(physical-to-logical-mapping (choose-one ,idx) ,logical-outputs)
-     (let* ([logical-outputs (apply concat logical-outputs)])
-       (bit 0
-            (bvlshr logical-outputs
-                    (zero-extend idx (bitvector (length (bitvector->bits logical-outputs)))))))]))
+  (match-define `(physical-to-logical-mapping ,f ,logical-outputs) expr)
+
+  (for/all
+   ([f f])
+   (match f
+     ;;; Defines the bitwise physical-to-logical mapping for mapping physical outputs to logical
+     ;;; outputs.
+     ;;;
+     ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
+     ['(bitwise) (transpose (interpreter logical-outputs))]
+     ;;; Variant which uses a Rosette uninterpreted function.
+     [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group (interpreter logical-outputs))]
+     ;;;
+     ;;; Choose one of the bits to be the output.
+     [`(choose-one ,idx)
+      (let* ([logical-outputs (apply concat logical-outputs)])
+        (bit 0
+             (bvlshr logical-outputs
+                     (zero-extend idx (bitvector (length (bitvector->bits logical-outputs)))))))])))
 
 (module+ test
   (require rackunit)
