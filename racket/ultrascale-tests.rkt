@@ -21,7 +21,7 @@
          [padded-logical-inputs (map (lambda (v) (zero-extend v (bitvector 8)))
                                      padded-logical-inputs)]
          [expr `(physical-to-logical-mapping
-                 (bitwise)
+                 ,(choose '(bitwise) `(choose-one ,(bv 0 1)))
                  (ultrascale-plus-clb ,(?? (bitvector 1))
                                       ,(?? (bitvector 64))
                                       ,(?? (bitvector 64))
@@ -93,8 +93,7 @@
   (check-true (sat? (helper circt-comb-and (list 8bit-a 8bit-b))))
   (check-false (sat? (helper circt-comb-divs (list 8bit-a 8bit-b))))
   (check-false (sat? (helper circt-comb-divu (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8)))
-                             (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper circt-comb-icmp (list 8bit-a 8bit-b))))
   (check-false (sat? (helper circt-comb-mods (list 8bit-a 8bit-b))))
   (check-false (sat? (helper circt-comb-mul (list 8bit-a 8bit-b))))
   (check-true (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b))))
