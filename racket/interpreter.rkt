@@ -8,12 +8,22 @@
          rosette)
 
 (define (interpret expr)
-  (match expr
-    [`(logical-to-physical-mapping ,_ ...) (interpret-logical-to-physical-mapping interpret expr)]
-    [`(physical-to-logical-mapping ,_ ...) (interpret-physical-to-logical-mapping interpret expr)]
-    [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
-    [(? list? v) (map interpret v)]
-    [(? bv? v) v]))
+  (for/all
+   ([expr expr])
+   (match expr
+     ;;; Lakeroad language.
+     [`(logical-to-physical-mapping ,_ ...) (interpret-logical-to-physical-mapping interpret expr)]
+     [`(physical-to-logical-mapping ,_ ...) (interpret-physical-to-logical-mapping interpret expr)]
+     [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
+
+     ;;; Racket functions lifted to our language.
+     [`(first ,l) (first (interpret l))]
+
+     ;;; Datatypes.
+     [(? bv? v) v]
+     ;;; This needs to be near the end, as nearly everything's a list!
+     ;;; Maybe make this tighter somehow? If it's a list of specific types?
+     [(? list? v) (map interpret v)])))
 
 (module+ test
   (require rackunit
