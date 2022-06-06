@@ -11,7 +11,7 @@
 
 (current-solver (boolector))
 
-(define (helper f logical-inputs)
+(define (helper f logical-inputs depth)
   (when (>= (length logical-inputs) 6)
     (error "arity 6 not supported yet; >6 not possible"))
 
@@ -27,7 +27,7 @@
                          (when (not (equal? 8 (bvlen v)))
                            (error "All inputs must end up with length 8")))
                        padded-logical-inputs)]
-         [out (interpret (ultrascale-plus-grammar padded-logical-inputs #:depth 3))]
+         [out (interpret (ultrascale-plus-grammar padded-logical-inputs #:depth depth))]
          ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
          ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
          [soln (synthesize #:forall padded-logical-inputs
@@ -57,57 +57,57 @@
   (define-symbolic 1bit-e (bitvector 1))
 
   ; Simple test: identity function.
-  (check-true (sat? (helper (lambda (a) a) (list 8bit-a))))
+  (check-true (sat? (helper (lambda (a) a) (list 8bit-a) 3)))
 
   ;;; "Hard" instructions (mul, shift) where one input is constant.
-  (check-true (sat? (helper bvmul (list 8bit-a (bv 0 8)))))
-  (check-true (sat? (helper bvmul (list 8bit-a (bv 1 8)))))
-  (check-true (sat? (helper bvmul (list 8bit-a (bv 2 8)))))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 3 8)))))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 4 8)))))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 5 8)))))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 6 8)))))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 7 8)))))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 8 8)))))
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 0 8)) 3)))
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 1 8)) 3)))
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 2 8)) 3)))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 3 8)) 3)))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 4 8)) 3)))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 5 8)) 3)))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 6 8)) 3)))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 7 8)) 3)))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 8 8)) 3)))
 
-  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 0 8)))))
-  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 1 8)))))
-  (check-false (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)))))
+  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 0 8)) 3)))
+  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 1 8)) 3)))
+  (check-false (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) 3)))
 
-  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 0 8)))))
-  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)))))
-  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)))))
+  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 0 8)) 3)))
+  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)) 3)))
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) 3)))
 
-  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 0 8)))))
-  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 1 8)))))
-  (check-false (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)))))
+  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 0 8)) 3)))
+  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 1 8)) 3)))
+  (check-false (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) 3)))
 
   ; CIRCT Comb dialect.
-  (check-true (sat? (helper circt-comb-add (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper circt-comb-and (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper circt-comb-divs (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper circt-comb-divu (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper circt-comb-icmp (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper circt-comb-mods (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper circt-comb-mul (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b))))
-  (check-true (sat? (helper circt-comb-or (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8)))
-                             (list 8bit-a))))
-  (check-false (sat? (helper circt-comb-shl (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper circt-comb-shrs (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper circt-comb-shru (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper circt-comb-sub (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper circt-comb-xor (list 8bit-a 8bit-b))))
+  (check-true (sat? (helper circt-comb-add (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper circt-comb-and (list 8bit-a 8bit-b) 3)))
+  (check-false (sat? (helper circt-comb-divs (list 8bit-a 8bit-b) 3)))
+  (check-false (sat? (helper circt-comb-divu (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper circt-comb-icmp (list 8bit-a 8bit-b) 3)))
+  (check-false (sat? (helper circt-comb-mods (list 8bit-a 8bit-b) 3)))
+  (check-false (sat? (helper circt-comb-mul (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper circt-comb-or (list 8bit-a 8bit-b) 3)))
+  (check-false
+   (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) (list 8bit-a) 3)))
+  (check-false (sat? (helper circt-comb-shl (list 8bit-a 8bit-b) 3)))
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a 8bit-b) 3)))
+  (check-false (sat? (helper circt-comb-shru (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper circt-comb-sub (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper circt-comb-xor (list 8bit-a 8bit-b) 3)))
 
   ; Bithack examples.
-  (check-false (sat? (helper floor-avg (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper bithack3 (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper bithack2 (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper bithack1 (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper ceil-avg (list 8bit-a 8bit-b))))
-  (check-true (sat? (helper bvadd (list 8bit-a 8bit-b))))
-  (check-false (sat? (helper cycle (list 8bit-a 8bit-b 8bit-c 8bit-d))))
+  (check-false (sat? (helper floor-avg (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper bithack3 (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper bithack2 (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper bithack1 (list 8bit-a 8bit-b) 3)))
+  (check-false (sat? (helper ceil-avg (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper bvadd (list 8bit-a 8bit-b) 3)))
+  (check-false (sat? (helper cycle (list 8bit-a 8bit-b 8bit-c 8bit-d) 3)))
 
   ;;; This test verifies that my manually-discovered implementation of icmp-equals works. This can
   ;;; be deleted if it starts acting up (as long as icmp is still synthesizing.)
