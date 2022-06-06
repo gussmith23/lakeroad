@@ -71,17 +71,25 @@
   (check-false (sat? (helper bvmul (list 8bit-a (bv 7 8)) 3)))
   (check-false (sat? (helper bvmul (list 8bit-a (bv 8 8)) 3)))
 
+  ;;; Note that non-arithmetic shifts are trivially implementable with wires, so most of these impls
+  ;;; wouldn't actually be useful. They still serve as good test cases, though.
   (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 0 8)) 3)))
   (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 1 8)) 3)))
   (check-false (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) 3)))
+  (check-false (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) 4)))
+  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) 5)))
 
   (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 0 8)) 3)))
   (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)) 3)))
   (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) 3)))
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) 4)))
+  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) 5)))
 
   (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 0 8)) 3)))
   (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 1 8)) 3)))
   (check-false (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) 3)))
+  (check-false (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) 4)))
+  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) 5)))
 
   ; CIRCT Comb dialect.
   (check-true (sat? (helper circt-comb-add (list 8bit-a 8bit-b) 3)))
