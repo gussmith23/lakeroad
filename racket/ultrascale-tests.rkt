@@ -27,14 +27,15 @@
                          (when (not (equal? 8 (bvlen v)))
                            (error "All inputs must end up with length 8")))
                        padded-logical-inputs)]
-         [out (interpret (ultrascale-plus-grammar padded-logical-inputs #:depth depth))]
          ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
          ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
          [soln (synthesize #:forall padded-logical-inputs
                            #:guarantee
                            (begin
                              ; Assert that the output of the CLB implements the requested function f.
-                             (assert (bveq (apply f logical-inputs) out))))])
+                             (assert (bveq (apply f logical-inputs)
+                                           (interpret (ultrascale-plus-grammar padded-logical-inputs
+                                                                               #:depth depth))))))])
     soln))
 
 ; Even in files that are just full of tests, I still stick the tests in a submodule. This is mainly to
