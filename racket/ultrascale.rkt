@@ -1,7 +1,5 @@
 #lang errortrace racket
 
-(require rosette)
-
 (provide interpret-ultrascale-plus
          ultrascale-logical-to-physical-inputs
          ultrascale-logical-to-physical-inputs-with-mask
@@ -10,7 +8,63 @@
          compile-clb-to-verilog
          compile-ultrascale-plus-dsp48e2
          interpret-ultrascale-plus-dsp48e2
-         ultrascale-plus-dsp48e2)
+         ultrascale-plus-dsp48e2
+         ultrascale-plus-grammar)
+
+(require rosette
+         rosette/lib/synthax)
+
+;;; Grammar for synthesizing instruction implementations on UltraScale+.
+;;;
+;;; This grammar can be used in the manner shown in the Rosette docs:
+;;; https://docs.racket-lang.org/rosette-guide/sec_rosette-libs.html#%28form._%28%28lib._rosette%2Flib%2Fsynthax..rkt%29._define-grammar%29%29
+;;;
+;;; For example:
+;;;
+;;; ```racket
+;;; (define-symbolic a (bitvector 8))
+;;; (define-symbolic b (bitvector 8))
+;;; (define expr (ultrascale-plus-grammar (list a b) #:depth 3))
+;;; (define soln (synthesize #:forall (list a b) #:guarantee (assert (bveq (interpret expr) (bvadd a b)))))
+;;; (displayln (evaluate expr soln))
+;;; ```
+(define-grammar
+ (ultrascale-plus-grammar logical-inputs)
+ [expr (choose (clb) (var) (const))]
+ [var
+  (match logical-inputs
+    [(list) (void)]
+    [(list l0) (choose l0)]
+    [(list l0 l1) (choose l0 l1)]
+    [(list l0 l1 l2) (choose l0 l1 l2)])]
+ ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for the sixth
+ ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two
+ ;;; distinct outputs. By providing #xff as a choosable constant, we let the synthesizer decide when
+ ;;; to use it.
+ [const (choose (bv #xff 8))]
+ [clb
+  `(first (physical-to-logical-mapping
+           ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+           (ultrascale-plus-clb ,(?? (bitvector 1))
+                                ,(?? (bitvector 64))
+                                ,(?? (bitvector 64))
+                                ,(?? (bitvector 64))
+                                ,(?? (bitvector 64))
+                                ,(?? (bitvector 64))
+                                ,(?? (bitvector 64))
+                                ,(?? (bitvector 64))
+                                ,(?? (bitvector 64))
+                                ,(?? (bitvector 2))
+                                ,(?? (bitvector 2))
+                                ,(?? (bitvector 2))
+                                ,(?? (bitvector 2))
+                                ,(?? (bitvector 2))
+                                ,(?? (bitvector 2))
+                                ,(?? (bitvector 2))
+                                ,(?? (bitvector 2))
+                                (logical-to-physical-mapping
+                                 ,(choose '(bitwise) '(bitwise-reverse))
+                                 ,(list (expr) (expr) (expr) (expr) (expr) (expr))))))])
 
 ; Contains the state for a LUT6_2.
 ; memory is the LUT's memory: (bitvector 64).

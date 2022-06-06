@@ -18,44 +18,16 @@
   (displayln (format "~a with inputs ~a" f logical-inputs))
 
   (let* (;;; Make sure there are six logical inputs.
-         ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for
-         ;;; the sixth input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high
-         ;;; to enable two distinct outputs.
-         [padded-logical-inputs
-          (append logical-inputs (make-list (- 6 (length logical-inputs)) (bv #xff 8)))]
          ;;; Replicate any 1-bit inputs to length 8.
          [padded-logical-inputs
           (map (lambda (v) (if (equal? 1 (bvlen v)) (apply concat (make-list 8 v)) v))
-               padded-logical-inputs)]
+               logical-inputs)]
          ;;; Make sure the logical inputs are length 8.
          [_unused (map (lambda (v)
                          (when (not (equal? 8 (bvlen v)))
                            (error "All inputs must end up with length 8")))
                        padded-logical-inputs)]
-         [expr `(physical-to-logical-mapping
-                 ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-                 (ultrascale-plus-clb ,(?? (bitvector 1))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 64))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      ,(?? (bitvector 2))
-                                      (logical-to-physical-mapping
-                                       ,(choose '(bitwise) '(bitwise-reverse))
-                                       ,padded-logical-inputs)))]
-
-         [out (first (interpret expr))]
+         [out (interpret (ultrascale-plus-grammar padded-logical-inputs #:depth 3))]
          ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
          ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
          [soln (synthesize #:forall padded-logical-inputs
