@@ -29,14 +29,34 @@
 ;;; (displayln (evaluate expr soln))
 ;;; ```
 (define-grammar
- (ultrascale-plus-grammar logical-inputs)
+ (ultrascale-plus-grammar logical-inputs cins lutmems muxs)
  [expr (choose (clb) (var) (const))]
  [var
   (match logical-inputs
     [(list) (void)]
     [(list l0) (choose l0)]
     [(list l0 l1) (choose l0 l1)]
-    [(list l0 l1 l2) (choose l0 l1 l2)])]
+    [(list l0 l1 l2) (choose l0 l1 l2)]
+    [(list l0 l1 l2 l3) (choose l0 l1 l2 l3)])]
+ [cin
+  (match cins
+    [(list) (void)]
+    [(list i0) (choose i0)]
+    [(list i0 i1) (choose i0 i1)]
+    [(list i0 i1 i2) (choose i0 i1 i2)])]
+ [lutmem
+  (match lutmems
+    [(list) (void)]
+    [(list i0) (choose i0)]
+    [(list i0 i1) (choose i0 i1)]
+    [(list i0 i1 i2) (choose i0 i1 i2)])]
+ [mux
+  (match muxs
+    [(list) (void)]
+    [(list i0) (choose i0)]
+    [(list i0 i1) (choose i0 i1)]
+    [(list i0 i1 i2) (choose i0 i1 i2)]
+    [(list i0 i1 i2 i3) (choose i0 i1 i2 i3)])]
  ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for the sixth
  ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two
  ;;; distinct outputs. By providing #xff as a choosable constant, we let the synthesizer decide when
@@ -45,23 +65,23 @@
  [clb
   `(first (physical-to-logical-mapping
            ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-           (ultrascale-plus-clb ,(?? (bitvector 1))
-                                ,(?? (bitvector 64))
-                                ,(?? (bitvector 64))
-                                ,(?? (bitvector 64))
-                                ,(?? (bitvector 64))
-                                ,(?? (bitvector 64))
-                                ,(?? (bitvector 64))
-                                ,(?? (bitvector 64))
-                                ,(?? (bitvector 64))
-                                ,(?? (bitvector 2))
-                                ,(?? (bitvector 2))
-                                ,(?? (bitvector 2))
-                                ,(?? (bitvector 2))
-                                ,(?? (bitvector 2))
-                                ,(?? (bitvector 2))
-                                ,(?? (bitvector 2))
-                                ,(?? (bitvector 2))
+           (ultrascale-plus-clb ,(cin)
+                                ,(lutmem)
+                                ,(lutmem)
+                                ,(lutmem)
+                                ,(lutmem)
+                                ,(lutmem)
+                                ,(lutmem)
+                                ,(lutmem)
+                                ,(lutmem)
+                                ,(mux)
+                                ,(mux)
+                                ,(mux)
+                                ,(mux)
+                                ,(mux)
+                                ,(mux)
+                                ,(mux)
+                                ,(mux)
                                 (logical-to-physical-mapping
                                  ,(choose '(bitwise) '(bitwise-reverse))
                                  ,(list (expr) (expr) (expr) (expr) (expr) (expr))))))])

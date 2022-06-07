@@ -34,8 +34,15 @@
                            (begin
                              ; Assert that the output of the CLB implements the requested function f.
                              (assert (bveq (apply f logical-inputs)
-                                           (interpret (ultrascale-plus-grammar padded-logical-inputs
-                                                                               #:depth depth))))))])
+                                           (interpret (ultrascale-plus-grammar
+                                                       padded-logical-inputs
+                                                       (list (?? (bitvector 1)) (?? (bitvector 1)))
+                                                       (list (?? (bitvector 64)) (?? (bitvector 64)))
+                                                       (list (?? (bitvector 2))
+                                                             (?? (bitvector 2))
+                                                             (?? (bitvector 2))
+                                                             (?? (bitvector 2)))
+                                                       #:depth depth))))))])
     soln))
 
 ; Even in files that are just full of tests, I still stick the tests in a submodule. This is mainly to
