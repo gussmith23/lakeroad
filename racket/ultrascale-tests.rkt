@@ -15,7 +15,7 @@
   (when (>= (length logical-inputs) 6)
     (error "arity 6 not supported yet; >6 not possible"))
 
-  (displayln (format "~a with inputs ~a" f logical-inputs))
+  (displayln (format "~a with inputs ~a and depth ~a" f logical-inputs depth))
 
   (let* (;;; Make sure there are six logical inputs.
          ;;; Replicate any 1-bit inputs to length 8.
