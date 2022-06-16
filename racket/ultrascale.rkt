@@ -29,21 +29,20 @@
 ;;; (displayln (evaluate expr soln))
 ;;; ```
 (define-grammar
- (ultrascale-plus-grammar logical-inputs cins lutmems muxs)
- [expr (choose (clb) (var) (const))]
+ (ultrascale-plus-grammar logical-inputs lutmems muxes)
+ [expr (logical-8bit)]
  [logical-input
   (match logical-inputs
     [(list) (void)]
     [(list l0) (choose l0)]
     [(list l0 l1) (choose l0 l1)]
     [(list l0 l1 l2) (choose l0 l1 l2)]
-    [(list l0 l1 l2 l3) (choose l0 l1 l2 l3)])]
- [cin
-  (match cins
-    [(list) (void)]
-    [(list i0) (choose i0)]
-    [(list i0 i1) (choose i0 i1)]
-    [(list i0 i1 i2) (choose i0 i1 i2)])]
+    [(list l0 l1 l2 l3) (choose l0 l1 l2 l3)]
+    [(list l0 l1 l2 l3 l4) (choose l0 l1 l2 l3 l4)]
+    [(list l0 l1 l2 l3 l4 l5) (choose l0 l1 l2 l3 l4 l5)]
+    [(list l0 l1 l2 l3 l4 l5 l6) (choose l0 l1 l2 l3 l4 l5 l6)]
+    [(list l0 l1 l2 l3 l4 l5 l6 l7) (choose l0 l1 l2 l3 l4 l5 l6 l7)])]
+ [cin (?? (bitvector 1))]
  [lutmem
   (match lutmems
     [(list) (void)]
@@ -51,64 +50,43 @@
     [(list i0 i1) (choose i0 i1)]
     [(list i0 i1 i2) (choose i0 i1 i2)])]
  [mux
-  (match muxs
+  (match muxes
     [(list) (void)]
     [(list i0) (choose i0)]
     [(list i0 i1) (choose i0 i1)]
     [(list i0 i1 i2) (choose i0 i1 i2)]
     [(list i0 i1 i2 i3) (choose i0 i1 i2 i3)])]
+ [physical-list
+  `(ultrascale-plus-clb
+    ,(cin)
+    ,(lutmem)
+    ,(lutmem)
+    ,(lutmem)
+    ,(lutmem)
+    ,(lutmem)
+    ,(lutmem)
+    ,(lutmem)
+    ,(lutmem)
+    ,(mux)
+    ,(mux)
+    ,(mux)
+    ,(mux)
+    ,(mux)
+    ,(mux)
+    ,(mux)
+    ,(mux)
+    (logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse)) ,(logical-list)))]
+ [logical-list
+  (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
+          `(physical-to-logical-mapping
+            ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+            ,(physical-list)))]
+ ;;; 8bit logical input
  ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for the sixth
  ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two
  ;;; distinct outputs. By providing #xff as a choosable constant, we let the synthesizer decide when
  ;;; to use it.
- [const-8bit (choose (bv #xff 8))]
- [physical-to-logical-8bit
-  `(physical-to-logical-mapping ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-                                physical)]
- ;;; 8bit logical input
- [logical-8bit (choose (logical-input) (const-8bit) `(first (physical-to-logical-8bit)))]
- [physical-6bit
-  (let ([physical `(logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse))
-                                                ,(list (logical-8bit)
-                                                       (logical-8bit)
-                                                       (logical-8bit)
-                                                       (logical-8bit)
-                                                       (logical-8bit)
-                                                       (logical-8bit)))])
-    `(first ,physical)
-    `(second ,physical)
-    `(third ,physical)
-    `(fourth ,physical)
-    `(fifth ,physical)
-    `(sixth ,physical))]
- ;;; Logical output of CLB. Can be 1 or 8 bits right now.
- [clb
-  `(first (physical-to-logical-mapping ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-                                       (ultrascale-plus-clb ,(cin)
-                                                            ,(lutmem)
-                                                            ,(lutmem)
-                                                            ,(lutmem)
-                                                            ,(lutmem)
-                                                            ,(lutmem)
-                                                            ,(lutmem)
-                                                            ,(lutmem)
-                                                            ,(lutmem)
-                                                            ,(mux)
-                                                            ,(mux)
-                                                            ,(mux)
-                                                            ,(mux)
-                                                            ,(mux)
-                                                            ,(mux)
-                                                            ,(mux)
-                                                            ,(mux)
-                                                            ,(list (physical-6bit)
-                                                                   (physical-6bit)
-                                                                   (physical-6bit)
-                                                                   (physical-6bit)
-                                                                   (physical-6bit)
-                                                                   (physical-6bit)
-                                                                   (physical-6bit)
-                                                                   (physical-6bit)))))])
+ [logical-8bit (choose (logical-input) (bv #xff 8) (bv #x00 8) `(first ,(logical-list)))])
 
 ; Contains the state for a LUT6_2.
 ; memory is the LUT's memory: (bitvector 64).

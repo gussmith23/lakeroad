@@ -11,39 +11,44 @@
 
 (current-solver (boolector))
 
-(define (helper f logical-inputs depth)
+(define (helper f logical-inputs #:num-lut-mems num-lut-mems #:expr-depth depth)
   (when (>= (length logical-inputs) 6)
     (error "arity 6 not supported yet; >6 not possible"))
 
   (displayln (format "~a with inputs ~a and depth ~a" f logical-inputs depth))
 
-  (let* (;;; Make sure there are six logical inputs.
-         ;;; Replicate any 1-bit inputs to length 8.
-         [padded-logical-inputs
-          (map (lambda (v) (if (equal? 1 (bvlen v)) (apply concat (make-list 8 v)) v))
-               logical-inputs)]
-         ;;; Make sure the logical inputs are length 8.
-         [_unused (map (lambda (v)
-                         (when (not (equal? 8 (bvlen v)))
-                           (error "All inputs must end up with length 8")))
-                       padded-logical-inputs)]
-         ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-         ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-         [soln (synthesize #:forall padded-logical-inputs
-                           #:guarantee
-                           (begin
-                             ; Assert that the output of the CLB implements the requested function f.
-                             (assert (bveq (apply f logical-inputs)
-                                           (interpret (ultrascale-plus-grammar
-                                                       padded-logical-inputs
-                                                       (list (?? (bitvector 1)) (?? (bitvector 1)))
-                                                       (list (?? (bitvector 64)) (?? (bitvector 64)))
-                                                       (list (?? (bitvector 2))
-                                                             (?? (bitvector 2))
-                                                             (?? (bitvector 2))
-                                                             (?? (bitvector 2)))
-                                                       #:depth depth))))))])
-    soln))
+  (result-value
+   (with-vc
+    (let* (;;; Make sure there are six logical inputs.
+           ;;; Replicate any 1-bit inputs to length 8.
+           [padded-logical-inputs
+            (map (lambda (v) (if (equal? 1 (bvlen v)) (apply concat (make-list 8 v)) v))
+                 logical-inputs)]
+           ;;; Make sure the logical inputs are length 8.
+           [_unused (map (lambda (v)
+                           (when (not (equal? 8 (bvlen v)))
+                             (error "All inputs must end up with length 8")))
+                         padded-logical-inputs)]
+           [lut-mems (for/list ([_ (range num-lut-mems)])
+                       (define-symbolic* lut-mem (bitvector 64))
+                       lut-mem)]
+           [muxes (for/list ([_ (range 1)])
+                    (define-symbolic* mux-selector (bitvector 2))
+                    mux-selector)]
+           [expr (ultrascale-plus-grammar padded-logical-inputs lut-mems muxes #:depth depth)]
+           ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+           ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+           [soln (synthesize
+                  #:forall padded-logical-inputs
+                  #:guarantee
+                  (begin
+
+                    ; Assert that the output of the CLB implements the requested function f.
+                    (assert (bveq (apply f logical-inputs) (interpret expr)))))])
+      (when #f
+        (when (sat? soln)
+          (pretty-display (evaluate expr soln))))
+      soln))))
 
 ; Even in files that are just full of tests, I still stick the tests in a submodule. This is mainly to
 ; allow for opening the file in an interpreter without running all the tests. To run tests, run
@@ -65,65 +70,70 @@
   (define-symbolic 1bit-e (bitvector 1))
 
   ; Simple test: identity function.
-  (check-true (sat? (helper (lambda (a) a) (list 8bit-a) 3)))
+  (check-true (sat? (helper (lambda (a) a) (list 8bit-a) #:num-lut-mems 1 #:expr-depth 2)))
 
   ;;; "Hard" instructions (mul, shift) where one input is constant.
-  (check-true (sat? (helper bvmul (list 8bit-a (bv 0 8)) 3)))
-  (check-true (sat? (helper bvmul (list 8bit-a (bv 1 8)) 3)))
-  (check-true (sat? (helper bvmul (list 8bit-a (bv 2 8)) 3)))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 3 8)) 3)))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 4 8)) 3)))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 5 8)) 3)))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 6 8)) 3)))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 7 8)) 3)))
-  (check-false (sat? (helper bvmul (list 8bit-a (bv 8 8)) 3)))
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 0 8)) #:num-lut-mems 1 #:expr-depth 2)))
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 1 8)) #:num-lut-mems 1 #:expr-depth 2)))
+  (check-true (sat? (helper bvmul (list 8bit-a (bv 2 8)) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper bvmul (list 8bit-a (bv 3 8)) #:num-lut-mems 1 #:expr-depth 6)))
+  ;;; TODO move to long tests file
+  ;;; (check-true (sat? (helper bvmul (list 8bit-a (bv 3 8)) 5)))
+  ;;; TODO these two are super long.
+  ;;; (check-true (sat? (helper bvmul (list 8bit-a (bv 23 8)) 5)))
+  ;;; (check-true (sat? (helper bvmul (list 8bit-a (bv 233 8)) 5)))
+
+  ;;; constant coefficient multiplier (satnam singh, google paper? good term for lit research)
 
   ;;; Note that non-arithmetic shifts are trivially implementable with wires, so most of these impls
   ;;; wouldn't actually be useful. They still serve as good test cases, though.
-  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 0 8)) 3)))
-  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 1 8)) 3)))
-  (check-false (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) 3)))
-  (check-false (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) 4)))
-  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) 5)))
+  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 0 8)) #:num-lut-mems 1 #:expr-depth 2)))
+  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 1 8)) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper circt-comb-shl (list 8bit-a (bv 2 8)) #:num-lut-mems 1 #:expr-depth 10)))
 
-  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 0 8)) 3)))
-  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)) 3)))
-  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) 3)))
-  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) 4)))
-  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) 5)))
+  ;;; TODO I broke these -- is bitwise-reverse working?
+  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 0 8)) #:num-lut-mems 1 #:expr-depth 2)))
+  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)) #:num-lut-mems 2 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 6)))
+  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 10)))
 
-  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 0 8)) 3)))
-  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 1 8)) 3)))
-  (check-false (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) 3)))
-  (check-false (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) 4)))
-  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) 5)))
+  ;;; TODO I broke these -- is bitwise-reverse working?
+  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 0 8)) #:num-lut-mems 1 #:expr-depth 2)))
+  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 1 8)) #:num-lut-mems 2 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 6)))
+  (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 10)))
 
   ; CIRCT Comb dialect.
-  (check-true (sat? (helper circt-comb-add (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper circt-comb-and (list 8bit-a 8bit-b) 3)))
-  (check-false (sat? (helper circt-comb-divs (list 8bit-a 8bit-b) 3)))
-  (check-false (sat? (helper circt-comb-divu (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper circt-comb-icmp (list 8bit-a 8bit-b) 3)))
-  (check-false (sat? (helper circt-comb-mods (list 8bit-a 8bit-b) 3)))
-  (check-false (sat? (helper circt-comb-mul (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper circt-comb-or (list 8bit-a 8bit-b) 3)))
-  (check-false
-   (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) (list 8bit-a) 3)))
-  (check-false (sat? (helper circt-comb-shl (list 8bit-a 8bit-b) 3)))
-  (check-false (sat? (helper circt-comb-shrs (list 8bit-a 8bit-b) 3)))
-  (check-false (sat? (helper circt-comb-shru (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper circt-comb-sub (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper circt-comb-xor (list 8bit-a 8bit-b) 3)))
+  (check-true (sat? (helper circt-comb-add (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper circt-comb-and (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-divs (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-divu (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper circt-comb-icmp (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-mods (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-mul (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true
+   (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper circt-comb-or (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8)))
+                             (list 8bit-a)
+                             #:num-lut-mems 1
+                             #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-shl (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper circt-comb-shru (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper circt-comb-sub (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper circt-comb-xor (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
 
   ; Bithack examples.
-  (check-false (sat? (helper floor-avg (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper bithack3 (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper bithack2 (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper bithack1 (list 8bit-a 8bit-b) 3)))
-  (check-false (sat? (helper ceil-avg (list 8bit-a 8bit-b) 3)))
-  (check-true (sat? (helper bvadd (list 8bit-a 8bit-b) 3)))
-  (check-false (sat? (helper cycle (list 8bit-a 8bit-b 8bit-c 8bit-d) 3)))
+  (check-false (sat? (helper floor-avg (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper bithack3 (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper bithack2 (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper bithack1 (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false (sat? (helper ceil-avg (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-true (sat? (helper bvadd (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
+  (check-false
+   (sat? (helper cycle (list 8bit-a 8bit-b 8bit-c 8bit-d) #:num-lut-mems 1 #:expr-depth 6)))
 
   ;;; This test verifies that my manually-discovered implementation of icmp-equals works. This can
   ;;; be deleted if it starts acting up (as long as icmp is still synthesizing.)
