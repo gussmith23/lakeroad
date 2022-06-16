@@ -18,6 +18,11 @@
 
      ;;; Racket functions lifted to our language.
      [`(first ,l) (first (interpret l))]
+     [`(second ,l) (second (interpret l))]
+     [`(third ,l) (third (interpret l))]
+     [`(fourth ,l) (fourth (interpret l))]
+     [`(fifth ,l) (fifth (interpret l))]
+     [`(sixth ,l) (sixth (interpret l))]
 
      ;;; Datatypes.
      [(? bv? v) v]

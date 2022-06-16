@@ -31,7 +31,7 @@
 (define-grammar
  (ultrascale-plus-grammar logical-inputs cins lutmems muxs)
  [expr (choose (clb) (var) (const))]
- [var
+ [logical-input
   (match logical-inputs
     [(list) (void)]
     [(list l0) (choose l0)]
@@ -61,30 +61,54 @@
  ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two
  ;;; distinct outputs. By providing #xff as a choosable constant, we let the synthesizer decide when
  ;;; to use it.
- [const (choose (bv #xff 8))]
+ [const-8bit (choose (bv #xff 8))]
+ [physical-to-logical-8bit
+  `(physical-to-logical-mapping ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+                                physical)]
+ ;;; 8bit logical input
+ [logical-8bit (choose (logical-input) (const-8bit) `(first (physical-to-logical-8bit)))]
+ [physical-6bit
+  (let ([physical `(logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse))
+                                                ,(list (logical-8bit)
+                                                       (logical-8bit)
+                                                       (logical-8bit)
+                                                       (logical-8bit)
+                                                       (logical-8bit)
+                                                       (logical-8bit)))])
+    `(first ,physical)
+    `(second ,physical)
+    `(third ,physical)
+    `(fourth ,physical)
+    `(fifth ,physical)
+    `(sixth ,physical))]
+ ;;; Logical output of CLB. Can be 1 or 8 bits right now.
  [clb
-  `(first (physical-to-logical-mapping
-           ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-           (ultrascale-plus-clb ,(cin)
-                                ,(lutmem)
-                                ,(lutmem)
-                                ,(lutmem)
-                                ,(lutmem)
-                                ,(lutmem)
-                                ,(lutmem)
-                                ,(lutmem)
-                                ,(lutmem)
-                                ,(mux)
-                                ,(mux)
-                                ,(mux)
-                                ,(mux)
-                                ,(mux)
-                                ,(mux)
-                                ,(mux)
-                                ,(mux)
-                                (logical-to-physical-mapping
-                                 ,(choose '(bitwise) '(bitwise-reverse))
-                                 ,(list (expr) (expr) (expr) (expr) (expr) (expr))))))])
+  `(first (physical-to-logical-mapping ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+                                       (ultrascale-plus-clb ,(cin)
+                                                            ,(lutmem)
+                                                            ,(lutmem)
+                                                            ,(lutmem)
+                                                            ,(lutmem)
+                                                            ,(lutmem)
+                                                            ,(lutmem)
+                                                            ,(lutmem)
+                                                            ,(lutmem)
+                                                            ,(mux)
+                                                            ,(mux)
+                                                            ,(mux)
+                                                            ,(mux)
+                                                            ,(mux)
+                                                            ,(mux)
+                                                            ,(mux)
+                                                            ,(mux)
+                                                            ,(list (physical-6bit)
+                                                                   (physical-6bit)
+                                                                   (physical-6bit)
+                                                                   (physical-6bit)
+                                                                   (physical-6bit)
+                                                                   (physical-6bit)
+                                                                   (physical-6bit)
+                                                                   (physical-6bit)))))])
 
 ; Contains the state for a LUT6_2.
 ; memory is the LUT's memory: (bitvector 64).
