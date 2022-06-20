@@ -12,7 +12,132 @@
          ultrascale-plus-grammar)
 
 (require rosette
-         rosette/lib/synthax)
+         rosette/lib/synthax
+         "comp-json.rkt")
+
+;;; Convert LUT6_2 to JSON.
+(define (make-ultrascale-plus-lut6-2 init-mem I0 I1 I2 I3 I4 I5 O5 O6 #:attrs [attrs (hasheq)])
+  (make-cell "LUT6_2"
+             (make-cell-port-directions (list 'I0 'I1 'I2 'I3 'I4 'I5) (list 'O5 'O6))
+             (make-cell-connections 'I0 I0 'I1 I1 'I2 I2 'I3 I3 'I4 I4 'I5 I5 'O5 O5 'O6 O6)
+             #:params (hasheq 'INIT init-mem)))
+
+;;; Convert CARRY8 to JSON.
+(define (make-ultrascale-plus-carry8 CI_TOP CI DI S O CO)
+  (make-cell "CARRY8"
+             (make-cell-port-directions '(CI_TOP CI DI S) '(O CO))
+             (make-cell-connections 'CI_TOP CI_TOP 'CI CI 'DI DI 'S S 'O O 'CO CO)))
+
+;;; Convert entire CLB to JSON.
+(define (make-ultrascale-plus-clb module-name
+                                  cin
+                                  lut-memory-a
+                                  lut-memory-b
+                                  lut-memory-c
+                                  lut-memory-d
+                                  lut-memory-e
+                                  lut-memory-f
+                                  lut-memory-g
+                                  lut-memory-h
+                                  mux-selector-a
+                                  mux-selector-b
+                                  mux-selector-c
+                                  mux-selector-d
+                                  mux-selector-e
+                                  mux-selector-f
+                                  mux-selector-g
+                                  mux-selector-h
+                                  mask-a
+                                  mask-b
+                                  mask-c
+                                  mask-d
+                                  mask-e
+                                  mask-f
+                                  mask-g
+                                  mask-h)
+  ; Make module for CLB.
+  (let* ([doc (make-lakeroad-json-doc)]
+         ;;; Add params. For now, just the LUT INIT values.
+         [doc (hasheq-helper #:base doc
+                             'parameter_default_values
+                             (hasheq-helper 'A_INIT
+                                            (make-literal-value 0 64)
+                                            'B_INIT
+                                            (make-literal-value 0 64)
+                                            'C_INIT
+                                            (make-literal-value 0 64)
+                                            'D_INIT
+                                            (make-literal-value 0 64)
+                                            'E_INIT
+                                            (make-literal-value 0 64)
+                                            'F_INIT
+                                            (make-literal-value 0 64)
+                                            'G_INIT
+                                            (make-literal-value 0 64)
+                                            'H_INIT
+                                            (make-literal-value 0 64)))]
+         [a_ins (range 2 (+ 2 6))]
+         [b_ins (range 8 (+ 8 6))]
+         [c_ins (range 14 (+ 14 6))]
+         [d_ins (range 20 (+ 20 6))]
+         [e_ins (range 26 (+ 26 6))]
+         [f_ins (range 32 (+ 32 6))]
+         [g_ins (range 38 (+ 38 6))]
+         [h_ins (range 44 (+ 44 6))]
+         [a_outs (range 48 (+ 48 2))]
+         [b_outs (range 50 (+ 50 2))]
+         [c_outs (range 52 (+ 52 2))]
+         [d_outs (range 54 (+ 54 2))]
+         [e_outs (range 56 (+ 56 2))]
+         [f_outs (range 58 (+ 58 2))]
+         [g_outs (range 60 (+ 60 2))]
+         [h_outs (range 62 (+ 62 2))]
+
+         [A_LUT (apply make-ultrascale-plus-lut6-2 'A_INIT (append a_ins a_outs))]
+         [B_LUT (apply make-ultrascale-plus-lut6-2 'B_INIT (append b_ins b_outs))]
+         [C_LUT (apply make-ultrascale-plus-lut6-2 'C_INIT (append c_ins c_outs))]
+         [D_LUT (apply make-ultrascale-plus-lut6-2 'D_INIT (append d_ins d_outs))]
+         [E_LUT (apply make-ultrascale-plus-lut6-2 'E_INIT (append e_ins e_outs))]
+         [F_LUT (apply make-ultrascale-plus-lut6-2 'F_INIT (append f_ins f_outs))]
+         [G_LUT (apply make-ultrascale-plus-lut6-2 'G_INIT (append g_ins g_outs))]
+         [H_LUT (apply make-ultrascale-plus-lut6-2 'H_INIT (append h_ins h_outs))]
+
+         [cells (make-cells 'A_LUT
+                            A_LUT
+                            'B_LUT
+                            B_LUT
+                            'C_LUT
+                            C_LUT
+                            'D_LUT
+                            D_LUT
+                            'E_LUT
+                            E_LUT
+                            'F_LUT
+                            F_LUT
+                            'G_LUT
+                            G_LUT
+                            'H_LUT
+                            H_LUT)]
+
+         ; [====== Netnames ======]
+         ; Now let's specify how things are linked together. This is pretty
+         ; straightforward since this design is so simple
+         [nn-a (make-net-details (list 2 3))]
+         [nn-b (make-net-details (list 4 5))]
+         [nn-out (make-net-details (list 6 7))]
+         [netnames (make-netnames 'a nn-a 'b nn-b 'out nn-out)]
+
+         ; [====== Module ======]
+         ; Finally, let's combine this into a module and add it to our Lakeroad
+         ; JSON file.
+         [adder-2-bit (make-module ports cells netnames)])
+    (add-module-to-doc doc '2-bit-adder adder-2-bit)
+    doc))
+
+(module+ test
+  (require rackunit)
+  (displayln (make-ultrascale-plus-lut6-2 (bv 1 1) 'I0 'I1 'I2 'I3 'I4 'I5 'O5 'O6))
+  (exit 1))
 
 ;;; Grammar for synthesizing instruction implementations on UltraScale+.
 ;;;
