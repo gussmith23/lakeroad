@@ -130,14 +130,11 @@
             [_          (displayln (format "[ + ] inputs ~a\n" inputs))]
             [inputs     (interpreter  inputs)]
             [_          (displayln (format "[ + ] inputs: ~a\n" inputs))]
-            [luts       (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)]
-            [_          (displayln (format "[ + ] luts:   ~a\n" luts))]
-            [pfu        (apply lattice-ecp5-pfu luts)]
-            [_          (displayln (format "[ + ] pfu:    ~a\n" pfu))])
-       (apply interpret-pfu-impl pfu inputs))]))
+            [pfu        (lattice-ecp5-pfu lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
+       (apply interpret-ecp5-pfu-impl pfu inputs))]))
 
 ; Returns the physical outputs of the PFU
-(define (interpret-pfu-impl pfu
+(define (interpret-ecp5-pfu-impl pfu
                             lut-input-a
                             lut-input-b
                             lut-input-c
