@@ -1,8 +1,11 @@
-#lang racket
+#lang errortrace racket
 
 (require rosette
          rosette/solver/smt/boolector
+         rosette/lib/synthax
          json
+         racket/pretty
+         "interpreter.rkt"
          "lattice-ecp5.rkt"
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
@@ -23,13 +26,22 @@
 (define-symbolic lut-memory-g (bitvector 16))
 (define-symbolic lut-memory-h (bitvector 16))
 
+(define lut-a (lattice-ecp5-lut4 lut-memory-a))
+(define lut-b (lattice-ecp5-lut4 lut-memory-b))
+(define lut-c (lattice-ecp5-lut4 lut-memory-c))
+(define lut-d (lattice-ecp5-lut4 lut-memory-d))
+(define lut-e (lattice-ecp5-lut4 lut-memory-e))
+(define lut-f (lattice-ecp5-lut4 lut-memory-f))
+(define lut-g (lattice-ecp5-lut4 lut-memory-g))
+(define lut-h (lattice-ecp5-lut4 lut-memory-h))
+
 (define-symbolic logical-input-0 (bitvector 8))
 (define-symbolic logical-input-1 (bitvector 8))
 (define-symbolic logical-input-2 (bitvector 8))
 (define-symbolic logical-input-3 (bitvector 8))
 
 (define out
-  (apply interpret-lattice-ecp5-pfu
+  (apply interpret-lattice-ecp5-pfu-old
          (lattice-ecp5-pfu (lattice-ecp5-lut4 lut-memory-a)
                            (lattice-ecp5-lut4 lut-memory-b)
                            (lattice-ecp5-lut4 lut-memory-c)
@@ -46,9 +58,33 @@
 
 (define logical-inputs (list logical-input-0 logical-input-1 logical-input-2 logical-input-3))
 
+(define (helper f arity)
+  (displayln "[ + ] Creating lut-inputs\n")
+  (define lut-inputs (apply lattice-ecp5-logical-to-physical-inputs logical-inputs))
+  (displayln (format" -> lut-inputs: ~a\n" lut-inputs))
+
+  (displayln "[ + ] Creating out\n")
+  (define out        (interpret `(lattice-ecp5-pfu ,(lattice-ecp5-lut4-memory lut-a)
+                                                   ,(lattice-ecp5-lut4-memory lut-b)
+                                                   ,(lattice-ecp5-lut4-memory lut-c)
+                                                   ,(lattice-ecp5-lut4-memory lut-d)
+                                                   ,(lattice-ecp5-lut4-memory lut-e)
+                                                   ,(lattice-ecp5-lut4-memory lut-f)
+                                                   ,(lattice-ecp5-lut4-memory lut-g)
+                                                   ,(lattice-ecp5-lut4-memory lut-h)
+                                                   ,lut-inputs)))
+
+  (displayln (format " -> out: ~a\n" (pretty-format out)))
+  (displayln "Creating soln")
+  (define soln (synthesize #:forall logical-inputs
+                           #:guarantee
+                           (begin
+                             (assert (bveq (apply f logical-inputs) out)))))
+  soln)
+
 ; The following is copied verbatim (modulo some formatting) from
 ; ultrascale-tests.rkt
-(define (helper f arity)
+(define (helper-old f arity)
   (if (equal? arity 6) (error "arity 6 not supported yet") '())
   (match-let ([soln
                ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix
@@ -81,12 +117,12 @@
 
                              ; Assert that the output of the PFU implements the requested function f.
                              (assert (bveq (apply f (take logical-inputs arity)) out))))])
-             ; Print the output. Unwrap the model if there is one, so that all of the
-             ; values print.
-             ;(displayln f)
-             ;(if (sat? soln) (pretty-print (model soln)) (displayln soln))
-             ;(displayln "")
-             soln))
+    ; Print the output. Unwrap the model if there is one, so that all of the
+    ; values print.
+    ;(displayln f)
+    ;(if (sat? soln) (pretty-print (model soln)) (displayln soln))
+    ;(displayln "")
+    soln))
 
 (module+ test
   (require rackunit)
@@ -99,33 +135,63 @@
   ; It's up to you to determine whether the change was correct!
 
   ; Simple test: identify function.
-  (check-true (sat? (helper (lambda (a) a) 1)))
+  ; (check-true (sat? (helper-old (lambda (a) a) 1)))
 
+  ; ; CIRCT Comb dialect.
+  ; (check-false (sat? (helper-old circt-comb-add 2)))
+  ; (check-true (sat? (helper-old circt-comb-and 2)))
+  ; (check-false (sat? (helper-old circt-comb-divs 2)))
+  ; (check-false (sat? (helper-old circt-comb-divu 2)))
+  ; (check-false (sat? (helper-old (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
+  ; (check-false (sat? (helper-old circt-comb-mods 2)))
+  ; (check-false (sat? (helper-old circt-comb-mul 2)))
+  ; (check-false (sat? (helper-old circt-comb-mux 3)))
+  ; (check-true (sat? (helper-old circt-comb-or 2)))
+  ; (check-false (sat? (helper-old (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
+  ; (check-false (sat? (helper-old circt-comb-shl 2)))
+  ; (check-false (sat? (helper-old circt-comb-shrs 2)))
+  ; (check-false (sat? (helper-old circt-comb-shru 2)))
+  ; (check-false (sat? (helper-old circt-comb-sub 2)))
+  ; (check-true (sat? (helper-old circt-comb-xor 2)))
+
+  ; ; Bithack examples.
+  ; (check-false (sat? (helper-old floor-avg 2)))
+  ; (check-true (sat? (helper-old bithack3 2)))
+  ; (check-false (sat? (helper-old bithack2 2)))
+  ; (check-true (sat? (helper-old bithack1 2)))
+  ; (check-false (sat? (helper-old ceil-avg 2)))
+  ; (check-false (sat? (helper-old bvadd 2)))
+  ; (check-false (sat? (helper-old cycle 4)))
+
+  (displayln "============================= START =====================\n\n")
+  (displayln (format "(lambda (a) a):\n ~a" (helper (lambda (a) a) 1)))
+  ;(check-true  (sat? (helper (lambda (a) a) 1)))
+  (exit 1)
   ; CIRCT Comb dialect.
   (check-false (sat? (helper circt-comb-add 2)))
-  (check-true (sat? (helper circt-comb-and 2)))
+  (check-true  (sat? (helper circt-comb-and 2)))
   (check-false (sat? (helper circt-comb-divs 2)))
   (check-false (sat? (helper circt-comb-divu 2)))
   (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
   (check-false (sat? (helper circt-comb-mods 2)))
   (check-false (sat? (helper circt-comb-mul 2)))
   (check-false (sat? (helper circt-comb-mux 3)))
-  (check-true (sat? (helper circt-comb-or 2)))
+  (check-true  (sat? (helper circt-comb-or 2)))
   (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
   (check-false (sat? (helper circt-comb-shl 2)))
   (check-false (sat? (helper circt-comb-shrs 2)))
   (check-false (sat? (helper circt-comb-shru 2)))
   (check-false (sat? (helper circt-comb-sub 2)))
-  (check-true (sat? (helper circt-comb-xor 2)))
+  (check-true  (sat? (helper circt-comb-xor 2)))
 
   ; Bithack examples.
-  (check-false (sat? (helper floor-avg 2)))
-  (check-true (sat? (helper bithack3 2)))
-  (check-false (sat? (helper bithack2 2)))
-  (check-true (sat? (helper bithack1 2)))
-  (check-false (sat? (helper ceil-avg 2)))
-  (check-false (sat? (helper bvadd 2)))
-  (check-false (sat? (helper cycle 4))))
+  (check-false (sat? (helper-old floor-avg 2)))
+  (check-true (sat? (helper-old bithack3 2)))
+  (check-false (sat? (helper-old bithack2 2)))
+  (check-true (sat? (helper-old bithack1 2)))
+  (check-false (sat? (helper-old ceil-avg 2)))
+  (check-false (sat? (helper-old bvadd 2)))
+  (check-false (sat? (helper-old cycle 4))))
 
 (define (make-bits-list base len)
   (sequence->list (in-inclusive-range base (- (+ base len) 1))))
@@ -138,7 +204,7 @@
 ; Routing is as follows:
 (define (end-to-end-test-arity-2-bitwise-ops f module-name)
 
-  (define soln (helper f 2))
+  (define soln (helper-old f 2))
   (when (not (sat? soln))
     (error (format "Couldn't synthesize a program for module ~a" module-name)))
 
@@ -146,7 +212,7 @@
 
   (define json-doc (model->json-doc-arity-2-bitwise a-model module-name))
 
-  (define json-file (make-temporary-file "gen~a.json"))
+  (define json-file (make-temporary-file (string-append module-name "-~a.json")))
 
   (define fdout (open-output-file json-file #:exists 'replace))
   (write-json json-doc fdout)
@@ -266,3 +332,51 @@
          [modul (make-module ports cells netnames)])
     (add-module-to-doc doc module-name modul)
     doc))
+
+
+(define (end-to-end-with-lakeroad-syntax f mod-name #:arity [arity 2])
+  (define expr
+    `(physical-to-logical-mapping
+      (bitwise)
+      (lattice-ecp5-pfu ,(?? (bitvector 16))
+                        ,(?? (bitvector 16))
+                        ,(?? (bitvector 16))
+                        ,(?? (bitvector 16))
+                        ,(?? (bitvector 16))
+                        ,(?? (bitvector 16))
+                        ,(?? (bitvector 16))
+                        ,(?? (bitvector 16)))))
+  (define out (interpret expr))
+
+(define soln
+  (synthesize 
+   #:forall logical-inputs
+   #:guarantee
+   (begin
+     (for ([logical-input (list-tail logical-inputs arity)])
+       (assume (bvzero? logical-input)))
+     (assert (bveq (apply f (take logical-inputs arity)) out)))))
+
+(define evaluated (evaluate expr soln))
+
+  (match-define `(physical-to-logical-mapping
+                  (bitwise)
+                  (lattice-ecp5-pfu ,lut-a
+                                    ,lut-b
+                                    ,lut-c
+                                    ,lut-d
+                                    ,lut-e
+                                    ,lut-f
+                                    ,lut-g
+                                    ,lut-h))
+    evaluated)
+  (displayln evaluated)
+  '())
+
+; (module+ test
+;   (require rackunit)
+;   (check-true (end-to-end-with-lakeroad-syntax circt-comb-and "bitwise-and"))
+;   (check-true (end-to-end-with-lakeroad-syntax circt-comb-or "bitwise-or"))
+;   (check-true (end-to-end-with-lakeroad-syntax circt-comb-xor "bitwise-xor"))
+;   (check-true (end-to-end-with-lakeroad-syntax bithack1 "bithack1"))
+;   (check-true (end-to-end-with-lakeroad-syntax bithack3 "bithack3")))

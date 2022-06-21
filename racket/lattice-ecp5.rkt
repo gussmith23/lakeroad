@@ -2,10 +2,12 @@
 
 (require rosette)
 
-(provide interpret-lattice-ecp5-pfu
+(provide interpret-lattice-ecp5-pfu-old
+         interpret-lattice-ecp5-pfu
          lattice-ecp5-pfu
          lattice-ecp5-lut4
          lattice-ecp5-logical-to-physical-inputs
+         lattice-ecp5-lut4-memory
          ; compile-clb-to-verilog
          )
 
@@ -25,7 +27,11 @@
 ;
 ; TODO: It's probably worth putting this somewhere more generally usable.
 (define (lut memory inputs)
-  (let* ([inputs (zero-extend inputs (bitvector (length (bitvector->bits memory))))])
+  (displayln (format "[ + ] lut ~a ~a" memory inputs))
+  (let* ([len    (length (bitvector->bits memory))]
+         [_      (displayln (format "[ + ] mem length of ~a" len))]
+         [inputs (zero-extend inputs (bitvector len))]
+         [_      (displayln (format "[ + ] zero-extended inputs: ~a" inputs))])
     (bit 0 (bvlshr memory inputs))))
 
 (module+ test
@@ -46,28 +52,28 @@
 ;
 ; Returns: the index of `inputs` into `memory` (see `lut` function defined above
 ; for details)
-(define (interpret-lattice-ecp5-lut4 lut4 inputs)
+(define (interpret-lattice-ecp5-lut4-old lut4 inputs)
   (when (not ((bitvector 4) inputs))
     (error (format "Lattice-ECP5-LUT4 inputs must be 4-bit bitvectors, found ~a" inputs)))
-    (lut (lattice-ecp5-lut4-memory lut4) inputs))
+  (lut (lattice-ecp5-lut4-memory lut4) inputs))
 
 (module+ test
   (require rackunit)
-  (check-equal? (interpret-lattice-ecp5-lut4
-                  (lattice-ecp5-lut4 (bv #xff81 16))
-                  (bv 0 4))
+  (check-equal? (interpret-lattice-ecp5-lut4-old
+                 (lattice-ecp5-lut4 (bv #xff81 16))
+                 (bv 0 4))
                 (bv 1 1))
-  (check-equal? (interpret-lattice-ecp5-lut4
-                  (lattice-ecp5-lut4 (bv #xff81 16))
-                  (bv 1 4))
+  (check-equal? (interpret-lattice-ecp5-lut4-old
+                 (lattice-ecp5-lut4 (bv #xff81 16))
+                 (bv 1 4))
                 (bv 0 1))
-  (check-equal? (interpret-lattice-ecp5-lut4
-                  (lattice-ecp5-lut4 (bv #xff81 16))
-                  (bv 7 4))
+  (check-equal? (interpret-lattice-ecp5-lut4-old
+                 (lattice-ecp5-lut4 (bv #xff81 16))
+                 (bv 7 4))
                 (bv 1 1))
-  (check-equal? (interpret-lattice-ecp5-lut4
-                  (lattice-ecp5-lut4 (bv #xff81 16))
-                  (bv 8 4))
+  (check-equal? (interpret-lattice-ecp5-lut4-old
+                 (lattice-ecp5-lut4 (bv #xff81 16))
+                 (bv 8 4))
                 (bv 1 1)))
 
 ; Defines the programmable state of a Programmable Functional Unit.
@@ -77,13 +83,13 @@
 ; For now I'm not including the slice structure and I'm only inclusing a list of
 ; the luts (and ommitting flip-flops).
 (struct lattice-ecp5-pfu
-    (lut-a lut-b
-           lut-c
-           lut-d
-           lut-e
-           lut-f
-           lut-g
-           lut-h))
+  (lut-a lut-b
+         lut-c
+         lut-d
+         lut-e
+         lut-f
+         lut-g
+         lut-h))
 
 ; Interpret a PFU
 ; Inputs:
@@ -93,50 +99,137 @@
 ;
 ; Returns:
 ; + (bitvector 8): the outputs of each LUT
-(define (interpret-lattice-ecp5-pfu pfu
-                                    ; cin
-                                    lut-input-a
-                                    lut-input-b
-                                    lut-input-c
-                                    lut-input-d
-                                    lut-input-e
-                                    lut-input-f
-                                    lut-input-g
-                                    lut-input-h)
-  (match-let* 
-   ([a (interpret-lattice-ecp5-lut4 (lattice-ecp5-pfu-lut-a pfu) lut-input-a)]
-    [b (interpret-lattice-ecp5-lut4 (lattice-ecp5-pfu-lut-a pfu) lut-input-b)]
-    [c (interpret-lattice-ecp5-lut4 (lattice-ecp5-pfu-lut-a pfu) lut-input-c)]
-    [d (interpret-lattice-ecp5-lut4 (lattice-ecp5-pfu-lut-a pfu) lut-input-d)]
-    [e (interpret-lattice-ecp5-lut4 (lattice-ecp5-pfu-lut-a pfu) lut-input-e)]
-    [f (interpret-lattice-ecp5-lut4 (lattice-ecp5-pfu-lut-a pfu) lut-input-f)]
-    [g (interpret-lattice-ecp5-lut4 (lattice-ecp5-pfu-lut-a pfu) lut-input-g)]
-    [h (interpret-lattice-ecp5-lut4 (lattice-ecp5-pfu-lut-a pfu) lut-input-h)])
-   ; TODO: double check order RE: MSB vs LSB
-   (concat h g f e d c b a)))
-   
-; (define (lattice-ecp5-pfu-helper physical-inputs)
-;   ; Programmable State of the CLB
-;   ; (define-symbolic* cin (bitvector 1))
-;   (define-symbolic* lut-memory-a (bitvector 16))
-;   (define-symbolic* lut-memory-b (bitvector 16))
-;   (define-symbolic* lut-memory-c (bitvector 16))
-;   (define-symbolic* lut-memory-d (bitvector 16))
-;   (define-symbolic* lut-memory-e (bitvector 16))
-;   (define-symbolic* lut-memory-f (bitvector 16))
-;   (define-symbolic* lut-memory-g (bitvector 16))
-;   (define-symbolic* lut-memory-h (bitvector 16))
-;   (values ; cin
-;           lut-memory-a
-;           lut-memory-b
-;           lut-memory-c
-;           lut-memory-d
-;           lut-memory-e
-;           lut-memory-f
-;           lut-memory-g
-;           lut-memory-h
-;           (apply interpret-lattice-ecp5-pfu )))
+(define (interpret-lattice-ecp5-pfu-old pfu
+                                        lut-input-a
+                                        lut-input-b
+                                        lut-input-c
+                                        lut-input-d
+                                        lut-input-e
+                                        lut-input-f
+                                        lut-input-g
+                                        lut-input-h)
+  (match-let*
+      ([a (interpret-lattice-ecp5-lut4-old (lattice-ecp5-pfu-lut-a pfu) lut-input-a)]
+       [b (interpret-lattice-ecp5-lut4-old (lattice-ecp5-pfu-lut-a pfu) lut-input-b)]
+       [c (interpret-lattice-ecp5-lut4-old (lattice-ecp5-pfu-lut-a pfu) lut-input-c)]
+       [d (interpret-lattice-ecp5-lut4-old (lattice-ecp5-pfu-lut-a pfu) lut-input-d)]
+       [e (interpret-lattice-ecp5-lut4-old (lattice-ecp5-pfu-lut-a pfu) lut-input-e)]
+       [f (interpret-lattice-ecp5-lut4-old (lattice-ecp5-pfu-lut-a pfu) lut-input-f)]
+       [g (interpret-lattice-ecp5-lut4-old (lattice-ecp5-pfu-lut-a pfu) lut-input-g)]
+       [h (interpret-lattice-ecp5-lut4-old (lattice-ecp5-pfu-lut-a pfu) lut-input-h)])
+    ; TODO: double check order RE: MSB vs LSB
+    (concat h g f e d c b a)))
 
+(define (interpret-lattice-ecp5-pfu interpreter expr)
+  (displayln (format "[ + ] interpret-lattice-ecp5-pfu ~a ~a" interpreter expr))
+  (displayln "")
+  (match expr
+    [`(lattice-ecp5-pfu ,lut-a
+                        ,lut-b
+                        ,lut-c
+                        ,lut-d
+                        ,lut-e
+                        ,lut-f
+                        ,lut-g
+                        ,lut-h
+                        ,inputs)
+     (let* ([_          (displayln "[ + ] Interpretting inputs\n")]
+            [_          (displayln (format "[ + ] inputs ~a\n" inputs))]
+            [inputs     (interpreter  inputs)]
+            [_          (displayln (format "[ + ] inputs: ~a\n" inputs))]
+            [luts       (map lattice-ecp5-lut4 (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h))]
+            [_          (displayln (format "[ + ] luts:   ~a\n" luts))]
+            [pfu        (apply lattice-ecp5-pfu luts)]
+            [_          (displayln (format "[ + ] pfu:    ~a\n" pfu))])
+       (apply interpret-pfu-impl pfu inputs))]))
+
+; Returns the physical outputs of the PFU
+(define (interpret-pfu-impl pfu
+                            lut-input-a
+                            lut-input-b
+                            lut-input-c
+                            lut-input-d
+                            lut-input-e
+                            lut-input-f
+                            lut-input-g
+                            lut-input-h)
+  (displayln (format "[ + ] interpret-lut4-impl \n   pfu: ~a\n   lut-input-a: ~a\n   lut-input-b: ~a ..." 
+                     pfu
+                     lut-input-a
+                     lut-input-b))
+  (match-let*
+      ([a-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-a pfu) lut-input-a)]
+       [_   (displayln (format "[ + ] a-z: ~a" a-z))]
+       [b-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-b pfu) lut-input-b)]
+       [c-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-c pfu) lut-input-c)]
+       [d-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-d pfu) lut-input-d)]
+       [e-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-e pfu) lut-input-e)]
+       [f-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-f pfu) lut-input-f)]
+       [g-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-g pfu) lut-input-g)]
+       [h-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-h pfu) lut-input-h)])
+    (concat h-z g-z f-z e-z d-z c-z b-z a-z)))
+
+(module+ test
+  (require rackunit)
+  (let* ([a (lattice-ecp5-lut4 (bv #x0003 16))]
+         [b (lattice-ecp5-lut4 (bv #x000c 16))]
+         [c (lattice-ecp5-lut4 (bv #x0030 16))]
+         [d (lattice-ecp5-lut4 (bv #x00c0 16))]
+         [e (lattice-ecp5-lut4 (bv #x0300 16))]
+         [f (lattice-ecp5-lut4 (bv #x0c00 16))]
+         [g (lattice-ecp5-lut4 (bv #x3000 16))]
+         [h (lattice-ecp5-lut4 (bv #xc000 16))]
+         [pfu (lattice-ecp5-pfu a b c d e f g h)]
+         [inputs-0s (make-list 8 (bv #x0 4))]
+         [inputs-1s (make-list 8 (bv #x1 4))]
+         [inputs-2s (make-list 8 (bv #x2 4))]
+         [inputs-3s (make-list 8 (bv #x3 4))]
+         [inputs-4s (make-list 8 (bv #x4 4))]
+         [inputs-5s (make-list 8 (bv #x5 4))]
+         [inputs-6s (make-list 8 (bv #x6 4))]
+         [inputs-7s (make-list 8 (bv #x7 4))]
+         [inputs-8s (make-list 8 (bv #x8 4))]
+         [inputs-9s (make-list 8 (bv #x9 4))]
+         [inputs-as (make-list 8 (bv #xa 4))]
+         [inputs-bs (make-list 8 (bv #xb 4))]
+         [inputs-cs (make-list 8 (bv #xc 4))]
+         [inputs-ds (make-list 8 (bv #xd 4))]
+         [inputs-es (make-list 8 (bv #xe 4))]
+         [inputs-fs (make-list 8 (bv #xf 4))])
+    (check-equal? (apply interpret-pfu-impl pfu inputs-0s) (bv #b00000001 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-1s) (bv #b00000001 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-2s) (bv #b00000010 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-3s) (bv #b00000010 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-4s) (bv #b00000100 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-5s) (bv #b00000100 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-6s) (bv #b00001000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-7s) (bv #b00001000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-8s) (bv #b00010000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-9s) (bv #b00010000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-as) (bv #b00100000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-bs) (bv #b00100000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-cs) (bv #b01000000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-ds) (bv #b01000000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-es) (bv #b10000000 8))
+    (check-equal? (apply interpret-pfu-impl pfu inputs-fs) (bv #b10000000 8))))
+
+(define (interpret-lut4-impl l inputs)
+  (displayln (format "[ + ] interpret-lut4-impl\n   - l: ~a\n   - inputs: ~a\n"
+                     l inputs))
+  (let* ([_      (displayln "Defining memory\n")]
+         [memory (lattice-ecp5-lut4-memory l)]
+         [_      (displayln (format "[ + ] memory: ~a" memory))]
+         [inputs (extract 3 0 inputs)]
+         [_      (displayln (format "[ + ] inputs ~a" inputs))])
+    (lut memory inputs)))
+
+(module+ test
+  (require rackunit)
+  (let* ([l (lattice-ecp5-lut4 (bv #b0110 16))])
+    (check-equal? (interpret-lut4-impl l (bv 0 4)) (bv 0 1))
+    (check-equal? (interpret-lut4-impl l (bv 1 4)) (bv 1 1))
+    (check-equal? (interpret-lut4-impl l (bv 2 4)) (bv 1 1))
+    (check-equal? (interpret-lut4-impl l (bv 3 4)) (bv 0 1))))
 
 
 ; Implements the basic arity-4 routing template for bv8 inputs.
