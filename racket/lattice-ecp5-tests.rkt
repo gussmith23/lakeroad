@@ -17,23 +17,14 @@
 (current-solver (boolector))
 
 (define-symbolic cin (bitvector 1))
-(define-symbolic lut-memory-a (bitvector 16))
-(define-symbolic lut-memory-b (bitvector 16))
-(define-symbolic lut-memory-c (bitvector 16))
-(define-symbolic lut-memory-d (bitvector 16))
-(define-symbolic lut-memory-e (bitvector 16))
-(define-symbolic lut-memory-f (bitvector 16))
-(define-symbolic lut-memory-g (bitvector 16))
-(define-symbolic lut-memory-h (bitvector 16))
-
-(define lut-a (lattice-ecp5-lut4 lut-memory-a))
-(define lut-b (lattice-ecp5-lut4 lut-memory-b))
-(define lut-c (lattice-ecp5-lut4 lut-memory-c))
-(define lut-d (lattice-ecp5-lut4 lut-memory-d))
-(define lut-e (lattice-ecp5-lut4 lut-memory-e))
-(define lut-f (lattice-ecp5-lut4 lut-memory-f))
-(define lut-g (lattice-ecp5-lut4 lut-memory-g))
-(define lut-h (lattice-ecp5-lut4 lut-memory-h))
+(define-symbolic lut-a (bitvector 16))
+(define-symbolic lut-b (bitvector 16))
+(define-symbolic lut-c (bitvector 16))
+(define-symbolic lut-d (bitvector 16))
+(define-symbolic lut-e (bitvector 16))
+(define-symbolic lut-f (bitvector 16))
+(define-symbolic lut-g (bitvector 16))
+(define-symbolic lut-h (bitvector 16))
 
 (define-symbolic logical-input-0 (bitvector 8))
 (define-symbolic logical-input-1 (bitvector 8))
@@ -42,14 +33,14 @@
 
 (define out
   (apply interpret-lattice-ecp5-pfu-old
-         (lattice-ecp5-pfu (lattice-ecp5-lut4 lut-memory-a)
-                           (lattice-ecp5-lut4 lut-memory-b)
-                           (lattice-ecp5-lut4 lut-memory-c)
-                           (lattice-ecp5-lut4 lut-memory-d)
-                           (lattice-ecp5-lut4 lut-memory-e)
-                           (lattice-ecp5-lut4 lut-memory-f)
-                           (lattice-ecp5-lut4 lut-memory-g)
-                           (lattice-ecp5-lut4 lut-memory-h))
+         (lattice-ecp5-pfu lut-a
+                           lut-b
+                           lut-c
+                           lut-d
+                           lut-e
+                           lut-f
+                           lut-g
+                           lut-h)
          ; cin
          (lattice-ecp5-logical-to-physical-inputs logical-input-0
                                                   logical-input-1
@@ -64,14 +55,14 @@
   (displayln (format" -> lut-inputs: ~a\n" lut-inputs))
 
   (displayln "[ + ] Creating out\n")
-  (define out        (interpret `(lattice-ecp5-pfu ,(lattice-ecp5-lut4-memory lut-a)
-                                                   ,(lattice-ecp5-lut4-memory lut-b)
-                                                   ,(lattice-ecp5-lut4-memory lut-c)
-                                                   ,(lattice-ecp5-lut4-memory lut-d)
-                                                   ,(lattice-ecp5-lut4-memory lut-e)
-                                                   ,(lattice-ecp5-lut4-memory lut-f)
-                                                   ,(lattice-ecp5-lut4-memory lut-g)
-                                                   ,(lattice-ecp5-lut4-memory lut-h)
+  (define out        (interpret `(lattice-ecp5-pfu ,lut-a
+                                                   ,lut-b
+                                                   ,lut-c
+                                                   ,lut-d
+                                                   ,lut-e
+                                                   ,lut-f
+                                                   ,lut-g
+                                                   ,lut-h
                                                    ,lut-inputs)))
 
   (displayln (format " -> out: ~a\n" (pretty-format out)))
@@ -165,33 +156,34 @@
 
   (displayln "============================= START =====================\n\n")
   (displayln (format "(lambda (a) a):\n ~a" (helper (lambda (a) a) 1)))
-  ;(check-true  (sat? (helper (lambda (a) a) 1)))
-  (exit 1)
-  ; CIRCT Comb dialect.
-  (check-false (sat? (helper circt-comb-add 2)))
-  (check-true  (sat? (helper circt-comb-and 2)))
-  (check-false (sat? (helper circt-comb-divs 2)))
-  (check-false (sat? (helper circt-comb-divu 2)))
-  (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
-  (check-false (sat? (helper circt-comb-mods 2)))
-  (check-false (sat? (helper circt-comb-mul 2)))
-  (check-false (sat? (helper circt-comb-mux 3)))
-  (check-true  (sat? (helper circt-comb-or 2)))
-  (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
-  (check-false (sat? (helper circt-comb-shl 2)))
-  (check-false (sat? (helper circt-comb-shrs 2)))
-  (check-false (sat? (helper circt-comb-shru 2)))
-  (check-false (sat? (helper circt-comb-sub 2)))
-  (check-true  (sat? (helper circt-comb-xor 2)))
+  (check-true  (sat? (helper (lambda (a) a) 1)))
 
-  ; Bithack examples.
-  (check-false (sat? (helper-old floor-avg 2)))
-  (check-true (sat? (helper-old bithack3 2)))
-  (check-false (sat? (helper-old bithack2 2)))
-  (check-true (sat? (helper-old bithack1 2)))
-  (check-false (sat? (helper-old ceil-avg 2)))
-  (check-false (sat? (helper-old bvadd 2)))
-  (check-false (sat? (helper-old cycle 4))))
+  ; CIRCT Comb dialect.
+  ; (check-false (sat? (helper circt-comb-add 2)))
+  ; (check-true  (sat? (helper circt-comb-and 2)))
+  ; (check-false (sat? (helper circt-comb-divs 2)))
+  ; (check-false (sat? (helper circt-comb-divu 2)))
+  ; (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
+  ; (check-false (sat? (helper circt-comb-mods 2)))
+  ; (check-false (sat? (helper circt-comb-mul 2)))
+  ; (check-false (sat? (helper circt-comb-mux 3)))
+  ; (check-true  (sat? (helper circt-comb-or 2)))
+  ; (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
+  ; (check-false (sat? (helper circt-comb-shl 2)))
+  ; (check-false (sat? (helper circt-comb-shrs 2)))
+  ; (check-false (sat? (helper circt-comb-shru 2)))
+  ; (check-false (sat? (helper circt-comb-sub 2)))
+  ; (check-true  (sat? (helper circt-comb-xor 2)))
+
+  ; ; Bithack examples.
+  ; (check-false (sat? (helper-old floor-avg 2)))
+  ; (check-true (sat? (helper-old bithack3 2)))
+  ; (check-false (sat? (helper-old bithack2 2)))
+  ; (check-true (sat? (helper-old bithack1 2)))
+  ; (check-false (sat? (helper-old ceil-avg 2)))
+  ; (check-false (sat? (helper-old bvadd 2)))
+  ; (check-false (sat? (helper-old cycle 4)))
+  )
 
 (define (make-bits-list base len)
   (sequence->list (in-inclusive-range base (- (+ base len) 1))))
@@ -281,7 +273,7 @@
                               [B (list-ref b-bits n)]
                               [A (list-ref a-bits n)]
                               [Z (list-ref out-bits n)]
-                              [INIT (hash-ref a-model lut-memory-a)]
+                              [INIT (hash-ref a-model lut-a)]
                               [INIT (bitvector->natural INIT)]
                               [INIT (make-literal-value INIT 16)])
                          (make-lattice-lut4 INIT A B C D Z)))]

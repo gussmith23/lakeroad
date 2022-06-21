@@ -5,16 +5,9 @@
 (provide interpret-lattice-ecp5-pfu-old
          interpret-lattice-ecp5-pfu
          lattice-ecp5-pfu
-         lattice-ecp5-lut4
          lattice-ecp5-logical-to-physical-inputs
-         lattice-ecp5-lut4-memory
          ; compile-clb-to-verilog
          )
-
-; Contains the state for a LUT4, a 4-input LUT.
-;
-; memory: (bitvector 16): The LUT's INIT memory value
-(struct lattice-ecp5-lut4 (memory))
 
 ; The output of a LUT is simply the bit at the entry pointed to by `inputs`,
 ; when interpreted as an integer.
@@ -46,7 +39,7 @@
 ; https://www.latticesemi.com/-/media/LatticeSemi/Documents/UserManuals/EI/FPGALibrariesReferenceGuide35.ashx?document_id=51084
 ;
 ; Params:
-; + lut4::lattice-ecp5-lut4: the LUT4 struct
+; + lut4::(bitvec 16): the LUT4
 ;
 ; + inputs::(bitvector 4): a 4-bit bitvector with MSB on the left and LSB on the right
 ;
@@ -55,24 +48,24 @@
 (define (interpret-lattice-ecp5-lut4-old lut4 inputs)
   (when (not ((bitvector 4) inputs))
     (error (format "Lattice-ECP5-LUT4 inputs must be 4-bit bitvectors, found ~a" inputs)))
-  (lut (lattice-ecp5-lut4-memory lut4) inputs))
+  (lut lut4 inputs))
 
 (module+ test
   (require rackunit)
   (check-equal? (interpret-lattice-ecp5-lut4-old
-                 (lattice-ecp5-lut4 (bv #xff81 16))
+                 (bv #xff81 16)
                  (bv 0 4))
                 (bv 1 1))
   (check-equal? (interpret-lattice-ecp5-lut4-old
-                 (lattice-ecp5-lut4 (bv #xff81 16))
+                 (bv #xff81 16)
                  (bv 1 4))
                 (bv 0 1))
   (check-equal? (interpret-lattice-ecp5-lut4-old
-                 (lattice-ecp5-lut4 (bv #xff81 16))
+                 (bv #xff81 16)
                  (bv 7 4))
                 (bv 1 1))
   (check-equal? (interpret-lattice-ecp5-lut4-old
-                 (lattice-ecp5-lut4 (bv #xff81 16))
+                 (bv #xff81 16)
                  (bv 8 4))
                 (bv 1 1)))
 
@@ -137,7 +130,7 @@
             [_          (displayln (format "[ + ] inputs ~a\n" inputs))]
             [inputs     (interpreter  inputs)]
             [_          (displayln (format "[ + ] inputs: ~a\n" inputs))]
-            [luts       (map lattice-ecp5-lut4 (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h))]
+            [luts       (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)]
             [_          (displayln (format "[ + ] luts:   ~a\n" luts))]
             [pfu        (apply lattice-ecp5-pfu luts)]
             [_          (displayln (format "[ + ] pfu:    ~a\n" pfu))])
@@ -171,14 +164,14 @@
 
 (module+ test
   (require rackunit)
-  (let* ([a (lattice-ecp5-lut4 (bv #x0003 16))]
-         [b (lattice-ecp5-lut4 (bv #x000c 16))]
-         [c (lattice-ecp5-lut4 (bv #x0030 16))]
-         [d (lattice-ecp5-lut4 (bv #x00c0 16))]
-         [e (lattice-ecp5-lut4 (bv #x0300 16))]
-         [f (lattice-ecp5-lut4 (bv #x0c00 16))]
-         [g (lattice-ecp5-lut4 (bv #x3000 16))]
-         [h (lattice-ecp5-lut4 (bv #xc000 16))]
+  (let* ([a (bv #x0003 16)]
+         [b (bv #x000c 16)]
+         [c (bv #x0030 16)]
+         [d (bv #x00c0 16)]
+         [e (bv #x0300 16)]
+         [f (bv #x0c00 16)]
+         [g (bv #x3000 16)]
+         [h (bv #xc000 16)]
          [pfu (lattice-ecp5-pfu a b c d e f g h)]
          [inputs-0s (make-list 8 (bv #x0 4))]
          [inputs-1s (make-list 8 (bv #x1 4))]
@@ -217,15 +210,13 @@
   (displayln (format "[ + ] interpret-lut4-impl\n   - l: ~a\n   - inputs: ~a\n"
                      l inputs))
   (let* ([_      (displayln "Defining memory\n")]
-         [memory (lattice-ecp5-lut4-memory l)]
-         [_      (displayln (format "[ + ] memory: ~a" memory))]
          [inputs (extract 3 0 inputs)]
          [_      (displayln (format "[ + ] inputs ~a" inputs))])
-    (lut memory inputs)))
+    (lut l inputs)))
 
 (module+ test
   (require rackunit)
-  (let* ([l (lattice-ecp5-lut4 (bv #b0110 16))])
+  (let* ([l (bv #b0110 16)])
     (check-equal? (interpret-lut4-impl l (bv 0 4)) (bv 0 1))
     (check-equal? (interpret-lut4-impl l (bv 1 4)) (bv 1 1))
     (check-equal? (interpret-lut4-impl l (bv 2 4)) (bv 1 1))
