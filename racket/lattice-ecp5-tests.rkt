@@ -14,106 +14,17 @@
 
 (current-solver (boolector))
 
-(current-solver (boolector))
-
-(define-symbolic cin (bitvector 1))
-(define-symbolic lut-a (bitvector 16))
-(define-symbolic lut-b (bitvector 16))
-(define-symbolic lut-c (bitvector 16))
-(define-symbolic lut-d (bitvector 16))
-(define-symbolic lut-e (bitvector 16))
-(define-symbolic lut-f (bitvector 16))
-(define-symbolic lut-g (bitvector 16))
-(define-symbolic lut-h (bitvector 16))
-
-(define-symbolic logical-input-0 (bitvector 8))
-(define-symbolic logical-input-1 (bitvector 8))
-(define-symbolic logical-input-2 (bitvector 8))
-(define-symbolic logical-input-3 (bitvector 8))
-
-(define out
-  (apply interpret-lattice-ecp5-pfu-old
-         (lattice-ecp5-pfu lut-a
-                           lut-b
-                           lut-c
-                           lut-d
-                           lut-e
-                           lut-f
-                           lut-g
-                           lut-h)
-         ; cin
-         (lattice-ecp5-logical-to-physical-inputs logical-input-0
-                                                  logical-input-1
-                                                  logical-input-2
-                                                  logical-input-3)))
-
-(define logical-inputs (list logical-input-0 logical-input-1 logical-input-2 logical-input-3))
+(define luts           (make-n-symbolics 8 (bitvector 16)))
+(define logical-inputs (make-n-symbolics 4 (bitvector 8)))
+(define lut-inputs     (apply lattice-ecp5-logical-to-physical-inputs logical-inputs))
+(define out        (interpret `(lattice-ecp5-pfu ,@luts ,lut-inputs)))
 
 (define (helper f arity)
-  (displayln "[ + ] Creating lut-inputs\n")
-  (define lut-inputs (apply lattice-ecp5-logical-to-physical-inputs logical-inputs))
-  (displayln (format" -> lut-inputs: ~a\n" lut-inputs))
-
-  (displayln "[ + ] Creating out\n")
-  (define out        (interpret `(lattice-ecp5-pfu ,lut-a
-                                                   ,lut-b
-                                                   ,lut-c
-                                                   ,lut-d
-                                                   ,lut-e
-                                                   ,lut-f
-                                                   ,lut-g
-                                                   ,lut-h
-                                                   ,lut-inputs)))
-
-  (displayln (format " -> out: ~a\n" (pretty-format out)))
-  (displayln "Creating soln")
   (define soln (synthesize #:forall logical-inputs
                            #:guarantee
                            (begin
-                             (assert (bveq (apply f logical-inputs) out)))))
+                             (assert (bveq (apply f (take logical-inputs arity)) out)))))
   soln)
-
-; The following is copied verbatim (modulo some formatting) from
-; ultrascale-tests.rkt
-(define (helper-old f arity)
-  (if (equal? arity 6) (error "arity 6 not supported yet") '())
-  (match-let ([soln
-               ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix
-               ; well with synthesize.  And time just prints to stdout, which is not ideal
-               ; (but we could deal with it if necessary).
-               (synthesize #:forall logical-inputs
-                           #:guarantee
-                           (begin
-
-                             ; TODO: Make a github issue
-                             ; Assume unused inputs are zero. We can set them to whatever we want,
-                             ; but it's important that we tell the solver that they're unused and
-                             ; unimportant, and setting them to a constant value is the way to this.
-                             ;
-                             ; When these aren't set, synthesis takes about 10-20x longer (20mins vs
-                             ; 1.5mins). In this case, we synthesize a LUT that is correct for inputs
-                             ; 0 and 1 regardless of the settings of the other inputs. I'm not sure
-                             ; if that's useful. I also wonder if there's a faster way to get the
-                             ; same result. E.g. either:
-
-                             ; 1. assume 2-5 are all 0 and then manually edit the resulting LUT and
-                             ;    duplicate the "correct" parts of the LUT memory into the rest of
-                             ;    the LUT memory, OR,
-
-                             ; 2. a more graceful solution, `assume` some predicates that basically
-                             ;    say that 2-5 "don't matter" and that the outputs for a given 0 and
-                             ;    1 should be the same for any 2-5.
-                             (for ([logical-input (list-tail logical-inputs arity)])
-                               (assume (bvzero? logical-input)))
-
-                             ; Assert that the output of the PFU implements the requested function f.
-                             (assert (bveq (apply f (take logical-inputs arity)) out))))])
-    ; Print the output. Unwrap the model if there is one, so that all of the
-    ; values print.
-    ;(displayln f)
-    ;(if (sat? soln) (pretty-print (model soln)) (displayln soln))
-    ;(displayln "")
-    soln))
 
 (module+ test
   (require rackunit)
@@ -125,65 +36,36 @@
   ; If a check-false test fails, then the model became more flexible.
   ; It's up to you to determine whether the change was correct!
 
-  ; Simple test: identify function.
-  ; (check-true (sat? (helper-old (lambda (a) a) 1)))
+  (displayln "Testing Synthesis of Identity Function")
+  (check-true (sat? (helper identity 1)))
 
-  ; ; CIRCT Comb dialect.
-  ; (check-false (sat? (helper-old circt-comb-add 2)))
-  ; (check-true (sat? (helper-old circt-comb-and 2)))
-  ; (check-false (sat? (helper-old circt-comb-divs 2)))
-  ; (check-false (sat? (helper-old circt-comb-divu 2)))
-  ; (check-false (sat? (helper-old (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
-  ; (check-false (sat? (helper-old circt-comb-mods 2)))
-  ; (check-false (sat? (helper-old circt-comb-mul 2)))
-  ; (check-false (sat? (helper-old circt-comb-mux 3)))
-  ; (check-true (sat? (helper-old circt-comb-or 2)))
-  ; (check-false (sat? (helper-old (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
-  ; (check-false (sat? (helper-old circt-comb-shl 2)))
-  ; (check-false (sat? (helper-old circt-comb-shrs 2)))
-  ; (check-false (sat? (helper-old circt-comb-shru 2)))
-  ; (check-false (sat? (helper-old circt-comb-sub 2)))
-  ; (check-true (sat? (helper-old circt-comb-xor 2)))
-
-  ; ; Bithack examples.
-  ; (check-false (sat? (helper-old floor-avg 2)))
-  ; (check-true (sat? (helper-old bithack3 2)))
-  ; (check-false (sat? (helper-old bithack2 2)))
-  ; (check-true (sat? (helper-old bithack1 2)))
-  ; (check-false (sat? (helper-old ceil-avg 2)))
-  ; (check-false (sat? (helper-old bvadd 2)))
-  ; (check-false (sat? (helper-old cycle 4)))
-
-  (displayln "============================= START =====================\n\n")
-  (displayln (format "(lambda (a) a):\n ~a" (helper (lambda (a) a) 1)))
-  (check-true  (sat? (helper (lambda (a) a) 1)))
-
+  (displayln "Testing Synthesis of CIRCT Comb Dialect Functions")
   ; CIRCT Comb dialect.
-  ; (check-false (sat? (helper circt-comb-add 2)))
-  ; (check-true  (sat? (helper circt-comb-and 2)))
-  ; (check-false (sat? (helper circt-comb-divs 2)))
-  ; (check-false (sat? (helper circt-comb-divu 2)))
-  ; (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
-  ; (check-false (sat? (helper circt-comb-mods 2)))
-  ; (check-false (sat? (helper circt-comb-mul 2)))
-  ; (check-false (sat? (helper circt-comb-mux 3)))
-  ; (check-true  (sat? (helper circt-comb-or 2)))
-  ; (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
-  ; (check-false (sat? (helper circt-comb-shl 2)))
-  ; (check-false (sat? (helper circt-comb-shrs 2)))
-  ; (check-false (sat? (helper circt-comb-shru 2)))
-  ; (check-false (sat? (helper circt-comb-sub 2)))
-  ; (check-true  (sat? (helper circt-comb-xor 2)))
+  (check-false (sat? (helper circt-comb-add 2)))
+  (check-true  (sat? (helper circt-comb-and 2)))
+  (check-false (sat? (helper circt-comb-divs 2)))
+  (check-false (sat? (helper circt-comb-divu 2)))
+  (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
+  (check-false (sat? (helper circt-comb-mods 2)))
+  (check-false (sat? (helper circt-comb-mul 2)))
+  (check-false (sat? (helper circt-comb-mux 3)))
+  (check-true  (sat? (helper circt-comb-or 2)))
+  (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
+  (check-false (sat? (helper circt-comb-shl 2)))
+  (check-false (sat? (helper circt-comb-shrs 2)))
+  (check-false (sat? (helper circt-comb-shru 2)))
+  (check-false (sat? (helper circt-comb-sub 2)))
+  (check-true  (sat? (helper circt-comb-xor 2)))
 
+  (displayln "Testing Synthesis of Bithack Examples")
   ; ; Bithack examples.
-  ; (check-false (sat? (helper-old floor-avg 2)))
-  ; (check-true (sat? (helper-old bithack3 2)))
-  ; (check-false (sat? (helper-old bithack2 2)))
-  ; (check-true (sat? (helper-old bithack1 2)))
-  ; (check-false (sat? (helper-old ceil-avg 2)))
-  ; (check-false (sat? (helper-old bvadd 2)))
-  ; (check-false (sat? (helper-old cycle 4)))
-  )
+  (check-false (sat? (helper floor-avg 2)))
+  (check-true (sat? (helper bithack3 2)))
+  (check-false (sat? (helper bithack2 2)))
+  (check-true (sat? (helper bithack1 2)))
+  (check-false (sat? (helper ceil-avg 2)))
+  (check-false (sat? (helper bvadd 2)))
+  (check-false (sat? (helper cycle 4))))
 
 (define (make-bits-list base len)
   (sequence->list (in-inclusive-range base (- (+ base len) 1))))
@@ -196,7 +78,7 @@
 ; Routing is as follows:
 (define (end-to-end-test-arity-2-bitwise-ops f module-name)
 
-  (define soln (helper-old f 2))
+  (define soln (helper f 2))
   (when (not (sat? soln))
     (error (format "Couldn't synthesize a program for module ~a" module-name)))
 
@@ -221,6 +103,7 @@
 
 (module+ test
   (require rackunit)
+  (displayln "Running end-to-end tests")
   (check-true (end-to-end-test-arity-2-bitwise-ops circt-comb-and "bitwise-and"))
   (check-true (end-to-end-test-arity-2-bitwise-ops circt-comb-or "bitwise-or"))
   (check-true (end-to-end-test-arity-2-bitwise-ops circt-comb-xor "bitwise-xor"))
@@ -273,7 +156,7 @@
                               [B (list-ref b-bits n)]
                               [A (list-ref a-bits n)]
                               [Z (list-ref out-bits n)]
-                              [INIT (hash-ref a-model lut-a)]
+                              [INIT (hash-ref a-model (list-ref luts n))]
                               [INIT (bitvector->natural INIT)]
                               [INIT (make-literal-value INIT 16)])
                          (make-lattice-lut4 INIT A B C D Z)))]

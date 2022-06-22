@@ -20,11 +20,8 @@
 ;
 ; TODO: It's probably worth putting this somewhere more generally usable.
 (define (lut memory inputs)
-  (displayln (format "[ + ] lut ~a ~a" memory inputs))
   (let* ([len    (length (bitvector->bits memory))]
-         [_      (displayln (format "[ + ] mem length of ~a" len))]
-         [inputs (zero-extend inputs (bitvector len))]
-         [_      (displayln (format "[ + ] zero-extended inputs: ~a" inputs))])
+         [inputs (zero-extend inputs (bitvector len))])
     (bit 0 (bvlshr memory inputs))))
 
 (module+ test
@@ -114,8 +111,6 @@
     (concat h g f e d c b a)))
 
 (define (interpret-lattice-ecp5-pfu interpreter expr)
-  (displayln (format "[ + ] interpret-lattice-ecp5-pfu ~a ~a" interpreter expr))
-  (displayln "")
   (match expr
     [`(lattice-ecp5-pfu ,lut-a
                         ,lut-b
@@ -126,30 +121,26 @@
                         ,lut-g
                         ,lut-h
                         ,inputs)
-     (let* ([_          (displayln "[ + ] Interpretting inputs\n")]
-            [_          (displayln (format "[ + ] inputs ~a\n" inputs))]
-            [inputs     (interpreter  inputs)]
-            [_          (displayln (format "[ + ] inputs: ~a\n" inputs))]
+     (let* ([inputs     (interpreter  inputs)]
             [pfu        (lattice-ecp5-pfu lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
        (apply interpret-ecp5-pfu-impl pfu inputs))]))
 
 ; Returns the physical outputs of the PFU
 (define (interpret-ecp5-pfu-impl pfu
-                            lut-input-a
-                            lut-input-b
-                            lut-input-c
-                            lut-input-d
-                            lut-input-e
-                            lut-input-f
-                            lut-input-g
-                            lut-input-h)
-  (displayln (format "[ + ] interpret-lut4-impl \n   pfu: ~a\n   lut-input-a: ~a\n   lut-input-b: ~a ..." 
-                     pfu
-                     lut-input-a
-                     lut-input-b))
+                                 lut-input-a
+                                 lut-input-b
+                                 lut-input-c
+                                 lut-input-d
+                                 lut-input-e
+                                 lut-input-f
+                                 lut-input-g
+                                 lut-input-h)
+  ; TODO: This can be a let*?
+  ; TODO: can we get rid of the pfu struct and use luts directly? or make the
+  ; pfu a list instead of a struct? We are just packing/unpacking the struct
+  ; which is verbose
   (match-let*
       ([a-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-a pfu) lut-input-a)]
-       [_   (displayln (format "[ + ] a-z: ~a" a-z))]
        [b-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-b pfu) lut-input-b)]
        [c-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-c pfu) lut-input-c)]
        [d-z (interpret-lut4-impl (lattice-ecp5-pfu-lut-d pfu) lut-input-d)]
@@ -186,30 +177,25 @@
          [inputs-ds (make-list 8 (bv #xd 4))]
          [inputs-es (make-list 8 (bv #xe 4))]
          [inputs-fs (make-list 8 (bv #xf 4))])
-    (check-equal? (apply interpret-pfu-impl pfu inputs-0s) (bv #b00000001 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-1s) (bv #b00000001 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-2s) (bv #b00000010 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-3s) (bv #b00000010 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-4s) (bv #b00000100 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-5s) (bv #b00000100 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-6s) (bv #b00001000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-7s) (bv #b00001000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-8s) (bv #b00010000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-9s) (bv #b00010000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-as) (bv #b00100000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-bs) (bv #b00100000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-cs) (bv #b01000000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-ds) (bv #b01000000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-es) (bv #b10000000 8))
-    (check-equal? (apply interpret-pfu-impl pfu inputs-fs) (bv #b10000000 8))))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-0s) (bv #b00000001 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-1s) (bv #b00000001 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-2s) (bv #b00000010 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-3s) (bv #b00000010 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-4s) (bv #b00000100 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-5s) (bv #b00000100 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-6s) (bv #b00001000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-7s) (bv #b00001000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-8s) (bv #b00010000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-9s) (bv #b00010000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-as) (bv #b00100000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-bs) (bv #b00100000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-cs) (bv #b01000000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-ds) (bv #b01000000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-es) (bv #b10000000 8))
+    (check-equal? (apply interpret-ecp5-pfu-impl pfu inputs-fs) (bv #b10000000 8))))
 
 (define (interpret-lut4-impl l inputs)
-  (displayln (format "[ + ] interpret-lut4-impl\n   - l: ~a\n   - inputs: ~a\n"
-                     l inputs))
-  (let* ([_      (displayln "Defining memory\n")]
-         [inputs (extract 3 0 inputs)]
-         [_      (displayln (format "[ + ] inputs ~a" inputs))])
-    (lut l inputs)))
+    (lut l (extract 3 0 inputs)))
 
 (module+ test
   (require rackunit)
