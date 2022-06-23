@@ -338,7 +338,7 @@
                    connections
                    #:attrs [attrs (hasheq)]
                    #:hide-name [hide-name 0]
-                   #:params [params '()])
+                   #:params [params (hasheq-helper)])
   (let ([cell (hasheq-helper 'type
                              type
                              'port_directions
