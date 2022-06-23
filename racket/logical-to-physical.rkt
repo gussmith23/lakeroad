@@ -7,13 +7,35 @@
 ;;; This module provides tools for representing these mappings.
 
 (provide interpret-logical-to-physical-mapping
-         interpret-physical-to-logical-mapping)
+         interpret-physical-to-logical-mapping
+         compile-logical-to-physical-mapping
+         compile-physical-to-logical-mapping)
 
 (require rosette
          rosette/lib/synthax)
 
 (define (transpose inputs)
   (apply map concat (map bitvector->bits (reverse inputs))))
+
+;;; Compiles physical-to-logical mapping.
+(define (compile-physical-to-logical-mapping compile expr)
+  (match-let* ([`(physical-to-logical-mapping (bitwise) ,physical-expr) expr]
+               [`((,a-out) (,b-out) (,c-out) (,d-out) (,e-out) (,f-out) (,g-out) (,h-out))
+                (compile physical-expr)])
+              (list (list h-out g-out f-out e-out d-out c-out b-out a-out))))
+
+;;; Compiles logical-to-physical mapping.
+(define (compile-logical-to-physical-mapping compile expr)
+  (match-let*
+   ([`(logical-to-physical-mapping (bitwise) ,logical-expr) expr] [logical (compile logical-expr)])
+   (reverse (apply map list (reverse logical)))))
+
+(module+ test
+  (require rackunit)
+  (check-equal?
+   (compile-logical-to-physical-mapping identity
+                                        '(logical-to-physical-mapping (bitwise) ((1 2 6) (3 4 5))))
+   '((5 6) (4 2) (3 1))))
 
 ;;; Interprets logical-to-physical-input mapping.
 ;;;

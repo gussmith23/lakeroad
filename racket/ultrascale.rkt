@@ -9,11 +9,14 @@
          compile-ultrascale-plus-dsp48e2
          interpret-ultrascale-plus-dsp48e2
          ultrascale-plus-dsp48e2
-         ultrascale-plus-grammar)
+         ultrascale-plus-grammar
+         make-ultrascale-plus-clb)
 
 (require rosette
          rosette/lib/synthax
          "comp-json.rkt")
+
+;;; Compile program in Lakeroad DSL to module.
 
 ;;; Convert LUT6_2 to JSON.
 (define (make-ultrascale-plus-lut6-2 init-mem I0 I1 I2 I3 I4 I5 O5 O6 #:attrs [attrs (hasheq)])
@@ -26,118 +29,128 @@
 (define (make-ultrascale-plus-carry8 CI_TOP CI DI S O CO)
   (make-cell "CARRY8"
              (make-cell-port-directions '(CI_TOP CI DI S) '(O CO))
-             (make-cell-connections 'CI_TOP CI_TOP 'CI CI 'DI DI 'S S 'O O 'CO CO)))
+             (hasheq-helper 'CI_TOP (list CI_TOP) 'CI (list CI) 'DI DI 'S S 'O O 'CO CO)))
 
-;;; Convert entire CLB to JSON.
-(define (make-ultrascale-plus-clb module-name
-                                  cin
-                                  lut-memory-a
-                                  lut-memory-b
-                                  lut-memory-c
-                                  lut-memory-d
-                                  lut-memory-e
-                                  lut-memory-f
-                                  lut-memory-g
-                                  lut-memory-h
-                                  mux-selector-a
-                                  mux-selector-b
-                                  mux-selector-c
-                                  mux-selector-d
-                                  mux-selector-e
-                                  mux-selector-f
-                                  mux-selector-g
-                                  mux-selector-h
-                                  mask-a
-                                  mask-b
-                                  mask-c
-                                  mask-d
-                                  mask-e
-                                  mask-f
-                                  mask-g
-                                  mask-h)
+;;; Make module definition for CLB.
+(define (make-ultrascale-plus-clb lakeroad->jsexpr
+                                  get-bits
+                                  add-cell
+                                  add-netname
+                                  add-parameter-default-value
+                                  expr)
+
   ; Make module for CLB.
-  (let* ([doc (make-lakeroad-json-doc)]
-         ;;; Add params. For now, just the LUT INIT values.
-         [doc (hasheq-helper #:base doc
-                             'parameter_default_values
-                             (hasheq-helper 'A_INIT
-                                            (make-literal-value 0 64)
-                                            'B_INIT
-                                            (make-literal-value 0 64)
-                                            'C_INIT
-                                            (make-literal-value 0 64)
-                                            'D_INIT
-                                            (make-literal-value 0 64)
-                                            'E_INIT
-                                            (make-literal-value 0 64)
-                                            'F_INIT
-                                            (make-literal-value 0 64)
-                                            'G_INIT
-                                            (make-literal-value 0 64)
-                                            'H_INIT
-                                            (make-literal-value 0 64)))]
-         [a_ins (range 2 (+ 2 6))]
-         [b_ins (range 8 (+ 8 6))]
-         [c_ins (range 14 (+ 14 6))]
-         [d_ins (range 20 (+ 20 6))]
-         [e_ins (range 26 (+ 26 6))]
-         [f_ins (range 32 (+ 32 6))]
-         [g_ins (range 38 (+ 38 6))]
-         [h_ins (range 44 (+ 44 6))]
-         [a_outs (range 48 (+ 48 2))]
-         [b_outs (range 50 (+ 50 2))]
-         [c_outs (range 52 (+ 52 2))]
-         [d_outs (range 54 (+ 54 2))]
-         [e_outs (range 56 (+ 56 2))]
-         [f_outs (range 58 (+ 58 2))]
-         [g_outs (range 60 (+ 60 2))]
-         [h_outs (range 62 (+ 62 2))]
+  (match-let*
+   ([`(ultrascale-plus-clb ,cin
+                           ,lut-a
+                           ,lut-b
+                           ,lut-c
+                           ,lut-d
+                           ,lut-e
+                           ,lut-f
+                           ,lut-g
+                           ,lut-h
+                           ,mux-selector-a
+                           ,mux-selector-b
+                           ,mux-selector-c
+                           ,mux-selector-d
+                           ,mux-selector-e
+                           ,mux-selector-f
+                           ,mux-selector-g
+                           ,mux-selector-h
+                           ,inputs)
+     expr]
+    ;;; Compile input expression.
+    [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) (lakeroad->jsexpr inputs)]
+    ;;; Index bitvector at bits. This is just a helper that reverses the bits first, so that the
+    ;;; LSB is indexed with n=0.
+    [bit (lambda (n l) (list-ref (reverse l) n))]
+    ;;; Nets.
+    [luts_O5 (get-bits 8)]
+    [luts_O6 (get-bits 8)]
+    [o (get-bits 8)]
+    [co (get-bits 8)]
+    [mux-helper
+     (lambda (o5 o6 carry-o carry-co selector)
+       (if (bveq selector (bv 0 2))
+           o5
+           (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
+    [out
+     (map mux-helper
+          luts_O5
+          luts_O6
+          o
+          co
+          (list mux-selector-h
+                mux-selector-g
+                mux-selector-f
+                mux-selector-e
+                mux-selector-d
+                mux-selector-c
+                mux-selector-b
+                mux-selector-a))]
+    ;;; LUTs.
+    [A_LUT
+     (apply make-ultrascale-plus-lut6-2
+            (make-literal-value-from-bv lut-a)
+            (append (reverse a-ins) (list (bit 0 luts_O5) (bit 0 luts_O6))))]
+    [B_LUT
+     (apply make-ultrascale-plus-lut6-2
+            (make-literal-value-from-bv lut-b)
+            (append (reverse b-ins) (list (bit 1 luts_O5) (bit 1 luts_O6))))]
+    [C_LUT
+     (apply make-ultrascale-plus-lut6-2
+            (make-literal-value-from-bv lut-c)
+            (append (reverse c-ins) (list (bit 2 luts_O5) (bit 2 luts_O6))))]
+    [D_LUT
+     (apply make-ultrascale-plus-lut6-2
+            (make-literal-value-from-bv lut-d)
+            (append (reverse d-ins) (list (bit 3 luts_O5) (bit 3 luts_O6))))]
+    [E_LUT
+     (apply make-ultrascale-plus-lut6-2
+            (make-literal-value-from-bv lut-e)
+            (append (reverse e-ins) (list (bit 4 luts_O5) (bit 4 luts_O6))))]
+    [F_LUT
+     (apply make-ultrascale-plus-lut6-2
+            (make-literal-value-from-bv lut-f)
+            (append (reverse f-ins) (list (bit 5 luts_O5) (bit 5 luts_O6))))]
+    [G_LUT
+     (apply make-ultrascale-plus-lut6-2
+            (make-literal-value-from-bv lut-g)
+            (append (reverse g-ins) (list (bit 6 luts_O5) (bit 6 luts_O6))))]
+    [H_LUT
+     (apply make-ultrascale-plus-lut6-2
+            (make-literal-value-from-bv lut-h)
+            (append (reverse h-ins) (list (bit 7 luts_O5) (bit 7 luts_O6))))]
+    ;;; Carry.
+    [cin-val (if (equal? cin (bv 0 1)) 0 (if (equal? cin (bv 1 1)) 1 (error "unexpected cin")))]
+    [carry (make-ultrascale-plus-carry8 0 cin-val luts_O5 luts_O6 o co)])
+   (add-cell 'A_LUT A_LUT)
+   (add-cell 'B_LUT B_LUT)
+   (add-cell 'C_LUT C_LUT)
+   (add-cell 'D_LUT D_LUT)
+   (add-cell 'E_LUT E_LUT)
+   (add-cell 'F_LUT F_LUT)
+   (add-cell 'G_LUT G_LUT)
+   (add-cell 'H_LUT H_LUT)
+   (add-cell 'carry carry)
+   (add-netname 'luts_O5 (make-net-details luts_O5))
+   (add-netname 'luts_O6 (make-net-details luts_O6))
+   (add-netname 'o (make-net-details o))
+   (add-netname 'co (make-net-details co))
+   ; Return ((lut-a-out) (lut-b-out) ... (lut-h-out))
+   (map list (reverse out))))
 
-         [A_LUT (apply make-ultrascale-plus-lut6-2 'A_INIT (append a_ins a_outs))]
-         [B_LUT (apply make-ultrascale-plus-lut6-2 'B_INIT (append b_ins b_outs))]
-         [C_LUT (apply make-ultrascale-plus-lut6-2 'C_INIT (append c_ins c_outs))]
-         [D_LUT (apply make-ultrascale-plus-lut6-2 'D_INIT (append d_ins d_outs))]
-         [E_LUT (apply make-ultrascale-plus-lut6-2 'E_INIT (append e_ins e_outs))]
-         [F_LUT (apply make-ultrascale-plus-lut6-2 'F_INIT (append f_ins f_outs))]
-         [G_LUT (apply make-ultrascale-plus-lut6-2 'G_INIT (append g_ins g_outs))]
-         [H_LUT (apply make-ultrascale-plus-lut6-2 'H_INIT (append h_ins h_outs))]
-
-         [cells (make-cells 'A_LUT
-                            A_LUT
-                            'B_LUT
-                            B_LUT
-                            'C_LUT
-                            C_LUT
-                            'D_LUT
-                            D_LUT
-                            'E_LUT
-                            E_LUT
-                            'F_LUT
-                            F_LUT
-                            'G_LUT
-                            G_LUT
-                            'H_LUT
-                            H_LUT)]
-
-         ; [====== Netnames ======]
-         ; Now let's specify how things are linked together. This is pretty
-         ; straightforward since this design is so simple
-         [nn-a (make-net-details (list 2 3))]
-         [nn-b (make-net-details (list 4 5))]
-         [nn-out (make-net-details (list 6 7))]
-         [netnames (make-netnames 'a nn-a 'b nn-b 'out nn-out)]
-
-         ; [====== Module ======]
-         ; Finally, let's combine this into a module and add it to our Lakeroad
-         ; JSON file.
-         [adder-2-bit (make-module ports cells netnames)])
-    (add-module-to-doc doc '2-bit-adder adder-2-bit)
-    doc))
-
-(module+ test
-  (require rackunit)
-  (displayln (make-ultrascale-plus-lut6-2 (bv 1 1) 'I0 'I1 'I2 'I3 'I4 'I5 'O5 'O6))
-  (exit 1))
+;;; (module+ test
+;;;   (require rackunit)
+;;;   (require json)
+;;;   (define json-file (make-temporary-file "~a.json"))
+;;;   (define verilog-file (make-temporary-file "~a.sv"))
+;;;   ;;; Unsure why, but (write-json) doesn't work for me.
+;;;   (displayln (jsexpr->string (make-ultrascale-plus-clb-module-definition 'clb))
+;;;              (open-output-file json-file #:mode 'text #:exists 'must-truncate))
+;;;   (when (not (system (format "yosys -p \"read_json ~a; write_verilog ~a\"" json-file verilog-file)))
+;;;     (error "Yosys failed")))
 
 ;;; Grammar for synthesizing instruction implementations on UltraScale+.
 ;;;
