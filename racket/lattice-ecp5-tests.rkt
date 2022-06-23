@@ -14,16 +14,16 @@
 
 (current-solver (boolector))
 
-(define luts           (make-n-symbolics 8 (bitvector 16)))
+(define luts (make-n-symbolics 8 (bitvector 16)))
 (define logical-inputs (make-n-symbolics 4 (bitvector 8)))
-(define lut-inputs     (apply lattice-ecp5-logical-to-physical-inputs logical-inputs))
-(define out        (interpret `(lattice-ecp5-pfu ,@luts ,lut-inputs)))
+(define lut-inputs (apply lattice-ecp5-logical-to-physical-inputs logical-inputs))
+(define out (interpret `(lattice-ecp5-pfu ,@luts ,lut-inputs)))
 
 (define (helper f arity)
-  (define soln (synthesize #:forall logical-inputs
-                           #:guarantee
-                           (begin
-                             (assert (bveq (apply f (take logical-inputs arity)) out)))))
+  (define soln
+    (synthesize #:forall logical-inputs
+                #:guarantee (begin
+                              (assert (bveq (apply f (take logical-inputs arity)) out)))))
   soln)
 
 (module+ test
@@ -42,20 +42,20 @@
   (displayln "Testing Synthesis of CIRCT Comb Dialect Functions")
   ; CIRCT Comb dialect.
   (check-false (sat? (helper circt-comb-add 2)))
-  (check-true  (sat? (helper circt-comb-and 2)))
+  (check-true (sat? (helper circt-comb-and 2)))
   (check-false (sat? (helper circt-comb-divs 2)))
   (check-false (sat? (helper circt-comb-divu 2)))
   (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
   (check-false (sat? (helper circt-comb-mods 2)))
   (check-false (sat? (helper circt-comb-mul 2)))
   (check-false (sat? (helper circt-comb-mux 3)))
-  (check-true  (sat? (helper circt-comb-or 2)))
+  (check-true (sat? (helper circt-comb-or 2)))
   (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
   (check-false (sat? (helper circt-comb-shl 2)))
   (check-false (sat? (helper circt-comb-shrs 2)))
   (check-false (sat? (helper circt-comb-shru 2)))
   (check-false (sat? (helper circt-comb-sub 2)))
-  (check-true  (sat? (helper circt-comb-xor 2)))
+  (check-true (sat? (helper circt-comb-xor 2)))
 
   (displayln "Testing Synthesis of Bithack Examples")
   ; ; Bithack examples.
@@ -208,42 +208,31 @@
     (add-module-to-doc doc module-name modul)
     doc))
 
-
 (define (end-to-end-with-lakeroad-syntax f mod-name #:arity [arity 2])
   (define expr
-    `(physical-to-logical-mapping
-      (bitwise)
-      (lattice-ecp5-pfu ,(?? (bitvector 16))
-                        ,(?? (bitvector 16))
-                        ,(?? (bitvector 16))
-                        ,(?? (bitvector 16))
-                        ,(?? (bitvector 16))
-                        ,(?? (bitvector 16))
-                        ,(?? (bitvector 16))
-                        ,(?? (bitvector 16)))))
+    `(physical-to-logical-mapping (bitwise)
+                                  (lattice-ecp5-pfu ,(?? (bitvector 16))
+                                                    ,(?? (bitvector 16))
+                                                    ,(?? (bitvector 16))
+                                                    ,(?? (bitvector 16))
+                                                    ,(?? (bitvector 16))
+                                                    ,(?? (bitvector 16))
+                                                    ,(?? (bitvector 16))
+                                                    ,(?? (bitvector 16)))))
   (define out (interpret expr))
 
-(define soln
-  (synthesize 
-   #:forall logical-inputs
-   #:guarantee
-   (begin
-     (for ([logical-input (list-tail logical-inputs arity)])
-       (assume (bvzero? logical-input)))
-     (assert (bveq (apply f (take logical-inputs arity)) out)))))
+  (define soln
+    (synthesize #:forall logical-inputs
+                #:guarantee (begin
+                              (for ([logical-input (list-tail logical-inputs arity)])
+                                (assume (bvzero? logical-input)))
+                              (assert (bveq (apply f (take logical-inputs arity)) out)))))
 
-(define evaluated (evaluate expr soln))
+  (define evaluated (evaluate expr soln))
 
   (match-define `(physical-to-logical-mapping
                   (bitwise)
-                  (lattice-ecp5-pfu ,lut-a
-                                    ,lut-b
-                                    ,lut-c
-                                    ,lut-d
-                                    ,lut-e
-                                    ,lut-f
-                                    ,lut-g
-                                    ,lut-h))
+                  (lattice-ecp5-pfu ,lut-a ,lut-b ,lut-c ,lut-d ,lut-e ,lut-f ,lut-g ,lut-h))
     evaluated)
   (displayln evaluated)
   '())

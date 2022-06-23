@@ -16,8 +16,7 @@
 ;
 ; TODO: It's probably worth putting this somewhere more generally usable.
 (define (lut memory inputs)
-  (let* ([len    (length (bitvector->bits memory))]
-         [inputs (zero-extend inputs (bitvector len))])
+  (let* ([len (length (bitvector->bits memory))] [inputs (zero-extend inputs (bitvector len))])
     (bit 0 (bvlshr memory inputs))))
 
 (module+ test
@@ -29,23 +28,14 @@
 
 (define (interpret-lattice-ecp5 interpreter expr)
   (match expr
-    [`(lattice-ecp5-pfu ,lut-a
-                        ,lut-b
-                        ,lut-c
-                        ,lut-d
-                        ,lut-e
-                        ,lut-f
-                        ,lut-g
-                        ,lut-h
-                        ,inputs)
-     (let* ([inputs     (interpreter  inputs)]
-            [pfu        (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
+    [`(lattice-ecp5-pfu ,lut-a ,lut-b ,lut-c ,lut-d ,lut-e ,lut-f ,lut-g ,lut-h ,inputs)
+     (let* ([inputs (interpreter inputs)]
+            [pfu (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
        (interpret-ecp5-pfu-impl pfu inputs))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
 ; Returns the physical outputs of the PFU
-(define (interpret-ecp5-pfu-impl pfu
-                                 lut-inputs)
+(define (interpret-ecp5-pfu-impl pfu lut-inputs)
   (apply concat
          (reverse (for/list ([l pfu] [i lut-inputs])
                     (interpret-lut4-impl l i)))))
@@ -95,7 +85,7 @@
     (check-equal? (interpret-ecp5-pfu-impl pfu inputs-fs) (bv #b10000000 8))))
 
 (define (interpret-lut4-impl l inputs)
-    (lut l (extract 3 0 inputs)))
+  (lut l (extract 3 0 inputs)))
 
 (module+ test
   (require rackunit)
@@ -104,7 +94,6 @@
     (check-equal? (interpret-lut4-impl l (bv 1 4)) (bv 1 1))
     (check-equal? (interpret-lut4-impl l (bv 2 4)) (bv 1 1))
     (check-equal? (interpret-lut4-impl l (bv 3 4)) (bv 0 1))))
-
 
 ; Implements the basic arity-4 routing template for bv8 inputs.
 ;
@@ -122,7 +111,7 @@
 ; Physical Inputs:
 ;
 ;   Each 'physical input' represents an input pin on a LUT4.
-; 
+;
 ;
 ; Diagramatically, this routing template looks like:
 ;
@@ -183,7 +172,7 @@
          [li2 (bv #b11001100 8)]
          [li3 (bv #b10101010 8)]
          [out (lattice-ecp5-logical-to-physical-inputs li0 li1 li2 li3)])
-         
+
     (check-equal? (list-ref out 7) (bv #b1110 4))
     (check-equal? (list-ref out 6) (bv #b0110 4))
     (check-equal? (list-ref out 5) (bv #b1010 4))
