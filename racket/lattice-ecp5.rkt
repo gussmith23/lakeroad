@@ -3,7 +3,6 @@
 (require rosette)
 
 (provide interpret-lattice-ecp5
-         interpret-lattice-ecp5-pfu
          lattice-ecp5-logical-to-physical-inputs)
 
 ; The output of a LUT is simply the bit at the entry pointed to by `inputs`,
@@ -29,9 +28,6 @@
   (check-equal? (lut (bv #b0110 4) (bv 3 2)) (bv #b0 1)))
 
 (define (interpret-lattice-ecp5 interpreter expr)
-  '())
-
-(define (interpret-lattice-ecp5-pfu interpreter expr)
   (match expr
     [`(lattice-ecp5-pfu ,lut-a
                         ,lut-b
@@ -44,7 +40,8 @@
                         ,inputs)
      (let* ([inputs     (interpreter  inputs)]
             [pfu        (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
-       (interpret-ecp5-pfu-impl pfu inputs))]))
+       (interpret-ecp5-pfu-impl pfu inputs))]
+    [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
 ; Returns the physical outputs of the PFU
 (define (interpret-ecp5-pfu-impl pfu
