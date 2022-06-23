@@ -58,6 +58,8 @@
       (error (format "Failed to translate JSON to Verilog w/ command: `~a`" command)))))
 
 (define (make-n-symbolics n type)
-  (define (helper) (define-symbolic* x type) x)
+  (define (helper)
+    (define-symbolic* x type)
+    x)
   (for/list ([x (range n)])
     (helper)))
