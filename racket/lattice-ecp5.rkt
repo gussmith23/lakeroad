@@ -199,5 +199,4 @@
     (check-equal? (list-ref out 3) (bv #b1100 4))
     (check-equal? (list-ref out 2) (bv #b0100 4))
     (check-equal? (list-ref out 1) (bv #b1000 4))
-    (check-equal? (list-ref out 0) (bv #b0000 4))
-    ))
+    (check-equal? (list-ref out 0) (bv #b0000 4))))
