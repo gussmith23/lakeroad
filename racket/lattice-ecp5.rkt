@@ -46,14 +46,9 @@
 ; Returns the physical outputs of the PFU
 (define (interpret-ecp5-pfu-impl pfu
                                  lut-inputs)
-  ; TODO: This can be a let*?
-  ; TODO: can we get rid of the pfu struct and use luts directly? or make the
-  ; pfu a list instead of a struct? We are just packing/unpacking the struct
-  ; which is verbose
-  (let ([bits (for/list ([l pfu]
-                         [i lut-inputs])
-                (interpret-lut4-impl l i))])
-    (apply concat (reverse bits))))
+  (apply concat
+         (reverse (for/list ([l pfu] [i lut-inputs])
+                    (interpret-lut4-impl l i)))))
 
 (module+ test
   (require rackunit)
