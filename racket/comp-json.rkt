@@ -152,12 +152,19 @@
 ;            `make-netnames`
 ;
 ; Spec: https://github.com/uwsampl/lakeroad-evaluation/blob/461d27016826b5b4bcbbab6325343638cfb01639/instructions/pnr-experiments/nextpnr-json-docs.txt#L18-L43
-(define (make-module ports cells netnames #:attributes [attrs '()] #:memories [mems '()])
+(define (make-module ports
+                     cells
+                     netnames
+                     #:attributes [attrs '()]
+                     #:memories [mems '()]
+                     #:parameter-default-values [parameter-default-values '()])
   (let ([modul (hasheq-helper 'ports ports 'cells cells 'netnames netnames)])
     (when (not (empty? attrs))
       (hash-set! modul 'attributes attrs))
     (when (not (empty? mems))
       (hash-set! modul 'memories mems))
+    (when (not (empty? parameter-default-values))
+      (hash-set! modul 'parameter_default_values parameter-default-values))
     modul))
 
 ; Add a module to the `modules` map, checking to ensure that there isn't a name
