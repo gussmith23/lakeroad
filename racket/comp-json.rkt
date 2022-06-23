@@ -4,12 +4,14 @@
 ; https://github.com/YosysHQ/yosys/blob/63c9c9be5c0b0cc2b7f4588f1ac8e72eabc6bd0a/backends/json/json.cc#L340
 ;
 
-(require json)
-(require racket/format)
+(require json
+         racket/format
+         rosette)
 
 (provide hasheq-helper
          as-symbol
          make-literal-value
+         make-literal-value-from-bv
          make-literal-value-list
          make-lakeroad-json-doc
          ; module level functions
@@ -56,6 +58,9 @@
 
 (define (make-literal-value n prec)
   (~a (number->string n 2) #:width prec #:align 'right #:pad-string "0"))
+
+(define (make-literal-value-from-bv bv)
+  (make-literal-value (bitvector->natural bv) (length (bitvector->bits bv))))
 
 (define (make-literal-value-list ns prec)
   (for/list ([n ns])
