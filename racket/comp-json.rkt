@@ -330,6 +330,7 @@
                         (for/list ([output outputs])
                           (cons output "output"))))))
 
+;;; TODO I don't think this is always what you want. e.g. (make-cell-connections 'signal signal) where signal is a list.
 (define make-cell-connections (curry hasheq-helper #:valfn list))
 
 (define (make-cell type
