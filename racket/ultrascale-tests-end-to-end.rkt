@@ -11,15 +11,16 @@
 ;;; Rosette bitvector expression to C expression.
 (define (bvexpr->cexpr expr)
   (match expr
-    [`(bvand ,a ,b) (format "(~a & ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [`(bvxor ,a ,b) (format "(~a ^ ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [`(bvor ,a ,b) (format "(~a | ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [`(bvsub ,a ,b) (format "(~a - ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [`(bvadd ,a ,b) (format "(~a + ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [`(bvnot ,a) (format "(~~~a)" (bvexpr->cexpr a))]
-    [(? symbolic? (? bv? a)) (~a a)]))
+    [(expression (== bvand) a b) (format "(~a & ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvxor) a b) (format "(~a ^ ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvor) a b) (format "(~a | ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvsub) a b) (format "(~a - ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvadd) a b) (format "(~a + ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvnot) a) (format "(~~~a)" (bvexpr->cexpr a))]
+    [(expression (== bvneg) a) (format "(-~a)" (bvexpr->cexpr a))]
+    [(? constant? a) (~a a)]))
 
-(define (end-to-end-test instr instr-expr)
+(define (end-to-end-test instr)
   (when (> (length (symbolics instr)) 6)
     (error "Only 6 inputs supported"))
 
@@ -96,8 +97,8 @@
      (if (>= (length (symbolics instr)) 6) "255" "0")
      verilated-type-name
      verilated-type-name
-     (bvexpr->cexpr instr-expr)
-     (bvexpr->cexpr instr-expr)))
+     (bvexpr->cexpr instr)
+     (bvexpr->cexpr instr)))
 
   (define testbench-file (make-temporary-file "rkttmp~a.cc"))
   (display-to-file testbench-source testbench-file #:exists 'update)
@@ -124,11 +125,11 @@
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (define-symbolic l0 l1 (bitvector 8))
 
-  (check-true (end-to-end-test (bvand l0 l1) `(bvand ,l0 ,l1)))
-  (check-true (end-to-end-test (bvxor l0 l1) `(bvxor ,l0 ,l1)))
-  (check-true (end-to-end-test (bvor l0 l1) `(bvor ,l0 ,l1)))
-  (check-true (end-to-end-test (bvadd l0 l1) `(bvadd ,l0 ,l1)))
-  (check-true (end-to-end-test (bvsub l0 l1) `(bvsub ,l0 ,l1)))
-  (check-true (end-to-end-test (bithack1 l0 l1) `(bithack1 ,l0 ,l1)))
-  (check-true (end-to-end-test (bithack2 l0 l1) `(bithack2 ,l0 ,l1)))
-  (check-true (end-to-end-test (bithack3 l0 l1) `(bithack3 ,l0 ,l1))))
+  (check-true (end-to-end-test (bvand l0 l1)))
+  (check-true (end-to-end-test (bvxor l0 l1)))
+  (check-true (end-to-end-test (bvor l0 l1)))
+  (check-true (end-to-end-test (bvadd l0 l1)))
+  (check-true (end-to-end-test (bvsub l0 l1)))
+  (check-true (end-to-end-test (bithack1 l0 l1)))
+  (check-true (end-to-end-test (bithack2 l0 l1)))
+  (check-true (end-to-end-test (bithack3 l0 l1))))
