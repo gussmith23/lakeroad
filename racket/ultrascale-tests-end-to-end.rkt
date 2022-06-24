@@ -106,16 +106,16 @@
   (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
 
   ; TODO(@gussmith23) hardcoded dir
-  (when (not
-         (system
-          (format
-           "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING --Mdir ~a --cc ~a -I ~a/CARRY8.v -I ~a/LUT6_2.v --build --exe ~a"
-           verilator-make-dir
-           verilog-file
-           verilator-unisims-dir
-           verilator-unisims-dir
-           testbench-file)))
-    (error "Verilator failed"))
+  (define verilator-command
+    (format
+     "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING --Mdir ~a --cc ~a -I ~a/CARRY8.v -I ~a/LUT6_2.v --build --exe ~a"
+     verilator-make-dir
+     verilog-file
+     verilator-unisims-dir
+     verilator-unisims-dir
+     testbench-file))
+  (when (not (system verilator-command))
+    (error (format "Verilator command failed:\n~a" verilator-command)))
 
   (system* (build-path verilator-make-dir verilated-type-name)))
 
