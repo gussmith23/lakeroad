@@ -111,7 +111,7 @@
                             (hasheq-helper 'out0
                                            (hasheq-helper 'bits '(0 1 1 0) 'direction "output")
                                            'out1
-                                           (hasheq-helper 'bits '(0 0 0 1 1 1) 'direction "output"))))
+                                           (hasheq-helper 'bits '(1 1 1 0 0 0) 'direction "output"))))
 
   (test-begin (current-solver (boolector))
               (define-symbolic a b (bitvector 8))
