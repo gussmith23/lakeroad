@@ -43,8 +43,8 @@ int main(int argc, char **argv, char **env)
               uint8_t out = run(top, l0, l1, l2, l3, l4, l5);
               uint8_t expected = ~a;
 
-              // printf("~a with a=%d b=%d c=%d == %d, should equal %d\n", a, b, c, out, expected);
-              // printf("input_a= %d, input_b= %d\n", top->input_a, top->input_b);
+              // Uncoment this when you want to debug.
+              // printf("~a with l0=%d l1=%d l2=%d  == %d, should equal %d\n", l0, l1, l2, out, expected);
 
               assert(out == expected);
             }
