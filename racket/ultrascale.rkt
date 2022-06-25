@@ -62,9 +62,8 @@
      expr]
     ;;; Compile input expression.
     [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) (lakeroad->jsexpr inputs)]
-    ;;; Index bitvector at bits. This is just a helper that reverses the bits first, so that the
-    ;;; LSB is indexed with n=0.
-    [bit (lambda (n l) (list-ref (reverse l) n))]
+    ;;; Index bitvector at bit id.
+    [bit (lambda (n l) (list-ref l n))]
     ;;; Nets.
     [luts_O5 (get-bits 8)]
     [luts_O6 (get-bits 8)]
@@ -81,50 +80,49 @@
           luts_O6
           o
           co
-          (list mux-selector-h
-                mux-selector-g
-                mux-selector-f
-                mux-selector-e
-                mux-selector-d
-                mux-selector-c
+          (list mux-selector-a
                 mux-selector-b
-                mux-selector-a))]
+                mux-selector-c
+                mux-selector-d
+                mux-selector-e
+                mux-selector-f
+                mux-selector-g
+                mux-selector-h))]
     ;;; LUTs.
     [A_LUT
      (apply make-ultrascale-plus-lut6-2
             (make-literal-value-from-bv lut-a)
-            (append (reverse a-ins) (list (bit 0 luts_O5) (bit 0 luts_O6))))]
+            (append a-ins (list (bit 0 luts_O5) (bit 0 luts_O6))))]
     [B_LUT
      (apply make-ultrascale-plus-lut6-2
             (make-literal-value-from-bv lut-b)
-            (append (reverse b-ins) (list (bit 1 luts_O5) (bit 1 luts_O6))))]
+            (append b-ins (list (bit 1 luts_O5) (bit 1 luts_O6))))]
     [C_LUT
      (apply make-ultrascale-plus-lut6-2
             (make-literal-value-from-bv lut-c)
-            (append (reverse c-ins) (list (bit 2 luts_O5) (bit 2 luts_O6))))]
+            (append c-ins (list (bit 2 luts_O5) (bit 2 luts_O6))))]
     [D_LUT
      (apply make-ultrascale-plus-lut6-2
             (make-literal-value-from-bv lut-d)
-            (append (reverse d-ins) (list (bit 3 luts_O5) (bit 3 luts_O6))))]
+            (append d-ins (list (bit 3 luts_O5) (bit 3 luts_O6))))]
     [E_LUT
      (apply make-ultrascale-plus-lut6-2
             (make-literal-value-from-bv lut-e)
-            (append (reverse e-ins) (list (bit 4 luts_O5) (bit 4 luts_O6))))]
+            (append e-ins (list (bit 4 luts_O5) (bit 4 luts_O6))))]
     [F_LUT
      (apply make-ultrascale-plus-lut6-2
             (make-literal-value-from-bv lut-f)
-            (append (reverse f-ins) (list (bit 5 luts_O5) (bit 5 luts_O6))))]
+            (append f-ins (list (bit 5 luts_O5) (bit 5 luts_O6))))]
     [G_LUT
      (apply make-ultrascale-plus-lut6-2
             (make-literal-value-from-bv lut-g)
-            (append (reverse g-ins) (list (bit 6 luts_O5) (bit 6 luts_O6))))]
+            (append g-ins (list (bit 6 luts_O5) (bit 6 luts_O6))))]
     [H_LUT
      (apply make-ultrascale-plus-lut6-2
             (make-literal-value-from-bv lut-h)
-            (append (reverse h-ins) (list (bit 7 luts_O5) (bit 7 luts_O6))))]
+            (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
     ;;; Carry.
-    [cin-val (if (equal? cin (bv 0 1)) "0" (if (equal? cin (bv 1 1)) "1" (error "unexpected cin")))]
-    [carry (make-ultrascale-plus-carry8 "0" cin-val luts_O5 luts_O6 o co)])
+    [carry (make-ultrascale-plus-carry8 "0" (bit 0(lakeroad->jsexpr cin)) luts_O5 luts_O6 o co)])
    (add-cell 'A_LUT A_LUT)
    (add-cell 'B_LUT B_LUT)
    (add-cell 'C_LUT C_LUT)
@@ -139,7 +137,7 @@
    (add-netname 'o (make-net-details o))
    (add-netname 'co (make-net-details co))
    ; Return ((lut-a-out) (lut-b-out) ... (lut-h-out))
-   (map list (reverse out))))
+   (map list  out)))
 
 ;;; (module+ test
 ;;;   (require rackunit)

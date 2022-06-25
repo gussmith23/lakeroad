@@ -68,7 +68,7 @@
        (hash-ref port-details 'bits)]
 
       ;;; Concrete bitvectors become constants.
-      [(? bv? (? concrete? s)) (map ~a (map bitvector->natural (reverse (bitvector->bits s))))]
+      [(? bv? (? concrete? s)) (map ~a (map bitvector->natural (bitvector->bits s)))]
 
       ;;; Should go near the bottom -- remember, nearly everything's a list underneath!
       [(? list? v) (map compile v)]))

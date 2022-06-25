@@ -22,20 +22,20 @@
   (match-let* ([`(physical-to-logical-mapping (bitwise) ,physical-expr) expr]
                [`((,a-out) (,b-out) (,c-out) (,d-out) (,e-out) (,f-out) (,g-out) (,h-out))
                 (compile physical-expr)])
-              (list (list h-out g-out f-out e-out d-out c-out b-out a-out))))
+              (list (list a-out b-out c-out d-out e-out f-out g-out h-out))))
 
 ;;; Compiles logical-to-physical mapping.
 (define (compile-logical-to-physical-mapping compile expr)
   (match-let*
    ([`(logical-to-physical-mapping (bitwise) ,logical-expr) expr] [logical (compile logical-expr)])
-   (reverse (apply map list (reverse logical)))))
+   (apply map list logical)))
 
 (module+ test
   (require rackunit)
   (check-equal?
    (compile-logical-to-physical-mapping identity
                                         '(logical-to-physical-mapping (bitwise) ((1 2 6) (3 4 5))))
-   '((5 6) (4 2) (3 1))))
+   '((1 3) (2 4) (6 5))))
 
 ;;; Interprets logical-to-physical-input mapping.
 ;;;
