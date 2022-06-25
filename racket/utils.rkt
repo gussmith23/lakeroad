@@ -2,7 +2,8 @@
 
 (provide bvlen
          bvtype
-         bvexpr->cexpr)
+         bvexpr->cexpr
+         json->verilog)
 
 (require rosette)
 
@@ -49,3 +50,8 @@
     [(? concrete? (? (bitvector 8) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 16) a)) (format "((uint16_t) ~a)" (bitvector->natural a))]
     [(? constant? a) (~a a)]))
+
+(define (json->verilog json verilog)
+  (let ([command (format "yosys -p \"read_json ~a ; write_verilog ~a" json verilog)])
+    (when (not (system command))
+      (error (format "Failed to translate JSON to Verilog w/ command: `~a`" command)))))
