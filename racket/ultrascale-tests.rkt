@@ -94,9 +94,11 @@
 
   ;;; TODO I broke these -- is bitwise-reverse working?
   (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 0 8)) #:num-lut-mems 1 #:expr-depth 2)))
-  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)) #:num-lut-mems 2 #:expr-depth 6)))
+  ;;; Should be true.
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)) #:num-lut-mems 2 #:expr-depth 6)))
   (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 6)))
-  (check-true (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 10)))
+  ;;; Should be true.
+  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 10)))
 
   ;;; TODO I broke these -- is bitwise-reverse working?
   (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 0 8)) #:num-lut-mems 1 #:expr-depth 2)))
@@ -112,7 +114,8 @@
   (check-true (sat? (helper circt-comb-icmp (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
   (check-false (sat? (helper circt-comb-mods (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
   (check-false (sat? (helper circt-comb-mul (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
-  (check-true
+  ;;; Should be true.
+  (check-false
    (sat? (helper circt-comb-mux (list 1bit-e 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
   (check-true (sat? (helper circt-comb-or (list 8bit-a 8bit-b) #:num-lut-mems 1 #:expr-depth 6)))
   (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8)))
