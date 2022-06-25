@@ -362,7 +362,7 @@
   (hash-ref (hash-ref cell 'connections) (as-symbol port)))
 
 ; Modify a `cells` hash-eq to map a name to a `cell`.  `cell`
-; should be created with `(make-port-details)`
+; should be created with `(make-cell)`
 (define (add-cell cells name cell)
   (let ([name (as-symbol name)])
     (when (hash-has-key? cells name)
