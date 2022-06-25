@@ -1,9 +1,11 @@
 #lang errortrace racket
 
-(require rosette)
+(require rosette
+         "comp-json.rkt")
 
 (provide interpret-lattice-ecp5
-         lattice-ecp5-logical-to-physical-inputs)
+         lattice-ecp5-logical-to-physical-inputs
+         lattice-pfu-helper)
 
 ; The output of a LUT is simply the bit at the entry pointed to by `inputs`,
 ; when interpreted as an integer.
@@ -181,3 +183,50 @@
     (check-equal? (list-ref out 2) (bv #b0100 4))
     (check-equal? (list-ref out 1) (bv #b1000 4))
     (check-equal? (list-ref out 0) (bv #b0000 4))))
+
+;;; Compile to JSON
+
+;;; (define (make-ultrascale-plus-clb compiler
+;;;                                   get-bits
+;;;                                   add-cell
+;;;                                   add-netname
+;;;                                   add-parameter-default-value
+;;;                                   expr)
+
+
+(define (make-lattice-lut4 init-mem A B C D Z #:attrs [attrs (hasheq)])
+  (make-cell "LUT4"
+             (make-cell-port-directions (list 'A 'B 'C 'D) (list 'Z))
+             (make-cell-connections 'A A 'B B 'C C 'D D 'Z Z)
+             #:params (hasheq 'INIT init-mem)))
+
+(define (lattice-pfu-helper compiler
+                            get-unique-bit-ids
+                            add-cell-to-module
+                            add-netname-to-module
+                            add-parameter-default-value
+                            expr)
+  (match-let* ([`(lattice-ecp5-pfu ,a ,b ,c ,d ,e ,f ,g ,h ,inputs) expr]
+               [inputs (compiler inputs)]
+               ; Reserve ds for output pins for 8 luts in the PFU
+               [luts-z (get-unique-bit-ids 8)]
+               [lut-mems (list a b c d e f g h)]
+               [LUTS (for/list ([lut lut-mems] [lut-input inputs] [z luts-z])
+                       (apply make-lattice-lut4
+                              (make-literal-value-from-bv lut)
+                              (append lut-input (list z))))])
+    ;; Add LUT cells
+    (for ([lut LUTS]
+          [c "ABCDEFGH"])
+      (add-cell-to-module (as-symbol (format "~a_LUT" c)) lut))
+    (for/list ([z luts-z]) (list z))))
+
+(define test-pfu `(lattice-ecp5-pfu ,(bv 0 16)
+                                    ,(bv 1 16)
+                                    ,(bv 2 16)
+                                    ,(bv 4 16)
+                                    ,(bv 8 16)
+                                    ,(bv 16 16)
+                                    ,(bv 32 16)
+                                    ,(bv 64 16)
+                                    ,(list (bv 0 4) (bv 0 4) (bv 0 4) (bv 0 4))))

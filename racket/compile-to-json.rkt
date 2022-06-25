@@ -4,6 +4,7 @@
 
 (require "comp-json.rkt"
          "ultrascale.rkt"
+         "lattice-ecp5.rkt"
          "logical-to-physical.rkt"
          rosette)
 
@@ -61,6 +62,8 @@
                                  add-netname
                                  add-parameter-default-value
                                  expr)]
+      [`(lattice-ecp5-pfu ,_ ...)
+        (lattice-pfu-helper compile get-bits add-cell add-netname add-parameter-default-value expr)]
       [`(physical-to-logical-mapping ,_ ...) (compile-physical-to-logical-mapping compile expr)]
       [`(logical-to-physical-mapping ,_ ...) (compile-logical-to-physical-mapping compile expr)]
 
