@@ -37,6 +37,11 @@
   (define (add-parameter-default-value k v)
     (hasheq-helper #:base parameter-default-values k v))
 
+  ;;; Generally: individual signals (symbolic constants e.g. 'a' or concrete constants e.g. (bv 1 2))
+  ;;; return a list of integers representing bit ids. Note that, in the case that a bit is hardwired
+  ;;; to 0 or 1, the id will instead be the strings "0" or "1" as per Yosys's JSON format definition.
+  ;;; "Blocks" like physical-to-logical mappings or CLBs return lists of signals (so, a list of lists
+  ;;; of integers).
   (define (compile expr)
     (match expr
       [`(ultrascale-plus-clb ,_ ...)
