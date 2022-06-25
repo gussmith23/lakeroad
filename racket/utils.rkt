@@ -3,7 +3,8 @@
 (provide bvlen
          bvtype
          bvexpr->cexpr
-         json->verilog)
+         json->verilog
+         make-n-symbolics)
 
 (require rosette)
 
@@ -55,3 +56,8 @@
   (let ([command (format "yosys -p \"read_json ~a ; write_verilog ~a" json verilog)])
     (when (not (system command))
       (error (format "Failed to translate JSON to Verilog w/ command: `~a`" command)))))
+
+(define (make-n-symbolics n type)
+  (define (helper) (define-symbolic* x type) x)
+  (for/list ([x (range n)])
+    (helper)))
