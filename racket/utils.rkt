@@ -1,7 +1,8 @@
 #lang errortrace racket
 
 (provide bvlen
-         bvtype)
+         bvtype
+         bvexpr->cexpr)
 
 (require rosette)
 
@@ -32,3 +33,18 @@
   (define-symbolic d (bitvector 3))
   (check-true ((bvtype b) c))
   (check-false ((bvtype b) d)))
+
+;;; Rosette bitvector expression to C expression.
+(define (bvexpr->cexpr expr)
+  (match expr
+    [(expression (== bvand) a b) (format "(~a & ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvxor) a b) (format "(~a ^ ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvor) a b) (format "(~a | ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvsub) a b) (format "(~a - ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvadd) a b) (format "(~a + ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvnot) a) (format "(~~~a)" (bvexpr->cexpr a))]
+    [(expression (== bvneg) a) (format "(-~a)" (bvexpr->cexpr a))]
+    [(expression (== bvshl) a b) (format "(~a << ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvmul) a b) (format "(~a * ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(? concrete? (? (bitvector 8) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
+    [(? constant? a) (~a a)]))
