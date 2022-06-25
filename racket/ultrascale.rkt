@@ -119,7 +119,7 @@
             (make-literal-value-from-bv lut-h)
             (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
     ;;; Carry.
-    [carry (make-ultrascale-plus-carry8 "0" (bit 0(lakeroad->jsexpr cin)) luts_O5 luts_O6 o co)])
+    [carry (make-ultrascale-plus-carry8 "0" (bit 0 (lakeroad->jsexpr cin)) luts_O5 luts_O6 o co)])
    (add-cell 'A_LUT A_LUT)
    (add-cell 'B_LUT B_LUT)
    (add-cell 'C_LUT C_LUT)
@@ -134,7 +134,7 @@
    (add-netname 'o (make-net-details o))
    (add-netname 'co (make-net-details co))
    ; Return ((lut-a-out) (lut-b-out) ... (lut-h-out))
-   (map list  out)))
+   (map list out)))
 
 ;;; (module+ test
 ;;;   (require rackunit)

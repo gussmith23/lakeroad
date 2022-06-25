@@ -108,10 +108,11 @@
 
   (test-begin (define out (lakeroad->jsexpr (list (bv #b0110 4) (bv #b000111 6))))
               (check-equal? (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
-                            (hasheq-helper 'out0
-                                           (hasheq-helper 'bits '("0" "1" "1" "0") 'direction "output")
-                                           'out1
-                                           (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
+                            (hasheq-helper
+                             'out0
+                             (hasheq-helper 'bits '("0" "1" "1" "0") 'direction "output")
+                             'out1
+                             (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
 
   (test-begin (current-solver (boolector))
               (define-symbolic a b (bitvector 8))
