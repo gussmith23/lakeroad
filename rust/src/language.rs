@@ -366,7 +366,7 @@ pub fn call_racket(expr: String, map: &HashMap<String, usize>) -> bool {
 
     let mut cmd = Command::new("racket");
     cmd.arg("-tm");
-    cmd.arg("../racket/test.rkt");
+    cmd.arg("../racket/attempt-to-synthesize.rkt");
     cmd.stdin(Stdio::piped());
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());

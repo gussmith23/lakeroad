@@ -3,7 +3,8 @@
 (provide main)
 
 (require rosette
-         "ultrascale.rkt")
+         rosette/lib/synthax
+         "interpreter.rkt")
 
 (define-namespace-anchor anc)
 (define ns (namespace-anchor->namespace anc))
@@ -15,40 +16,40 @@
 
   (define prog (eval (read (open-input-string file-contents)) ns))
 
-  (define-symbolic cin (bitvector 1))
-  (define-symbolic lut-memory-a (bitvector 128))
-  (define-symbolic lut-memory-b (bitvector 128))
-  (define-symbolic lut-memory-c (bitvector 128))
-  (define-symbolic lut-memory-d (bitvector 128))
-  (define-symbolic lut-memory-e (bitvector 128))
-  (define-symbolic lut-memory-f (bitvector 128))
-  (define-symbolic lut-memory-g (bitvector 128))
-  (define-symbolic lut-memory-h (bitvector 128))
-
   (define-symbolic logical-input-0 (bitvector 8))
   (define-symbolic logical-input-1 (bitvector 8))
   (define-symbolic logical-input-2 (bitvector 8))
   (define-symbolic logical-input-3 (bitvector 8))
   (define-symbolic logical-input-4 (bitvector 8))
   (define-symbolic logical-input-5 (bitvector 8))
-
-  (define out
-    (apply interpret-ultrascale-plus
-           (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-memory-a)
-                                (ultrascale-plus-lut6-2 lut-memory-b)
-                                (ultrascale-plus-lut6-2 lut-memory-c)
-                                (ultrascale-plus-lut6-2 lut-memory-d)
-                                (ultrascale-plus-lut6-2 lut-memory-e)
-                                (ultrascale-plus-lut6-2 lut-memory-f)
-                                (ultrascale-plus-lut6-2 lut-memory-g)
-                                (ultrascale-plus-lut6-2 lut-memory-h))
-           cin
-           (ultrascale-logical-to-physical-inputs logical-input-0
-                                                  logical-input-1
-                                                  logical-input-2
-                                                  logical-input-3
-                                                  logical-input-4
-                                                  logical-input-5)))
+  (define logical-inputs
+    (list logical-input-0
+          logical-input-1
+          logical-input-2
+          logical-input-3
+          logical-input-4
+          logical-input-5))
+  (define expr
+    `(first (physical-to-logical-mapping
+             (bitwise)
+             (ultrascale-plus-clb ,(?? (bitvector 1))
+                                  ,(?? (bitvector 64))
+                                  ,(?? (bitvector 64))
+                                  ,(?? (bitvector 64))
+                                  ,(?? (bitvector 64))
+                                  ,(?? (bitvector 64))
+                                  ,(?? (bitvector 64))
+                                  ,(?? (bitvector 64))
+                                  ,(?? (bitvector 64))
+                                  ,(?? (bitvector 2))
+                                  ,(?? (bitvector 2))
+                                  ,(?? (bitvector 2))
+                                  ,(?? (bitvector 2))
+                                  ,(?? (bitvector 2))
+                                  ,(?? (bitvector 2))
+                                  ,(?? (bitvector 2))
+                                  ,(?? (bitvector 2))
+                                  (logical-to-physical-mapping (bitwise) ,logical-inputs)))))
 
   ; Unused logical inputs which we will assume are zero.
   (define assume-zero
@@ -88,7 +89,7 @@
                               (for-each (lambda (v) (assume (bvzero? v))) assume-zero)
                               ; Assert that the function applied over the inputs equals the expected
                               ; output.
-                              (assert (bveq (apply prog inputs) out)))))
+                              (assert (bveq (apply prog inputs) (interpret expr))))))
 
   ; For now just return whether or not we could synthesize anything.
   (exit (if (unsat? model) 1 0)))
