@@ -24,6 +24,10 @@
      [`(fifth ,l) (fifth (interpret l))]
      [`(sixth ,l) (sixth (interpret l))]
 
+     ;;; Rosette functions lifted to our language.
+     [`(zero-extend ,v ,bv) (zero-extend (interpret v) bv)]
+     [`(extract ,high ,low ,v) (extract high low (interpret v))]
+
      ;;; Datatypes.
      [(? bv? v) v]
      ;;; This needs to be near the end, as nearly everything's a list!
