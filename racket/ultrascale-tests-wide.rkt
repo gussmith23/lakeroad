@@ -20,38 +20,39 @@
   (define logical-inputs (list a b (bv #xffff 16) (bv #xffff 16) (bv #xffff 16) (bv #xffff 16)))
 
   (define lakeroad-expr
-    (let* ([logical-inputs-clb-0 (map (lambda (v) (extract 7 0 v)) logical-inputs)]
-           [logical-inputs-clb-1 (map (lambda (v) (extract 15 8 v)) logical-inputs)]
-           [make-clb (lambda (logical-inputs)
-                       `(first (physical-to-logical-mapping
-                                (bitwise)
-                                (take (ultrascale-plus-clb
-                                       ,(?? (bitvector 1))
-                                       ,(?? (bitvector 64))
-                                       ,(?? (bitvector 64))
-                                       ,(?? (bitvector 64))
-                                       ,(?? (bitvector 64))
-                                       ,(?? (bitvector 64))
-                                       ,(?? (bitvector 64))
-                                       ,(?? (bitvector 64))
-                                       ,(?? (bitvector 64))
-                                       ,(?? (bitvector 2))
-                                       ,(?? (bitvector 2))
-                                       ,(?? (bitvector 2))
-                                       ,(?? (bitvector 2))
-                                       ,(?? (bitvector 2))
-                                       ,(?? (bitvector 2))
-                                       ,(?? (bitvector 2))
-                                       ,(?? (bitvector 2))
-                                       (logical-to-physical-mapping (bitwise) ,logical-inputs))
-                                      8))))]
-           [clb0 (make-clb logical-inputs-clb-0)]
-           [clb1 (make-clb logical-inputs-clb-1)])
-      `(concat ,clb1 ,clb0)))
+    (match-let*
+     ([logical-inputs-clb-0 (map (lambda (v) (extract 7 0 v)) logical-inputs)]
+      [logical-inputs-clb-1 (map (lambda (v) (extract 15 8 v)) logical-inputs)]
+      [make-clb
+       (lambda (cin logical-inputs)
+         (let* ([lutmem (?? (bitvector 64))]
+                [mux (?? (bitvector 2))]
+                [clb `(ultrascale-plus-clb ,cin
+                                           ,lutmem
+                                           ,lutmem
+                                           ,lutmem
+                                           ,lutmem
+                                           ,lutmem
+                                           ,lutmem
+                                           ,lutmem
+                                           ,lutmem
+                                           ,mux
+                                           ,mux
+                                           ,mux
+                                           ,mux
+                                           ,mux
+                                           ,mux
+                                           ,mux
+                                           ,mux
+                                           (logical-to-physical-mapping (bitwise) ,logical-inputs))])
+           (list `(first (physical-to-logical-mapping (bitwise) (take ,clb 8))) `(list-ref ,clb 8))))]
+      [(list logical-outputs-clb-0 cout0) (make-clb (?? (bitvector 1)) logical-inputs-clb-0)]
+      [(list logical-outputs-clb-1 cout1) (make-clb cout0 logical-inputs-clb-1)])
+     `(concat ,logical-outputs-clb-1 ,logical-outputs-clb-0)))
 
-  ;;; We can do a bitwise function like and, at the moment...
+  ;;; We can do a bitwise function like and.
   (check-true (sat? (synthesize #:forall (list a b)
                                 #:guarantee (assert (bveq (bvand a b) (interpret lakeroad-expr))))))
-  ;;; But we can't do add, which requires the carry chain.
-  (check-false (sat? (synthesize #:forall (list a b)
-                                 #:guarantee (assert (bveq (bvadd a b) (interpret lakeroad-expr)))))))
+  ;;; We can also now do something that requires the carry chain, like add.
+  (check-true (sat? (synthesize #:forall (list a b)
+                                #:guarantee (assert (bveq (bvadd a b) (interpret lakeroad-expr)))))))
