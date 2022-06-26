@@ -98,7 +98,8 @@
   (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 1 8)) #:num-lut-mems 2 #:expr-depth 6)))
   (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 6)))
   ;;; Should be true.
-  (check-false (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 10)))
+  (check-false
+   (sat? (helper circt-comb-shrs (list 8bit-a (bv 2 8)) #:num-lut-mems 2 #:expr-depth 10)))
 
   ;;; TODO I broke these -- is bitwise-reverse working?
   (check-true (sat? (helper circt-comb-shru (list 8bit-a (bv 0 8)) #:num-lut-mems 1 #:expr-depth 2)))
