@@ -144,37 +144,38 @@
   (test-begin
    (define-symbolic a (bitvector 8))
    (define-symbolic b (bitvector 8))
-   (displayln
-    (verify (assert (bveq (bool->bitvector (bveq a b))
-                          (first (interpret
-                                  `(physical-to-logical-mapping
-                                    (choose-one ,(bv 0 1))
-                                    (ultrascale-plus-clb
-                                     ,(bv 1 1)
-                                     ,(bv #x9000000000000000 64)
-                                     ,(bv #x9000000000000000 64)
-                                     ,(bv #x9000000000000000 64)
-                                     ,(bv #x9000000000000000 64)
-                                     ,(bv #x9000000000000000 64)
-                                     ,(bv #x9000000000000000 64)
-                                     ,(bv #x9000000000000000 64)
-                                     ,(bv #x9000000000000000 64)
-                                     ,(bv 3 2)
-                                     ,(bv 3 2)
-                                     ,(bv 3 2)
-                                     ,(bv 3 2)
-                                     ,(bv 3 2)
-                                     ,(bv 3 2)
-                                     ,(bv 3 2)
-                                     ,(bv 3 2)
-                                     ,(list (concat (bv #b1111 4) (bit 0 b) (bit 0 a))
-                                            (concat (bv #b1111 4) (bit 1 b) (bit 1 a))
-                                            (concat (bv #b1111 4) (bit 2 b) (bit 2 a))
-                                            (concat (bv #b1111 4) (bit 3 b) (bit 3 a))
-                                            (concat (bv #b1111 4) (bit 4 b) (bit 4 a))
-                                            (concat (bv #b1111 4) (bit 5 b) (bit 5 a))
-                                            (concat (bv #b1111 4) (bit 6 b) (bit 6 a))
-                                            (concat (bv #b1111 4) (bit 7 b) (bit 7 a)))))))))))))
+   (check-true
+    (unsat?
+     (verify (assert (bveq (bool->bitvector (bveq a b))
+                           (first (interpret
+                                   `(physical-to-logical-mapping
+                                     (choose-one ,(bv 0 1))
+                                     (ultrascale-plus-clb
+                                      ,(bv 1 1)
+                                      ,(bv #x9000000000000000 64)
+                                      ,(bv #x9000000000000000 64)
+                                      ,(bv #x9000000000000000 64)
+                                      ,(bv #x9000000000000000 64)
+                                      ,(bv #x9000000000000000 64)
+                                      ,(bv #x9000000000000000 64)
+                                      ,(bv #x9000000000000000 64)
+                                      ,(bv #x9000000000000000 64)
+                                      ,(bv 3 2)
+                                      ,(bv 3 2)
+                                      ,(bv 3 2)
+                                      ,(bv 3 2)
+                                      ,(bv 3 2)
+                                      ,(bv 3 2)
+                                      ,(bv 3 2)
+                                      ,(bv 3 2)
+                                      ,(list (concat (bv #b1111 4) (bit 0 b) (bit 0 a))
+                                             (concat (bv #b1111 4) (bit 1 b) (bit 1 a))
+                                             (concat (bv #b1111 4) (bit 2 b) (bit 2 a))
+                                             (concat (bv #b1111 4) (bit 3 b) (bit 3 a))
+                                             (concat (bv #b1111 4) (bit 4 b) (bit 4 a))
+                                             (concat (bv #b1111 4) (bit 5 b) (bit 5 a))
+                                             (concat (bv #b1111 4) (bit 6 b) (bit 6 a))
+                                             (concat (bv #b1111 4) (bit 7 b) (bit 7 a))))))))))))))
 
 (define (end-to-end-dsp-test expected-expression-str)
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
@@ -334,7 +335,6 @@ here-string-delimiter
 
   (if (not (getenv "LAKEROAD_DIR")) (error "LAKEROAD_DIR must be set to base dir of Lakeroad") '())
   (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
-  (displayln verilator-unisims-dir)
 
   ; TODO(@gussmith23) hardcoded dir
   (if (not
