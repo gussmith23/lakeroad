@@ -34,29 +34,30 @@
          (append (symbolics bv-expr) (make-list (- 6 (length (symbolics bv-expr))) (bv #xff 8)))))
 
   (define lakeroad-expr
-    `(extract ,(sub1 out-bw)
-              0
-              (first (physical-to-logical-mapping
-                      (bitwise)
-                      (ultrascale-plus-clb
-                       ,(?? (bitvector 1))
-                       ,(?? (bitvector 64))
-                       ,(?? (bitvector 64))
-                       ,(?? (bitvector 64))
-                       ,(?? (bitvector 64))
-                       ,(?? (bitvector 64))
-                       ,(?? (bitvector 64))
-                       ,(?? (bitvector 64))
-                       ,(?? (bitvector 64))
-                       ,(?? (bitvector 2))
-                       ,(?? (bitvector 2))
-                       ,(?? (bitvector 2))
-                       ,(?? (bitvector 2))
-                       ,(?? (bitvector 2))
-                       ,(?? (bitvector 2))
-                       ,(?? (bitvector 2))
-                       ,(?? (bitvector 2))
-                       (logical-to-physical-mapping (bitwise) ,logical-inputs))))))
+    (let* ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 64))] [mux (?? (bitvector 2))])
+      `(extract ,(sub1 out-bw)
+                0
+                (first (physical-to-logical-mapping
+                        (bitwise)
+                        (ultrascale-plus-clb
+                         ,cin
+                         ,lutmem
+                         ,lutmem
+                         ,lutmem
+                         ,lutmem
+                         ,lutmem
+                         ,lutmem
+                         ,lutmem
+                         ,lutmem
+                         ,mux
+                         ,mux
+                         ,mux
+                         ,mux
+                         ,mux
+                         ,mux
+                         ,mux
+                         ,mux
+                         (logical-to-physical-mapping (bitwise) ,logical-inputs)))))))
 
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
