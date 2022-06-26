@@ -53,9 +53,12 @@
                                  expr)]
       [`(physical-to-logical-mapping ,_ ...) (compile-physical-to-logical-mapping compile expr)]
       [`(logical-to-physical-mapping ,_ ...) (compile-logical-to-physical-mapping compile expr)]
-      ;;; TODO(@gussmith23) Currently, we expect the output of compile to always be a list of lists.
-      ;;; Is this sustainable?
-      [`(first ,v) (list (first (compile v)))]
+
+      [`(first ,v) (first (compile v))]
+
+      [`(extract ,high ,low ,v) (drop (take (compile v) (add1 high)) low)]
+      [(expression (== zero-extend) v bv-type)
+       (append (compile v) (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
 
       ;;; Symbolic bitvector constants correspond to module inputs!
       [(? bv? (? symbolic? (? constant? s)))
@@ -78,7 +81,7 @@
       ;;; Should go near the bottom -- remember, nearly everything's a list underneath!
       [(? list? v) (map compile v)]))
 
-  (define outputs (compile expr))
+  (define outputs (list (compile expr)))
 
   (for ([output-bits outputs] [i (range (length outputs))])
     (add-port (string->symbol (format "out~a" i)) (make-port-details "output" output-bits)))
