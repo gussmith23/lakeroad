@@ -68,8 +68,8 @@
                     other))]))
 
 (for ([instruction (instructions)] [module-name (module-names)])
-  (define lakeroad-expr
-    (synthesize (parse-instruction (read (open-input-string instruction))) (architecture)))
+  (define bv-expr (parse-instruction (read (open-input-string instruction))))
+  (define lakeroad-expr (synthesize bv-expr (architecture)))
 
   (define json-source (lakeroad->jsexpr lakeroad-expr #:module-name module-name))
 
@@ -87,4 +87,8 @@
                     (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file)))))
        (error "Converting JSON to Verilog via Yosys failed."))
 
-     (displayln (file->string verilog-file))]))
+     (displayln (file->string verilog-file))])
+
+  ;;; Clean up the VC and un-bind the symbolic terms created for this instruction.
+  (clear-vc!)
+  (clear-terms! (symbolics bv-expr)))
