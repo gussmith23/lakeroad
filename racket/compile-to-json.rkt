@@ -54,8 +54,11 @@
       [`(physical-to-logical-mapping ,_ ...) (compile-physical-to-logical-mapping compile expr)]
       [`(logical-to-physical-mapping ,_ ...) (compile-logical-to-physical-mapping compile expr)]
 
+      ;;; Racket operators.
       [`(first ,v) (first (compile v))]
+      [`(take ,l ,n) (take (compile l) n)]
 
+      ;;; Rosette operators.
       [`(extract ,high ,low ,v) (drop (take (compile v) (add1 high)) low)]
       [(expression (== zero-extend) v bv-type)
        (append (compile v) (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
@@ -121,26 +124,28 @@
               (define expr
                 `(first (physical-to-logical-mapping
                          (bitwise)
-                         (ultrascale-plus-clb ,(?? (bitvector 1))
-                                              ,(?? (bitvector 64))
-                                              ,(?? (bitvector 64))
-                                              ,(?? (bitvector 64))
-                                              ,(?? (bitvector 64))
-                                              ,(?? (bitvector 64))
-                                              ,(?? (bitvector 64))
-                                              ,(?? (bitvector 64))
-                                              ,(?? (bitvector 64))
-                                              ,(?? (bitvector 2))
-                                              ,(?? (bitvector 2))
-                                              ,(?? (bitvector 2))
-                                              ,(?? (bitvector 2))
-                                              ,(?? (bitvector 2))
-                                              ,(?? (bitvector 2))
-                                              ,(?? (bitvector 2))
-                                              ,(?? (bitvector 2))
-                                              (logical-to-physical-mapping
-                                               (bitwise)
-                                               ,(list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8)))))))
+                         ;;; Take the 8 outputs from the LUTs; drop cout.
+                         (take (ultrascale-plus-clb ,(?? (bitvector 1))
+                                                    ,(?? (bitvector 64))
+                                                    ,(?? (bitvector 64))
+                                                    ,(?? (bitvector 64))
+                                                    ,(?? (bitvector 64))
+                                                    ,(?? (bitvector 64))
+                                                    ,(?? (bitvector 64))
+                                                    ,(?? (bitvector 64))
+                                                    ,(?? (bitvector 64))
+                                                    ,(?? (bitvector 2))
+                                                    ,(?? (bitvector 2))
+                                                    ,(?? (bitvector 2))
+                                                    ,(?? (bitvector 2))
+                                                    ,(?? (bitvector 2))
+                                                    ,(?? (bitvector 2))
+                                                    ,(?? (bitvector 2))
+                                                    ,(?? (bitvector 2))
+                                                    (logical-to-physical-mapping
+                                                     (bitwise)
+                                                     ,(list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
+                               8))))
               (define soln
                 (synthesize #:forall (list a b)
                             #:guarantee

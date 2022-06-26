@@ -17,6 +17,7 @@
      [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
 
      ;;; Racket functions lifted to our language.
+     [`(take ,l ,n) (take (interpret l) n)]
      [`(first ,l) (first (interpret l))]
      [`(second ,l) (second (interpret l))]
      [`(third ,l) (third (interpret l))]
@@ -65,4 +66,4 @@
                 ,(bv 0 2)
                 ,(bv 0 2)
                 (,(bv 0 6) ,(bv 0 6) ,(bv 0 6) ,(bv 0 6) ,(bv 0 6) ,(bv 0 6) ,(bv 0 6) ,(bv 0 6))))
-   (list (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1))))
+   (list (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1))))

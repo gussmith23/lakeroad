@@ -190,25 +190,27 @@
     [(list i0 i1 i2) (choose i0 i1 i2)]
     [(list i0 i1 i2 i3) (choose i0 i1 i2 i3)])]
  [physical-list
-  `(ultrascale-plus-clb
-    ,(cin)
-    ,(lutmem)
-    ,(lutmem)
-    ,(lutmem)
-    ,(lutmem)
-    ,(lutmem)
-    ,(lutmem)
-    ,(lutmem)
-    ,(lutmem)
-    ,(mux)
-    ,(mux)
-    ,(mux)
-    ,(mux)
-    ,(mux)
-    ,(mux)
-    ,(mux)
-    ,(mux)
-    (logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse)) ,(logical-list)))]
+  ;;; We currently drop the cout bit.
+  `(take (ultrascale-plus-clb
+          ,(cin)
+          ,(lutmem)
+          ,(lutmem)
+          ,(lutmem)
+          ,(lutmem)
+          ,(lutmem)
+          ,(lutmem)
+          ,(lutmem)
+          ,(lutmem)
+          ,(mux)
+          ,(mux)
+          ,(mux)
+          ,(mux)
+          ,(mux)
+          ,(mux)
+          ,(mux)
+          ,(mux)
+          (logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse)) ,(logical-list)))
+         8)]
  [logical-list
   (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
           `(physical-to-logical-mapping
@@ -419,6 +421,7 @@
      (interpret-ultrascale-plus-carry8 (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
                                        (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
                                        cin)]
+    [cout (bit 7 carry-co)]
     [(list carry-o0 carry-co0) (list (bit 0 carry-o) (bit 0 carry-co))]
     [(list carry-o1 carry-co1) (list (bit 1 carry-o) (bit 1 carry-co))]
     [(list carry-o2 carry-co2) (list (bit 2 carry-o) (bit 2 carry-co))]
@@ -440,7 +443,7 @@
     [f-mux-out (mux-helper f-o5 f-o6 carry-o5 carry-co5 (ultrascale-plus-clb-mux-selector-f clb))]
     [g-mux-out (mux-helper g-o5 g-o6 carry-o6 carry-co6 (ultrascale-plus-clb-mux-selector-g clb))]
     [h-mux-out (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-mux-selector-h clb))])
-   (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out)))
+   (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out cout)))
 
 ; Programmable state for DSP48E2. See spec in the spec-sheets dir.
 (struct ultrascale-plus-dsp48e2 ())
