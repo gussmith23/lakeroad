@@ -26,15 +26,16 @@
   (define verilog-file (make-temporary-file "rkttmp~a.v"))
   (display-to-file (jsexpr->string (lakeroad->jsexpr lakeroad-expr)) json-file #:exists 'update)
 
-  (match-let  ([(list proc-stdout stdin proc-id stderr control-fn) (process (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file))])
-    (control-fn 'wait)
-    (when (not (equal? 0 (control-fn 'exit-code)))
-      (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
-                    (read proc-stdout)
-                    (read stderr))))
-    (close-input-port proc-stdout)
-    (close-input-port stderr)
-    (close-output-port stdin))
+  (match-let ([(list proc-stdout stdin proc-id stderr control-fn)
+               (process (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file))])
+             (control-fn 'wait)
+             (when (not (equal? 0 (control-fn 'exit-code)))
+               (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
+                              (read proc-stdout)
+                              (read stderr))))
+             (close-input-port proc-stdout)
+             (close-input-port stderr)
+             (close-output-port stdin))
 
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
   (define verilated-type-name
@@ -76,17 +77,17 @@
      verilator-unisims-dir
      testbench-file))
 
-  (match-let  ([(list proc-stdout stdin proc-id stderr control-fn) (process verilator-command)])
-    ;;; Wait until Verilator completes.
-    (control-fn 'wait)
-    ;;; Error out if it errors.
-    (when (not (equal? 0 (control-fn 'exit-code)))
-      (error (format "Verilator command failed:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
-                    verilator-command
-                    (read proc-stdout)
-                    (read stderr))))
-    (close-input-port proc-stdout)
-    (close-input-port stderr)
-    (close-output-port stdin))
+  (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process verilator-command)])
+             ;;; Wait until Verilator completes.
+             (control-fn 'wait)
+             ;;; Error out if it errors.
+             (when (not (equal? 0 (control-fn 'exit-code)))
+               (error (format "Verilator command failed:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
+                              verilator-command
+                              (read proc-stdout)
+                              (read stderr))))
+             (close-input-port proc-stdout)
+             (close-input-port stderr)
+             (close-output-port stdin))
 
-    (system* (build-path verilator-make-dir verilated-type-name)))
+  (system* (build-path verilator-make-dir verilated-type-name)))
