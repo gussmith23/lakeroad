@@ -10,7 +10,7 @@
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
 ;;;
 ;;; TODO Write helper function to convert Yosys JSON to Verilog.
-(define (lakeroad->jsexpr expr)
+(define (lakeroad->jsexpr expr #:module-name [module-name "top"])
 
   ;;; The next available bit id. Starts at 2, as Yosys reserves 0 and 1 for the literals 0 and 1.
   (define next-bit-id 2)
@@ -86,7 +86,7 @@
   (define doc (make-lakeroad-json-doc))
   (add-module-to-doc
    doc
-   'top
+   (string->symbol module-name)
    (make-module ports cells netnames #:parameter-default-values parameter-default-values))
 
   doc)
