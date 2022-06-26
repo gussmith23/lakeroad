@@ -352,4 +352,4 @@ here-string-delimiter
   (system* (build-path verilator-make-dir verilated-type-name)))
 
 (module+ test
-  (end-to-end-dsp-test "a*b+c"))
+  (check-true (end-to-end-dsp-test "a*b+c")))
