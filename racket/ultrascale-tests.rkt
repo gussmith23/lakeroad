@@ -15,7 +15,7 @@
   (when (>= (length logical-inputs) 6)
     (error "arity 6 not supported yet; >6 not possible"))
 
-  (displayln (format "~a with inputs ~a and depth ~a" f logical-inputs depth))
+  ;;; (displayln (format "~a with inputs ~a and depth ~a" f logical-inputs depth))
 
   (result-value
    (with-vc
@@ -198,7 +198,7 @@
                                 (assert (bveq (bvadd (bvmul a-ext b-ext) c-ext)
                                               (interpret-ultrascale-plus-dsp48e2 dsp a b c d)))))))
   (if (not (sat? soln)) (error "no model found") '())
-  (displayln (model soln))
+  ;;;(displayln (model soln))
 
   (define dsp-source
     (compile-ultrascale-plus-dsp48e2 (ultrascale-plus-dsp48e2) "p" "clk" "a" "b" "c" "ce" "rst"))
@@ -338,12 +338,14 @@ here-string-delimiter
 
   ; TODO(@gussmith23) hardcoded dir
   (if (not
-       (system
-        (format
-         "verilator -Wno-LATCH -Wno-TIMESCALEMOD -DXIL_XECLIB -Wno-STMTDLY -Wno-COMBDLY -Wno-WIDTH -Wno-BLKANDNBLK -Wno-CASEX -Wno-UNOPTFLAT --Mdir ~a --cc ~a -I $LAKEROAD_DIR/Nitro-Parts-lib-Xilinx/DSP48E2.v --build --exe ~a"
-         verilator-make-dir
-         verilog-file
-         testbench-file)))
+       (with-output-to-string
+        (lambda ()
+          (system
+           (format
+            "verilator -Wno-LATCH -Wno-TIMESCALEMOD -DXIL_XECLIB -Wno-STMTDLY -Wno-COMBDLY -Wno-WIDTH -Wno-BLKANDNBLK -Wno-CASEX -Wno-UNOPTFLAT --Mdir ~a --cc ~a -I $LAKEROAD_DIR/Nitro-Parts-lib-Xilinx/DSP48E2.v --build --exe ~a"
+            verilator-make-dir
+            verilog-file
+            testbench-file)))))
       (error "Verilator failed")
       '())
 
