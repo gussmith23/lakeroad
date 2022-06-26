@@ -18,6 +18,7 @@
 
      ;;; Racket functions lifted to our language.
      [`(take ,l ,n) (take (interpret l) n)]
+     [`(list-ref ,l ,n) (list-ref (interpret l) n)]
      [`(first ,l) (first (interpret l))]
      [`(second ,l) (second (interpret l))]
      [`(third ,l) (third (interpret l))]

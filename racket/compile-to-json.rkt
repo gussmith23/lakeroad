@@ -57,6 +57,7 @@
       ;;; Racket operators.
       [`(first ,v) (first (compile v))]
       [`(take ,l ,n) (take (compile l) n)]
+      [`(list-ref ,l ,n) (list-ref (compile l) n)]
 
       ;;; Rosette operators.
       [`(extract ,high ,low ,v) (drop (take (compile v) (add1 high)) low)]
