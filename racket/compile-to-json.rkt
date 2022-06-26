@@ -102,20 +102,19 @@
            rackunit
            "interpreter.rkt")
 
-  (test-begin (define-symbolic a b (bitvector 8))
-              (define out (lakeroad->jsexpr (list a b a)))
-              (define modules (hash-ref out 'modules))
-              (check-equal? (hash-count modules) 1)
-              (define module (hash-ref modules 'top))
-              (check-equal? (hash-count (hash-ref module 'ports)) 5))
+  ;;; Re-enable this test when we support multiple outputs.
+  ;;; (test-begin (define-symbolic a b (bitvector 8))
+  ;;;             (define out (lakeroad->jsexpr (list a b a)))
+  ;;;             (define modules (hash-ref out 'modules))
+  ;;;             (check-equal? (hash-count modules) 1)
+  ;;;             (define module (hash-ref modules 'top))
+  ;;;             (check-equal? (hash-count (hash-ref module 'ports)) 5))
 
-  (test-begin (define out (lakeroad->jsexpr (list (bv #b0110 4) (bv #b000111 6))))
-              (check-equal? (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
-                            (hasheq-helper
-                             'out0
-                             (hasheq-helper 'bits '("0" "1" "1" "0") 'direction "output")
-                             'out1
-                             (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
+  (test-begin
+   (define out (lakeroad->jsexpr (bv #b000111 6)))
+   (check-equal?
+    (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
+    (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
 
   (test-begin (current-solver (boolector))
               (define-symbolic a b (bitvector 8))
