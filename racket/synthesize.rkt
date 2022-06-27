@@ -27,38 +27,75 @@
   (when (not (concrete? out-bw))
     (error "Out bitwidth must be statically known."))
 
+  ;;; Max bitwidth of any input.
+  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (when (not (concrete? max-input-bw))
+    (error "Input bitwidths must be statically known."))
+
+  ;;; Number of CLBs needed to take all of the input bits, assuming each CLB gets at most 8 bits from
+  ;;; any one input.
+  (define num-clbs (ceiling (/ max-input-bw 8)))
+
+  ;;; The bitwidth that all logical inputs should be extended to.
+  (define logical-input-width (* 8 num-clbs))
+
   ;;; Form the list of logical inputs, and pad up to make sure there are 6.
   ;;; We also zero-extend each input so that it is the correct size.
   (define logical-inputs
-    (map (lambda (v) (zero-extend v (bitvector 8)))
-         (append (symbolics bv-expr) (make-list (- 6 (length (symbolics bv-expr))) (bv #xff 8)))))
+    (map (lambda (v) (zero-extend v (bitvector logical-input-width)))
+         (append (symbolics bv-expr)
+                 (make-list (- 6 (length (symbolics bv-expr))) (bvnot (bv 0 logical-input-width))))))
 
-  (define lakeroad-expr
-    (let* ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 64))] [mux (?? (bitvector 2))])
-      `(extract ,(sub1 out-bw)
-                0
-                (first (physical-to-logical-mapping
-                        (bitwise)
-                        (ultrascale-plus-clb
-                         ,cin
-                         ,lutmem
-                         ,lutmem
-                         ,lutmem
-                         ,lutmem
-                         ,lutmem
-                         ,lutmem
-                         ,lutmem
-                         ,lutmem
-                         ,mux
-                         ,mux
-                         ,mux
-                         ,mux
-                         ,mux
-                         ,mux
-                         ,mux
-                         ,mux
-                         (logical-to-physical-mapping (bitwise) ,logical-inputs)))))))
+  ;;; Split the logical inputs into groups, grouped by LUT.
+  (define logical-inputs-per-clb
+    (for/list ([clb-i (range num-clbs)])
+      (for/list ([logical-input logical-inputs])
+        (extract (sub1 (* 8 (add1 clb-i))) (* 8 clb-i) logical-input))))
 
+  ;;; Returns (list logical-outputs cout).
+  (define (clb cin lutmem mux logical-inputs)
+    (let* ([clb-out `(ultrascale-plus-clb ,cin
+                                          ,lutmem
+                                          ,lutmem
+                                          ,lutmem
+                                          ,lutmem
+                                          ,lutmem
+                                          ,lutmem
+                                          ,lutmem
+                                          ,lutmem
+                                          ,mux
+                                          ,mux
+                                          ,mux
+                                          ,mux
+                                          ,mux
+                                          ,mux
+                                          ,mux
+                                          ,mux
+                                          (logical-to-physical-mapping (bitwise) ,logical-inputs))])
+      (list `(first (physical-to-logical-mapping (bitwise) (take ,clb-out 8)))
+            `(list-ref ,clb-out 8))))
+
+  (match-define (list logical-output cout)
+    (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 64))] [mux (?? (bitvector 2))])
+      (foldl (lambda (logical-inputs previous-out)
+               (match-let* ([(list accumulated-logical-output previous-cout) previous-out]
+                            [(list this-clb-logical-outputs this-cout)
+                             (clb previous-cout lutmem mux logical-inputs)]
+                            [accumulated-logical-output
+                             (if (equal? accumulated-logical-output 'first)
+                                 this-clb-logical-outputs
+                                 `(concat ,this-clb-logical-outputs ,accumulated-logical-output))])
+                           (list accumulated-logical-output this-cout)))
+             ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
+             (list 'first cin)
+             logical-inputs-per-clb)))
+
+  (define lakeroad-expr `(extract ,(sub1 out-bw) 0 ,logical-output))
+  ;;; Uncomment this if synthesis is failing and you don't want to use symtrace. If it's a problem
+  ;;; in the interpreter, this will throw an error.
+  ;;;(interpret lakeroad-expr)
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
