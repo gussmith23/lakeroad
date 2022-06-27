@@ -1,9 +1,9 @@
 [submodule "verilator-unisims"]
 	path = verilator-unisims
-	url = https://github.com/oliverbunting/verilator-unisims
+	url = git@github.com:oliverbunting/verilator-unisims
 [submodule "verilator_xilinx"]
 	path = verilator_xilinx
-	url = https://github.com/fredrequin/verilator_xilinx
+	url = git@github.com:fredrequin/verilator_xilinx
 [submodule "Nitro-Parts-lib-Xilinx"]
 	path = Nitro-Parts-lib-Xilinx
-	url = https://github.com/nachiket/Nitro-Parts-lib-Xilinx
+	url = git@github.com:nachiket/Nitro-Parts-lib-Xilinx
