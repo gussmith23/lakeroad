@@ -38,7 +38,7 @@
   (define netnames (hasheq-helper))
   (define (add-netname k v)
     (hasheq-helper #:base netnames
-                   (string->symbol (string-append (symbol->string k) (format "-~a" next-netname-id)))
+                   (string->symbol (string-append (symbol->string k) (format "_~a" next-netname-id)))
                    v)
     (set! next-netname-id (add1 next-netname-id))
     (void))
