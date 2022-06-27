@@ -5,7 +5,8 @@
 (require json
          "compile-to-json.rkt"
          rosette
-         "utils.rkt")
+         "utils.rkt"
+         "interpreter.rkt")
 
 ;;; Test a Lakeroad expression using a simple testbench.
 ;;;
@@ -37,12 +38,26 @@
              (close-input-port stderr)
              (close-output-port stdin))
 
+  ;;; Input and output bitwidths. We use this to determine which testbench to use.
+  (define out-bitwidth (bvlen (interpret lakeroad-expr)))
+  (define max-in-bitwidth
+    (if (empty? (symbolics bv-expr)) 0 (apply max (map bvlen (symbolics bv-expr)))))
+  (define max-bitwidth (max out-bitwidth max-in-bitwidth))
+  (define testbench-filename
+    (match max-bitwidth
+      [_
+       #:when (<= max-bitwidth 8)
+       "testbench.cc.template"]
+      [_
+       #:when (<= max-bitwidth 16)
+       "testbench_bw16.cc.template"]))
+
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
   (define verilated-type-name
     (format "V~a" (path-replace-extension (file-name-from-path verilog-file) "")))
   (define testbench-source
     (format
-     (file->string (build-path (getenv "LAKEROAD_DIR") "racket" "testbench.cc.template"))
+     (file->string (build-path (getenv "LAKEROAD_DIR") "racket" testbench-filename))
      (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
      verilated-type-name
      (if (>= (length (symbolics bv-expr)) 1) (format "top->~a = l0;" (first (symbolics bv-expr))) "")
