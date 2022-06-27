@@ -51,7 +51,9 @@
   (define (helper expr)
     (match expr
       [`(bvand ,a ,b) (bvand (helper a) (helper b))]
+      [`(bvor ,a ,b) (bvor (helper a) (helper b))]
       [`(bvadd ,a ,b) (bvadd (helper a) (helper b))]
+      [`(bvsub ,a ,b) (bvsub (helper a) (helper b))]
       [`(bvnot ,a) (bvnot (helper a))]
       [`(var ,id ,bw) (constant id (bitvector bw))]))
 
