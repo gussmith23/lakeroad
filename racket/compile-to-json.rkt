@@ -25,13 +25,23 @@
   (define (add-port k v)
     (hasheq-helper #:base ports k v))
 
+  (define next-cell-id 0)
   (define cells (hasheq-helper))
   (define (add-cell k v)
-    (hasheq-helper #:base cells k v))
+    (hasheq-helper #:base cells
+                   (string->symbol (string-append (symbol->string k) (format "-~a" next-cell-id)))
+                   v)
+    (set! next-cell-id (add1 next-cell-id))
+    (void))
 
+  (define next-netname-id 0)
   (define netnames (hasheq-helper))
   (define (add-netname k v)
-    (hasheq-helper #:base netnames k v))
+    (hasheq-helper #:base netnames
+                   (string->symbol (string-append (symbol->string k) (format "-~a" next-netname-id)))
+                   v)
+    (set! next-netname-id (add1 next-netname-id))
+    (void))
 
   (define parameter-default-values (hasheq-helper))
   (define (add-parameter-default-value k v)
