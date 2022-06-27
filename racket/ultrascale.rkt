@@ -133,8 +133,8 @@
    (add-netname 'luts_O6 (make-net-details luts_O6))
    (add-netname 'o (make-net-details o))
    (add-netname 'co (make-net-details co))
-   ; Return ((lut-a-out) (lut-b-out) ... (lut-h-out))
-   (map list out)))
+   ; Return ((lut-a-out) (lut-b-out) ... (lut-h-out) (cout)).
+   (append (map list out) (list (list (list-ref co 7))))))
 
 ;;; (module+ test
 ;;;   (require rackunit)
