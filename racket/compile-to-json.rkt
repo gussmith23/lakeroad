@@ -29,7 +29,7 @@
   (define cells (hasheq-helper))
   (define (add-cell k v)
     (hasheq-helper #:base cells
-                   (string->symbol (string-append (symbol->string k) (format "-~a" next-cell-id)))
+                   (string->symbol (string-append (symbol->string k) (format "_~a" next-cell-id)))
                    v)
     (set! next-cell-id (add1 next-cell-id))
     (void))
