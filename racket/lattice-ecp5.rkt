@@ -1,11 +1,14 @@
 #lang errortrace racket
 
 (require rosette
+         rosette/lib/synthax
          "comp-json.rkt")
 
 (provide interpret-lattice-ecp5
          lattice-ecp5-logical-to-physical-inputs
-         lattice-pfu-helper)
+         lattice-pfu-helper
+         get-lattice-logical-inputs
+         make-lattice-pfu-expr)
 
 ; The output of a LUT is simply the bit at the entry pointed to by `inputs`,
 ; when interpreted as an integer.
@@ -230,3 +233,22 @@
                                     ,(bv 32 16)
                                     ,(bv 64 16)
                                     ,(list (bv 0 4) (bv 0 4) (bv 0 4) (bv 0 4))))
+
+
+;;; Get logical inputs for an expression
+(define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4])
+  (let ([symbs (symbolics bv-expr)]) 
+    (append symbs (make-list (- num-inputs (length symbs)) (bv #x00 8)))))
+
+(define (make-lattice-pfu-expr logical-inputs)
+  `(first (physical-to-logical-mapping
+           (bitwise)
+           (lattice-ecp5-pfu ,(?? (bitvector 16))
+                             ,(?? (bitvector 16))
+                             ,(?? (bitvector 16))
+                             ,(?? (bitvector 16))
+                             ,(?? (bitvector 16))
+                             ,(?? (bitvector 16))
+                             ,(?? (bitvector 16))
+                             ,(?? (bitvector 16))
+                             (logical-to-physical-mapping (bitwise) ,logical-inputs)))))

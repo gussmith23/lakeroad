@@ -1,12 +1,14 @@
-#lang racket
+#lang errortrace racket
 ;;; Synthesis routines for the various architectures.
 ;;;
 ;;; TODO provide a top-level synthesis procedure?
 
-(provide synthesize-xilinx-ultrascale-plus-impl)
+(provide synthesize-xilinx-ultrascale-plus-impl
+         synthesize-lakeroad-ecp5-impl)
 
 (require "interpreter.rkt"
          "ultrascale.rkt"
+         "lattice-ecp5.rkt"
          rosette
          rosette/lib/synthax
          "utils.rkt")
@@ -102,6 +104,37 @@
     (synthesize #:forall logical-inputs
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
+
+  (when (not (sat? soln))
+    (error "expected sat soln"))
+
+  (evaluate lakeroad-expr soln))
+
+
+(define (synthesize-lakeroad-ecp5-impl bv-expr)
+
+  (when (> (length (symbolics bv-expr)) 4)
+    (error "Only 4 inputs supported"))
+
+  (define out-bw (bvlen bv-expr))
+  (when (not (concrete? out-bw))
+    (error "Out bitwidth must be statically known."))
+
+  (define logical-inputs (get-lattice-logical-inputs bv-expr))
+  (define lakeroad-expr (make-lattice-pfu-expr logical-inputs))
+  (displayln "       000000        ")
+  (displayln lakeroad-expr)
+  (interpret lakeroad-expr)
+  (displayln "       AAAAAA        ")
+  (displayln (bitvector-size (type-of bv-expr)))
+  (displayln "       BBBBBB        ")
+  (displayln (interpret lakeroad-expr))
+  (displayln (bitvector-size (type-of (interpret lakeroad-expr))))
+  (displayln "       CCCCCC        ")
+
+  (define soln 
+    (synthesize #:forall logical-inputs
+                #:guarantee (begin (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
   (when (not (sat? soln))
     (error "expected sat soln"))
