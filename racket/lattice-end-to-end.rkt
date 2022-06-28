@@ -13,7 +13,9 @@
          "utils.rkt")
 
 (define includes-dir (build-path (getenv "LAKEROAD_DIR") "f4pga-arch-defs/ecp5/primitives/slice"))
-(define includes (for/list ([mod (list "LUT4.v" "PFUMX.v")]) (format "~a/~a" includes-dir mod)) )
+(define includes
+  (for/list ([mod (list "LUT4.v" "PFUMX.v")])
+    (format "~a/~a" includes-dir mod)))
 
 (define (end-to-end-test bv-expr)
   (displayln (format "  synthesizing ~a" bv-expr))

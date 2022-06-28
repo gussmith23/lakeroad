@@ -41,7 +41,8 @@
 
 ; Returns the physical outputs of the PFU
 (define (interpret-ecp5-pfu-impl pfu lut-inputs)
-  (for/list ([l pfu] [i lut-inputs]) (interpret-lut4-impl l i)))
+  (for/list ([l pfu] [i lut-inputs])
+    (interpret-lut4-impl l i)))
 
 (module+ test
   (require rackunit)
@@ -194,7 +195,6 @@
 ;;;                                   add-parameter-default-value
 ;;;                                   expr)
 
-
 (define (make-lattice-lut4 init-mem A B C D Z #:attrs [attrs (hasheq)])
   (make-cell "LUT4"
              (make-cell-port-directions (list 'A 'B 'C 'D) (list 'Z))
@@ -207,35 +207,35 @@
                             add-netname-to-module
                             add-parameter-default-value
                             expr)
-  (match-let* ([`(lattice-ecp5-pfu ,a ,b ,c ,d ,e ,f ,g ,h ,inputs) expr]
-               [inputs (compiler inputs)]
-               ; Reserve ds for output pins for 8 luts in the PFU
-               [luts-z (get-unique-bit-ids 8)]
-               [lut-mems (list a b c d e f g h)]
-               [LUTS (for/list ([lut lut-mems] [lut-input inputs] [z luts-z])
-                       (apply make-lattice-lut4
-                              (make-literal-value-from-bv lut)
-                              (append lut-input (list z))))])
-    ;; Add LUT cells
-    (for ([lut LUTS]
-          [c "ABCDEFGH"])
-      (add-cell-to-module (as-symbol (format "~a_LUT" c)) lut))
-    (for/list ([z luts-z]) (list z))))
+  (match-let*
+   ([`(lattice-ecp5-pfu ,a ,b ,c ,d ,e ,f ,g ,h ,inputs) expr]
+    [inputs (compiler inputs)]
+    ; Reserve ds for output pins for 8 luts in the PFU
+    [luts-z (get-unique-bit-ids 8)]
+    [lut-mems (list a b c d e f g h)]
+    [LUTS
+     (for/list ([lut lut-mems] [lut-input inputs] [z luts-z])
+       (apply make-lattice-lut4 (make-literal-value-from-bv lut) (append lut-input (list z))))])
+   ;; Add LUT cells
+   (for ([lut LUTS] [c "ABCDEFGH"])
+     (add-cell-to-module (as-symbol (format "~a_LUT" c)) lut))
+   (for/list ([z luts-z])
+     (list z))))
 
-(define test-pfu `(lattice-ecp5-pfu ,(bv 0 16)
-                                    ,(bv 1 16)
-                                    ,(bv 2 16)
-                                    ,(bv 4 16)
-                                    ,(bv 8 16)
-                                    ,(bv 16 16)
-                                    ,(bv 32 16)
-                                    ,(bv 64 16)
-                                    ,(list (bv 0 4) (bv 0 4) (bv 0 4) (bv 0 4))))
-
+(define test-pfu
+  `(lattice-ecp5-pfu ,(bv 0 16)
+                     ,(bv 1 16)
+                     ,(bv 2 16)
+                     ,(bv 4 16)
+                     ,(bv 8 16)
+                     ,(bv 16 16)
+                     ,(bv 32 16)
+                     ,(bv 64 16)
+                     ,(list (bv 0 4) (bv 0 4) (bv 0 4) (bv 0 4))))
 
 ;;; Get logical inputs for an expression
 (define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4])
-  (let ([symbs (symbolics bv-expr)]) 
+  (let ([symbs (symbolics bv-expr)])
     (append symbs (make-list (- num-inputs (length symbs)) (bv #x00 8)))))
 
 (define (make-lattice-pfu-expr logical-inputs)

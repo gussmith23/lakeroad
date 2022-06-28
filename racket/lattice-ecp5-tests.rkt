@@ -19,8 +19,6 @@
 (define lut-inputs (apply lattice-ecp5-logical-to-physical-inputs logical-inputs))
 (define out (interpret `(lattice-ecp5-pfu ,@luts ,lut-inputs)))
 
-
-
 (define (helper f arity)
   (define soln
     (synthesize #:forall logical-inputs
