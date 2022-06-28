@@ -111,7 +111,6 @@
 
   (evaluate lakeroad-expr soln))
 
-
 (define (synthesize-lakeroad-ecp5-impl bv-expr)
 
   (when (> (length (symbolics bv-expr)) 4)
@@ -124,9 +123,10 @@
   (define logical-inputs (get-lattice-logical-inputs bv-expr))
   (define lakeroad-expr (make-lattice-pfu-expr logical-inputs))
 
-  (define soln 
+  (define soln
     (synthesize #:forall logical-inputs
-                #:guarantee (begin (assert (bveq bv-expr (interpret lakeroad-expr))))))
+                #:guarantee (begin
+                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
   (when (not (sat? soln))
     (error "expected sat soln"))
