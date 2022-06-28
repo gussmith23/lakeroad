@@ -86,7 +86,7 @@
   ; TODO(@gussmith23) hardcoded dir
   (define verilator-command
     (format
-     "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING -Wno-UNOPTFLAT --Mdir ~a --cc ~a ~a --build --exe ~a"
+     "verilator -Wall -Wno-MULTITOP -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING -Wno-UNOPTFLAT --Mdir ~a --cc ~a ~a --build --exe ~a"
      verilator-make-dir
      verilog-file
      includes-string
