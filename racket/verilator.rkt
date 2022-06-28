@@ -81,7 +81,9 @@
   (display-to-file testbench-source testbench-file #:exists 'update)
 
   (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
-  (define includes-string (string-join (for/list ([include includes]) (format "-I ~a" include))))
+  (define includes-string
+    (string-join (for/list ([include includes])
+                   (format "-I ~a" include))))
 
   ; TODO(@gussmith23) hardcoded dir
   (define verilator-command

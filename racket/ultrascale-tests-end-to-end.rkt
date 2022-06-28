@@ -12,7 +12,9 @@
          "synthesize.rkt")
 
 (define includes-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
-(define includes (for/list ([mod (list "CARRY8.v" "LUT6_2.v")]) (format "~a/~a" includes-dir mod)) )
+(define includes
+  (for/list ([mod (list "CARRY8.v" "LUT6_2.v")])
+    (format "~a/~a" includes-dir mod)))
 (define (end-to-end-test bv-expr)
   (simulate-expr (synthesize-xilinx-ultrascale-plus-impl bv-expr) bv-expr #:includes includes))
 
