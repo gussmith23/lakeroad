@@ -18,7 +18,7 @@
 ;;;   tested against.
 ;;;
 ;;; Returns: The return value returned by running the compiled testbench executable.
-(define (simulate-expr lakeroad-expr bv-expr)
+(define (simulate-expr lakeroad-expr bv-expr #:includes [includes '()])
   ;;; TODO anonymize.
   (when (not (getenv "LAKEROAD_DIR"))
     (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
@@ -81,15 +81,15 @@
   (display-to-file testbench-source testbench-file #:exists 'update)
 
   (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+  (define includes-string (string-join (for/list ([include includes]) (format "-I ~a" include))))
 
   ; TODO(@gussmith23) hardcoded dir
   (define verilator-command
     (format
-     "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING -Wno-UNOPTFLAT --Mdir ~a --cc ~a -I ~a/CARRY8.v -I ~a/LUT6_2.v --build --exe ~a"
+     "verilator -Wall -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING -Wno-UNOPTFLAT --Mdir ~a --cc ~a ~a --build --exe ~a"
      verilator-make-dir
      verilog-file
-     verilator-unisims-dir
-     verilator-unisims-dir
+     includes-string
      testbench-file))
 
   (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process verilator-command)])
