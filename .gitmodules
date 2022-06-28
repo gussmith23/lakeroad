@@ -7,3 +7,6 @@
 [submodule "Nitro-Parts-lib-Xilinx"]
 	path = Nitro-Parts-lib-Xilinx
 	url = git@github.com:nachiket/Nitro-Parts-lib-Xilinx
+[submodule "f4pga-arch-defs"]
+	path = f4pga-arch-defs
+	url = https://github.com/uwsampl/f4pga-arch-defs
