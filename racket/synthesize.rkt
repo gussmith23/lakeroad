@@ -4,7 +4,7 @@
 ;;; TODO provide a top-level synthesis procedure?
 
 (provide synthesize-xilinx-ultrascale-plus-impl
-         synthesize-lakeroad-ecp5-impl)
+         synthesize-lattice-ecp5-impl)
 
 (require "interpreter.rkt"
          "ultrascale.rkt"
@@ -111,7 +111,7 @@
 
   (evaluate lakeroad-expr soln))
 
-(define (synthesize-lakeroad-ecp5-impl bv-expr)
+(define (synthesize-lattice-ecp5-impl bv-expr)
 
   (when (> (length (symbolics bv-expr)) 4)
     (error "Only 4 inputs supported"))

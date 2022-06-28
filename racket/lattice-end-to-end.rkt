@@ -19,7 +19,7 @@
 
 (define (end-to-end-test bv-expr)
   (displayln (format "  synthesizing ~a" bv-expr))
-  (simulate-expr (synthesize-lakeroad-ecp5-impl bv-expr) bv-expr #:includes includes))
+  (simulate-expr (synthesize-lattice-ecp5-impl bv-expr) bv-expr #:includes includes))
 
 (module+ test
   (require rackunit)
