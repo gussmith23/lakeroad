@@ -41,9 +41,7 @@
 
 ; Returns the physical outputs of the PFU
 (define (interpret-ecp5-pfu-impl pfu lut-inputs)
-  (apply concat
-         (reverse (for/list ([l pfu] [i lut-inputs])
-                    (interpret-lut4-impl l i)))))
+  (for/list ([l pfu] [i lut-inputs]) (interpret-lut4-impl l i)))
 
 (module+ test
   (require rackunit)

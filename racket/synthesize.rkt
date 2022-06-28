@@ -11,6 +11,7 @@
          "lattice-ecp5.rkt"
          rosette
          rosette/lib/synthax
+         racket/pretty
          "utils.rkt")
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
@@ -122,15 +123,8 @@
 
   (define logical-inputs (get-lattice-logical-inputs bv-expr))
   (define lakeroad-expr (make-lattice-pfu-expr logical-inputs))
-  (displayln "       000000        ")
-  (displayln lakeroad-expr)
-  (interpret lakeroad-expr)
-  (displayln "       AAAAAA        ")
-  (displayln (bitvector-size (type-of bv-expr)))
-  (displayln "       BBBBBB        ")
-  (displayln (interpret lakeroad-expr))
+  (displayln (pretty-format (interpret lakeroad-expr)))
   (displayln (bitvector-size (type-of (interpret lakeroad-expr))))
-  (displayln "       CCCCCC        ")
 
   (define soln 
     (synthesize #:forall logical-inputs
