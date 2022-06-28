@@ -123,8 +123,6 @@
 
   (define logical-inputs (get-lattice-logical-inputs bv-expr))
   (define lakeroad-expr (make-lattice-pfu-expr logical-inputs))
-  (displayln (pretty-format (interpret lakeroad-expr)))
-  (displayln (bitvector-size (type-of (interpret lakeroad-expr))))
 
   (define soln 
     (synthesize #:forall logical-inputs
