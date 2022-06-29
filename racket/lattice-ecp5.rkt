@@ -32,8 +32,7 @@
             [pfu (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
        (interpret-ecp5-pfu-impl pfu inputs))]
     [`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,inputs)
-     (let ([inputs (interpreter inputs)])
-       (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 inputs))]
+     (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 (interpreter inputs))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
 ;;; Interpret a CCU2C
