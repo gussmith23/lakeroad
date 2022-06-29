@@ -208,6 +208,9 @@
 ;       in2-7 --> B | LUT H |
 ;       in1-7 --> C |       |
 ;       in0-7 --> D +-------+
+; TODO: we don't really need this anymore since interpreter handles this. Is it
+; useful for testing? Seems redundant and will likely lead to code syncing errors
+; if anything changes down the line.
 (define (lattice-ecp5-logical-to-physical-inputs logical-input-0
                                                  logical-input-1
                                                  logical-input-2
