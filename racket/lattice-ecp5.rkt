@@ -48,9 +48,7 @@
 ;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
 ;;; OUTPUTS: (S0 S1 COUT)
 (define (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
-  (match-let* ([`(,INPUTS0 ,INPUTS1) inputs]
-               [`(,A0 ,B0 ,C0 ,D0) (bitvector->bits INPUTS0)]
-               [`(,A1 ,B1 ,C1 ,D1) (bitvector->bits INPUTS1)])
+  (match-let* ([`(,INPUTS0 ,INPUTS1) inputs])
     (let* (;;; // First Half
            ;;; wire LUT4_0, LUT2_0;
            ;;; LUT4 #(.INIT(INIT0)) lut4_0(.A(A0), .B(B0), .C(C0), .D(D0), .Z(LUT4_0));
