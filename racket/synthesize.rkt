@@ -178,7 +178,12 @@
 
 ;;; Synthesize a Lattice ECP5 Lakeroad expression for the given Rosette
 ;;; bitvector expression.
-(define (synthesize-lattice-ecp5-impl bv-expr)
+;;;
+;;; Optionally specify the primitive to target, including:
+;;;  + 'pfu: a normal pfu
+;;;  + 'ccu2c: a 2 bit ccu2c (2-bit adders, etc)
+;;;  + 'ripple-pfu: a pfu in ripple mode (8-bit adders, etc)
+(define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'pfu])
 
   (when (> (length (symbolics bv-expr)) 4)
     (error "Only 4 inputs supported"))
@@ -188,7 +193,12 @@
     (error "Out bitwidth must be statically known."))
 
   (define logical-inputs (get-lattice-logical-inputs bv-expr))
-  (define lakeroad-expr (make-lattice-pfu-expr logical-inputs))
+  (define lakeroad-expr 
+    (match primitive
+      ['pfu        (make-lattice-pfu-expr logical-inputs)]
+      ['ccu2c      (make-lattice-ccu2c-expr logical-inputs)]
+      ['ripple-pfu (error "Ripple PFU not yet supported")]
+      [_           (error (format "Unsupported primitive ~a" primitive))]))
 
   (define soln
     (synthesize #:forall logical-inputs
