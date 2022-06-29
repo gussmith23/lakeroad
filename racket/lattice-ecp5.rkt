@@ -39,7 +39,10 @@
        (interpret-ecp5-pfu-impl pfu inputs))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
-; Returns the physical outputs of the PFU
+; Returns the physical outputs of the PFU as a list of bits
+;
+; OUTPUT: (A.Z B.Z C.Z D.Z E.Z F.Z G.Z H.Z)
+;   outputs a length-8 list of (bitvector 1)s 
 (define (interpret-ecp5-pfu-impl pfu lut-inputs)
   (for/list ([l pfu] [i lut-inputs])
     (interpret-lut4-impl l i)))
