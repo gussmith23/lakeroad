@@ -166,12 +166,7 @@
              logical-inputs-per-clb)))
 
   (define lakeroad-expr `(extract ,(sub1 out-bw) 0 ,logical-output))
-  ;;; Uncomment this if synthesis is failing and you don't want to use symtrace. If it's a problem
-  ;;; in the interpreter, this will throw an error.
-  ;;;(interpret lakeroad-expr)
   (define soln
-    ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-    ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
     (synthesize #:forall logical-inputs
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
