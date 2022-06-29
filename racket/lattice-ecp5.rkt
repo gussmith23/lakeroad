@@ -25,6 +25,15 @@
   (check-equal? (lut (bv #b0110 4) (bv 2 2)) (bv #b1 1))
   (check-equal? (lut (bv #b0110 4) (bv 3 2)) (bv #b0 1)))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;        INTERPRETING LAKEROAD EXPRESSIONS         ;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Top level for the lakeroad interpreter. This is used to interpret Lakeroad
+;;; expressions:
+;;; + (lattice-ecp-pfu lut-a lut-b ... lut-h inputs)
+;;; + (lattice-ecp5-ccu2c INIT0 INIT1 INJECT1_0 INJECT1_1 inputs)
 (define (interpret-lattice-ecp5 interpreter expr)
   (match expr
     [`(lattice-ecp5-pfu ,lut-a ,lut-b ,lut-c ,lut-d ,lut-e ,lut-f ,lut-g ,lut-h ,inputs)
