@@ -8,7 +8,8 @@
          lattice-ecp5-logical-to-physical-inputs
          lattice-pfu-helper
          get-lattice-logical-inputs
-         make-lattice-pfu-expr)
+         make-lattice-pfu-expr
+         make-lattice-ccu2c-expr)
 
 ; The output of a LUT is simply the bit at the entry pointed to by `inputs`,
 ; when interpreted as an integer.
@@ -25,7 +26,6 @@
   (check-equal? (lut (bv #b0110 4) (bv 2 2)) (bv #b1 1))
   (check-equal? (lut (bv #b0110 4) (bv 3 2)) (bv #b0 1)))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;        INTERPRETING LAKEROAD EXPRESSIONS         ;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -40,25 +40,28 @@
      (let* ([inputs (interpreter inputs)]
             [pfu (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
        (interpret-ecp5-pfu-impl pfu inputs))]
-    [`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,inputs)
-     (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 (interpreter inputs))]
+    [`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs)
+     (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN (interpreter inputs))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
 ;;; Interpret a CCU2C
 ;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
 ;;; OUTPUTS: (S0 S1 COUT)
-(define (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 inputs)
-  (match-let ([`(,CIN ,A0 ,A1 ,B0 ,B1 ,C0 ,C1 ,D0 ,D1) inputs])
+(define (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
+  (match-let* ([`(,INPUTS0 ,INPUTS1) inputs]
+               [`(,A0 ,B0 ,C0 ,D0) (bitvector->bits INPUTS0)]
+               [`(,A1 ,B1 ,C1 ,D1) (bitvector->bits INPUTS1)])
     (let* (;;; // First Half
            ;;; wire LUT4_0, LUT2_0;
            ;;; LUT4 #(.INIT(INIT0)) lut4_0(.A(A0), .B(B0), .C(C0), .D(D0), .Z(LUT4_0));
-           [LUT4_0 (interpret-lut4-impl INIT0 (list A0 B0 C0 D0))]
+           [LUT4_0 (interpret-lut4-impl INIT0 INPUTS0)]
            ;;; LUT2 #(.INIT(INIT0[3:0])) lut2_0(.A(A0), .B(B0), .Z(LUT2_0));
-           [LUT2_0 (interpret-lut2-impl (extract 3 0 INIT0) (list A0 B0))]
+           ; TODO: is this extract correct?
+           [LUT2_0 (interpret-lut2-impl (extract 3 0 INIT0) (extract 1 0 INPUTS0))]
            ;;; wire gated_cin_0 = (INJECT1_0 == "YES") ? 1'b0 : CIN;
            [gated_cin_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) CIN)]
            ;;; assign S0 = LUT4_0 ^ gated_cin_0;
-           [S0 (xor LUT4_0 gated_cin_0)]
+           [S0 (bvxor LUT4_0 gated_cin_0)]
 
            ;;; wire gated_lut2_0 = (INJECT1_0 == "YES") ? 1'b0 : LUT2_0;
            [gated_lut2_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) LUT2_0)]
@@ -68,15 +71,16 @@
            ;;; // Second half
            ;;; wire LUT4_1, LUT2_1;
            ;;; LUT4 #(.INIT(INIT1)) lut4_1(.A(A1), .B(B1), .C(C1), .D(D1), .Z(LUT4_1));
-           [LUT4_1 (interpret-lut4-impl INIT1 (list A1 B1 C1 D1))]
+           [LUT4_1 (interpret-lut4-impl INIT1 INPUTS1)]
            ;;; LUT2 #(.INIT(INIT1[3:0])) lut2_1(.A(A1), .B(B1), .Z(LUT2_1));
-           [LUT2_1 (interpret-lut2-impl (extract 3 0 INIT1) (list A1 B1))]
-           ;;; 
+           ; TODO: is this extract correct?
+           [LUT2_1 (interpret-lut2-impl (extract 3 0 INIT1) (extract 1 0 INPUTS0))]
+           ;;;
            ;;; wire gated_cin_1 = (INJECT1_1 == "YES") ? 1'b0 : cout_0;
            [gated_cin_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) cout_0)]
            ;;; assign S1 = LUT4_1 ^ gated_cin_1;
-           [S1 (xor LUT4_1 gated_cin_1)]
-           ;;; 
+           [S1 (bvxor LUT4_1 gated_cin_1)]
+           ;;;
            ;;; wire gated_lut2_1 = (INJECT1_1 == "YES") ? 1'b0 : LUT2_1;
            [gated_lut2_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) LUT2_1)]
            ;;; assign COUT = (~LUT4_1 & gated_lut2_1) | (LUT4_1 & cout_0);
@@ -312,8 +316,9 @@
 (define (make-lattice-ccu2c-expr CIN inputs)
   `(first (physical-to-logical-mapping
            (bitwise)
-           (lattice-ecp5-ccu2c ,(?? (bitvector 16))  ; INIT0
-                               ,(?? (bitvector 16))  ; INIT1
-                               ,(?? (bitvector 1))   ; INJECT1_0
-                               ,(?? (bitvector 1))   ; INJECT1_1
+           (lattice-ecp5-ccu2c ,(?? (bitvector 16)) ; INIT0
+                               ,(?? (bitvector 16)) ; INIT1
+                               ,(?? (bitvector 1)) ; INJECT1_0
+                               ,(?? (bitvector 1)) ; INJECT1_1
+                               ,CIN
                                (logical-to-physical-mapping (bitwise) ,inputs)))))
