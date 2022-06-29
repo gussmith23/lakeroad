@@ -30,6 +30,7 @@ RUN apt install -y \
   python3 \
   python3-pip \
   racket \
+  wget \
   zlib1g \
   zlib1g-dev \
   zlibc
