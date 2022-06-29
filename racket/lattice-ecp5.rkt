@@ -14,12 +14,6 @@
 ; when interpreted as an integer.
 ;
 ; LUTs must return only one bit.
-;
-; TODO: figure out how to return multiple bits while still using theory of
-;       bitvectors only. The old solution used theory of integers to index into
-;       the bitvector.
-;
-; TODO: It's probably worth putting this somewhere more generally usable.
 (define (lut memory inputs)
   (let* ([len (length (bitvector->bits memory))] [inputs (zero-extend inputs (bitvector len))])
     (bit 0 (bvlshr memory inputs))))
@@ -37,7 +31,49 @@
      (let* ([inputs (interpreter inputs)]
             [pfu (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
        (interpret-ecp5-pfu-impl pfu inputs))]
+    [`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,inputs)
+     (let ([inputs (interpreter inputs)])
+       (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 inputs))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
+
+;;; Interpret a CCU2C
+;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
+;;; OUTPUTS: (S0 S1 COUT)
+(define (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 inputs)
+  (match-let ([`(,CIN ,A0 ,A1 ,B0 ,B1 ,C0 ,C1 ,D0 ,D1) inputs])
+    (let* (;;; // First Half
+           ;;; wire LUT4_0, LUT2_0;
+           ;;; LUT4 #(.INIT(INIT0)) lut4_0(.A(A0), .B(B0), .C(C0), .D(D0), .Z(LUT4_0));
+           [LUT4_0 (interpret-lut4-impl INIT0 (list A0 B0 C0 D0))]
+           ;;; LUT2 #(.INIT(INIT0[3:0])) lut2_0(.A(A0), .B(B0), .Z(LUT2_0));
+           [LUT2_0 (interpret-lut2-impl (extract 3 0 INIT0) (list A0 B0))]
+           ;;; wire gated_cin_0 = (INJECT1_0 == "YES") ? 1'b0 : CIN;
+           [gated_cin_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) CIN)]
+           ;;; assign S0 = LUT4_0 ^ gated_cin_0;
+           [S0 (xor LUT4_0 gated_cin_0)]
+
+           ;;; wire gated_lut2_0 = (INJECT1_0 == "YES") ? 1'b0 : LUT2_0;
+           [gated_lut2_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) LUT2_0)]
+           ;;; wire cout_0 = (~LUT4_0 & gated_lut2_0) | (LUT4_0 & CIN);
+           [cout_0 (bvor (bvand (bvnot LUT4_0) gated_lut2_0) (bvand LUT4_0 CIN))]
+
+           ;;; // Second half
+           ;;; wire LUT4_1, LUT2_1;
+           ;;; LUT4 #(.INIT(INIT1)) lut4_1(.A(A1), .B(B1), .C(C1), .D(D1), .Z(LUT4_1));
+           [LUT4_1 (interpret-lut4-impl INIT1 (list A1 B1 C1 D1))]
+           ;;; LUT2 #(.INIT(INIT1[3:0])) lut2_1(.A(A1), .B(B1), .Z(LUT2_1));
+           [LUT2_1 (interpret-lut2-impl (extract 3 0 INIT1) (list A1 B1))]
+           ;;; 
+           ;;; wire gated_cin_1 = (INJECT1_1 == "YES") ? 1'b0 : cout_0;
+           [gated_cin_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) cout_0)]
+           ;;; assign S1 = LUT4_1 ^ gated_cin_1;
+           [S1 (xor LUT4_1 gated_cin_1)]
+           ;;; 
+           ;;; wire gated_lut2_1 = (INJECT1_1 == "YES") ? 1'b0 : LUT2_1;
+           [gated_lut2_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) LUT2_1)]
+           ;;; assign COUT = (~LUT4_1 & gated_lut2_1) | (LUT4_1 & cout_0);
+           [COUT (bvor (bvand (bvnot LUT4_1) gated_lut2_1) (bvand LUT4_1 cout_0))])
+      (list S0 S1 COUT))))
 
 ; Returns the physical outputs of the PFU as a list of bits
 ;
@@ -93,6 +129,9 @@
 
 (define (interpret-lut4-impl l inputs)
   (lut l (extract 3 0 inputs)))
+
+(define (interpret-lut2-impl l inputs)
+  (lut l (extract 1 0 inputs)))
 
 (module+ test
   (require rackunit)
@@ -241,6 +280,7 @@
   (let ([symbs (symbolics bv-expr)])
     (append symbs (make-list (- num-inputs (length symbs)) (bv #x00 8)))))
 
+;;; Create a lakeroad expression for a pfu
 (define (make-lattice-pfu-expr logical-inputs)
   `(first (physical-to-logical-mapping
            (bitwise)
@@ -253,3 +293,16 @@
                              ,(?? (bitvector 16))
                              ,(?? (bitvector 16))
                              (logical-to-physical-mapping (bitwise) ,logical-inputs)))))
+
+;;; Create a Lakeroad expression for a CCU2C. This can be used to specify a
+;;; 2-bit add, etc
+;;;
+;;; Output: (S0 S1 COUT)
+(define (make-lattice-ccu2c-expr CIN inputs)
+  `(first (physical-to-logical-mapping
+           (bitwise)
+           (lattice-ecp5-ccu2c ,(?? (bitvector 16))  ; INIT0
+                               ,(?? (bitvector 16))  ; INIT1
+                               ,(?? (bitvector 1))   ; INJECT1_0
+                               ,(?? (bitvector 1))   ; INJECT1_1
+                               (logical-to-physical-mapping (bitwise) ,inputs)))))
