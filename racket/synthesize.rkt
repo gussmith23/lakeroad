@@ -176,6 +176,8 @@
 
   (evaluate lakeroad-expr soln))
 
+;;; Synthesize a Lattice ECP5 Lakeroad expression for the given Rosette
+;;; bitvector expression.
 (define (synthesize-lattice-ecp5-impl bv-expr)
 
   (when (> (length (symbolics bv-expr)) 4)
