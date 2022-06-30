@@ -44,8 +44,110 @@
        (interpret-ecp5-pfu-impl pfu inputs))]
     [`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs)
      (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN (interpreter inputs))]
+    [`(lattice-ecp5-ripple-pfu ,INIT0
+                               ,INIT1
+                               ,INIT2
+                               ,INIT3
+                               ,INIT4
+                               ,INIT5
+                               ,INIT6
+                               ,INIT7
+                               ,INJECT1_0
+                               ,INJECT1_1
+                               ,INJECT1_2
+                               ,INJECT1_3
+                               ,INJECT1_4
+                               ,INJECT1_5
+                               ,INJECT1_6
+                               ,INJECT1_7
+                               ,CIN
+                               ,inputs)
+     (interpret-ecp5-ripple-pfu-impl INIT0
+                                     INIT1
+                                     INIT2
+                                     INIT3
+                                     INIT4
+                                     INIT5
+                                     INIT6
+                                     INIT7
+                                     INJECT1_0
+                                     INJECT1_1
+                                     INJECT1_2
+                                     INJECT1_3
+                                     INJECT1_4
+                                     INJECT1_5
+                                     INJECT1_6
+                                     INJECT1_7
+                                     CIN
+                                     (interpreter inputs))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
+(define (interpret-ecp5-ripple-pfu-impl INIT0
+                                        INIT1
+                                        INIT2
+                                        INIT3
+                                        INIT4
+                                        INIT5
+                                        INIT6
+                                        INIT7
+                                        INJECT1_0
+                                        INJECT1_1
+                                        INJECT1_2
+                                        INJECT1_3
+                                        INJECT1_4
+                                        INJECT1_5
+                                        INJECT1_6
+                                        INJECT1_7
+                                        CIN
+                                        inputs)
+  (when (not (= (length inputs) 8))
+    (error (format "expected inputs to be length 8, found length ~a: ~a" (length inputs) inputs)))
+  (for ([input inputs])
+    (when (not ((bitvector 4) input))
+      (error (format "expected input to be a (bitvector 4), found ~a" input))))
+  (match-let* ([`(,i0 ,i1 ,i2 ,i3 ,i4 ,i5 ,i6 ,i7) inputs]
+               ;; Slice 0
+               [result-0
+                (interpret-ecp5-ccu2c-impl INIT0
+                                           INIT1
+                                           INJECT1_0
+                                           INJECT1_1
+                                           CIN
+                                           (list i0 i1))]
+               [`(,S0 ,S1 ,carry-bit-0) result-0]
+
+               ;; Slice 1
+               [result-1
+                (interpret-ecp5-ccu2c-impl INIT2
+                                           INIT3
+                                           INJECT1_2
+                                           INJECT1_3
+                                           carry-bit-0
+                                           (list i2 i3))]
+               [`(,S2 ,S3 ,carry-bit-1) result-1]
+
+               ;; Slice 2
+               [result-2
+                (interpret-ecp5-ccu2c-impl INIT4
+                                           INIT5
+                                           INJECT1_4
+                                           INJECT1_5
+                                           carry-bit-1
+                                           (list i4 i5))]
+               [`(,S4 ,S5 ,carry-bit-2) result-2]
+
+               ;; Slice 3
+               [result-3
+                (interpret-ecp5-ccu2c-impl INIT6
+                                           INIT7
+                                           INJECT1_6
+                                           INJECT1_7
+                                           carry-bit-2
+                                           (list i6 i7))]
+               [`(,S6 ,S7 ,COUT) result-3])
+              (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
+; (let* ([ccu2c_1 (make-lattice-ccu2c-expr )])
+;   inputs))
 ;;; Interpret a CCU2C
 ;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
 ;;; OUTPUTS: (S0 S1 COUT)
@@ -352,6 +454,9 @@
 ;;;
 ;;; Interpretting the output of this function will result in a list
 ;;; `(list S0 S1 S2 S3 S4 S5 S6 S7 COUT)` of 8 sum-bits and a carry-bit
+;;;
+;;; The structure of this PFU is such that CIN feeds into the LUT0 (w/ memory
+;;; INIT0), and the carry bit from LUT0 feeds into LUT1, etc.
 (define (make-lattice-ripple-pfu-expr #:inputs [inputs '()]
                                       #:CIN [CIN #f]
                                       #:INIT0 [INIT0 #f]
