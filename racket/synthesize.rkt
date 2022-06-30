@@ -193,12 +193,12 @@
     (error "Out bitwidth must be statically known."))
 
   (define logical-inputs (get-lattice-logical-inputs bv-expr))
-  (define lakeroad-expr 
+  (define lakeroad-expr
     (match primitive
-      ['pfu        (make-lattice-pfu-expr logical-inputs)]
-      ['ccu2c      (make-lattice-ccu2c-expr logical-inputs)]
+      ['pfu (make-lattice-pfu-expr logical-inputs)]
+      ['ccu2c (make-lattice-ccu2c-expr logical-inputs)]
       ['ripple-pfu (error "Ripple PFU not yet supported")]
-      [_           (error (format "Unsupported primitive ~a" primitive))]))
+      [_ (error (format "Unsupported primitive ~a" primitive))]))
 
   (define soln
     (synthesize #:forall logical-inputs

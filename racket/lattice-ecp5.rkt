@@ -105,47 +105,21 @@
   (for ([input inputs])
     (when (not ((bitvector 4) input))
       (error (format "expected input to be a (bitvector 4), found ~a" input))))
-  (match-let* ([`(,i0 ,i1 ,i2 ,i3 ,i4 ,i5 ,i6 ,i7) inputs]
-               ;; Slice 0
-               [result-0
-                (interpret-ecp5-ccu2c-impl INIT0
-                                           INIT1
-                                           INJECT1_0
-                                           INJECT1_1
-                                           CIN
-                                           (list i0 i1))]
-               [`(,S0 ,S1 ,carry-bit-0) result-0]
-
-               ;; Slice 1
-               [result-1
-                (interpret-ecp5-ccu2c-impl INIT2
-                                           INIT3
-                                           INJECT1_2
-                                           INJECT1_3
-                                           carry-bit-0
-                                           (list i2 i3))]
-               [`(,S2 ,S3 ,carry-bit-1) result-1]
-
-               ;; Slice 2
-               [result-2
-                (interpret-ecp5-ccu2c-impl INIT4
-                                           INIT5
-                                           INJECT1_4
-                                           INJECT1_5
-                                           carry-bit-1
-                                           (list i4 i5))]
-               [`(,S4 ,S5 ,carry-bit-2) result-2]
-
-               ;; Slice 3
-               [result-3
-                (interpret-ecp5-ccu2c-impl INIT6
-                                           INIT7
-                                           INJECT1_6
-                                           INJECT1_7
-                                           carry-bit-2
-                                           (list i6 i7))]
-               [`(,S6 ,S7 ,COUT) result-3])
-              (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
+  (match-let*
+   ([`(,i0 ,i1 ,i2 ,i3 ,i4 ,i5 ,i6 ,i7) inputs]
+    ;; Slice 0
+    [result-0 (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN (list i0 i1))]
+    [`(,S0 ,S1 ,carry-bit-0) result-0]
+    ;; Slice 1
+    [result-1 (interpret-ecp5-ccu2c-impl INIT2 INIT3 INJECT1_2 INJECT1_3 carry-bit-0 (list i2 i3))]
+    [`(,S2 ,S3 ,carry-bit-1) result-1]
+    ;; Slice 2
+    [result-2 (interpret-ecp5-ccu2c-impl INIT4 INIT5 INJECT1_4 INJECT1_5 carry-bit-1 (list i4 i5))]
+    [`(,S4 ,S5 ,carry-bit-2) result-2]
+    ;; Slice 3
+    [result-3 (interpret-ecp5-ccu2c-impl INIT6 INIT7 INJECT1_6 INJECT1_7 carry-bit-2 (list i6 i7))]
+    [`(,S6 ,S7 ,COUT) result-3])
+   (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
 ; (let* ([ccu2c_1 (make-lattice-ccu2c-expr )])
 ;   inputs))
 ;;; Interpret a CCU2C
