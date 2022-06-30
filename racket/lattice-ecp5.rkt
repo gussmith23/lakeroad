@@ -9,7 +9,8 @@
          lattice-pfu-helper
          get-lattice-logical-inputs
          make-lattice-pfu-expr
-         make-lattice-ccu2c-expr)
+         make-lattice-ccu2c-expr
+         make-lattice-ripple-pfu-expr)
 
 ; The output of a LUT is simply the bit at the entry pointed to by `inputs`,
 ; when interpreted as an integer.
@@ -17,6 +18,7 @@
 ; LUTs must return only one bit.
 (define (lut memory inputs)
   (let* ([len (length (bitvector->bits memory))] [inputs (zero-extend inputs (bitvector len))])
+    ; (displayln (format "  (lut ~a ~a) = ~a" memory inputs (bit 0 (bvlshr memory inputs))))
     (bit 0 (bvlshr memory inputs))))
 
 (module+ test
@@ -49,41 +51,41 @@
 ;;; OUTPUTS: (S0 S1 COUT)
 (define (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
   (match-let* ([`(,INPUTS0 ,INPUTS1) inputs])
-    (let* (;;; // First Half
-           ;;; wire LUT4_0, LUT2_0;
-           ;;; LUT4 #(.INIT(INIT0)) lut4_0(.A(A0), .B(B0), .C(C0), .D(D0), .Z(LUT4_0));
-           [LUT4_0 (interpret-lut4-impl INIT0 INPUTS0)]
-           ;;; LUT2 #(.INIT(INIT0[3:0])) lut2_0(.A(A0), .B(B0), .Z(LUT2_0));
-           ; TODO: is this extract correct?
-           [LUT2_0 (interpret-lut2-impl (extract 3 0 INIT0) (extract 1 0 INPUTS0))]
-           ;;; wire gated_cin_0 = (INJECT1_0 == "YES") ? 1'b0 : CIN;
-           [gated_cin_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) CIN)]
-           ;;; assign S0 = LUT4_0 ^ gated_cin_0;
-           [S0 (bvxor LUT4_0 gated_cin_0)]
+              (let* (;;; // First Half
+                     ;;; wire LUT4_0, LUT2_0;
+                     ;;; LUT4 #(.INIT(INIT0)) lut4_0(.A(A0), .B(B0), .C(C0), .D(D0), .Z(LUT4_0));
+                     [LUT4_0 (interpret-lut4-impl INIT0 INPUTS0)]
+                     ;;; LUT2 #(.INIT(INIT0[3:0])) lut2_0(.A(A0), .B(B0), .Z(LUT2_0));
+                     ; TODO: is this extract correct?
+                     [LUT2_0 (interpret-lut2-impl (extract 3 0 INIT0) (extract 1 0 INPUTS0))]
+                     ;;; wire gated_cin_0 = (INJECT1_0 == "YES") ? 1'b0 : CIN;
+                     [gated_cin_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) CIN)]
+                     ;;; assign S0 = LUT4_0 ^ gated_cin_0;
+                     [S0 (bvxor LUT4_0 gated_cin_0)]
 
-           ;;; wire gated_lut2_0 = (INJECT1_0 == "YES") ? 1'b0 : LUT2_0;
-           [gated_lut2_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) LUT2_0)]
-           ;;; wire cout_0 = (~LUT4_0 & gated_lut2_0) | (LUT4_0 & CIN);
-           [cout_0 (bvor (bvand (bvnot LUT4_0) gated_lut2_0) (bvand LUT4_0 CIN))]
+                     ;;; wire gated_lut2_0 = (INJECT1_0 == "YES") ? 1'b0 : LUT2_0;
+                     [gated_lut2_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) LUT2_0)]
+                     ;;; wire cout_0 = (~LUT4_0 & gated_lut2_0) | (LUT4_0 & CIN);
+                     [cout_0 (bvor (bvand (bvnot LUT4_0) gated_lut2_0) (bvand LUT4_0 CIN))]
 
-           ;;; // Second half
-           ;;; wire LUT4_1, LUT2_1;
-           ;;; LUT4 #(.INIT(INIT1)) lut4_1(.A(A1), .B(B1), .C(C1), .D(D1), .Z(LUT4_1));
-           [LUT4_1 (interpret-lut4-impl INIT1 INPUTS1)]
-           ;;; LUT2 #(.INIT(INIT1[3:0])) lut2_1(.A(A1), .B(B1), .Z(LUT2_1));
-           ; TODO: is this extract correct?
-           [LUT2_1 (interpret-lut2-impl (extract 3 0 INIT1) (extract 1 0 INPUTS0))]
-           ;;;
-           ;;; wire gated_cin_1 = (INJECT1_1 == "YES") ? 1'b0 : cout_0;
-           [gated_cin_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) cout_0)]
-           ;;; assign S1 = LUT4_1 ^ gated_cin_1;
-           [S1 (bvxor LUT4_1 gated_cin_1)]
-           ;;;
-           ;;; wire gated_lut2_1 = (INJECT1_1 == "YES") ? 1'b0 : LUT2_1;
-           [gated_lut2_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) LUT2_1)]
-           ;;; assign COUT = (~LUT4_1 & gated_lut2_1) | (LUT4_1 & cout_0);
-           [COUT (bvor (bvand (bvnot LUT4_1) gated_lut2_1) (bvand LUT4_1 cout_0))])
-      (list S0 S1 COUT))))
+                     ;;; // Second half
+                     ;;; wire LUT4_1, LUT2_1;
+                     ;;; LUT4 #(.INIT(INIT1)) lut4_1(.A(A1), .B(B1), .C(C1), .D(D1), .Z(LUT4_1));
+                     [LUT4_1 (interpret-lut4-impl INIT1 INPUTS1)]
+                     ;;; LUT2 #(.INIT(INIT1[3:0])) lut2_1(.A(A1), .B(B1), .Z(LUT2_1));
+                     ; TODO: is this extract correct?
+                     [LUT2_1 (interpret-lut2-impl (extract 3 0 INIT1) (extract 1 0 INPUTS1))]
+                     ;;;
+                     ;;; wire gated_cin_1 = (INJECT1_1 == "YES") ? 1'b0 : cout_0;
+                     [gated_cin_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) cout_0)]
+                     ;;; assign S1 = LUT4_1 ^ gated_cin_1;
+                     [S1 (bvxor LUT4_1 gated_cin_1)]
+                     ;;;
+                     ;;; wire gated_lut2_1 = (INJECT1_1 == "YES") ? 1'b0 : LUT2_1;
+                     [gated_lut2_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) LUT2_1)]
+                     ;;; assign COUT = (~LUT4_1 & gated_lut2_1) | (LUT4_1 & cout_0);
+                     [COUT (bvor (bvand (bvnot LUT4_1) gated_lut2_1) (bvand LUT4_1 cout_0))])
+                (list S0 S1 COUT))))
 
 ; Returns the physical outputs of the PFU as a list of bits
 ;
@@ -311,12 +313,90 @@
 ;;; 2-bit add, etc
 ;;;
 ;;; Output: (S0 S1 COUT)
-(define (make-lattice-ccu2c-expr CIN inputs)
-  `(first (physical-to-logical-mapping
-           (bitwise)
-           (lattice-ecp5-ccu2c ,(?? (bitvector 16)) ; INIT0
-                               ,(?? (bitvector 16)) ; INIT1
-                               ,(?? (bitvector 1)) ; INJECT1_0
-                               ,(?? (bitvector 1)) ; INJECT1_1
-                               ,CIN
-                               (logical-to-physical-mapping (bitwise) ,inputs)))))
+(define (make-lattice-ccu2c-expr #:inputs inputs
+                                 #:CIN [CIN #f]
+                                 #:INIT0 [INIT0 #f]
+                                 #:INIT1 [INIT1 #f]
+                                 #:INJECT1_0 [INJECT1_0 #f]
+                                 #:INJECT1_1 [INJECT1_1 #f])
+  (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv 3 2)))])
+    `(first (physical-to-logical-mapping
+             (bitwise)
+             (lattice-ecp5-ccu2c ,(or INIT0 (?? (bitvector 16))) ; INIT0
+                                 ,(or INIT1 (?? (bitvector 16))) ; INIT1
+                                 ,(or INJECT1_0 (?? (bitvector 1))) ; INJECT1_0
+                                 ,(or INJECT1_1 (?? (bitvector 1))) ; INJECT1_1
+                                 ,(or CIN (?? (bitvector 1))) ; CIN
+                                 (logical-to-physical-mapping (bitwise) ,inputs))))))
+
+;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
+;;; an 8-bit add, etc.
+;;;
+;;; Optional Inputs
+;;; ===============
+;;;
+;;; + #:inputs: the logical inputs to pass to the Ripple PFU. This should
+;;;   be a list of length 4 or less, and each element should be a (bitvector 8).
+;;;   This value defaults to an empty list. Provided input lists are padded with
+;;;   (bv -1 8) to make the list length 8. If the list has length > 4 an error is
+;;;   thrown.
+;;;
+;;; + #:CIN: the carry in bit. By default it is synthesizable as a single bit.
+;;;   If specified it must bit a (bitvector 1)
+;;;
+;;; + #:INITn: Memory of the nth lut. Default is a hole to be synthesized.
+;;;   Expects a (bitvector 16).
+;;;
+;;; + #:INJECT1_n: INJECT1 parameter for nth LUT4
+;;;
+;;;
+;;; Interpretting the output of this function will result in a list
+;;; `(list S0 S1 S2 S3 S4 S5 S6 S7 COUT)` of 8 sum-bits and a carry-bit
+(define (make-lattice-ripple-pfu-expr #:inputs [inputs '()]
+                                      #:CIN [CIN #f]
+                                      #:INIT0 [INIT0 #f]
+                                      #:INIT1 [INIT1 #f]
+                                      #:INIT2 [INIT2 #f]
+                                      #:INIT3 [INIT3 #f]
+                                      #:INIT4 [INIT4 #f]
+                                      #:INIT5 [INIT5 #f]
+                                      #:INIT6 [INIT6 #f]
+                                      #:INIT7 [INIT7 #f]
+                                      #:INJECT1_0 [INJECT1_0 #f]
+                                      #:INJECT1_1 [INJECT1_1 #f]
+                                      #:INJECT1_2 [INJECT1_2 #f]
+                                      #:INJECT1_3 [INJECT1_3 #f]
+                                      #:INJECT1_4 [INJECT1_4 #f]
+                                      #:INJECT1_5 [INJECT1_5 #f]
+                                      #:INJECT1_6 [INJECT1_6 #f]
+                                      #:INJECT1_7 [INJECT1_7 #f])
+
+  (define fn-name "make-latticeripple-pfu-expr")
+  (when (> (length inputs) 4)
+    (error (format "~a: inputs must be length 4 or less: ~a" fn-name inputs)))
+
+  (for ([input inputs])
+    (when (not ((bitvector 8) input))
+      (error (format "~a: all inputs must satisfy (bitvector 8): ~a" fn-name input))))
+
+  (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv -1 8)))])
+    `(first (physical-to-logical-mapping
+             (bitwise)
+             (lattice-ecp5-ripple-pfu ,(or INIT0 (?? (bitvector 16)))
+                                      ,(or INIT1 (?? (bitvector 16)))
+                                      ,(or INIT2 (?? (bitvector 16)))
+                                      ,(or INIT3 (?? (bitvector 16)))
+                                      ,(or INIT4 (?? (bitvector 16)))
+                                      ,(or INIT5 (?? (bitvector 16)))
+                                      ,(or INIT6 (?? (bitvector 16)))
+                                      ,(or INIT7 (?? (bitvector 16)))
+                                      ,(or INJECT1_0 (?? (bitvector 1)))
+                                      ,(or INJECT1_1 (?? (bitvector 1)))
+                                      ,(or INJECT1_2 (?? (bitvector 1)))
+                                      ,(or INJECT1_3 (?? (bitvector 1)))
+                                      ,(or INJECT1_4 (?? (bitvector 1)))
+                                      ,(or INJECT1_5 (?? (bitvector 1)))
+                                      ,(or INJECT1_6 (?? (bitvector 1)))
+                                      ,(or INJECT1_7 (?? (bitvector 1)))
+                                      ,(or CIN (?? (bitvector 1)))
+                                      (logical-to-physical-mapping (bitwise) ,inputs))))))
