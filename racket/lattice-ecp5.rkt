@@ -382,7 +382,6 @@
                                     add-cell-to-module
                                     add-netname-to-module
                                     add-paramter-default-value
-                                    get-fresh-name
                                     expr)
   (match-let* ([`(lattice-ecp5-ripple-pfu ,INIT0
                                           ,INIT1
@@ -413,11 +412,11 @@
                                          #:INIT1 INIT1
                                          #:INJECT1_0 INJECT1_0
                                          #:INJECT1_1 INJECT1_1)]
-               [ccu2c-0
-                (make-lattice-ccu2c-expr #:inputs (list i0 i1)
+               [ccu2c-1
+                (make-lattice-ccu2c-expr #:inputs (list i2 i3)
                                          #:CIN CIN
-                                         #:INIT0 INIT0
-                                         #:INIT1 INIT1
+                                         #:INIT0 INIT2
+                                         #:INIT1 INIT3
                                          #:INJECT1_0 INJECT1_0
                                          #:INJECT1_1 INJECT1_1)])
               (error "todo")))
@@ -427,7 +426,6 @@
                              add-cell-to-module
                              add-netname-to-module
                              add-parameter-default-value
-                             get-fresh-name
                              expr)
   (match-let*
    ([`(lattice-ecp5-pfu ,a ,b ,c ,d ,e ,f ,g ,h ,inputs) expr]
@@ -440,7 +438,7 @@
        (apply make-lattice-lut4-cell (make-literal-value-from-bv lut) (append lut-input (list z))))])
    ;; Add LUT cells
    (for ([lut LUTS] [c "ABCDEFGH"])
-     (add-cell-to-module (get-fresh-name (format "~a_LUT" c)) lut))
+     (add-cell-to-module (as-symbol (format "~a_LUT" c)) lut))
    (for/list ([z luts-z])
      (list z))))
 
@@ -451,17 +449,16 @@
                                add-cell-to-module
                                add-netname-to-module
                                add-parameter-default-value
-                               get-fresh-name
                                expr)
   (match-let* ([`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs) expr]
                [compiled-inputs (compiler inputs)]
                [(list (list A0 B0 C0 D0) (list A1 B1 C1 D1)) compiled-inputs]
                [ _ (displayln "Point A")]
                [(list s0 s1 cout) (get-unique-bit-ids 3)]
-               [ccu2c (make-lattice-ccu2c-cell INIT0
-                                               INIT1
-                                               INJECT1_0
-                                               INJECT1_1
+               [ccu2c (make-lattice-ccu2c-cell (make-literal-value-from-bv INIT0)
+                                               (make-literal-value-from-bv INIT1)
+                                               (make-literal-value-from-bv INJECT1_0)
+                                               (make-literal-value-from-bv INJECT1_1)
                                                A0
                                                B0
                                                C0
@@ -470,12 +467,11 @@
                                                B1
                                                C1
                                                D1
-                                               CIN
+                                               (make-literal-value-from-bv CIN)
                                                s0
                                                s1
                                                cout)])
-               (displayln "Point B")
-               (add-cell-to-module (get-fresh-name "CCU2C") ccu2c)
+               (add-cell-to-module 'CCU2C ccu2c)
               (list (list s0) (list s1) (list cout))))
 
 (define test-pfu

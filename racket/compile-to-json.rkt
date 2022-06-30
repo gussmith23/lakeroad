@@ -48,15 +48,6 @@
   (define (add-parameter-default-value k v)
     (hasheq-helper #:base parameter-default-values k v))
 
-  ;;; Keep track of names so we don't replicated them
-  (define names-counter (hasheq-helper))
-
-  (define (get-fresh-name base)
-    (or (hash-has-key? names-counter base) (hash-set! names-counter base 0))
-    (let* ([index (hash-ref names-counter base)] [name (format "~a_~a" base index)])
-      (hash-set! names-counter base (add1 index))
-      (as-symbol name)))
-
   ;;; Generally: individual signals (symbolic constants e.g. 'a' or concrete constants e.g. (bv 1 2))
   ;;; return a list of integers representing bit ids. Note that, in the case that a bit is hardwired
   ;;; to 0 or 1, the id will instead be the strings "0" or "1" as per Yosys's JSON format definition.
@@ -77,7 +68,6 @@
                             add-cell
                             add-netname
                             add-parameter-default-value
-                            get-fresh-name
                             expr)]
       [`(lattice-ecp5-ccu2c ,_ ...)
        (compile-lattice-ccu2c compile
@@ -85,7 +75,6 @@
                               add-cell
                               add-netname
                               add-parameter-default-value
-                              get-fresh-name
                               expr)]
       [`(ultrascale-plus-lut1 ,init ,inputs)
        (match-define (list i0) (compile inputs))
