@@ -30,7 +30,8 @@
   (define extracted
     (match primitive
       ['pfu interpretted]
-      ['ccu2c (extract (- bitwidth 1) 0 interpretted)]))
+      ['ccu2c (extract (- bitwidth 1) 0 interpretted)]
+      ['ripple-pfu (extract (- bitwidth 1) 0 interpretted)]))
   (define soln
     (synthesize #:forall logical-inputs
                 #:guarantee (begin
@@ -113,6 +114,7 @@
   (check-false (sat? (helper circt-comb-shrs 2 #:primitive 'ccu2c #:bitwidth 2)))
   (check-false (sat? (helper circt-comb-shru 2 #:primitive 'ccu2c #:bitwidth 2)))
   (check-true (sat? (helper circt-comb-sub 2 #:primitive 'ccu2c #:bitwidth 2)))
+  (check-true (sat? (helper circt-comb-sub 2 #:primitive 'ripple-pfu #:bitwidth 8)))
   (check-true (sat? (helper circt-comb-xor 2)))
 
   (displayln "Testing Synthesis of Bithack Examples")
