@@ -12,7 +12,64 @@
          rosette
          rosette/lib/synthax
          racket/pretty
+         rosette/solver/smt/boolector
          "utils.rkt")
+
+(current-solver (boolector))
+
+;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression
+;;; using smaller LUTs.
+(define (synthesize-xilinx-ultrascale-plus-impl-smaller-luts bv-expr)
+  (when (> (length (symbolics bv-expr)) 6)
+    (error "Only 6 inputs supported"))
+
+  ;;; Bitwidth of the output.
+  (define out-bw (bvlen bv-expr))
+  (when (not (concrete? out-bw))
+    (error "Out bitwidth must be statically known."))
+
+  ;;; Max bitwidth of any input.
+  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (when (not (concrete? max-input-bw))
+    (error "Input bitwidths must be statically known."))
+
+  ;;; Form the list of logical inputs.
+  ;;; Zero-extend them so they're all the same size.
+  (define logical-inputs
+    (map (lambda (v) (zero-extend v (bitvector max-input-bw))) (symbolics bv-expr)))
+
+  (define lut-fn
+    (match (length (symbolics bv-expr))
+      [2 'ultrascale-plus-lut2]))
+
+  (define lutmem
+    (match (length (symbolics bv-expr))
+      [2 (?? (bitvector 4))]))
+
+  (define lakeroad-expr
+    (let* ([physical-inputs `(logical-to-physical-mapping (bitwise) ,logical-inputs)]
+           [physical-outputs (for/list ([i max-input-bw])
+                               `(,lut-fn ,lutmem (list-ref ,physical-inputs ,i)))])
+      `(extract ,(sub1 out-bw) 0 (first (physical-to-logical-mapping (bitwise) ,physical-outputs)))))
+
+  (interpret lakeroad-expr)
+  (define soln
+    ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+    ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+    (synthesize #:forall logical-inputs
+                #:guarantee (begin
+                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+
+  (if (sat? soln) (evaluate lakeroad-expr soln) #f))
+
+(module+ test
+  (require rackunit
+           rosette)
+  (test-begin
+   (define-symbolic a b (bitvector 8))
+   (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-impl-smaller-luts (bvand a b)))))
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
 ;;;
