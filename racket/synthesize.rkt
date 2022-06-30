@@ -79,6 +79,12 @@
 ;;; let the user specify the depth to search over and other parameters. At the very least, start by
 ;;; defining those as keyword args with default values.
 (define (synthesize-xilinx-ultrascale-plus-impl bv-expr)
+  (let ([out (synthesize-xilinx-ultrascale-plus-impl-smaller-luts bv-expr)])
+    (if (not (equal? #f out)) out (synthesize-xilinx-ultrascale-plus-impl-kitchen-sink bv-expr))))
+
+;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
+;;; This is our original synthesis implementation, and remains our fallback.
+(define (synthesize-xilinx-ultrascale-plus-impl-kitchen-sink bv-expr)
   (when (> (length (symbolics bv-expr)) 6)
     (error "Only 6 inputs supported"))
 
