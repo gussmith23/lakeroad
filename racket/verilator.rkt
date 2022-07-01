@@ -101,8 +101,8 @@
              (when (not (equal? 0 (control-fn 'exit-code)))
                (error (format "Verilator command failed:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
                               verilator-command
-                              (read proc-stdout)
-                              (read stderr))))
+                              (port->string proc-stdout)
+                              (port->string stderr))))
              (close-input-port proc-stdout)
              (close-input-port stderr)
              (close-output-port stdin))
