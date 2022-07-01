@@ -11,7 +11,8 @@
 
 (require rosette
          rosette/lib/synthax
-         "comp-json.rkt")
+         "comp-json.rkt"
+         "lut.rkt")
 
 ;;; Compile program in Lakeroad DSL to module.
 
@@ -226,15 +227,6 @@
 ; Contains the state for a LUT6_2.
 ; memory is the LUT's memory: (bitvector 64).
 (struct ultrascale-plus-lut6-2 (memory))
-
-; The output of a LUT is simply the bit at the entry pointed to by
-; `inputs-a`, when interpreted as an integer.
-; It's probably worth putting this somewhere more generally usable.
-; LUTs must return only one bit. TODO: figure out how to return multiple bits while still using
-; theory of bitvectors only. The old solution used theory of integers to index into the bitvector.
-(define (lut memory inputs)
-  (let* ([inputs (zero-extend inputs (bitvector (length (bitvector->bits memory))))])
-    (bit 0 (bvlshr memory inputs))))
 
 (module+ test
   (require rackunit)
