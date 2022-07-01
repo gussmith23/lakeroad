@@ -541,8 +541,7 @@
 
 ;;; Get logical inputs for an expression
 (define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4])
-  (let ([symbs (symbolics bv-expr)]
-        [out-bw (bvlen bv-expr)])
+  (let ([symbs (symbolics bv-expr)] [out-bw (bvlen bv-expr)])
     (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw)))))
 
 ;;; Create a lakeroad expression for a pfu
