@@ -66,12 +66,12 @@
      (if (>= (length (symbolics bv-expr)) 4) (format "top->~a = l3;" (fourth (symbolics bv-expr))) "")
      (if (>= (length (symbolics bv-expr)) 5) (format "top->~a = l4;" (fifth (symbolics bv-expr))) "")
      (if (>= (length (symbolics bv-expr)) 6) (format "top->~a = l5;" (sixth (symbolics bv-expr))) "")
-     (if (>= (length (symbolics bv-expr)) 1) "255" "0")
-     (if (>= (length (symbolics bv-expr)) 2) "255" "0")
-     (if (>= (length (symbolics bv-expr)) 3) "255" "0")
-     (if (>= (length (symbolics bv-expr)) 4) "255" "0")
-     (if (>= (length (symbolics bv-expr)) 5) "255" "0")
-     (if (>= (length (symbolics bv-expr)) 6) "255" "0")
+     (if (>= (length (symbolics bv-expr)) 1) (sub1 (expt 2 (bvlen (first (symbolics bv-expr))))) "0")
+     (if (>= (length (symbolics bv-expr)) 2) (sub1 (expt 2 (bvlen (second (symbolics bv-expr))))) "0")
+     (if (>= (length (symbolics bv-expr)) 3) (sub1 (expt 2 (bvlen (third (symbolics bv-expr))))) "0")
+     (if (>= (length (symbolics bv-expr)) 4) (sub1 (expt 2 (bvlen (fourth (symbolics bv-expr))))) "0")
+     (if (>= (length (symbolics bv-expr)) 5) (sub1 (expt 2 (bvlen (fifth (symbolics bv-expr))))) "0")
+     (if (>= (length (symbolics bv-expr)) 6) (sub1 (expt 2 (bvlen (sixth (symbolics bv-expr))))) "0")
      verilated-type-name
      verilated-type-name
      (bvexpr->cexpr bv-expr)
