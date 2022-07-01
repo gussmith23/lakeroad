@@ -176,6 +176,19 @@
 
   (evaluate lakeroad-expr soln))
 
+(define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
+  (match primitive
+    ['all (synthesize-lattice-ecp5-search-impl bv-expr)]))
+
+;; Recursively search through primitives to synthesize bv-expr
+(define (synthesize-lattice-ecp5-search-impl bv-expr
+                                             #:primitives [primitives '(pfu ccu2c ripple-pfu)])
+  (match primitives
+    [(cons prim prims)
+     (or (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive prim)
+         (synthesize-lattice-ecp5-search-impl bv-expr #:primitives prims))]
+    ['() #f]))
+
 ;;; Synthesize a Lattice ECP5 Lakeroad expression for the given Rosette
 ;;; bitvector expression.
 ;;;
@@ -183,7 +196,7 @@
 ;;;  + 'pfu: a normal pfu
 ;;;  + 'ccu2c: a 2 bit ccu2c (2-bit adders, etc)
 ;;;  + 'ripple-pfu: a pfu in ripple mode (8-bit adders, etc)
-(define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'pfu])
+(define (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive [primitive 'pfu])
 
   (when (> (length (symbolics bv-expr)) 4)
     (error "Only 4 inputs supported"))
@@ -196,8 +209,8 @@
   (define lakeroad-expr
     (match primitive
       ['pfu (make-lattice-pfu-expr logical-inputs)]
-      ['ccu2c (make-lattice-ccu2c-expr logical-inputs)]
-      ['ripple-pfu (error "Ripple PFU not yet supported")]
+      ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
+      ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]
       [_ (error (format "Unsupported primitive ~a" primitive))]))
 
   (define soln
@@ -205,7 +218,4 @@
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
-  (when (not (sat? soln))
-    (error "expected sat soln"))
-
-  (evaluate lakeroad-expr soln))
+  (if (sat? soln) (evaluate lakeroad-expr soln) #f))

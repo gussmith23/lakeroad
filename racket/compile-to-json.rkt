@@ -53,9 +53,9 @@
 
   (define (get-fresh-name base)
     (or (hash-has-key? names-counter base) (hash-set! names-counter base 0))
-    (let* ([index (hash-ref names-counter base)] [name (format "~a-~a" base index)])
+    (let* ([index (hash-ref names-counter base)] [name (format "~a_~a" base index)])
       (hash-set! names-counter base (add1 index))
-      name))
+      (as-symbol name)))
 
   ;;; Generally: individual signals (symbolic constants e.g. 'a' or concrete constants e.g. (bv 1 2))
   ;;; return a list of integers representing bit ids. Note that, in the case that a bit is hardwired
@@ -72,7 +72,21 @@
                                  add-parameter-default-value
                                  expr)]
       [`(lattice-ecp5-pfu ,_ ...)
-       (compile-lattice-pfu compile get-bits add-cell add-netname add-parameter-default-value expr)]
+       (compile-lattice-pfu compile
+                            get-bits
+                            add-cell
+                            add-netname
+                            add-parameter-default-value
+                            get-fresh-name
+                            expr)]
+      [`(lattice-ecp5-ccu2c ,_ ...)
+       (compile-lattice-ccu2c compile
+                              get-bits
+                              add-cell
+                              add-netname
+                              add-parameter-default-value
+                              get-fresh-name
+                              expr)]
       [`(ultrascale-plus-lut1 ,init ,inputs)
        (match-define (list i0) (compile inputs))
        (define o (get-bits 1))

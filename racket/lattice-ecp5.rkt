@@ -6,7 +6,9 @@
 
 (provide interpret-lattice-ecp5
          lattice-ecp5-logical-to-physical-inputs
-         lattice-pfu-helper
+         compile-lattice-pfu
+         compile-lattice-ccu2c
+         compile-lattice-ripple-pfu
          get-lattice-logical-inputs
          make-lattice-pfu-expr
          make-lattice-ccu2c-expr
@@ -319,27 +321,114 @@
     (check-equal? (list-ref out 1) (bv #b1000 4))
     (check-equal? (list-ref out 0) (bv #b0000 4))))
 
-;;; Compile to JSON
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;      Compile to JSON       ;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; (define (make-ultrascale-plus-clb compiler
-;;;                                   get-bits
-;;;                                   add-cell
-;;;                                   add-netname
-;;;                                   add-parameter-default-value
-;;;                                   expr)
-
-(define (make-lattice-lut4 init-mem A B C D Z #:attrs [attrs (hasheq)])
+(define (make-lattice-lut4-cell init-mem A B C D Z #:attrs [attrs (hasheq)])
   (make-cell "LUT4"
              (make-cell-port-directions (list 'A 'B 'C 'D) (list 'Z))
              (make-cell-connections 'A A 'B B 'C C 'D D 'Z Z)
              #:params (hasheq 'INIT init-mem)))
 
-(define (lattice-pfu-helper compiler
-                            get-unique-bit-ids
-                            add-cell-to-module
-                            add-netname-to-module
-                            add-parameter-default-value
-                            expr)
+(define (make-lattice-ccu2c-cell INIT0
+                                 INIT1
+                                 INJECT1_0
+                                 INJECT1_1
+                                 A0
+                                 B0
+                                 C0
+                                 D0
+                                 A1
+                                 B1
+                                 C1
+                                 D1
+                                 CIN
+                                 S0
+                                 S1
+                                 COUT
+                                 #:attrs [attrs (hasheq)])
+  (make-cell
+   "CCU2C"
+   (make-cell-port-directions (list 'A0 'B0 'C0 'D0 'A1 'B1 'C1 'D1 'CIN) (list 'S0 'S1 'COUT))
+   (make-cell-connections 'A0
+                          A0
+                          'B0
+                          B0
+                          'C0
+                          C0
+                          'D0
+                          D0
+                          'A1
+                          A1
+                          'B1
+                          B1
+                          'C1
+                          C1
+                          'D1
+                          D1
+                          'CIN
+                          CIN
+                          'S0
+                          S0
+                          'S1
+                          S1
+                          'COUT
+                          COUT)
+   #:params (hasheq 'INIT0 INIT0 'INIT1 INIT1 'INJECT1_0 INJECT1_0 'INJECT1_1 INJECT1_1)))
+
+(define (compile-lattice-ripple-pfu compiler
+                                    get-unique-bit-ids
+                                    add-cell-to-module
+                                    add-netname-to-module
+                                    add-paramter-default-value
+                                    get-fresh-name
+                                    expr)
+  (match-let* ([`(lattice-ecp5-ripple-pfu ,INIT0
+                                          ,INIT1
+                                          ,INIT2
+                                          ,INIT3
+                                          ,INIT4
+                                          ,INIT5
+                                          ,INIT6
+                                          ,INIT7
+                                          ,INJECT1_0
+                                          ,INJECT1_1
+                                          ,INJECT1_2
+                                          ,INJECT1_3
+                                          ,INJECT1_4
+                                          ,INJECT1_5
+                                          ,INJECT1_6
+                                          ,INJECT1_7
+                                          ,CIN
+                                          ,inputs)
+                expr]
+               [(list i0 i1 i2 i3 i4 i5 i6 i7) (compiler inputs)]
+               [sum-bits (get-unique-bit-ids 8)]
+               [(list cout-bit) (get-unique-bit-ids 1)]
+               [ccu2c-0
+                (make-lattice-ccu2c-expr #:inputs (list i0 i1)
+                                         #:CIN CIN
+                                         #:INIT0 INIT0
+                                         #:INIT1 INIT1
+                                         #:INJECT1_0 INJECT1_0
+                                         #:INJECT1_1 INJECT1_1)]
+               [ccu2c-0
+                (make-lattice-ccu2c-expr #:inputs (list i0 i1)
+                                         #:CIN CIN
+                                         #:INIT0 INIT0
+                                         #:INIT1 INIT1
+                                         #:INJECT1_0 INJECT1_0
+                                         #:INJECT1_1 INJECT1_1)])
+              (error "todo")))
+
+(define (compile-lattice-pfu compiler
+                             get-unique-bit-ids
+                             add-cell-to-module
+                             add-netname-to-module
+                             add-parameter-default-value
+                             get-fresh-name
+                             expr)
   (match-let*
    ([`(lattice-ecp5-pfu ,a ,b ,c ,d ,e ,f ,g ,h ,inputs) expr]
     [inputs (compiler inputs)]
@@ -348,12 +437,46 @@
     [lut-mems (list a b c d e f g h)]
     [LUTS
      (for/list ([lut lut-mems] [lut-input inputs] [z luts-z])
-       (apply make-lattice-lut4 (make-literal-value-from-bv lut) (append lut-input (list z))))])
+       (apply make-lattice-lut4-cell (make-literal-value-from-bv lut) (append lut-input (list z))))])
    ;; Add LUT cells
    (for ([lut LUTS] [c "ABCDEFGH"])
-     (add-cell-to-module (as-symbol (format "~a_LUT" c)) lut))
+     (add-cell-to-module (get-fresh-name (format "~a_LUT" c)) lut))
    (for/list ([z luts-z])
      (list z))))
+
+;;; Compile a Lakeroad CCU2C expression
+;;; Return list of bits ((s0) (s1) (cout))
+(define (compile-lattice-ccu2c compiler
+                               get-unique-bit-ids
+                               add-cell-to-module
+                               add-netname-to-module
+                               add-parameter-default-value
+                               get-fresh-name
+                               expr)
+  (match-let* ([`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs) expr]
+               [compiled-inputs (compiler inputs)]
+               [(list (list A0 B0 C0 D0) (list A1 B1 C1 D1)) compiled-inputs]
+               [ _ (displayln "Point A")]
+               [(list s0 s1 cout) (get-unique-bit-ids 3)]
+               [ccu2c (make-lattice-ccu2c-cell INIT0
+                                               INIT1
+                                               INJECT1_0
+                                               INJECT1_1
+                                               A0
+                                               B0
+                                               C0
+                                               D0
+                                               A1
+                                               B1
+                                               C1
+                                               D1
+                                               CIN
+                                               s0
+                                               s1
+                                               cout)])
+               (displayln "Point B")
+               (add-cell-to-module (get-fresh-name "CCU2C") ccu2c)
+              (list (list s0) (list s1) (list cout))))
 
 (define test-pfu
   `(lattice-ecp5-pfu ,(bv 0 16)
@@ -365,6 +488,10 @@
                      ,(bv 32 16)
                      ,(bv 64 16)
                      ,(list (bv 0 4) (bv 0 4) (bv 0 4) (bv 0 4))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;     Create Lakeroad Expressions      ;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Get logical inputs for an expression
 (define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4])

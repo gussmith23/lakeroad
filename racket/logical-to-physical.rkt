@@ -20,7 +20,11 @@
 ;;; Compiles physical-to-logical mapping.
 (define (compile-physical-to-logical-mapping compile expr)
   (match-let* ([`(physical-to-logical-mapping (bitwise) ,physical-expr) expr])
+<<<<<<< HEAD
               (apply map list (compile physical-expr))))
+=======
+              (list (map first (compile physical-expr)))))
+>>>>>>> 0b932c4 (Big update)
 
 ;;; Compiles logical-to-physical mapping.
 (define (compile-logical-to-physical-mapping compile expr)

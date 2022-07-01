@@ -19,7 +19,9 @@
 
 (define (end-to-end-test bv-expr)
   (displayln (format "  synthesizing ~a" bv-expr))
-  (simulate-expr (synthesize-lattice-ecp5-impl bv-expr) bv-expr #:includes includes))
+  (define result (simulate-expr (synthesize-lattice-ecp5-impl bv-expr) bv-expr #:includes includes))
+  (clear-vc!)
+  result)
 
 (module+ test
   (require rackunit)
@@ -31,8 +33,8 @@
   (check-true (end-to-end-test (bvand l0 l1)))
   (check-true (end-to-end-test (bvxor l0 l1)))
   (check-true (end-to-end-test (bvor l0 l1)))
-  ; (check-true (end-to-end-test (bvadd l0 l1)))
-  ; (check-true (end-to-end-test (bvsub l0 l1)))
+  (check-true (end-to-end-test (bvadd l0 l1)))
+  (check-true (end-to-end-test (bvsub l0 l1)))
   (check-true (end-to-end-test (bithack1 l0 l1)))
   ; (check-true (end-to-end-test (bithack2 l0 l1)))
   (check-true (end-to-end-test (bithack3 l0 l1)))
