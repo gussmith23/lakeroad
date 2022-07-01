@@ -32,8 +32,8 @@
              (control-fn 'wait)
              (when (not (equal? 0 (control-fn 'exit-code)))
                (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
-                              (read proc-stdout)
-                              (read stderr))))
+                              (port->string proc-stdout)
+                              (port->string stderr))))
              (close-input-port proc-stdout)
              (close-input-port stderr)
              (close-output-port stdin))
