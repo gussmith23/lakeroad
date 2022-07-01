@@ -215,18 +215,11 @@
       ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]
       [_ (error (format "Unsupported primitive ~a" primitive))]))
 
-  (define interpretted (interpret lakeroad-expr))
-  ; Carries will return an extra leading bit, so we need to extract the sum
-  ; signal and discard the carry
-  (define extracted
-    (match primitive
-      ['pfu interpretted]
-      ['ccu2c (extract 1 0 interpretted)]
-      ['ripple-pfu (extract 7 0 interpretted)]))
+  (define interpretted (extract (sub1 out-bw) 0 (interpret lakeroad-expr)))
 
   (define soln
     (synthesize #:forall logical-inputs
                 #:guarantee (begin
-                              (assert (bveq bv-expr extracted)))))
+                              (assert (bveq bv-expr interpretted)))))
 
   (if (sat? soln) (evaluate lakeroad-expr soln) #f))

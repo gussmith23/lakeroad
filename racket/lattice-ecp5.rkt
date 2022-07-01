@@ -2,6 +2,7 @@
 
 (require rosette
          rosette/lib/synthax
+         "utils.rkt"
          "comp-json.rkt")
 
 (provide interpret-lattice-ecp5
@@ -540,8 +541,9 @@
 
 ;;; Get logical inputs for an expression
 (define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4])
-  (let ([symbs (symbolics bv-expr)])
-    (append symbs (make-list (- num-inputs (length symbs)) (bv #xff 8)))))
+  (let ([symbs (symbolics bv-expr)]
+        [out-bw (bvlen bv-expr)])
+    (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw)))))
 
 ;;; Create a lakeroad expression for a pfu
 (define (make-lattice-pfu-expr logical-inputs)
@@ -626,11 +628,12 @@
   (when (> (length inputs) 4)
     (error (format "~a: inputs must be length 4 or less: ~a" fn-name inputs)))
 
+  (define out-bw (if (empty? inputs) 8 (bvlen (first inputs))))
   (for ([input inputs])
-    (when (not ((bitvector 8) input))
-      (error (format "~a: all inputs must satisfy (bitvector 8): ~a" fn-name input))))
+    (when (not ((bitvector out-bw) input))
+      (error (format "~a: all inputs must satisfy (bitvector ~a): ~a" fn-name out-bw input))))
 
-  (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv -1 8)))])
+  (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv -1 out-bw)))])
     `(first (physical-to-logical-mapping
              (bitwise)
              (lattice-ecp5-ripple-pfu ,(or INIT0 (?? (bitvector 16)))
