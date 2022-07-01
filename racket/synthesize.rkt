@@ -166,12 +166,7 @@
              logical-inputs-per-clb)))
 
   (define lakeroad-expr `(extract ,(sub1 out-bw) 0 ,logical-output))
-  ;;; Uncomment this if synthesis is failing and you don't want to use symtrace. If it's a problem
-  ;;; in the interpreter, this will throw an error.
-  ;;;(interpret lakeroad-expr)
   (define soln
-    ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-    ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
     (synthesize #:forall logical-inputs
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
@@ -181,7 +176,29 @@
 
   (evaluate lakeroad-expr soln))
 
-(define (synthesize-lattice-ecp5-impl bv-expr)
+(define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
+  (match primitive
+    ['all (synthesize-lattice-ecp5-search-impl bv-expr)]
+    ['pfu (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive 'pfu)]
+    ['ccu2c (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive 'ccu2c)]
+    ['ripple-pfu (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive 'ripple-pfu)]))
+
+;; Recursively search through primitives to synthesize bv-expr
+(define (synthesize-lattice-ecp5-search-impl bv-expr #:primitives [primitives '(pfu ripple-pfu)])
+  (match primitives
+    [(cons prim prims)
+     (or (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive prim)
+         (synthesize-lattice-ecp5-search-impl bv-expr #:primitives prims))]
+    ['() 'unsynthesizable]))
+
+;;; Synthesize a Lattice ECP5 Lakeroad expression for the given Rosette
+;;; bitvector expression.
+;;;
+;;; Optionally specify the primitive to target, including:
+;;;  + 'pfu: a normal pfu
+;;;  + 'ccu2c: a 2 bit ccu2c (2-bit adders, etc)
+;;;  + 'ripple-pfu: a pfu in ripple mode (8-bit adders, etc)
+(define (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive [primitive 'pfu])
 
   (when (> (length (symbolics bv-expr)) 4)
     (error "Only 4 inputs supported"))
@@ -191,14 +208,25 @@
     (error "Out bitwidth must be statically known."))
 
   (define logical-inputs (get-lattice-logical-inputs bv-expr))
-  (define lakeroad-expr (make-lattice-pfu-expr logical-inputs))
+  (define lakeroad-expr
+    (match primitive
+      ['pfu (make-lattice-pfu-expr logical-inputs)]
+      ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
+      ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]
+      [_ (error (format "Unsupported primitive ~a" primitive))]))
+
+  (define interpretted (interpret lakeroad-expr))
+  ; Carries will return an extra leading bit, so we need to extract the sum
+  ; signal and discard the carry
+  (define extracted
+    (match primitive
+      ['pfu interpretted]
+      ['ccu2c (extract 1 0 interpretted)]
+      ['ripple-pfu (extract 7 0 interpretted)]))
 
   (define soln
     (synthesize #:forall logical-inputs
                 #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+                              (assert (bveq bv-expr extracted)))))
 
-  (when (not (sat? soln))
-    (error "expected sat soln"))
-
-  (evaluate lakeroad-expr soln))
+  (if (sat? soln) (evaluate lakeroad-expr soln) #f))

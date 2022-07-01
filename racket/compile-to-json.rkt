@@ -6,6 +6,7 @@
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
          "logical-to-physical.rkt"
+         racket/pretty
          rosette)
 
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
@@ -63,7 +64,16 @@
                                  add-parameter-default-value
                                  expr)]
       [`(lattice-ecp5-pfu ,_ ...)
-       (lattice-pfu-helper compile get-bits add-cell add-netname add-parameter-default-value expr)]
+       (compile-lattice-pfu compile get-bits add-cell add-netname add-parameter-default-value expr)]
+      [`(lattice-ecp5-ccu2c ,_ ...)
+       (compile-lattice-ccu2c compile get-bits add-cell add-netname add-parameter-default-value expr)]
+      [`(lattice-ecp5-ripple-pfu ,_ ...)
+       (compile-lattice-ripple-pfu compile
+                                   get-bits
+                                   add-cell
+                                   add-netname
+                                   add-parameter-default-value
+                                   expr)]
       [`(ultrascale-plus-lut1 ,init ,inputs)
        (match-define (list i0) (compile inputs))
        (define o (get-bits 1))
@@ -114,6 +124,9 @@
 
       ;;; Concrete bitvectors become constants.
       [(? bv? (? concrete? s)) (map ~a (map bitvector->natural (bitvector->bits s)))]
+
+      [(? int? v) v]
+      [(? string? v) v]
 
       ;;; Should go near the bottom -- remember, nearly everything's a list underneath!
       [(? list? v) (map compile v)]))
