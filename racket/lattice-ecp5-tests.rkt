@@ -51,7 +51,7 @@
   (define (curry-carry INIT0 INIT1 INJECT1_0 INJECT1_1)
     (lambda (CIN inputs)
       (interpret (make-lattice-ccu2c-expr #:CIN CIN
-                                          #:inputs inputs
+                                          #:inputs `(logical-to-physical-mapping (bitwise) ,inputs)
                                           #:INIT0 INIT0
                                           #:INIT1 INIT1
                                           #:INJECT1_0 INJECT1_0
@@ -99,10 +99,8 @@
 
   (displayln "Testing Synthesis of CIRCT Comb Dialect Functions")
   ; CIRCT Comb dialect.
-  (check-true (sat? (helper circt-comb-add 2 #:primitive 'ccu2c #:bitwidth 2)))
   (check-true (sat? (helper circt-comb-add 2 #:primitive 'ripple-pfu #:bitwidth 8)))
   (check-true (sat? (helper circt-comb-and 2)))
-  (check-false (sat? (helper circt-comb-divs 2 #:primitive 'ccu2c #:bitwidth 2)))
   (check-false (sat? (helper circt-comb-divu 2)))
   (check-false (sat? (helper (lambda (a b) (zero-extend (circt-comb-icmp a b) (bitvector 8))) 2)))
   (check-false (sat? (helper circt-comb-mods 2)))
@@ -110,10 +108,10 @@
   (check-false (sat? (helper circt-comb-mux 3)))
   (check-true (sat? (helper circt-comb-or 2)))
   (check-false (sat? (helper (lambda (a) (zero-extend (circt-comb-parity a) (bitvector 8))) 1)))
-  (check-false (sat? (helper circt-comb-shl 2 #:primitive 'ccu2c #:bitwidth 2)))
-  (check-false (sat? (helper circt-comb-shrs 2 #:primitive 'ccu2c #:bitwidth 2)))
-  (check-false (sat? (helper circt-comb-shru 2 #:primitive 'ccu2c #:bitwidth 2)))
-  (check-true (sat? (helper circt-comb-sub 2 #:primitive 'ccu2c #:bitwidth 2)))
+  (check-false (sat? (helper circt-comb-shl 2 #:primitive 'ripple-pfu #:bitwidth 8)))
+  (check-false (sat? (helper circt-comb-shrs 2 #:primitive 'ripple-pfu #:bitwidth 8)))
+  (check-false (sat? (helper circt-comb-shru 2 #:primitive 'ripple-pfu #:bitwidth 8)))
+  (check-true (sat? (helper circt-comb-sub 2 #:primitive 'ripple-pfu #:bitwidth 8)))
   (check-true (sat? (helper circt-comb-sub 2 #:primitive 'ripple-pfu #:bitwidth 8)))
   (check-true (sat? (helper circt-comb-xor 2)))
 

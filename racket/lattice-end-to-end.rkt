@@ -14,11 +14,10 @@
 
 (define includes-dir (build-path (getenv "LAKEROAD_DIR") "f4pga-arch-defs/ecp5/primitives/slice"))
 (define includes
-  (for/list ([mod (list "LUT4.v" "PFUMX.v")])
+  (for/list ([mod (list "LUT4.v" "PFUMX.v" "CCU2C.v" "LUT2.v")])
     (format "~a/~a" includes-dir mod)))
 
 (define (end-to-end-test bv-expr)
-  (displayln (format "  synthesizing ~a" bv-expr))
   (define result (simulate-expr (synthesize-lattice-ecp5-impl bv-expr) bv-expr #:includes includes))
   (clear-vc!)
   result)
