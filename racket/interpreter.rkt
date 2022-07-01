@@ -16,9 +16,10 @@
      [`(logical-to-physical-mapping ,_ ...) (interpret-logical-to-physical-mapping interpret expr)]
      [`(physical-to-logical-mapping ,_ ...) (interpret-physical-to-logical-mapping interpret expr)]
      [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
-     [`(lattice-ecp5-pfu ,_ ...) (interpret-lattice-ecp5 interpret expr)]
      [`(ultrascale-plus-lut2 ,_ ...) (interpret-ultrascale-plus interpret expr)]
      [`(ultrascale-plus-lut1 ,_ ...) (interpret-ultrascale-plus interpret expr)]
+     [`(lattice-ecp5-pfu ,_ ...) (interpret-lattice-ecp5 interpret expr)]
+     [`(lattice-ecp5-ccu2c ,_ ...) (interpret-lattice-ecp5 interpret expr)]
 
      ;;; Racket functions lifted to our language.
      [`(take ,l ,n) (take (interpret l) n)]
