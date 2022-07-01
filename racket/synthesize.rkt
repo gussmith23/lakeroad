@@ -42,10 +42,12 @@
 
   (define lut-fn
     (match (length (symbolics bv-expr))
+      [1 'ultrascale-plus-lut1]
       [2 'ultrascale-plus-lut2]))
 
   (define lutmem
     (match (length (symbolics bv-expr))
+      [1 (?? (bitvector 2))]
       [2 (?? (bitvector 4))]))
 
   (define lakeroad-expr

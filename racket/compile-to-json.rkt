@@ -64,6 +64,15 @@
                                  expr)]
       [`(lattice-ecp5-pfu ,_ ...)
        (lattice-pfu-helper compile get-bits add-cell add-netname add-parameter-default-value expr)]
+      [`(ultrascale-plus-lut1 ,init ,inputs)
+       (match-define (list i0) (compile inputs))
+       (define o (get-bits 1))
+       (add-cell 'lut1
+                 (make-cell "LUT1"
+                            (make-cell-port-directions (list 'I0) (list 'O))
+                            (make-cell-connections 'I0 i0 'O (first o))
+                            #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+       o]
       [`(ultrascale-plus-lut2 ,init ,inputs)
        (match-define (list i0 i1) (compile inputs))
        (define o (get-bits 1))

@@ -18,6 +18,7 @@
      [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
      [`(lattice-ecp5-pfu ,_ ...) (interpret-lattice-ecp5 interpret expr)]
      [`(ultrascale-plus-lut2 ,_ ...) (interpret-ultrascale-plus interpret expr)]
+     [`(ultrascale-plus-lut1 ,_ ...) (interpret-ultrascale-plus interpret expr)]
 
      ;;; Racket functions lifted to our language.
      [`(take ,l ,n) (take (interpret l) n)]

@@ -335,6 +335,7 @@
 (define (interpret-ultrascale-plus interpreter expr)
   (match expr
     [`(ultrascale-plus-lut2 ,init ,inputs) (lut init (interpreter inputs))]
+    [`(ultrascale-plus-lut1 ,init ,inputs) (lut init (interpreter inputs))]
     [`(ultrascale-plus-clb ,cin
                            ,lut-a
                            ,lut-b
