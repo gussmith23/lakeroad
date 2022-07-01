@@ -19,10 +19,8 @@
 
 ;;; Compiles physical-to-logical mapping.
 (define (compile-physical-to-logical-mapping compile expr)
-  (match-let* ([`(physical-to-logical-mapping (bitwise) ,physical-expr) expr]
-               [`((,a-out) (,b-out) (,c-out) (,d-out) (,e-out) (,f-out) (,g-out) (,h-out))
-                (compile physical-expr)])
-              (list (list a-out b-out c-out d-out e-out f-out g-out h-out))))
+  (match-let* ([`(physical-to-logical-mapping (bitwise) ,physical-expr) expr])
+              (apply map list (compile physical-expr))))
 
 ;;; Compiles logical-to-physical mapping.
 (define (compile-logical-to-physical-mapping compile expr)
