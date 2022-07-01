@@ -35,7 +35,7 @@
   (check-true (end-to-end-test (bvadd l0 l1)))
   (check-true (end-to-end-test (bvsub l0 l1)))
   (check-true (end-to-end-test (bithack1 l0 l1)))
-  ; (check-true (end-to-end-test (bithack2 l0 l1)))
+  (check-true (end-to-end-test (bithack2 l0 l1)))
   (check-true (end-to-end-test (bithack3 l0 l1)))
   (check-true (end-to-end-test l0))
   (check-true (end-to-end-test (bvmul l0 (bv 0 8))))

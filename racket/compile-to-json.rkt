@@ -64,19 +64,9 @@
                                  add-parameter-default-value
                                  expr)]
       [`(lattice-ecp5-pfu ,_ ...)
-       (compile-lattice-pfu compile
-                            get-bits
-                            add-cell
-                            add-netname
-                            add-parameter-default-value
-                            expr)]
+       (compile-lattice-pfu compile get-bits add-cell add-netname add-parameter-default-value expr)]
       [`(lattice-ecp5-ccu2c ,_ ...)
-       (compile-lattice-ccu2c compile
-                              get-bits
-                              add-cell
-                              add-netname
-                              add-parameter-default-value
-                              expr)]
+       (compile-lattice-ccu2c compile get-bits add-cell add-netname add-parameter-default-value expr)]
       [`(lattice-ecp5-ripple-pfu ,_ ...)
        (compile-lattice-ripple-pfu compile
                                    get-bits

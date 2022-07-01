@@ -184,8 +184,7 @@
     ['ripple-pfu (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive 'ripple-pfu)]))
 
 ;; Recursively search through primitives to synthesize bv-expr
-(define (synthesize-lattice-ecp5-search-impl bv-expr
-                                             #:primitives [primitives '(pfu ripple-pfu)])
+(define (synthesize-lattice-ecp5-search-impl bv-expr #:primitives [primitives '(pfu ripple-pfu)])
   (match primitives
     [(cons prim prims)
      (or (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive prim)
