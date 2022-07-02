@@ -18,7 +18,11 @@
 ;;;   tested against.
 ;;;
 ;;; Returns: The return value returned by running the compiled testbench executable.
-(define (simulate-expr lakeroad-expr bv-expr #:includes [includes '()])
+(define (simulate-expr lakeroad-expr
+                       bv-expr
+                       #:includes [includes '()]
+                       #:include-dirs [include-dirs '()]
+                       #:extra-verilator-args [extra-verilator-args ""])
   ;;; TODO anonymize.
   (when (not (getenv "LAKEROAD_DIR"))
     (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
@@ -95,16 +99,21 @@
   (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
   (define includes-string
     (string-join (for/list ([include includes])
-                   (format "-I ~a" include))))
+                   (format "~a" include))))
+  (define include-dirs-string
+    (string-join (for/list ([include-dir include-dirs])
+                   (format "-I~a" include-dir))))
 
   ; TODO(@gussmith23) hardcoded dir
   (define verilator-command
     (format
-     "verilator -Wall -Wno-MULTITOP -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING -Wno-UNOPTFLAT --Mdir ~a --cc ~a ~a --build --exe ~a"
+     "verilator --relative-includes -Wall -Wno-MULTITOP -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING -Wno-UNOPTFLAT --Mdir ~a --cc ~a ~a --build --exe ~a ~a ~a"
      verilator-make-dir
      verilog-file
      includes-string
-     testbench-file))
+     testbench-file
+     include-dirs-string
+     extra-verilator-args))
 
   (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process verilator-command)])
              ;;; Wait until Verilator completes.
