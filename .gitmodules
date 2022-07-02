@@ -13,3 +13,6 @@
 [submodule "SOFA"]
 	path = SOFA
 	url = git@github.com:lnis-uofu/SOFA
+[submodule "skywater-pdk-libs-sky130_fd_sc_hd"]
+	path = skywater-pdk-libs-sky130_fd_sc_hd
+	url = git@github.com:google/skywater-pdk-libs-sky130_fd_sc_hd
