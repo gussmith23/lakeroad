@@ -39,7 +39,7 @@
              (close-output-port stdin))
 
   ;;; Input and output bitwidths. We use this to determine which testbench to use.
-  (define out-bitwidth (bvlen (interpret lakeroad-expr)))
+  (define out-bitwidth (bvlen bv-expr))
   (define max-in-bitwidth
     (if (empty? (symbolics bv-expr)) 0 (apply max (map bvlen (symbolics bv-expr)))))
   (define max-bitwidth (max out-bitwidth max-in-bitwidth))
