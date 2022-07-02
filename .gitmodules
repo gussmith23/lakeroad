@@ -10,3 +10,6 @@
 [submodule "f4pga-arch-defs"]
 	path = f4pga-arch-defs
 	url = git@github.com:uwsampl/f4pga-arch-defs
+[submodule "SOFA"]
+	path = SOFA
+	url = git@github.com:lnis-uofu/SOFA
