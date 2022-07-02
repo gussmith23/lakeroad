@@ -37,6 +37,7 @@
 
   ;;; Form the list of logical inputs.
   ;;; Zero-extend them so they're all the same size.
+  ;;; TODO I think there's an error here --- Don't we need to pad to length 6?
   (define logical-inputs
     (map (lambda (v) (zero-extend v (bitvector max-input-bw))) (symbolics bv-expr)))
 
