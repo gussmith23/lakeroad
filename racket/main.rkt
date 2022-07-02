@@ -12,6 +12,7 @@
                     (match v
                       [(or "xilinx-ultrascale-plus") v]
                       [(or "lattice-ecp5") v]
+                      [(or "sofa") v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -66,6 +67,7 @@
   (match architecture
     ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction)]
     ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction)]
+    ["sofa" (synthesize-sofa-impl instruction)]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
