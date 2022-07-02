@@ -5,6 +5,7 @@
 (require "comp-json.rkt"
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
+         "sofa.rkt"
          "logical-to-physical.rkt"
          racket/pretty
          rosette)
@@ -56,6 +57,9 @@
   ;;; of integers).
   (define (compile expr)
     (match expr
+      [`(sofa-lut4 ,_ ...)
+
+       (compile-sofa compile get-bits add-cell add-netname add-parameter-default-value expr)]
       [`(ultrascale-plus-clb ,_ ...)
        (make-ultrascale-plus-clb compile
                                  get-bits
