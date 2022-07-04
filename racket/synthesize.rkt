@@ -261,11 +261,12 @@
       ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]
       [_ (error (format "Unsupported primitive ~a" primitive))]))
 
-  (define interpretted (extract (sub1 out-bw) 0 (interpret lakeroad-expr)))
+  (define interpretted (interpret `(extract ,(sub1 out-bw) 0 ,lakeroad-expr)))
 
   (define soln
     (synthesize #:forall logical-inputs
                 #:guarantee (begin
                               (assert (bveq bv-expr interpretted)))))
 
-  (if (sat? soln) (evaluate lakeroad-expr soln) #f))
+  (displayln interpretted)
+  (if (sat? soln) (evaluate interpretted soln) #f))
