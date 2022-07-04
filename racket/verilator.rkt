@@ -91,6 +91,7 @@
      verilated-type-name
      verilated-type-name
      (bvexpr->cexpr bv-expr)
+     out-bitwidth
      (bvexpr->cexpr bv-expr)))
 
   (define testbench-file (make-temporary-file "rkttmp~a.cc"))
