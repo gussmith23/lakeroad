@@ -30,6 +30,7 @@
   (test-begin (displayln "=== Running End To End Tests for Lattice ===")
               (displayln "  -- 1 bit -- ")
               (define-symbolic l0 l1 (bitvector 1))
+              (check-true (end-to-end-test (bvadd l0 l1)))
               (check-true (end-to-end-test (bvand l0 l1)))
               (check-true (end-to-end-test (bvxor l0 l1)))
               (check-true (end-to-end-test (bvor l0 l1)))
@@ -42,7 +43,6 @@
               (check-true (end-to-end-test (bvmul l0 (bv 0 1))))
               (check-true (end-to-end-test (bvmul l0 (bv 1 1)))))
 
-  (exit 1)
   (test-begin (displayln "  -- 4 bit -- ")
               (define-symbolic l0 l1 (bitvector 4))
               (check-true (end-to-end-test (bvand l0 l1)))

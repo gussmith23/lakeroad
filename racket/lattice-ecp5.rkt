@@ -42,17 +42,15 @@
 
 ;;; Create a lakeroad expression for a pfu
 (define (make-lattice-pfu-expr logical-inputs)
-  `(first (physical-to-logical-mapping
-           (bitwise)
-           (lattice-ecp5-pfu ,(?? (bitvector 16))
-                             ,(?? (bitvector 16))
-                             ,(?? (bitvector 16))
-                             ,(?? (bitvector 16))
-                             ,(?? (bitvector 16))
-                             ,(?? (bitvector 16))
-                             ,(?? (bitvector 16))
-                             ,(?? (bitvector 16))
-                             (logical-to-physical-mapping (bitwise) ,logical-inputs)))))
+  `(lattice-ecp5-pfu ,(?? (bitvector 16))
+                     ,(?? (bitvector 16))
+                     ,(?? (bitvector 16))
+                     ,(?? (bitvector 16))
+                     ,(?? (bitvector 16))
+                     ,(?? (bitvector 16))
+                     ,(?? (bitvector 16))
+                     ,(?? (bitvector 16))
+                     (logical-to-physical-mapping (bitwise) ,logical-inputs)))
 
 ;;; Create a Lakeroad expression for a CCU2C. This can be used to specify a
 ;;; 2-bit add, etc
@@ -63,16 +61,13 @@
                                  #:INIT0 [INIT0 #f]
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
-                                 #:INJECT1_1 [INJECT1_1 #f]
-                                 #:wrapper? [wrapper? #t])
-  (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv 3 2)))]
-        [base-expr `(lattice-ecp5-ccu2c ,(or INIT0 (?? (bitvector 16))) ; INIT0
-                                        ,(or INIT1 (?? (bitvector 16))) ; INIT1
-                                        ,(or INJECT1_0 (?? (bitvector 1))) ; INJECT1_0
-                                        ,(or INJECT1_1 (?? (bitvector 1))) ; INJECT1_1
-                                        ,(or CIN (?? (bitvector 1))) ; CIN
-                                        ,inputs)])
-    (if wrapper? `(first (physical-to-logical-mapping (bitwise) ,base-expr)) base-expr)))
+                                 #:INJECT1_1 [INJECT1_1 #f])
+    `(lattice-ecp5-ccu2c ,(or INIT0 (?? (bitvector 16))) ; INIT0
+                         ,(or INIT1 (?? (bitvector 16))) ; INIT1
+                         ,(or INJECT1_0 (?? (bitvector 1))) ; INJECT1_0
+                         ,(or INJECT1_1 (?? (bitvector 1))) ; INJECT1_1
+                         ,(or CIN (?? (bitvector 1))) ; CIN
+                         ,inputs))
 
 ;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
 ;;; an 8-bit add, etc.
@@ -129,26 +124,24 @@
       (error (format "~a: all inputs must satisfy (bitvector ~a): ~a" fn-name out-bw input))))
 
   (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv -1 out-bw)))])
-    `(first (physical-to-logical-mapping
-             (bitwise)
-             (lattice-ecp5-ripple-pfu ,(or INIT0 (?? (bitvector 16)))
-                                      ,(or INIT1 (?? (bitvector 16)))
-                                      ,(or INIT2 (?? (bitvector 16)))
-                                      ,(or INIT3 (?? (bitvector 16)))
-                                      ,(or INIT4 (?? (bitvector 16)))
-                                      ,(or INIT5 (?? (bitvector 16)))
-                                      ,(or INIT6 (?? (bitvector 16)))
-                                      ,(or INIT7 (?? (bitvector 16)))
-                                      ,(or INJECT1_0 (?? (bitvector 1)))
-                                      ,(or INJECT1_1 (?? (bitvector 1)))
-                                      ,(or INJECT1_2 (?? (bitvector 1)))
-                                      ,(or INJECT1_3 (?? (bitvector 1)))
-                                      ,(or INJECT1_4 (?? (bitvector 1)))
-                                      ,(or INJECT1_5 (?? (bitvector 1)))
-                                      ,(or INJECT1_6 (?? (bitvector 1)))
-                                      ,(or INJECT1_7 (?? (bitvector 1)))
-                                      ,(or CIN (?? (bitvector 1)))
-                                      (logical-to-physical-mapping (bitwise) ,inputs))))))
+    `(lattice-ecp5-ripple-pfu ,(or INIT0 (?? (bitvector 16)))
+                              ,(or INIT1 (?? (bitvector 16)))
+                              ,(or INIT2 (?? (bitvector 16)))
+                              ,(or INIT3 (?? (bitvector 16)))
+                              ,(or INIT4 (?? (bitvector 16)))
+                              ,(or INIT5 (?? (bitvector 16)))
+                              ,(or INIT6 (?? (bitvector 16)))
+                              ,(or INIT7 (?? (bitvector 16)))
+                              ,(or INJECT1_0 (?? (bitvector 1)))
+                              ,(or INJECT1_1 (?? (bitvector 1)))
+                              ,(or INJECT1_2 (?? (bitvector 1)))
+                              ,(or INJECT1_3 (?? (bitvector 1)))
+                              ,(or INJECT1_4 (?? (bitvector 1)))
+                              ,(or INJECT1_5 (?? (bitvector 1)))
+                              ,(or INJECT1_6 (?? (bitvector 1)))
+                              ,(or INJECT1_7 (?? (bitvector 1)))
+                              ,(or CIN (?? (bitvector 1)))
+                              (logical-to-physical-mapping (bitwise) ,inputs))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;        INTERPRETING LAKEROAD EXPRESSIONS         ;;;;;;;;;;;;;;;
@@ -242,8 +235,6 @@
     [result-3 (interpret-ecp5-ccu2c-impl INIT6 INIT7 INJECT1_6 INJECT1_7 carry-bit-2 (list i6 i7))]
     [`(,S6 ,S7 ,COUT) result-3])
    (list S0 S1 S2 S3 S4 S5 S6 S7)))
-; (let* ([ccu2c_1 (make-lattice-ccu2c-expr )])
-;   inputs))
 ;;; Interpret a CCU2C
 ;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
 ;;; OUTPUTS: (S0 S1 COUT)
@@ -532,8 +523,7 @@
                                          #:INIT0 INIT0
                                          #:INIT1 INIT1
                                          #:INJECT1_0 INJECT1_0
-                                         #:INJECT1_1 INJECT1_1
-                                         #:wrapper? #f)]
+                                         #:INJECT1_1 INJECT1_1)]
                [`(,S0 ,S1 (,COUT-0))
                 (compile-lattice-ccu2c compiler
                                        get-unique-bit-ids
@@ -548,8 +538,7 @@
                                          #:INIT0 INIT2
                                          #:INIT1 INIT3
                                          #:INJECT1_0 INJECT1_2
-                                         #:INJECT1_1 INJECT1_3
-                                         #:wrapper? #f)]
+                                         #:INJECT1_1 INJECT1_3)]
                [`(,S2 ,S3 (,COUT-1))
                 (compile-lattice-ccu2c compiler
                                        get-unique-bit-ids
@@ -564,8 +553,7 @@
                                          #:INIT0 INIT4
                                          #:INIT1 INIT5
                                          #:INJECT1_0 INJECT1_4
-                                         #:INJECT1_1 INJECT1_5
-                                         #:wrapper? #f)]
+                                         #:INJECT1_1 INJECT1_5)]
                [`(,S4 ,S5 (,COUT-2))
                 (compile-lattice-ccu2c compiler
                                        get-unique-bit-ids
@@ -580,8 +568,7 @@
                                          #:INIT0 INIT6
                                          #:INIT1 INIT7
                                          #:INJECT1_0 INJECT1_6
-                                         #:INJECT1_1 INJECT1_7
-                                         #:wrapper? #f)]
+                                         #:INJECT1_1 INJECT1_7)]
                [`(,S6 ,S7 ,COUT)
                 (compile-lattice-ccu2c compiler
                                        get-unique-bit-ids

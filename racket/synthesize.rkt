@@ -255,18 +255,19 @@
 
   (define logical-inputs (get-lattice-logical-inputs bv-expr))
   (define lakeroad-expr
-    (match primitive
-      ['pfu (make-lattice-pfu-expr logical-inputs)]
-      ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
-      ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]
-      [_ (error (format "Unsupported primitive ~a" primitive))]))
-
-  (define interpretted (interpret `(extract ,(sub1 out-bw) 0 ,lakeroad-expr)))
+    `(extract ,(sub1 out-bw)
+              0
+              (first (physical-to-logical-mapping
+                      (bitwise)
+                      ,(match primitive
+                         ['pfu (make-lattice-pfu-expr logical-inputs)]
+                         ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
+                         ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]
+                         [_ (error (format "Unsupported primitive ~a" primitive))])))))
 
   (define soln
     (synthesize #:forall logical-inputs
                 #:guarantee (begin
-                              (assert (bveq bv-expr interpretted)))))
+                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
-  (displayln interpretted)
-  (if (sat? soln) (evaluate interpretted soln) #f))
+  (if (sat? soln) (evaluate lakeroad-expr soln) #f))
