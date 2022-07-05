@@ -193,7 +193,7 @@
                                      INJECT1_5
                                      INJECT1_6
                                      INJECT1_7
-                                     CIN
+                                     (interpreter CIN)
                                      (interpreter inputs))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
