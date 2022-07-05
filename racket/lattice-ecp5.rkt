@@ -234,7 +234,7 @@
     ;; Slice 3
     [result-3 (interpret-ecp5-ccu2c-impl INIT6 INIT7 INJECT1_6 INJECT1_7 carry-bit-2 (list i6 i7))]
     [`(,S6 ,S7 ,COUT) result-3])
-   (list S0 S1 S2 S3 S4 S5 S6 S7)))
+   (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
 ;;; Interpret a CCU2C
 ;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
 ;;; OUTPUTS: (S0 S1 COUT)
