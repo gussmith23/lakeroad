@@ -62,12 +62,12 @@
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
                                  #:INJECT1_1 [INJECT1_1 #f])
-    `(lattice-ecp5-ccu2c ,(or INIT0 (?? (bitvector 16))) ; INIT0
-                         ,(or INIT1 (?? (bitvector 16))) ; INIT1
-                         ,(or INJECT1_0 (?? (bitvector 1))) ; INJECT1_0
-                         ,(or INJECT1_1 (?? (bitvector 1))) ; INJECT1_1
-                         ,(or CIN (?? (bitvector 1))) ; CIN
-                         ,inputs))
+  `(lattice-ecp5-ccu2c ,(or INIT0 (?? (bitvector 16))) ; INIT0
+                       ,(or INIT1 (?? (bitvector 16))) ; INIT1
+                       ,(or INJECT1_0 (?? (bitvector 1))) ; INJECT1_0
+                       ,(or INJECT1_1 (?? (bitvector 1))) ; INJECT1_1
+                       ,(or CIN (?? (bitvector 1))) ; CIN
+                       ,inputs))
 
 ;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
 ;;; an 8-bit add, etc.
