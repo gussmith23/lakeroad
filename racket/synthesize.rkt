@@ -253,7 +253,7 @@
   (when (not (concrete? out-bw))
     (error "Out bitwidth must be statically known."))
 
-  (define logical-inputs (get-lattice-logical-inputs bv-expr))
+  (define logical-inputs (get-lattice-logical-inputs bv-expr #:expected-bw 8))
   (define lakeroad-expr
     `(extract ,(sub1 out-bw)
               0
