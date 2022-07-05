@@ -577,7 +577,7 @@
                                        add-netname-to-module
                                        add-parameter-default-value
                                        ccu2c-3)])
-              (list S0 S1 S2 S3 S4 S5 S6 S7)))
+              (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
 
 (define (compile-lattice-pfu compiler
                              get-unique-bit-ids
