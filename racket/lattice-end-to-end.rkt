@@ -84,8 +84,6 @@
               (check-true (end-to-end-test l0))
               (check-true (end-to-end-test (bvmul l0 (bv 0 8))))
               (check-true (end-to-end-test (bvmul l0 (bv 1 8))))
-
               ; (check-false (end-to-end-test (bvmul l0 (bv 2 8))))
               ; (check-false (end-to-end-test (circt-comb-shl l0 (bv 1 8))))
-              (check-true (end-to-end-test (circt-comb-shl l0 (bv 0 8)))))
-  )
+              (check-true (end-to-end-test (circt-comb-shl l0 (bv 0 8))))))

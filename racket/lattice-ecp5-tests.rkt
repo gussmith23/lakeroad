@@ -54,12 +54,13 @@
     (lambda (CIN inputs)
       (interpret `(first (physical-to-logical-mapping
                           (bitwise)
-                          ,(make-lattice-ccu2c-expr #:CIN CIN
-                                                    #:inputs `(logical-to-physical-mapping (bitwise) ,inputs)
-                                                    #:INIT0 INIT0
-                                                    #:INIT1 INIT1
-                                                    #:INJECT1_0 INJECT1_0
-                                                    #:INJECT1_1 INJECT1_1))))))
+                          ,(make-lattice-ccu2c-expr
+                            #:CIN CIN
+                            #:inputs `(logical-to-physical-mapping (bitwise) ,inputs)
+                            #:INIT0 INIT0
+                            #:INIT1 INIT1
+                            #:INJECT1_0 INJECT1_0
+                            #:INJECT1_1 INJECT1_1))))))
   ;; Test an adder above, on inputs `inputs` against
   ;; outputs ; #:S0 #:S1 and cout #:COUT. Optionally specify a carry in with #:CIN
   ;; (defaults to 0)
