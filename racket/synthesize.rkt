@@ -278,3 +278,143 @@
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
                                                    (list->set (symbolics logical-inputs))))))
       #f))
+
+(define (synthesize-lattice-ecp5-for-ripple-pfu bv-expr)
+
+  (when (> (length (symbolics bv-expr)) 4)
+    (error "Only 4 inputs supported"))
+
+  (define out-bw (bvlen bv-expr))
+  (when (not (concrete? out-bw))
+    (error "Out bitwidth must be statically known."))
+
+  ;;; Max bitwidth of any input.
+  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (when (not (concrete? max-input-bw))
+    (error "Input bitwidths must be statically known."))
+
+  ;;; Number of PFUs needed to take all of the input bits, assuming each CLB gets at most 8 bits from
+  ;;; any one input.
+  (define num-pfus (ceiling (/ max-input-bw 8)))
+
+  ;;; The bitwidth that all logical inputs should be extended to.
+  (define logical-input-width (* 8 num-pfus))
+  (define logical-inputs (get-lattice-logical-inputs bv-expr #:expected-bw logical-input-width))
+
+  ;;; Split the logical inputs into groups, grouped by PFU.
+  (define logical-inputs-per-pfu
+    (for/list ([pfu-i (range num-pfus)])
+      (for/list ([logical-input logical-inputs])
+        (extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
+
+  (match-define (list logical-output cout)
+    (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
+      (foldl
+       (lambda (logical-inputs previous-out)
+         (match-let* ([(list accumulated-logical-output previous-cout) previous-out]
+                      [(list this-pfu-logical-outputs this-cout)
+                       (let ([pfu-out (make-lattice-ripple-pfu-expr #:inputs logical-inputs
+                                                                    #:CIN previous-cout
+                                                                    #:INIT0 lutmem
+                                                                    #:INIT1 lutmem
+                                                                    #:INIT2 lutmem
+                                                                    #:INIT3 lutmem
+                                                                    #:INIT4 lutmem
+                                                                    #:INIT5 lutmem
+                                                                    #:INIT6 lutmem
+                                                                    #:INIT7 lutmem)])
+
+                         (list `(first (physical-to-logical-mapping (bitwise) (take ,pfu-out 8)))
+                               `(list-ref ,pfu-out 8)))]
+                      [accumulated-logical-output
+                       (if (equal? accumulated-logical-output 'first)
+                           this-pfu-logical-outputs
+                           `(concat ,this-pfu-logical-outputs ,accumulated-logical-output))])
+                     (list accumulated-logical-output this-cout)))
+       ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
+       (list 'first cin)
+       logical-inputs-per-pfu)))
+
+  (define lakeroad-expr `(extract ,(sub1 out-bw) 0 ,logical-output))
+
+  (interpret lakeroad-expr)
+
+  (define soln
+    (synthesize #:forall logical-inputs
+                #:guarantee (begin
+                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+
+  (if (sat? soln)
+      (evaluate
+       lakeroad-expr
+       ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+       (complete-solution soln
+                          (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                   (list->set (symbolics logical-inputs))))))
+      #f))
+
+(define (synthesize-lattice-ecp5-for-pfu bv-expr)
+
+  (when (> (length (symbolics bv-expr)) 4)
+    (error "Only 4 inputs supported"))
+
+  (define out-bw (bvlen bv-expr))
+  (when (not (concrete? out-bw))
+    (error "Out bitwidth must be statically known."))
+
+  ;;; Max bitwidth of any input.
+  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (when (not (concrete? max-input-bw))
+    (error "Input bitwidths must be statically known."))
+
+  ;;; Number of PFUs needed to take all of the input bits, assuming each CLB gets at most 8 bits from
+  ;;; any one input.
+  (define num-pfus (ceiling (/ max-input-bw 8)))
+
+  ;;; The bitwidth that all logical inputs should be extended to.
+  (define logical-input-width (* 8 num-pfus))
+  (define logical-inputs (get-lattice-logical-inputs bv-expr #:expected-bw logical-input-width))
+
+  ;;; Split the logical inputs into groups, grouped by PFU.
+  (define logical-inputs-per-pfu
+    (for/list ([pfu-i (range num-pfus)])
+      (for/list ([logical-input logical-inputs])
+        (extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
+
+  (define logical-output
+    (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
+      (foldl (lambda (logical-inputs previous-out)
+               (match-let* ([accumulated-logical-output previous-out]
+                            [this-pfu-logical-outputs
+                             (let ([pfu-out (make-lattice-pfu-expr logical-inputs)])
+                               `(first (physical-to-logical-mapping (bitwise) (take ,pfu-out 8))))]
+                            [accumulated-logical-output
+                             (if (equal? accumulated-logical-output 'first-iter)
+                                 this-pfu-logical-outputs
+                                 `(concat ,this-pfu-logical-outputs ,accumulated-logical-output))])
+                           accumulated-logical-output))
+             ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
+             'first-iter
+             logical-inputs-per-pfu)))
+
+  (define lakeroad-expr `(extract ,(sub1 out-bw) 0 ,logical-output))
+
+  (interpret lakeroad-expr)
+
+  (define soln
+    (synthesize #:forall logical-inputs
+                #:guarantee (begin
+                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+
+  (if (sat? soln)
+      (evaluate
+       lakeroad-expr
+       ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+       (complete-solution soln
+                          (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                   (list->set (symbolics logical-inputs))))))
+      #f))
