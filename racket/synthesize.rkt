@@ -270,4 +270,11 @@
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
-  (if (sat? soln) (evaluate lakeroad-expr soln) #f))
+  (if (sat? soln)
+      (evaluate
+       lakeroad-expr
+       ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+       (complete-solution soln
+                          (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                   (list->set (symbolics logical-inputs))))))
+      #f))
