@@ -514,6 +514,7 @@
                                           ,inputs)
                 expr]
                [(list i0 i1 i2 i3 i4 i5 i6 i7) (compiler inputs)]
+               [`(,CIN) (compiler CIN)]
                [sum-bits (get-unique-bit-ids 8)]
                [(list cout-bit) (get-unique-bit-ids 1)]
                ;;; CCU2C 0
@@ -624,7 +625,7 @@
                                          B1
                                          C1
                                          D1
-                                         (if (bv? CIN) (make-literal-value-from-bv CIN) CIN)
+                                         CIN
                                          s0
                                          s1
                                          cout)])
