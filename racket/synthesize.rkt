@@ -225,15 +225,15 @@
 (define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
   (match primitive
     ['all (synthesize-lattice-ecp5-search-impl bv-expr)]
-    ['pfu (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive 'pfu)]
+    ['pfu (synthesize-lattice-ecp5-for-pfu bv-expr)]
     ['ccu2c (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive 'ccu2c)]
-    ['ripple-pfu (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive 'ripple-pfu)]))
+    ['ripple-pfu (synthesize-lattice-ecp5-for-ripple-pfu bv-expr)]))
 
 ;; Recursively search through primitives to synthesize bv-expr
 (define (synthesize-lattice-ecp5-search-impl bv-expr #:primitives [primitives '(pfu ripple-pfu)])
   (match primitives
     [(cons prim prims)
-     (or (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive prim)
+     (or (synthesize-lattice-ecp5-impl bv-expr #:primitive prim)
          (synthesize-lattice-ecp5-search-impl bv-expr #:primitives prims))]
     ['() 'unsynthesizable]))
 
