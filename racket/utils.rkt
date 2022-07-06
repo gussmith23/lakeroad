@@ -6,7 +6,8 @@
          json->verilog
          make-n-symbolics)
 
-(require rosette)
+(require rosette
+         rosette/base/core/polymorphic)
 
 ;;; Length of bitvector.
 (define (bvlen v)
@@ -39,6 +40,33 @@
 ;;; Rosette bitvector expression to C expression.
 (define (bvexpr->cexpr expr)
   (match expr
+    [(expression @bvult a b)
+     (when (> (bvlen a) 64)
+       (error))
+     (when (> (bvlen b) 64)
+       (error))
+     (format "((uint8_t)((uint64_t)~a < (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression @bvule a b)
+     (when (> (bvlen a) 64)
+       (error))
+     (when (> (bvlen b) 64)
+       (error))
+     (format "((uint8_t)((uint64_t)~a <= (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression @bvugt a b)
+     (when (> (bvlen a) 64)
+       (error))
+     (when (> (bvlen b) 64)
+       (error))
+     (format "((uint8_t)((uint64_t)~a > (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression @bvuge a b)
+     (when (> (bvlen a) 64)
+       (error))
+     (when (> (bvlen b) 64)
+       (error))
+     (format "((uint8_t)((uint64_t)~a >= (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression @ite cond a b)
+     (format "(~a ? ~a : ~a)" (bvexpr->cexpr cond) (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bveq) a b) (format "((uint8_t)(~a == ~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(expression (== bvand) a b) (format "(~a & ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(expression (== bvxor) a b) (format "(~a ^ ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(expression (== bvor) a b) (format "(~a | ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
