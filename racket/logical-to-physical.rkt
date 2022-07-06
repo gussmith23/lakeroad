@@ -23,7 +23,7 @@
     [`(physical-to-logical-mapping (bitwise) ,physical-expr) (apply map list (compile physical-expr))]
     [`(physical-to-logical-mapping (bitwise-reverse) ,physical-expr)
      ;;; Same as bitwise, but reverses each result first.
-     (map reverse (apply map list (compile physical-expr)))]
+     (apply map list (reverse (compile physical-expr)))]
     [`(physical-to-logical-mapping (identity) ,physical-expr) (compile physical-expr)]))
 
 ;;; Compiles logical-to-physical mapping.
@@ -31,7 +31,7 @@
   (match expr
     [`(logical-to-physical-mapping (bitwise) ,logical-expr) (apply map list (compile logical-expr))]
     [`(logical-to-physical-mapping (bitwise-reverse) ,logical-expr)
-     (map reverse (apply map list (compile logical-expr)))]
+     (apply map list (map reverse (compile logical-expr)))]
     [`(logical-to-physical-mapping (identity) ,logical-expr) (compile logical-expr)]))
 
 (module+ test
