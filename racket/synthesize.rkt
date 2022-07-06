@@ -177,14 +177,16 @@
          (append (symbolics bv-expr)
                  (make-list (- 6 (length (symbolics bv-expr))) (bvnot (bv 0 logical-input-width))))))
 
-  ;;; Split the logical inputs into groups, grouped by LUT.
-  (define logical-inputs-per-clb
+  (define physical-inputs
+    `(logical-to-physical-mapping (bitwise) ,logical-inputs))
+
+  ;;; Split the physical inputs into groups, grouped by LUT.
+  (define physical-inputs-per-clb
     (for/list ([clb-i (range num-clbs)])
-      (for/list ([logical-input logical-inputs])
-        (extract (sub1 (* 8 (add1 clb-i))) (* 8 clb-i) logical-input))))
+      `(take (drop ,physical-inputs ,(* 8 clb-i)) 8)))
 
   ;;; Returns (list logical-outputs cout).
-  (define (clb cin lutmem mux logical-inputs)
+  (define (clb cin lutmem mux physical-inputs)
     (let* ([clb-out `(ultrascale-plus-clb ,cin
                                           ,lutmem
                                           ,lutmem
@@ -202,17 +204,15 @@
                                           ,mux
                                           ,mux
                                           ,mux
-                                          (logical-to-physical-mapping
-                                           ,(choose '(bitwise) '(bitwise-reverse))
-                                           ,logical-inputs))])
+                                          ,physical-inputs)])
       (list `(take ,clb-out 8) `(list-ref ,clb-out 8))))
 
   (match-define (list physical-outputs cout)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 64))] [mux (?? (bitvector 2))])
-      (foldl (lambda (logical-inputs previous-out)
+      (foldl (lambda (physical-inputs previous-out)
                (match-let* ([(list accumulated-physical-output previous-cout) previous-out]
                             [(list this-clb-physical-outputs this-cout)
-                             (clb previous-cout lutmem mux logical-inputs)]
+                             (clb previous-cout lutmem mux physical-inputs)]
                             [accumulated-physical-output
                              (if (equal? accumulated-physical-output 'first)
                                  this-clb-physical-outputs
@@ -220,7 +220,7 @@
                            (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              (list 'first cin)
-             logical-inputs-per-clb)))
+             physical-inputs-per-clb)))
 
   (define lakeroad-expr
     `(extract ,(sub1 out-bw)
