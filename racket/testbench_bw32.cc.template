@@ -39,12 +39,12 @@ int main(int argc, char **argv, char **env)
           {
             for (int l5_val = 0; l5_val < l5_bound; l5_val++)
             {
-              uint32_t l0 = std::rand()/((RAND_MAX + 1u)/0xFFFFFFFF);
-              uint32_t l1 = std::rand()/((RAND_MAX + 1u)/0xFFFFFFFF);
-              uint32_t l2 = std::rand()/((RAND_MAX + 1u)/0xFFFFFFFF);
-              uint32_t l3 = std::rand()/((RAND_MAX + 1u)/0xFFFFFFFF);
-              uint32_t l4 = std::rand()/((RAND_MAX + 1u)/0xFFFFFFFF);
-              uint32_t l5 = std::rand()/((RAND_MAX + 1u)/0xFFFFFFFF);
+              uint32_t l0 = (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff);
+              uint32_t l1 = (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff);
+              uint32_t l2 = (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff);
+              uint32_t l3 = (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff);
+              uint32_t l4 = (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff);
+              uint32_t l5 = (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff);
 
               uint32_t out = run(top, l0, l1, l2, l3, l4, l5);
               uint32_t expected = ~a & ((1 << ~a) - 1);
