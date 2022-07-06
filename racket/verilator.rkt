@@ -76,22 +76,22 @@
      (if (>= (length (symbolics bv-expr)) 6) (format "top->~a = l5;" (sixth (symbolics bv-expr))) "")
      (if (>= (length (symbolics bv-expr)) 1)
          (min 256 (expt 2 (bvlen (first (symbolics bv-expr)))))
-         "0") ; The min of 256 is arbitrary. Just don't want it to run forever.
+         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
      (if (>= (length (symbolics bv-expr)) 2)
          (min 256 (expt 2 (bvlen (second (symbolics bv-expr)))))
-         "0") ; The min of 256 is arbitrary. Just don't want it to run forever.
+         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
      (if (>= (length (symbolics bv-expr)) 3)
          (min 256 (expt 2 (bvlen (third (symbolics bv-expr)))))
-         "0") ; The min of 256 is arbitrary. Just don't want it to run forever.
+         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
      (if (>= (length (symbolics bv-expr)) 4)
          (min 256 (expt 2 (bvlen (fourth (symbolics bv-expr)))))
-         "0") ; The min of 256 is arbitrary. Just don't want it to run forever.
+         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
      (if (>= (length (symbolics bv-expr)) 5)
          (min 256 (expt 2 (bvlen (fifth (symbolics bv-expr)))))
-         "0") ; The min of 256 is arbitrary. Just don't want it to run forever.
+         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
      (if (>= (length (symbolics bv-expr)) 6)
          (min 256 (expt 2 (bvlen (sixth (symbolics bv-expr)))))
-         "0") ; The min of 256 is arbitrary. Just don't want it to run forever.
+         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
      verilated-type-name
      verilated-type-name
      (bvexpr->cexpr bv-expr)
