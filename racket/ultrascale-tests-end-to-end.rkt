@@ -68,4 +68,7 @@
               (check-true (end-to-end-test (bvmul l0 (bv 1 16))))
               (check-true (end-to-end-test (bvmul l0 (bv 2 16))))
               (check-true (end-to-end-test (circt-comb-shl l0 (bv 0 16))))
-              (check-true (end-to-end-test (circt-comb-shl l0 (bv 1 16))))))
+              (check-true (end-to-end-test (circt-comb-shl l0 (bv 1 16)))))
+
+  (test-begin (define-symbolic l0 l1 (bitvector 32))
+              (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))))
