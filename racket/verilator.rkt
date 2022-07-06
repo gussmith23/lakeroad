@@ -63,39 +63,50 @@
   (define verilated-type-name
     (format "V~a" (path-replace-extension (file-name-from-path verilog-file) "")))
   (define testbench-source
-    (format
-     (file->string (build-path (getenv "LAKEROAD_DIR") "racket" testbench-filename))
-     (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
-     verilated-type-name
-     (if (>= (length (symbolics bv-expr)) 1) (format "top->~a = l0;" (first (symbolics bv-expr))) "")
-     (if (>= (length (symbolics bv-expr)) 2) (format "top->~a = l1;" (second (symbolics bv-expr))) "")
-     (if (>= (length (symbolics bv-expr)) 3) (format "top->~a = l2;" (third (symbolics bv-expr))) "")
-     (if (>= (length (symbolics bv-expr)) 4) (format "top->~a = l3;" (fourth (symbolics bv-expr))) "")
-     (if (>= (length (symbolics bv-expr)) 5) (format "top->~a = l4;" (fifth (symbolics bv-expr))) "")
-     (if (>= (length (symbolics bv-expr)) 6) (format "top->~a = l5;" (sixth (symbolics bv-expr))) "")
-     (if (>= (length (symbolics bv-expr)) 1)
-         (min 256 (expt 2 (bvlen (first (symbolics bv-expr)))))
-         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
-     (if (>= (length (symbolics bv-expr)) 2)
-         (min 256 (expt 2 (bvlen (second (symbolics bv-expr)))))
-         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
-     (if (>= (length (symbolics bv-expr)) 3)
-         (min 256 (expt 2 (bvlen (third (symbolics bv-expr)))))
-         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
-     (if (>= (length (symbolics bv-expr)) 4)
-         (min 256 (expt 2 (bvlen (fourth (symbolics bv-expr)))))
-         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
-     (if (>= (length (symbolics bv-expr)) 5)
-         (min 256 (expt 2 (bvlen (fifth (symbolics bv-expr)))))
-         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
-     (if (>= (length (symbolics bv-expr)) 6)
-         (min 256 (expt 2 (bvlen (sixth (symbolics bv-expr)))))
-         "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
-     verilated-type-name
-     verilated-type-name
-     (bvexpr->cexpr bv-expr)
-     out-bitwidth
-     (bvexpr->cexpr bv-expr)))
+    (format (file->string (build-path (getenv "LAKEROAD_DIR") "racket" testbench-filename))
+            (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
+            verilated-type-name
+            (if (>= (length (symbolics bv-expr)) 1)
+                (format "top->~a = ~a;" (first (symbolics bv-expr)) (first (symbolics bv-expr)))
+                "")
+            (if (>= (length (symbolics bv-expr)) 2)
+                (format "top->~a = ~a;" (second (symbolics bv-expr)) (second (symbolics bv-expr)))
+                "")
+            (if (>= (length (symbolics bv-expr)) 3)
+                (format "top->~a = ~a;" (third (symbolics bv-expr)) (third (symbolics bv-expr)))
+                "")
+            (if (>= (length (symbolics bv-expr)) 4)
+                (format "top->~a = ~a;" (fourth (symbolics bv-expr)) (fourth (symbolics bv-expr)))
+                "")
+            (if (>= (length (symbolics bv-expr)) 5)
+                (format "top->~a = ~a;" (fifth (symbolics bv-expr)) (fifth (symbolics bv-expr)))
+                "")
+            (if (>= (length (symbolics bv-expr)) 6)
+                (format "top->~a = ~a;" (sixth (symbolics bv-expr)) (sixth (symbolics bv-expr)))
+                "")
+            (if (>= (length (symbolics bv-expr)) 1)
+                (min 256 (expt 2 (bvlen (first (symbolics bv-expr)))))
+                "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
+            (if (>= (length (symbolics bv-expr)) 2)
+                (min 256 (expt 2 (bvlen (second (symbolics bv-expr)))))
+                "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
+            (if (>= (length (symbolics bv-expr)) 3)
+                (min 256 (expt 2 (bvlen (third (symbolics bv-expr)))))
+                "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
+            (if (>= (length (symbolics bv-expr)) 4)
+                (min 256 (expt 2 (bvlen (fourth (symbolics bv-expr)))))
+                "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
+            (if (>= (length (symbolics bv-expr)) 5)
+                (min 256 (expt 2 (bvlen (fifth (symbolics bv-expr)))))
+                "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
+            (if (>= (length (symbolics bv-expr)) 6)
+                (min 256 (expt 2 (bvlen (sixth (symbolics bv-expr)))))
+                "1") ; The min of 256 is arbitrary. Just don't want it to run forever.
+            verilated-type-name
+            verilated-type-name
+            (bvexpr->cexpr bv-expr)
+            out-bitwidth
+            (bvexpr->cexpr bv-expr)))
 
   (define testbench-file (make-temporary-file "rkttmp~a.cc"))
   (display-to-file testbench-source testbench-file #:exists 'update)
