@@ -55,10 +55,9 @@
       [_
        #:when (<= max-bitwidth 16)
        "testbench_bw16.cc.template"]
-[_
+      [_
        #:when (<= max-bitwidth 32)
-       "testbench_bw32.cc.template"]
-       ))
+       "testbench_bw32.cc.template"]))
 
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
   (define verilated-type-name
