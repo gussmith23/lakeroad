@@ -24,10 +24,25 @@
 
   (current-solver (boolector))
 
+  (test-begin (define-symbolic l0 l1 (bitvector 1))
+              (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
+
+  (test-begin (define-symbolic l0 l1 (bitvector 2))
+              (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
+
+  (test-begin (define-symbolic l0 l1 (bitvector 3))
+              (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
+
+  (test-begin (define-symbolic l0 l1 (bitvector 4))
+              (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
+
   (test-begin (define-symbolic l0 l1 (bitvector 5))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 6))
+              (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
+
+  (test-begin (define-symbolic l0 l1 (bitvector 7))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
