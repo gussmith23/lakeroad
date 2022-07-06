@@ -27,6 +27,7 @@
      ;;; Racket functions lifted to our language.
      [`(append ,l0 ,l1) (append (interpret l0) (interpret l1))]
      [`(take ,l ,n) (take (interpret l) n)]
+     [`(drop ,l ,n) (drop (interpret l) n)]
      [`(list-ref ,l ,n) (list-ref (interpret l) n)]
      [`(first ,l) (first (interpret l))]
      [`(second ,l) (second (interpret l))]
