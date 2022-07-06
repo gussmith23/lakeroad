@@ -23,14 +23,16 @@
     [`(physical-to-logical-mapping (bitwise) ,physical-expr) (apply map list (compile physical-expr))]
     [`(physical-to-logical-mapping (bitwise-reverse) ,physical-expr)
      ;;; Same as bitwise, but reverses each result first.
-     (map reverse (apply map list (compile physical-expr)))]))
+     (map reverse (apply map list (compile physical-expr)))]
+    [`(physical-to-logical-mapping (identity) ,physical-expr) (compile physical-expr)]))
 
 ;;; Compiles logical-to-physical mapping.
 (define (compile-logical-to-physical-mapping compile expr)
   (match expr
     [`(logical-to-physical-mapping (bitwise) ,logical-expr) (apply map list (compile logical-expr))]
     [`(logical-to-physical-mapping (bitwise-reverse) ,logical-expr)
-     (map reverse (apply map list (compile logical-expr)))]))
+     (map reverse (apply map list (compile logical-expr)))]
+    [`(logical-to-physical-mapping (identity) ,logical-expr) (compile logical-expr)]))
 
 (module+ test
   (require rackunit)
@@ -78,6 +80,7 @@
    (for/all
     ([fn-name fn-name])
     (match `(,fn-name ,@args)
+      ['(identity) inputs]
       ;;; Variant which uses a Rosette uninterpreted function.
       [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group inputs)]
       ;;;
