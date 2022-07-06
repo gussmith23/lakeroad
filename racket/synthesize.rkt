@@ -319,35 +319,39 @@
       (for/list ([logical-input logical-inputs])
         (extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
 
-  (match-define (list logical-output cout)
+  (match-define (list physical-output cout)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
-      (foldl
-       (lambda (logical-inputs previous-out)
-         (match-let* ([(list accumulated-logical-output previous-cout) previous-out]
-                      [(list this-pfu-logical-outputs this-cout)
-                       (let ([pfu-out (make-lattice-ripple-pfu-expr #:inputs logical-inputs
-                                                                    #:CIN previous-cout
-                                                                    #:INIT0 lutmem
-                                                                    #:INIT1 lutmem
-                                                                    #:INIT2 lutmem
-                                                                    #:INIT3 lutmem
-                                                                    #:INIT4 lutmem
-                                                                    #:INIT5 lutmem
-                                                                    #:INIT6 lutmem
-                                                                    #:INIT7 lutmem)])
+      (foldl (lambda (logical-inputs previous-out)
+               (match-let* ([(list accumulated-physical-output previous-cout) previous-out]
+                            [(list this-pfu-physical-outputs this-cout)
+                             (let ([pfu-out (make-lattice-ripple-pfu-expr
+                                             #:inputs logical-inputs
+                                             #:CIN previous-cout
+                                             #:INIT0 lutmem
+                                             #:INIT1 lutmem
+                                             #:INIT2 lutmem
+                                             #:INIT3 lutmem
+                                             #:INIT4 lutmem
+                                             #:INIT5 lutmem
+                                             #:INIT6 lutmem
+                                             #:INIT7 lutmem
+                                             #:MAPPING (choose '(bitwise) '(bitwise-reverse)))])
 
-                         (list `(first (physical-to-logical-mapping (bitwise) (take ,pfu-out 8)))
-                               `(list-ref ,pfu-out 8)))]
-                      [accumulated-logical-output
-                       (if (equal? accumulated-logical-output 'first)
-                           this-pfu-logical-outputs
-                           `(concat ,this-pfu-logical-outputs ,accumulated-logical-output))])
-                     (list accumulated-logical-output this-cout)))
-       ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
-       (list 'first cin)
-       logical-inputs-per-pfu)))
+                               (list `(take ,pfu-out 8) `(list-ref ,pfu-out 8)))]
+                            [accumulated-physical-output
+                             (if (equal? accumulated-physical-output 'first)
+                                 this-pfu-physical-outputs
+                                 `(append ,accumulated-physical-output ,this-pfu-physical-outputs))])
+                           (list accumulated-physical-output this-cout)))
+             ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
+             (list 'first cin)
+             logical-inputs-per-pfu)))
 
-  (define lakeroad-expr `(extract ,(sub1 out-bw) 0 ,logical-output))
+  (define lakeroad-expr
+    `(extract ,(sub1 out-bw)
+              0
+              (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
+                                                  ,physical-output))))
 
   (interpret lakeroad-expr)
 
