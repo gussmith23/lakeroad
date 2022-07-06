@@ -51,6 +51,13 @@
 
   (define (helper expr)
     (match expr
+      [`(bvuge ,a ,b) (bvuge (helper a) (helper b))]
+      [`(bvule ,a ,b) (bvule (helper a) (helper b))]
+      [`(bvult ,a ,b) (bvult (helper a) (helper b))]
+      [`(bvugt ,a ,b) (bvugt (helper a) (helper b))]
+      [`(not ,a) (not (helper a))]
+      [`(bveq ,a ,b) (bveq (helper a) (helper b))]
+      [`(bool->bitvector ,a) (bool->bitvector (helper a))]
       [`(bvand ,a ,b) (bvand (helper a) (helper b))]
       [`(bvor ,a ,b) (bvor (helper a) (helper b))]
       [`(bvadd ,a ,b) (bvadd (helper a) (helper b))]

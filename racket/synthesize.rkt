@@ -115,7 +115,12 @@
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
-  (if (sat? soln) (evaluate lakeroad-expr soln) #f))
+  (if (sat? soln)
+      (evaluate lakeroad-expr
+                (complete-solution soln
+                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                            (list->set (symbolics logical-inputs))))))
+      #f))
 
 (module+ test
   (require rackunit
@@ -230,7 +235,10 @@
   (when (not (sat? soln))
     (error "expected sat soln"))
 
-  (evaluate lakeroad-expr soln))
+  (evaluate lakeroad-expr
+            (complete-solution soln
+                               (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                        (list->set (symbolics logical-inputs)))))))
 
 (define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
   (match primitive
