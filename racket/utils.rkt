@@ -78,6 +78,7 @@
     [(expression (== bvmul) a b) (format "(~a * ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(? concrete? (? (bitvector 1) a)) (format "((bool) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 4) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 5) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 8) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 12) a)) (format "((uint16_t) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 16) a)) (format "((uint16_t) ~a)" (bitvector->natural a))]
