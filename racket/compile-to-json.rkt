@@ -50,92 +50,118 @@
   (define (add-parameter-default-value k v)
     (hasheq-helper #:base parameter-default-values k v))
 
+  (define memo (make-hash))
   ;;; Generally: individual signals (symbolic constants e.g. 'a' or concrete constants e.g. (bv 1 2))
   ;;; return a list of integers representing bit ids. Note that, in the case that a bit is hardwired
   ;;; to 0 or 1, the id will instead be the strings "0" or "1" as per Yosys's JSON format definition.
   ;;; "Blocks" like physical-to-logical mappings or CLBs return lists of signals (so, a list of lists
   ;;; of integers).
   (define (compile expr)
-    (match expr
-      [`(sofa-lut4 ,_ ...)
+    (if (hash-has-key? memo expr)
+        (hash-ref memo expr)
+        (let ([out
+               (match expr
+                 [`(sofa-lut4 ,_ ...)
 
-       (compile-sofa compile get-bits add-cell add-netname add-parameter-default-value expr)]
-      [`(ultrascale-plus-clb ,_ ...)
-       (make-ultrascale-plus-clb compile
-                                 get-bits
-                                 add-cell
-                                 add-netname
-                                 add-parameter-default-value
-                                 expr)]
-      [`(lattice-ecp5-pfu ,_ ...)
-       (compile-lattice-pfu compile get-bits add-cell add-netname add-parameter-default-value expr)]
-      [`(lattice-ecp5-ccu2c ,_ ...)
-       (compile-lattice-ccu2c compile get-bits add-cell add-netname add-parameter-default-value expr)]
-      [`(lattice-ecp5-ripple-pfu ,_ ...)
-       (compile-lattice-ripple-pfu compile
-                                   get-bits
-                                   add-cell
-                                   add-netname
-                                   add-parameter-default-value
-                                   expr)]
-      [`(ultrascale-plus-lut1 ,init ,inputs)
-       (match-define (list i0) (compile inputs))
-       (define o (get-bits 1))
-       (add-cell 'lut1
-                 (make-cell "LUT1"
-                            (make-cell-port-directions (list 'I0) (list 'O))
-                            (make-cell-connections 'I0 i0 'O (first o))
-                            #:params (hasheq 'INIT (make-literal-value-from-bv init))))
-       o]
-      [`(ultrascale-plus-lut2 ,init ,inputs)
-       (match-define (list i0 i1) (compile inputs))
-       (define o (get-bits 1))
-       (add-cell 'lut2
-                 (make-cell "LUT2"
-                            (make-cell-port-directions (list 'I0 'I1) (list 'O))
-                            (make-cell-connections 'I0 i0 'I1 i1 'O (first o))
-                            #:params (hasheq 'INIT (make-literal-value-from-bv init))))
-       o]
-      [`(physical-to-logical-mapping ,_ ...) (compile-physical-to-logical-mapping compile expr)]
-      [`(logical-to-physical-mapping ,_ ...) (compile-logical-to-physical-mapping compile expr)]
+                  (compile-sofa compile
+                                get-bits
+                                add-cell
+                                add-netname
+                                add-parameter-default-value
+                                expr)]
+                 [`(ultrascale-plus-clb ,_ ...)
+                  (make-ultrascale-plus-clb compile
+                                            get-bits
+                                            add-cell
+                                            add-netname
+                                            add-parameter-default-value
+                                            expr)]
+                 [`(lattice-ecp5-pfu ,_ ...)
+                  (compile-lattice-pfu compile
+                                       get-bits
+                                       add-cell
+                                       add-netname
+                                       add-parameter-default-value
+                                       expr)]
+                 [`(lattice-ecp5-ccu2c ,_ ...)
+                  (compile-lattice-ccu2c compile
+                                         get-bits
+                                         add-cell
+                                         add-netname
+                                         add-parameter-default-value
+                                         expr)]
+                 [`(lattice-ecp5-ripple-pfu ,_ ...)
+                  (compile-lattice-ripple-pfu compile
+                                              get-bits
+                                              add-cell
+                                              add-netname
+                                              add-parameter-default-value
+                                              expr)]
+                 [`(ultrascale-plus-lut1 ,init ,inputs)
+                  (match-define (list i0) (compile inputs))
+                  (define o (get-bits 1))
+                  (add-cell 'lut1
+                            (make-cell "LUT1"
+                                       (make-cell-port-directions (list 'I0) (list 'O))
+                                       (make-cell-connections 'I0 i0 'O (first o))
+                                       #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+                  o]
+                 [`(ultrascale-plus-lut2 ,init ,inputs)
+                  (match-define (list i0 i1) (compile inputs))
+                  (define o (get-bits 1))
+                  (add-cell 'lut2
+                            (make-cell "LUT2"
+                                       (make-cell-port-directions (list 'I0 'I1) (list 'O))
+                                       (make-cell-connections 'I0 i0 'I1 i1 'O (first o))
+                                       #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+                  o]
+                 [`(physical-to-logical-mapping ,_ ...)
+                  (compile-physical-to-logical-mapping compile expr)]
+                 [`(logical-to-physical-mapping ,_ ...)
+                  (compile-logical-to-physical-mapping compile expr)]
 
-      ;;; Racket operators.
-      [`(first ,v) (first (compile v))]
-      [`(take ,l ,n) (take (compile l) n)]
-      [`(drop ,l ,n) (drop (compile l) n)]
-      [`(list-ref ,l ,n) (list-ref (compile l) n)]
-      [`(append ,l0 ,l1) (append (compile l0) (compile l1))]
+                 ;;; Racket operators.
+                 [`(first ,v) (first (compile v))]
+                 [`(take ,l ,n) (take (compile l) n)]
+                 [`(drop ,l ,n) (drop (compile l) n)]
+                 [`(list-ref ,l ,n) (list-ref (compile l) n)]
+                 [`(append ,l0 ,l1) (append (compile l0) (compile l1))]
 
-      ;;; Rosette operators.
-      [(or (expression (== extract) high low v) `(extract ,high ,low ,v))
-       (drop (take (compile v) (add1 high)) low)]
-      [(expression (== zero-extend) v bv-type)
-       (append (compile v) (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
-      [(or `(concat ,v0 ,v1) (expression (== concat) v0 v1)) (append (compile v1) (compile v0))]
+                 ;;; Rosette operators.
+                 [(or (expression (== extract) high low v) `(extract ,high ,low ,v))
+                  (drop (take (compile v) (add1 high)) low)]
+                 [(expression (== zero-extend) v bv-type)
+                  (append (compile v)
+                          (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
+                 [(or `(concat ,v0 ,v1) (expression (== concat) v0 v1))
+                  (append (compile v1) (compile v0))]
 
-      ;;; Symbolic bitvector constants correspond to module inputs!
-      [(? bv? (? symbolic? (? constant? s)))
-       ;;; Get the port details if they exist; create and return them if they don't.
-       (define port-details
-         (hash-ref ports
-                   (string->symbol (~a s))
-                   (lambda ()
-                     (define bits (get-bits (bitvector-size (type-of s))))
-                     (define port-details (make-port-details "input" bits))
-                     (add-port (string->symbol (~a s)) port-details)
-                     port-details)))
+                 ;;; Symbolic bitvector constants correspond to module inputs!
+                 [(? bv? (? symbolic? (? constant? s)))
+                  ;;; Get the port details if they exist; create and return them if they don't.
+                  (define port-details
+                    (hash-ref ports
+                              (string->symbol (~a s))
+                              (lambda ()
+                                (define bits (get-bits (bitvector-size (type-of s))))
+                                (define port-details (make-port-details "input" bits))
+                                (add-port (string->symbol (~a s)) port-details)
+                                port-details)))
 
-       ;;; Return the bits.
-       (hash-ref port-details 'bits)]
+                  ;;; Return the bits.
+                  (hash-ref port-details 'bits)]
 
-      ;;; Concrete bitvectors become constants.
-      [(? bv? (? concrete? s)) (map ~a (map bitvector->natural (bitvector->bits s)))]
+                 ;;; Concrete bitvectors become constants.
+                 [(? bv? (? concrete? s)) (map ~a (map bitvector->natural (bitvector->bits s)))]
 
-      [(? int? v) v]
-      [(? string? v) v]
+                 [(? int? v) v]
+                 [(? string? v) v]
 
-      ;;; Should go near the bottom -- remember, nearly everything's a list underneath!
-      [(? list? v) (map compile v)]))
+                 ;;; Should go near the bottom -- remember, nearly everything's a list underneath!
+                 [(? list? v) (map compile v)])])
+
+          (hash-set! memo expr out)
+          (hash-ref memo expr))))
 
   (define outputs (list (compile expr)))
 
