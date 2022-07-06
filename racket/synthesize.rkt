@@ -12,6 +12,7 @@
          "lattice-ecp5.rkt"
          rosette
          rosette/lib/synthax
+         rosette/lib/angelic
          racket/pretty
          rosette/solver/smt/boolector
          "utils.rkt")
@@ -97,10 +98,14 @@
       [2 (?? (bitvector 4))]))
 
   (define lakeroad-expr
-    (let* ([physical-inputs `(logical-to-physical-mapping (bitwise) ,logical-inputs)]
+    (let* ([physical-inputs `(logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse))
+                                                          ,logical-inputs)]
            [physical-outputs (for/list ([i max-input-bw])
                                `(,lut-fn ,lutmem (list-ref ,physical-inputs ,i)))])
-      `(extract ,(sub1 out-bw) 0 (first (physical-to-logical-mapping (bitwise) ,physical-outputs)))))
+      `(extract ,(sub1 out-bw)
+                0
+                (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
+                                                    ,physical-outputs)))))
 
   (interpret lakeroad-expr)
   (define soln
@@ -192,26 +197,31 @@
                                           ,mux
                                           ,mux
                                           ,mux
-                                          (logical-to-physical-mapping (bitwise) ,logical-inputs))])
-      (list `(first (physical-to-logical-mapping (bitwise) (take ,clb-out 8)))
-            `(list-ref ,clb-out 8))))
+                                          (logical-to-physical-mapping
+                                           ,(choose '(bitwise) '(bitwise-reverse))
+                                           ,logical-inputs))])
+      (list `(take ,clb-out 8) `(list-ref ,clb-out 8))))
 
-  (match-define (list logical-output cout)
+  (match-define (list physical-outputs cout)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 64))] [mux (?? (bitvector 2))])
       (foldl (lambda (logical-inputs previous-out)
-               (match-let* ([(list accumulated-logical-output previous-cout) previous-out]
-                            [(list this-clb-logical-outputs this-cout)
+               (match-let* ([(list accumulated-physical-output previous-cout) previous-out]
+                            [(list this-clb-physical-outputs this-cout)
                              (clb previous-cout lutmem mux logical-inputs)]
-                            [accumulated-logical-output
-                             (if (equal? accumulated-logical-output 'first)
-                                 this-clb-logical-outputs
-                                 `(concat ,this-clb-logical-outputs ,accumulated-logical-output))])
-                           (list accumulated-logical-output this-cout)))
+                            [accumulated-physical-output
+                             (if (equal? accumulated-physical-output 'first)
+                                 this-clb-physical-outputs
+                                 `(append ,accumulated-physical-output ,this-clb-physical-outputs))])
+                           (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              (list 'first cin)
              logical-inputs-per-clb)))
 
-  (define lakeroad-expr `(extract ,(sub1 out-bw) 0 ,logical-output))
+  (define lakeroad-expr
+    `(extract ,(sub1 out-bw)
+              0
+              (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
+                                                  ,physical-outputs))))
   (define soln
     (synthesize #:forall logical-inputs
                 #:guarantee (begin

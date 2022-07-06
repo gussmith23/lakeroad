@@ -26,6 +26,11 @@
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (test-begin (define-symbolic l0 l1 (bitvector 8))
+              (check-true (end-to-end-test (bool->bitvector (bvult l0 l1))))
+              (check-true (end-to-end-test (bool->bitvector (bvule l0 l1))))
+              (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1))))
+              (check-true (end-to-end-test (bool->bitvector (bvuge l0 l1))))
+              (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bvand l0 l1)))
               (check-true (end-to-end-test (bvxor l0 l1)))
               (check-true (end-to-end-test (bvor l0 l1)))
@@ -43,6 +48,11 @@
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (test-begin (define-symbolic l0 l1 (bitvector 16))
+              (check-true (end-to-end-test (bool->bitvector (bvult l0 l1))))
+              (check-true (end-to-end-test (bool->bitvector (bvule l0 l1))))
+              (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1))))
+              (check-true (end-to-end-test (bool->bitvector (bvuge l0 l1))))
+              (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bvand l0 l1)))
               (check-true (end-to-end-test (bvxor l0 l1)))
               (check-true (end-to-end-test (bvor l0 l1)))
