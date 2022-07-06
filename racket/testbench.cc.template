@@ -21,17 +21,17 @@ int main(int argc, char **argv, char **env)
   contextp->commandArgs(argc, argv);
   ~a *top = new ~a{contextp};
 
-  for (int l0_val = 0; l0_val <= l0_bound; l0_val++)
+  for (int l0_val = 0; l0_val < l0_bound; l0_val++)
   {
-    for (int l1_val = 0; l1_val <= l1_bound; l1_val++)
+    for (int l1_val = 0; l1_val < l1_bound; l1_val++)
     {
-      for (int l2_val = 0; l2_val <= l2_bound; l2_val++)
+      for (int l2_val = 0; l2_val < l2_bound; l2_val++)
       {
-        for (int l3_val = 0; l3_val <= l3_bound; l3_val++)
+        for (int l3_val = 0; l3_val < l3_bound; l3_val++)
         {
-          for (int l4_val = 0; l4_val <= l4_bound; l4_val++)
+          for (int l4_val = 0; l4_val < l4_bound; l4_val++)
           {
-            for (int l5_val = 0; l5_val <= l5_bound; l5_val++)
+            for (int l5_val = 0; l5_val < l5_bound; l5_val++)
             {
               uint8_t l0 = (uint8_t)l0_val;
               uint8_t l1 = (uint8_t)l1_val;
@@ -44,7 +44,7 @@ int main(int argc, char **argv, char **env)
               uint8_t expected = ~a & ((1 << ~a) - 1);
 
               // Uncoment this when you want to debug.
-              // printf("~a with l0=%d l1=%d l2=%d  == %d, should equal %d\n", l0, l1, l2, out, expected);
+               printf("~a with l0=%d l1=%d l2=%d  == %d, should equal %d\n", l0, l1, l2, out, expected);
 
               assert(out == expected);
             }
