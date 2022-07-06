@@ -177,8 +177,7 @@
          (append (symbolics bv-expr)
                  (make-list (- 6 (length (symbolics bv-expr))) (bvnot (bv 0 logical-input-width))))))
 
-  (define physical-inputs
-    `(logical-to-physical-mapping (bitwise) ,logical-inputs))
+  (define physical-inputs `(logical-to-physical-mapping (bitwise) ,logical-inputs))
 
   ;;; Split the physical inputs into groups, grouped by LUT.
   (define physical-inputs-per-clb
