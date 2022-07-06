@@ -112,7 +112,8 @@
                                       #:INJECT1_4 [INJECT1_4 #f]
                                       #:INJECT1_5 [INJECT1_5 #f]
                                       #:INJECT1_6 [INJECT1_6 #f]
-                                      #:INJECT1_7 [INJECT1_7 #f])
+                                      #:INJECT1_7 [INJECT1_7 #f]
+                                      #:MAPPING [MAPPING '(bitwise)])
 
   (define fn-name "make-latticeripple-pfu-expr")
   (when (> (length inputs) 4)
@@ -141,7 +142,7 @@
                               ,(or INJECT1_6 (?? (bitvector 1)))
                               ,(or INJECT1_7 (?? (bitvector 1)))
                               ,(or CIN (?? (bitvector 1)))
-                              (logical-to-physical-mapping (bitwise) ,inputs))))
+                              (logical-to-physical-mapping ,MAPPING ,inputs))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;        INTERPRETING LAKEROAD EXPRESSIONS         ;;;;;;;;;;;;;;;
