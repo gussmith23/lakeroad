@@ -103,6 +103,7 @@
       [`(first ,v) (first (compile v))]
       [`(take ,l ,n) (take (compile l) n)]
       [`(list-ref ,l ,n) (list-ref (compile l) n)]
+      [`(append ,l0 ,l1) (append (compile l0) (compile l1))]
 
       ;;; Rosette operators.
       [(or (expression (== extract) high low v) `(extract ,high ,low ,v))
