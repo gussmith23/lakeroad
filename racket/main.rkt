@@ -22,11 +22,13 @@
                       [other (error (format "Unsupported output format ~a." other))]))))
 (define instructions (make-parameter '() (lambda (instr) instr)))
 (define module-names (make-parameter '() (lambda (name) name)))
+(define json-file-name (make-parameter (make-temporary-file "rkttmp~a.json") (lambda (name) name)))
 
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
  ["--out-format" fmt "Output format. Supported: 'verilog'" (out-format fmt)]
+ ["--json-file" name "JSON file to output to" (json-file-name name)]
  #:once-any
  #:multi
  [("--instruction")
@@ -90,9 +92,9 @@
      (when (not (getenv "LAKEROAD_DIR"))
        (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
 
-     (define json-file (make-temporary-file "rkttmp~a.json"))
+     (define json-file (json-file-name))
      (define verilog-file (make-temporary-file "rkttmp~a.v"))
-     (display-to-file (jsexpr->string json-source) json-file #:exists 'update)
+     (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
      (when (not (with-output-to-string
                  (lambda ()
                    (system
