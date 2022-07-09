@@ -14,6 +14,12 @@ parser.add_argument("--top", required=True)
 parser.add_argument(
     "--outfile", nargs="?", type=argparse.FileType("w"), default=sys.stdout
 )
+parser.add_argument(
+    "--verilog_outfile",
+    nargs="?",
+    default=os.devnull,
+    help="Write converted, flattened Verilog file out, for debugging.",
+)
 args = parser.parse_args()
 
 if "LAKEROAD_DIR" not in os.environ:
