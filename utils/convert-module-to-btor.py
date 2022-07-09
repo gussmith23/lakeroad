@@ -10,7 +10,7 @@ import pathlib
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--infile", action="append")
-parser.add_argument("--top")
+parser.add_argument("--top", required=True)
 parser.add_argument(
     "--outfile", nargs="?", type=argparse.FileType("w"), default=sys.stdout
 )
