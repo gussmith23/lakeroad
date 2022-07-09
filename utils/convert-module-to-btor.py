@@ -50,7 +50,14 @@ for filename in args.infile:
 
 
 def yosys(script):
-    subprocess.call(["yosys", "-p", script])
+    subprocess.call(
+        [
+            "yosys",
+            "-p",
+            script,
+        ],
+        stdout=sys.stderr,
+    )
 
 
 read_cmd = "\n".join([f"read -sv {f.name}" for f in converted_verilog_files])
