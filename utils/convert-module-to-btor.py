@@ -68,6 +68,7 @@ yosys(
     f"""
 {read_cmd}
 hierarchy -top {args.top}
+proc
 flatten
 write_verilog
 hierarchy -top {args.top}
