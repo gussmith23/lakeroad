@@ -70,7 +70,7 @@ yosys(
 hierarchy -top {args.top}
 proc
 flatten
-write_verilog
+write_verilog {args.verilog_outfile}
 hierarchy -top {args.top}
 write_btor {btorfile.name}
 """
