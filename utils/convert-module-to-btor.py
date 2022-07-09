@@ -5,44 +5,49 @@ import re
 import tempfile
 import json
 import sys
+import os
+import pathlib
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--infile", action="append")
 parser.add_argument("--top")
 parser.add_argument(
-    "outfile", nargs="?", type=argparse.FileType("w"), default=sys.stdout
+    "--outfile", nargs="?", type=argparse.FileType("w"), default=sys.stdout
 )
-
 args = parser.parse_args()
 
-parameter_line_pattern = re.compile(r"parameter (.*)=(.*)[;,]")
+if "LAKEROAD_DIR" not in os.environ:
+    raise Exception("LAKEROAD_DIR must be set to base dir of Lakeroad.")
 
-jsonfile = tempfile.NamedTemporaryFile()
+PYTHON_EXE = sys.executable
+
+# Convert Verilog files.
+converted_verilog_files = []
+for filename in args.infile:
+    converted_file = tempfile.NamedTemporaryFile()
+    subprocess.call(
+        [
+            PYTHON_EXE,
+            str(
+                pathlib.Path(os.environ["LAKEROAD_DIR"])
+                / "utils"
+                / "convert-params-to-inputs.py"
+            ),
+            "--remove_string",
+            "--infile",
+            filename,
+            "--outfile",
+            converted_file.name,
+        ]
+    )
+    converted_verilog_files.append(converted_file)
 
 
 def yosys(script):
     subprocess.call(["yosys", "-p", script])
 
 
-print(args.infile)
-
-read_cmd = "\n".join([f"read -sv {f}" for f in args.infile])
-
-yosys(
-    f"""
-{read_cmd}
-hierarchy -top {args.top}
-flatten
-write_json {jsonfile.name} 
-"""
-)
-
-params_dict = json.load(jsonfile)["modules"][args.top]["parameter_default_values"]
-
-
-chparam_commands = "\n".join(
-    [f"chparam -set {k} 23 {args.top}" for k, _ in params_dict.items()]
-)
+read_cmd = "\n".join([f"read -sv {f.name}" for f in converted_verilog_files])
 
 btorfile = tempfile.NamedTemporaryFile(mode="r+")
 
@@ -50,7 +55,6 @@ yosys(
     f"""
 {read_cmd}
 hierarchy -top {args.top}
-{chparam_commands}
 flatten
 write_verilog
 hierarchy -top {args.top}
