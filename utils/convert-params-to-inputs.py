@@ -127,7 +127,7 @@ for match in module_pat.finditer(out):
             params[match.group("identifier")] = match.group("value")
 
 
-new_inputs = ", ".join(f"input {id} = {val}" for (id, val) in params.items())
+new_inputs = ", ".join(f"input {id}" for (id, _) in params.items())
 
 
 def _modify_module_definition(match):
