@@ -68,8 +68,10 @@ yosys(
     f"""
 {read_cmd}
 hierarchy -top {args.top}
+prep
 proc
 flatten
+clk2fflogic
 write_verilog {args.verilog_outfile}
 hierarchy -top {args.top}
 write_btor {btorfile.name}
