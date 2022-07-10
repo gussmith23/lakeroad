@@ -16,7 +16,11 @@ parser.add_argument(
 parser.add_argument(
     "--outfile", nargs="?", type=argparse.FileType("w"), default=sys.stdout
 )
-parser.add_argument("--defines", nargs="*", default=[], action="append")
+parser.add_argument(
+    "--define",
+    action="append",
+    help="Variables to `define. Support may be buggy.",
+)
 parser.add_argument(
     "--remove_string",
     action=argparse.BooleanOptionalAction,
@@ -46,7 +50,7 @@ def _remove_ifdef(match):
         if match.group("type") == "`else":
             print("Hit else clause of ifdef {}.".format(block), file=sys.stderr)
             return match.group("body")
-        if match.group("cond") in args.defines:
+        if match.group("cond") in args.define:
             print(
                 "Hit clause of ifdef {} where {} is defined.".format(
                     block, match.group("cond")
@@ -67,7 +71,7 @@ def _remove_ifndef(match):
         if match.group("type") == "`else":
             print("Hit else clause of ifndef {}.".format(block), file=sys.stderr)
             return match.group("body")
-        if match.group("cond") not in args.defines:
+        if match.group("cond") not in args.define:
             print(
                 "Hit clause of ifndef {} where {} is not defined.".format(
                     block, match.group("cond")
