@@ -18,6 +18,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--define",
+    default=[],
     action="append",
     help="Variables to `define. Support may be buggy.",
 )

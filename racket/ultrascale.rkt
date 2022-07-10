@@ -7,7 +7,8 @@
          interpret-ultrascale-plus-dsp48e2
          ultrascale-plus-dsp48e2
          ultrascale-plus-grammar
-         make-ultrascale-plus-clb)
+         make-ultrascale-plus-clb
+         interpret-ultrascale-plus-carry8)
 
 (require rosette
          rosette/lib/synthax
