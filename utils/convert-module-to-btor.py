@@ -26,6 +26,12 @@ parser.add_argument(
     default=[],
     help="Variables to `define. Support may be buggy.",
 )
+parser.add_argument(
+    "--remove-lines-with",
+    action="append",
+    default=[],
+    help="Removes lines that contain the string.",
+)
 args = parser.parse_args()
 
 if "LAKEROAD_DIR" not in os.environ:
@@ -36,7 +42,7 @@ PYTHON_EXE = sys.executable
 # Convert Verilog files.
 converted_verilog_files = []
 for filename in args.infile:
-    converted_file = tempfile.NamedTemporaryFile()
+    converted_file = tempfile.NamedTemporaryFile(mode="r+", delete=False)
     subprocess.call(
         [
             PYTHON_EXE,
@@ -53,6 +59,15 @@ for filename in args.infile:
         ]
         + sum([["--define", v] for v in args.define], [])
     )
+
+    # Cut out lines.
+    lines = converted_file.readlines()
+    converted_file.seek(0)
+    for i in lines:
+        if not any(pat in i for pat in args.remove_lines_with):
+            converted_file.write(i)
+    converted_file.truncate()
+
     converted_verilog_files.append(converted_file)
 
 
