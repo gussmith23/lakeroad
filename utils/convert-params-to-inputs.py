@@ -86,9 +86,10 @@ out = ifdef_pat.sub(_remove_ifdef, out)
 out = ifndef_pat.sub(_remove_ifndef, out)
 
 # Matches parameter definition statements of the form parameter id=val, ... ;
-# https://regex101.com/r/4OjiKa/1
+# https://regex101.com/r/SFahSC/1
+# Specially designed to avoid catastrophic backtracking.
 parameter_def_stmt_pat = re.compile(
-    r"""parameter\s*((?P<identifier>[\[\]\:\s\w]+?)\s*=\s*(?P<value>['\"\w]+),?)*;""",
+    r"""parameter\s*(?=(?P<tmp>((?P<identifier>[\[\]\:\s\w]+?)\s*=\s*(?P<value>['\"\w]+),?)))(?P=tmp)*;""",
     re.DOTALL,
 )
 
