@@ -326,6 +326,7 @@
 ;;; Top level UltraScale+ interpreter.
 (define (interpret-ultrascale-plus interpreter expr)
   (match expr
+    [`(ultrascale-plus-lut6-2 ,init ,inputs) (interpret-ultrascale-plus-lut6-2 interpreter expr)]
     [`(ultrascale-plus-lut2 ,init ,inputs) (lut init (interpreter inputs))]
     [`(ultrascale-plus-lut1 ,init ,inputs) (lut init (interpreter inputs))]
     [`(ultrascale-plus-clb ,cin
