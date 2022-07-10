@@ -20,6 +20,12 @@ parser.add_argument(
     default=os.devnull,
     help="Write converted, flattened Verilog file out, for debugging.",
 )
+parser.add_argument(
+    "--define",
+    action="append",
+    default=[],
+    help="Variables to `define. Support may be buggy.",
+)
 args = parser.parse_args()
 
 if "LAKEROAD_DIR" not in os.environ:
@@ -45,6 +51,7 @@ for filename in args.infile:
             "--outfile",
             converted_file.name,
         ]
+        + sum([["--define", v] for v in args.define], [])
     )
     converted_verilog_files.append(converted_file)
 
