@@ -43,7 +43,7 @@ PYTHON_EXE = sys.executable
 converted_verilog_files = []
 for filename in args.infile:
     converted_file = tempfile.NamedTemporaryFile(mode="r+", delete=False)
-    subprocess.call(
+    out = subprocess.call(
         [
             PYTHON_EXE,
             str(
@@ -57,8 +57,11 @@ for filename in args.infile:
             "--outfile",
             converted_file.name,
         ]
-        + sum([["--define", v] for v in args.define], [])
+        + sum([["--define", v] for v in args.define], []),
+        stderr=subprocess.DEVNULL,
     )
+
+    assert out == 0
 
     # Cut out lines.
     lines = converted_file.readlines()
