@@ -35,6 +35,22 @@ RUN apt install -y \
   zlib1g-dev \
   zlibc
 
+# Install LLVM. We need this for FileCheck.
+RUN wget https://apt.llvm.org/llvm.sh \
+  && chmod +x llvm.sh \
+  && ./llvm.sh 14
+
+# Make a binary for `lit`. If you're on Mac, you can install lit via Brew.
+# Ubuntu doesn't have a binary for it, but it is available on pip and is
+# installed later in this Dockerfile.
+WORKDIR /root
+RUN mkdir -p /root/.local/bin \
+  && echo "#!/usr/bin/env python" >> /root/.local/bin/lit \
+  && echo "from lit.main import main" >> /root/.local/bin/lit \
+  && echo "if __name__ == '__main__': main()" >> /root/.local/bin/lit \
+  && chmod +x /root/.local/bin/lit
+ENV PATH="/root/.local/bin:${PATH}"
+
 # Install Yosys and other OSS hardware tools from prebuilt binaries.
 #
 # If we get an error here, we likely just need to add other branches for other
