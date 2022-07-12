@@ -12,6 +12,11 @@
          compile-lattice-ccu2c
          compile-lattice-ripple-pfu
          get-lattice-logical-inputs
+         make-lattice-lut4-expr
+         make-lattice-lut5-expr
+         make-lattice-lut6-expr
+         make-lattice-lut7-expr
+         make-lattice-lut8-expr
          make-lattice-pfu-expr
          make-lattice-ccu2c-expr
          make-lattice-ripple-pfu-expr)
@@ -42,6 +47,27 @@
            (choose* `(zero-extend ,v ,(bitvector expected-bw))
                     `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector expected-bw))))
          (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
+
+(define (make-lattice-lut4-expr logical-inputs)
+  `(lattice-ecp5-lut4 ,(?? (bitvector 16))))
+
+(define (make-lattice-lut5-expr logical-inputs)
+  `(lattice-ecp5-lut5 ,(?? (bitvector 32))))
+
+(define (make-lattice-lut6-expr logical-inputs)
+  `(lattice-ecp5-lut6 ,(?? (bitvector 64))))
+
+(define (make-lattice-lut7-expr logical-inputs)
+  `(lattice-ecp5-lut7 ,(?? (bitvector 128))))
+
+(define (make-lattice-lut8-expr logical-inputs)
+  `(lattice-ecp5-lut8 ,(?? (bitvector 256))))
+
+(define (make-lattice-l6mux21-expr D0 D1 SD)
+  `(lattice-l6mux21-pfumx ,D0 ,D1 ,SD))
+
+(define (make-lattice-pfumx-expr ALUT BLUT CO)
+  `(lattice-ecp5-pfumx ,ALUT ,BLUT ,CO))
 
 ;;; Create a lakeroad expression for a pfu
 (define (make-lattice-pfu-expr logical-inputs)
@@ -161,6 +187,16 @@
      (let* ([inputs (interpreter inputs)]
             [pfu (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
        (interpret-ecp5-pfu-impl pfu inputs))]
+    [`(lattice-ecp5-lut4 ,INIT ,inputs)
+     (interpret-lut4-impl INIT inputs)]
+    [`(lattice-ecp5-lut5 ,INIT ,inputs)
+     (interpret-lut5-impl INIT inputs)]
+    [`(lattice-ecp5-lut6 ,INIT ,inputs)
+     (interpret-lut6-impl INIT inputs)]
+    [`(lattice-ecp5-lut7 ,INIT ,inputs)
+     (interpret-lut7-impl INIT inputs)]
+    [`(lattice-ecp5-lut8 ,INIT ,inputs)
+     (interpret-lut8-impl INIT inputs)]
     [`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs)
      (interpret-ecp5-ccu2c-impl INIT0
                                 INIT1
@@ -342,11 +378,26 @@
     (check-equal? (interpret-ecp5-pfu-impl pfu inputs-es) (bitvector->bits (bv #b10000000 8)))
     (check-equal? (interpret-ecp5-pfu-impl pfu inputs-fs) (bitvector->bits (bv #b10000000 8)))))
 
+(define (interpret-lut2-impl l inputs)
+  (lut l (extract 1 0 inputs)))
+
+(define (interpret-lut3-impl l inputs)
+  (lut l (extract 2 0 inputs)))
+
 (define (interpret-lut4-impl l inputs)
   (lut l (extract 3 0 inputs)))
 
-(define (interpret-lut2-impl l inputs)
-  (lut l (extract 1 0 inputs)))
+(define (interpret-lut5-impl l inputs)
+  (lut l (extract 4 0 inputs)))
+
+(define (interpret-lut6-impl l inputs)
+  (lut l (extract 5 0 inputs)))
+
+(define (interpret-lut7-impl l inputs)
+  (lut l (extract 6 0 inputs)))
+
+(define (interpret-lut8-impl l inputs)
+  (lut l (extract 7 0 inputs)))
 
 (module+ test
   (require rackunit)
