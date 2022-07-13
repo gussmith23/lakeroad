@@ -136,6 +136,9 @@
                  [(or `(concat ,v0 ,v1) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
 
+                 [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv-type)
+                  (make-list (bitvector-size bv-type) (first (compile v)))]
+
                  ;;; Symbolic bitvector constants correspond to module inputs!
                  [(? bv? (? symbolic? (? constant? s)))
                   ;;; Get the port details if they exist; create and return them if they don't.
