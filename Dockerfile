@@ -48,19 +48,6 @@ RUN mkdir -p /root/.local/bin \
   && chmod +x /root/.local/bin/lit
 ENV PATH="/root/.local/bin:${PATH}"
 
-# Install Yosys and other OSS hardware tools from prebuilt binaries.
-#
-# If we get an error here, we likely just need to add other branches for other
-# architectures.
-WORKDIR /root
-RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
-  else \
-  exit 1; \
-  fi \
-  && tar xf oss-cad-suite.tgz
-ENV PATH="/root/oss-cad-suite/bin:${PATH}"
-
 # Build and install latest boolector.
 WORKDIR /root
 RUN git clone https://github.com/boolector/boolector \
