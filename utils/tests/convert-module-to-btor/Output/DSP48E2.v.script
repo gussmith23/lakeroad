@@ -1,0 +1,1 @@
+set -o pipefail;{ : 'RUN: at line 1';   python3 $LAKEROAD_DIR/utils/convert-module-to-btor.py    --remove-lines-with '$finish'    --define XIL_XECLIB --top DSP48E2 --infile /Users/david/Documents/dev/lakeroad/lakeroad/utils/tests/convert-module-to-btor/DSP48E2.v 2>/dev/null    | FileCheck /Users/david/Documents/dev/lakeroad/lakeroad/utils/tests/convert-module-to-btor/DSP48E2.v; }
