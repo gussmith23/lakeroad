@@ -26,7 +26,7 @@
      [`(sofa-lut4 ,_ ...) (interpret-sofa interpret expr)]
 
      ;;; Racket functions lifted to our language.
-     [`(append ,l0 ,l1) (append (interpret l0) (interpret l1))]
+     [`(append ,lsts ...) (apply append (interpret lsts))]
      [`(take ,l ,n) (take (interpret l) n)]
      [`(drop ,l ,n) (drop (interpret l) n)]
      [`(list-ref ,l ,n) (list-ref (interpret l) n)]
