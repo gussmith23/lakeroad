@@ -124,7 +124,7 @@
       (evaluate lakeroad-expr
                 (complete-solution soln
                                    (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                            (list->set (symbolics logical-inputs))))))
+                                                            (list->set (symbolics bv-expr))))))
       #f))
 
 (module+ test
@@ -242,7 +242,7 @@
   (evaluate lakeroad-expr
             (complete-solution soln
                                (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                        (list->set (symbolics logical-inputs)))))))
+                                                        (list->set (symbolics bv-expr)))))))
 
 (define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
   (match primitive
@@ -298,7 +298,7 @@
        ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
        (complete-solution soln
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics logical-inputs))))))
+                                                   (list->set (symbolics bv-expr))))))
       #f))
 
 (define (synthesize-lattice-ecp5-for-ripple-pfu bv-expr)
@@ -378,7 +378,7 @@
        ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
        (complete-solution soln
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics logical-inputs))))))
+                                                   (list->set (symbolics bv-expr))))))
       #f))
 
 (define (synthesize-lattice-ecp5-for-pfu bv-expr)
@@ -442,5 +442,5 @@
        ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
        (complete-solution soln
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics logical-inputs))))))
+                                                   (list->set (symbolics bv-expr))))))
       #f))
