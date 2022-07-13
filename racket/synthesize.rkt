@@ -137,7 +137,10 @@
   ; (define logical-inputs
   ;   (map (lambda (v) (zero-extend v (bitvector max-input-bw))) (symbolics bv-expr)))
   (define logical-inputs
-    (map (lambda (v) (choose `(zero-extend ,v ,(bitvector max-input-bw)) `(dup-extend ,v ,(bitvector max-input-bw)))) (symbolics bv-expr)))
+    (map (lambda (v)
+           (choose `(zero-extend ,v ,(bitvector max-input-bw))
+                   `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+         (symbolics bv-expr)))
 
   (define lut-fn
     (match (length (symbolics bv-expr))
