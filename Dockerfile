@@ -23,6 +23,7 @@ RUN apt install -y \
   libfl2 \
   libgoogle-perftools-dev \
   libzmq3-dev \
+  llvm-14-tools \
   make \
   numactl \
   perl \
@@ -34,11 +35,6 @@ RUN apt install -y \
   zlib1g \
   zlib1g-dev \
   zlibc
-
-# Install LLVM. We need this for FileCheck.
-RUN wget https://apt.llvm.org/llvm.sh \
-  && chmod +x llvm.sh \
-  && ./llvm.sh 14
 
 # Make a binary for `lit`. If you're on Mac, you can install lit via Brew.
 # Ubuntu doesn't have a binary for it, but it is available on pip and is
