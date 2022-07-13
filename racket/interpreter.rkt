@@ -41,6 +41,10 @@
 
      ;;; Rosette functions lifted to our language.
      [`(zero-extend ,v ,bv) (zero-extend (interpret v) bv)]
+     ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
+     ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
+     ;;; ((union zero-extend dup-extend) v b) instead of (union (zero-extend v b) (dup-extend v b)).
+     ;;; The latter is a lot harder to deal with in the interpreter. How to stop this?
      [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv) (dup-extend (interpret v) bv)]
      [`(extract ,high ,low ,v) (extract high low (interpret v))]
      [`(concat ,v0 ,v1) (concat (interpret v0) (interpret v1))]
