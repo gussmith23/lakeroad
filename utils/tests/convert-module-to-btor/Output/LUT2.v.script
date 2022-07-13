@@ -1,0 +1,4 @@
+set -o pipefail;{ : 'RUN: at line 6';   tmpfile=$(mktemp); } &&
+{ : 'RUN: at line 7';   sed -E 's/^[[:space:]]*x_lut2_mux4/x_lut2_mux4 inst/' /Users/david/Documents/dev/lakeroad/lakeroad/utils/tests/convert-module-to-btor/LUT2.v > $tmpfile; } &&
+{ : 'RUN: at line 9';   python3 $LAKEROAD_DIR/utils/convert-module-to-btor.py    --infile $tmpfile --top LUT2 2>&1 | FileCheck /Users/david/Documents/dev/lakeroad/lakeroad/utils/tests/convert-module-to-btor/LUT2.v; } &&
+{ : 'RUN: at line 12';   rm $tmpfile; }
