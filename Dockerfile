@@ -23,7 +23,7 @@ RUN apt install -y \
   libfl2 \
   libgoogle-perftools-dev \
   libzmq3-dev \
-  llvm-14-tools \
+  llvm-13-tools \
   make \
   numactl \
   perl \
