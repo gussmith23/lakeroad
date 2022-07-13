@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Get add-apt-repository
 RUN apt update
@@ -22,10 +22,12 @@ RUN apt install -y \
   libfl-dev \
   libfl2 \
   libgoogle-perftools-dev \
+  libssl-dev \
   libzmq3-dev \
-  llvm-13-tools \
+  llvm-14-tools \
   make \
   numactl \
+  openssl \
   perl \
   perl-doc \
   python3 \
@@ -33,8 +35,7 @@ RUN apt install -y \
   racket \
   wget \
   zlib1g \
-  zlib1g-dev \
-  zlibc
+  zlib1g-dev
 
 # Make a binary for `lit`. If you're on Mac, you can install lit via Brew.
 # Ubuntu doesn't have a binary for it, but it is available on pip and is
