@@ -146,7 +146,7 @@
                  ;;; Rosette operators.
                  [(or (expression (== extract) high low v) `(extract ,high ,low ,v))
                   (drop (take (compile v) (add1 high)) low)]
-                 [(expression (== zero-extend) v bv-type)
+                 [(or (expression (== zero-extend) v bv-type) `(zero-extend ,v ,bv-type))
                   (append (compile v)
                           (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
                  [(or `(concat ,v0 ,v1) (expression (== concat) v0 v1))
