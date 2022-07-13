@@ -20,8 +20,7 @@
 ;;; Creates a bit vector of type ty such that it contains only
 ;;; the least significant digit of v.
 (define (dup-extend v ty)
-  (bv (- (bitvector->natural (lsb v))) ty))
-
+  (apply concat (make-list (bitvector-size ty) (lsb v))))
 
 (module+ test
   (require rackunit)
