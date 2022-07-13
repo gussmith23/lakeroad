@@ -2,6 +2,7 @@
 
 (provide bvlen
          bvtype
+         dup-extend
          bvexpr->cexpr
          json->verilog
          ??*
@@ -15,6 +16,12 @@
 ;;; Length of bitvector.
 (define (bvlen v)
   (length (bitvector->bits v)))
+
+;;; Creates a bit vector of type ty such that it contains only
+;;; the least significant digit of v.
+(define (dup-extend v ty)
+  (bv (- (bitvector->natural (lsb v))) ty))
+
 
 (module+ test
   (require rackunit)

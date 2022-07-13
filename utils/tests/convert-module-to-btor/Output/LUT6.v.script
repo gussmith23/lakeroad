@@ -1,0 +1,1 @@
+set -o pipefail;{ : 'RUN: at line 1';   python3 $LAKEROAD_DIR/utils/convert-module-to-btor.py    --infile /Users/david/Documents/dev/lakeroad/lakeroad/utils/tests/convert-module-to-btor/LUT6.v --top LUT6 --remove-lines-with '$finish'    --define XIL_XECLIB | FileCheck /Users/david/Documents/dev/lakeroad/lakeroad/utils/tests/convert-module-to-btor/LUT6.v; }

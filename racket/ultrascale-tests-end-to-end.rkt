@@ -30,6 +30,10 @@
 
   (current-solver (boolector))
 
+  (test-begin (define-symbolic s (bitvector 1))
+              (define-symbolic l0 l1 (bitvector 32))
+              (check-true (end-to-end-test (circt-comb-mux s l0 l1))))
+
   (test-begin (define-symbolic l0 l1 (bitvector 32))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
 
