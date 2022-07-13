@@ -41,7 +41,7 @@
 
      ;;; Rosette functions lifted to our language.
      [`(zero-extend ,v ,bv) (zero-extend (interpret v) bv)]
-     [`(dup-extend ,v ,bv) (dup-extend (interpret v) bv)]
+     [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv) (dup-extend (interpret v) bv)]
      [`(extract ,high ,low ,v) (extract high low (interpret v))]
      [`(concat ,v0 ,v1) (concat (interpret v0) (interpret v1))]
 

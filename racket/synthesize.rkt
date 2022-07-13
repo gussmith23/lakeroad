@@ -54,7 +54,6 @@
       `(extract ,(sub1 out-bw) 0 (first (physical-to-logical-mapping (bitwise) ,physical-outputs)))))
 
   (interpret lakeroad-expr)
-  (exit 1)
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
@@ -139,7 +138,10 @@
   ; (define logical-inputs
   ;   (map (lambda (v) (zero-extend v (bitvector max-input-bw))) (symbolics bv-expr)))
   (define logical-inputs
-    (map (lambda (v) (choose `(zero-extend ,v ,(bitvector max-input-bw)) `(dup-extend ,v ,(bitvector max-input-bw)))) (symbolics bv-expr)))
+    (map (lambda (v)
+           (choose `(zero-extend ,v ,(bitvector max-input-bw))
+                   `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+         (symbolics bv-expr)))
 
   (define lut-fn
     (match (length (symbolics bv-expr))
@@ -161,8 +163,7 @@
                 (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
                                                     ,physical-outputs)))))
 
-  (interpret lakeroad-expr)  (exit 1)
-
+  (interpret lakeroad-expr)
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
