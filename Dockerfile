@@ -45,7 +45,7 @@ RUN wget https://apt.llvm.org/llvm.sh \
 # installed later in this Dockerfile.
 WORKDIR /root
 RUN mkdir -p /root/.local/bin \
-  && echo "#!/usr/bin/env python" >> /root/.local/bin/lit \
+  && echo "#!/usr/bin/env python3" >> /root/.local/bin/lit \
   && echo "from lit.main import main" >> /root/.local/bin/lit \
   && echo "if __name__ == '__main__': main()" >> /root/.local/bin/lit \
   && chmod +x /root/.local/bin/lit
