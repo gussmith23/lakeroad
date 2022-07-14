@@ -334,6 +334,7 @@
                                             (interpreter c)
                                             (interpreter d))]
     [`(ultrascale-plus-lut6-2 ,init ,inputs) (interpret-ultrascale-plus-lut6-2 interpreter expr)]
+    [`(ultrascale-plus-lut3 ,init ,inputs) (lut init (interpreter inputs))]
     [`(ultrascale-plus-lut2 ,init ,inputs) (lut init (interpreter inputs))]
     [`(ultrascale-plus-lut1 ,init ,inputs) (lut init (interpreter inputs))]
     [`(ultrascale-plus-clb ,cin
