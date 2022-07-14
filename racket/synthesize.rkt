@@ -57,7 +57,7 @@
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -130,7 +130,7 @@
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -246,7 +246,7 @@
               (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
                                                   ,physical-outputs))))
   (define soln
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -302,7 +302,7 @@
                          [_ (error (format "Unsupported primitive ~a" primitive))])))))
 
   (define soln
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -382,7 +382,7 @@
   (interpret lakeroad-expr)
 
   (define soln
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -446,7 +446,7 @@
   (interpret lakeroad-expr)
 
   (define soln
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
