@@ -63,9 +63,9 @@ RUN git clone https://github.com/boolector/boolector \
 # architectures.
 WORKDIR /root
 RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-    wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
+  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
   else \
-    exit 1; \
+  exit 1; \
   fi \
   && tar xf oss-cad-suite.tgz
 ENV PATH="/root/oss-cad-suite/bin:${PATH}"
