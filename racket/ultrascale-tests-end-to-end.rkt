@@ -33,8 +33,8 @@
   ; mux tests
   (for ([sz (list 1 2 4 8 16 32)])
     (test-begin (define-symbolic l0 (bitvector 1))
-              (define-symbolic l1 l2 (bitvector sz))
-              (check-true (end-to-end-test (circt-comb-mux l0 l1 l2)))))
+                (define-symbolic l1 l2 (bitvector sz))
+                (check-true (end-to-end-test (circt-comb-mux l0 l1 l2)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 32))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
