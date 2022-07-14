@@ -121,11 +121,6 @@
                 (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
                                                     ,physical-outputs)))))
 
-  (error-print-width 1000000)
-  (displayln "fuck this shit")
-  (pretty-display lakeroad-expr)
-  (displayln "AAAAAAA")
-  (pretty-display (interpret lakeroad-expr))
   (interpret lakeroad-expr)
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
