@@ -135,11 +135,18 @@
   ;;; Zero-extend them so they're all the same size.
   ;;; TODO I think there's an error here --- Don't we need to pad to length 6?
   ; (define logical-inputs
-  ;   (map (lambda (v) (zero-extend v (bitvector max-input-bw))) (symbolics bv-expr)))
+  ;   (map (lambda (v)
+  ;          (if (not (= (bvlen v) max-input-bw)) (dup-extend v (bitvector max-input-bw)) v))
+  ;        (symbolics bv-expr)))
+  ; (define logical-inputs
+  ;   (map (lambda (v)
+  ;          (choose `(zero-extend ,v ,(bitvector max-input-bw))
+  ;                  `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+  ;        (symbolics bv-expr)))
   (define logical-inputs
     (map (lambda (v)
-           (choose `(zero-extend ,v ,(bitvector max-input-bw))
-                   `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+           (choose (zero-extend v (bitvector max-input-bw))
+                   (if (not (= (bvlen v) max-input-bw)) (dup-extend v (bitvector max-input-bw)) v)))
          (symbolics bv-expr)))
 
   (define lut-fn
@@ -164,6 +171,11 @@
                 (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
                                                     ,physical-outputs)))))
 
+  (error-print-width 1000000)
+  (displayln "fuck this shit")
+  (pretty-display lakeroad-expr)
+  (displayln "AAAAAAA")
+  (pretty-display (interpret lakeroad-expr))
   (interpret lakeroad-expr)
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
