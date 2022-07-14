@@ -13,7 +13,7 @@
 
 (define includes-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
 (define includes
-  (append (for/list ([mod (list "CARRY8.v" "LUT6_2.v" "LUT2.v" "LUT1.v")])
+  (append (for/list ([mod (list "CARRY8.v" "LUT6_2.v" "LUT3.v" "LUT2.v" "LUT1.v")])
             (format "~a/~a" includes-dir mod))
           (list (build-path (getenv "LAKEROAD_DIR") "verilator-unisims" "DSP48E2.v"))))
 (define (end-to-end-test bv-expr)
@@ -30,9 +30,10 @@
 
   (current-solver (boolector))
 
-  (test-begin (define-symbolic s (bitvector 1))
-              (define-symbolic l0 l1 (bitvector 32))
-              (check-true (end-to-end-test (circt-comb-mux s l0 l1))))
+  (test-begin (define-symbolic l0 (bitvector 1))
+              (define-symbolic l1 l2 (bitvector 2))
+              (check-true (end-to-end-test (circt-comb-mux l0 l1 l2))))
+
 
   (test-begin (define-symbolic l0 l1 (bitvector 32))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
