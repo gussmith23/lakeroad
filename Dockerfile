@@ -24,6 +24,7 @@ RUN apt install -y \
   libgoogle-perftools-dev \
   libssl-dev \
   libzmq3-dev \
+  llvm-14 \
   llvm-14-tools \
   make \
   numactl \
