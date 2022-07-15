@@ -25,7 +25,6 @@ RUN apt install -y \
   libssl-dev \
   libzmq3-dev \
   llvm-14 \
-  llvm-14-tools \
   make \
   numactl \
   openssl \
@@ -37,6 +36,10 @@ RUN apt install -y \
   wget \
   zlib1g \
   zlib1g-dev
+
+# Point to llvm-config binary. Alternatively, make sure you have a binary called
+# `llvm-config` on your PATH.
+ENV LLVM_CONFIG=llvm-config-14
 
 # Make a binary for `lit`. If you're on Mac, you can install lit via Brew.
 # Ubuntu doesn't have a binary for it, but it is available on pip and is
@@ -89,22 +92,13 @@ RUN pip install -r requirements.txt
 # raco (Racket) dependencies
 # First, fix https://github.com/racket/racket/issues/2691
 RUN raco setup --doc-index --force-user-docs
+RUN raco pkg install --deps search-auto --batch \
+  fmt \
+  rosette
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:$PATH"
-
-# If we want to use iRacket/Jupyter, we'll need the following:
-# Connect iRacket kernel to Jupyter Notebook.
-#RUN raco pkg install --auto iracket
-#RUN raco iracket install
-# Add "trusted" Racket kernel.
-#WORKDIR /root/.local/share/jupyter/kernels
-#RUN cp -r racket racket-trusted
-#RUN sed -i s/\"--\"/\"--\",\"-t\"/ racket-trusted/kernel.json
-#RUN sed -i s/\"display_name\":\"Racket\"/\"display_name\":\"Racket \(trusted\)\"/ racket-trusted/kernel.json
-
-RUN raco pkg install --deps search-auto --batch rosette
 
 WORKDIR /root/lakeroad
 ADD ./ ./
