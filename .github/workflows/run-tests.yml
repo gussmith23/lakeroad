@@ -7,8 +7,18 @@ on:
     branches: [ main ]
 
 jobs:
+
+  # TODO(@gussmith23) It would be nice if this wasn't necessary
+  cleaner:
+    runs-on: self-hosted
+    steps:
+      - name: Clean up previous runs
+        run: rm -rf "${{ github.workspace }}"
+
   run-tests:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    # Make sure we clean first.
+    needs: cleaner
     steps:
     - uses: actions/checkout@v2
       with:
