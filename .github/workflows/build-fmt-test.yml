@@ -20,7 +20,7 @@ jobs:
     # Make sure we clean first.
     needs: cleaner
     outputs:
-      tag: ${{ steps.generate-tag.tag}}
+      tag: ${{ steps.generate-tag.outputs.tag }}
 
     steps:
     - uses: actions/checkout@v3
