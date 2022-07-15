@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Get add-apt-repository
 RUN apt update
@@ -22,10 +22,12 @@ RUN apt install -y \
   libfl-dev \
   libfl2 \
   libgoogle-perftools-dev \
+  libssl-dev \
   libzmq3-dev \
-  llvm-13-tools \
+  llvm-14 \
   make \
   numactl \
+  openssl \
   perl \
   perl-doc \
   python3 \
@@ -33,8 +35,11 @@ RUN apt install -y \
   racket \
   wget \
   zlib1g \
-  zlib1g-dev \
-  zlibc
+  zlib1g-dev
+
+# Point to llvm-config binary. Alternatively, make sure you have a binary called
+# `llvm-config` on your PATH.
+ENV LLVM_CONFIG=llvm-config-14
 
 # Make a binary for `lit`. If you're on Mac, you can install lit via Brew.
 # Ubuntu doesn't have a binary for it, but it is available on pip and is
@@ -46,19 +51,6 @@ RUN mkdir -p /root/.local/bin \
   && echo "if __name__ == '__main__': main()" >> /root/.local/bin/lit \
   && chmod +x /root/.local/bin/lit
 ENV PATH="/root/.local/bin:${PATH}"
-
-# Install Yosys and other OSS hardware tools from prebuilt binaries.
-#
-# If we get an error here, we likely just need to add other branches for other
-# architectures.
-WORKDIR /root
-RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
-  else \
-  exit 1; \
-  fi \
-  && tar xf oss-cad-suite.tgz
-ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
 # Build and install latest boolector.
 WORKDIR /root
@@ -75,9 +67,9 @@ RUN git clone https://github.com/boolector/boolector \
 # architectures.
 WORKDIR /root
 RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-    wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
+  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
   else \
-    exit 1; \
+  exit 1; \
   fi \
   && tar xf oss-cad-suite.tgz
 ENV PATH="/root/oss-cad-suite/bin:${PATH}"
@@ -100,22 +92,13 @@ RUN pip install -r requirements.txt
 # raco (Racket) dependencies
 # First, fix https://github.com/racket/racket/issues/2691
 RUN raco setup --doc-index --force-user-docs
+RUN raco pkg install --deps search-auto --batch \
+  fmt \
+  rosette
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:$PATH"
-
-# If we want to use iRacket/Jupyter, we'll need the following:
-# Connect iRacket kernel to Jupyter Notebook.
-#RUN raco pkg install --auto iracket
-#RUN raco iracket install
-# Add "trusted" Racket kernel.
-#WORKDIR /root/.local/share/jupyter/kernels
-#RUN cp -r racket racket-trusted
-#RUN sed -i s/\"--\"/\"--\",\"-t\"/ racket-trusted/kernel.json
-#RUN sed -i s/\"display_name\":\"Racket\"/\"display_name\":\"Racket \(trusted\)\"/ racket-trusted/kernel.json
-
-RUN raco pkg install --deps search-auto --batch rosette
 
 WORKDIR /root/lakeroad
 ADD ./ ./

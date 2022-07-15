@@ -1,0 +1,60 @@
+name: Build Docker image, check formatting, and run tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  # TODO(@gussmith23) It would be nice if this wasn't necessary
+  cleaner:
+    runs-on: self-hosted
+    steps:
+      - name: Clean up previous runs
+        run: rm -rf "${{ github.workspace }}"
+  
+  build-docker-image:
+    runs-on: self-hosted
+    # Make sure we clean first.
+    needs: cleaner
+    outputs:
+      tag: ${{ steps.generate-tag.outputs.tag }}
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Generate Docker image tag
+      id: generate-tag
+      run: |
+        export TAG=lakeroad:$(date +%s)
+        echo "Docker image tag: $TAG"
+        echo "::set-output name=tag::$TAG"
+
+    - name: Build Docker image
+      run: |
+        DOCKER_BUILDKIT=1 docker build \
+          . \
+          --file Dockerfile \
+          --tag ${{ steps.generate-tag.outputs.tag }}
+
+  run-tests:
+    runs-on: self-hosted
+    needs: build-docker-image
+    steps:
+    - name: Run tests
+      run: docker run ${{ needs.build-docker-image.outputs.tag }} bash run-tests.sh
+
+  check-format:
+    runs-on: self-hosted
+    needs: build-docker-image
+    steps:
+    - name: Racket format check
+      run: |
+        docker run ${{ needs.build-docker-image.outputs.tag }} \
+          bash -c 'raco fmt -i racket/*.rkt && [ -z "$(git status --porcelain)" ]'
+    - name: Rust format check
+      run: docker run ${{ needs.build-docker-image.outputs.tag }} cargo fmt --manifest-path ./rust/Cargo.toml -- --check
