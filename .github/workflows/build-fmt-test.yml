@@ -39,7 +39,7 @@ jobs:
         DOCKER_BUILDKIT=1 docker build \
           . \
           --file Dockerfile \
-          --tag ${{ steps.build.outputs.tag }}
+          --tag ${{ steps.generate-tag.outputs.tag }}
 
   run-tests:
     runs-on: self-hosted
