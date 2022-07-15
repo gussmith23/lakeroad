@@ -44,12 +44,14 @@ jobs:
   run-tests:
     runs-on: self-hosted
     needs: build-docker-image
+    steps:
     - name: Run tests
       run: docker run ${{ needs.build-docker-image.outputs.tag }} bash run-tests.sh
 
   check-format:
     runs-on: self-hosted
     needs: build-docker-image
+    steps:
     - name: Run tests
       run: docker run ${{ needs.build-docker-image.outputs.tag }} bash run-tests.sh
     - name: Racket format check
