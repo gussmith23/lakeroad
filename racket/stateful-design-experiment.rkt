@@ -3,7 +3,8 @@
 ;;; which can be thought of as a wrapper over a Rosette bitvector, which carries along with it some
 ;;; hidden state. I think this may be a monad-ish idea...?
 
-(require rosette)
+(require rosette
+         racket/hash)
 
 ;;; value: (bv?). Represents the outwardly visible value tied to this signal.
 ;;;
@@ -60,6 +61,17 @@
     (assert (> (fuel) 0) "Out of fuel.")
     (parameterize ([fuel (sub1 (fuel))])
       body ...)))
+
+;;; Merge the state from each signal in a list of signals. Errors if signals conflict.
+(define (merge-state signals)
+  (keyword-apply
+   hash-union
+   '(#:combine/key)
+   (list (λ (k a b)
+           (if (not (equal? a b))
+               (error (format "Key ~a is mapped to two different values in the states!" k))
+               a)))
+   (map (λ (signal) (signal-state signal)) signals)))
 
 (module+ test
   (require rosette/solver/smt/boolector)
@@ -169,4 +181,93 @@
       (evaluate clock-ticks
                 (solve (begin
                          (assert (bveq (bv 9 8) (signal-value (tick-counter clock-ticks)))))))
-      (bv 9 bw)))))
+      (bv 9 bw))))
+
+  ;;; (Simulated) pipelined multiplier, that gives its output in 3 cycles.
+  (define (pipelined-multiplier clk a b)
+    (let* (;
+           [merged-state (merge-state (list clk a b))]
+           [old-clk (if (hash-has-key? merged-state 'clk) (hash-ref merged-state 'clk) (bv 0 1))]
+           [current-clk (signal-value clk)]
+           [clock-ticked (rising-edge old-clk current-clk)]
+           [old-pipeline-register-0 (if (hash-has-key? merged-state 'pipeline-register-0)
+                                        (hash-ref merged-state 'pipeline-register-0)
+                                        (bv 0 8))]
+           [old-pipeline-register-1 (if (hash-has-key? merged-state 'pipeline-register-1)
+                                        (hash-ref merged-state 'pipeline-register-1)
+                                        (bv 0 8))]
+           [old-pipeline-register-2 (if (hash-has-key? merged-state 'pipeline-register-0)
+                                        (hash-ref merged-state 'pipeline-register-2)
+                                        (bv 0 8))]
+           [new-pipeline-register-0
+            (if clock-ticked (bvmul (signal-value a) (signal-value b)) old-pipeline-register-0)]
+           [new-pipeline-register-1 (if clock-ticked old-pipeline-register-0 old-pipeline-register-1)]
+           [new-pipeline-register-2 (if clock-ticked old-pipeline-register-1 old-pipeline-register-2)]
+           [out (signal new-pipeline-register-2
+                        (hash 'clk
+                              current-clk
+                              'pipeline-register-0
+                              new-pipeline-register-0
+                              'pipeline-register-1
+                              new-pipeline-register-1
+                              'pipeline-register-2
+                              new-pipeline-register-2))])
+      out))
+
+  (test-case
+   "Figuring out how many cycles it takes to get the output from a pipelined multiplier"
+   (begin ;
+
+     ;;; Tick the counter n times. previous-value is the previous return value of the counter, which
+     ;;; defaults to the initial result of a counter.
+     ;;;
+     ;;; TODO(@gussmith23): defaulting to an empty signal is weird.
+     ;;;
+     ;;; TODO(@gussmith23): Ticking a clock will be a common pattern; it'd be nice to have a helper
+     ;;; function for it.
+     (define-bounded (tick-clock n
+                                 [a (bv 0 8)]
+                                 [b (bv 0 8)]
+                                 #:previous-value [previous-value
+                                                   (pipelined-multiplier (bv->signal (bv 0 1))
+                                                                         (bv->signal (bv 0 8))
+                                                                         (bv->signal (bv 0 8)))])
+                     (if (bvzero? n)
+                         ;;; If we've run all requested ticks, return the previous value.
+                         previous-value
+                         ;;; Else, recurse.
+                         (let* ([out0 (pipelined-multiplier (bv->signal (bv 0 1) previous-value)
+                                                            (bv->signal a)
+                                                            (bv->signal b))]
+                                [out1 (pipelined-multiplier (bv->signal (bv 1 1) out0)
+                                                            (bv->signal a)
+                                                            (bv->signal b))])
+                           (tick-clock (bvsub1 n) #:previous-value out1))))
+
+     (check-equal? (signal-value (experimental-interpreter (tick-clock (bv 0 8) (bv 8 8) (bv 2 8))))
+                   (bv 0 8))
+     (check-equal? (signal-value (experimental-interpreter (tick-clock (bv 1 8) (bv 8 8) (bv 2 8))))
+                   (bv 0 8))
+     (check-equal? (signal-value (experimental-interpreter (tick-clock (bv 2 8) (bv 8 8) (bv 2 8))))
+                   (bv 0 8))
+     (check-equal? (signal-value (experimental-interpreter (tick-clock (bv 3 8) (bv 8 8) (bv 2 8))))
+                   (bv 16 8))
+
+     ;;; Now let's do synthesis over the number of clock ticks! Here, we'll ask Rosette to figure out
+     ;;; how many clock ticks it takes to do a multiply with this multiplier.
+
+     ;;; The number of clock ticks to run. Note: it's symbolic!
+     (define bw 8)
+     (define-symbolic clock-ticks (bitvector bw))
+     (define-symbolic a b (bitvector 8))
+
+     ;;; Ask Rosette: how many clock-ticks do we need such that the output of the multiplier is always
+     ;;; a*b (for any a and b) after clock-ticks cycles? The answer is 3!
+     (check-equal?
+      (evaluate clock-ticks
+                (synthesize #:forall (list a b)
+                            #:guarantee (begin
+                                          (assert (bveq (bvmul a b)
+                                                        (signal-value
+                                                         (tick-clock clock-ticks a b)))))))
+      (bv 3 bw)))))
