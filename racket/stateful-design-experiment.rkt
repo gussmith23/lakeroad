@@ -3,6 +3,11 @@
 ;;; which can be thought of as a wrapper over a Rosette bitvector, which carries along with it some
 ;;; hidden state. I think this may be a monad-ish idea...?
 
+(provide signal
+         bv->signal
+         signal-value
+         merge-state)
+
 (require rosette
          racket/hash)
 

@@ -1977,3 +1977,136 @@ here-string-delimiter
                 (assert (bveq O5 lrO5))
                 (assert (bveq O6 lrO6))))
       (unsat)))))
+
+(require "stateful-design-experiment.rkt")
+
+(define (parse-btor-new str)
+
+  ;;; Maps ids (number) to signals.
+  (define h (make-hash))
+  (define (get id)
+    (hash-ref h id))
+  (define (get-str id-str)
+    (get (string->number id-str)))
+
+  ;;; Input signals.
+  (define ins (list))
+  ;;; Output signals.
+  (define outs (make-hash))
+  ;;; States. Maps ids (integers) to signals.
+  (define state (make-hash))
+
+  ;;; The state collected from the input.
+  (define input-state (hash))
+
+  (for ([line (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
+                      (string-split str #rx"\n+"))])
+    (match-let* ;;; Remove comments.
+     ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)]
+                                             [id (string->number id-str)])
+     (match tokens
+       [`("state" ,sort-id-str)
+        ;;; It should draw from the incoming state. But how? The problem is that, with our current
+        ;;; setup, i think you have to get the state value from a "nearby" signal that's also in
+        ;;; context. Does there need to be some kind of top level wrapper that holds state? state can
+        ;;; only be associated with values, but that doesn't make sense. what about a module that
+        ;;; takes no inputs (not even a clock) and yet has a state? Does that make sense? does it make
+        ;;; sense? I think that thing can only be a constant. If it doesn't take an input, there's
+        ;;; nothing to trigger internal state difference. A register doesn't work without a clock. if
+        ;;; you have a register, you need a clock, or the register won't function. You can have a
+        ;;; combinational loop, but that doesn't really make much sense in our framework. Or, it
+        ;;; could, but i guess it depends on what level we consider state changes as happening. For
+        ;;; the most part, I guess it's on the callee to determine what state they care to track.
+
+        ;;; The value is either
+        ;;;
+        ;;; - the lookup of the state id in the state dictionary, or
+        ;;;
+        ;;; - the init value, if it's not there.
+        ;;;
+        ;;; But what is the state dictionary? this is a context-dependent thing, isn't it?
+        ;;;
+        ;;; So I think there's a dict that we build up from a merger of the state values on the inputs
+        ;;; to the module, and then that's the dictionary we'd use here. So if there's no inputs,
+        ;;; there's no state. Does that make sense? State without input is a constant? I guess so.
+        ;;; it would always be the init value, or if there's no init value...well idk.
+        (let* ([name-symbol (string->symbol (format "state~a" id))])
+          ;;; From the collection of inputs, find the state value by name and convert it to a signal.
+          ;;; TODO handle init values.
+          ;;; TODO handle names.
+          (hash-set! h `(get-state ,ins ,name-symbol)))]
+       [`("sort" "bitvec" ,width-str) (hash-set! h id (bitvector (string->number width-str)))]
+       ;;; Sometimes the .btor files contain inputs without names. I'm unsure what these are. We just
+       ;;; ignore them for now.
+       [`("input" ,type-id-str)
+        (set! ins (append ins (list (string->symbol (format "unnamed-input-~a" id)))))
+        (hash-set! h id (string->symbol (format "unnamed-input-~a" id)))]
+       ;;; A named input should get a symbol representing it. That symbol will be looked up in the
+       ;;; call to the interpreter. We also actually don't do anything with the type anymore---we
+       ;;; could use it to do type checking, but for now we'll ignore it.
+       [`("input" ,type-id-str ,name)
+        (set! ins (append ins (list (string->symbol name))))
+        (hash-set! h id (string->symbol name))]
+       [`("const" ,type-id-str ,value-str)
+        (let* ([type (get-str type-id-str)] [value (string->number value-str 2)])
+          (hash-set! h id (bv->signal (bv value type))))]
+       [`("ite" ,type-id-str ,cond-id-str ,true-val-id-str ,false-val-id-str)
+        (let ([true-val (get-str true-val-id-str)]
+              [false-val (get-str false-val-id-str)]
+              [cond-val (get-str cond-id-str)])
+          (hash-set! h id `(if ,cond-val ,true-val ,false-val)))]
+       [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
+        (let ([signal (get-str val-id-str)])
+          (hash-set! h id `(extract ,(string->number u-str) ,(string->number l-str) ,signal)))]
+       [`("output" ,id-str ,name)
+        (hash-set! outs name (get-str id-str))
+        (hash-set! h id (get-str id-str))]
+       [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
+        (let ([signal (get-str in-id-str)])
+          (hash-set! h id `(zero-extend ,signal ,(get-str out-type-id-str))))]
+
+       [`("not" ,out-type-id-str ,in-id-str)
+        (let ([signal (get-str in-id-str)]) (hash-set! h id `(bvnot signal)))]
+       [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
+        (let ([a (get-str a-id-str)] [b (get-str b-id-str)]) (hash-set! h id `(bveq a b)))])))
+
+  (list ins outs))
+
+(module+ test
+  (test-case
+   "Parse and verify a stateful design"
+   (check-exn
+    #rx"hash-set!: arity mismatch"
+    (lambda ()
+      (begin
+        (parse-btor-new
+         #<<here-string-delimiter
+1 sort bitvec 1
+2 input 1 clk
+3 input 1 rst
+4 sort bitvec 8
+5 const 4 00000000
+6 state 4
+7 init 4 6 5
+8 state 4
+9 init 4 8 5
+10 const 1 1
+11 state 1
+12 init 1 11 10
+13 sort bitvec 2
+14 concat 13 2 11
+15 const 13 10
+16 eq 1 14 15
+17 ite 4 16 8 6
+18 output 17 out
+19 uext 4 10 7
+20 add 4 17 19
+21 uext 4 20 0 counter_incremented
+22 uext 4 17 0 counter_reg
+23 next 4 6 17
+24 ite 4 3 5 20
+25 next 4 8 24
+26 next 1 11 2
+here-string-delimiter
+         ;
+         ))))))
