@@ -4,7 +4,10 @@
          bvtype
          bvexpr->cexpr
          json->verilog
-         make-n-symbolics)
+         ??*
+         make-n-symbolics
+         rdisplayln
+         rprintf)
 
 (require rosette
          rosette/base/core/polymorphic)
@@ -97,3 +100,24 @@
     x)
   (for/list ([x (range n)])
     (helper)))
+
+(define (??* shape)
+  (define (helper)
+    (define-symbolic* x shape)
+    x)
+  (helper))
+
+;; This function displays a new line with the value v and then returns the value
+(define (rdisplayln v)
+  (displayln v)
+  v)
+
+;; This function prints a value using printf syntax and then returns a value.
+;; By default rprintf returns the first argument passed as a format string.
+;; This can be overridden by specifying the #:RETURN argument (defaults to
+;; 'default-return-value)
+(define (rprintf s #:RETURN [return 'default-return-value] . args)
+  (apply printf s args)
+  ;; Now return the value. Default to the first argument unless another value
+  ;; was passed.
+  (if (equal? return 'default-return-value) (if (empty? args) #f (first args)) return))
