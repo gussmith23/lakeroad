@@ -5,6 +5,7 @@
          "lut.rkt"
          "sofa.rkt"
          "synthesize.rkt"
+         "circt-comb-operators.rkt"
          rosette)
 
 (define sofa-lut4
@@ -79,6 +80,11 @@
   ;;;                      (displayln (format "i: ~a, j: ~a" i j))
   ;;;                      (set! i (add1 i))
   ;;;                      ))
+
+  (for ([sz (list 1 2 4 8 16 32)])
+    (test-begin (define-symbolic l0 (bitvector 1))
+                (define-symbolic l1 l2 (bitvector sz))
+                (check-true (end-to-end-test (circt-comb-mux l0 l1 l2)))))
 
   (test-begin (define-symbolic l0 l1 l2 l3 (bitvector 1))
               (check-true (end-to-end-test (bvand (bvand l0 l1) (bvand l2 l3))))

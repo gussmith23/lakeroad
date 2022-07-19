@@ -42,7 +42,10 @@
   ;;; Zero-extend them so they're all the same size.
   ;;; Pad so there's 4 logical inputs.
   (define logical-inputs
-    (append (map (lambda (v) (zero-extend v (bitvector max-input-bw))) (symbolics bv-expr))
+    (append (map (lambda (v)
+                   (choose `(zero-extend ,v ,(bitvector max-input-bw))
+                           `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+                 (symbolics bv-expr))
             (make-list (- 4 (length (symbolics bv-expr))) (bv 0 max-input-bw))))
 
   (define lutmem (?? (bitvector 16)))
@@ -61,7 +64,12 @@
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
-  (if (sat? soln) (evaluate lakeroad-expr soln) #f))
+  (if (sat? soln)
+      (evaluate lakeroad-expr
+                (complete-solution soln
+                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                            (list->set (symbolics bv-expr))))))
+      #f))
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression
 ;;; using smaller LUTs.
@@ -328,7 +336,7 @@
   (define logical-inputs-per-pfu
     (for/list ([pfu-i (range num-pfus)])
       (for/list ([logical-input logical-inputs])
-        (extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
+        `(extract ,(sub1 (* 8 (add1 pfu-i))) ,(* 8 pfu-i) ,logical-input))))
 
   (match-define (list physical-output cout)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
@@ -336,6 +344,7 @@
                (match-let* ([(list accumulated-physical-output previous-cout) previous-out]
                             [(list this-pfu-physical-outputs this-cout)
                              (let ([pfu-out (make-lattice-ripple-pfu-expr
+                                             #:out-bw logical-input-width
                                              #:inputs logical-inputs
                                              #:CIN previous-cout
                                              #:INIT0 lutmem
@@ -408,7 +417,7 @@
   (define logical-inputs-per-pfu
     (for/list ([pfu-i (range num-pfus)])
       (for/list ([logical-input logical-inputs])
-        (extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
+        `(extract ,(sub1 (* 8 (add1 pfu-i))) ,(* 8 pfu-i) ,logical-input))))
 
   (define logical-output
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
@@ -429,6 +438,9 @@
   (define lakeroad-expr `(extract ,(sub1 out-bw) 0 ,logical-output))
 
   (interpret lakeroad-expr)
+
+  (error-print-width 1000000)
+  (pretty-display (interpret lakeroad-expr))
 
   (define soln
     (synthesize #:forall (symbolics bv-expr)
