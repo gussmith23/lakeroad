@@ -61,6 +61,13 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
+                 [`(ultrascale-plus-dsp48e2 ,_ ...)
+                  (make-ultrascale-plus-dsp48e2 compile
+                                                get-bits
+                                                add-cell
+                                                add-netname
+                                                add-parameter-default-value
+                                                expr)]
                  [`(sofa-lut4 ,_ ...)
 
                   (compile-sofa compile
