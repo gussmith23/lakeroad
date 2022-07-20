@@ -304,6 +304,8 @@
                                                         (list->set (symbolics bv-expr)))))))
 
 (define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
+
+  ; (printf "\033[32mSynthesizing BVExpr ~a with primitive ~a\033[0m\n" bv-expr primitive)
   (match primitive
     ['all (synthesize-lattice-ecp5-search-impl bv-expr)]
     ['pfu (synthesize-lattice-ecp5-for-pfu bv-expr)]
@@ -312,6 +314,7 @@
 
 ;; Recursively search through primitives to synthesize bv-expr
 (define (synthesize-lattice-ecp5-search-impl bv-expr #:primitives [primitives '(pfu ripple-pfu)])
+  ; (printf "\033[32mSynthesizing Search BVExpr ~a with primitives: ~a\033[0m\n" bv-expr primitives)
   (match primitives
     [(cons prim prims)
      (or (synthesize-lattice-ecp5-impl bv-expr #:primitive prim)
@@ -464,6 +467,7 @@
   ;;; The bitwidth that all logical inputs should be extended to.
   (define logical-input-width (* 8 num-pfus))
   (define logical-inputs (get-lattice-logical-inputs bv-expr #:expected-bw logical-input-width))
+  ; (printf "\033[34mLogical inputs:\033[0m ~a\n" logical-inputs)
 
   ;;; Split the logical inputs into groups, grouped by PFU.
   (define logical-inputs-per-pfu
@@ -491,8 +495,8 @@
 
   (interpret lakeroad-expr)
 
-  (error-print-width 1000000)
-  (pretty-display (interpret lakeroad-expr))
+  ; (error-print-width 1000000)
+  ; (pretty-display (interpret lakeroad-expr))
 
   (define soln
     (synthesize #:forall (symbolics bv-expr)

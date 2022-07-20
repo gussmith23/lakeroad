@@ -31,8 +31,8 @@
 
   ; (test-begin (displayln "and so i am become death, destroyer of worlds")
   ;             (define-symbolic l0 (bitvector 1))
-  ;             (define-symbolic l1 l2 (bitvector 8))
-  ;             (check-true (end-to-end-test (circt-comb-mux l0 l1 l2))))
+  ;             (define-symbolic l1 l2 (bitvector 32))
+  ;             (check-true (end-to-end-test (circt-comb-mux l0 l1 l2)))))
 
 
 
