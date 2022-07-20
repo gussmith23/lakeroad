@@ -13,7 +13,7 @@
 
 (define includes-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
 (define includes
-  (append (for/list ([mod ([mod (list "CARRY8.v" "LUT6_2.v" "LUT3.v" "LUT2.v" "LUT1.v")])])
+  (append (for/list ([mod (list "CARRY8.v" "LUT6_2.v" "LUT3.v" "LUT2.v" "LUT1.v")])
             (format "~a/~a" includes-dir mod))
           (list (build-path (getenv "LAKEROAD_DIR") "verilator-unisims" "DSP48E2.v"))))
 (define (end-to-end-test bv-expr)
