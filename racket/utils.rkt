@@ -89,7 +89,7 @@
     [(? concrete? (? (bitvector 12) a)) (format "((uint16_t) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 16) a)) (format "((uint16_t) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 32) a)) (format "((uint32_t) ~a)" (bitvector->natural a))]
-    [(? constant? a) (~a a)]))
+    [(? constant? a) (format "(~a & ~a)" a (- (expt 2 (bvlen a)) 1))]))
 
 (define (json->verilog json verilog #:logfile [logfile "/dev/null"])
   (let ([command
