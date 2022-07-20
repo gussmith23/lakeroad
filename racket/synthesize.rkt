@@ -71,6 +71,57 @@
                                                             (list->set (symbolics bv-expr))))))
       #f))
 
+;;; Attempt to synthesize expression using a DSP.
+(define (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
+  (let/ec
+   return
+   (begin
+
+     ;;; Only supporting 4 inputs, a, b, c, d.
+     (when (> (length (symbolics bv-expr)) 4)
+       (return #f))
+
+     (define in0 (if (>= (length (symbolics bv-expr)) 1) (list-ref (symbolics bv-expr) 0) (bv 0 1)))
+     (define in1 (if (>= (length (symbolics bv-expr)) 2) (list-ref (symbolics bv-expr) 1) (bv 0 1)))
+     (define in2 (if (>= (length (symbolics bv-expr)) 3) (list-ref (symbolics bv-expr) 2) (bv 0 1)))
+     (define in3 (if (>= (length (symbolics bv-expr)) 4) (list-ref (symbolics bv-expr) 3) (bv 0 1)))
+
+     (define a (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 30)))
+     (define b (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 18)))
+     (define c (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 48)))
+     (define d (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 27)))
+
+     (define lakeroad-expr
+       `(extract ,(sub1 (bitvector-size (type-of bv-expr)))
+                 0
+                 (first (ultrascale-plus-dsp48e2 ,a ,b ,c ,d))))
+
+     (interpret lakeroad-expr)
+     (define soln
+       ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+       ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+       (synthesize #:forall (symbolics bv-expr)
+                   #:guarantee (begin
+                                 (assert (bveq bv-expr (interpret lakeroad-expr))))))
+
+     (if (sat? soln)
+         (begin
+           (displayln "found dsp soln!")
+           (evaluate lakeroad-expr
+                     (complete-solution soln
+                                        (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                                 (list->set (symbolics bv-expr)))))))
+         #f))))
+
+(module+ test
+  (require rosette/solver/smt/boolector
+           rackunit)
+  (current-solver (boolector))
+  (check-true
+   (normal? (with-vc (begin
+                       (define-symbolic a b (bitvector 8))
+                       (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-dsp (bvmul a b))))))))
+
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression
 ;;; using smaller LUTs.
 (define (synthesize-xilinx-ultrascale-plus-impl-smaller-luts bv-expr)
@@ -149,13 +200,15 @@
 ;;; let the user specify the depth to search over and other parameters. At the very least, start by
 ;;; defining those as keyword args with default values.
 (define (synthesize-xilinx-ultrascale-plus-impl bv-expr)
-  (if (empty? (symbolics bv-expr))
-      ;;; If the expression is a constant, then it's a valid Lakeroad expression. Return it!
-      bv-expr
-      (let ([out (synthesize-xilinx-ultrascale-plus-impl-smaller-luts bv-expr)])
-        (if (not (equal? #f out))
-            out
-            (synthesize-xilinx-ultrascale-plus-impl-kitchen-sink bv-expr)))))
+  ;;; TODO replace the ifs by folding them into the or statement. Using or is much cleaner.
+  (or (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
+      (if (empty? (symbolics bv-expr))
+          ;;; If the expression is a constant, then it's a valid Lakeroad expression. Return it!
+          bv-expr
+          (let ([out (synthesize-xilinx-ultrascale-plus-impl-smaller-luts bv-expr)])
+            (if (not (equal? #f out))
+                out
+                (synthesize-xilinx-ultrascale-plus-impl-kitchen-sink bv-expr))))))
 
 ;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
 ;;; This is our original synthesis implementation, and remains our fallback.

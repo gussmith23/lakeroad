@@ -1977,3 +1977,272 @@ here-string-delimiter
                 (assert (bveq O5 lrO5))
                 (assert (bveq O6 lrO6))))
       (unsat)))))
+
+(require "stateful-design-experiment.rkt")
+
+(define (parse-btor-new str)
+
+  ;;; Maps ids (number) to signals.
+  (define h (make-hash))
+  (define (get id)
+    (hash-ref h id))
+  (define (get-str id-str)
+    (get (string->number id-str)))
+
+  ;;; Input signals.
+  (define ins (list))
+
+  ;;; Outputs. Maps name (string) to id in h of the expression defining the output.
+  (define outs (make-hash))
+
+  ;;; States. Maps ids (integers) to signals.
+  (define state (make-hash))
+
+  ;;; Maps IDs to state symbols.
+  (define state-symbols (make-hash))
+
+  ;;; The state collected from the input.
+  (define input-state (make-hash))
+
+  (define output-state (make-hash))
+
+  ;;; Initial values of states. Maps state symbol (e.g. 'state0) to expression representing the state
+  ;;; value.
+  (define init-states (make-hash))
+
+  (for ([line (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
+                      (string-split str #rx"\n+"))])
+    (match-let* ;;; Remove comments.
+     ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)]
+                                             [id (string->number id-str)])
+     (match tokens
+       [`("next" ,sort-id-str ,state-id-str ,next-val-id-str)
+        ;;; A next statement determines the value of the state var that we return out.
+        ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
+        ;;; the output value for the state.
+        (hash-set! output-state
+                   (hash-ref state-symbols (string->number state-id-str))
+                   (get-str next-val-id-str))
+        ;;; We don't put anything in h for next statements.
+        ]
+       [`("init" ,sort-id-str ,state-id-str ,val-id-str)
+
+        (hash-set! init-states
+                   (hash-ref state-symbols (string->number state-id-str))
+                   (get-str val-id-str))]
+       [`("state" ,sort-id-str)
+        ;;; It should draw from the incoming state. But how? The problem is that, with our current
+        ;;; setup, i think you have to get the state value from a "nearby" signal that's also in
+        ;;; context. Does there need to be some kind of top level wrapper that holds state? state can
+        ;;; only be associated with values, but that doesn't make sense. what about a module that
+        ;;; takes no inputs (not even a clock) and yet has a state? Does that make sense? does it make
+        ;;; sense? I think that thing can only be a constant. If it doesn't take an input, there's
+        ;;; nothing to trigger internal state difference. A register doesn't work without a clock. if
+        ;;; you have a register, you need a clock, or the register won't function. You can have a
+        ;;; combinational loop, but that doesn't really make much sense in our framework. Or, it
+        ;;; could, but i guess it depends on what level we consider state changes as happening. For
+        ;;; the most part, I guess it's on the callee to determine what state they care to track.
+
+        ;;; The value is either
+        ;;;
+        ;;; - the lookup of the state id in the state dictionary, or
+        ;;;
+        ;;; - the init value, if it's not there.
+        ;;;
+        ;;; But what is the state dictionary? this is a context-dependent thing, isn't it?
+        ;;;
+        ;;; So I think there's a dict that we build up from a merger of the state values on the inputs
+        ;;; to the module, and then that's the dictionary we'd use here. So if there's no inputs,
+        ;;; there's no state. Does that make sense? State without input is a constant? I guess so.
+        ;;; it would always be the init value, or if there's no init value...well idk.
+        (let* ([name-symbol (string->symbol (format "state~a" id))])
+          ;;; From the collection of inputs, find the state value by name and convert it to a signal.
+          ;;; TODO handle init values.
+          ;;; TODO handle names.
+          (hash-set! state-symbols id name-symbol)
+          (hash-set! h id `(get-state ,ins ,name-symbol)))]
+       [`("sort" "bitvec" ,width-str) (hash-set! h id (bitvector (string->number width-str)))]
+       ;;; Sometimes the .btor files contain inputs without names. I'm unsure what these are. We just
+       ;;; ignore them for now.
+       [`("input" ,type-id-str)
+        (set! ins (append ins (list (string->symbol (format "unnamed-input-~a" id)))))
+        (hash-set! h id (string->symbol (format "unnamed-input-~a" id)))]
+       ;;; A named input should get a symbol representing it. That symbol will be looked up in the
+       ;;; call to the interpreter. We also actually don't do anything with the type anymore---we
+       ;;; could use it to do type checking, but for now we'll ignore it.
+       [`("input" ,type-id-str ,name)
+        (set! ins (append ins (list (string->symbol name))))
+        (hash-set! h id (string->symbol name))]
+       [`("const" ,type-id-str ,value-str)
+        (let* ([type (get-str type-id-str)] [value (string->number value-str 2)])
+          (hash-set! h id (bv->signal (bv value type))))]
+       [`("ite" ,type-id-str ,cond-id-str ,true-val-id-str ,false-val-id-str)
+        (let ([true-val (get-str true-val-id-str)]
+              [false-val (get-str false-val-id-str)]
+              [cond-val (get-str cond-id-str)])
+          (hash-set! h id `(if ,cond-val ,true-val ,false-val)))]
+       [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
+        (let ([signal (get-str val-id-str)])
+          (hash-set! h id `(extract ,(string->number u-str) ,(string->number l-str) ,signal)))]
+       [`("output" ,id-str ,name)
+        (hash-set! outs (string->symbol name) (string->number id-str))
+        ;;;(hash-set! h id (get-str id-str))
+        ]
+       [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
+        (let ([signal (get-str in-id-str)])
+          (hash-set! h id `(zero-extend ,signal ,(get-str out-type-id-str))))]
+       [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
+        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+          (hash-set! h id `(concat ,a-signal ,b-signal)))]
+       [`("add" ,out-type-id-str ,a-id-str ,b-id-str)
+        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+          (hash-set! h id `(bvadd ,a-signal ,b-signal)))]
+       [`("not" ,out-type-id-str ,in-id-str)
+        (let ([signal (get-str in-id-str)]) (hash-set! h id `(bvnot ,signal)))]
+       [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
+        (let ([a (get-str a-id-str)] [b (get-str b-id-str)]) (hash-set! h id `(bveq ,a ,b)))])))
+
+  ;;; Update outputs to have new output states.
+  (define new-outs
+    (foldl (λ (k new-outs)
+             (hash-set new-outs k `(set-state ,(hash-ref h (hash-ref outs k)) ,output-state)))
+           (hash)
+           (hash-keys outs)))
+
+  (list ins new-outs init-states output-state))
+
+(module+ test
+  (test-case
+   "Parse and verify a stateful design"
+   (begin
+
+     ;;; Expressions all have signal values.
+     ;;;
+     ;;; expr: Expression to be interpreted.
+     ;;;
+     ;;; env: Maps symbols to expressions.
+     ;;;
+     ;;; init: Maps symbols to bitvectors. Initial values of states.
+     (define (new-interpreter expr env init)
+       (match expr
+         [`(set-state ,signal-expr ,(? hash? state-hash))
+          (let* ([s (new-interpreter signal-expr env init)]
+                 [new-state (foldl (λ (k new-state)
+                                     (hash-set new-state
+                                               k
+                                               (signal-value
+                                                (new-interpreter (hash-ref state-hash k) env init))))
+                                   (hash)
+                                   (hash-keys state-hash))])
+            (signal (signal-value s) new-state))]
+         ;;; Get a state value from the merged states of the provided list of signals. Otherwise, use
+         ;;; the initial value of the state.
+         ;;;
+         ;;; We can also implement this for the case of a single signal expr, I just haven't needed it
+         ;;; yet.
+         ;;;
+         ;;; Returns the value of the state as a signal without any state attached.
+         [`(get-state ,(? list? signal-exprs-list) ,(? symbol? state-symbol))
+          (let* ([signals-list (map (λ (signal-expr) (new-interpreter signal-expr env init))
+                                    signal-exprs-list)]
+                 [merged-state (merge-state signals-list)]
+                 [state-value
+                  (if (hash-has-key? merged-state state-symbol)
+                      ;;; TODO this seems kinda messy: if the state is in the merged-state hashtable,
+                      ;;; it's a bv; if it's not and we have to resort to init, then it's a signal. If
+                      ;;; it's a bv, we have to convert it to signal. Feels like the types aren't
+                      ;;; lining up cleanly.
+                      (bv->signal (hash-ref merged-state state-symbol))
+                      (hash-ref init state-symbol))])
+            (when (not (signal? state-value))
+              (error "Expected signal"))
+            (when (not (bv? (signal-value state-value)))
+              (error "Signal value invalid"))
+            state-value)]
+
+         [`(if ,cond-expr ,true-expr ,false-expr)
+          (if (bitvector->bool (signal-value (new-interpreter cond-expr env init)))
+              (new-interpreter true-expr env init)
+              (new-interpreter false-expr env init))]
+         [`(bveq ,a ,b)
+          (let* ([a (new-interpreter a env init)] [b (new-interpreter b env init)])
+            (signal (bool->bitvector (bveq (signal-value a) (signal-value b)))
+                    (merge-state (list a b))))]
+         [`(bvadd ,a ,b)
+          (let* ([a (new-interpreter a env init)] [b (new-interpreter b env init)])
+            (signal (bvadd (signal-value a) (signal-value b)) (merge-state (list a b))))]
+         [`(zero-extend ,val ,type)
+          (let* ([val (new-interpreter val env init)] [type (new-interpreter type env init)])
+            (bv->signal (zero-extend (signal-value val) type) val))]
+         [`(concat ,a ,b)
+          (let* ([a (new-interpreter a env init)] [b (new-interpreter b env init)])
+            (signal (concat (signal-value a) (signal-value b)) (merge-state (list a b))))]
+         [(? signal?) expr]
+         [(? symbol?) (hash-ref env expr)]
+         [(? integer? n) n]
+         [(? bitvector?) expr]))
+
+     (match-define (list '(clk rst) (hash-table ('out out-expr)) init next)
+       (parse-btor-new
+        #<<here-string-delimiter
+1 sort bitvec 1
+2 input 1 clk
+3 input 1 rst
+4 sort bitvec 8
+5 const 4 00000000
+6 state 4
+7 init 4 6 5
+8 state 4
+9 init 4 8 5
+10 const 1 1
+11 state 1
+12 init 1 11 10
+13 sort bitvec 2
+14 concat 13 2 11
+15 const 13 10
+16 eq 1 14 15
+17 ite 4 16 8 6
+18 output 17 out
+19 uext 4 10 7
+20 add 4 17 19
+21 uext 4 20 0 counter_incremented
+22 uext 4 17 0 counter_reg
+23 next 4 6 17
+24 ite 4 3 5 20
+25 next 4 8 24
+26 next 1 11 2
+here-string-delimiter
+        ;
+        ))
+     (let* ([o0 (new-interpreter out-expr
+                                 (hash 'clk (bv->signal (bv 0 1)) 'rst (bv->signal (bv 0 1)))
+                                 init)]
+            [o1 (new-interpreter out-expr
+                                 (hash 'clk (bv->signal (bv 1 1) o0) 'rst (bv->signal (bv 0 1) o0))
+                                 init)]
+            [o2 (new-interpreter out-expr
+                                 (hash 'clk (bv->signal (bv 0 1) o1) 'rst (bv->signal (bv 0 1) o1))
+                                 init)]
+            [o3 (new-interpreter out-expr
+                                 (hash 'clk (bv->signal (bv 1 1) o2) 'rst (bv->signal (bv 0 1) o2))
+                                 init)]
+            [o4 (new-interpreter out-expr
+                                 (hash 'clk (bv->signal (bv 0 1) o3) 'rst (bv->signal (bv 0 1) o3))
+                                 init)]
+            [o5 (new-interpreter out-expr
+                                 (hash 'clk (bv->signal (bv 1 1) o4) 'rst (bv->signal (bv 0 1) o4))
+                                 init)]
+            [o6 (new-interpreter out-expr
+                                 (hash 'clk (bv->signal (bv 0 1) o5) 'rst (bv->signal (bv 0 1) o5))
+                                 init)]
+            [o7 (new-interpreter out-expr
+                                 (hash 'clk (bv->signal (bv 1 1) o6) 'rst (bv->signal (bv 0 1) o6))
+                                 init)])
+       (check-equal? (signal-value o0) (bv 0 8))
+       (check-equal? (signal-value o1) (bv 1 8))
+       (check-equal? (signal-value o2) (bv 1 8))
+       (check-equal? (signal-value o3) (bv 2 8))
+       (check-equal? (signal-value o4) (bv 2 8))
+       (check-equal? (signal-value o5) (bv 3 8))
+       (check-equal? (signal-value o6) (bv 3 8))
+       (check-equal? (signal-value o7) (bv 4 8))))))
