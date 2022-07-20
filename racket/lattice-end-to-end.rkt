@@ -5,6 +5,7 @@
          json
          rosette
          rosette/lib/synthax
+         racket/pretty
          "interpreter.rkt"
          "programs-to-synthesize.rkt"
          "lattice-ecp5.rkt"
@@ -19,6 +20,7 @@
 
 (define (end-to-end-test bv-expr)
   (displayln (format "Running end-to-end on ~a" bv-expr))
+  ; (pretty-display (synthesize-lattice-ecp5-impl bv-expr))
   (define result (simulate-expr (synthesize-lattice-ecp5-impl bv-expr) bv-expr #:includes includes))
   (clear-vc!)
   result)
