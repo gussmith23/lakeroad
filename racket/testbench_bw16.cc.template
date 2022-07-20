@@ -50,7 +50,7 @@ int main(int argc, char **argv, char **env)
               uint16_t expected = ~a & ((1 << ~a) - 1);
 
               // Uncoment this when you want to debug.
-              printf("~a with l0=%d l1=%d l2=%d  == %d, should equal %d\n", l0, l1, l2, out, expected);
+              // printf("~a with l0=%d l1=%d l2=%d  == %d, should equal %d\n", l0, l1, l2, out, expected);
 
               assert(out == expected);
             }
