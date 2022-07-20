@@ -637,7 +637,7 @@
   (let* ([a (sign-extend a (bitvector 48))]
          [b (sign-extend b (bitvector 48))]
          [d (sign-extend d (bitvector 48))]
-         [out (bvadd c (bvmul (bvadd d a) b))])
+         [out (bvmul (bvadd d a) b)])
     (list out)))
 
 (define (compile-ultrascale-plus-dsp48e2 dsp p-name clk-name a-name b-name c-name ce-name reset-name)
@@ -797,119 +797,103 @@ here-string-delimiter
                                       add-parameter-default-value
                                       expr)
   (match-let*
-   ([P (get-bits 48)]
-    [`(ultrascale-plus-dsp48e2 ,a ,b ,c ,d) expr]
-    [cell
-     (make-cell "DSP48E2"
-                (make-cell-port-directions (list 'A 'B 'C 'D 'OPMODE) (list 'P))
-                (hash 'A
-                      (compile a)
-                      'B
-                      (compile b)
-                      'C
-                      (compile c)
-                      'D
-                      (compile d)
-                      'P
-                      P
-                      ;;; Hardcoded to input multiply and C into the ALU. Otherwise, C is not input.
-                      ;;;
-                      ;;; Note: we should probably have a helper function for what I'm doing below.
-                      ;;; I'm just wiring up a port to a literal.
-                      'OPMODE
-                      (map ~a (map bitvector->natural (bitvector->bits (bv #b000110101 9)))))
-                #:params (hash 'AMULTSEL
-                               "A"
-                               'A_INPUT
-                               "DIRECT"
-                               'BMULTSEL
-                               "B"
-                               'B_INPUT
-                               "DIRECT"
-                               'PREADDINSEL
-                               "A"
-                               'RND
-                               (make-literal-value-from-bv (bv 0 48))
-                               'USE_MULT
-                               "MULTIPLY"
-                               'USE_SIMD
-                               "ONE48"
-                               'USE_WIDEXOR
-                               "FALSE"
-                               'XORSIMD
-                               "XOR24_48_96"
-                               'AUTORESET_PATDET
-                               "NO_RESET"
-                               'AUTORESET_PRIORITY
-                               "RESET"
-                               'MASK
-                               (make-literal-value-from-bv (bv #x3fffffffffff 48))
-                               'PATTERN
-                               (make-literal-value-from-bv (bv 0 48))
-                               'SEL_MASK
-                               "MASK"
-                               'SEL_PATTERN
-                               "PATTERN"
-                               'USE_PATTERN_DETECT
-                               "NO_PATDET"
-                               'IS_ALUMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 4))
-                               'IS_CARRYIN_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_CLK_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_INMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 5))
-                               'IS_OPMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 9))
-                               'IS_RSTALLCARRYIN_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTALUMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTA_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTB_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTCTRL_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTC_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTD_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTINMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTM_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTP_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'ACASCREG
-                               0
-                               'ADREG
-                               0
-                               'ALUMODEREG
-                               0
-                               'AREG
-                               0
-                               'BCASCREG
-                               0
-                               'BREG
-                               0
-                               'CARRYINREG
-                               0
-                               'CARRYINSELREG
-                               0
-                               'CREG
-                               0
-                               'DREG
-                               0
-                               'INMODEREG
-                               0
-                               'MREG
-                               0
-                               'OPMODEREG
-                               0
-                               'PREG
-                               0))])
+   ([P (get-bits 48)] [`(ultrascale-plus-dsp48e2 ,a ,b ,c ,d) expr]
+                      [cell
+                       (make-cell "DSP48E2"
+                                  (make-cell-port-directions (list 'A 'B 'C 'D 'OPMODE) (list 'P))
+                                  (hash 'A (compile a) 'B (compile b) 'D (compile d) 'P P)
+                                  #:params (hash 'AMULTSEL
+                                                 "A"
+                                                 'A_INPUT
+                                                 "DIRECT"
+                                                 'BMULTSEL
+                                                 "B"
+                                                 'B_INPUT
+                                                 "DIRECT"
+                                                 'PREADDINSEL
+                                                 "A"
+                                                 'RND
+                                                 (make-literal-value-from-bv (bv 0 48))
+                                                 'USE_MULT
+                                                 "MULTIPLY"
+                                                 'USE_SIMD
+                                                 "ONE48"
+                                                 'USE_WIDEXOR
+                                                 "FALSE"
+                                                 'XORSIMD
+                                                 "XOR24_48_96"
+                                                 'AUTORESET_PATDET
+                                                 "NO_RESET"
+                                                 'AUTORESET_PRIORITY
+                                                 "RESET"
+                                                 'MASK
+                                                 (make-literal-value-from-bv (bv #x3fffffffffff 48))
+                                                 'PATTERN
+                                                 (make-literal-value-from-bv (bv 0 48))
+                                                 'SEL_MASK
+                                                 "MASK"
+                                                 'SEL_PATTERN
+                                                 "PATTERN"
+                                                 'USE_PATTERN_DETECT
+                                                 "NO_PATDET"
+                                                 'IS_ALUMODE_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 4))
+                                                 'IS_CARRYIN_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_CLK_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_INMODE_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 5))
+                                                 'IS_OPMODE_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 9))
+                                                 'IS_RSTALLCARRYIN_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTALUMODE_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTA_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTB_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTCTRL_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTC_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTD_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTINMODE_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTM_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'IS_RSTP_INVERTED
+                                                 (make-literal-value-from-bv (bv 0 1))
+                                                 'ACASCREG
+                                                 0
+                                                 'ADREG
+                                                 0
+                                                 'ALUMODEREG
+                                                 0
+                                                 'AREG
+                                                 0
+                                                 'BCASCREG
+                                                 0
+                                                 'BREG
+                                                 0
+                                                 'CARRYINREG
+                                                 0
+                                                 'CARRYINSELREG
+                                                 0
+                                                 'CREG
+                                                 0
+                                                 'DREG
+                                                 0
+                                                 'INMODEREG
+                                                 0
+                                                 'MREG
+                                                 0
+                                                 'OPMODEREG
+                                                 0
+                                                 'PREG
+                                                 0))])
    (add-netname 'P (make-net-details P))
    (add-cell 'DSP48E2 cell)
    (list P)))
