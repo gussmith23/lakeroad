@@ -4,6 +4,7 @@
 ;;; hidden state. I think this may be a monad-ish idea...?
 
 (provide signal
+         signal?
          bv->signal
          signal-value
          merge-state)
