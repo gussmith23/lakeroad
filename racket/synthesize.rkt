@@ -106,7 +106,6 @@
 
      (if (sat? soln)
          (begin
-           (displayln "found dsp soln!")
            (evaluate lakeroad-expr
                      (complete-solution soln
                                         (set->list (set-subtract (list->set (symbolics lakeroad-expr))
