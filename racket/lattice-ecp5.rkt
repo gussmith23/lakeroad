@@ -41,7 +41,7 @@
     (map (lambda (v)
            (choose* `(zero-extend ,v ,(bitvector expected-bw))
                     `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector expected-bw))))
-           ; (if (= (bvlen v) expected-bw) v (dup-extend v (bitvector expected-bw))))
+         ; (if (= (bvlen v) expected-bw) v (dup-extend v (bitvector expected-bw))))
          (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
 
 ;;; Create a lakeroad expression for a pfu

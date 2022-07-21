@@ -36,16 +36,14 @@
   ;             (define-symbolic l1 l2 (bitvector 32))
   ;             (check-true (end-to-end-test (circt-comb-mux l0 l1 l2)))))
 
-
-
   ; (test-begin (displayln "AAAAAAAAAAAAAAA")
   ;             (define-symbolic a b (bitvector 2))
   ;             (define-symbolic s (bitvector 1))
   ;             (define lakeroad-expr
   ;                (get-lattice-logical-inputs (circt-comb-mux s a b) #:num-inputs 4 #:expected-bw 2))
   ;             (define soln (synthesize #:forall (list s a b)
-  ;                                      #:guarantee (begin 
-  ;                                      
+  ;                                      #:guarantee (begin
+  ;
   ;                                      (match-define (list lin0 lin1 lin2 lin3) (interpret lakeroad-expr) )
   ;                                      (assert (bveq lin0 (concat s s)))
   ;                                      (assert (bveq lin1 b))
@@ -72,7 +70,7 @@
               (check-true (end-to-end-test (bvmul l0 (bv 0 1))))
               (check-true (end-to-end-test (bvmul l0 (bv 1 1))))
               (check-true (end-to-end-test (circt-comb-mux l2 l0 l1))))
-  
+
   (test-begin (displayln "  -- 4 bit -- ")
               (define-symbolic l0 l1 (bitvector 4))
               (define-symbolic l2 (bitvector 1))
@@ -88,7 +86,7 @@
               (check-true (end-to-end-test (bvmul l0 (bv 0 4))))
               (check-true (end-to-end-test (bvmul l0 (bv 1 4))))
               (check-true (end-to-end-test (circt-comb-mux l2 l0 l1))))
-  
+
   (test-begin (displayln "  -- 5 bit -- ")
               (define-symbolic l0 l1 (bitvector 5))
               (define-symbolic l2 (bitvector 1))
@@ -104,7 +102,7 @@
               (check-true (end-to-end-test (bvmul l0 (bv 0 5))))
               (check-true (end-to-end-test (bvmul l0 (bv 1 5))))
               (check-true (end-to-end-test (circt-comb-mux l2 l0 l1))))
-  
+
   (test-begin (displayln "  -- 8 bit -- ")
               (define-symbolic l0 l1 (bitvector 8))
               (define-symbolic l2 (bitvector 1))
@@ -123,7 +121,7 @@
               ; (check-false (end-to-end-test (circt-comb-shl l0 (bv 1 8))))
               (check-true (end-to-end-test (circt-comb-shl l0 (bv 0 8))))
               (check-true (end-to-end-test (circt-comb-mux l2 l0 l1))))
-  
+
   (test-begin (displayln "  -- 12 bit -- ")
               (define-symbolic l0 l1 (bitvector 12))
               (define-symbolic l2 (bitvector 1))
@@ -142,7 +140,7 @@
               ; (check-false (end-to-end-test (circt-comb-shl l0 (bv 1 8))))
               (check-true (end-to-end-test (circt-comb-shl l0 (bv 0 12))))
               (check-true (end-to-end-test (circt-comb-mux l2 l0 l1))))
-  
+
   (test-begin (displayln "  -- 16 bit -- ")
               (define-symbolic l0 l1 (bitvector 16))
               (define-symbolic l2 (bitvector 1))
@@ -161,4 +159,3 @@
               ; (check-false (end-to-end-test (circt-comb-shl l0 (bv 1 8))))
               (check-true (end-to-end-test (circt-comb-shl l0 (bv 0 16))))
               (check-true (end-to-end-test (circt-comb-mux l2 l0 l1)))))
-  
