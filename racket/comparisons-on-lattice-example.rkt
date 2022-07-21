@@ -17,8 +17,6 @@
 ;;;    we need to implement some function f on the bits of a and b and merge those results with the
 ;;;    results of some function g on the bits of a and b.
 
-;;; Task list: integrate
-
 (module+ test
   (require rosette
            rosette/solver/smt/boolector
