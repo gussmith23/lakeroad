@@ -5,7 +5,6 @@
          json
          rosette
          rosette/lib/synthax
-         racket/pretty
          "interpreter.rkt"
          "programs-to-synthesize.rkt"
          "lattice-ecp5.rkt"
