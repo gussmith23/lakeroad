@@ -2,6 +2,7 @@
 
 (require rosette
          rosette/lib/synthax
+         rosette/lib/angelic
          "utils.rkt"
          "comp-json.rkt")
 
@@ -37,7 +38,9 @@
 ;;; Get logical inputs for an expression
 (define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4] #:expected-bw [expected-bw 8])
   (let ([symbs (symbolics bv-expr)] [out-bw (bvlen bv-expr)])
-    (map (lambda (v) (zero-extend v (bitvector expected-bw)))
+    (map (lambda (v)
+           (choose* `(zero-extend ,v ,(bitvector expected-bw))
+                    `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector expected-bw))))
          (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
 
 ;;; Create a lakeroad expression for a pfu
@@ -95,7 +98,8 @@
 ;;;
 ;;; The structure of this PFU is such that CIN feeds into the LUT0 (w/ memory
 ;;; INIT0), and the carry bit from LUT0 feeds into LUT1, etc.
-(define (make-lattice-ripple-pfu-expr #:inputs [inputs '()]
+(define (make-lattice-ripple-pfu-expr #:out-bw [out-bw 8]
+                                      #:inputs [inputs '()]
                                       #:CIN [CIN #f]
                                       #:INIT0 [INIT0 #f]
                                       #:INIT1 [INIT1 #f]
@@ -115,14 +119,13 @@
                                       #:INJECT1_7 [INJECT1_7 #f]
                                       #:MAPPING [MAPPING '(bitwise)])
 
-  (define fn-name "make-latticeripple-pfu-expr")
+  (define fn-name "make-lattice-ripple-pfu-expr")
   (when (> (length inputs) 4)
     (error (format "~a: inputs must be length 4 or less: ~a" fn-name inputs)))
 
-  (define out-bw (if (empty? inputs) 8 (bvlen (first inputs))))
-  (for ([input inputs])
-    (when (not ((bitvector out-bw) input))
-      (error (format "~a: all inputs must satisfy (bitvector ~a): ~a" fn-name out-bw input))))
+  ;(for ([input inputs])
+  ;  (when (not ((bitvector out-bw) input))
+  ;    (error (format "~a: all inputs must satisfy (bitvector ~a): ~a" fn-name out-bw input))))
 
   (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv -1 out-bw)))])
     `(lattice-ecp5-ripple-pfu ,(or INIT0 (?? (bitvector 16)))

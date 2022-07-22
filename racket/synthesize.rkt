@@ -42,7 +42,10 @@
   ;;; Zero-extend them so they're all the same size.
   ;;; Pad so there's 4 logical inputs.
   (define logical-inputs
-    (append (map (lambda (v) (zero-extend v (bitvector max-input-bw))) (symbolics bv-expr))
+    (append (map (lambda (v)
+                   (choose `(zero-extend ,v ,(bitvector max-input-bw))
+                           `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+                 (symbolics bv-expr))
             (make-list (- 4 (length (symbolics bv-expr))) (bv 0 max-input-bw))))
 
   (define lutmem (?? (bitvector 16)))
@@ -57,11 +60,16 @@
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
-  (if (sat? soln) (evaluate lakeroad-expr soln) #f))
+  (if (sat? soln)
+      (evaluate lakeroad-expr
+                (complete-solution soln
+                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                            (list->set (symbolics bv-expr))))))
+      #f))
 
 ;;; Attempt to synthesize expression using a DSP.
 (define (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
@@ -133,19 +141,23 @@
 
   ;;; Form the list of logical inputs.
   ;;; Zero-extend them so they're all the same size.
-  ;;; TODO I think there's an error here --- Don't we need to pad to length 6?
   (define logical-inputs
-    (map (lambda (v) (zero-extend v (bitvector max-input-bw))) (symbolics bv-expr)))
+    (map (lambda (v)
+           (choose `(zero-extend ,v ,(bitvector max-input-bw))
+                   `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+         (symbolics bv-expr)))
 
   (define lut-fn
     (match (length (symbolics bv-expr))
       [1 'ultrascale-plus-lut1]
-      [2 'ultrascale-plus-lut2]))
+      [2 'ultrascale-plus-lut2]
+      [3 'ultrascale-plus-lut3]))
 
   (define lutmem
     (match (length (symbolics bv-expr))
       [1 (?? (bitvector 2))]
-      [2 (?? (bitvector 4))]))
+      [2 (?? (bitvector 4))]
+      [3 (?? (bitvector 8))]))
 
   (define lakeroad-expr
     (let* ([physical-inputs `(logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse))
@@ -161,7 +173,7 @@
   (define soln
     ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
     ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -169,7 +181,7 @@
       (evaluate lakeroad-expr
                 (complete-solution soln
                                    (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                            (list->set (symbolics logical-inputs))))))
+                                                            (list->set (symbolics bv-expr))))))
       #f))
 
 (module+ test
@@ -279,7 +291,7 @@
               (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
                                                   ,physical-outputs))))
   (define soln
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -289,7 +301,7 @@
   (evaluate lakeroad-expr
             (complete-solution soln
                                (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                        (list->set (symbolics logical-inputs)))))))
+                                                        (list->set (symbolics bv-expr)))))))
 
 (define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
   (match primitive
@@ -335,7 +347,7 @@
                          [_ (error (format "Unsupported primitive ~a" primitive))])))))
 
   (define soln
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -345,7 +357,7 @@
        ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
        (complete-solution soln
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics logical-inputs))))))
+                                                   (list->set (symbolics bv-expr))))))
       #f))
 
 (define (synthesize-lattice-ecp5-for-ripple-pfu bv-expr)
@@ -376,7 +388,7 @@
   (define logical-inputs-per-pfu
     (for/list ([pfu-i (range num-pfus)])
       (for/list ([logical-input logical-inputs])
-        (extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
+        `(extract ,(sub1 (* 8 (add1 pfu-i))) ,(* 8 pfu-i) ,logical-input))))
 
   (match-define (list physical-output cout)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
@@ -384,6 +396,7 @@
                (match-let* ([(list accumulated-physical-output previous-cout) previous-out]
                             [(list this-pfu-physical-outputs this-cout)
                              (let ([pfu-out (make-lattice-ripple-pfu-expr
+                                             #:out-bw logical-input-width
                                              #:inputs logical-inputs
                                              #:CIN previous-cout
                                              #:INIT0 lutmem
@@ -415,7 +428,7 @@
   (interpret lakeroad-expr)
 
   (define soln
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -425,7 +438,7 @@
        ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
        (complete-solution soln
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics logical-inputs))))))
+                                                   (list->set (symbolics bv-expr))))))
       #f))
 
 (define (synthesize-lattice-ecp5-for-pfu bv-expr)
@@ -456,7 +469,7 @@
   (define logical-inputs-per-pfu
     (for/list ([pfu-i (range num-pfus)])
       (for/list ([logical-input logical-inputs])
-        (extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
+        `(extract ,(sub1 (* 8 (add1 pfu-i))) ,(* 8 pfu-i) ,logical-input))))
 
   (define logical-output
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
@@ -479,7 +492,7 @@
   (interpret lakeroad-expr)
 
   (define soln
-    (synthesize #:forall logical-inputs
+    (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
@@ -489,5 +502,5 @@
        ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
        (complete-solution soln
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics logical-inputs))))))
+                                                   (list->set (symbolics bv-expr))))))
       #f))

@@ -7,6 +7,7 @@
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
          "sofa.rkt"
+         "utils.rkt"
          rosette)
 
 (define (interpret expr)
@@ -18,6 +19,7 @@
      [`(physical-to-logical-mapping ,_ ...) (interpret-physical-to-logical-mapping interpret expr)]
      [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
      [`(ultrascale-plus-lut6-2 ,_ ...) (interpret-ultrascale-plus interpret expr)]
+     [`(ultrascale-plus-lut3 ,_ ...) (interpret-ultrascale-plus interpret expr)]
      [`(ultrascale-plus-lut2 ,_ ...) (interpret-ultrascale-plus interpret expr)]
      [`(ultrascale-plus-lut1 ,_ ...) (interpret-ultrascale-plus interpret expr)]
      [`(ultrascale-plus-dsp48e2 ,_ ...) (interpret-ultrascale-plus interpret expr)]
@@ -40,6 +42,11 @@
 
      ;;; Rosette functions lifted to our language.
      [`(zero-extend ,v ,bv) (zero-extend (interpret v) bv)]
+     ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
+     ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
+     ;;; ((union zero-extend dup-extend) v b) instead of (union (zero-extend v b) (dup-extend v b)).
+     ;;; The latter is a lot harder to deal with in the interpreter. How to stop this?
+     [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv) (dup-extend (interpret v) bv)]
      [`(extract ,high ,low ,v) (extract high low (interpret v))]
      [`(concat ,v0 ,v1) (concat (interpret v0) (interpret v1))]
 

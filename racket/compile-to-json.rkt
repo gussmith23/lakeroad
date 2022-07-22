@@ -122,6 +122,15 @@
                                        (make-cell-connections 'I0 i0 'I1 i1 'O (first o))
                                        #:params (hasheq 'INIT (make-literal-value-from-bv init))))
                   o]
+                 [`(ultrascale-plus-lut3 ,init ,inputs)
+                  (match-define (list i0 i1 i2) (compile inputs))
+                  (define o (get-bits 1))
+                  (add-cell 'lut3
+                            (make-cell "LUT3"
+                                       (make-cell-port-directions (list 'I0 'I1 'I2) (list 'O))
+                                       (make-cell-connections 'I0 i0 'I1 i1 'I2 i2 'O (first o))
+                                       #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+                  o]
                  [`(physical-to-logical-mapping ,_ ...)
                   (compile-physical-to-logical-mapping compile expr)]
                  [`(logical-to-physical-mapping ,_ ...)
@@ -137,11 +146,14 @@
                  ;;; Rosette operators.
                  [(or (expression (== extract) high low v) `(extract ,high ,low ,v))
                   (drop (take (compile v) (add1 high)) low)]
-                 [(expression (== zero-extend) v bv-type)
+                 [(or (expression (== zero-extend) v bv-type) `(zero-extend ,v ,bv-type))
                   (append (compile v)
                           (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
                  [(or `(concat ,v0 ,v1) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
+
+                 [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv-type)
+                  (make-list (bitvector-size bv-type) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
                  [(? bv? (? symbolic? (? constant? s)))
