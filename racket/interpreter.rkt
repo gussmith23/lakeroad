@@ -7,6 +7,7 @@
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
          "sofa.rkt"
+         "utils.rkt"
          rosette)
 
 (define (interpret expr)
