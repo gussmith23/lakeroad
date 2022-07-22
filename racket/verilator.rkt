@@ -29,7 +29,6 @@
 
   (define json-file (make-temporary-file "rkttmp~a.json"))
   (define verilog-file (make-temporary-file "rkttmp~a.v"))
-  ; (displayln verilog-file)
   (display-to-file (jsexpr->string (lakeroad->jsexpr lakeroad-expr)) json-file #:exists 'update)
 
   (match-let ([(list proc-stdout stdin proc-id stderr control-fn)
