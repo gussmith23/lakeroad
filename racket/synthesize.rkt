@@ -314,7 +314,6 @@
 
 ;; Recursively search through primitives to synthesize bv-expr
 (define (synthesize-lattice-ecp5-search-impl bv-expr #:primitives [primitives '(pfu ripple-pfu)])
-  ; (printf "\033[32mSynthesizing Search BVExpr ~a with primitives: ~a\033[0m\n" bv-expr primitives)
   (match primitives
     [(cons prim prims)
      (or (synthesize-lattice-ecp5-impl bv-expr #:primitive prim)
