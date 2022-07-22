@@ -6,7 +6,7 @@
 // arrays. Please see the edit history of this file for details.
 //
 // RUN: tmpfile=$(mktemp)
-// RUN: sed -E "s/bz/b1/" %s > $tmpfile
+// RUN: sed -E "s/bz/b1/;s/bx/b0/" %s > $tmpfile
 // RUN: python3 $LAKEROAD_DIR/utils/convert-module-to-btor.py \
 // RUN:   --remove-lines-with '$finish' \
 // RUN:   --define XIL_XECLIB --top DSP48E2 --infile $tmpfile 2>/dev/null \
