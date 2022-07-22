@@ -1013,43 +1013,6 @@ end
 
 // begin behavioral model
 
-  always @(trig_attr) begin
-    #1;
-    case (AREG_REG)
-      0, 1 : if (AREG_REG != ACASCREG_REG) begin
-      $display("Error: [Unisim %s-2] AREG attribute is set to %0d and ACASCREG attribute is set to %0d. When AREG is 0 or 1, ACASCREG must be set to the same value. Instance: %m", MODULE_NAME, AREG_REG, ACASCREG_REG);
-        attr_err = 1'b1;
-        end
-      2 : if (ACASCREG_REG == 0) begin
-      $display("Error: [Unisim %s-3] AREG attribute is set to %0d and ACASCREG attribute is set to %0d. When AREG is 2, ACASCREG must be set to 1 or 2. Instance: %m", MODULE_NAME, AREG_REG, ACASCREG_REG);
-        attr_err = 1'b1;
-        end
-    endcase
-
-    case (BREG_REG)
-      0, 1 : if (BREG_REG != BCASCREG_REG) begin
-      $display("Error: [Unisim %s-4] BREG attribute is set to %0d and BCASCREG attribute is set to %0d. When BREG is 0 or 1, BCASCREG must be set to the same value. Instance: %m", MODULE_NAME, BREG_REG, BCASCREG_REG);
-        attr_err = 1'b1;
-        end
-      2 : if (BCASCREG_REG == 0) begin
-      $display("Error: [Unisim %s-5] BREG attribute is set to %0d and BCASCREG attribute is set to %0d. When BREG is 2, BCASCREG must be set to 1 or 2. Instance: %m", MODULE_NAME, BREG_REG, BCASCREG_REG);
-        attr_err = 1'b1;
-        end
-    endcase
-
-    if (attr_err == 1'b1) #1 $finish;
-  end
-
-  always @(trig_attr) begin
-    #1;
-    if ((USE_MULT_REG == "NONE") && (MREG_REG !== 0)) begin
-        $display("Error : [Unisim %s-6] : Attribute USE_MULT is set to \"NONE\" and MREG is set to %d. MREG must be set to 0 when the multiplier is not used. Instance %m", MODULE_NAME, MREG_REG);
-        attr_err = 1'b1;
-    end
-
-  if (attr_err == 1'b1) #1 $finish;
-  end
-
 // Connections between atoms
   wire [44:0] U_DATA;
   wire [44:0] V_DATA;
