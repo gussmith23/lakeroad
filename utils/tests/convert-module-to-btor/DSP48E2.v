@@ -1377,21 +1377,21 @@ end
 // Carry mux to handle SIMD mode 
 // SIMD must be used here since addition of W requires carry propogation
   assign comux4simd = {
-              comux[47:36],
-              comux[35]&&(USE_SIMD_BIN != USE_SIMD_FOUR12),
-              comux[34:24],
-              comux[23]&&(USE_SIMD_BIN == USE_SIMD_ONE48),
-              comux[22:12],
-              comux[11]&&(USE_SIMD_BIN != USE_SIMD_FOUR12),
-              comux[10:0]
-            };
+                                                        comux[47:36],
+                                                        comux[35]&&(USE_SIMD_BIN != USE_SIMD_FOUR12),
+                                                        comux[34:24],
+                                                        comux[23]&&(USE_SIMD_BIN == USE_SIMD_ONE48),
+                                                        comux[22:12],
+                                                        comux[11]&&(USE_SIMD_BIN != USE_SIMD_FOUR12),
+                                                        comux[10:0]
+                                                };
 
 // FA to combine W-mux with s and co
 // comux must be shifted to properly reflect carry operation
   assign smux_w  =   smux ^ {comux4simd[46:0],1'b0} ^ wmux;
   assign comux_w = ((smux & {comux4simd[46:0],1'b0}) |
-                    (wmux & {comux4simd[46:0],1'b0}) |
-                    (smux & wmux));
+                                                                                (wmux & {comux4simd[46:0],1'b0}) |
+                                                                                (smux & wmux));
 
 // alumode10 indicates a subtraction, used to correct carryout polarity
   assign ALUMODE10_in  = (ALUMODE_DATA[0] & ALUMODE_DATA[1]);
@@ -1825,14 +1825,14 @@ end
    assign AD_DATA    = (ADREG_INT == 1'b1) ? AD_DATA_reg : AD_in;
 
    always @(OPMODE_mux) begin
-     if (((OPMODE_mux[1:0] == 2'b11) && (USE_MULT_BIN == USE_MULT_MULTIPLY)) &&
-       ((AREG_BIN==2'b00 && BREG_BIN==2'b00 && MREG_BIN==1'b0) ||
-        (AREG_BIN==2'b00 && BREG_BIN==2'b00 && PREG_BIN==1'b0) ||
-        (MREG_BIN==1'b0 && PREG_BIN==1'b0)))
-       $display("OPMODE Input Warning : [Unisim %s-8] The OPMODE[1:0] (%b) is invalid when using attributes USE_MULT = MULTIPLY and (A, B and M) or (A, B and P) or (M and P) are not REGISTERED at time %.3f ns. Please set USE_MULT to either NONE or DYNAMIC or REGISTER one of each group. (A or B) and (M or P) will satisfy the requirement. Instance %m", MODULE_NAME, OPMODE_mux[1:0], $time/1000.0);
-     if ((OPMODE_mux[3:0] == 4'b0101) &&
-       ((USE_MULT_BIN == USE_MULT_NONE) || (USE_SIMD_BIN != USE_SIMD_ONE48)))
-       $display("OPMODE Input Warning : [Unisim %s-9] The OPMODE[3:0] (%b) is invalid when using attributes USE_MULT = NONE, or USE_SIMD = TWO24 or FOUR12 at %.3f ns. Instance %m", MODULE_NAME, OPMODE_mux[3:0], $time/1000.0);
+    //  if (((OPMODE_mux[1:0] == 2'b11) && (USE_MULT_BIN == USE_MULT_MULTIPLY)) &&
+    //    ((AREG_BIN==2'b00 && BREG_BIN==2'b00 && MREG_BIN==1'b0) ||
+    //     (AREG_BIN==2'b00 && BREG_BIN==2'b00 && PREG_BIN==1'b0) ||
+    //     (MREG_BIN==1'b0 && PREG_BIN==1'b0)))
+    //    $display("OPMODE Input Warning : [Unisim %s-8] The OPMODE[1:0] (%b) is invalid when using attributes USE_MULT = MULTIPLY and (A, B and M) or (A, B and P) or (M and P) are not REGISTERED at time %.3f ns. Please set USE_MULT to either NONE or DYNAMIC or REGISTER one of each group. (A or B) and (M or P) will satisfy the requirement. Instance %m", MODULE_NAME, OPMODE_mux[1:0], $time/1000.0);
+    //  if ((OPMODE_mux[3:0] == 4'b0101) &&
+    //    ((USE_MULT_BIN == USE_MULT_NONE) || (USE_SIMD_BIN != USE_SIMD_ONE48)))
+    //    $display("OPMODE Input Warning : [Unisim %s-9] The OPMODE[3:0] (%b) is invalid when using attributes USE_MULT = NONE, or USE_SIMD = TWO24 or FOUR12 at %.3f ns. Instance %m", MODULE_NAME, OPMODE_mux[3:0], $time/1000.0);
     end
 
 // end behavioral model
