@@ -43,8 +43,8 @@
   ;;; Pad so there's 4 logical inputs.
   (define logical-inputs
     (append (map (lambda (v)
-                   (choose `(zero-extend ,v ,(bitvector max-input-bw))
-                           `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+                   (choose* `(zero-extend ,v ,(bitvector max-input-bw))
+                            `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
                  (symbolics bv-expr))
             (make-list (- 4 (length (symbolics bv-expr))) (bv 0 max-input-bw))))
 
@@ -143,8 +143,8 @@
   ;;; Zero-extend them so they're all the same size.
   (define logical-inputs
     (map (lambda (v)
-           (choose `(zero-extend ,v ,(bitvector max-input-bw))
-                   `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
+           (choose* `(zero-extend ,v ,(bitvector max-input-bw))
+                    `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
          (symbolics bv-expr)))
 
   (define lut-fn
