@@ -64,6 +64,36 @@
 
 `celldefine
 
+typedef enum logic [4:0] {
+  A_ENUM_VAL = 0,
+  B_ENUM_VAL = 1,
+  AD_ENUM_VAL = 2,
+  NO_RESET_ENUM_VAL = 3,
+  RESET_MATCH_ENUM_VAL = 4,
+  RESET_NOT_MATCH_ENUM_VAL = 5,
+  RESET_ENUM_VAL = 6,
+  DIRECT_ENUM_VAL = 7,
+  MASK_ENUM_VAL = 8,
+  PATTERN_ENUM_VAL = 9,
+  MULTIPLY_ENUM_VAL = 10,
+  NO_PATDET_ENUM_VAL = 11,
+  ONE48_ENUM_VAL = 12,
+  FALSE_ENUM_VAL = 13,
+  XOR24_48_96_ENUM_VAL = 14,
+  CASCADE_ENUM_VAL = 15,
+  CEP_ENUM_VAL = 16,
+  C_ENUM_VAL = 17,
+  DYNAMIC_ENUM_VAL = 18,
+  FOUR12_ENUM_VAL = 19,
+  NONE_ENUM_VAL = 20,
+  PATDET_ENUM_VAL = 21,
+  ROUNDING_MODE1_ENUM_VAL = 22,
+  ROUNDING_MODE2_ENUM_VAL = 23,
+  TRUE_ENUM_VAL = 24,
+  TWO24_ENUM_VAL = 25,
+  XOR12_ENUM_VAL = 26
+} CONSTANT_ENUM;
+
 module DSP48E2 #(
 `ifdef XIL_TIMING
   parameter LOC = "UNPLACED",
@@ -71,15 +101,15 @@ module DSP48E2 #(
   parameter integer ACASCREG = 1,
   parameter integer ADREG = 1,
   parameter integer ALUMODEREG = 1,
-  parameter [16:1] AMULTSEL = "A",
+  parameter CONSTANT_ENUM AMULTSEL = A_ENUM_VAL,
   parameter integer AREG = 1,
-  parameter [120:1] AUTORESET_PATDET = "NO_RESET",
-  parameter [40:1] AUTORESET_PRIORITY = "RESET",
-  parameter [56:1] A_INPUT = "DIRECT",
+  parameter CONSTANT_ENUM AUTORESET_PATDET = NO_RESET_ENUM_VAL,
+  parameter CONSTANT_ENUM AUTORESET_PRIORITY = RESET_ENUM_VAL,
+  parameter CONSTANT_ENUM A_INPUT = DIRECT_ENUM_VAL,
   parameter integer BCASCREG = 1,
-  parameter [16:1] BMULTSEL = "B",
+  parameter CONSTANT_ENUM BMULTSEL = B_ENUM_VAL,
   parameter integer BREG = 1,
-  parameter [56:1] B_INPUT = "DIRECT",
+  parameter CONSTANT_ENUM B_INPUT = DIRECT_ENUM_VAL,
   parameter integer CARRYINREG = 1,
   parameter integer CARRYINSELREG = 1,
   parameter integer CREG = 1,
@@ -104,16 +134,16 @@ module DSP48E2 #(
   parameter integer MREG = 1,
   parameter integer OPMODEREG = 1,
   parameter [47:0] PATTERN = 48'h000000000000,
-  parameter [8:1] PREADDINSEL = "A",
+  parameter [7:0] PREADDINSEL = A_ENUM_VAL,
   parameter integer PREG = 1,
   parameter [47:0] RND = 48'h000000000000,
-  parameter [112:1] SEL_MASK = "MASK",
-  parameter [56:1] SEL_PATTERN = "PATTERN",
-  parameter [64:1] USE_MULT = "MULTIPLY",
-  parameter [72:1] USE_PATTERN_DETECT = "NO_PATDET",
-  parameter [48:1] USE_SIMD = "ONE48",
-  parameter [40:1] USE_WIDEXOR = "FALSE",
-  parameter [88:1] XORSIMD = "XOR24_48_96"
+  parameter CONSTANT_ENUM SEL_MASK = MASK_ENUM_VAL,
+  parameter CONSTANT_ENUM SEL_PATTERN = PATTERN_ENUM_VAL,
+  parameter CONSTANT_ENUM USE_MULT = MULTIPLY_ENUM_VAL,
+  parameter CONSTANT_ENUM USE_PATTERN_DETECT = NO_PATDET_ENUM_VAL,
+  parameter CONSTANT_ENUM USE_SIMD = ONE48_ENUM_VAL,
+  parameter CONSTANT_ENUM USE_WIDEXOR = FALSE_ENUM_VAL,
+  parameter CONSTANT_ENUM XORSIMD = XOR24_48_96_ENUM_VAL
 )(
   output [29:0] ACOUT,
   output [17:0] BCOUT,
@@ -214,15 +244,15 @@ module DSP48E2 #(
   reg [31:0] ACASCREG_REG = ACASCREG;
   reg [31:0] ADREG_REG = ADREG;
   reg [31:0] ALUMODEREG_REG = ALUMODEREG;
-  reg [16:1] AMULTSEL_REG = AMULTSEL;
+  reg [15:0] AMULTSEL_REG = AMULTSEL;
   reg [31:0] AREG_REG = AREG;
-  reg [120:1] AUTORESET_PATDET_REG = AUTORESET_PATDET;
-  reg [40:1] AUTORESET_PRIORITY_REG = AUTORESET_PRIORITY;
-  reg [56:1] A_INPUT_REG = A_INPUT;
+  reg [119:0] AUTORESET_PATDET_REG = AUTORESET_PATDET;
+  reg [39:0] AUTORESET_PRIORITY_REG = AUTORESET_PRIORITY;
+  reg [55:0] A_INPUT_REG = A_INPUT;
   reg [31:0] BCASCREG_REG = BCASCREG;
-  reg [16:1] BMULTSEL_REG = BMULTSEL;
+  reg [15:0] BMULTSEL_REG = BMULTSEL;
   reg [31:0] BREG_REG = BREG;
-  reg [56:1] B_INPUT_REG = B_INPUT;
+  reg [55:0] B_INPUT_REG = B_INPUT;
   reg [31:0] CARRYINREG_REG = CARRYINREG;
   reg [31:0] CARRYINSELREG_REG = CARRYINSELREG;
   reg [31:0] CREG_REG = CREG;
@@ -247,16 +277,16 @@ module DSP48E2 #(
   reg [31:0] MREG_REG = MREG;
   reg [31:0] OPMODEREG_REG = OPMODEREG;
   reg [47:0] PATTERN_REG = PATTERN;
-  reg [8:1] PREADDINSEL_REG = PREADDINSEL;
+  reg [7:0] PREADDINSEL_REG = PREADDINSEL;
   reg [31:0] PREG_REG = PREG;
   reg [47:0] RND_REG = RND;
-  reg [112:1] SEL_MASK_REG = SEL_MASK;
-  reg [56:1] SEL_PATTERN_REG = SEL_PATTERN;
-  reg [64:1] USE_MULT_REG = USE_MULT;
-  reg [72:1] USE_PATTERN_DETECT_REG = USE_PATTERN_DETECT;
-  reg [48:1] USE_SIMD_REG = USE_SIMD;
-  reg [40:1] USE_WIDEXOR_REG = USE_WIDEXOR;
-  reg [88:1] XORSIMD_REG = XORSIMD;
+  reg [111:0] SEL_MASK_REG = SEL_MASK;
+  reg [55:0] SEL_PATTERN_REG = SEL_PATTERN;
+  reg [63:0] USE_MULT_REG = USE_MULT;
+  reg [71:0] USE_PATTERN_DETECT_REG = USE_PATTERN_DETECT;
+  reg [47:0] USE_SIMD_REG = USE_SIMD;
+  reg [39:0] USE_WIDEXOR_REG = USE_WIDEXOR;
+  reg [87:0] XORSIMD_REG = XORSIMD;
 `endif
 
 `ifdef XIL_XECLIB
@@ -564,41 +594,41 @@ end
   assign ALUMODEREG_BIN = ALUMODEREG_REG[0];
 
   assign AMULTSEL_BIN =
-    (AMULTSEL_REG == "A") ? AMULTSEL_A :
-    (AMULTSEL_REG == "AD") ? AMULTSEL_AD :
-     AMULTSEL_A;
+                (AMULTSEL_REG == A_ENUM_VAL) ? AMULTSEL_A :
+                (AMULTSEL_REG == AD_ENUM_VAL) ? AMULTSEL_AD :
+                    AMULTSEL_A;
 
   assign AREG_BIN = AREG_REG[1:0];
 
   assign AUTORESET_PATDET_BIN =
-    (AUTORESET_PATDET_REG == "NO_RESET") ? AUTORESET_PATDET_NO_RESET :
-    (AUTORESET_PATDET_REG == "RESET_MATCH") ? AUTORESET_PATDET_RESET_MATCH :
-    (AUTORESET_PATDET_REG == "RESET_NOT_MATCH") ? AUTORESET_PATDET_RESET_NOT_MATCH :
-     AUTORESET_PATDET_NO_RESET;
+                (AUTORESET_PATDET_REG == NO_RESET_ENUM_VAL) ? AUTORESET_PATDET_NO_RESET :
+                (AUTORESET_PATDET_REG == RESET_MATCH_ENUM_VAL) ? AUTORESET_PATDET_RESET_MATCH :
+                (AUTORESET_PATDET_REG == RESET_NOT_MATCH_ENUM_VAL) ? AUTORESET_PATDET_RESET_NOT_MATCH :
+                    AUTORESET_PATDET_NO_RESET;
 
   assign AUTORESET_PRIORITY_BIN =
-    (AUTORESET_PRIORITY_REG == "RESET") ? AUTORESET_PRIORITY_RESET :
-    (AUTORESET_PRIORITY_REG == "CEP") ? AUTORESET_PRIORITY_CEP :
-     AUTORESET_PRIORITY_RESET;
+                (AUTORESET_PRIORITY_REG == RESET_ENUM_VAL) ? AUTORESET_PRIORITY_RESET :
+                (AUTORESET_PRIORITY_REG == CEP_ENUM_VAL) ? AUTORESET_PRIORITY_CEP :
+                    AUTORESET_PRIORITY_RESET;
 
   assign A_INPUT_BIN =
-    (A_INPUT_REG == "DIRECT") ? A_INPUT_DIRECT :
-    (A_INPUT_REG == "CASCADE") ? A_INPUT_CASCADE :
-     A_INPUT_DIRECT;
+                (A_INPUT_REG == DIRECT_ENUM_VAL) ? A_INPUT_DIRECT :
+                (A_INPUT_REG == CASCADE_ENUM_VAL) ? A_INPUT_CASCADE :
+                    A_INPUT_DIRECT;
 
   assign BCASCREG_BIN = BCASCREG_REG[1:0];
 
   assign BMULTSEL_BIN =
-    (BMULTSEL_REG == "B") ? BMULTSEL_B :
-    (BMULTSEL_REG == "AD") ? BMULTSEL_AD :
-     BMULTSEL_B;
+                (BMULTSEL_REG == B_ENUM_VAL) ? BMULTSEL_B :
+                (BMULTSEL_REG == AD_ENUM_VAL) ? BMULTSEL_AD :
+                    BMULTSEL_B;
 
   assign BREG_BIN = BREG_REG[1:0];
 
   assign B_INPUT_BIN =
-    (B_INPUT_REG == "DIRECT") ? B_INPUT_DIRECT :
-    (B_INPUT_REG == "CASCADE") ? B_INPUT_CASCADE :
-     B_INPUT_DIRECT;
+                (B_INPUT_REG == DIRECT_ENUM_VAL) ? B_INPUT_DIRECT :
+                (B_INPUT_REG == CASCADE_ENUM_VAL) ? B_INPUT_CASCADE :
+                    B_INPUT_DIRECT;
 
   assign CARRYINREG_BIN = CARRYINREG_REG[0];
 
@@ -615,50 +645,50 @@ end
   assign OPMODEREG_BIN = OPMODEREG_REG[0];
 
   assign PREADDINSEL_BIN =
-    (PREADDINSEL_REG == "A") ? PREADDINSEL_A :
-    (PREADDINSEL_REG == "B") ? PREADDINSEL_B :
-     PREADDINSEL_A;
+                (PREADDINSEL_REG == A_ENUM_VAL) ? PREADDINSEL_A :
+                (PREADDINSEL_REG == B_ENUM_VAL) ? PREADDINSEL_B :
+                    PREADDINSEL_A;
 
   assign PREG_BIN = PREG_REG[0];
 
   assign SEL_MASK_BIN =
-    (SEL_MASK_REG == "MASK") ? SEL_MASK_MASK :
-    (SEL_MASK_REG == "C") ? SEL_MASK_C :
-    (SEL_MASK_REG == "ROUNDING_MODE1") ? SEL_MASK_ROUNDING_MODE1 :
-    (SEL_MASK_REG == "ROUNDING_MODE2") ? SEL_MASK_ROUNDING_MODE2 :
-     SEL_MASK_MASK;
+                (SEL_MASK_REG == MASK_ENUM_VAL) ? SEL_MASK_MASK :
+                (SEL_MASK_REG == C_ENUM_VAL) ? SEL_MASK_C :
+                (SEL_MASK_REG == ROUNDING_MODE1_ENUM_VAL) ? SEL_MASK_ROUNDING_MODE1 :
+                (SEL_MASK_REG == ROUNDING_MODE2_ENUM_VAL) ? SEL_MASK_ROUNDING_MODE2 :
+                    SEL_MASK_MASK;
 
   assign SEL_PATTERN_BIN =
-    (SEL_PATTERN_REG == "PATTERN") ? SEL_PATTERN_PATTERN :
-    (SEL_PATTERN_REG == "C") ? SEL_PATTERN_C :
-     SEL_PATTERN_PATTERN;
+                (SEL_PATTERN_REG == PATTERN_ENUM_VAL) ? SEL_PATTERN_PATTERN :
+                (SEL_PATTERN_REG == C_ENUM_VAL) ? SEL_PATTERN_C :
+                    SEL_PATTERN_PATTERN;
 
   assign USE_MULT_BIN =
-    (USE_MULT_REG == "MULTIPLY") ? USE_MULT_MULTIPLY :
-    (USE_MULT_REG == "DYNAMIC") ? USE_MULT_DYNAMIC :
-    (USE_MULT_REG == "NONE") ? USE_MULT_NONE :
-     USE_MULT_MULTIPLY;
+                (USE_MULT_REG == MULTIPLY_ENUM_VAL) ? USE_MULT_MULTIPLY :
+                (USE_MULT_REG == DYNAMIC_ENUM_VAL) ? USE_MULT_DYNAMIC :
+                (USE_MULT_REG == NONE_ENUM_VAL) ? USE_MULT_NONE :
+                    USE_MULT_MULTIPLY;
 
   assign USE_PATTERN_DETECT_BIN =
-    (USE_PATTERN_DETECT_REG == "NO_PATDET") ? USE_PATTERN_DETECT_NO_PATDET :
-    (USE_PATTERN_DETECT_REG == "PATDET") ? USE_PATTERN_DETECT_PATDET :
-     USE_PATTERN_DETECT_NO_PATDET;
+                (USE_PATTERN_DETECT_REG == NO_PATDET_ENUM_VAL) ? USE_PATTERN_DETECT_NO_PATDET :
+                (USE_PATTERN_DETECT_REG == PATDET_ENUM_VAL) ? USE_PATTERN_DETECT_PATDET :
+                    USE_PATTERN_DETECT_NO_PATDET;
 
   assign USE_SIMD_BIN =
-    (USE_SIMD_REG == "ONE48") ? USE_SIMD_ONE48 :
-    (USE_SIMD_REG == "FOUR12") ? USE_SIMD_FOUR12 :
-    (USE_SIMD_REG == "TWO24") ? USE_SIMD_TWO24 :
-     USE_SIMD_ONE48;
+                (USE_SIMD_REG == ONE48_ENUM_VAL) ? USE_SIMD_ONE48 :
+                (USE_SIMD_REG == FOUR12_ENUM_VAL) ? USE_SIMD_FOUR12 :
+                (USE_SIMD_REG == TWO24_ENUM_VAL) ? USE_SIMD_TWO24 :
+                    USE_SIMD_ONE48;
 
   assign USE_WIDEXOR_BIN =
-    (USE_WIDEXOR_REG == "FALSE") ? USE_WIDEXOR_FALSE :
-    (USE_WIDEXOR_REG == "TRUE") ? USE_WIDEXOR_TRUE :
-     USE_WIDEXOR_FALSE;
+                (USE_WIDEXOR_REG == FALSE_ENUM_VAL) ? USE_WIDEXOR_FALSE :
+                (USE_WIDEXOR_REG == TRUE_ENUM_VAL) ? USE_WIDEXOR_TRUE :
+                    USE_WIDEXOR_FALSE;
 
   assign XORSIMD_BIN =
-    (XORSIMD_REG == "XOR24_48_96") ? XORSIMD_XOR24_48_96 :
-    (XORSIMD_REG == "XOR12") ? XORSIMD_XOR12 :
-     XORSIMD_XOR24_48_96;
+                (XORSIMD_REG == XOR24_48_96_ENUM_VAL) ? XORSIMD_XOR24_48_96 :
+                (XORSIMD_REG == XOR12_ENUM_VAL) ? XORSIMD_XOR12 :
+                    XORSIMD_XOR24_48_96;
 
 `else
 always @(trig_attr) begin
@@ -670,41 +700,41 @@ always @(trig_attr) begin
   ALUMODEREG_BIN = ALUMODEREG_REG[0];
 
   AMULTSEL_BIN =
-    (AMULTSEL_REG == "A") ? AMULTSEL_A :
-    (AMULTSEL_REG == "AD") ? AMULTSEL_AD :
-     AMULTSEL_A;
+                (AMULTSEL_REG == A_ENUM_VAL) ? AMULTSEL_A :
+                (AMULTSEL_REG == AD_ENUM_VAL) ? AMULTSEL_AD :
+                    AMULTSEL_A;
 
   AREG_BIN = AREG_REG[1:0];
 
   AUTORESET_PATDET_BIN =
-    (AUTORESET_PATDET_REG == "NO_RESET") ? AUTORESET_PATDET_NO_RESET :
-    (AUTORESET_PATDET_REG == "RESET_MATCH") ? AUTORESET_PATDET_RESET_MATCH :
-    (AUTORESET_PATDET_REG == "RESET_NOT_MATCH") ? AUTORESET_PATDET_RESET_NOT_MATCH :
-     AUTORESET_PATDET_NO_RESET;
+                (AUTORESET_PATDET_REG == NO_RESET_ENUM_VAL) ? AUTORESET_PATDET_NO_RESET :
+                (AUTORESET_PATDET_REG == RESET_MATCH_ENUM_VAL) ? AUTORESET_PATDET_RESET_MATCH :
+                (AUTORESET_PATDET_REG == RESET_NOT_MATCH_ENUM_VAL) ? AUTORESET_PATDET_RESET_NOT_MATCH :
+                    AUTORESET_PATDET_NO_RESET;
 
   AUTORESET_PRIORITY_BIN =
-    (AUTORESET_PRIORITY_REG == "RESET") ? AUTORESET_PRIORITY_RESET :
-    (AUTORESET_PRIORITY_REG == "CEP") ? AUTORESET_PRIORITY_CEP :
-     AUTORESET_PRIORITY_RESET;
+                (AUTORESET_PRIORITY_REG == RESET_ENUM_VAL) ? AUTORESET_PRIORITY_RESET :
+                (AUTORESET_PRIORITY_REG == CEP_ENUM_VAL) ? AUTORESET_PRIORITY_CEP :
+                    AUTORESET_PRIORITY_RESET;
 
   A_INPUT_BIN =
-    (A_INPUT_REG == "DIRECT") ? A_INPUT_DIRECT :
-    (A_INPUT_REG == "CASCADE") ? A_INPUT_CASCADE :
-     A_INPUT_DIRECT;
+                (A_INPUT_REG == DIRECT_ENUM_VAL) ? A_INPUT_DIRECT :
+                (A_INPUT_REG == CASCADE_ENUM_VAL) ? A_INPUT_CASCADE :
+                    A_INPUT_DIRECT;
 
   BCASCREG_BIN = BCASCREG_REG[1:0];
 
   BMULTSEL_BIN =
-    (BMULTSEL_REG == "B") ? BMULTSEL_B :
-    (BMULTSEL_REG == "AD") ? BMULTSEL_AD :
-     BMULTSEL_B;
+                (BMULTSEL_REG == B_ENUM_VAL) ? BMULTSEL_B :
+                (BMULTSEL_REG == AD_ENUM_VAL) ? BMULTSEL_AD :
+                    BMULTSEL_B;
 
   BREG_BIN = BREG_REG[1:0];
 
   B_INPUT_BIN =
-    (B_INPUT_REG == "DIRECT") ? B_INPUT_DIRECT :
-    (B_INPUT_REG == "CASCADE") ? B_INPUT_CASCADE :
-     B_INPUT_DIRECT;
+                (B_INPUT_REG == DIRECT_ENUM_VAL) ? B_INPUT_DIRECT :
+                (B_INPUT_REG == CASCADE_ENUM_VAL) ? B_INPUT_CASCADE :
+                    B_INPUT_DIRECT;
 
   CARRYINREG_BIN = CARRYINREG_REG[0];
 
@@ -721,50 +751,50 @@ always @(trig_attr) begin
   OPMODEREG_BIN = OPMODEREG_REG[0];
 
   PREADDINSEL_BIN =
-    (PREADDINSEL_REG == "A") ? PREADDINSEL_A :
-    (PREADDINSEL_REG == "B") ? PREADDINSEL_B :
-     PREADDINSEL_A;
+                (PREADDINSEL_REG == A_ENUM_VAL) ? PREADDINSEL_A :
+                (PREADDINSEL_REG == B_ENUM_VAL) ? PREADDINSEL_B :
+                    PREADDINSEL_A;
 
   PREG_BIN = PREG_REG[0];
 
   SEL_MASK_BIN =
-    (SEL_MASK_REG == "MASK") ? SEL_MASK_MASK :
-    (SEL_MASK_REG == "C") ? SEL_MASK_C :
-    (SEL_MASK_REG == "ROUNDING_MODE1") ? SEL_MASK_ROUNDING_MODE1 :
-    (SEL_MASK_REG == "ROUNDING_MODE2") ? SEL_MASK_ROUNDING_MODE2 :
-     SEL_MASK_MASK;
+                (SEL_MASK_REG == MASK_ENUM_VAL) ? SEL_MASK_MASK :
+                (SEL_MASK_REG == C_ENUM_VAL) ? SEL_MASK_C :
+                (SEL_MASK_REG == ROUNDING_MODE1_ENUM_VAL) ? SEL_MASK_ROUNDING_MODE1 :
+                (SEL_MASK_REG == ROUNDING_MODE2_ENUM_VAL) ? SEL_MASK_ROUNDING_MODE2 :
+                    SEL_MASK_MASK;
 
   SEL_PATTERN_BIN =
-    (SEL_PATTERN_REG == "PATTERN") ? SEL_PATTERN_PATTERN :
-    (SEL_PATTERN_REG == "C") ? SEL_PATTERN_C :
-     SEL_PATTERN_PATTERN;
+                (SEL_PATTERN_REG == PATTERN_ENUM_VAL) ? SEL_PATTERN_PATTERN :
+                (SEL_PATTERN_REG == C_ENUM_VAL) ? SEL_PATTERN_C :
+                    SEL_PATTERN_PATTERN;
 
   USE_MULT_BIN =
-    (USE_MULT_REG == "MULTIPLY") ? USE_MULT_MULTIPLY :
-    (USE_MULT_REG == "DYNAMIC") ? USE_MULT_DYNAMIC :
-    (USE_MULT_REG == "NONE") ? USE_MULT_NONE :
-     USE_MULT_MULTIPLY;
+                (USE_MULT_REG == MULTIPLY_ENUM_VAL) ? USE_MULT_MULTIPLY :
+                (USE_MULT_REG == DYNAMIC_ENUM_VAL) ? USE_MULT_DYNAMIC :
+                (USE_MULT_REG == NONE_ENUM_VAL) ? USE_MULT_NONE :
+                    USE_MULT_MULTIPLY;
 
   USE_PATTERN_DETECT_BIN =
-    (USE_PATTERN_DETECT_REG == "NO_PATDET") ? USE_PATTERN_DETECT_NO_PATDET :
-    (USE_PATTERN_DETECT_REG == "PATDET") ? USE_PATTERN_DETECT_PATDET :
-     USE_PATTERN_DETECT_NO_PATDET;
+                (USE_PATTERN_DETECT_REG == NO_PATDET_ENUM_VAL) ? USE_PATTERN_DETECT_NO_PATDET :
+                (USE_PATTERN_DETECT_REG == PATDET_ENUM_VAL) ? USE_PATTERN_DETECT_PATDET :
+                    USE_PATTERN_DETECT_NO_PATDET;
 
   USE_SIMD_BIN =
-    (USE_SIMD_REG == "ONE48") ? USE_SIMD_ONE48 :
-    (USE_SIMD_REG == "FOUR12") ? USE_SIMD_FOUR12 :
-    (USE_SIMD_REG == "TWO24") ? USE_SIMD_TWO24 :
-     USE_SIMD_ONE48;
+                (USE_SIMD_REG == ONE48_ENUM_VAL) ? USE_SIMD_ONE48 :
+                (USE_SIMD_REG == FOUR12_ENUM_VAL) ? USE_SIMD_FOUR12 :
+                (USE_SIMD_REG == TWO24_ENUM_VAL) ? USE_SIMD_TWO24 :
+                    USE_SIMD_ONE48;
 
   USE_WIDEXOR_BIN =
-    (USE_WIDEXOR_REG == "FALSE") ? USE_WIDEXOR_FALSE :
-    (USE_WIDEXOR_REG == "TRUE") ? USE_WIDEXOR_TRUE :
-     USE_WIDEXOR_FALSE;
+                (USE_WIDEXOR_REG == FALSE_ENUM_VAL) ? USE_WIDEXOR_FALSE :
+                (USE_WIDEXOR_REG == TRUE_ENUM_VAL) ? USE_WIDEXOR_TRUE :
+                    USE_WIDEXOR_FALSE;
 
   XORSIMD_BIN =
-    (XORSIMD_REG == "XOR24_48_96") ? XORSIMD_XOR24_48_96 :
-    (XORSIMD_REG == "XOR12") ? XORSIMD_XOR12 :
-     XORSIMD_XOR24_48_96;
+                (XORSIMD_REG == XOR24_48_96_ENUM_VAL) ? XORSIMD_XOR24_48_96 :
+                (XORSIMD_REG == XOR12_ENUM_VAL) ? XORSIMD_XOR12 :
+                    XORSIMD_XOR24_48_96;
 
 end
 `endif
@@ -795,8 +825,8 @@ end
     end
 
     if ((attr_test == 1'b1) ||
-        ((AMULTSEL_REG != "A") &&
-         (AMULTSEL_REG != "AD"))) begin
+        ((AMULTSEL_REG != A_ENUM_VAL) &&
+         (AMULTSEL_REG != AD_ENUM_VAL))) begin
       $display("Error: [Unisim %s-104] AMULTSEL attribute is set to %s.  Legal values for this attribute are A or AD. Instance: %m", MODULE_NAME, AMULTSEL_REG);
       attr_err = 1'b1;
     end
@@ -810,23 +840,23 @@ end
     end
 
     if ((attr_test == 1'b1) ||
-        ((AUTORESET_PATDET_REG != "NO_RESET") &&
-         (AUTORESET_PATDET_REG != "RESET_MATCH") &&
-         (AUTORESET_PATDET_REG != "RESET_NOT_MATCH"))) begin
+        ((AUTORESET_PATDET_REG != NO_RESET_ENUM_VAL) &&
+         (AUTORESET_PATDET_REG != RESET_MATCH_ENUM_VAL) &&
+         (AUTORESET_PATDET_REG != RESET_NOT_MATCH_ENUM_VAL))) begin
       $display("Error: [Unisim %s-106] AUTORESET_PATDET attribute is set to %s.  Legal values for this attribute are NO_RESET, RESET_MATCH or RESET_NOT_MATCH. Instance: %m", MODULE_NAME, AUTORESET_PATDET_REG);
       attr_err = 1'b1;
     end
 
     if ((attr_test == 1'b1) ||
-        ((AUTORESET_PRIORITY_REG != "RESET") &&
-         (AUTORESET_PRIORITY_REG != "CEP"))) begin
+        ((AUTORESET_PRIORITY_REG != RESET_ENUM_VAL) &&
+         (AUTORESET_PRIORITY_REG != CEP_ENUM_VAL))) begin
       $display("Error: [Unisim %s-107] AUTORESET_PRIORITY attribute is set to %s.  Legal values for this attribute are RESET or CEP. Instance: %m", MODULE_NAME, AUTORESET_PRIORITY_REG);
       attr_err = 1'b1;
     end
 
     if ((attr_test == 1'b1) ||
-        ((A_INPUT_REG != "DIRECT") &&
-         (A_INPUT_REG != "CASCADE"))) begin
+        ((A_INPUT_REG != DIRECT_ENUM_VAL) &&
+         (A_INPUT_REG != CASCADE_ENUM_VAL))) begin
       $display("Error: [Unisim %s-108] A_INPUT attribute is set to %s.  Legal values for this attribute are DIRECT or CASCADE. Instance: %m", MODULE_NAME, A_INPUT_REG);
       attr_err = 1'b1;
     end
@@ -840,8 +870,8 @@ end
     end
 
     if ((attr_test == 1'b1) ||
-        ((BMULTSEL_REG != "B") &&
-         (BMULTSEL_REG != "AD"))) begin
+        ((BMULTSEL_REG != B_ENUM_VAL) &&
+         (BMULTSEL_REG != AD_ENUM_VAL))) begin
       $display("Error: [Unisim %s-110] BMULTSEL attribute is set to %s.  Legal values for this attribute are B or AD. Instance: %m", MODULE_NAME, BMULTSEL_REG);
       attr_err = 1'b1;
     end
@@ -855,8 +885,8 @@ end
     end
 
     if ((attr_test == 1'b1) ||
-        ((B_INPUT_REG != "DIRECT") &&
-         (B_INPUT_REG != "CASCADE"))) begin
+        ((B_INPUT_REG != DIRECT_ENUM_VAL) &&
+         (B_INPUT_REG != CASCADE_ENUM_VAL))) begin
       $display("Error: [Unisim %s-112] B_INPUT attribute is set to %s.  Legal values for this attribute are DIRECT or CASCADE. Instance: %m", MODULE_NAME, B_INPUT_REG);
       attr_err = 1'b1;
     end
@@ -911,8 +941,8 @@ end
     end
 
     if ((attr_test == 1'b1) ||
-        ((PREADDINSEL_REG != "A") &&
-         (PREADDINSEL_REG != "B"))) begin
+        ((PREADDINSEL_REG != A_ENUM_VAL) &&
+         (PREADDINSEL_REG != B_ENUM_VAL))) begin
       $display("Error: [Unisim %s-137] PREADDINSEL attribute is set to %s.  Legal values for this attribute are A or B. Instance: %m", MODULE_NAME, PREADDINSEL_REG);
       attr_err = 1'b1;
     end
@@ -925,54 +955,54 @@ end
     end
 
     if ((attr_test == 1'b1) ||
-        ((SEL_MASK_REG != "MASK") &&
-         (SEL_MASK_REG != "C") &&
-         (SEL_MASK_REG != "ROUNDING_MODE1") &&
-         (SEL_MASK_REG != "ROUNDING_MODE2"))) begin
+        ((SEL_MASK_REG != MASK_ENUM_VAL) &&
+         (SEL_MASK_REG != C_ENUM_VAL) &&
+         (SEL_MASK_REG != ROUNDING_MODE1_ENUM_VAL) &&
+         (SEL_MASK_REG != ROUNDING_MODE2_ENUM_VAL))) begin
       $display("Error: [Unisim %s-140] SEL_MASK attribute is set to %s.  Legal values for this attribute are MASK, C, ROUNDING_MODE1 or ROUNDING_MODE2. Instance: %m", MODULE_NAME, SEL_MASK_REG);
       attr_err = 1'b1;
     end
 
     if ((attr_test == 1'b1) ||
-        ((SEL_PATTERN_REG != "PATTERN") &&
-         (SEL_PATTERN_REG != "C"))) begin
+        ((SEL_PATTERN_REG != PATTERN_ENUM_VAL) &&
+         (SEL_PATTERN_REG != C_ENUM_VAL))) begin
       $display("Error: [Unisim %s-141] SEL_PATTERN attribute is set to %s.  Legal values for this attribute are PATTERN or C. Instance: %m", MODULE_NAME, SEL_PATTERN_REG);
       attr_err = 1'b1;
     end
 
     if ((attr_test == 1'b1) ||
-        ((USE_MULT_REG != "MULTIPLY") &&
-         (USE_MULT_REG != "DYNAMIC") &&
-         (USE_MULT_REG != "NONE"))) begin
+        ((USE_MULT_REG != MULTIPLY_ENUM_VAL) &&
+         (USE_MULT_REG != DYNAMIC_ENUM_VAL) &&
+         (USE_MULT_REG != NONE_ENUM_VAL))) begin
       $display("Error: [Unisim %s-142] USE_MULT attribute is set to %s.  Legal values for this attribute are MULTIPLY, DYNAMIC or NONE. Instance: %m", MODULE_NAME, USE_MULT_REG);
       attr_err = 1'b1;
     end
 
     if ((attr_test == 1'b1) ||
-        ((USE_PATTERN_DETECT_REG != "NO_PATDET") &&
-         (USE_PATTERN_DETECT_REG != "PATDET"))) begin
+        ((USE_PATTERN_DETECT_REG != NO_PATDET_ENUM_VAL) &&
+         (USE_PATTERN_DETECT_REG != PATDET_ENUM_VAL))) begin
       $display("Error: [Unisim %s-143] USE_PATTERN_DETECT attribute is set to %s.  Legal values for this attribute are NO_PATDET or PATDET. Instance: %m", MODULE_NAME, USE_PATTERN_DETECT_REG);
       attr_err = 1'b1;
     end
 
     if ((attr_test == 1'b1) ||
-        ((USE_SIMD_REG != "ONE48") &&
-         (USE_SIMD_REG != "FOUR12") &&
-         (USE_SIMD_REG != "TWO24"))) begin
+        ((USE_SIMD_REG != ONE48_ENUM_VAL) &&
+         (USE_SIMD_REG != FOUR12_ENUM_VAL) &&
+         (USE_SIMD_REG != TWO24_ENUM_VAL))) begin
       $display("Error: [Unisim %s-144] USE_SIMD attribute is set to %s.  Legal values for this attribute are ONE48, FOUR12 or TWO24. Instance: %m", MODULE_NAME, USE_SIMD_REG);
       attr_err = 1'b1;
     end
 
     if ((attr_test == 1'b1) ||
-        ((USE_WIDEXOR_REG != "FALSE") &&
-         (USE_WIDEXOR_REG != "TRUE"))) begin
+        ((USE_WIDEXOR_REG != FALSE_ENUM_VAL) &&
+         (USE_WIDEXOR_REG != TRUE_ENUM_VAL))) begin
       $display("Error: [Unisim %s-145] USE_WIDEXOR attribute is set to %s.  Legal values for this attribute are FALSE or TRUE. Instance: %m", MODULE_NAME, USE_WIDEXOR_REG);
       attr_err = 1'b1;
     end
 
     if ((attr_test == 1'b1) ||
-        ((XORSIMD_REG != "XOR24_48_96") &&
-         (XORSIMD_REG != "XOR12"))) begin
+        ((XORSIMD_REG != XOR24_48_96_ENUM_VAL) &&
+         (XORSIMD_REG != XOR12_ENUM_VAL))) begin
       $display("Error: [Unisim %s-146] XORSIMD attribute is set to %s.  Legal values for this attribute are XOR24_48_96 or XOR12. Instance: %m", MODULE_NAME, XORSIMD_REG);
       attr_err = 1'b1;
     end
