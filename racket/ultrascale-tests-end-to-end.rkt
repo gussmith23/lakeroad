@@ -37,47 +37,71 @@
                 (check-true (end-to-end-test (circt-comb-mux l0 l1 l2)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 32))
+              (check-equal? 32 (bvlen l0))
+              (check-equal? 32 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 24))
+              (check-equal? 24 (bvlen l0))
+              (check-equal? 24 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 16))
+              (check-equal? 16 (bvlen l0))
+              (check-equal? 16 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 8))
+              (check-equal? 8 (bvlen l0))
+              (check-equal? 8 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 1))
+              (check-equal? 1 (bvlen l0))
+              (check-equal? 1 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 2))
+              (check-equal? 2 (bvlen l0))
+              (check-equal? 2 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 3))
+              (check-equal? 3 (bvlen l0))
+              (check-equal? 3 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 4))
+              (check-equal? 4 (bvlen l0))
+              (check-equal? 4 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 5))
+              (check-equal? 5 (bvlen l0))
+              (check-equal? 5 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 6))
+              (check-equal? 6 (bvlen l0))
+              (check-equal? 6 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1)))))
 
   (test-begin (define-symbolic l0 l1 (bitvector 7))
+              (check-equal? 7 (bvlen l0))
+              (check-equal? 7 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bveq l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1)))))
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (test-begin (define-symbolic l0 l1 (bitvector 8))
+              (check-equal? 8 (bvlen l0))
+              (check-equal? 8 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bvult l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvule l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1))))
@@ -101,6 +125,8 @@
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (test-begin (define-symbolic l0 l1 (bitvector 16))
+              (check-equal? 8 (bvlen l0))
+              (check-equal? 8 (bvlen l1))
               (check-true (end-to-end-test (bool->bitvector (bvult l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvule l0 l1))))
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1))))
