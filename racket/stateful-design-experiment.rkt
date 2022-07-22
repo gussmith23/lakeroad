@@ -7,6 +7,7 @@
          signal?
          bv->signal
          signal-value
+         signal-state
          merge-state)
 
 (require rosette
