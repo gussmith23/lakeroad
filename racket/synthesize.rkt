@@ -304,8 +304,6 @@
                                                         (list->set (symbolics bv-expr)))))))
 
 (define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
-
-  ; (printf "\033[32mSynthesizing BVExpr ~a with primitive ~a\033[0m\n" bv-expr primitive)
   (match primitive
     ['all (synthesize-lattice-ecp5-search-impl bv-expr)]
     ['pfu (synthesize-lattice-ecp5-for-pfu bv-expr)]
