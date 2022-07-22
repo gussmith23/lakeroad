@@ -467,7 +467,6 @@
   ;;; The bitwidth that all logical inputs should be extended to.
   (define logical-input-width (* 8 num-pfus))
   (define logical-inputs (get-lattice-logical-inputs bv-expr #:expected-bw logical-input-width))
-  ; (printf "\033[34mLogical inputs:\033[0m ~a\n" logical-inputs)
 
   ;;; Split the logical inputs into groups, grouped by PFU.
   (define logical-inputs-per-pfu
