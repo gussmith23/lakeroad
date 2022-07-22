@@ -495,9 +495,6 @@
 
   (interpret lakeroad-expr)
 
-  ; (error-print-width 1000000)
-  ; (pretty-display (interpret lakeroad-expr))
-
   (define soln
     (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
