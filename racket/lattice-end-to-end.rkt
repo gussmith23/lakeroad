@@ -31,26 +31,6 @@
 
   (current-solver (boolector))
 
-  ; (test-begin (displayln "and so i am become death, destroyer of worlds")
-  ;             (define-symbolic l0 (bitvector 1))
-  ;             (define-symbolic l1 l2 (bitvector 32))
-  ;             (check-true (end-to-end-test (circt-comb-mux l0 l1 l2)))))
-
-  ; (test-begin (displayln "AAAAAAAAAAAAAAA")
-  ;             (define-symbolic a b (bitvector 2))
-  ;             (define-symbolic s (bitvector 1))
-  ;             (define lakeroad-expr
-  ;                (get-lattice-logical-inputs (circt-comb-mux s a b) #:num-inputs 4 #:expected-bw 2))
-  ;             (define soln (synthesize #:forall (list s a b)
-  ;                                      #:guarantee (begin
-  ;
-  ;                                      (match-define (list lin0 lin1 lin2 lin3) (interpret lakeroad-expr) )
-  ;                                      (assert (bveq lin0 (concat s s)))
-  ;                                      (assert (bveq lin1 b))
-  ;                                      (assert (bveq lin2 a))
-  ;                                                                       )))
-  ;             (displayln (evaluate lakeroad-expr soln))))
-
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (test-begin (displayln "=== Running End To End Tests for Lattice ===")
               (displayln "  -- 1 bit -- ")
