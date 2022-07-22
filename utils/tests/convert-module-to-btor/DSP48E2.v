@@ -1145,6 +1145,11 @@ end
   reg [M_WIDTH-2:0] ps_u_mask;
   reg [M_WIDTH-2:0] ps_v_mask;
 
+  initial begin
+    ps_u_mask = 44'h55555555555;
+    ps_v_mask = 44'haaaaaaaaaaa;
+  end
+
 // DSP_M_DATA wires
   reg [M_WIDTH-1:0] U_DATA_reg;
   reg [M_WIDTH-1:0] V_DATA_reg;
