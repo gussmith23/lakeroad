@@ -4920,18 +4920,18 @@ here-string-delimiter
                          ;;; 0
                          ;;; 'RSTP
                          ;;; 0
-                         ;;; 'ACIN
-                         ;;; 0
+                         'ACIN
+                         0
                          ;;; 'ADREG
                          ;;; 0
                          ;;; 'ALUMODE
                          ;;; 0
                          ;;; 'ALUMODEREG
                          ;;; 0
-                         ;;; 'BCIN
-                         ;;; 0
-                         ;;; 'C
-                         ;;; 0
+                         'BCIN
+                         0
+                         'C
+                         0
                          ;;; 'CARRYCASCIN
                          ;;; 0
                          ;;; 'CARRYIN
@@ -4974,8 +4974,8 @@ here-string-delimiter
                          ;;; 0
                          ;;; 'CREG
                          ;;; 0
-                         ;;; 'D
-                         ;;; 0
+                         'D
+                         0
                          ;;; 'DREG
                          ;;; 0
                          ;;; 'INMODE
