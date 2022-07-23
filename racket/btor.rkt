@@ -5065,15 +5065,27 @@ here-string-delimiter
                          )))
      (define A (signal-value (hash-ref inputs 'A)))
      (define B (signal-value (hash-ref inputs 'B)))
-     (define out (new-interpreter P inputs init))
      (define soln
-       (synthesize #:forall (list A B)
+       (synthesize #:forall (list A
+                                  B
+                                  ;;; Note: we also need to include the unnamed inputs, as we don't
+                                  ;;; have control over them. I have no idea what they are or where
+                                  ;;; they come from, so we have to just assume they can take any
+                                  ;;; value.
+                                  (hash-ref inputs 'unnamed-input-1274)
+                                  (hash-ref inputs 'unnamed-input-1331)
+                                  (hash-ref inputs 'unnamed-input-1375)
+                                  (hash-ref inputs 'unnamed-input-531)
+                                  (hash-ref inputs 'unnamed-input-897))
                    #:guarantee (begin
-                                 ;;; For some reason, I can only get multiply synthesizing for a
-                                 ;;; subset of values.
-                                 (assume (bvule A (bv (- (expt 2 17) 1) 30)))
+                                 ;;; The DSP does signed multiplication, while we only care about
+                                 ;;; unsigned, for now. To emulate unsigned multiplication, we can
+                                 ;;; keep the inputs under a certain size. Also, the DSP does 27x18
+                                 ;;; bit multiplication, even though the A input is 30 bits.
+                                 (assume (bvule A (bv (- (expt 2 26) 1) 30)))
                                  (assume (bvule B (bv (- (expt 2 17) 1) 18)))
                                  (assert (bveq (bvmul (zero-extend A (bitvector 48))
                                                       (zero-extend B (bitvector 48)))
-                                               (signal-value out))))))
+                                               (signal-value (new-interpreter P inputs init)))))))
+
      (check-true (sat? soln)))))
