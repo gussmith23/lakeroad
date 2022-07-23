@@ -86,10 +86,10 @@
      (define in2 (if (>= (length (symbolics bv-expr)) 3) (list-ref (symbolics bv-expr) 2) (bv 0 1)))
      (define in3 (if (>= (length (symbolics bv-expr)) 4) (list-ref (symbolics bv-expr) 3) (bv 0 1)))
 
-     (define a (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 30)))
-     (define b (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 18)))
-     (define c (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 48)))
-     (define d (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 27)))
+     (define a (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 30)))
+     (define b (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 18)))
+     (define c (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 48)))
+     (define d (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 27)))
 
      (define lakeroad-expr
        `(extract ,(sub1 (bitvector-size (type-of bv-expr)))
