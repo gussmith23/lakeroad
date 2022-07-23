@@ -103,10 +103,10 @@
               (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1)))))
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
-  (for ([sz (list 1 2 4 8 16 32 64 128)])
+  (for ([sz (list 1 2 4 8 16 32 64)])
     (test-begin (define-symbolic l0 l1 (bitvector sz))
-                (check-equal? sz (bvlen l0))
-                (check-equal? sz (bvlen l1))
+                (check-equal? (bvlen l0) sz)
+                (check-equal? (bvlen l1) sz)
                 (check-true (end-to-end-test (bool->bitvector (bvult l0 l1))))
                 (check-true (end-to-end-test (bool->bitvector (bvule l0 l1))))
                 (check-true (end-to-end-test (bool->bitvector (bvugt l0 l1))))
