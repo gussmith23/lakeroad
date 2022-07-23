@@ -81,9 +81,9 @@
      (when (> (length (symbolics bv-expr)) 4)
        (return #f))
 
-     ;;; Max supported input width is 27 (if we're being safe; a is 30 bits wide, but only 27 bits of
-     ;;; a are multiplied).
-     (when (> (apply max (map bvlen (symbolics bv-expr))) 27)
+     ;;; Max supported input/output width is 27 (if we're being safe; a is 30 bits wide, but only 27
+     ;;; bits of a are multiplied).
+     (when (> (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 27)
        (return #f))
 
      (define in0 (if (>= (length (symbolics bv-expr)) 1) (list-ref (symbolics bv-expr) 0) (bv 0 1)))
