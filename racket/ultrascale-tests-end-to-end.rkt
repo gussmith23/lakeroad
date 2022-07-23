@@ -17,9 +17,10 @@
             (format "~a/~a" includes-dir mod))
           (list (build-path (getenv "LAKEROAD_DIR") "verilator-unisims" "DSP48E2.v"))))
 (define (end-to-end-test bv-expr)
-
-  (define lakeroad-expr
-    (result-value (with-vc (with-terms (synthesize-xilinx-ultrascale-plus-impl bv-expr)))))
+  (define with-vc-result (with-vc (with-terms (synthesize-xilinx-ultrascale-plus-impl bv-expr))))
+  (when (failed? with-vc-result)
+    (raise (result-value with-vc-result)))
+  (define lakeroad-expr (result-value with-vc-result))
 
   (simulate-expr
    lakeroad-expr
