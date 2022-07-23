@@ -638,7 +638,7 @@
   (let* ([a (sign-extend a (bitvector 48))]
          [b (sign-extend b (bitvector 48))]
          [d (sign-extend d (bitvector 48))]
-         [out (bvmul (bvadd d a) b)])
+         [out (bvmul a b)])
     (list out)))
 
 (define (compile-ultrascale-plus-dsp48e2 dsp p-name clk-name a-name b-name c-name ce-name reset-name)
