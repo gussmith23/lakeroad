@@ -47,7 +47,7 @@ int main(int argc, char **argv, char **env)
               uint32_t l5 = (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff);
 
               uint32_t out = run(top, l0, l1, l2, l3, l4, l5);
-              uint32_t expected = ~a & ((1 << ~a) - 1);
+              uint32_t expected = (~a) & (-1); // TODO we used to & with ((1 << ~a) - 1), i think -1 is cleaner.
 
               // Uncoment this when you want to debug.
               // printf("~a with l0=%u l1=%u l2=%u  == %u, should equal %u\n", l0, l1, l2, out, expected);
