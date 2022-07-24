@@ -64,6 +64,7 @@
       [`(bvor ,a ,b) (bvor (helper a) (helper b))]
       [`(bvadd ,a ,b) (bvadd (helper a) (helper b))]
       [`(bvsub ,a ,b) (bvsub (helper a) (helper b))]
+      [`(bvmul ,a ,b) (bvmul (helper a) (helper b))]
       [`(bvnot ,a) (bvnot (helper a))]
       [`(var ,id ,bw) (constant id (bitvector bw))]))
 
