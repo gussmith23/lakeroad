@@ -162,7 +162,12 @@
             [pfu (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
        (interpret-ecp5-pfu-impl pfu inputs))]
     [`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs)
-     (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN (interpreter inputs))]
+     (interpret-ecp5-ccu2c-impl INIT0
+                                INIT1
+                                INJECT1_0
+                                INJECT1_1
+                                (interpreter CIN)
+                                (interpreter inputs))]
     [`(lattice-ecp5-ripple-pfu ,INIT0
                                ,INIT1
                                ,INIT2
@@ -243,6 +248,11 @@
 ;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
 ;;; OUTPUTS: (S0 S1 COUT)
 (define (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
+  (when (not (= (length inputs) 2))
+    (error (format "expected inputs to be length 2, found length ~a: ~a" (length inputs) inputs)))
+  (for ([input inputs])
+    (when (not ((bitvector 4) input))
+      (error (format "expected input to be a (bitvector 4), found ~a" input))))
   (match-let* ([`(,INPUTS0 ,INPUTS1) inputs])
               (let* (;;; // First Half
                      ;;; wire LUT4_0, LUT2_0;
@@ -524,7 +534,7 @@
                ;;; CCU2C 0
                [ccu2c-0
                 (make-lattice-ccu2c-expr #:inputs (list i0 i1)
-                                         #:CIN CIN
+                                         #:CIN `(,CIN)
                                          #:INIT0 INIT0
                                          #:INIT1 INIT1
                                          #:INJECT1_0 INJECT1_0
@@ -539,7 +549,7 @@
                ;;; CCU2C 1
                [ccu2c-1
                 (make-lattice-ccu2c-expr #:inputs (list i2 i3)
-                                         #:CIN COUT-0
+                                         #:CIN `(,COUT-0)
                                          #:INIT0 INIT2
                                          #:INIT1 INIT3
                                          #:INJECT1_0 INJECT1_2
@@ -554,7 +564,7 @@
                ;;; CCU2C 2
                [ccu2c-2
                 (make-lattice-ccu2c-expr #:inputs (list i4 i5)
-                                         #:CIN COUT-1
+                                         #:CIN `(,COUT-1)
                                          #:INIT0 INIT4
                                          #:INIT1 INIT5
                                          #:INJECT1_0 INJECT1_4
@@ -569,7 +579,7 @@
                ;;; CCU2C 3
                [ccu2c-3
                 (make-lattice-ccu2c-expr #:inputs (list i6 i7)
-                                         #:CIN COUT-2
+                                         #:CIN `(,COUT-2)
                                          #:INIT0 INIT6
                                          #:INIT1 INIT7
                                          #:INJECT1_0 INJECT1_6
@@ -613,6 +623,7 @@
                                add-parameter-default-value
                                expr)
   (match-let* ([`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs) expr]
+               [`(,CIN) (compiler CIN)]
                [compiled-inputs (compiler inputs)]
                [(list (list A0 B0 C0 D0) (list A1 B1 C1 D1)) compiled-inputs]
                [(list s0 s1 cout) (get-unique-bit-ids 3)]
