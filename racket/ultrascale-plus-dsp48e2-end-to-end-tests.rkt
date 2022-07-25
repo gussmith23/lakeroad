@@ -19,6 +19,7 @@
     (when (failed? with-vc-result)
       (raise (result-value with-vc-result)))
     (define lakeroad-expr (result-value with-vc-result))
+    (check-not-equal? lakeroad-expr #f)
 
     (simulate-expr
      lakeroad-expr
