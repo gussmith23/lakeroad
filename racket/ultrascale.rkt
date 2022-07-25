@@ -554,11 +554,11 @@
                                           ,USE_SIMD
                                           ,USE_WIDEXOR
                                           ,XORSIMD
-                                          ,unnamed-input-531
-                                          ,unnamed-input-897
-                                          ,unnamed-input-1276
-                                          ,unnamed-input-1332
-                                          ,unnamed-input-1376)
+                                          ,unnamed-input-331
+                                          ,unnamed-input-488
+                                          ,unnamed-input-750
+                                          ,unnamed-input-806
+                                          ,unnamed-input-850)
     expr)
 
   ;;; Constrain the inputs based on the information in the DSP48E2 user manual. (see spec-sheets/.)
@@ -710,11 +710,11 @@
                    #:USE_SIMD (bv->signal (interpreter USE_SIMD))
                    #:USE_WIDEXOR (bv->signal (interpreter USE_WIDEXOR))
                    #:XORSIMD (bv->signal (interpreter XORSIMD))
-                   #:unnamed-input-531 (bv->signal (interpreter unnamed-input-531))
-                   #:unnamed-input-897 (bv->signal (interpreter unnamed-input-897))
-                   #:unnamed-input-1276 (bv->signal (interpreter unnamed-input-1276))
-                   #:unnamed-input-1332 (bv->signal (interpreter unnamed-input-1332))
-                   #:unnamed-input-1376 (bv->signal (interpreter unnamed-input-1376)))))
+                   #:unnamed-input-331 (bv->signal (interpreter unnamed-input-331))
+                   #:unnamed-input-488 (bv->signal (interpreter unnamed-input-488))
+                   #:unnamed-input-750 (bv->signal (interpreter unnamed-input-750))
+                   #:unnamed-input-806 (bv->signal (interpreter unnamed-input-806))
+                   #:unnamed-input-850 (bv->signal (interpreter unnamed-input-850)))))
 
   (list P))
 
