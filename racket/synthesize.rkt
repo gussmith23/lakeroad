@@ -117,10 +117,10 @@
      (define in2 (if (>= (length (symbolics bv-expr)) 3) (list-ref (symbolics bv-expr) 2) (bv 0 1)))
      (define in3 (if (>= (length (symbolics bv-expr)) 4) (list-ref (symbolics bv-expr) 3) (bv 0 1)))
 
-     (define A (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 30)))
-     (define B (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 18)))
-     (define C (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 48)))
-     (define D (zero-extend (choose in0 in1 in2 in3 (bv 0 1)) (bitvector 27)))
+     (define A (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 30)))
+     (define B (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 18)))
+     (define C (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 48)))
+     (define D (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 27)))
 
      (define-symbolic ACASCREG (bitvector 32))
      (define-symbolic ACIN (bitvector 30))
