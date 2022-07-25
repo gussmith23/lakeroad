@@ -624,6 +624,23 @@
   ;;; PATTERN, C.
   (assert (|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5))))
 
+  ;;; NO_PATDET, PATDET.
+  (assert (|| (bveq USE_PATTERN_DETECT (bv 11 5)) (bveq USE_PATTERN_DETECT (bv 21 5))))
+
+  ;;; Table 2-4 of DSP manual.
+  (assert (=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
+              (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2))))
+
+  ;;; Table 2-6 of DSP manual.
+  (assert (not (bveq (bvxor (extract 6 4 OPMODE) (extract 6 4 IS_OPMODE_INVERTED)) (bv #b111 3))))
+
+  ;;; Warning from DSP model:
+  ;;;
+  ;;; DRC warning : [Unisim DSP48E2-11] CARRYINSEL is set to 010 with OPMODEREG set to 0. This causes
+  ;;; unknown values after reset occurs. It is suggested to use OPMODEREG = 1 when cascading large
+  ;;; adders.
+  (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
+
   (define P
     (signal-value (ultrascale-plus-dsp48e2-P
                    #:A (bv->signal (interpreter A))
