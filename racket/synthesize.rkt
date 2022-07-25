@@ -6,7 +6,8 @@
 (provide synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
-         synthesize-lattice-ecp5-impl)
+         synthesize-lattice-ecp5-impl
+         synthesize-xilinx-ultrascale-plus-dsp)
 
 (require "interpreter.rkt"
          "ultrascale.rkt"
