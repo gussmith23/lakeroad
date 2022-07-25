@@ -61,7 +61,8 @@
   (simulate-expr
    lakeroad-expr
    bv-expr
-   #:includes (list sofa-lut4 sofa-muxes sofa-const skywater-inv-1-path skywater-buf-2-path skywater-mux2-1-path)
+   #:includes
+   (list sofa-lut4 sofa-muxes sofa-const skywater-inv-1-path skywater-buf-2-path skywater-mux2-1-path)
    #:include-dirs (list skywater-or2-1-dir skywater-inv-dir skywater-buf-dir skywater-mux2-dir)
    #:extra-verilator-args "-Wno-LITENDIAN -Wno-EOFNEWLINE"))
 

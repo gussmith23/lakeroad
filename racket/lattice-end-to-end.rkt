@@ -24,10 +24,7 @@
     (raise (result-value with-vc-result)))
   (define lakeroad-expr (result-value with-vc-result))
 
-  (simulate-expr
-   lakeroad-expr
-   bv-expr
-   #:includes includes))
+  (simulate-expr lakeroad-expr bv-expr #:includes includes))
 
 (module+ test
   (require rackunit
