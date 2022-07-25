@@ -6,6 +6,7 @@
          "sofa.rkt"
          "synthesize.rkt"
          "circt-comb-operators.rkt"
+         "utils.rkt"
          rosette)
 
 (define sofa-lut4
@@ -51,11 +52,16 @@
               "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/sky130_fd_sc_hd__mux2_1.v"))
 
 (define (end-to-end-test bv-expr)
+  (displayln bv-expr)
+  (define with-vc-result (with-vc (with-terms (synthesize-sofa-impl bv-expr))))
+  (when (failed? with-vc-result)
+    (raise (result-value with-vc-result)))
+  (define lakeroad-expr (result-value with-vc-result))
+
   (simulate-expr
-   (synthesize-sofa-impl bv-expr)
+   lakeroad-expr
    bv-expr
-   #:includes
-   (list sofa-lut4 sofa-muxes sofa-const skywater-inv-1-path skywater-buf-2-path skywater-mux2-1-path)
+   #:includes (list sofa-lut4 sofa-muxes sofa-const skywater-inv-1-path skywater-buf-2-path skywater-mux2-1-path)
    #:include-dirs (list skywater-or2-1-dir skywater-inv-dir skywater-buf-dir skywater-mux2-dir)
    #:extra-verilator-args "-Wno-LITENDIAN -Wno-EOFNEWLINE"))
 
@@ -81,17 +87,21 @@
   ;;;                      (set! i (add1 i))
   ;;;                      ))
 
-  (for ([sz (list 1 2 4 8 16 32)])
-    (test-begin (define-symbolic l0 (bitvector 1))
-                (define-symbolic l1 l2 (bitvector sz))
-                (check-true (end-to-end-test (circt-comb-mux l0 l1 l2)))))
-
-  (test-begin (define-symbolic l0 l1 l2 l3 (bitvector 1))
-              (check-true (end-to-end-test (bvand (bvand l0 l1) (bvand l2 l3))))
-              (check-true (end-to-end-test (bvor (bvor l0 l1) (bvor l2 l3))))
-              (check-true (end-to-end-test (bvxor (bvxor l0 l1) (bvxor l2 l3)))))
-
-  (test-begin (define-symbolic l0 l1 l2 (bitvector 8))
-              (check-true (end-to-end-test (bvand (bvand l0 l1) l2)))
-              (check-true (end-to-end-test (bvor (bvor l0 l1) l2)))
-              (check-true (end-to-end-test (bvxor (bvxor l0 l1) l2)))))
+  (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])
+    (after (gc-terms!)
+           (define-symbolic l0 l1 (bitvector sz))
+           (define-symbolic l2 (bitvector 1))
+           (check-equal? (bvlen l0) sz)
+           (check-equal? (bvlen l1) sz)
+           (check-equal? (bvlen l2) 1)
+           (displayln (format "testing (bitvector ~a)" sz))
+           (test-true (format "~a bit mux" sz) (end-to-end-test (circt-comb-mux l2 l0 l1)))
+           (test-true (format "~a bit &" sz) (end-to-end-test (bvand l0 l1)))
+           (test-true (format "~a bit xor" sz) (end-to-end-test (bvxor l0 l1)))
+           (test-true (format "~a bit |" sz) (end-to-end-test (bvor l0 l1)))
+           (displayln "")
+           ;;; Cleanup: Clear symbolic state.
+           (begin
+             (clear-vc!)
+             (clear-terms!)
+             (collect-garbage)))))
