@@ -312,26 +312,25 @@
   (match primitive
     ['all (synthesize-lattice-ecp5-search-impl bv-expr)]
     ['pfu (synthesize-lattice-ecp5-for-pfu bv-expr)]
-    ['ccu2c (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive 'ccu2c)]
+    ['ccu2c (synthesize-lattice-ecp5-for-ccu2c bv-expr)]
+    ['ccu2c-tri (synthesize-lattice-ecp5-for-ccu2c-tri bv-expr)]
     ['ripple-pfu (synthesize-lattice-ecp5-for-ripple-pfu bv-expr)]))
 
 ;; Recursively search through primitives to synthesize bv-expr
-(define (synthesize-lattice-ecp5-search-impl bv-expr #:primitives [primitives '(pfu ripple-pfu)])
+(define (synthesize-lattice-ecp5-search-impl
+         bv-expr
+         #:primitives [primitives '(pfu ccu2c ccu2c-tri ripple-pfu)])
   (match primitives
     [(cons prim prims)
      (or (synthesize-lattice-ecp5-impl bv-expr #:primitive prim)
          (synthesize-lattice-ecp5-search-impl bv-expr #:primitives prims))]
     ['() 'unsynthesizable]))
 
-;;; Synthesize a Lattice ECP5 Lakeroad expression for the given Rosette
-;;; bitvector expression.
-;;;
-;;; Optionally specify the primitive to target, including:
-;;;  + 'pfu: a normal pfu
-;;;  + 'ccu2c: a 2 bit ccu2c (2-bit adders, etc)
-;;;  + 'ripple-pfu: a pfu in ripple mode (8-bit adders, etc)
-(define (synthesize-lattice-ecp5-for-primitive-impl bv-expr #:primitive [primitive 'pfu])
-
+;;; Synthesizes a lattice expression using ccu2c modules.
+;;; This template is designed for use with simple comparison operators which
+;;; use (n / 2) ccu2c modules, where n is the bitwidth of the inputs
+;;; The type of the output of the programs produced by this template is always a 1-bit bitvector.
+(define (synthesize-lattice-ecp5-for-ccu2c bv-expr)
   (when (> (length (symbolics bv-expr)) 4)
     (error "Only 4 inputs supported"))
 
@@ -339,17 +338,171 @@
   (when (not (concrete? out-bw))
     (error "Out bitwidth must be statically known."))
 
-  (define logical-inputs (get-lattice-logical-inputs bv-expr #:expected-bw 8))
+  ;;; Max bitwidth of any input.
+  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (when (not (concrete? max-input-bw))
+    (error "Input bitwidths must be statically known."))
+
+  ;;; Number of ccu2c modules needed to take all of the input bits,
+  ;;; assuming each CLB gets at most 8 bits from any one input.
+  (define num-mods (ceiling (/ max-input-bw 2)))
+
+  ;;; The bitwidth that all logical inputs should be extended to.
+  (define logical-input-width (* 2 num-mods))
+  (define logical-inputs (get-lattice-logical-inputs bv-expr #:expected-bw logical-input-width))
+
+  ;;; Split the logical inputs into groups, grouped by CCU2C
+  (define logical-inputs-per-ccu2c
+    (for/list ([ccu2c-i (range num-mods)])
+      (for/list ([logical-input logical-inputs])
+        `(extract ,(sub1 (* 2 (add1 ccu2c-i))) ,(* 2 ccu2c-i) ,logical-input))))
+
+  (define lutmem (?? (bitvector 16)))
+  (define initial-cin (?? (bitvector 1)))
+
   (define lakeroad-expr
-    `(extract ,(sub1 out-bw)
-              0
-              (first (physical-to-logical-mapping
-                      (bitwise)
-                      ,(match primitive
-                         ['pfu (make-lattice-pfu-expr logical-inputs)]
-                         ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
-                         ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]
-                         [_ (error (format "Unsupported primitive ~a" primitive))])))))
+    (foldl (lambda (logical-inputs previous-cout)
+             (match-let* ([(list this-ccu2c-physical-outputs this-cout)
+                           (let ([ccu2c-out (make-lattice-ccu2c-expr
+                                             #:inputs `(logical-to-physical-mapping
+                                                        ,(choose '(bitwise) '(bitwise-reverse))
+                                                        ,logical-inputs)
+                                             #:CIN previous-cout
+                                             #:INIT0 lutmem
+                                             #:INIT1 lutmem)])
+
+                             (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))])
+                         this-cout))
+           initial-cin
+           logical-inputs-per-ccu2c))
+
+  (interpret lakeroad-expr)
+
+  (define soln
+    (synthesize #:forall (symbolics bv-expr)
+                #:guarantee (begin
+                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+
+  (if (sat? soln)
+      (evaluate
+       lakeroad-expr
+       ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+       (complete-solution soln
+                          (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                   (list->set (symbolics bv-expr))))))
+      #f))
+
+;;; Synthesizes a lattice expression using multiple ccu2c modules.
+;;; This differs from the single ccu2c module template in that this template uses
+;;; three ccu2c modules for every 2 bits of input, in order to implement more
+;;; complex comparison operators (e.g. >=, etc.)
+;;; The type of the output of the programs produced by this template is always a 1-bit bitvector.
+(define (synthesize-lattice-ecp5-for-ccu2c-tri bv-expr)
+  (when (> (length (symbolics bv-expr)) 4)
+    (error "Only 4 inputs supported"))
+
+  (define out-bw (bvlen bv-expr))
+  (when (not (concrete? out-bw))
+    (error "Out bitwidth must be statically known."))
+
+  ;;; Max bitwidth of any input.
+  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (when (not (concrete? max-input-bw))
+    (error "Input bitwidths must be statically known."))
+
+  ;;; Number of ccu2c modules needed to take all of the input bits,
+  ;;; assuming each CLB gets at most 8 bits from any one input.
+  (define num-mods (ceiling (/ max-input-bw 2)))
+
+  ;;; The bitwidth that all logical inputs should be extended to.
+  (define logical-input-width (* 2 num-mods))
+  (define logical-inputs (get-lattice-logical-inputs bv-expr #:expected-bw logical-input-width))
+
+  ;;; Split the logical inputs into groups, grouped by CCU2C
+  (define logical-inputs-per-ccu2c
+    (for/list ([ccu2c-i (range num-mods)])
+      (for/list ([logical-input logical-inputs])
+        `(extract ,(sub1 (* 2 (add1 ccu2c-i))) ,(* 2 ccu2c-i) ,logical-input))))
+
+  (match-define (list phys-0 cout-0)
+    (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
+      (foldl (lambda (logical-inputs previous-out)
+               (match-let* ([(list acc-phys-out previous-cout) previous-out]
+                            [(list this-ccu2c-physical-outputs this-cout)
+                             (let ([ccu2c-out (make-lattice-ccu2c-expr
+                                               #:inputs `(logical-to-physical-mapping
+                                                          ,(choose '(bitwise) '(bitwise-reverse))
+                                                          ,logical-inputs)
+                                               #:CIN previous-cout
+                                               #:INIT0 lutmem
+                                               #:INIT1 lutmem)])
+
+                               (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))]
+                            [acc-phys-out
+                             (if (equal? acc-phys-out 'first)
+                                 this-ccu2c-physical-outputs
+                                 `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                           (list acc-phys-out this-cout)))
+             (list 'first cin)
+             logical-inputs-per-ccu2c)))
+
+  (match-define (list phys-1 cout-1)
+    (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
+      (foldl (lambda (logical-inputs previous-out)
+               (match-let* ([(list acc-phys-out previous-cout) previous-out]
+                            [(list this-ccu2c-physical-outputs this-cout)
+                             (let ([ccu2c-out (make-lattice-ccu2c-expr
+                                               #:inputs `(logical-to-physical-mapping
+                                                          ,(choose '(bitwise) '(bitwise-reverse))
+                                                          ,logical-inputs)
+                                               #:CIN previous-cout
+                                               #:INIT0 lutmem
+                                               #:INIT1 lutmem)])
+
+                               (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))]
+                            [acc-phys-out
+                             (if (equal? acc-phys-out 'first)
+                                 this-ccu2c-physical-outputs
+                                 `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                           (list acc-phys-out this-cout)))
+             (list 'first cin)
+             logical-inputs-per-ccu2c)))
+
+  ;;; Our third set of ccu2c modules should be structured as follows:
+  ;;; ccu2c-3.0 takes in (1 1 ccu2c-0.0 ccu2c-1.0)
+  ;;; ccu2c-3.1 takes in (1 1 ccu2c-0.1 ccu2c-1.1)
+  ;;; ...
+  ;;; ccu2c-3.n takes in (1 1 ccu2c-0.n ccu2c-1.n)
+  ;;; The key insight here is that regardless of how many inputs we
+  ;;; take in at first, the inputs to this ccu2c look the same every time
+
+  (define lakeroad-expr
+    (let ([inputs (for/list ([ccu2c-i (range num-mods)])
+                    (list `(concat ,(bv #b11 2)
+                                   (concat (list-ref ,phys-0 ,(* 2 ccu2c-i))
+                                           (list-ref ,phys-1 ,(* 2 ccu2c-i))))
+                          `(concat ,(bv #b11 2)
+                                   (concat (list-ref ,phys-0 ,(sub1 (* 2 (add1 ccu2c-i))))
+                                           (list-ref ,phys-1 ,(sub1 (* 2 (add1 ccu2c-i))))))))]
+          [cin (?? (bitvector 1))]
+          [lutmem (?? (bitvector 16))])
+      (foldl (lambda (gis previous-cout)
+               (match-let* ([(list this-ccu2c-physical-outputs this-cout)
+                             (let ([ccu2c-out (make-lattice-ccu2c-expr #:inputs gis
+                                                                       #:CIN previous-cout
+                                                                       #:INIT0 lutmem
+                                                                       #:INIT1 lutmem)])
+
+                               (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))])
+                           this-cout))
+             cin
+             inputs)))
+
+  (interpret lakeroad-expr)
 
   (define soln
     (synthesize #:forall (symbolics bv-expr)
