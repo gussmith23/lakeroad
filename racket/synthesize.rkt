@@ -325,10 +325,6 @@
                                  ;;; requirement. Instance TOP.top.DSP48E2_0
                                  (assert (bveq USE_MULT (bv 18 5)))
 
-                                 ;;; Trying to get it to just use A and B.
-                                 (assert (bvzero? C))
-                                 (assert (bvzero? D))
-
                                  ;;; Carryin is weird---seems like the semantics don't indicate that a
                                  ;;; carryin of 1 will add 1 to the result.
                                  (assert (bvzero? CARRYIN))
