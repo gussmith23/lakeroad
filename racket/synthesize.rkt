@@ -301,96 +301,100 @@
                                                  ,unnamed-input-806
                                                  ,unnamed-input-850))))
      (define soln
-       (synthesize #:forall (append (symbolics bv-expr)
-                                    (list unnamed-input-331
-                                          unnamed-input-488
-                                          unnamed-input-750
-                                          unnamed-input-806
-                                          unnamed-input-850))
-                   #:guarantee (begin
-                                 ;;; For some reason I can't get this working for the full
-                                 ;;; bitwidth. I expect it to work for 26x17 (because we do
-                                 ;;; unsigned mult, but DSP is signed, so we can't use all
-                                 ;;; 27/18 bits.) 16x16 seems to be the most I can get.
-                                 (assume (bvult A (bv (expt 2 16) 30)))
-                                 (assume (bvult B (bv (expt 2 16) 18)))
+       (synthesize
+        #:forall (append (symbolics bv-expr)
+                         (list unnamed-input-331
+                               unnamed-input-488
+                               unnamed-input-750
+                               unnamed-input-806
+                               unnamed-input-850))
+        #:guarantee
+        (begin
+          ;;; For some reason I can't get this working for the full
+          ;;; bitwidth. I expect it to work for 26x17 (because we do
+          ;;; unsigned mult, but DSP is signed, so we can't use all
+          ;;; 27/18 bits.) 16x16 seems to be the most I can get.
+          (assume (bvult A (bv (expt 2 16) 30)))
+          (assume (bvult B (bv (expt 2 16) 18)))
 
-                                 ;;; Force to DYNAMIC to avoid:
-                                 ;;;
-                                 ;;; OPMODE Input Warning : [Unisim DSP48E2-8] The OPMODE[1:0] (11) is
-                                 ;;; invalid when using attributes USE_MULT = MULTIPLY and (A, B and
-                                 ;;; M) or (A, B and P) or (M and P) are not REGISTERED at time 0.000
-                                 ;;; ns. Please set USE_MULT to either NONE or DYNAMIC or REGISTER one
-                                 ;;; of each group. (A or B) and (M or P) will satisfy the
-                                 ;;; requirement. Instance TOP.top.DSP48E2_0
-                                 (assert (bveq USE_MULT (bv 18 5)))
+          ;;; Force to DYNAMIC to avoid:
+          ;;;
+          ;;; OPMODE Input Warning : [Unisim DSP48E2-8] The OPMODE[1:0] (11) is
+          ;;; invalid when using attributes USE_MULT = MULTIPLY and (A, B and
+          ;;; M) or (A, B and P) or (M and P) are not REGISTERED at time 0.000
+          ;;; ns. Please set USE_MULT to either NONE or DYNAMIC or REGISTER one
+          ;;; of each group. (A or B) and (M or P) will satisfy the
+          ;;; requirement. Instance TOP.top.DSP48E2_0
+          (assert (bveq USE_MULT (bv 18 5)))
 
-                                 ;;; Carryin is weird---seems like the semantics don't indicate that a
-                                 ;;; carryin of 1 will add 1 to the result.
-                                 (assert (bvzero? CARRYIN))
+          (assert (bvzero? CARRYIN))
+          (assert (bvzero? CARRYCASCIN))
 
-                                 (assert (bvzero? PCIN))
+          (assert (bvzero? CLK))
 
-                                 (assert (bvzero? ACIN))
-                                 (assert (bvzero? BCIN))
-                                 (assert (bvzero? MASK))
-                                 (assert (bvzero? RND))
-                                 (assert (bvzero? RSTA))
-                                 (assert (bvzero? RSTALLCARRYIN))
-                                 (assert (bvzero? RSTALUMODE))
-                                 (assert (bvzero? RSTB))
-                                 (assert (bvzero? RSTC))
-                                 (assert (bvzero? RSTCTRL))
-                                 (assert (bvzero? RSTD))
-                                 (assert (bvzero? RSTINMODE))
-                                 (assert (bvzero? RSTM))
-                                 (assert (bvzero? RSTP))
-                                 (assert (bvzero? AREG))
-                                 (assert (bvzero? ACASCREG))
-                                 (assert (bvzero? BREG))
-                                 (assert (bvzero? BCASCREG))
-                                 (assert (bvzero? CREG))
-                                 (assert (bvzero? DREG))
-                                 (assert (bvzero? PREG))
-                                 (assert (bvzero? INMODEREG))
-                                 (assert (bvzero? OPMODEREG))
-                                 (assert (bvzero? ALUMODEREG))
-                                 (assert (bvzero? CARRYINREG))
-                                 (assert (bvzero? CARRYINSELREG))
-                                 (assert (bvzero? CARRYINSEL))
-                                 (assert (bvzero? MULTSIGNIN))
+          (assert (bvzero? PCIN))
+          (assert (bvzero? ACIN))
+          (assert (bvzero? BCIN))
+          ;;;(assert (bvzero? MASK))
+          ;;;(assert (bvzero? PATTERN))
+          ;;;(assert (bvzero? RND))
+          (assert (bvzero? RSTA))
+          (assert (bvzero? RSTALLCARRYIN))
+          (assert (bvzero? RSTALUMODE))
+          (assert (bvzero? RSTB))
+          (assert (bvzero? RSTC))
+          (assert (bvzero? RSTCTRL))
+          (assert (bvzero? RSTD))
+          (assert (bvzero? RSTINMODE))
+          (assert (bvzero? RSTM))
+          (assert (bvzero? RSTP))
+          (assert (bvzero? AREG))
+          (assert (bvzero? ADREG))
+          (assert (bvzero? ACASCREG))
+          (assert (bvzero? BREG))
+          (assert (bvzero? BCASCREG))
+          (assert (bvzero? CREG))
+          (assert (bvzero? DREG))
+          (assert (bvzero? PREG))
+          (assert (bvzero? MREG))
+          (assert (bvzero? INMODEREG))
+          (assert (bvzero? OPMODEREG))
+          (assert (bvzero? ALUMODEREG))
+          (assert (bvzero? CARRYINREG))
+          (assert (bvzero? CARRYINSELREG))
+          (assert (bvzero? CARRYINSEL))
+          (assert (bvzero? MULTSIGNIN))
 
-                                 (assert (bvzero? IS_ALUMODE_INVERTED))
-                                 (assert (bvzero? IS_CARRYIN_INVERTED))
-                                 (assert (bvzero? IS_CLK_INVERTED))
-                                 (assert (bvzero? IS_INMODE_INVERTED))
-                                 (assert (bvzero? IS_OPMODE_INVERTED))
-                                 (assert (bvzero? IS_RSTALLCARRYIN_INVERTED))
-                                 (assert (bvzero? IS_RSTALUMODE_INVERTED))
-                                 (assert (bvzero? IS_RSTA_INVERTED))
-                                 (assert (bvzero? IS_RSTB_INVERTED))
-                                 (assert (bvzero? IS_RSTCTRL_INVERTED))
-                                 (assert (bvzero? IS_RSTC_INVERTED))
-                                 (assert (bvzero? IS_RSTD_INVERTED))
-                                 (assert (bvzero? IS_RSTINMODE_INVERTED))
-                                 (assert (bvzero? IS_RSTM_INVERTED))
-                                 (assert (bvzero? IS_RSTP_INVERTED))
+          (assert (bvzero? IS_ALUMODE_INVERTED))
+          (assert (bvzero? IS_CARRYIN_INVERTED))
+          (assert (bvzero? IS_CLK_INVERTED))
+          (assert (bvzero? IS_INMODE_INVERTED))
+          (assert (bvzero? IS_OPMODE_INVERTED))
+          (assert (bvzero? IS_RSTALLCARRYIN_INVERTED))
+          (assert (bvzero? IS_RSTALUMODE_INVERTED))
+          (assert (bvzero? IS_RSTA_INVERTED))
+          (assert (bvzero? IS_RSTB_INVERTED))
+          (assert (bvzero? IS_RSTCTRL_INVERTED))
+          (assert (bvzero? IS_RSTC_INVERTED))
+          (assert (bvzero? IS_RSTD_INVERTED))
+          (assert (bvzero? IS_RSTINMODE_INVERTED))
+          (assert (bvzero? IS_RSTM_INVERTED))
+          (assert (bvzero? IS_RSTP_INVERTED))
 
-                                 (assert (not (bvzero? CEA1)))
-                                 (assert (not (bvzero? CEA2)))
-                                 (assert (not (bvzero? CEAD)))
-                                 (assert (not (bvzero? CEALUMODE)))
-                                 (assert (not (bvzero? CEB1)))
-                                 (assert (not (bvzero? CEB2)))
-                                 (assert (not (bvzero? CEC)))
-                                 (assert (not (bvzero? CECARRYIN)))
-                                 (assert (not (bvzero? CECTRL)))
-                                 (assert (not (bvzero? CED)))
-                                 (assert (not (bvzero? CEINMODE)))
-                                 (assert (not (bvzero? CEM)))
-                                 (assert (not (bvzero? CEP)))
+          (assert (not (bvzero? CEA1)))
+          (assert (not (bvzero? CEA2)))
+          (assert (not (bvzero? CEAD)))
+          (assert (not (bvzero? CEALUMODE)))
+          (assert (not (bvzero? CEB1)))
+          (assert (not (bvzero? CEB2)))
+          (assert (not (bvzero? CEC)))
+          (assert (not (bvzero? CECARRYIN)))
+          (assert (not (bvzero? CECTRL)))
+          (assert (not (bvzero? CED)))
+          (assert (not (bvzero? CEINMODE)))
+          (assert (not (bvzero? CEM)))
+          (assert (not (bvzero? CEP)))
 
-                                 (assert (bveq bv-expr (interpret lakeroad-expr))))))
           ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
           ;;; assumes.
           (assume (bvzero? unnamed-input-331))
@@ -399,6 +403,7 @@
           (assume (bvzero? unnamed-input-806))
           (assume (bvzero? unnamed-input-850))
 
+          (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
      (if (sat? soln)
          (begin
