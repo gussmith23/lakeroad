@@ -10,10 +10,13 @@
 ;;; variant is defined as DIRECT_ENUM_VAL = 7.
 
 (provide ultrascale-plus-dsp48e2-P)
-(require (file "/Users/gus/lakeroad/racket/stateful-design-experiment.rkt"))
-(require rosette)
-(require racket/hash)
+
+(require "stateful-design-experiment.rkt"
+         rosette
+         racket/hash)
+
 (define ultrascale-plus-dsp48e2-P
+  ;;; (define/contract ultrascale-plus-dsp48e2-P
   ;;;  (->* ()
   ;;;       (#:A (struct/c signal (bitvector 30) (hash/c symbol? bv?))
   ;;;        #:ACASCREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
