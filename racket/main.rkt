@@ -4,6 +4,7 @@
          rosette
          "synthesize.rkt"
          "compile-to-json.rkt"
+         "circt-comb-operators.rkt"
          json)
 
 (define architecture
@@ -66,6 +67,7 @@
       [`(bvsub ,a ,b) (bvsub (helper a) (helper b))]
       [`(bvmul ,a ,b) (bvmul (helper a) (helper b))]
       [`(bvnot ,a) (bvnot (helper a))]
+      [`(circt-comb-mux ,s ,a ,b) (circt-comb-mux (helper s) (helper a) (helper b))]
       [`(var ,id ,bw) (constant id (bitvector bw))]))
 
   (helper expr))
