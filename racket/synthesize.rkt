@@ -391,6 +391,14 @@
                                  (assert (not (bvzero? CEP)))
 
                                  (assert (bveq bv-expr (interpret lakeroad-expr))))))
+          ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
+          ;;; assumes.
+          (assume (bvzero? unnamed-input-331))
+          (assume (bvzero? unnamed-input-488))
+          (assume (bvzero? unnamed-input-750))
+          (assume (bvzero? unnamed-input-806))
+          (assume (bvzero? unnamed-input-850))
+
 
      (if (sat? soln)
          (begin
