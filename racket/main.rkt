@@ -63,6 +63,7 @@
       [`(bool->bitvector ,a) (bool->bitvector (helper a))]
       [`(bvand ,a ,b) (bvand (helper a) (helper b))]
       [`(bvor ,a ,b) (bvor (helper a) (helper b))]
+      [`(bvxor ,a ,b) (bvxor (helper a) (helper b))]
       [`(bvadd ,a ,b) (bvadd (helper a) (helper b))]
       [`(bvsub ,a ,b) (bvsub (helper a) (helper b))]
       [`(bvmul ,a ,b) (bvmul (helper a) (helper b))]
