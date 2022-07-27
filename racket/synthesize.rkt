@@ -32,9 +32,8 @@
      (match templates
        [(cons t ts) (or (t bv-expr) (synthesize-with strategy ts bv-expr))]
        [_ 'unsynthesizable])]
-    ['exhaustive
-     ;;; TODO: impl timeouts or something idk
-     (map (lambda (f) (with-vc (f bv-expr))) templates)]))
+    ;;; TODO: impl timeouts or something idk
+    ['exhaustive (map (lambda (f) (with-vc (f bv-expr))) templates)]))
 
 ;;; A synthesis template that checks if the input bv-expr is constant (i.e. has
 ;;; no symbolic vars and returns it if so. Otherwise returns #f.
