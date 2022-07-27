@@ -8,11 +8,30 @@
 
 (require "lut.rkt"
          rosette
+         "utils.rkt"
          "comp-json.rkt")
 
 (define (interpret-sofa interpreter expr)
   (match expr
-    [`(sofa-lut4 ,sram ,inputs) (interpret-sofa-lut4 sram (interpreter inputs))]))
+    ;;; I'm not sure SOFA actually has lut1-3, but we can simulate them on LUT4.
+    [`(sofa-lut1 ,sram ,inputs)
+     (when (not (equal? (bvlen sram) 2))
+       (error "SOFA LUT1 should have a LUT memory of length 2."))
+     (interpret-sofa-lut sram (interpreter inputs))]
+    [`(sofa-lut2 ,sram ,inputs)
+     (when (not (equal? (bvlen sram) 4))
+       (error "SOFA LUT2 should have a LUT memory of length 4."))
+     (interpret-sofa-lut sram (interpreter inputs))]
+    [`(sofa-lut3 ,sram ,inputs)
+     (when (not (equal? (bvlen sram) 8))
+       (error "SOFA LUT3 should have a LUT memory of length 8."))
+     (interpret-sofa-lut sram (interpreter inputs))]
+
+    ;;; SOFA does have a LUT4, potentially with even more features than exposed here.
+    [`(sofa-lut4 ,sram ,inputs)
+     (when (not (equal? (bvlen sram) 16))
+       (error "SOFA LUT4 should have a LUT memory of length 16."))
+     (interpret-sofa-lut sram (interpreter inputs))]))
 
 (define (compile-sofa compile get-bits add-cell add-netname add-parameter-default-value expr)
   (match expr
@@ -27,7 +46,7 @@
 
 ;;; Simplified model of a SOFA LUT4 based on the code here:
 ;;; https://github.com/lnis-uofu/SOFA/blob/e508bdd9056639101993f84a215ab10354659ad6/FPGA1212_SOFA_HD_PNR/FPGA1212_SOFA_HD_Verilog/SRC/sub_module/luts.v
-(define (interpret-sofa-lut4 init inputs)
+(define (interpret-sofa-lut init inputs)
   ;;; I had to reverse engineer the LUT4 here a bit, and discovered that they index their memory in the reverse order.
   (lut init (apply concat (bitvector->bits inputs))))
 

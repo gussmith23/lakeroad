@@ -32,6 +32,9 @@
      [`(lattice-ecp5-pfu ,_ ...) (interpret-lattice-ecp5 interpret expr)]
      [`(lattice-ecp5-ccu2c ,_ ...) (interpret-lattice-ecp5 interpret expr)]
      [`(lattice-ecp5-ripple-pfu ,_ ...) (interpret-lattice-ecp5 interpret expr)]
+     [`(sofa-lut1 ,_ ...) (interpret-sofa interpret expr)]
+     [`(sofa-lut2 ,_ ...) (interpret-sofa interpret expr)]
+     [`(sofa-lut3 ,_ ...) (interpret-sofa interpret expr)]
      [`(sofa-lut4 ,_ ...) (interpret-sofa interpret expr)]
 
      ;;; Racket functions lifted to our language.
