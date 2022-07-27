@@ -1,4 +1,4 @@
-#lang errortrace errortrace racket
+#lang errortrace racket
 
 (require "compile-to-json.rkt"
          "verilator.rkt"
