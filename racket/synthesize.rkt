@@ -3,7 +3,8 @@
 ;;;
 ;;; TODO provide a top-level synthesis procedure?
 
-(provide synthesize-xilinx-ultrascale-plus-impl
+(provide synthesize-with
+         synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
          synthesize-lattice-ecp5-impl)
 
@@ -19,8 +20,33 @@
 
 (current-solver (boolector))
 
+;;; Attempts to synthesize a program for bv-expr using the templates provided.
+;;; strategy can be one of 'whatever-works or 'exhaustive;
+;;; if the strategy is 'whatever-works, returns the first valid synthesis result.
+;;; Otherwise, returns a list of all synthesis results, with order corresponding
+;;; to the order of templates supplied.
+;;; templates is a list of templates, each template having type bv-expr -> (union bv-expr #f)
+(define (synthesize-with strategy templates bv-expr)
+  (match strategy
+    ['whatever-works
+     (match templates
+       [(cons t ts) (or (t bv-expr) (synthesize-with strategy ts bv-expr))]
+       [_ 'unsynthesizable])]
+    ['exhaustive
+     ;;; TODO: impl timeouts or something idk
+     (map (lambda (f) (with-vc (f bv-expr))) templates)]))
+
+;;; A synthesis template that checks if the input bv-expr is constant (i.e. has
+;;; no symbolic vars and returns it if so. Otherwise returns #f.
+(define (synthesize-constant bv-expr)
+  (if (empty? (symbolics bv-expr))
+      ;;; If the expression is a constant, then it's a valid Lakeroad expression. Return it!
+      bv-expr
+      ;;; Otherwise, for this template, just give up lmao
+      #f))
+
 (define (synthesize-sofa-impl bv-expr)
-  (or (synthesize-sofa-impl-simple bv-expr) (error "Could not synthesize!")))
+  (synthesize-with 'whatever-works (list synthesize-sofa-impl-simple) bv-expr))
 
 (define (synthesize-sofa-impl-simple bv-expr)
   (when (> (length (symbolics bv-expr)) 4)
@@ -198,21 +224,16 @@
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
 ;;;
-;;; TODO Support returning #f or something if we can't synthesize.
-;;;
 ;;; TODO Use the grammar to generate *any* Lakeroad program. This will probably require that we also
 ;;; let the user specify the depth to search over and other parameters. At the very least, start by
 ;;; defining those as keyword args with default values.
 (define (synthesize-xilinx-ultrascale-plus-impl bv-expr)
-  ;;; TODO replace the ifs by folding them into the or statement. Using or is much cleaner.
-  (or (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
-      (if (empty? (symbolics bv-expr))
-          ;;; If the expression is a constant, then it's a valid Lakeroad expression. Return it!
-          bv-expr
-          (let ([out (synthesize-xilinx-ultrascale-plus-impl-smaller-luts bv-expr)])
-            (if (not (equal? #f out))
-                out
-                (synthesize-xilinx-ultrascale-plus-impl-kitchen-sink bv-expr))))))
+  (synthesize-with 'whatever-works
+                   (list synthesize-constant
+                         synthesize-xilinx-ultrascale-plus-dsp
+                         synthesize-xilinx-ultrascale-plus-impl-smaller-luts
+                         synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
+                   bv-expr))
 
 ;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
 ;;; This is our original synthesis implementation, and remains our fallback.
@@ -308,23 +329,13 @@
                                (set->list (set-subtract (list->set (symbolics lakeroad-expr))
                                                         (list->set (symbolics bv-expr)))))))
 
-(define (synthesize-lattice-ecp5-impl bv-expr #:primitive [primitive 'all])
-  (match primitive
-    ['all (synthesize-lattice-ecp5-search-impl bv-expr)]
-    ['pfu (synthesize-lattice-ecp5-for-pfu bv-expr)]
-    ['ccu2c (synthesize-lattice-ecp5-for-ccu2c bv-expr)]
-    ['ccu2c-tri (synthesize-lattice-ecp5-for-ccu2c-tri bv-expr)]
-    ['ripple-pfu (synthesize-lattice-ecp5-for-ripple-pfu bv-expr)]))
-
-;; Recursively search through primitives to synthesize bv-expr
-(define (synthesize-lattice-ecp5-search-impl
-         bv-expr
-         #:primitives [primitives '(pfu ripple-pfu ccu2c ccu2c-tri)])
-  (match primitives
-    [(cons prim prims)
-     (or (synthesize-lattice-ecp5-impl bv-expr #:primitive prim)
-         (synthesize-lattice-ecp5-search-impl bv-expr #:primitives prims))]
-    ['() 'unsynthesizable]))
+(define (synthesize-lattice-ecp5-impl bv-expr)
+  (synthesize-with 'whatever-works
+                   (list synthesize-lattice-ecp5-for-pfu
+                         synthesize-lattice-ecp5-for-ripple-pfu
+                         synthesize-lattice-ecp5-for-ccu2c
+                         synthesize-lattice-ecp5-for-ccu2c-tri)
+                   bv-expr))
 
 ;;; Synthesizes a lattice expression using ccu2c modules.
 ;;; This template is designed for use with simple comparison operators which
