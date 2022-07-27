@@ -319,7 +319,7 @@
 ;; Recursively search through primitives to synthesize bv-expr
 (define (synthesize-lattice-ecp5-search-impl
          bv-expr
-         #:primitives [primitives '(pfu ccu2c ccu2c-tri ripple-pfu)])
+         #:primitives [primitives '(pfu ripple-pfu ccu2c ccu2c-tri)])
   (match primitives
     [(cons prim prims)
      (or (synthesize-lattice-ecp5-impl bv-expr #:primitive prim)
