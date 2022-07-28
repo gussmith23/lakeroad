@@ -13,6 +13,8 @@
          "lut.rkt"
          rosette)
 
+;;; Eventually, we should convert the entire language to being structs. (Ideally, put them in their
+;;; own module and import them with a lr: prefix, rather than naming them lr-<name>.)
 (struct lr-first (expr) #:transparent)
 (struct lr-second (expr) #:transparent)
 
