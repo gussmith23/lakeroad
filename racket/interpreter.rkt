@@ -8,6 +8,7 @@
          "lattice-ecp5.rkt"
          "sofa.rkt"
          "utils.rkt"
+         "lut.rkt"
          rosette)
 
 (define (interpret expr)
@@ -30,6 +31,30 @@
      [`(sofa-lut2 ,_ ...) (interpret-sofa interpret expr)]
      [`(sofa-lut3 ,_ ...) (interpret-sofa interpret expr)]
      [`(sofa-lut4 ,_ ...) (interpret-sofa interpret expr)]
+     ;;; Generic hardware blocks.
+     ;;;
+     ;;; Returns a (bitvector 1): the result of looking up the entry specified by `inputs` in
+     ;;; `lutmem`.
+     [`(lut ,architecture ,lutmem ,inputs) (lut lutmem (interpret inputs))]
+     ;;; Returns a list of:
+     ;;; - a (bitvector n): the result of the addition.
+     ;;; - a (bitvector 1): the carry out. Inputs:
+     ;;; - cin: the carry in.
+     ;;; - di: the data input to the mux within the carry. Usually set to one of the inputs of the
+     ;;;   addition, when implementing addition.
+     ;;; - s: the select signal for the mux. Usually set to the partial sums of the addition (i.e. the
+     ;;;   bitwise XORs of the inputs) when performing addition.
+     [`(carry ,architecture ,cin ,di ,s)
+      (let* (;;; Returns the carry out bit at each stage.
+             [cin (interpret cin)]
+             [di (interpret di)]
+             [s (interpret s)]
+             [calc-cout (λ (di s cin) (list (if (bvzero? s) di cin) (bvxor cin di)))]
+             [couts-list
+              (apply concat (foldl calc-cout cin (bitvector->bits di) (bitvector->bits s)))]
+             [cout (last couts-list)]
+             [cins (apply concat (drop (reverse couts-list) 1))])
+        (list (bvxor cins s) cout))]
 
      ;;; Racket functions lifted to our language.
      [`(append ,lsts ...) (apply append (interpret lsts))]
