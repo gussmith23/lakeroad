@@ -1,26 +1,14 @@
 ;;; Interpreter for the Lakeroad FPGA modeling DSL.
 #lang errortrace racket
 
-(provide interpret
-         interpret-new)
+(provide interpret)
 
 (require "logical-to-physical.rkt"
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
          "sofa.rkt"
          "utils.rkt"
-         rosette
-         rosette/lib/destruct
-         (prefix-in lr: "language.rkt"))
-
-(define (interpret-new expr)
-  (destruct expr
-            [(lr:list-ref l n) (list-ref (interpret-new l) (interpret-new n))]
-            [(lr:extract h l v) (extract (interpret-new h) (interpret-new l) (interpret-new v))]
-            [(lr:list l) (map interpret-new l)]
-            [(lr:integer v) v]
-            [(lr:bv v) v]
-            [(lr:legacy expr) (interpret expr)]))
+         rosette)
 
 (define (interpret expr)
   (for/all
