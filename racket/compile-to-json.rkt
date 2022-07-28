@@ -7,6 +7,7 @@
          "lattice-ecp5.rkt"
          "sofa.rkt"
          "logical-to-physical.rkt"
+         "utils.rkt"
          racket/pretty
          rosette)
 
@@ -61,6 +62,14 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
+                 [`(lut 1 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                  (compile `(ultrascale-plus-lut1 ,lutmem ,inputs))]
+                 [`(lut 2 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                  (compile `(ultrascale-plus-lut2 ,lutmem ,inputs))]
+                 [`(lut 3 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                  (compile `(ultrascale-plus-lut3 ,lutmem ,inputs))]
+                 [`(lut 4 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                  (compile `(ultrascale-plus-lut4 ,lutmem ,inputs))]
                  [`(ultrascale-plus-dsp48e2 ,_ ...)
                   (make-ultrascale-plus-dsp48e2 compile
                                                 get-bits
