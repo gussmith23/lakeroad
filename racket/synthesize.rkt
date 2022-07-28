@@ -16,7 +16,8 @@
          rosette/lib/angelic
          racket/pretty
          rosette/solver/smt/boolector
-         "utils.rkt")
+         "utils.rkt"
+         (prefix-in template: "templates.rkt"))
 
 (current-solver (boolector))
 
@@ -157,47 +158,17 @@
   (when (> (length (symbolics bv-expr)) 6)
     (error "Only 6 inputs supported"))
 
-  ;;; Bitwidth of the output.
-  (define out-bw (bvlen bv-expr))
-  (when (not (concrete? out-bw))
-    (error "Out bitwidth must be statically known."))
+  ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
+  (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
 
-  ;;; Max bitwidth of any input.
-  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
-  (define max-input-bw
-    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
-  (when (not (concrete? max-input-bw))
-    (error "Input bitwidths must be statically known."))
-
-  ;;; Form the list of logical inputs.
-  ;;; Zero-extend them so they're all the same size.
-  (define logical-inputs
-    (map (lambda (v)
-           (choose* `(zero-extend ,v ,(bitvector max-input-bw))
-                    `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
-         (symbolics bv-expr)))
-
-  (define lut-fn
-    (match (length (symbolics bv-expr))
-      [1 'ultrascale-plus-lut1]
-      [2 'ultrascale-plus-lut2]
-      [3 'ultrascale-plus-lut3]))
-
-  (define lutmem
-    (match (length (symbolics bv-expr))
-      [1 (?? (bitvector 2))]
-      [2 (?? (bitvector 4))]
-      [3 (?? (bitvector 8))]))
+  (define num-lutmems 1)
+  (define lutmems
+    (for/list ([i num-lutmems])
+      (define-symbolic* lutmem (bitvector (expt 2 (length (symbolics bv-expr)))))
+      lutmem))
 
   (define lakeroad-expr
-    (let* ([physical-inputs `(logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse))
-                                                          ,logical-inputs)]
-           [physical-outputs (for/list ([i max-input-bw])
-                               `(,lut-fn ,lutmem (list-ref ,physical-inputs ,i)))])
-      `(extract ,(sub1 out-bw)
-                0
-                (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
-                                                    ,physical-outputs)))))
+    (template:lut nbits 'xilinx-ultrascale-plus (symbolics bv-expr) lutmems (bvlen bv-expr)))
 
   (interpret lakeroad-expr)
   (define soln

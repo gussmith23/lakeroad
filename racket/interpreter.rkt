@@ -34,8 +34,9 @@
      ;;; Generic hardware blocks.
      ;;;
      ;;; Returns a (bitvector 1): the result of looking up the entry specified by `inputs` in
-     ;;; `lutmem`.
-     [`(lut ,architecture ,lutmem ,inputs) (lut lutmem (interpret inputs))]
+     ;;; `lutmem`. `ins` is the number of inputs; i.e. 4 for a LUT4. The next argument is the number
+     ;;; of output bits---we only support 1 for now.
+     [`(lut ,ins 1 ,architecture ,lutmem ,inputs) (lut lutmem (interpret inputs))]
      ;;; Returns a list of:
      ;;; - a (bitvector n): the result of the addition.
      ;;; - a (bitvector 1): the carry out. Inputs:

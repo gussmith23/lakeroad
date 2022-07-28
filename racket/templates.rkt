@@ -27,16 +27,20 @@
                logical-inputs)]
          [lutmem (match lutmems
                    [(list lm0) (choose* lm0)])]
-         [lakeroad-expr
-          (let* ([physical-inputs `(logical-to-physical-mapping
-                                    ,(choose* '(bitwise) '(bitwise-reverse))
-                                    ,logical-inputs)]
-                 [physical-outputs (for/list ([i max-bw])
-                                     `(lut ,architecture ,lutmem (list-ref ,physical-inputs ,i)))])
-            `(extract ,(sub1 outwidth)
-                      0
-                      (first (physical-to-logical-mapping ,(choose* '(bitwise) '(bitwise-reverse))
-                                                          ,physical-outputs))))])
+         [lakeroad-expr (let* ([physical-inputs `(logical-to-physical-mapping
+                                                  ,(choose* '(bitwise) '(bitwise-reverse))
+                                                  ,logical-inputs)]
+                               [physical-outputs (for/list ([i max-bw])
+                                                   `(lut ,(length logical-inputs)
+                                                         1
+                                                         ,architecture
+                                                         ,lutmem
+                                                         (list-ref ,physical-inputs ,i)))])
+                          `(extract ,(sub1 outwidth)
+                                    0
+                                    (first (physical-to-logical-mapping
+                                            ,(choose* '(bitwise) '(bitwise-reverse))
+                                            ,physical-outputs))))])
 
     (when (not (concrete? max-bw))
       (error "Input bitwidths must be statically known."))
