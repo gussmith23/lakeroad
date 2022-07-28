@@ -1,7 +1,9 @@
 ;;; Interpreter for the Lakeroad FPGA modeling DSL.
 #lang errortrace racket
 
-(provide interpret)
+(provide interpret
+         lr-first
+         lr-second)
 
 (require "logical-to-physical.rkt"
          "ultrascale.rkt"
@@ -10,6 +12,9 @@
          "utils.rkt"
          "lut.rkt"
          rosette)
+
+(struct lr-first (expr) #:transparent)
+(struct lr-second (expr) #:transparent)
 
 (define (interpret expr)
   (for/all
@@ -39,22 +44,23 @@
      [`(lut ,ins 1 ,architecture ,lutmem ,inputs) (lut lutmem (interpret inputs))]
      ;;; Returns a list of:
      ;;; - a (bitvector n): the result of the addition.
-     ;;; - a (bitvector 1): the carry out. Inputs:
+     ;;; - a (bitvector 1): the carry out.
+     ;;;
+     ;;; Inputs:
      ;;; - cin: the carry in.
      ;;; - di: the data input to the mux within the carry. Usually set to one of the inputs of the
      ;;;   addition, when implementing addition.
      ;;; - s: the select signal for the mux. Usually set to the partial sums of the addition (i.e. the
      ;;;   bitwise XORs of the inputs) when performing addition.
-     [`(carry ,architecture ,cin ,di ,s)
+     [`(carry ,width ,architecture ,cin ,di ,s)
       (let* (;;; Returns the carry out bit at each stage.
              [cin (interpret cin)]
              [di (interpret di)]
              [s (interpret s)]
-             [calc-cout (λ (di s cin) (list (if (bvzero? s) di cin) (bvxor cin di)))]
-             [couts-list
-              (apply concat (foldl calc-cout cin (bitvector->bits di) (bitvector->bits s)))]
-             [cout (last couts-list)]
-             [cins (apply concat (drop (reverse couts-list) 1))])
+             [calc-couts (λ (di s cins) (cons (if (bvzero? s) di (first cins)) cins))]
+             [couts-list (foldl calc-couts (list cin) (bitvector->bits di) (bitvector->bits s))]
+             [cout (first couts-list)]
+             [cins (apply concat (drop couts-list 1))])
         (list (bvxor cins s) cout))]
 
      ;;; Racket functions lifted to our language.
@@ -62,7 +68,9 @@
      [`(take ,l ,n) (take (interpret l) n)]
      [`(drop ,l ,n) (drop (interpret l) n)]
      [`(list-ref ,l ,n) (list-ref (interpret l) n)]
+     [(lr-first l) (first (interpret l))]
      [`(first ,l) (first (interpret l))]
+     [(lr-second l) (second (interpret l))]
      [`(second ,l) (second (interpret l))]
      [`(third ,l) (third (interpret l))]
      [`(fourth ,l) (fourth (interpret l))]
