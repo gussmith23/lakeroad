@@ -5,43 +5,43 @@
 (require rosette
          rosette/lib/synthax
          rosette/lib/angelic
-         "utils.rkt")
+         "utils.rkt"
+         "interpreter.rkt"
+         (prefix-in lr: "language.rkt"))
 
-(define-grammar (lut-grammar nbits lut-fn logical-inputs lutmems outwidth)
-                [out `(extract ,(sub1 outwidth) 0 ,(logical-value))]
-                [logical-value
-                 (choose (bv #xff nbits)
-                         (bv #x00 nbits)
-                         ;`(first ,logical-inputs)
-                         ;;; these cause breakages
-                         `(list-ref 0 ,(logical-list))
-                         `(list-ref 1 ,(logical-list))
-                         `(list-ref 2 ,(logical-list))
-                         `(list-ref 3 ,(logical-list))
-                         )]
-                [logical-list
-                 (choose logical-inputs
-                         `(physical-to-logical-mapping
-                           ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-                           ,(for/list ([i nbits])
-                              `(,lut-fn ,(lutmem)
-                                        (list-ref (logical-to-physical-mapping
-                                                    ,(choose '(bitwise) '(bitwise-reverse))
-                                                    ,(logical-list))
-                                                  ,i)))))]
-                [lutmem
-                 (match lutmems
-                   [(list i0) (choose i0)]
-                   [(list i0 i1) (choose i0 i1)]
-                   [(list i0 i1 i2) (choose i0 i1 i2)])]
-                [physical-list
-                 (let* ([logical-to-physical `(logical-to-physical-mapping
-                                               ,(choose '(bitwise) '(bitwise-reverse))
-                                               ,(logical-list))]
-                        [lut-output (for/list ([i nbits])
-                                      `(,lut-fn ,(lutmem) (list-ref ,(physical-list) ,i)))])
-                   ; (choose logical-to-physical lut-output)
-                   lut-output)])
+(define-grammar
+ (lut-grammar nbits lut-fn logical-inputs lutmems outwidth)
+ [out (lr:extract (lr:integer (sub1 outwidth)) (lr:integer 0) (logical-value))]
+ [logical-value
+  (lr:bv (choose (bv #xff nbits)
+                 (bv #x00 nbits)
+                 ;`(first ,logical-inputs)
+                 ;;; these cause breakage
+                 (lr:list-ref (lr:integer 0) (logical-list))
+                 (lr:list-ref (lr:integer 1) (logical-list))
+                 (lr:list-ref (lr:integer 2) (logical-list))))]
+ [logical-list
+  (lr:list (choose (map lr:bv logical-inputs)
+                   (lr:legacy `(physical-to-logical-mapping
+                                ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+                                ,(for/list ([i nbits])
+                                   `(,lut-fn ,(lutmem)
+                                             (list-ref (logical-to-physical-mapping
+                                                        ,(choose '(bitwise) '(bitwise-reverse))
+                                                        ,(logical-list))
+                                                       ,i)))))))]
+ [lutmem
+  (lr:bv (match lutmems
+           [(list i0) (choose i0)]
+           [(list i0 i1) (choose i0 i1)]
+           [(list i0 i1 i2) (choose i0 i1 i2)]))]
+ [physical-list
+  (let* ([logical-to-physical
+          `(logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse)) ,(logical-list))]
+         [lut-output (for/list ([i nbits])
+                       `(,lut-fn ,(lutmem) (list-ref ,(physical-list) ,i)))])
+    ; (choose logical-to-physical lut-output)
+    lut-output)])
 
 (define (lut nbits lut-fn logical-inputs lutmems outwidth #:depth depth)
   ;;; First, extend the inputs up to the same size.
@@ -66,7 +66,7 @@
 
     (define soln
       (synthesize #:forall (symbolics bvexpr)
-                  #:guarantee (assert (bveq (interpret lakeroad-expr) bvexpr))))
+                  #:guarantee (assert (bveq (interpret-new lakeroad-expr) bvexpr))))
     (when (sat? soln)
       (pretty-display (evaluate lakeroad-expr soln)))
 

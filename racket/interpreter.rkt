@@ -11,10 +11,16 @@
          "utils.rkt"
          rosette
          rosette/lib/destruct
-         "language.rkt")
+         (prefix-in lr: "language.rkt"))
 
 (define (interpret-new expr)
-  (destruct expr [(racket-list-ref l n) (list-ref (interpret-new l) (interpret-new n))]))
+  (destruct expr
+            [(lr:list-ref l n) (list-ref (interpret-new l) (interpret-new n))]
+            [(lr:extract h l v) (extract (interpret-new h) (interpret-new l) (interpret-new v))]
+            [(lr:list l) (map interpret-new l)]
+            [(lr:integer v) v]
+            [(lr:bv v) v]
+            [(lr:legacy expr) (interpret expr)]))
 
 (define (interpret expr)
   (for/all
