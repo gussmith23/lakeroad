@@ -111,7 +111,7 @@
                [(? list? v) (map interpret-helper v)])))
           (hash-set! interpreter-memo-hash expr out)
           out)))
-  (interpret expr))
+  (interpret-helper expr))
 
 (module+ test
   (require rackunit
