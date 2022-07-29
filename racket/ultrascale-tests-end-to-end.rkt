@@ -44,6 +44,7 @@
            (check-equal? (bvlen l0) sz)
            (check-equal? (bvlen l1) sz)
            (check-equal? (bvlen l2) 1)
+           (displayln (format "Testing UltraScale+ ~a bit ops end-to-end"))
            (test-true (format "~a bit mux" sz) (end-to-end-test (circt-comb-mux l2 l0 l1)))
            (test-true (format "~a bit <" sz) (end-to-end-test (bool->bitvector (bvult l0 l1))))
            (test-true (format "~a bit <=" sz) (end-to-end-test (bool->bitvector (bvule l0 l1))))
