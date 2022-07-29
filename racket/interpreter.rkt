@@ -19,39 +19,39 @@
 (struct lr-second (expr) #:transparent)
 
 (define (interpret expr)
-  (for/all
-   ([expr expr])
-   (define interpreter-memo-hash (make-hash))
-   (define (interpret expr)
-     (if (hash-has-key? interpreter-memo-hash expr)
-         (hash-ref interpreter-memo-hash expr)
-         (begin
-           (define out
+  (define interpreter-memo-hash (make-hash))
+  (define (interpret-helper expr)
+    (if (hash-has-key? interpreter-memo-hash expr)
+        (hash-ref interpreter-memo-hash expr)
+        (begin
+          (define out
+            (for/all
+             ([expr expr])
              (match expr
                ;;; Lakeroad language.
                [`(logical-to-physical-mapping ,_ ...)
-                (interpret-logical-to-physical-mapping interpret expr)]
+                (interpret-logical-to-physical-mapping interpret-helper expr)]
                [`(physical-to-logical-mapping ,_ ...)
-                (interpret-physical-to-logical-mapping interpret expr)]
-               [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret expr)]
-               [`(ultrascale-plus-lut6-2 ,_ ...) (interpret-ultrascale-plus interpret expr)]
-               [`(ultrascale-plus-lut3 ,_ ...) (interpret-ultrascale-plus interpret expr)]
-               [`(ultrascale-plus-lut2 ,_ ...) (interpret-ultrascale-plus interpret expr)]
-               [`(ultrascale-plus-lut1 ,_ ...) (interpret-ultrascale-plus interpret expr)]
-               [`(ultrascale-plus-dsp48e2 ,_ ...) (interpret-ultrascale-plus interpret expr)]
-               [`(lattice-ecp5-pfu ,_ ...) (interpret-lattice-ecp5 interpret expr)]
-               [`(lattice-ecp5-ccu2c ,_ ...) (interpret-lattice-ecp5 interpret expr)]
-               [`(lattice-ecp5-ripple-pfu ,_ ...) (interpret-lattice-ecp5 interpret expr)]
-               [`(sofa-lut1 ,_ ...) (interpret-sofa interpret expr)]
-               [`(sofa-lut2 ,_ ...) (interpret-sofa interpret expr)]
-               [`(sofa-lut3 ,_ ...) (interpret-sofa interpret expr)]
-               [`(sofa-lut4 ,_ ...) (interpret-sofa interpret expr)]
+                (interpret-physical-to-logical-mapping interpret-helper expr)]
+               [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
+               [`(ultrascale-plus-lut6-2 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
+               [`(ultrascale-plus-lut3 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
+               [`(ultrascale-plus-lut2 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
+               [`(ultrascale-plus-lut1 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
+               [`(ultrascale-plus-dsp48e2 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
+               [`(lattice-ecp5-pfu ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-ccu2c ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-ripple-pfu ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(sofa-lut1 ,_ ...) (interpret-sofa interpret-helper expr)]
+               [`(sofa-lut2 ,_ ...) (interpret-sofa interpret-helper expr)]
+               [`(sofa-lut3 ,_ ...) (interpret-sofa interpret-helper expr)]
+               [`(sofa-lut4 ,_ ...) (interpret-sofa interpret-helper expr)]
                ;;; Generic hardware blocks.
                ;;;
                ;;; Returns a (bitvector 1): the result of looking up the entry specified by `inputs` in
                ;;; `lutmem`. `ins` is the number of inputs; i.e. 4 for a LUT4. The next argument is the number
                ;;; of output bits---we only support 1 for now.
-               [`(lut ,ins 1 ,architecture ,lutmem ,inputs) (lut lutmem (interpret inputs))]
+               [`(lut ,ins 1 ,architecture ,lutmem ,inputs) (lut lutmem (interpret-helper inputs))]
                ;;; Returns a list of:
                ;;; - a (bitvector n): the result of the addition.
                ;;; - a (bitvector 1): the carry out.
@@ -64,9 +64,9 @@
                ;;;   bitwise XORs of the inputs) when performing addition.
                [`(carry ,width ,architecture ,cin ,di ,s)
                 (let* (;;; Returns the carry out bit at each stage.
-                       [cin (interpret cin)]
-                       [di (interpret di)]
-                       [s (interpret s)]
+                       [cin (interpret-helper cin)]
+                       [di (interpret-helper di)]
+                       [s (interpret-helper s)]
                        [calc-couts (λ (di s cins) (cons (if (bvzero? s) di (first cins)) cins))]
                        [couts-list
                         (foldl calc-couts (list cin) (bitvector->bits di) (bitvector->bits s))]
@@ -75,42 +75,43 @@
                   (list (bvxor cins s) cout))]
 
                ;;; Racket functions lifted to our language.
-               [`(append ,lsts ...) (apply append (interpret lsts))]
-               [`(take ,l ,n) (take (interpret l) n)]
-               [`(drop ,l ,n) (drop (interpret l) n)]
-               [`(list-ref ,l ,n) (list-ref (interpret l) n)]
-               [(lr-first l) (first (interpret l))]
-               [`(first ,l) (first (interpret l))]
-               [(lr-second l) (second (interpret l))]
-               [`(second ,l) (second (interpret l))]
-               [`(third ,l) (third (interpret l))]
-               [`(fourth ,l) (fourth (interpret l))]
-               [`(fifth ,l) (fifth (interpret l))]
-               [`(sixth ,l) (sixth (interpret l))]
+               [`(append ,lsts ...) (apply append (interpret-helper lsts))]
+               [`(take ,l ,n) (take (interpret-helper l) n)]
+               [`(drop ,l ,n) (drop (interpret-helper l) n)]
+               [`(list-ref ,l ,n) (list-ref (interpret-helper l) n)]
+               [(lr-first l) (first (interpret-helper l))]
+               [`(first ,l) (first (interpret-helper l))]
+               [(lr-second l) (second (interpret-helper l))]
+               [`(second ,l) (second (interpret-helper l))]
+               [`(third ,l) (third (interpret-helper l))]
+               [`(fourth ,l) (fourth (interpret-helper l))]
+               [`(fifth ,l) (fifth (interpret-helper l))]
+               [`(sixth ,l) (sixth (interpret-helper l))]
 
                ;;; Rosette functions lifted to our language.
-               [`(zero-extend ,v ,bv) (zero-extend (interpret v) bv)]
+               [`(zero-extend ,v ,bv) (zero-extend (interpret-helper v) bv)]
                ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
                ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
                ;;; ((union zero-extend dup-extend) v b) instead of (union (zero-extend v b) (dup-extend v b)).
                ;;; The latter is a lot harder to deal with in the interpreter. How to stop this?
-               [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv) (dup-extend (interpret v) bv)]
-               [`(extract ,high ,low ,v) (extract high low (interpret v))]
-               [`(concat ,v0 ,v1) (concat (interpret v0) (interpret v1))]
+               [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv)
+                (dup-extend (interpret-helper v) bv)]
+               [`(extract ,high ,low ,v) (extract high low (interpret-helper v))]
+               [`(concat ,v0 ,v1) (concat (interpret-helper v0) (interpret-helper v1))]
 
                ;;; Rosette functions lifted to our language.
-               [`(zero-extend ,v ,bv) (zero-extend (interpret v) bv)]
-               [`(extract ,high ,low ,v) (extract high low (interpret v))]
-               [`(concat ,v0 ,v1) (concat (interpret v0) (interpret v1))]
+               [`(zero-extend ,v ,bv) (zero-extend (interpret-helper v) bv)]
+               [`(extract ,high ,low ,v) (extract high low (interpret-helper v))]
+               [`(concat ,v0 ,v1) (concat (interpret-helper v0) (interpret-helper v1))]
 
                ;;; Datatypes.
                [(? bv? v) v]
                ;;; This needs to be near the end, as nearly everything's a list!
                ;;; Maybe make this tighter somehow? If it's a list of specific types?
-               [(? list? v) (map interpret v)]))
-           (hash-set! interpreter-memo-hash expr out)
-           out)))
-   (interpret expr)))
+               [(? list? v) (map interpret-helper v)])))
+          (hash-set! interpreter-memo-hash expr out)
+          out)))
+  (interpret expr))
 
 (module+ test
   (require rackunit
