@@ -1,6 +1,8 @@
 #lang errortrace racket/base
 
-(provide lut)
+(provide lut
+         lut-with-carry
+         comparison)
 
 (require rosette
          rosette/lib/angelic
