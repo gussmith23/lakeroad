@@ -49,8 +49,7 @@
     ['whatever-works
      (match strategies
        [(cons s ss)
-        (or (with-handlers ([exn:fail? (lambda (exn) #f)])
-              (with-deep-time-limit 10 (s bv-expr)))
+        (or (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr)))
             (synthesize-with finish-when ss bv-expr))]
        [_ 'unsynthesizable])]
     ;;; TODO: impl timeouts or something idk
@@ -59,8 +58,7 @@
             (clear-vc!)
             (clear-terms!)
             (collect-garbage)
-            (with-handlers ([exn:fail? (lambda (exn) #f)])
-              (with-deep-time-limit 10 (s bv-expr))))
+            (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr))))
           strategies)]))
 
 (define (synthesize-sofa-impl bv-expr [finish-when 'whatever-works])
