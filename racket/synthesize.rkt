@@ -111,11 +111,7 @@
         lutmem))
 
     (define lakeroad-expr
-      ((if carry? template:lut-with-carry template:lut) nbits
-                                                        arch
-                                                        inputs
-                                                        lutmems
-                                                        (bvlen bv-expr)))
+      ((if carry? template:lut-with-carry template:lut) nbits arch inputs lutmems (bvlen bv-expr)))
 
     (interpret lakeroad-expr)
     (define soln
@@ -176,55 +172,6 @@
 ;;; -----------------------------------
 ;;; Finally, we have architecture-dependent synthesis strategies!
 
-(define (synthesize-sofa-impl-simple bv-expr)
-  (when (> (length (symbolics bv-expr)) 4)
-    (error "Only 4 inputs supported"))
-
-  ;;; Bitwidth of the output.
-  (define out-bw (bvlen bv-expr))
-  (when (not (concrete? out-bw))
-    (error "Out bitwidth must be statically known."))
-
-  ;;; Max bitwidth of any input.
-  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
-  (define max-input-bw
-    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
-  (when (not (concrete? max-input-bw))
-    (error "Input bitwidths must be statically known."))
-
-  ;;; Form the list of logical inputs.
-  ;;; Zero-extend them so they're all the same size.
-  ;;; Pad so there's 4 logical inputs.
-  (define logical-inputs
-    (append (map (lambda (v)
-                   (choose* `(zero-extend ,v ,(bitvector max-input-bw))
-                            `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
-                 (symbolics bv-expr))
-            (make-list (- 4 (length (symbolics bv-expr))) (bv 0 max-input-bw))))
-
-  (define lutmem (?? (bitvector 16)))
-
-  (define lakeroad-expr
-    (let* ([physical-inputs `(logical-to-physical-mapping (bitwise) ,logical-inputs)]
-           [physical-outputs (for/list ([i max-input-bw])
-                               `(sofa-lut4 ,lutmem (list-ref ,physical-inputs ,i)))])
-      `(extract ,(sub1 out-bw) 0 (first (physical-to-logical-mapping (bitwise) ,physical-outputs)))))
-
-  (interpret lakeroad-expr)
-  (define soln
-    ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-    ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-  (if (sat? soln)
-      (evaluate lakeroad-expr
-                (complete-solution soln
-                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                            (list->set (symbolics bv-expr))))))
-      #f))
-
 ;;; Attempt to synthesize expression using a DSP.
 (define (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
   (let/ec
@@ -280,44 +227,13 @@
                        (define-symbolic a b (bitvector 8))
                        (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-dsp (bvmul a b))))))))
 
-;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression
-;;; using smaller LUTs.
-(define (synthesize-xilinx-ultrascale-plus-impl-smaller-luts bv-expr)
-  (when (> (length (symbolics bv-expr)) 6)
-    (error "Only 6 inputs supported"))
-
-  ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
-  (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
-
-  (define num-lutmems 1)
-  (define lutmems
-    (for/list ([i num-lutmems])
-      (define-symbolic* lutmem (bitvector (expt 2 (length (symbolics bv-expr)))))
-      lutmem))
-
-  (define lakeroad-expr
-    (template:lut nbits 'xilinx-ultrascale-plus (symbolics bv-expr) lutmems (bvlen bv-expr)))
-
-  (interpret lakeroad-expr)
-  (define soln
-    ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-    ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-  (if (sat? soln)
-      (evaluate lakeroad-expr
-                (complete-solution soln
-                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                            (list->set (symbolics bv-expr))))))
-      #f))
-
 (module+ test
   (require rackunit
            rosette)
   (test-begin
    (define-symbolic a b (bitvector 8))
+   (define synthesize-xilinx-ultrascale-plus-impl-smaller-luts
+     (synthesize-using-lut 'xilinx-ultrascale-plus 1))
    (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-impl-smaller-luts (bvand a b)))))
 
 ;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
