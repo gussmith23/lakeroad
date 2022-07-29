@@ -8,6 +8,7 @@
          "sofa.rkt"
          "logical-to-physical.rkt"
          "utils.rkt"
+         "interpreter.rkt"
          racket/pretty
          rosette)
 
@@ -70,6 +71,10 @@
                   (compile `(ultrascale-plus-lut3 ,lutmem ,inputs))]
                  [`(lut 4 1 xilinx-ultrascale-plus ,lutmem ,inputs)
                   (compile `(ultrascale-plus-lut4 ,lutmem ,inputs))]
+
+                 [`(lut 4 1 sofa ,lutmem ,inputs)
+                  (compile `(sofa-lut4 ,lutmem ,(apply concat (bitvector->bits (interpret inputs)))))]
+
                  [`(ultrascale-plus-dsp48e2 ,_ ...)
                   (make-ultrascale-plus-dsp48e2 compile
                                                 get-bits
