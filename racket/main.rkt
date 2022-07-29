@@ -21,6 +21,14 @@
                     (match v
                       [(or "verilog") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
+(define finish-when
+  (make-parameter 'whatever-works
+                  (lambda (v)
+                    (match v
+                      [(or "exhaustive") 'exhaustive]
+                      [(or "whatever-works") 'whatever-works]
+                      [other (error (format "Unsupported finish condition ~a." other))]))))
+
 (define instructions (make-parameter '() (lambda (instr) instr)))
 (define module-names (make-parameter '() (lambda (name) name)))
 (define json-file-name (make-parameter (make-temporary-file "rkttmp~a.json") (lambda (name) name)))
@@ -30,6 +38,7 @@
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
  ["--out-format" fmt "Output format. Supported: 'verilog'" (out-format fmt)]
  ["--json-file" name "JSON file to output to" (json-file-name name)]
+ ["--finish-when" c "Condition to stop synthesis" (finish-when c)]
  #:once-any
  #:multi
  [("--instruction")
@@ -76,36 +85,46 @@
 ;;; Synthesize a Lakeroad implementation of the given instruction.
 ;;;
 ;;; Returns a Lakeroad expression.
-(define (synthesize instruction architecture)
+(define (synthesize instruction architecture finish-when)
   (match architecture
-    ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction)]
-    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction)]
-    ["sofa" (synthesize-sofa-impl instruction)]
+    ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction finish-when)]
+    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when)]
+    ["sofa" (synthesize-sofa-impl instruction finish-when)]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
 
 (for ([instruction (instructions)] [module-name (module-names)])
   (define bv-expr (parse-instruction (read (open-input-string instruction))))
-  (define lakeroad-expr (synthesize bv-expr (architecture)))
+  (define all-exprs
+    (match (finish-when)
+      ['whatever-works (list (synthesize bv-expr (architecture) 'whatever-works))]
+      ['exhaustive (synthesize bv-expr (architecture) 'exhaustive)]))
 
-  (define json-source (lakeroad->jsexpr lakeroad-expr #:module-name module-name))
+  (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
+    (if lakeroad-expr
+        (begin
+          (define json-source
+            (lakeroad->jsexpr lakeroad-expr #:module-name (format "~a_~a" module-name i)))
 
-  (match (out-format)
-    ["verilog"
-     (when (not (getenv "LAKEROAD_DIR"))
-       (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
+          (match (out-format)
+            ["verilog"
+             (when (not (getenv "LAKEROAD_DIR"))
+               (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
 
-     (define json-file (json-file-name))
-     (define verilog-file (make-temporary-file "rkttmp~a.v"))
-     (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
-     (when (not (with-output-to-string
-                 (lambda ()
-                   (system
-                    (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file)))))
-       (error "Converting JSON to Verilog via Yosys failed."))
+             (define json-file (json-file-name))
+             (define verilog-file (make-temporary-file "rkttmp~a.v"))
+             (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
+             (when (not (with-output-to-string
+                         (lambda ()
+                           (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
+                                           json-file
+                                           verilog-file)))))
+               (error "Converting JSON to Verilog via Yosys failed."))
 
-     (displayln (file->string verilog-file))])
+             (displayln (file->string verilog-file))]))
+        (displayln (format "Warning: synthesis routine returned #f")))
+    (displayln ""))
 
   ;;; Clean up the VC and un-bind the symbolic terms created for this instruction.
   (clear-vc!)
