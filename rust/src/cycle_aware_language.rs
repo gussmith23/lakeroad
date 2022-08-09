@@ -128,7 +128,8 @@ impl FromStr for Op {
 }
 
 pub enum LanguageAnalysisData {
-    Signal(usize),
+    /// A signal is a value of 
+    Signal(usize, Hash),
     _String(String),
     Num(i64),
     Op(Op),
