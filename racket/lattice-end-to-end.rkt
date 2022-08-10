@@ -46,7 +46,7 @@
 
   (current-solver (boolector))
 
-  (for ([sz (list 8 16 32 64)])
+  (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])
     ;;; Setup: Make symbolic terms.
     (after (gc-terms!)
            (define-symbolic l0 l1 (bitvector sz))
