@@ -18,14 +18,9 @@
     (format "~a/~a" includes-dir mod)))
 
 ; Expect a timeout when this is a bvmul w/ bitwidth > 10
-(define (expect-timeout? bv-expr)
-  (and (> (bvlen bv-expr) 10)
-       (match bv-expr
-         [(and (expression (== bvmul) a b)) #t]
-         [_ #f])))
-
 (define (end-to-end-test bv-expr
-                         #:display-impl? [display-impl? #f])
+                         #:display-impl? [display-impl? #f]
+                         #:expect-timeout? [expect-timeout? #f])
   (displayln bv-expr)
   (define with-vc-result (with-vc (with-terms (synthesize-lattice-ecp5-impl bv-expr #:timeout #f))))
   (when (failed? with-vc-result)
@@ -35,7 +30,7 @@
   (when display-impl?
     (printf "Implementation: ~a\n" (pretty-format lakeroad-expr)))
 
-  (if (expect-timeout? bv-expr)
+  (if expect-timeout?
       (begin
         (equal? 'unsynthesizable lakeroad-expr))
       (and lakeroad-expr (simulate-expr lakeroad-expr bv-expr #:includes includes))))
@@ -68,7 +63,8 @@
            (test-true (format "~a bit not" sz) (end-to-end-test (bvnot l0)))
            (test-true (format "~a bit +" sz) (end-to-end-test (bvadd l0 l1)))
            (test-true (format "~a bit -" sz) (end-to-end-test (bvsub l0 l1)))
-           (test-true (format "~a bit *" sz) (end-to-end-test (bvmul l0 l1)))
+           (test-true (format "~a bit *" sz) (end-to-end-test (bvmul l0 l1)
+                                                              #:expect-timeout? (> (bvlen (bvmul l0 l1)) 12)))
            (test-true (format "~a bit bithack1" sz) (end-to-end-test (bithack1 l0 l1)))
            (test-true (format "~a bit bithack2" sz) (end-to-end-test (bithack2 l0 l1)))
            (test-true (format "~a bit bithack3" sz) (end-to-end-test (bithack3 l0 l1)))
