@@ -6,15 +6,15 @@ on:
   pull_request:
     branches: [ main ]
 
-#   # Run at 4am PT each day.
-#   schedule:
-#   - cron: '0 11 * * *'
+  # Run at 4am PT each day.
+  schedule:
+  - cron: '0 11 * * *'
 
-#   # Allow manual trigger.
-#   workflow_dispatch:
+  # Allow manual trigger.
+  workflow_dispatch:
 
-# env:
-#   REGISTRY: ghcr.io
+env:
+  REGISTRY: ghcr.io
 #   IMAGE_TAG: ${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:${{ github.sha }}
 
 jobs:
