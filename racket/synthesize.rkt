@@ -26,7 +26,7 @@
 ;;;
 ;;; TOP-LEVEL SYNTHESIS ROUTINES
 ;;; ----------------------------
-;;; Lake Road's synthesis is divided into a few levels.
+;;; Lakeroad's synthesis is divided into a few levels.
 ;;; At the very top are our top-level synthesis routines:
 ;;; - synthesize-with (a generic function which runs synthesis strategies)
 ;;; - architecture-specific synthesis routines (which call into synthesize-with)
