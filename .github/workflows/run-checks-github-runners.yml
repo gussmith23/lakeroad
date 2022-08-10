@@ -15,7 +15,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-#   IMAGE_TAG: ${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:${{ github.sha }}
+  IMAGE_TAG: "${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:${{ github.sha }}"
 
 jobs:
 
