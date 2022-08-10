@@ -54,7 +54,7 @@ jobs:
 
   run-tests:
     runs-on: ubuntu-latest
-    needs: build-docker-image
+    needs: build-and-push-image
     steps:
 
       - name: Log in to the Container registry
@@ -72,7 +72,7 @@ jobs:
 
   check-format:
     runs-on: self-hosted
-    needs: build-docker-image
+    needs: build-and-push-image
     steps:
 
       - name: Log in to the Container registry
