@@ -88,7 +88,7 @@
 (define (synthesize instruction architecture finish-when)
   (match architecture
     ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction finish-when)]
-    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when)]
+    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when #:timeout #f)]
     ["sofa" (synthesize-sofa-impl instruction finish-when)]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
