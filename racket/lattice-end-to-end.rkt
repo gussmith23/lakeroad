@@ -17,12 +17,15 @@
   (for/list ([mod (list "LUT4.v" "PFUMX.v" "CCU2C.v" "LUT2.v")])
     (format "~a/~a" includes-dir mod)))
 
-(define (end-to-end-test bv-expr)
+(define (end-to-end-test bv-expr
+                         #:display-impl? [display-impl? #f])
   (displayln bv-expr)
   (define with-vc-result (with-vc (with-terms (synthesize-lattice-ecp5-impl bv-expr))))
   (when (failed? with-vc-result)
     (raise (result-value with-vc-result)))
   (define lakeroad-expr (result-value with-vc-result))
+  (when display-impl?
+    (printf "Implementation: ~a\n" (pretty-format lakeroad-expr)))
 
   (simulate-expr lakeroad-expr bv-expr #:includes includes))
 
@@ -41,6 +44,7 @@
            (check-equal? (bvlen l1) sz)
            (check-equal? (bvlen l2) 1)
            (displayln (format "testing (bitvector ~a)" sz))
+           (test-true (format "~a bit *" sz) (end-to-end-test (bvmul l0 l1)))
            (test-true (format "~a bit mux" sz) (end-to-end-test (circt-comb-mux l2 l0 l1)))
            (test-true (format "~a bit <" sz) (end-to-end-test (bool->bitvector (bvult l0 l1))))
            (test-true (format "~a bit <=" sz) (end-to-end-test (bool->bitvector (bvule l0 l1))))

@@ -11,6 +11,7 @@
 (require "interpreter.rkt"
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
+         "lattice-mul.rkt"
          rosette
          rosette/lib/synthax
          rosette/lib/angelic
@@ -82,7 +83,8 @@
                    (list synthesize-lattice-ecp5-for-pfu
                          synthesize-lattice-ecp5-for-ripple-pfu
                          synthesize-lattice-ecp5-for-ccu2c
-                         synthesize-lattice-ecp5-for-ccu2c-tri)
+                         synthesize-lattice-ecp5-for-ccu2c-tri
+                         synthesize-lattice-ecp5-multiply-circt)
                    bv-expr))
 
 ;;;;;;
@@ -680,3 +682,37 @@
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
                                                    (list->set (symbolics bv-expr))))))
       #f))
+
+(define (synthesize-lattice-ecp5-multiply-circt bv-expr)
+
+  (define out-bw (bvlen bv-expr))
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
+
+  ; Ugly hack to check exit conditions...everythin is indented way too much
+  ;
+  ; TODO: There is a way to use continuations to fix this (let/ec) but this
+  ; isn't the most important thing right now We only handle two inputs for now
+  ; for this form
+  (if (or (not (= (length logical-inputs) 2)) (not (concrete? out-bw)) (not (concrete? max-input-bw)))
+      #f
+      (begin
+        ;;; Max bitwidth of any input.
+        ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+
+        (define a (first logical-inputs))
+        (define b (second logical-inputs))
+        (define lakeroad-expr (lattice-mul-with-carry out-bw a b))
+        (define soln
+          (synthesize #:forall (symbolics bv-expr)
+                      #:guarantee (begin
+                                    (assert (bveq bv-expr (interpret lakeroad-expr))))))
+        (if (sat? soln)
+            (evaluate
+             lakeroad-expr
+             ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+             (complete-solution soln
+                                (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                         (list->set (symbolics bv-expr))))))
+            #f))))

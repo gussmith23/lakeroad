@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+
 set -e
-raco fmt -i racket/*.rkt
-cargo fmt --manifest-path rust/Cargo.toml
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+raco fmt -i "$SCRIPT_DIR"/racket/*.rkt
+cargo fmt --manifest-path "$SCRIPT_DIR"/rust/Cargo.toml
