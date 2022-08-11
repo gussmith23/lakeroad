@@ -78,7 +78,7 @@ jobs:
         run: docker run ${{ env.IMAGE_TAG }} bash run-tests.sh
 
   check-format:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
 
