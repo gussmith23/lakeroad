@@ -22,7 +22,8 @@
                        bv-expr
                        #:includes [includes '()]
                        #:include-dirs [include-dirs '()]
-                       #:extra-verilator-args [extra-verilator-args ""])
+                       #:extra-verilator-args [extra-verilator-args ""]
+                       #:verilator-jobs [verilator-jobs 2])
   ;;; TODO anonymize.
   (when (not (getenv "LAKEROAD_DIR"))
     (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
@@ -143,7 +144,8 @@
   ; TODO(@gussmith23) hardcoded dir
   (define verilator-command
     (format
-     "verilator --relative-includes -Wall -Wno-MULTITOP -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING -Wno-UNOPTFLAT --Mdir ~a --cc ~a ~a --build --exe ~a ~a ~a"
+     "verilator -j ~a --relative-includes -Wall -Wno-MULTITOP -Wno-TIMESCALEMOD -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINMISSING -Wno-UNOPTFLAT --build --exe --cc --Mdir ~a ~a ~a ~a ~a ~a"
+     verilator-jobs
      verilator-make-dir
      verilog-file
      includes-string
