@@ -21,11 +21,11 @@
                       [(or "verilog") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
 (define finish-when
-  (make-parameter 'whatever-works
+  (make-parameter 'first-to-succeed
                   (lambda (v)
                     (case v
                       [("exhaustive") 'exhaustive]
-                      [("whatever-works") 'whatever-works]
+                      [("first-to-succeed") 'first-to-succeed]
                       [else (error (format "Unsupported finish condition ~a." v))]))))
 
 (define instructions (make-parameter '() (lambda (instr) instr)))
@@ -37,6 +37,7 @@
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
  ["--out-format" fmt "Output format. Supported: 'verilog'" (out-format fmt)]
  ["--json-file" name "JSON file to output to" (json-file-name name)]
+ ;;; A better API might be to to default to first-to-succeed, and toggle exhaustive with a flag?
  ["--finish-when" c "Condition to stop synthesis" (finish-when c)]
  #:once-any
  #:multi
@@ -97,12 +98,14 @@
   (define bv-expr (parse-instruction (read (open-input-string instruction))))
   (define all-exprs
     (match (finish-when)
-      ['whatever-works (list (synthesize bv-expr (architecture) 'whatever-works))]
+      ['first-to-succeed (list (synthesize bv-expr (architecture) 'first-to-succeed))]
       ['exhaustive (synthesize bv-expr (architecture) 'exhaustive)]))
 
   (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
     (cond
-      [lakeroad-expr
+      ;;; TODO(@gussmith23): Sometimes we return 'unsynthesizable, sometimes we return #f. I think we
+      ;;; should probably just return #f.
+      [(equal? lakeroad-expr 'unsynthesizable)
        ;;; TODO(@gussmith23): Rosette incorrectly accepts (if ... (begin (define x ...) ...) ...). If
        ;;; we switch to Racket, this code will fail. It's probably best to change this away from using
        ;;; defines.
@@ -124,6 +127,7 @@
                                         verilog-file)))))
             (error "Converting JSON to Verilog via Yosys failed."))
 
+          ;;; TODO(@gussmith23): Support returning multiple files.
           (displayln (file->string verilog-file))])]
       [else (displayln (format "Warning: synthesis routine returned #f"))])
     (displayln ""))
