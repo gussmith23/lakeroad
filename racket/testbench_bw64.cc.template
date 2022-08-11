@@ -50,7 +50,9 @@ int main(int argc, char **argv, char **env)
               uint64_t expected = (~a) & (-1); // TODO we used to & with ((1 << ~a) - 1), i think -1 is cleaner.
 
               // Uncoment this when you want to debug.
-              // printf("~a with l0=%u l1=%u l2=%u  == %lu, should equal %lu\n", l0, l1, l2, out, expected);
+              if (out != expected) {
+                 printf("~a with l0=%u l1=%u l2=%u  == %lu, should equal %lu\n", l0, l1, l2, out, expected);
+              }
 
               assert(out == expected);
             }

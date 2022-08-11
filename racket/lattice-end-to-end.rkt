@@ -22,7 +22,7 @@
                          #:display-impl? [display-impl? #f]
                          #:expect-timeout? [expect-timeout? #f])
   (displayln bv-expr)
-  (define with-vc-result (with-vc (with-terms (synthesize-lattice-ecp5-impl bv-expr #:timeout #f))))
+  (define with-vc-result (with-vc (with-terms (synthesize-lattice-ecp5-impl bv-expr #:timeout 40))))
   (when (failed? with-vc-result)
     (raise (result-value with-vc-result)))
   (define lakeroad-expr (result-value with-vc-result))
@@ -72,8 +72,8 @@
            (test-true (format "~a bit *0" sz) (end-to-end-test (bvmul l0 (bv 0 sz))))
            (test-true (format "~a bit *1" sz) (end-to-end-test (bvmul l0 (bv 1 sz))))
            (test-true (format "~a bit *2" sz) (end-to-end-test (bvmul l0 (bv 2 sz))))
-          ;  (test-true (format "~a bit <<0" sz) (end-to-end-test (circt-comb-shl l0 (bv 0 sz))))
-          ;  (test-true (format "~a bit <<1" sz) (end-to-end-test (circt-comb-shl l0 (bv 1 sz))))
+           (test-true (format "~a bit <<0" sz) (end-to-end-test (circt-comb-shl l0 (bv 0 sz))))
+           (test-true (format "~a bit <<1" sz) (end-to-end-test (circt-comb-shl l0 (bv 1 sz))))
            (displayln "")
            ;;; Cleanup: Clear symbolic state.
            (begin

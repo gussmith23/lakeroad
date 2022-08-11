@@ -314,7 +314,7 @@
 
   ; Helper function that returns a list
   ;
-  ;   (a b bv-expr lakeroad-expr soln complete-soln evaluated)
+  ;   (a b bv-expr lakeroad-expr soln complete-soln evaluated runner)
   (define (mul-test-helper nbits #:AND-LUT-INIT [and-lut-init #f]
                                  #:ADD-LUT-INIT [add-lut-init #f])
     (clear-terms!)
@@ -403,15 +403,6 @@
               (printf "19 * 11 = ~a\n" (runner 19 11))
               (printf "33 * 4 = ~a\n" (runner 33 4))
               (printf "17 * 5 = ~a\n" (runner 17 5))
-              (check-true (sat? soln)))
-  (test-begin (displayln " --- 16 bit ---")
-              (match-define (list a b bv-expr lakeroad-expr soln complete-soln evaluated runner)
-                (mul-test-helper 16))
-              (report-memoization)
-              (printf "100 * 200= ~a\n" (runner 100 200))
-              (printf "195 * 111 = ~a\n" (runner 195 111))
-              (printf "334 * 44 = ~a\n" (runner 334 44))
-              (printf "179 * 52 = ~a\n" (runner 179 52))
               (check-true (sat? soln))))
 
 ;;; Special case for 2bit multiplication
