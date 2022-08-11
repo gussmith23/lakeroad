@@ -27,11 +27,14 @@
   (let ([t (current-thread)])
     (if timeout
         (begin
+          (printf "\033[31mSynthesizing strat ~a with timeout ~a\033[0m\n" strat timeout)
           (sync/timeout timeout (thread (lambda () (thread-send t (strat input)))))
           (clear-vc!)
           (clear-terms!)
           (thread-try-receive))
-          (strat input))))
+        (begin
+          (printf "\033[31mSynthesizing strat ~a with no timeout: ~a\033[0m\n" strat timeout)
+          (strat input)))))
 
 ;;;;;;
 ;;;
@@ -58,7 +61,7 @@
      (match templates
        [(cons t ts) 
         (or (synthesize-with-timeout t bv-expr timeout)
-            (synthesize-with finish-when ts bv-expr timeout))]
+            (synthesize-with finish-when ts bv-expr))]
        [_ 'unsynthesizable])]
     ;;; TODO: impl timeouts or something idk
     ['exhaustive
@@ -85,11 +88,7 @@
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
                    bv-expr))
 
-<<<<<<< HEAD
-(define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed])
-=======
 (define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed] #:timeout [timeout 5.0])
->>>>>>> d4d9631 (resolved conflict)
   (synthesize-with finish-when
                    (list synthesize-lattice-ecp5-for-pfu
                          synthesize-lattice-ecp5-for-ripple-pfu

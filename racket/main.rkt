@@ -31,6 +31,8 @@
 (define instructions (make-parameter '() (lambda (instr) instr)))
 (define module-names (make-parameter '() (lambda (name) name)))
 (define json-file-name (make-parameter (make-temporary-file "rkttmp~a.json") (lambda (name) name)))
+(define template-timeout
+  (make-parameter '() (lambda (to) (if (equal? "0" to) #f (string->number to)))))
 
 (command-line
  #:program "lakeroad"
@@ -39,6 +41,7 @@
  ["--json-file" name "JSON file to output to" (json-file-name name)]
  ;;; A better API might be to to default to first-to-succeed, and toggle exhaustive with a flag?
  ["--finish-when" c "Condition to stop synthesis" (finish-when c)]
+ ["--timeout" timeout "Timeout in seconds for each template" (template-timeout timeout)]
  #:once-any
  #:multi
  [("--instruction")
@@ -106,6 +109,9 @@
       ;;; TODO(@gussmith23): Sometimes we return 'unsynthesizable, sometimes we return #f. I think we
       ;;; should probably just return #f.
       [(equal? lakeroad-expr 'unsynthesizable)
+       (displayln (format "Warning: synthesis routine returned #f"))]
+
+      [else
        ;;; TODO(@gussmith23): Rosette incorrectly accepts (if ... (begin (define x ...) ...) ...). If
        ;;; we switch to Racket, this code will fail. It's probably best to change this away from using
        ;;; defines.
