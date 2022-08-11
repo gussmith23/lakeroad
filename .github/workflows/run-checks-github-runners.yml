@@ -17,7 +17,7 @@ env:
   REGISTRY: ghcr.io
   # Can't use ${{ env.REGISTRY }} here, but would like to, so that we' don't
   # repeat ghcr.io.
-  IMAGE_TAG: "ghcr.io/${{ github.actor }}/${{ github.repository }}:${{ github.sha }}"
+  IMAGE_TAG: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
 
 jobs:
 
