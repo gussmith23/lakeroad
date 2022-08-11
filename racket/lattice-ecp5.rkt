@@ -862,7 +862,7 @@
                               expr)
   (match-let* ([`(lattice-ecp5-lut4 ,INIT ,inputs) expr]
                [compiled-inputs (compiler inputs)]
-               [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
+               (init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT))
                [(list A B C D) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
                [lut4 (make-lattice-lut4-cell init A B C D Z)])

@@ -138,5 +138,7 @@
 ; defined by `inputs`. `inputs` is a hash table mapping symbolic variables to
 (define (run-lakeroad p inputs interpreter)
   ; TODO: is there a nicer way to make a model?
-  (define sol (solve (for ([input (hash-keys inputs)]) (assume (bveq input (hash-ref inputs input))))))
+  (define sol
+    (solve (for ([input (hash-keys inputs)])
+             (assume (bveq input (hash-ref inputs input))))))
   (evaluate (interpreter p) sol))

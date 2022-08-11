@@ -24,8 +24,7 @@
 (current-solver (boolector))
 
 (define (synthesize-with-timeout strat input timeout)
-  (let ([t (current-thread)]
-        [timeout-time (if (null? timeout) 5.0 timeout)])
+  (let ([t (current-thread)] [timeout-time (if (null? timeout) 5.0 timeout)])
     (if timeout
         (begin
           (sync/timeout timeout-time (thread (lambda () (thread-send t (strat input)))))
@@ -59,13 +58,8 @@
     ['first-to-succeed
      (match templates
        [(cons t ts) 
-<<<<<<< HEAD
-        (or (synthesize-with-timeout t bv-expr timeout)
-            (synthesize-with finish-when ts bv-expr))]
-=======
         (or (synthesize-with-timeout t bv-expr timeout-time)
             (synthesize-with finish-when ts bv-expr timeout-time))]
->>>>>>> 5466519 (resolved conflict)
        [_ 'unsynthesizable])]
     ;;; TODO: impl timeouts or something idk
     ['exhaustive

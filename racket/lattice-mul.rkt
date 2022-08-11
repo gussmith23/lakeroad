@@ -254,10 +254,8 @@
       (list (bv 0 1))
       (let* ([a-idx (- j i)]
              [b-idx i]
-             [lut-inputs `(concat (extract ,a-idx ,a-idx ,a)
-                                  (extract ,b-idx ,b-idx ,b)
-                                  ,(bv 1 1)
-                                  ,(bv 1 1))])
+             [lut-inputs
+              `(concat (extract ,a-idx ,a-idx ,a) (extract ,b-idx ,b-idx ,b) ,(bv 1 1) ,(bv 1 1))])
         (make-lattice-lut4-expr lut-inputs #:INIT INIT))))
 
 ; Create a lakeroad expression capable of discovering `bitwidth`-bit
@@ -265,8 +263,11 @@
 ;
 ; Note: bitwith must be specified since we may now get a `choose` instead of a
 ; symbolic bitvector.
-(define (lattice-mul-with-carry bitwidth a b #:AND-LUT-INIT [and-lut-init (?? (bitvector 16))]
-                                             #:ADD-LUT-INIT [add-lut-init (?? (bitvector 16))])
+(define (lattice-mul-with-carry bitwidth
+                                a
+                                b
+                                #:AND-LUT-INIT [and-lut-init (?? (bitvector 16))]
+                                #:ADD-LUT-INIT [add-lut-init (?? (bitvector 16))])
   ;; TODO: zero-extend the smaller bv?
   (let* (; Generate a list of lists of bitwise ands:
          ; (list
@@ -301,10 +302,9 @@
                      (for/list ([j (range bitwidth)])
                        (and-lut-helper a b i j #:INIT and-lut-init)))]
          [output (add-all-lists and-luts #:INIT0 add-lut-init #:INIT1 add-lut-init)]
-         [output2 (for/list ([x output]) `(first ,x))])
-    `(extract ,(sub1 bitwidth)
-                          0
-                          (first (physical-to-logical-mapping (bitwise) ,output2)))))
+         [output2 (for/list ([x output])
+                    `(first ,x))])
+    `(extract ,(sub1 bitwidth) 0 (first (physical-to-logical-mapping (bitwise) ,output2)))))
 
 (module+ test
   (require rackunit
@@ -315,14 +315,12 @@
   ; Helper function that returns a list
   ;
   ;   (a b bv-expr lakeroad-expr soln complete-soln evaluated runner)
-  (define (mul-test-helper nbits #:AND-LUT-INIT [and-lut-init #f]
-                                 #:ADD-LUT-INIT [add-lut-init #f])
+  (define (mul-test-helper nbits #:AND-LUT-INIT [and-lut-init #f] #:ADD-LUT-INIT [add-lut-init #f])
     (clear-terms!)
     (clear-vc!)
     (define-symbolic a b (bitvector nbits))
-    (define lakeroad-expr (lattice-mul-with-carry nbits a b 
-                                                  #:AND-LUT-INIT and-lut-init
-                                                  #:ADD-LUT-INIT add-lut-init))
+    (define lakeroad-expr
+      (lattice-mul-with-carry nbits a b #:AND-LUT-INIT and-lut-init #:ADD-LUT-INIT add-lut-init))
     (define bv-expr (bvmul a b))
     (define interpreted (interpret lakeroad-expr))
 

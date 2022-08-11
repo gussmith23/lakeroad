@@ -88,10 +88,10 @@
 ;;; Synthesize a Lakeroad implementation of the given instruction.
 ;;;
 ;;; Returns a Lakeroad expression.
-(define (synthesize instruction architecture finish-when)
+(define (synthesize instruction architecture finish-when #:timeout [timeout #f])
   (match architecture
     ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction finish-when)]
-    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when #:timeout #f)]
+    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when #:timeout timeout)]
     ["sofa" (synthesize-sofa-impl instruction finish-when)]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
@@ -101,8 +101,8 @@
   (define bv-expr (parse-instruction (read (open-input-string instruction))))
   (define all-exprs
     (match (finish-when)
-      ['first-to-succeed (list (synthesize bv-expr (architecture) 'first-to-succeed))]
-      ['exhaustive (synthesize bv-expr (architecture) 'exhaustive)]))
+      ['whatever-works (list (synthesize bv-expr (architecture) 'first-to-succeed #:timeout (template-timeout)))]
+      ['exhaustive (synthesize bv-expr (architecture) 'exhaustive #:timeout (template-timeout))]))
 
   (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
     (cond

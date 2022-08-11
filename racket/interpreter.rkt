@@ -23,7 +23,8 @@
 (define interp-memoization-hits 0)
 (define interp-memoization-misses 0)
 (define (report-memoization)
-  (printf "Memozation Report: HITS: ~a  MISSES: ~a  HITS/MISSES: ~a\n" interp-memoization-hits
+  (printf "Memozation Report: HITS: ~a  MISSES: ~a  HITS/MISSES: ~a\n"
+          interp-memoization-hits
           interp-memoization-misses
           (/ (exact->inexact interp-memoization-hits) interp-memoization-misses)))
 
@@ -33,7 +34,8 @@
   (define interpreter-memo-hash (make-hasheq))
   (define (interpret-helper expr)
     (if (hash-has-key? interpreter-memo-hash expr)
-        (begin (set! interp-memoization-hits (add1 interp-memoization-hits))
+        (begin
+          (set! interp-memoization-hits (add1 interp-memoization-hits))
           (hash-ref interpreter-memo-hash expr))
         (begin
           (set! interp-memoization-misses (add1 interp-memoization-misses))
