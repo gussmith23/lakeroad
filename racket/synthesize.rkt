@@ -6,8 +6,7 @@
 (provide synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
-         synthesize-lattice-ecp5-impl
-         lakeroad-synthesis-timeout-time)
+         synthesize-lattice-ecp5-impl)
 
 (require "interpreter.rkt"
          "ultrascale.rkt"
@@ -24,15 +23,10 @@
 
 (current-solver (boolector))
 
-(define lakeroad-synthesis-timeout-time 5.0)
-
-; When (not (null? new-time)) then set the lakeroad-synthesis-timeout-time to
-; new-time. Then return the old value of lakeroad-synthesis-timeout-time.
-(define (lakeroad-synthesis-timeout [new-time '()])
-  (let ([oldtime lakeroad-synthesis-timeout-time])
-    (when (not (null? new-time))
-        (set! lakeroad-synthesis-timeout-time new-time))
-    oldtime))
+(define (synthesize-with-timeout strat input timeout)
+  (if timeout
+      (sync/timeout timeout (thread (lambda () (strat input))))
+      (strat input)))
 
 ;;;;;;
 ;;;
@@ -43,26 +37,23 @@
 ;;; - synthesize-with (a generic function which runs synthesis strategies)
 ;;; - architecture-specific synthesis routines (which call into synthesize-with)
 
-;;; Attempts to synthesize a program for bv-expr using the strategies provided.
-;;; finish-when can be one of 'first-to-succeed or 'exhaustive;
-;;; if the finish condition is 'first-to-succeed, returns the first valid synthesis result.
-;;; Otherwise, returns a list of all synthesis results, with order corresponding
-;;; to the order of strategies provided.
-;;; strategies is a list of functions which take a bv-expr and return a lakeroad-expr;
-;;; these synthesis strategies can do something architecture-specific, or call into
-;;; generic templates (with some added plumbing).
-(define (synthesize-with finish-when strategies bv-expr)
-  ;; Clean state
-  (clear-vc!)
-  (clear-terms!)
-  (collect-garbage)
-
+;;; Attempts to synthesize a program for bv-expr using provided templates provided.
+;;;
+;;; finish-when: can be one of 'first-to-succeed or 'exhaustive; if the finish
+;;;     condition is 'first-to-succeed, returns the first valid synthesis result.
+;;;     Otherwise, returns a list of all synthesis results, with order
+;;;     corresponding to the order of templates supplied.
+;;; templates: a list of templates, each template having type
+;;;     bv-expr -> (union bv-expr #f)
+;;; bv-expr: a bv-expr to synthesize
+;;; timeout: gives a per-template timeout in seconds.
+(define (synthesize-with finish-when templates bv-expr [timeout 5.0])
   (match finish-when
     ['first-to-succeed
-     (match strategies
-       [(cons s ss)
-        (or (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr)))
-            (synthesize-with finish-when ss bv-expr))]
+     (match templates
+       [(cons t ts) 
+        (or (synthesize-with-timeout t bv-expr timeout)
+            (synthesize-with finish-when ts bv-expr))]
        [_ 'unsynthesizable])]
     ;;; TODO: impl timeouts or something idk
     ['exhaustive
@@ -71,7 +62,7 @@
             (clear-terms!)
             (collect-garbage)
             (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr))))
-          strategies)]))
+          templates)]))
 
 (define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when (list (synthesize-using-lut 'sofa 1 4)) bv-expr))
