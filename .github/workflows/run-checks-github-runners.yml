@@ -56,6 +56,8 @@ jobs:
           context: .
           push: true
           tags: ${{ env.IMAGE_TAG }}
+          cache-to: type=gha
+          cache-from: type=gha
 
   run-tests:
     runs-on: ubuntu-latest
