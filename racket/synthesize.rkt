@@ -27,14 +27,11 @@
   (let ([t (current-thread)])
     (if timeout
         (begin
-          (printf "\033[31mSynthesizing strat ~a with timeout ~a\033[0m\n" strat timeout)
           (sync/timeout timeout (thread (lambda () (thread-send t (strat input)))))
           (clear-vc!)
           (clear-terms!)
           (thread-try-receive))
-        (begin
-          (printf "\033[31mSynthesizing strat ~a with no timeout: ~a\033[0m\n" strat timeout)
-          (strat input)))))
+          (strat input))))
 
 ;;;;;;
 ;;;
@@ -61,7 +58,7 @@
      (match templates
        [(cons t ts) 
         (or (synthesize-with-timeout t bv-expr timeout)
-            (synthesize-with finish-when ts bv-expr))]
+            (synthesize-with finish-when ts bv-expr timeout))]
        [_ 'unsynthesizable])]
     ;;; TODO: impl timeouts or something idk
     ['exhaustive
