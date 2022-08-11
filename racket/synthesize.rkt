@@ -6,7 +6,8 @@
 (provide synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
-         synthesize-lattice-ecp5-impl)
+         synthesize-lattice-ecp5-impl
+         lakeroad-synthesis-timeout-time)
 
 (require "interpreter.rkt"
          "ultrascale.rkt"
@@ -22,6 +23,16 @@
          (prefix-in template: "templates.rkt"))
 
 (current-solver (boolector))
+
+(define lakeroad-synthesis-timeout-time 5.0)
+
+; When (not (null? new-time)) then set the lakeroad-synthesis-timeout-time to
+; new-time. Then return the old value of lakeroad-synthesis-timeout-time.
+(define (lakeroad-synthesis-timeout [new-time '()])
+  (let ([oldtime lakeroad-synthesis-timeout-time])
+    (when (not (null? new-time))
+        (set! lakeroad-synthesis-timeout-time new-time))
+    oldtime))
 
 ;;;;;;
 ;;;
