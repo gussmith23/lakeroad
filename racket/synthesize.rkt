@@ -24,17 +24,15 @@
 (current-solver (boolector))
 
 (define (synthesize-with-timeout strat input timeout)
-  (let ([t (current-thread)])
+  (let ([t (current-thread)]
+        [timeout-time (if (null? timeout) 5.0 timeout)])
     (if timeout
         (begin
-          (printf "\033[31mSynthesizing strat ~a with timeout ~a\033[0m\n" strat timeout)
-          (sync/timeout timeout (thread (lambda () (thread-send t (strat input)))))
+          (sync/timeout timeout-time (thread (lambda () (thread-send t (strat input)))))
           (clear-vc!)
           (clear-terms!)
           (thread-try-receive))
-        (begin
-          (printf "\033[31mSynthesizing strat ~a with no timeout: ~a\033[0m\n" strat timeout)
-          (strat input)))))
+        (strat input))))
 
 ;;;;;;
 ;;;
@@ -56,12 +54,18 @@
 ;;; bv-expr: a bv-expr to synthesize
 ;;; timeout: gives a per-template timeout in seconds.
 (define (synthesize-with finish-when templates bv-expr [timeout 5.0])
+  (define timeout-time (if (null? timeout) 5.0 timeout))
   (match finish-when
     ['first-to-succeed
      (match templates
        [(cons t ts) 
+<<<<<<< HEAD
         (or (synthesize-with-timeout t bv-expr timeout)
             (synthesize-with finish-when ts bv-expr))]
+=======
+        (or (synthesize-with-timeout t bv-expr timeout-time)
+            (synthesize-with finish-when ts bv-expr timeout-time))]
+>>>>>>> 5466519 (resolved conflict)
        [_ 'unsynthesizable])]
     ;;; TODO: impl timeouts or something idk
     ['exhaustive
@@ -69,7 +73,7 @@
             (clear-vc!)
             (clear-terms!)
             (collect-garbage)
-            (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr))))
+            (synthesize-with-timeout s bv-expr timeout-time))
           templates)]))
 
 (define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
