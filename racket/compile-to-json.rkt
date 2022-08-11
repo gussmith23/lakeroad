@@ -72,6 +72,10 @@
                  [`(lut 4 1 xilinx-ultrascale-plus ,lutmem ,inputs)
                   (compile `(ultrascale-plus-lut4 ,lutmem ,inputs))]
 
+                 ;;; Have to reverse the inputs for SOFA. Could also reverse the lutmem.
+                 ;;;
+                 ;;; TODO(@gussmith23): It's probably not great to have the compiler depend on the
+                 ;;; interpreter.
                  [`(lut 4 1 sofa ,lutmem ,inputs)
                   (compile `(sofa-lut4 ,lutmem ,(apply concat (bitvector->bits (interpret inputs)))))]
 

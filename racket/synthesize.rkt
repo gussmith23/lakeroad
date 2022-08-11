@@ -32,8 +32,8 @@
 ;;; - architecture-specific synthesis routines (which call into synthesize-with)
 
 ;;; Attempts to synthesize a program for bv-expr using the strategies provided.
-;;; finish-when can be one of 'whatever-works or 'exhaustive;
-;;; if the finish condition is 'whatever-works, returns the first valid synthesis result.
+;;; finish-when can be one of 'first-to-succeed or 'exhaustive;
+;;; if the finish condition is 'first-to-succeed, returns the first valid synthesis result.
 ;;; Otherwise, returns a list of all synthesis results, with order corresponding
 ;;; to the order of strategies provided.
 ;;; strategies is a list of functions which take a bv-expr and return a lakeroad-expr;
@@ -46,7 +46,7 @@
   (collect-garbage)
 
   (match finish-when
-    ['whatever-works
+    ['first-to-succeed
      (match strategies
        [(cons s ss)
         (or (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr)))
@@ -61,7 +61,7 @@
             (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr))))
           strategies)]))
 
-(define (synthesize-sofa-impl bv-expr [finish-when 'whatever-works])
+(define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when (list (synthesize-using-lut 'sofa 1 4)) bv-expr))
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
@@ -69,7 +69,7 @@
 ;;; TODO Use the grammar to generate *any* Lakeroad program. This will probably require that we also
 ;;; let the user specify the depth to search over and other parameters. At the very least, start by
 ;;; defining those as keyword args with default values.
-(define (synthesize-xilinx-ultrascale-plus-impl bv-expr [finish-when 'whatever-works])
+(define (synthesize-xilinx-ultrascale-plus-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when
                    (list synthesize-constant
                          synthesize-xilinx-ultrascale-plus-dsp
@@ -77,7 +77,7 @@
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
                    bv-expr))
 
-(define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'whatever-works])
+(define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when
                    (list synthesize-lattice-ecp5-for-pfu
                          synthesize-lattice-ecp5-for-ripple-pfu
