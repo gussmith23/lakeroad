@@ -1,7 +1,6 @@
 #lang racket
 
-(require racket/cmdline
-         rosette
+(require rosette
          "synthesize.rkt"
          "compile-to-json.rkt"
          "circt-comb-operators.rkt"
@@ -24,10 +23,10 @@
 (define finish-when
   (make-parameter 'whatever-works
                   (lambda (v)
-                    (match v
-                      [(or "exhaustive") 'exhaustive]
-                      [(or "whatever-works") 'whatever-works]
-                      [other (error (format "Unsupported finish condition ~a." other))]))))
+                    (case v
+                      [("exhaustive") 'exhaustive]
+                      [("whatever-works") 'whatever-works]
+                      [else (error (format "Unsupported finish condition ~a." v))]))))
 
 (define instructions (make-parameter '() (lambda (instr) instr)))
 (define module-names (make-parameter '() (lambda (name) name)))
@@ -102,28 +101,31 @@
       ['exhaustive (synthesize bv-expr (architecture) 'exhaustive)]))
 
   (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
-    (if lakeroad-expr
-        (begin
-          (define json-source
-            (lakeroad->jsexpr lakeroad-expr #:module-name (format "~a_~a" module-name i)))
+    (cond
+      [lakeroad-expr
+       ;;; TODO(@gussmith23): Rosette incorrectly accepts (if ... (begin (define x ...) ...) ...). If
+       ;;; we switch to Racket, this code will fail. It's probably best to change this away from using
+       ;;; defines.
+       (define json-source
+         (lakeroad->jsexpr lakeroad-expr #:module-name (format "~a_~a" module-name i)))
 
-          (match (out-format)
-            ["verilog"
-             (when (not (getenv "LAKEROAD_DIR"))
-               (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
+       (match (out-format)
+         ["verilog"
+          (when (not (getenv "LAKEROAD_DIR"))
+            (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
 
-             (define json-file (json-file-name))
-             (define verilog-file (make-temporary-file "rkttmp~a.v"))
-             (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
-             (when (not (with-output-to-string
-                         (lambda ()
-                           (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
-                                           json-file
-                                           verilog-file)))))
-               (error "Converting JSON to Verilog via Yosys failed."))
+          (define json-file (json-file-name))
+          (define verilog-file (make-temporary-file "rkttmp~a.v"))
+          (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
+          (when (not (with-output-to-string
+                      (lambda ()
+                        (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
+                                        json-file
+                                        verilog-file)))))
+            (error "Converting JSON to Verilog via Yosys failed."))
 
-             (displayln (file->string verilog-file))]))
-        (displayln (format "Warning: synthesis routine returned #f")))
+          (displayln (file->string verilog-file))])]
+      [else (displayln (format "Warning: synthesis routine returned #f"))])
     (displayln ""))
 
   ;;; Clean up the VC and un-bind the symbolic terms created for this instruction.
