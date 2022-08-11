@@ -101,7 +101,8 @@
   (define bv-expr (parse-instruction (read (open-input-string instruction))))
   (define all-exprs
     (match (finish-when)
-      ['whatever-works (list (synthesize bv-expr (architecture) 'first-to-succeed #:timeout (template-timeout)))]
+      ['first-to-succeed
+       (list (synthesize bv-expr (architecture) 'first-to-succeed #:timeout (template-timeout)))]
       ['exhaustive (synthesize bv-expr (architecture) 'exhaustive #:timeout (template-timeout))]))
 
   (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])

@@ -57,7 +57,7 @@
   (match finish-when
     ['first-to-succeed
      (match templates
-       [(cons t ts) 
+       [(cons t ts)
         (or (synthesize-with-timeout t bv-expr timeout-time)
             (synthesize-with finish-when ts bv-expr timeout-time))]
        [_ 'unsynthesizable])]
