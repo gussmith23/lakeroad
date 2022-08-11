@@ -25,7 +25,8 @@
   (simulate-expr
    lakeroad-expr
    bv-expr
-   #:includes includes
+   #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx")
+                        (build-path (getenv "LAKEROAD_DIR") "verilator-unisims"))
    #:extra-verilator-args
    "-Wno-LATCH -Wno-ASSIGNDLY --CFLAGS -DVL_TIME_STAMP64 --CFLAGS -DVL_NO_LEGACY -DXIL_XECLIB"))
 

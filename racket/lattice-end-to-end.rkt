@@ -12,10 +12,7 @@
          "synthesize.rkt"
          "utils.rkt")
 
-(define includes-dir (build-path (getenv "LAKEROAD_DIR") "f4pga-arch-defs/ecp5/primitives/slice"))
-(define includes
-  (for/list ([mod (list "LUT4.v" "PFUMX.v" "CCU2C.v" "LUT2.v")])
-    (format "~a/~a" includes-dir mod)))
+(define include-dir (build-path (getenv "LAKEROAD_DIR") "f4pga-arch-defs/ecp5/primitives/slice"))
 
 (define (end-to-end-test bv-expr)
   (displayln bv-expr)
@@ -24,7 +21,7 @@
     (raise (result-value with-vc-result)))
   (define lakeroad-expr (result-value with-vc-result))
 
-  (simulate-expr lakeroad-expr bv-expr #:includes includes))
+  (simulate-expr lakeroad-expr bv-expr #:include-dirs (list include-dir)))
 
 (module+ test
   (require rackunit
