@@ -125,7 +125,7 @@ ADD \
   ./run-tests.sh \
   ./skywater-pdk-libs-sky130_fd_sc_hd \
   ./SOFA \
-  ./util \
+  ./utils \
   # Destination
   ./
 
