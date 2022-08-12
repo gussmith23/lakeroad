@@ -128,10 +128,10 @@
           (define verilog-file (make-temporary-file "rkttmp~a.v"))
           (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
           (when (not (with-output-to-string
-                       (lambda ()
-                         (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
-                                         json-file
-                                         verilog-file)))))
+                      (lambda ()
+                        (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
+                                        json-file
+                                        verilog-file)))))
             (error "Converting JSON to Verilog via Yosys failed."))
 
           ;;; TODO(@gussmith23): Support returning multiple files.
