@@ -1,8 +1,7 @@
 ;;; Interpreter for the Lakeroad FPGA modeling DSL.
 #lang errortrace racket
 
-(provide interpret
-         interpret-new)
+(provide interpret)
 
 (require "logical-to-physical.rkt"
          "ultrascale.rkt"
@@ -32,6 +31,8 @@
           (define out
             (for/all
              ([expr expr])
+             ;;; TODO(@gussmith23): change to (destruct expr ...) when conversion to structs is
+             ;;; complete.
              (match expr
                ;;; Lakeroad language.
                [`(logical-to-physical-mapping ,_ ...)
@@ -83,10 +84,8 @@
                [`(append ,lsts ...) (apply append (interpret-helper lsts))]
                [`(take ,l ,n) (take (interpret-helper l) n)]
                [`(drop ,l ,n) (drop (interpret-helper l) n)]
-               [`(list-ref ,l ,n) (list-ref (interpret-helper l) n)]
-               [(lr-first l) (first (interpret-helper l))]
+               [(lr:list-ref l n) (list-ref (interpret-helper l) (interpret-helper n))]
                [`(first ,l) (first (interpret-helper l))]
-               [(lr-second l) (second (interpret-helper l))]
                [`(second ,l) (second (interpret-helper l))]
                [`(third ,l) (third (interpret-helper l))]
                [`(fourth ,l) (fourth (interpret-helper l))]
@@ -106,7 +105,8 @@
 
                ;;; Rosette functions lifted to our language.
                [`(zero-extend ,v ,bv) (zero-extend (interpret-helper v) bv)]
-               [`(extract ,high ,low ,v) (extract high low (interpret-helper v))]
+               [(lr:extract h l v)
+                (extract (interpret-helper h) (interpret-helper l) (interpret-helper v))]
                [`(concat ,v0 ,v1) (concat (interpret-helper v0) (interpret-helper v1))]
 
                ;;; Datatypes.
