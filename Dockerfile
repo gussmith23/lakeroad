@@ -115,19 +115,19 @@ RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
 # general, only ADD files just before they're needed. This maximizes the ability
 # to cache intermediate containers and minimizes rebuilding.
 WORKDIR /root/lakeroad
-ADD \
+ADD [ \
   # Things to add (alphebetized.)
-  ./f4pga-arch-defs \
-  ./fmt.sh \
-  ./Nitro-Parts-lib-Xilinx \
-  ./python \
-  ./racket \
-  ./run-tests.sh \
-  ./skywater-pdk-libs-sky130_fd_sc_hd \
-  ./SOFA \
-  ./util \
+  "./f4pga-arch-defs", \
+  "./fmt.sh", \
+  "./Nitro-Parts-lib-Xilinx", \
+  "./python", \
+  "./racket", \
+  "./run-tests.sh", \
+  "./skywater-pdk-libs-sky130_fd_sc_hd", \
+  "./SOFA", \
+  "./utils", \
   # Destination
-  ./
+  "/root/lakeroad/" ]
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
