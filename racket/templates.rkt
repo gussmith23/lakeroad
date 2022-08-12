@@ -75,7 +75,7 @@
 
          [lakeroad-expr-carry
           `(carry nbits architecture ,(?? (bitvector 1)) ,logical-input ,lakeroad-expr-lut)]
-         [output (choose* (lr:first lakeroad-expr-carry) (lr-second lakeroad-expr-carry))])
+         [output (choose* (lr:list-ref lakeroad-expr-carry 0) (lr:list-ref lakeroad-expr-carry 1))])
     output))
 
 ;;; Comparison template: the general template is two columns of LUTs that feed into the DI and S
@@ -88,7 +88,7 @@
          ;;; Then, we add on top of it.
          [lakeroad-expr-carry
           `(carry nbits architecture ,(?? (bitvector 1)) ,lakeroad-expr-lut-0 ,lakeroad-expr-lut-1)]
-         [output (lr-second lakeroad-expr-carry)])
+         [output (lr:list-ref lakeroad-expr-carry 1)])
     output))
 
 (module+ test
