@@ -54,12 +54,15 @@ ENV PATH="/root/.local/bin:${PATH}"
 
 # Build and install latest boolector.
 WORKDIR /root
+ARG MAKE_JOBS=2
 RUN git clone https://github.com/boolector/boolector \
   && cd boolector \
   && git checkout 3.2.2 \
   && ./contrib/setup-lingeling.sh \
   && ./contrib/setup-btor2tools.sh \
-  && ./configure.sh && cd build && make install
+  && ./configure.sh \
+  && cd build \
+  && make -j${MAKE_JOBS} install
 
 # Install Yosys and other OSS hardware tools from prebuilt binaries.
 #
@@ -75,13 +78,14 @@ RUN if [ "$(uname -m)" = "x86_64" ] ; then \
 ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
 # Build and install latest Verilator.
+ARG MAKE_JOBS=2
 RUN  git clone https://github.com/verilator/verilator \
   && unset VERILATOR_ROOT \
   && cd verilator \
   && git checkout v4.222 \
   && autoconf \
   && ./configure \
-  && make -j `nproc` \
+  && make -j${MAKE_JOBS} \
   && make install
 
 # pip dependencies

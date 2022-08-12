@@ -7,6 +7,8 @@
          "lattice-ecp5.rkt"
          "sofa.rkt"
          "logical-to-physical.rkt"
+         "utils.rkt"
+         "interpreter.rkt"
          racket/pretty
          rosette)
 
@@ -61,6 +63,22 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
+                 [`(lut 1 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                  (compile `(ultrascale-plus-lut1 ,lutmem ,inputs))]
+                 [`(lut 2 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                  (compile `(ultrascale-plus-lut2 ,lutmem ,inputs))]
+                 [`(lut 3 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                  (compile `(ultrascale-plus-lut3 ,lutmem ,inputs))]
+                 [`(lut 4 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                  (compile `(ultrascale-plus-lut4 ,lutmem ,inputs))]
+
+                 ;;; Have to reverse the inputs for SOFA. Could also reverse the lutmem.
+                 ;;;
+                 ;;; TODO(@gussmith23): It's probably not great to have the compiler depend on the
+                 ;;; interpreter.
+                 [`(lut 4 1 sofa ,lutmem ,inputs)
+                  (compile `(sofa-lut4 ,lutmem ,(apply concat (bitvector->bits (interpret inputs)))))]
+
                  [`(ultrascale-plus-dsp48e2 ,_ ...)
                   (make-ultrascale-plus-dsp48e2 compile
                                                 get-bits

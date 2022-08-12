@@ -15,27 +15,86 @@
          rosette/lib/synthax
          rosette/lib/angelic
          racket/pretty
+         racket/sandbox
          rosette/solver/smt/boolector
-         "utils.rkt")
+         "utils.rkt"
+         (prefix-in template: "templates.rkt"))
 
 (current-solver (boolector))
 
-;;; Attempts to synthesize a program for bv-expr using the templates provided.
-;;; strategy can be one of 'whatever-works or 'exhaustive;
-;;; if the strategy is 'whatever-works, returns the first valid synthesis result.
+;;;;;;
+;;;
+;;; TOP-LEVEL SYNTHESIS ROUTINES
+;;; ----------------------------
+;;; Lakeroad's synthesis is divided into a few levels.
+;;; At the very top are our top-level synthesis routines:
+;;; - synthesize-with (a generic function which runs synthesis strategies)
+;;; - architecture-specific synthesis routines (which call into synthesize-with)
+
+;;; Attempts to synthesize a program for bv-expr using the strategies provided.
+;;; finish-when can be one of 'first-to-succeed or 'exhaustive;
+;;; if the finish condition is 'first-to-succeed, returns the first valid synthesis result.
 ;;; Otherwise, returns a list of all synthesis results, with order corresponding
-;;; to the order of templates supplied.
-;;; templates is a list of templates, each template having type bv-expr -> (union bv-expr #f)
-(define (synthesize-with strategy templates bv-expr)
-  (match strategy
-    ['whatever-works
-     (match templates
-       [(cons t ts) (or (t bv-expr) (synthesize-with strategy ts bv-expr))]
+;;; to the order of strategies provided.
+;;; strategies is a list of functions which take a bv-expr and return a lakeroad-expr;
+;;; these synthesis strategies can do something architecture-specific, or call into
+;;; generic templates (with some added plumbing).
+(define (synthesize-with finish-when strategies bv-expr)
+  ;; Clean state
+  (clear-vc!)
+  (clear-terms!)
+  (collect-garbage)
+
+  (match finish-when
+    ['first-to-succeed
+     (match strategies
+       [(cons s ss)
+        (or (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr)))
+            (synthesize-with finish-when ss bv-expr))]
        [_ 'unsynthesizable])]
     ;;; TODO: impl timeouts or something idk
-    ['exhaustive (map (lambda (f) (with-vc (f bv-expr))) templates)]))
+    ['exhaustive
+     (map (lambda (s)
+            (clear-vc!)
+            (clear-terms!)
+            (collect-garbage)
+            (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr))))
+          strategies)]))
 
-;;; A synthesis template that checks if the input bv-expr is constant (i.e. has
+(define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
+  (synthesize-with finish-when (list (synthesize-using-lut 'sofa 1 4)) bv-expr))
+
+;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
+;;;
+;;; TODO Use the grammar to generate *any* Lakeroad program. This will probably require that we also
+;;; let the user specify the depth to search over and other parameters. At the very least, start by
+;;; defining those as keyword args with default values.
+(define (synthesize-xilinx-ultrascale-plus-impl bv-expr [finish-when 'first-to-succeed])
+  (synthesize-with finish-when
+                   (list synthesize-constant
+                         synthesize-xilinx-ultrascale-plus-dsp
+                         (synthesize-using-lut 'xilinx-ultrascale-plus 1)
+                         synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
+                   bv-expr))
+
+(define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed])
+  (synthesize-with finish-when
+                   (list synthesize-lattice-ecp5-for-pfu
+                         synthesize-lattice-ecp5-for-ripple-pfu
+                         synthesize-lattice-ecp5-for-ccu2c
+                         synthesize-lattice-ecp5-for-ccu2c-tri)
+                   bv-expr))
+
+;;;;;;
+;;;
+;;; GENERIC SYNTHESIS STRATEGIES
+;;; ----------------------------
+;;; Below the top level are synthesis strategies, which define how to wire up
+;;; components and synthesis holes. These generic synthesis strategies call into
+;;; lakeroad templates, which generically define building blocks (e.g. luts)
+;;; modulo the specific architecture used.
+
+;;; A synthesis strategy that checks if the input bv-expr is constant (i.e. has
 ;;; no symbolic vars and returns it if so. Otherwise returns #f.
 (define (synthesize-constant bv-expr)
   (if (empty? (symbolics bv-expr))
@@ -44,57 +103,88 @@
       ;;; Otherwise, for this template, just give up lmao
       #f))
 
-(define (synthesize-sofa-impl bv-expr)
-  (synthesize-with 'whatever-works (list synthesize-sofa-impl-simple) bv-expr))
+;;; A function which, when given an architecture, a target number of lutmems,
+;;; whether to use a carry, and how many arguments to pad the inputs to, if any,
+;;; returns a synthesis strategy which uses the lut template.
+(define (synthesize-using-lut arch num-lutmems [pad #f] [carry? #f])
+  (lambda (bv-expr)
+    (when (> (length (symbolics bv-expr)) 6)
+      (error "Only 6 inputs supported"))
 
-(define (synthesize-sofa-impl-simple bv-expr)
-  (when (> (length (symbolics bv-expr)) 4)
-    (error "Only 4 inputs supported"))
+    ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
+    (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
 
-  ;;; Bitwidth of the output.
-  (define out-bw (bvlen bv-expr))
-  (when (not (concrete? out-bw))
-    (error "Out bitwidth must be statically known."))
+    (define inputs
+      (if pad
+          (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
+          (symbolics bv-expr)))
 
-  ;;; Max bitwidth of any input.
-  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
-  (define max-input-bw
-    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
-  (when (not (concrete? max-input-bw))
-    (error "Input bitwidths must be statically known."))
+    (define lutmems
+      (for/list ([i num-lutmems])
+        (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
+        lutmem))
 
-  ;;; Form the list of logical inputs.
-  ;;; Zero-extend them so they're all the same size.
-  ;;; Pad so there's 4 logical inputs.
-  (define logical-inputs
-    (append (map (lambda (v)
-                   (choose* `(zero-extend ,v ,(bitvector max-input-bw))
-                            `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
-                 (symbolics bv-expr))
-            (make-list (- 4 (length (symbolics bv-expr))) (bv 0 max-input-bw))))
+    (define lakeroad-expr
+      ((if carry? template:lut-with-carry template:lut) nbits arch inputs lutmems (bvlen bv-expr)))
 
-  (define lutmem (?? (bitvector 16)))
+    (interpret lakeroad-expr)
+    (define soln
+      ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+      ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+      (synthesize #:forall (symbolics bv-expr)
+                  #:guarantee (begin
+                                (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
-  (define lakeroad-expr
-    (let* ([physical-inputs `(logical-to-physical-mapping (bitwise) ,logical-inputs)]
-           [physical-outputs (for/list ([i max-input-bw])
-                               `(sofa-lut4 ,lutmem (list-ref ,physical-inputs ,i)))])
-      `(extract ,(sub1 out-bw) 0 (first (physical-to-logical-mapping (bitwise) ,physical-outputs)))))
+    (if (sat? soln)
+        (evaluate lakeroad-expr
+                  (complete-solution soln
+                                     (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                              (list->set (symbolics bv-expr))))))
+        #f)))
 
-  (interpret lakeroad-expr)
-  (define soln
-    ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-    ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+;;; A function which, when given an architecture, a target number of lutmems,
+;;; and a number of arguments to pad the inputs to,
+;;; returns a synthesis strategy which uses the comparison template.
+(define (synthesize-using-comparison arch num-lutmems [pad #f])
+  (lambda (bv-expr)
+    (when (> (length (symbolics bv-expr)) 4)
+      (error "Only 4 inputs supported"))
 
-  (if (sat? soln)
-      (evaluate lakeroad-expr
-                (complete-solution soln
-                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                            (list->set (symbolics bv-expr))))))
-      #f))
+    ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
+    (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
+
+    (define inputs
+      (if pad
+          (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
+          (symbolics bv-expr)))
+
+    (define lutmems
+      (for/list ([i num-lutmems])
+        (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
+        lutmem))
+
+    (define lakeroad-expr (template:comparison nbits arch inputs lutmems))
+
+    (interpret lakeroad-expr)
+    (define soln
+      ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+      ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+      (synthesize #:forall (symbolics bv-expr)
+                  #:guarantee (begin
+                                (assert (bveq bv-expr (interpret lakeroad-expr))))))
+
+    (if (sat? soln)
+        (evaluate lakeroad-expr
+                  (complete-solution soln
+                                     (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                              (list->set (symbolics bv-expr))))))
+        #f)))
+
+;;;;;;
+;;;
+;;; ARCH-DEPENDENT SYNTHESIS STRATEGIES
+;;; -----------------------------------
+;;; Finally, we have architecture-dependent synthesis strategies!
 
 ;;; Attempt to synthesize expression using a DSP.
 (define (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
@@ -151,88 +241,14 @@
                        (define-symbolic a b (bitvector 8))
                        (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-dsp (bvmul a b))))))))
 
-;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression
-;;; using smaller LUTs.
-(define (synthesize-xilinx-ultrascale-plus-impl-smaller-luts bv-expr)
-  (when (> (length (symbolics bv-expr)) 6)
-    (error "Only 6 inputs supported"))
-
-  ;;; Bitwidth of the output.
-  (define out-bw (bvlen bv-expr))
-  (when (not (concrete? out-bw))
-    (error "Out bitwidth must be statically known."))
-
-  ;;; Max bitwidth of any input.
-  ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
-  (define max-input-bw
-    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
-  (when (not (concrete? max-input-bw))
-    (error "Input bitwidths must be statically known."))
-
-  ;;; Form the list of logical inputs.
-  ;;; Zero-extend them so they're all the same size.
-  (define logical-inputs
-    (map (lambda (v)
-           (choose* `(zero-extend ,v ,(bitvector max-input-bw))
-                    `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-input-bw))))
-         (symbolics bv-expr)))
-
-  (define lut-fn
-    (match (length (symbolics bv-expr))
-      [1 'ultrascale-plus-lut1]
-      [2 'ultrascale-plus-lut2]
-      [3 'ultrascale-plus-lut3]))
-
-  (define lutmem
-    (match (length (symbolics bv-expr))
-      [1 (?? (bitvector 2))]
-      [2 (?? (bitvector 4))]
-      [3 (?? (bitvector 8))]))
-
-  (define lakeroad-expr
-    (let* ([physical-inputs `(logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse))
-                                                          ,logical-inputs)]
-           [physical-outputs (for/list ([i max-input-bw])
-                               `(,lut-fn ,lutmem (list-ref ,physical-inputs ,i)))])
-      `(extract ,(sub1 out-bw)
-                0
-                (first (physical-to-logical-mapping ,(choose '(bitwise) '(bitwise-reverse))
-                                                    ,physical-outputs)))))
-
-  (interpret lakeroad-expr)
-  (define soln
-    ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-    ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-  (if (sat? soln)
-      (evaluate lakeroad-expr
-                (complete-solution soln
-                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                            (list->set (symbolics bv-expr))))))
-      #f))
-
 (module+ test
   (require rackunit
            rosette)
   (test-begin
    (define-symbolic a b (bitvector 8))
+   (define synthesize-xilinx-ultrascale-plus-impl-smaller-luts
+     (synthesize-using-lut 'xilinx-ultrascale-plus 1))
    (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-impl-smaller-luts (bvand a b)))))
-
-;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
-;;;
-;;; TODO Use the grammar to generate *any* Lakeroad program. This will probably require that we also
-;;; let the user specify the depth to search over and other parameters. At the very least, start by
-;;; defining those as keyword args with default values.
-(define (synthesize-xilinx-ultrascale-plus-impl bv-expr)
-  (synthesize-with 'whatever-works
-                   (list synthesize-constant
-                         synthesize-xilinx-ultrascale-plus-dsp
-                         synthesize-xilinx-ultrascale-plus-impl-smaller-luts
-                         synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
-                   bv-expr))
 
 ;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
 ;;; This is our original synthesis implementation, and remains our fallback.
@@ -327,14 +343,6 @@
             (complete-solution soln
                                (set->list (set-subtract (list->set (symbolics lakeroad-expr))
                                                         (list->set (symbolics bv-expr)))))))
-
-(define (synthesize-lattice-ecp5-impl bv-expr)
-  (synthesize-with 'whatever-works
-                   (list synthesize-lattice-ecp5-for-pfu
-                         synthesize-lattice-ecp5-for-ripple-pfu
-                         synthesize-lattice-ecp5-for-ccu2c
-                         synthesize-lattice-ecp5-for-ccu2c-tri)
-                   bv-expr))
 
 ;;; Synthesizes a lattice expression using ccu2c modules.
 ;;; This template is designed for use with simple comparison operators which

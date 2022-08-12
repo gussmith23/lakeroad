@@ -1,7 +1,6 @@
 #lang racket
 
-(require racket/cmdline
-         rosette
+(require rosette
          "synthesize.rkt"
          "compile-to-json.rkt"
          "circt-comb-operators.rkt"
@@ -21,6 +20,14 @@
                     (match v
                       [(or "verilog") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
+(define finish-when
+  (make-parameter 'first-to-succeed
+                  (lambda (v)
+                    (case v
+                      [("exhaustive") 'exhaustive]
+                      [("first-to-succeed") 'first-to-succeed]
+                      [else (error (format "Unsupported finish condition ~a." v))]))))
+
 (define instructions (make-parameter '() (lambda (instr) instr)))
 (define module-names (make-parameter '() (lambda (name) name)))
 (define json-file-name (make-parameter (make-temporary-file "rkttmp~a.json") (lambda (name) name)))
@@ -30,6 +37,8 @@
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
  ["--out-format" fmt "Output format. Supported: 'verilog'" (out-format fmt)]
  ["--json-file" name "JSON file to output to" (json-file-name name)]
+ ;;; A better API might be to to default to first-to-succeed, and toggle exhaustive with a flag?
+ ["--finish-when" c "Condition to stop synthesis" (finish-when c)]
  #:once-any
  #:multi
  [("--instruction")
@@ -76,36 +85,52 @@
 ;;; Synthesize a Lakeroad implementation of the given instruction.
 ;;;
 ;;; Returns a Lakeroad expression.
-(define (synthesize instruction architecture)
+(define (synthesize instruction architecture finish-when)
   (match architecture
-    ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction)]
-    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction)]
-    ["sofa" (synthesize-sofa-impl instruction)]
+    ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction finish-when)]
+    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when)]
+    ["sofa" (synthesize-sofa-impl instruction finish-when)]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
 
 (for ([instruction (instructions)] [module-name (module-names)])
   (define bv-expr (parse-instruction (read (open-input-string instruction))))
-  (define lakeroad-expr (synthesize bv-expr (architecture)))
+  (define all-exprs
+    (match (finish-when)
+      ['first-to-succeed (list (synthesize bv-expr (architecture) 'first-to-succeed))]
+      ['exhaustive (synthesize bv-expr (architecture) 'exhaustive)]))
 
-  (define json-source (lakeroad->jsexpr lakeroad-expr #:module-name module-name))
+  (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
+    (cond
+      ;;; TODO(@gussmith23): Sometimes we return 'unsynthesizable, sometimes we return #f. I think we
+      ;;; should probably just return #f.
+      [(equal? lakeroad-expr 'unsynthesizable)
+       ;;; TODO(@gussmith23): Rosette incorrectly accepts (if ... (begin (define x ...) ...) ...). If
+       ;;; we switch to Racket, this code will fail. It's probably best to change this away from using
+       ;;; defines.
+       (define json-source
+         (lakeroad->jsexpr lakeroad-expr #:module-name (format "~a_~a" module-name i)))
 
-  (match (out-format)
-    ["verilog"
-     (when (not (getenv "LAKEROAD_DIR"))
-       (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
+       (match (out-format)
+         ["verilog"
+          (when (not (getenv "LAKEROAD_DIR"))
+            (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
 
-     (define json-file (json-file-name))
-     (define verilog-file (make-temporary-file "rkttmp~a.v"))
-     (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
-     (when (not (with-output-to-string
-                 (lambda ()
-                   (system
-                    (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file)))))
-       (error "Converting JSON to Verilog via Yosys failed."))
+          (define json-file (json-file-name))
+          (define verilog-file (make-temporary-file "rkttmp~a.v"))
+          (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
+          (when (not (with-output-to-string
+                      (lambda ()
+                        (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
+                                        json-file
+                                        verilog-file)))))
+            (error "Converting JSON to Verilog via Yosys failed."))
 
-     (displayln (file->string verilog-file))])
+          ;;; TODO(@gussmith23): Support returning multiple files.
+          (displayln (file->string verilog-file))])]
+      [else (displayln (format "Warning: synthesis routine returned #f"))])
+    (displayln ""))
 
   ;;; Clean up the VC and un-bind the symbolic terms created for this instruction.
   (clear-vc!)
