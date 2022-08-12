@@ -104,13 +104,30 @@ RUN raco pkg install --deps search-auto --batch \
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:$PATH"
 
-WORKDIR /root/lakeroad
-ADD ./ ./
-
 ENV LAKEROAD_DIR=/root/lakeroad
 
 # Build Rust package.
+WORKDIR /root/lakeroad
+ADD ./rust ./rust
 RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
+
+# Add other Lakeroad files. It's useful to put this as far down as possible. In
+# general, only ADD files just before they're needed. This maximizes the ability
+# to cache intermediate containers and minimizes rebuilding.
+WORKDIR /root/lakeroad
+ADD \
+  # Things to add (alphebetized.)
+  ./f4pga-arch-defs \
+  ./fmt.sh \
+  ./Nitro-Parts-lib-Xilinx \
+  ./python \
+  ./racket \
+  ./run-tests.sh \
+  ./skywater-pdk-libs-sky130_fd_sc_hd \
+  ./SOFA \
+  ./util \
+  # Destination
+  ./
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
