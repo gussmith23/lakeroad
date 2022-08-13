@@ -115,6 +115,7 @@ RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
 # general, only ADD files just before they're needed. This maximizes the ability
 # to cache intermediate containers and minimizes rebuilding.
 WORKDIR /root/lakeroad
+# syntax=docker/dockerfile-upstream:master-labs
 ADD --keep-git-dir=false . .
 
 WORKDIR /root/lakeroad
