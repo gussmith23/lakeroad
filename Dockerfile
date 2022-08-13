@@ -120,8 +120,8 @@ ADD [ \
   "./f4pga-arch-defs", \
   "./fmt.sh", \
   "./Nitro-Parts-lib-Xilinx", \
-  "./racket", \
   "./python", \
+  "./racket", \
   "./run-tests.sh", \
   "./skywater-pdk-libs-sky130_fd_sc_hd", \
   "./SOFA", \
