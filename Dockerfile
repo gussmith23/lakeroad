@@ -116,6 +116,11 @@ RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
 # Add other Lakeroad files. It's useful to put this as far down as possible. In
 # general, only ADD files just before they're needed. This maximizes the ability
 # to cache intermediate containers and minimizes rebuilding.
+#
+# In reality, we use the git functionality of ADD (enabled in our case via the
+# optional flag --keep-git-dir) to add all of the checked-in files of the
+# Lakeroad repo (but not including the .git directory itself). We could cut this
+# down further if we wanted, but I think this is a clean approach for now.
 WORKDIR /root/lakeroad
 ADD --keep-git-dir=false . .
 
