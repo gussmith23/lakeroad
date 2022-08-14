@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile-upstream:master-labs
+# The above enables use of ADD of git repo.
 FROM ubuntu:22.04
 
 # Get add-apt-repository
@@ -104,13 +106,23 @@ RUN raco pkg install --deps search-auto --batch \
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:$PATH"
 
-WORKDIR /root/lakeroad
-ADD ./ ./
-
 ENV LAKEROAD_DIR=/root/lakeroad
 
 # Build Rust package.
+WORKDIR /root/lakeroad
+ADD ./rust ./rust
 RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
+
+# Add other Lakeroad files. It's useful to put this as far down as possible. In
+# general, only ADD files just before they're needed. This maximizes the ability
+# to cache intermediate containers and minimizes rebuilding.
+#
+# In reality, we use the git functionality of ADD (enabled in our case via the
+# optional flag --keep-git-dir) to add all of the checked-in files of the
+# Lakeroad repo (but not including the .git directory itself). We could cut this
+# down further if we wanted, but I think this is a clean approach for now.
+WORKDIR /root/lakeroad
+ADD --keep-git-dir=false . .
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
