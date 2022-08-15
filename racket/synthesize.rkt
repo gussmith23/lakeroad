@@ -26,11 +26,12 @@
 (define (synthesize-with-timeout strat input timeout)
   (let ([t (current-thread)] [timeout-time (if (null? timeout) 5.0 timeout)])
     (if timeout
-        (begin
-          (sync/timeout timeout-time (thread (lambda () (thread-send t (strat input)))))
-          (clear-vc!)
-          (clear-terms!)
-          (thread-try-receive))
+        (let ([synthesized
+               (with-handlers ([exn:fail? (lambda (exn) #f)])
+                                  (with-deep-time-limit timeout-time (strat input)))])
+         (clear-vc!)
+         (clear-terms!)
+         synthesized)
         (strat input))))
 
 ;;;;;;

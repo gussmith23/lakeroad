@@ -31,9 +31,10 @@
     (printf "Implementation: ~a\n" (pretty-format lakeroad-expr)))
 
   (if expect-timeout?
-      (begin
-        (equal? 'unsynthesizable lakeroad-expr))
-      (and lakeroad-expr (simulate-expr lakeroad-expr bv-expr #:includes includes))))
+      (equal? 'unsynthesizable lakeroad-expr)
+      (and lakeroad-expr
+           (not (equal? 'unsynthesizable lakeroad-expr))
+           (simulate-expr lakeroad-expr bv-expr #:includes includes))))
 
 (module+ test
   (require rackunit
