@@ -60,7 +60,7 @@
        [(cons t ts)
         (or (synthesize-with-timeout t bv-expr timeout-time)
             (synthesize-with finish-when ts bv-expr timeout-time))]
-       [_ 'unsynthesizable])]
+       [_ #f])]
     ;;; TODO: impl timeouts or something idk
     ['exhaustive
      (map (lambda (s)

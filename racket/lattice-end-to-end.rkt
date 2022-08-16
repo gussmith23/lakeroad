@@ -30,9 +30,8 @@
     (printf "Implementation: ~a\n" (pretty-format lakeroad-expr)))
 
   (if expect-timeout?
-      (equal? 'unsynthesizable lakeroad-expr)
+      (not lakeroad-expr)
       (and lakeroad-expr
-           (not (equal? 'unsynthesizable lakeroad-expr))
            (simulate-expr lakeroad-expr bv-expr #:include-dirs (list include-dir)))))
 
 (module+ test

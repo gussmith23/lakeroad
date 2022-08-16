@@ -107,9 +107,7 @@
 
   (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
     (cond
-      ;;; TODO(@gussmith23): Sometimes we return 'unsynthesizable, sometimes we return #f. I think we
-      ;;; should probably just return #f.
-      [(equal? lakeroad-expr 'unsynthesizable)
+      [(not lakeroad-expr)
        (displayln (format "Warning: synthesis routine returned #f"))]
 
       [else
