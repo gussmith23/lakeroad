@@ -65,7 +65,7 @@
       ;;; The symbol for the variable which holds the value that gets driven into the input of the
       ;;; module.
       (define (val-var var)
-        (format "v~a" var))
+        (~a var))
 
       ;;; The sequence of `for (<idx-var> = 0; <idx-var> < <limit>; <idx-var>++)` statements which
       ;;; open the loop for each input we're testing over.
@@ -122,6 +122,11 @@
   ~a
   ~a
   ~a
+  top->eval();
+  long long int out_actual = top->out0;
+  long long int out_expected = ~a;
+  assert(out_actual == out_expected);
+  if (out_actual != out_expected) printf("actual != expected: %llu != %llu\n", out_actual, out_expected);
   ~a
   delete top;
 }
@@ -132,6 +137,7 @@ here-string-delimiter
          (string-join for-loop-openings "\n")
          (string-join value-definitions "\n")
          (string-join module-input-assignments "\n")
+         (bvexpr->cexpr bv-expr)
          (string-join for-loop-closings "\n")))
 
       (list code verilated-type-name verilog-file)))
@@ -182,16 +188,24 @@ here-string-delimiter
      (string-join (for/list ([include-dir include-dirs])
                     (format "-I~a" include-dir))))
    (define executable-filepath (make-temporary-file))
+
+   ;;; Verilate each Verilog file.
+   (for ([verilog-file verilog-files])
+     ;;; Will eventually need to call with these:
+     ;;; (string-join (map path->string verilog-files) " ")
+     ;;; (string-join additional-files-to-build " ")
+     ;;;       include-dirs-string
+     ;;; extra-verilator-args
+     (system (format "verilator --cc -Mdir ~a ~a" verilator-make-dir verilog-file)))
+
+   ;;; Build the testbench executable.
    (define verilator-command
+     ;;; TODO hardcoded paths.
      (format
-      "verilator -o ~a --relative-includes --cc --build --exe -Wall -Wno-MULTITOP --Mdir ~a ~a ~a ~a ~a ~a"
+      "cc -lstdc++ -stdlib=libc++ -std=c++11 -I/usr/local/Cellar/verilator/4.222/share/verilator/include/ /usr/local/Cellar/verilator/4.222/share/verilator/include/verilated.cpp -o ~a ~a ~a"
       executable-filepath
-      verilator-make-dir
-      (string-join (map path->string verilog-files) " ")
-      (string-join additional-files-to-build " ")
       testbench-file
-      include-dirs-string
-      extra-verilator-args))
+      (build-path verilator-make-dir "*.cpp")))
 
    (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process verilator-command)])
               ;;; Wait until Verilator completes.
@@ -214,8 +228,22 @@ here-string-delimiter
            rackunit)
 
   (test-case "Simple multi-design Verilator test"
-             (define-symbolic a b (bitvector 8))
-             (simulate-with-verilator (list (to-simulate a a) (to-simulate b b)))))
+             (check-true (normal? (with-vc (with-terms (begin
+                                                         (define-symbolic a b (bitvector 8))
+                                                         (check-true (simulate-with-verilator
+                                                                      (list (to-simulate a a)
+                                                                            (to-simulate b b))))))))))
+
+  ;;; TODO(@gussmith23): Capture the output of this so that we don't print an assertion failure during
+  ;;; testing.
+  (test-case "Simple multi-design Verilator test 2"
+             (check-true
+              (normal? (with-vc (with-terms (begin
+                                              (define-symbolic a b (bitvector 8))
+                                              (displayln "Note: expecting an assertion failure:")
+                                              (check-false (simulate-with-verilator
+                                                            (list (to-simulate a a)
+                                                                  (to-simulate b (bvnot b))))))))))))
 
 ;;; Test a Lakeroad expression using a simple testbench.
 ;;;
