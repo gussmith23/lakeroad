@@ -31,6 +31,8 @@
 (define instructions (make-parameter '() (lambda (instr) instr)))
 (define module-names (make-parameter '() (lambda (name) name)))
 (define json-file-name (make-parameter (make-temporary-file "rkttmp~a.json") (lambda (name) name)))
+(define template-timeout
+  (make-parameter '() (lambda (to) (if (equal? "0" to) #f (string->number to)))))
 
 (command-line
  #:program "lakeroad"
@@ -39,6 +41,7 @@
  ["--json-file" name "JSON file to output to" (json-file-name name)]
  ;;; A better API might be to to default to first-to-succeed, and toggle exhaustive with a flag?
  ["--finish-when" c "Condition to stop synthesis" (finish-when c)]
+ ["--timeout" timeout "Timeout in seconds for each template" (template-timeout timeout)]
  #:once-any
  #:multi
  [("--instruction")
@@ -85,10 +88,10 @@
 ;;; Synthesize a Lakeroad implementation of the given instruction.
 ;;;
 ;;; Returns a Lakeroad expression.
-(define (synthesize instruction architecture finish-when)
+(define (synthesize instruction architecture finish-when #:timeout [timeout #f])
   (match architecture
     ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction finish-when)]
-    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when)]
+    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when #:timeout timeout)]
     ["sofa" (synthesize-sofa-impl instruction finish-when)]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
@@ -98,14 +101,16 @@
   (define bv-expr (parse-instruction (read (open-input-string instruction))))
   (define all-exprs
     (match (finish-when)
-      ['first-to-succeed (list (synthesize bv-expr (architecture) 'first-to-succeed))]
-      ['exhaustive (synthesize bv-expr (architecture) 'exhaustive)]))
+      ['first-to-succeed
+       (list (synthesize bv-expr (architecture) 'first-to-succeed #:timeout (template-timeout)))]
+      ['exhaustive (synthesize bv-expr (architecture) 'exhaustive #:timeout (template-timeout))]))
 
   (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
     (cond
-      ;;; TODO(@gussmith23): Sometimes we return 'unsynthesizable, sometimes we return #f. I think we
-      ;;; should probably just return #f.
-      [(equal? lakeroad-expr 'unsynthesizable)
+      [(not lakeroad-expr)
+       (displayln (format "Warning: synthesis routine returned #f"))]
+
+      [else
        ;;; TODO(@gussmith23): Rosette incorrectly accepts (if ... (begin (define x ...) ...) ...). If
        ;;; we switch to Racket, this code will fail. It's probably best to change this away from using
        ;;; defines.
@@ -128,8 +133,7 @@
             (error "Converting JSON to Verilog via Yosys failed."))
 
           ;;; TODO(@gussmith23): Support returning multiple files.
-          (displayln (file->string verilog-file))])]
-      [else (displayln (format "Warning: synthesis routine returned #f"))])
+          (displayln (file->string verilog-file))])])
     (displayln ""))
 
   ;;; Clean up the VC and un-bind the symbolic terms created for this instruction.

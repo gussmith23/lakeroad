@@ -3,9 +3,11 @@
 
 (provide interpret
          lr-first
-         lr-second)
+         lr-second
+         report-memoization)
 
-(require "logical-to-physical.rkt"
+(require racket/pretty
+         "logical-to-physical.rkt"
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
          "sofa.rkt"
@@ -18,12 +20,25 @@
 (struct lr-first (expr) #:transparent)
 (struct lr-second (expr) #:transparent)
 
+(define interp-memoization-hits 0)
+(define interp-memoization-misses 0)
+(define (report-memoization)
+  (printf "Memozation Report: HITS: ~a  MISSES: ~a  HITS/MISSES: ~a\n"
+          interp-memoization-hits
+          interp-memoization-misses
+          (/ (exact->inexact interp-memoization-hits) interp-memoization-misses)))
+
 (define (interpret expr)
-  (define interpreter-memo-hash (make-hash))
+  (set! interp-memoization-hits 0)
+  (set! interp-memoization-misses 0)
+  (define interpreter-memo-hash (make-hasheq))
   (define (interpret-helper expr)
     (if (hash-has-key? interpreter-memo-hash expr)
-        (hash-ref interpreter-memo-hash expr)
         (begin
+          (set! interp-memoization-hits (add1 interp-memoization-hits))
+          (hash-ref interpreter-memo-hash expr))
+        (begin
+          (set! interp-memoization-misses (add1 interp-memoization-misses))
           (define out
             (for/all
              ([expr expr])
@@ -40,6 +55,14 @@
                [`(ultrascale-plus-lut1 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
                [`(ultrascale-plus-dsp48e2 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
                [`(lattice-ecp5-pfu ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-lut4 ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-lut5 ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-lut6 ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-lut7 ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-lut8 ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-pfumx ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-mux21 ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
+               [`(lattice-ecp5-l6mux21 ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
                [`(lattice-ecp5-ccu2c ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
                [`(lattice-ecp5-ripple-pfu ,_ ...) (interpret-lattice-ecp5 interpret-helper expr)]
                [`(sofa-lut1 ,_ ...) (interpret-sofa interpret-helper expr)]
@@ -97,12 +120,7 @@
                [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv)
                 (dup-extend (interpret-helper v) bv)]
                [`(extract ,high ,low ,v) (extract high low (interpret-helper v))]
-               [`(concat ,v0 ,v1) (concat (interpret-helper v0) (interpret-helper v1))]
-
-               ;;; Rosette functions lifted to our language.
-               [`(zero-extend ,v ,bv) (zero-extend (interpret-helper v) bv)]
-               [`(extract ,high ,low ,v) (extract high low (interpret-helper v))]
-               [`(concat ,v0 ,v1) (concat (interpret-helper v0) (interpret-helper v1))]
+               [`(concat ,vs ...) (apply concat (interpret-helper vs))]
 
                ;;; Datatypes.
                [(? bv? v) v]

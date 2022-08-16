@@ -12,6 +12,7 @@
          compile-physical-to-logical-mapping)
 
 (require rosette
+         racket/pretty
          rosette/lib/synthax)
 
 (define (transpose inputs)

@@ -115,6 +115,49 @@
                                          add-netname
                                          add-parameter-default-value
                                          expr)]
+                 [`(lattice-ecp5-lut4 ,_ ...)
+                  (compile-lattice-lut4 compile
+                                        get-bits
+                                        add-cell
+                                        add-netname
+                                        add-parameter-default-value
+                                        expr)]
+                 [`(lattice-ecp5-lut6 ,_ ...)
+                  (compile-lattice-lut6 compile
+                                        get-bits
+                                        add-cell
+                                        add-netname
+                                        add-parameter-default-value
+                                        expr)]
+                 [`(lattice-ecp5-lut8 ,_ ...)
+                  (compile-lattice-lut8 compile
+                                        get-bits
+                                        add-cell
+                                        add-netname
+                                        add-parameter-default-value
+                                        expr)]
+                 [`(lattice-ecp5-mux21 ,_ ...)
+                  (compile-lattice-mux21 compile
+                                         get-bits
+                                         add-cell
+                                         add-netname
+                                         add-parameter-default-value
+                                         expr)]
+
+                 [`(lattice-ecp5-l6mux21 ,_ ...)
+                  (compile-lattice-l6mux21 compile
+                                           get-bits
+                                           add-cell
+                                           add-netname
+                                           add-parameter-default-value
+                                           expr)]
+                 [`(lattice-ecp5-pfumx ,_ ...)
+                  (compile-lattice-pfumx compile
+                                         get-bits
+                                         add-cell
+                                         add-netname
+                                         add-parameter-default-value
+                                         expr)]
                  [`(lattice-ecp5-ripple-pfu ,_ ...)
                   (compile-lattice-ripple-pfu compile
                                               get-bits
@@ -156,10 +199,16 @@
 
                  ;;; Racket operators.
                  [`(first ,v) (first (compile v))]
+                 [`(second ,v) (second (compile v))]
+                 [`(third ,v) (third (compile v))]
+                 [`(fourth ,v) (fourth (compile v))]
+                 [`(fifth ,v) (fifth (compile v))]
+                 [`(sixth ,v) (sixth (compile v))]
                  [`(take ,l ,n) (take (compile l) n)]
                  [`(drop ,l ,n) (drop (compile l) n)]
                  [`(list-ref ,l ,n) (list-ref (compile l) n)]
                  [`(append ,lsts ...) (apply append (compile lsts))]
+                 [`(map ,f ,lsts ...) (apply map f (compile lsts))]
 
                  ;;; Rosette operators.
                  [(or (expression (== extract) high low v) `(extract ,high ,low ,v))
@@ -169,6 +218,8 @@
                           (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
                  [(or `(concat ,v0 ,v1) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
+                 ;; TODO: How to handle variadic rosette concats?
+                 [`(concat ,rst ...) (apply append (compile (reverse rst)))]
 
                  [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv-type)
                   (make-list (bitvector-size bv-type) (first (compile v)))]
