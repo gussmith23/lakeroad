@@ -51,8 +51,8 @@
 ;;; templates: a list of templates, each template having type
 ;;;     bv-expr -> (union bv-expr #f)
 ;;; bv-expr: a bv-expr to synthesize
-;;; timeout: gives a per-template timeout in seconds.
-(define (synthesize-with finish-when templates bv-expr [timeout 5.0])
+;;; timeout: gives a per-template timeout in seconds (defaults to #f, no timeout)
+(define (synthesize-with finish-when templates bv-expr [timeout #f])
   (define timeout-time (if (null? timeout) 5.0 timeout))
   (match finish-when
     ['first-to-succeed
