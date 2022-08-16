@@ -1,6 +1,8 @@
 #lang errortrace racket
 
-(provide simulate-expr)
+(provide simulate-expr
+         to-simulate
+         simulate-with-verilator)
 
 (require json
          "compile-to-json.rkt"
