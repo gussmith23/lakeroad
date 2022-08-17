@@ -25,11 +25,13 @@
  (simulate-with-verilator to-simulate-values
                           #:additional-files-to-build [additional-files-to-build '()]
                           #:include-dirs [include-dirs '()]
-                          #:extra-verilator-args [extra-verilator-args ""])
+                          #:extra-verilator-args [extra-verilator-args ""]
+                          #:extra-cc-args [extra-cc-args ""])
  (->* ((listof to-simulate?))
       (#:additional-files-to-build (listof string?)
-       #:include-dirs (listof string?)
-       #:extra-verilator-args string?)
+       #:include-dirs (listof (or/c string? path?))
+       #:extra-verilator-args string?
+       #:extra-cc-args string?)
       boolean?)
  (begin
    (define/contract
@@ -84,7 +86,7 @@
           ;;; testing for up to 8 bits, so we max out at 256. Thus, for anything higher than 8 bits,
           ;;; we will do random testing with 256 randomly-selected values of var. We can make this
           ;;; more configurable if we want.
-          (define limit (max 256 (expt 2 (bvlen var))))
+          (define limit (min 256 (expt 2 (bvlen var))))
 
           ;;; Open the for loop that iterates over this variable.
           (format "for (long long int ~a = 0; ~a < ~a; ++~a) {"
@@ -120,26 +122,29 @@
         (format
          #<<here-string-delimiter
 {
+  // bv-expr: ~a
   ~a *top = new ~a{contextp};
   ~a
   ~a
   ~a
   top->eval();
   long long int out_actual = top->out0;
-  long long int out_expected = ~a;
-  assert(out_actual == out_expected);
+  long long int out_expected = ~a & ~a;
   if (out_actual != out_expected) printf("actual != expected: %llu != %llu\n", out_actual, out_expected);
+  assert(out_actual == out_expected);
   ~a
   delete top;
 }
 here-string-delimiter
          ;
+         bv-expr
          verilated-type-name
          verilated-type-name
          (string-join for-loop-openings "\n")
          (string-join value-definitions "\n")
          (string-join module-input-assignments "\n")
          (bvexpr->cexpr bv-expr)
+         (sub1 (expt 2 (bvlen bv-expr)))
          (string-join for-loop-closings "\n")))
 
       (list code verilated-type-name verilog-file)))
@@ -185,6 +190,7 @@ here-string-delimiter
 
    (define testbench-file (make-temporary-file "rkttmp_testbench_~a.cc"))
    (display-to-file testbench-source testbench-file #:exists 'update)
+   (log-info "testbench file: ~a" testbench-file)
 
    (define include-dirs-string
      (string-join (for/list ([include-dir include-dirs])
@@ -196,32 +202,37 @@ here-string-delimiter
      ;;; Will eventually need to call with these:
      ;;; (string-join (map path->string verilog-files) " ")
      ;;; (string-join additional-files-to-build " ")
-     ;;;       include-dirs-string
-     ;;; extra-verilator-args
-     (system (format "verilator --cc -Mdir ~a ~a" verilator-make-dir verilog-file)))
+     (system (format "verilator --cc -Mdir ~a ~a ~a ~a"
+                     verilator-make-dir
+                     include-dirs-string
+                     extra-verilator-args
+                     verilog-file)))
 
    ;;; Build the testbench executable.
-   (define verilator-command
+   (define cc-command
      ;;; TODO hardcoded paths.
      (format
-      "cc -lstdc++ -stdlib=libc++ -std=c++11 -I/usr/local/Cellar/verilator/4.222/share/verilator/include/ /usr/local/Cellar/verilator/4.222/share/verilator/include/verilated.cpp -o ~a ~a ~a"
+      "cc ~a -lstdc++ -stdlib=libc++ -std=c++11 -I/usr/local/Cellar/verilator/4.222/share/verilator/include/ /usr/local/Cellar/verilator/4.222/share/verilator/include/verilated.cpp -o ~a ~a ~a"
+      extra-cc-args
       executable-filepath
       testbench-file
       (build-path verilator-make-dir "*.cpp")))
 
-   (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process verilator-command)])
+   (log-info "running command: ~a" cc-command)
+   (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process cc-command)])
               ;;; Wait until Verilator completes.
               (control-fn 'wait)
               ;;; Error out if it errors.
               (when (not (equal? 0 (control-fn 'exit-code)))
-                (error (format "Verilator command failed:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
-                               verilator-command
+                (error (format "cc command failed:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
+                               cc-command
                                (port->string proc-stdout)
                                (port->string stderr))))
               (close-input-port proc-stdout)
               (close-input-port stderr)
               (close-output-port stdin))
 
+   (log-info "executing executable: ~a" executable-filepath)
    (system* executable-filepath)))
 
 (module+ test
