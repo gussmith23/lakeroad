@@ -31,8 +31,7 @@
 
   (if expect-timeout?
       (not lakeroad-expr)
-      (and lakeroad-expr
-           (simulate-expr lakeroad-expr bv-expr #:include-dirs (list include-dir)))))
+      (and lakeroad-expr (simulate-expr lakeroad-expr bv-expr #:include-dirs (list include-dir)))))
 
 (module+ test
   (require rackunit
