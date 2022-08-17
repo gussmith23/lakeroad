@@ -34,14 +34,14 @@
 
   (match-let ([(list proc-stdout stdin proc-id stderr control-fn)
                (process (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file))])
-             (control-fn 'wait)
-             (when (not (equal? 0 (control-fn 'exit-code)))
-               (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
-                              (port->string proc-stdout)
-                              (port->string stderr))))
-             (close-input-port proc-stdout)
-             (close-input-port stderr)
-             (close-output-port stdin))
+    (control-fn 'wait)
+    (when (not (equal? 0 (control-fn 'exit-code)))
+      (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
+                     (port->string proc-stdout)
+                     (port->string stderr))))
+    (close-input-port proc-stdout)
+    (close-input-port stderr)
+    (close-output-port stdin))
 
   ;;; Input and output bitwidths. We use this to determine which testbench to use.
   (define out-bitwidth (bvlen bv-expr))
@@ -154,16 +154,16 @@
      extra-verilator-args))
 
   (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process verilator-command)])
-             ;;; Wait until Verilator completes.
-             (control-fn 'wait)
-             ;;; Error out if it errors.
-             (when (not (equal? 0 (control-fn 'exit-code)))
-               (error (format "Verilator command failed:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
-                              verilator-command
-                              (port->string proc-stdout)
-                              (port->string stderr))))
-             (close-input-port proc-stdout)
-             (close-input-port stderr)
-             (close-output-port stdin))
+    ;;; Wait until Verilator completes.
+    (control-fn 'wait)
+    ;;; Error out if it errors.
+    (when (not (equal? 0 (control-fn 'exit-code)))
+      (error (format "Verilator command failed:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
+                     verilator-command
+                     (port->string proc-stdout)
+                     (port->string stderr))))
+    (close-input-port proc-stdout)
+    (close-input-port stderr)
+    (close-output-port stdin))
 
   (system* (build-path verilator-make-dir verilated-type-name)))

@@ -332,7 +332,7 @@
                              (if (equal? accumulated-physical-output 'first)
                                  this-clb-physical-outputs
                                  `(append ,accumulated-physical-output ,this-clb-physical-outputs))])
-                           (list accumulated-physical-output this-cout)))
+                 (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              (list 'first cin)
              physical-inputs-per-clb)))
@@ -403,7 +403,7 @@
                                              #:INIT1 lutmem)])
 
                              (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))])
-                         this-cout))
+               this-cout))
            initial-cin
            logical-inputs-per-ccu2c))
 
@@ -471,11 +471,10 @@
                                                #:INIT1 lutmem)])
 
                                (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))]
-                            [acc-phys-out
-                             (if (equal? acc-phys-out 'first)
-                                 this-ccu2c-physical-outputs
-                                 `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
-                           (list acc-phys-out this-cout)))
+                            [acc-phys-out (if (equal? acc-phys-out 'first)
+                                              this-ccu2c-physical-outputs
+                                              `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                 (list acc-phys-out this-cout)))
              (list 'first cin)
              logical-inputs-per-ccu2c)))
 
@@ -493,11 +492,10 @@
                                                #:INIT1 lutmem)])
 
                                (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))]
-                            [acc-phys-out
-                             (if (equal? acc-phys-out 'first)
-                                 this-ccu2c-physical-outputs
-                                 `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
-                           (list acc-phys-out this-cout)))
+                            [acc-phys-out (if (equal? acc-phys-out 'first)
+                                              this-ccu2c-physical-outputs
+                                              `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                 (list acc-phys-out this-cout)))
              (list 'first cin)
              logical-inputs-per-ccu2c)))
 
@@ -527,7 +525,7 @@
                                                                        #:INIT1 lutmem)])
 
                                (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))])
-                           this-cout))
+                 this-cout))
              cin
              inputs)))
 
@@ -601,7 +599,7 @@
                              (if (equal? accumulated-physical-output 'first)
                                  this-pfu-physical-outputs
                                  `(append ,accumulated-physical-output ,this-pfu-physical-outputs))])
-                           (list accumulated-physical-output this-cout)))
+                 (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              (list 'first cin)
              logical-inputs-per-pfu)))
@@ -669,7 +667,7 @@
                              (if (equal? accumulated-logical-output 'first-iter)
                                  this-pfu-logical-outputs
                                  `(concat ,this-pfu-logical-outputs ,accumulated-logical-output))])
-                           accumulated-logical-output))
+                 accumulated-logical-output))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              'first-iter
              logical-inputs-per-pfu)))

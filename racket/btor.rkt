@@ -20,62 +20,65 @@
 
   (for ([line (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
                       (string-split str #rx"\n+"))])
-    (match-let* ;;; Remove comments.
-     ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)]
-                                             [id (string->number id-str)])
-     (match tokens
-       [`("sort" "bitvec" ,width-str) (hash-set! h id (bitvector (string->number width-str)))]
-       ;;; Sometimes the .btor files contain inputs without names. I'm unsure what these are. We just
-       ;;; ignore them for now.
-       ;;;
-       ;;; After looking through Yosys code, I think these occur when X values appear in designs.
-       [`("input" ,type-id-str)
-        (let* ([type (hash-ref h (string->number type-id-str))]
-               [const (constant `(unnamed-input ,id) type)])
-          ;;; (displayln (format "Unnamed input found with id ~a and type id ~a" id type-id-str)
-          ;;;            (current-error-port))
-          (hash-set! h id const))]
-       [`("input" ,type-id-str ,name)
-        (let* ([type (hash-ref h (string->number type-id-str))]
-               [const (constant (string->symbol name) type)])
-          (hash-set! ins name const)
-          (hash-set! h id const))]
-       [`("const" ,type-id-str ,value-str)
-        (let* ([type (hash-ref h (string->number type-id-str))] [value (string->number value-str 2)])
-          (hash-set! h id (bv value type)))]
-       [`("ite" ,type-id-str ,cond-id-str ,true-val-id-str ,false-val-id-str)
-        (hash-set! h
-                   id
-                   (if (bitvector->bool (get-str cond-id-str))
-                       (get-str true-val-id-str)
-                       (get-str false-val-id-str)))]
-       [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
-        (hash-set! h id (extract (string->number u-str) (string->number l-str) (get-str val-id-str)))]
-       [`("output" ,id-str ,name)
-        (hash-set! outs name (get-str id-str))
-        (hash-set! h id name)]
-       [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
-        (hash-set! h id (zero-extend (get-str in-id-str) (get-str out-type-id-str)))]
-       [`("not" ,out-type-id-str ,in-id-str) (hash-set! h id (bvnot (get-str in-id-str)))]
-       [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
-        (hash-set! h
-                   id
-                   (bool->bitvector (bveq (get-str a-id-str) (get-str b-id-str))
-                                    (get-str out-type-id-str)))]
-       [`("and" ,out-type-id-str ,a-id-str ,b-id-str)
-        (hash-set! h id (bvand (get-str a-id-str) (get-str b-id-str)))]
-       [`("or" ,out-type-id-str ,a-id-str ,b-id-str)
-        (hash-set! h id (bvor (get-str a-id-str) (get-str b-id-str)))]
-       [`("xor" ,out-type-id-str ,a-id-str ,b-id-str)
-        (hash-set! h id (bvxor (get-str a-id-str) (get-str b-id-str)))]
-       [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
-        (hash-set! h id (concat (get-str a-id-str) (get-str b-id-str)))]
-       [`("srl" ,out-type-id-str ,a-id-str ,b-id-str)
-        (hash-set! h id (bvlshr (get-str a-id-str) (get-str b-id-str)))]
-       [`("redor" ,out-type-id-str ,in-id-str)
-        (hash-set! h id (apply bvor (bitvector->bits (get-str in-id-str))))]
-       [`("redand" ,out-type-id-str ,in-id-str)
-        (hash-set! h id (apply bvand (bitvector->bits (get-str in-id-str))))])))
+    ;;; Remove comments.
+    (match-let* ([line (first (string-split line ";"))]
+                 [(cons id-str tokens) (string-split line)]
+                 [id (string->number id-str)])
+      (match tokens
+        [`("sort" "bitvec" ,width-str) (hash-set! h id (bitvector (string->number width-str)))]
+        ;;; Sometimes the .btor files contain inputs without names. I'm unsure what these are. We just
+        ;;; ignore them for now.
+        ;;;
+        ;;; After looking through Yosys code, I think these occur when X values appear in designs.
+        [`("input" ,type-id-str)
+         (let* ([type (hash-ref h (string->number type-id-str))]
+                [const (constant `(unnamed-input ,id) type)])
+           ;;; (displayln (format "Unnamed input found with id ~a and type id ~a" id type-id-str)
+           ;;;            (current-error-port))
+           (hash-set! h id const))]
+        [`("input" ,type-id-str ,name)
+         (let* ([type (hash-ref h (string->number type-id-str))]
+                [const (constant (string->symbol name) type)])
+           (hash-set! ins name const)
+           (hash-set! h id const))]
+        [`("const" ,type-id-str ,value-str)
+         (let* ([type (hash-ref h (string->number type-id-str))] [value (string->number value-str 2)])
+           (hash-set! h id (bv value type)))]
+        [`("ite" ,type-id-str ,cond-id-str ,true-val-id-str ,false-val-id-str)
+         (hash-set! h
+                    id
+                    (if (bitvector->bool (get-str cond-id-str))
+                        (get-str true-val-id-str)
+                        (get-str false-val-id-str)))]
+        [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
+         (hash-set! h
+                    id
+                    (extract (string->number u-str) (string->number l-str) (get-str val-id-str)))]
+        [`("output" ,id-str ,name)
+         (hash-set! outs name (get-str id-str))
+         (hash-set! h id name)]
+        [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
+         (hash-set! h id (zero-extend (get-str in-id-str) (get-str out-type-id-str)))]
+        [`("not" ,out-type-id-str ,in-id-str) (hash-set! h id (bvnot (get-str in-id-str)))]
+        [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
+         (hash-set! h
+                    id
+                    (bool->bitvector (bveq (get-str a-id-str) (get-str b-id-str))
+                                     (get-str out-type-id-str)))]
+        [`("and" ,out-type-id-str ,a-id-str ,b-id-str)
+         (hash-set! h id (bvand (get-str a-id-str) (get-str b-id-str)))]
+        [`("or" ,out-type-id-str ,a-id-str ,b-id-str)
+         (hash-set! h id (bvor (get-str a-id-str) (get-str b-id-str)))]
+        [`("xor" ,out-type-id-str ,a-id-str ,b-id-str)
+         (hash-set! h id (bvxor (get-str a-id-str) (get-str b-id-str)))]
+        [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
+         (hash-set! h id (concat (get-str a-id-str) (get-str b-id-str)))]
+        [`("srl" ,out-type-id-str ,a-id-str ,b-id-str)
+         (hash-set! h id (bvlshr (get-str a-id-str) (get-str b-id-str)))]
+        [`("redor" ,out-type-id-str ,in-id-str)
+         (hash-set! h id (apply bvor (bitvector->bits (get-str in-id-str))))]
+        [`("redand" ,out-type-id-str ,in-id-str)
+         (hash-set! h id (apply bvand (bitvector->bits (get-str in-id-str))))])))
 
   (list ins outs))
 
@@ -2021,119 +2024,120 @@ here-string-delimiter
 
   (for ([line (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
                       (string-split str #rx"\n+"))])
-    (match-let* ;;; Remove comments.
-     ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)]
-                                             [id (string->number id-str)])
-     (match tokens
-       [`("next" ,sort-id-str ,state-id-str ,next-val-id-str)
-        ;;; A next statement determines the value of the state var that we return out.
-        ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
-        ;;; the output value for the state.
-        (hash-set! output-state
-                   (hash-ref state-symbols (string->number state-id-str))
-                   (get-str next-val-id-str))
-        ;;; We don't put anything in h for next statements.
-        ]
-       [`("init" ,sort-id-str ,state-id-str ,val-id-str)
+    ;;; Remove comments.
+    (match-let* ([line (first (string-split line ";"))]
+                 [(cons id-str tokens) (string-split line)]
+                 [id (string->number id-str)])
+      (match tokens
+        [`("next" ,sort-id-str ,state-id-str ,next-val-id-str)
+         ;;; A next statement determines the value of the state var that we return out.
+         ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
+         ;;; the output value for the state.
+         (hash-set! output-state
+                    (hash-ref state-symbols (string->number state-id-str))
+                    (get-str next-val-id-str))
+         ;;; We don't put anything in h for next statements.
+         ]
+        [`("init" ,sort-id-str ,state-id-str ,val-id-str)
 
-        (hash-set! init-states
-                   (hash-ref state-symbols (string->number state-id-str))
-                   (get-str val-id-str))]
-       [`("state" ,sort-id-str)
-        ;;; It should draw from the incoming state. But how? The problem is that, with our current
-        ;;; setup, i think you have to get the state value from a "nearby" signal that's also in
-        ;;; context. Does there need to be some kind of top level wrapper that holds state? state can
-        ;;; only be associated with values, but that doesn't make sense. what about a module that
-        ;;; takes no inputs (not even a clock) and yet has a state? Does that make sense? does it make
-        ;;; sense? I think that thing can only be a constant. If it doesn't take an input, there's
-        ;;; nothing to trigger internal state difference. A register doesn't work without a clock. if
-        ;;; you have a register, you need a clock, or the register won't function. You can have a
-        ;;; combinational loop, but that doesn't really make much sense in our framework. Or, it
-        ;;; could, but i guess it depends on what level we consider state changes as happening. For
-        ;;; the most part, I guess it's on the callee to determine what state they care to track.
+         (hash-set! init-states
+                    (hash-ref state-symbols (string->number state-id-str))
+                    (get-str val-id-str))]
+        [`("state" ,sort-id-str)
+         ;;; It should draw from the incoming state. But how? The problem is that, with our current
+         ;;; setup, i think you have to get the state value from a "nearby" signal that's also in
+         ;;; context. Does there need to be some kind of top level wrapper that holds state? state can
+         ;;; only be associated with values, but that doesn't make sense. what about a module that
+         ;;; takes no inputs (not even a clock) and yet has a state? Does that make sense? does it make
+         ;;; sense? I think that thing can only be a constant. If it doesn't take an input, there's
+         ;;; nothing to trigger internal state difference. A register doesn't work without a clock. if
+         ;;; you have a register, you need a clock, or the register won't function. You can have a
+         ;;; combinational loop, but that doesn't really make much sense in our framework. Or, it
+         ;;; could, but i guess it depends on what level we consider state changes as happening. For
+         ;;; the most part, I guess it's on the callee to determine what state they care to track.
 
-        ;;; The value is either
-        ;;;
-        ;;; - the lookup of the state id in the state dictionary, or
-        ;;;
-        ;;; - the init value, if it's not there.
-        ;;;
-        ;;; But what is the state dictionary? this is a context-dependent thing, isn't it?
-        ;;;
-        ;;; So I think there's a dict that we build up from a merger of the state values on the inputs
-        ;;; to the module, and then that's the dictionary we'd use here. So if there's no inputs,
-        ;;; there's no state. Does that make sense? State without input is a constant? I guess so.
-        ;;; it would always be the init value, or if there's no init value...well idk.
-        (let* ([name-symbol (string->symbol (format "state~a" id))])
-          ;;; From the collection of inputs, find the state value by name and convert it to a signal.
-          ;;; TODO handle init values.
-          ;;; TODO handle names.
-          (hash-set! state-symbols id name-symbol)
-          (hash-set! state-types name-symbol (get-str sort-id-str))
-          (hash-set! h id `(get-state ,ins ,name-symbol)))]
-       [`("sort" "bitvec" ,width-str) (hash-set! h id (bitvector (string->number width-str)))]
-       ;;; Sometimes the .btor files contain inputs without names. I'm unsure what these are. We just
-       ;;; ignore them for now.
-       [`("input" ,type-id-str)
-        (set! ins (append ins (list (string->symbol (format "unnamed-input-~a" id)))))
-        (hash-set! input-types (string->symbol (format "unnamed-input-~a" id)) (get-str type-id-str))
-        (hash-set! h id (string->symbol (format "unnamed-input-~a" id)))]
-       ;;; A named input should get a symbol representing it. That symbol will be looked up in the
-       ;;; call to the interpreter. We also actually don't do anything with the type anymore---we
-       ;;; could use it to do type checking, but for now we'll ignore it.
-       [`("input" ,type-id-str ,name)
-        (set! ins (append ins (list (string->symbol name))))
-        (hash-set! input-types (string->symbol name) (get-str type-id-str))
-        (hash-set! h id (string->symbol name))]
-       [`("const" ,type-id-str ,value-str)
-        (let* ([type (get-str type-id-str)] [value (string->number value-str 2)])
-          (hash-set! h id (bv->signal (bv value type))))]
-       [`("ite" ,type-id-str ,cond-id-str ,true-val-id-str ,false-val-id-str)
-        (let ([true-val (get-str true-val-id-str)]
-              [false-val (get-str false-val-id-str)]
-              [cond-val (get-str cond-id-str)])
-          (hash-set! h id `(if ,cond-val ,true-val ,false-val)))]
-       [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
-        (let ([signal (get-str val-id-str)])
-          (hash-set! h id `(extract ,(string->number u-str) ,(string->number l-str) ,signal)))]
-       [`("output" ,id-str ,name)
-        (hash-set! outs (string->symbol name) (string->number id-str))
-        ;;;(hash-set! h id (get-str id-str))
-        ]
-       [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
-        (let ([signal (get-str in-id-str)])
-          (hash-set! h id `(zero-extend ,signal ,(get-str out-type-id-str))))]
-       [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
-          (hash-set! h id `(concat ,a-signal ,b-signal)))]
-       [`("add" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
-          (hash-set! h id `(bvadd ,a-signal ,b-signal)))]
-       [`("xor" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
-          (hash-set! h id `(bvxor ,a-signal ,b-signal)))]
-       [`("and" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
-          (hash-set! h id `(bvand ,a-signal ,b-signal)))]
-       [`("sub" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
-          (hash-set! h id `(bvsub ,a-signal ,b-signal)))]
-       [`("or" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
-          (hash-set! h id `(bvor ,a-signal ,b-signal)))]
-       [`("redor" ,out-type-id-str ,in-id-str) (hash-set! h id `(redor ,(get-str in-id-str)))]
-       [`("redxor" ,out-type-id-str ,in-id-str) (hash-set! h id `(redxor ,(get-str in-id-str)))]
-       [`("mul" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
-          (hash-set! h id `(bvmul ,a-signal ,b-signal)))]
-       [`("redand" ,out-type-id-str ,in-id-str) (hash-set! h id `(redand ,(get-str in-id-str)))]
-       [`("not" ,out-type-id-str ,in-id-str)
-        (let ([signal (get-str in-id-str)]) (hash-set! h id `(bvnot ,signal)))]
-       [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-str a-id-str)] [b (get-str b-id-str)]) (hash-set! h id `(bveq ,a ,b)))]
-       [`("neq" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-str a-id-str)] [b (get-str b-id-str)])
-          (hash-set! h id `(bvnot (bveq ,a ,b))))])))
+         ;;; The value is either
+         ;;;
+         ;;; - the lookup of the state id in the state dictionary, or
+         ;;;
+         ;;; - the init value, if it's not there.
+         ;;;
+         ;;; But what is the state dictionary? this is a context-dependent thing, isn't it?
+         ;;;
+         ;;; So I think there's a dict that we build up from a merger of the state values on the inputs
+         ;;; to the module, and then that's the dictionary we'd use here. So if there's no inputs,
+         ;;; there's no state. Does that make sense? State without input is a constant? I guess so.
+         ;;; it would always be the init value, or if there's no init value...well idk.
+         (let* ([name-symbol (string->symbol (format "state~a" id))])
+           ;;; From the collection of inputs, find the state value by name and convert it to a signal.
+           ;;; TODO handle init values.
+           ;;; TODO handle names.
+           (hash-set! state-symbols id name-symbol)
+           (hash-set! state-types name-symbol (get-str sort-id-str))
+           (hash-set! h id `(get-state ,ins ,name-symbol)))]
+        [`("sort" "bitvec" ,width-str) (hash-set! h id (bitvector (string->number width-str)))]
+        ;;; Sometimes the .btor files contain inputs without names. I'm unsure what these are. We just
+        ;;; ignore them for now.
+        [`("input" ,type-id-str)
+         (set! ins (append ins (list (string->symbol (format "unnamed-input-~a" id)))))
+         (hash-set! input-types (string->symbol (format "unnamed-input-~a" id)) (get-str type-id-str))
+         (hash-set! h id (string->symbol (format "unnamed-input-~a" id)))]
+        ;;; A named input should get a symbol representing it. That symbol will be looked up in the
+        ;;; call to the interpreter. We also actually don't do anything with the type anymore---we
+        ;;; could use it to do type checking, but for now we'll ignore it.
+        [`("input" ,type-id-str ,name)
+         (set! ins (append ins (list (string->symbol name))))
+         (hash-set! input-types (string->symbol name) (get-str type-id-str))
+         (hash-set! h id (string->symbol name))]
+        [`("const" ,type-id-str ,value-str)
+         (let* ([type (get-str type-id-str)] [value (string->number value-str 2)])
+           (hash-set! h id (bv->signal (bv value type))))]
+        [`("ite" ,type-id-str ,cond-id-str ,true-val-id-str ,false-val-id-str)
+         (let ([true-val (get-str true-val-id-str)]
+               [false-val (get-str false-val-id-str)]
+               [cond-val (get-str cond-id-str)])
+           (hash-set! h id `(if ,cond-val ,true-val ,false-val)))]
+        [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
+         (let ([signal (get-str val-id-str)])
+           (hash-set! h id `(extract ,(string->number u-str) ,(string->number l-str) ,signal)))]
+        [`("output" ,id-str ,name)
+         (hash-set! outs (string->symbol name) (string->number id-str))
+         ;;;(hash-set! h id (get-str id-str))
+         ]
+        [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
+         (let ([signal (get-str in-id-str)])
+           (hash-set! h id `(zero-extend ,signal ,(get-str out-type-id-str))))]
+        [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+           (hash-set! h id `(concat ,a-signal ,b-signal)))]
+        [`("add" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+           (hash-set! h id `(bvadd ,a-signal ,b-signal)))]
+        [`("xor" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+           (hash-set! h id `(bvxor ,a-signal ,b-signal)))]
+        [`("and" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+           (hash-set! h id `(bvand ,a-signal ,b-signal)))]
+        [`("sub" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+           (hash-set! h id `(bvsub ,a-signal ,b-signal)))]
+        [`("or" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+           (hash-set! h id `(bvor ,a-signal ,b-signal)))]
+        [`("redor" ,out-type-id-str ,in-id-str) (hash-set! h id `(redor ,(get-str in-id-str)))]
+        [`("redxor" ,out-type-id-str ,in-id-str) (hash-set! h id `(redxor ,(get-str in-id-str)))]
+        [`("mul" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
+           (hash-set! h id `(bvmul ,a-signal ,b-signal)))]
+        [`("redand" ,out-type-id-str ,in-id-str) (hash-set! h id `(redand ,(get-str in-id-str)))]
+        [`("not" ,out-type-id-str ,in-id-str)
+         (let ([signal (get-str in-id-str)]) (hash-set! h id `(bvnot ,signal)))]
+        [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-str a-id-str)] [b (get-str b-id-str)]) (hash-set! h id `(bveq ,a ,b)))]
+        [`("neq" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-str a-id-str)] [b (get-str b-id-str)])
+           (hash-set! h id `(bvnot (bveq ,a ,b))))])))
 
   ;;; Update outputs to have new output states.
   (define new-outs
