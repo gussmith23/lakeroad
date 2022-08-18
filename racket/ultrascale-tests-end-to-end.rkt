@@ -70,6 +70,7 @@
              (clear-terms!)
              (collect-garbage))))
 
+  (when (not (getenv "LAKEROAD_DIR")) (raise "LAKEROAD_DIR not set"))
   (define include-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
   (test-true
    "simulate all synthesized designs with Verilator"

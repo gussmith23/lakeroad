@@ -8,7 +8,8 @@
          ??*
          make-n-symbolics
          rdisplayln
-         rprintf)
+         rprintf
+         run-lakeroad)
 
 (require rosette
          rosette/base/core/polymorphic)
@@ -114,8 +115,8 @@
 
 (define (??* shape)
   (define (helper)
-    (define-symbolic* x shape)
-    x)
+    (define-symbolic* hole shape)
+    hole)
   (helper))
 
 ;; This function displays a new line with the value v and then returns the value
@@ -132,3 +133,12 @@
   ;; Now return the value. Default to the first argument unless another value
   ;; was passed.
   (if (equal? return 'default-return-value) (if (empty? args) #f (first args)) return))
+
+; Runs a fully formed (no holes!) lakeroad program `p` with inputs
+; defined by `inputs`. `inputs` is a hash table mapping symbolic variables to
+(define (run-lakeroad p inputs interpreter)
+  ; TODO: is there a nicer way to make a model?
+  (define sol
+    (solve (for ([input (hash-keys inputs)])
+             (assume (bveq input (hash-ref inputs input))))))
+  (evaluate (interpreter p) sol))

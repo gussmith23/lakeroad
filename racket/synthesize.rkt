@@ -11,6 +11,7 @@
 (require "interpreter.rkt"
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
+         "lattice-mul.rkt"
          rosette
          rosette/lib/synthax
          rosette/lib/angelic
@@ -22,6 +23,16 @@
 
 (current-solver (boolector))
 
+(define (synthesize-with-timeout strat input timeout)
+  (let ([t (current-thread)] [timeout-time (if (null? timeout) 5.0 timeout)])
+    (if timeout
+        (let ([synthesized (with-handlers ([exn:fail? (lambda (exn) #f)])
+                             (with-deep-time-limit timeout-time (strat input)))])
+          (clear-vc!)
+          (clear-terms!)
+          synthesized)
+        (strat input))))
+
 ;;;;;;
 ;;;
 ;;; TOP-LEVEL SYNTHESIS ROUTINES
@@ -31,35 +42,33 @@
 ;;; - synthesize-with (a generic function which runs synthesis strategies)
 ;;; - architecture-specific synthesis routines (which call into synthesize-with)
 
-;;; Attempts to synthesize a program for bv-expr using the strategies provided.
-;;; finish-when can be one of 'first-to-succeed or 'exhaustive;
-;;; if the finish condition is 'first-to-succeed, returns the first valid synthesis result.
-;;; Otherwise, returns a list of all synthesis results, with order corresponding
-;;; to the order of strategies provided.
-;;; strategies is a list of functions which take a bv-expr and return a lakeroad-expr;
-;;; these synthesis strategies can do something architecture-specific, or call into
-;;; generic templates (with some added plumbing).
-(define (synthesize-with finish-when strategies bv-expr)
-  ;; Clean state
-  (clear-vc!)
-  (clear-terms!)
-  (collect-garbage)
-
+;;; Attempts to synthesize a program for bv-expr using provided templates provided.
+;;;
+;;; finish-when: can be one of 'first-to-succeed or 'exhaustive; if the finish
+;;;     condition is 'first-to-succeed, returns the first valid synthesis result.
+;;;     Otherwise, returns a list of all synthesis results, with order
+;;;     corresponding to the order of templates supplied.
+;;; templates: a list of templates, each template having type
+;;;     bv-expr -> (union bv-expr #f)
+;;; bv-expr: a bv-expr to synthesize
+;;; timeout: gives a per-template timeout in seconds (defaults to #f, no timeout)
+(define (synthesize-with finish-when templates bv-expr [timeout #f])
+  (define timeout-time (if (null? timeout) 5.0 timeout))
   (match finish-when
     ['first-to-succeed
-     (match strategies
-       [(cons s ss)
-        (or (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr)))
-            (synthesize-with finish-when ss bv-expr))]
-       [_ 'unsynthesizable])]
+     (match templates
+       [(cons t ts)
+        (or (synthesize-with-timeout t bv-expr timeout-time)
+            (synthesize-with finish-when ts bv-expr timeout-time))]
+       [_ #f])]
     ;;; TODO: impl timeouts or something idk
     ['exhaustive
      (map (lambda (s)
             (clear-vc!)
             (clear-terms!)
             (collect-garbage)
-            (with-handlers ([exn:fail? (lambda (exn) #f)]) (with-deep-time-limit 10 (s bv-expr))))
-          strategies)]))
+            (synthesize-with-timeout s bv-expr timeout-time))
+          templates)]))
 
 (define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when (list (synthesize-using-lut 'sofa 1 4)) bv-expr))
@@ -77,13 +86,15 @@
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
                    bv-expr))
 
-(define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed])
+(define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed] #:timeout [timeout 5.0])
   (synthesize-with finish-when
                    (list synthesize-lattice-ecp5-for-pfu
                          synthesize-lattice-ecp5-for-ripple-pfu
                          synthesize-lattice-ecp5-for-ccu2c
-                         synthesize-lattice-ecp5-for-ccu2c-tri)
-                   bv-expr))
+                         synthesize-lattice-ecp5-for-ccu2c-tri
+                         synthesize-lattice-ecp5-multiply-circt)
+                   bv-expr
+                   timeout))
 
 ;;;;;;
 ;;;
@@ -321,7 +332,7 @@
                              (if (equal? accumulated-physical-output 'first)
                                  this-clb-physical-outputs
                                  `(append ,accumulated-physical-output ,this-clb-physical-outputs))])
-                           (list accumulated-physical-output this-cout)))
+                 (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              (list 'first cin)
              physical-inputs-per-clb)))
@@ -392,7 +403,7 @@
                                              #:INIT1 lutmem)])
 
                              (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))])
-                         this-cout))
+               this-cout))
            initial-cin
            logical-inputs-per-ccu2c))
 
@@ -460,11 +471,10 @@
                                                #:INIT1 lutmem)])
 
                                (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))]
-                            [acc-phys-out
-                             (if (equal? acc-phys-out 'first)
-                                 this-ccu2c-physical-outputs
-                                 `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
-                           (list acc-phys-out this-cout)))
+                            [acc-phys-out (if (equal? acc-phys-out 'first)
+                                              this-ccu2c-physical-outputs
+                                              `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                 (list acc-phys-out this-cout)))
              (list 'first cin)
              logical-inputs-per-ccu2c)))
 
@@ -482,11 +492,10 @@
                                                #:INIT1 lutmem)])
 
                                (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))]
-                            [acc-phys-out
-                             (if (equal? acc-phys-out 'first)
-                                 this-ccu2c-physical-outputs
-                                 `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
-                           (list acc-phys-out this-cout)))
+                            [acc-phys-out (if (equal? acc-phys-out 'first)
+                                              this-ccu2c-physical-outputs
+                                              `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                 (list acc-phys-out this-cout)))
              (list 'first cin)
              logical-inputs-per-ccu2c)))
 
@@ -516,7 +525,7 @@
                                                                        #:INIT1 lutmem)])
 
                                (list `(take ,ccu2c-out 2) `(list-ref ,ccu2c-out 2)))])
-                           this-cout))
+                 this-cout))
              cin
              inputs)))
 
@@ -590,7 +599,7 @@
                              (if (equal? accumulated-physical-output 'first)
                                  this-pfu-physical-outputs
                                  `(append ,accumulated-physical-output ,this-pfu-physical-outputs))])
-                           (list accumulated-physical-output this-cout)))
+                 (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              (list 'first cin)
              logical-inputs-per-pfu)))
@@ -658,7 +667,7 @@
                              (if (equal? accumulated-logical-output 'first-iter)
                                  this-pfu-logical-outputs
                                  `(concat ,this-pfu-logical-outputs ,accumulated-logical-output))])
-                           accumulated-logical-output))
+                 accumulated-logical-output))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              'first-iter
              logical-inputs-per-pfu)))
@@ -680,3 +689,37 @@
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
                                                    (list->set (symbolics bv-expr))))))
       #f))
+
+(define (synthesize-lattice-ecp5-multiply-circt bv-expr)
+
+  (define out-bw (bvlen bv-expr))
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
+
+  ; Ugly hack to check exit conditions...everythin is indented way too much
+  ;
+  ; TODO: There is a way to use continuations to fix this (let/ec) but this
+  ; isn't the most important thing right now We only handle two inputs for now
+  ; for this form
+  (if (or (not (= (length logical-inputs) 2)) (not (concrete? out-bw)) (not (concrete? max-input-bw)))
+      #f
+      (begin
+        ;;; Max bitwidth of any input.
+        ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+
+        (define a (first logical-inputs))
+        (define b (second logical-inputs))
+        (define lakeroad-expr (lattice-mul-with-carry out-bw a b))
+        (define soln
+          (synthesize #:forall (symbolics bv-expr)
+                      #:guarantee (begin
+                                    (assert (bveq bv-expr (interpret lakeroad-expr))))))
+        (if (sat? soln)
+            (evaluate
+             lakeroad-expr
+             ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+             (complete-solution soln
+                                (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                         (list->set (symbolics bv-expr))))))
+            #f))))
