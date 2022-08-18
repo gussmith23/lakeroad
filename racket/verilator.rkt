@@ -131,6 +131,8 @@
   long long int out_actual = top->out0;
   long long int out_expected = ~a & ~a;
   if (out_actual != out_expected) printf("actual != expected: %llu != %llu\n", out_actual, out_expected);
+  // Uncomment this if you want to see verbose output.
+  // else printf("actual == expected: %llu == %llu\n", out_actual, out_expected);
   assert(out_actual == out_expected);
   ~a
   delete top;
