@@ -292,12 +292,15 @@ here-string-delimiter
   (require rosette
            rackunit)
 
+  (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+    (raise "VERILATOR_INCLUDE_DIR not set"))
   (test-case "Simple multi-design Verilator test"
-             (check-true (normal? (with-vc (with-terms (begin
-                                                         (define-symbolic a b (bitvector 8))
-                                                         (check-true (simulate-with-verilator
-                                                                      (list (to-simulate a a)
-                                                                            (to-simulate b b))))))))))
+             (check-true
+              (normal? (with-vc (with-terms (begin
+                                              (define-symbolic a b (bitvector 8))
+                                              (check-true (simulate-with-verilator
+                                                           (list (to-simulate a a) (to-simulate b b))
+                                                           (getenv "VERILATOR_INCLUDE_DIR")))))))))
 
   ;;; TODO(@gussmith23): Capture the output of this so that we don't print an assertion failure during
   ;;; testing.
@@ -306,9 +309,10 @@ here-string-delimiter
               (normal? (with-vc (with-terms (begin
                                               (define-symbolic a b (bitvector 8))
                                               (displayln "Note: expecting an assertion failure:")
-                                              (check-false (simulate-with-verilator
-                                                            (list (to-simulate a a)
-                                                                  (to-simulate b (bvnot b))))))))))))
+                                              (check-false
+                                               (simulate-with-verilator
+                                                (list (to-simulate a a) (to-simulate b (bvnot b)))
+                                                (getenv "VERILATOR_INCLUDE_DIR"))))))))))
 
 ;;; Test a Lakeroad expression using a simple testbench.
 ;;;
