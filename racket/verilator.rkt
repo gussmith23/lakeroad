@@ -276,8 +276,9 @@ here-string-delimiter
    ;;;    (close-input-port proc-stdout)
    ;;;    (close-input-port stderr)
    ;;;    (close-output-port stdin))
-   ;;; TODO(@gussmith23) Fail on warnings.
-   (parameterize ([current-output-port (open-output-bytes)] [current-error-port (open-output-bytes)])
+   ;;;
+   ;;; Throw away stdout, keep stderr. If anything is printed on stderr, we should likely be failing anyway.
+   (parameterize ([current-output-port (open-output-bytes)])
      (when (not (system make-invocation))
        (error "make invocation failed")))
 
