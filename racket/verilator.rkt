@@ -8,7 +8,8 @@
          "compile-to-json.rkt"
          rosette
          "utils.rkt"
-         "interpreter.rkt")
+         "interpreter.rkt"
+         racket/future)
 
 ;;; Lakeroad expression to test.
 ;;;
@@ -23,40 +24,48 @@
 ;;; compilation takes much longer than synthesis with Lakeroad or testbench runtime.
 (define/contract
  (simulate-with-verilator to-simulate-values
+                          verilator-include-dir
                           #:additional-files-to-build [additional-files-to-build '()]
                           #:include-dirs [include-dirs '()]
                           #:extra-verilator-args [extra-verilator-args ""]
-                          #:extra-cc-args [extra-cc-args ""])
- (->* ((listof to-simulate?))
+                          #:extra-cc-args [extra-cc-args ""]
+                          #:num-make-jobs [num-make-jobs (processor-count)])
+ (->* ((listof to-simulate?) path-string?)
       (#:additional-files-to-build (listof string?)
        #:include-dirs (listof (or/c string? path?))
        #:extra-verilator-args string?
-       #:extra-cc-args string?)
+       #:extra-cc-args string?
+       #:num-make-jobs integer?)
       boolean?)
  (begin
+   (define working-directory (make-temporary-file "rkttmp~a" 'directory))
+   (log-info "Working directory: ~a" working-directory)
+
+   ;;; Converts Lakeroad expression to a Verilog module, writes it to a .v file, and generates the
+   ;;; testbench code to test the Verilog module.
    (define/contract
     (generate-code-for-lakeroad-expression to-simulate-value)
     (-> to-simulate? (list/c string? string? path?))
     (begin
       (match-define (to-simulate lakeroad-expr bv-expr) to-simulate-value)
-      (define json-file (make-temporary-file "rkttmp~a.json"))
-      (define verilog-file (make-temporary-file "rkttmp~a.v"))
+      (define json-file (make-temporary-file "rkttmp~a.json" #f working-directory))
+      (define verilog-file (make-temporary-file "rkttmp~a.v" #f working-directory))
       (define module-name
         (path->string (path-replace-extension (file-name-from-path verilog-file) "")))
       (display-to-file (jsexpr->string (lakeroad->jsexpr lakeroad-expr #:module-name module-name))
                        json-file
                        #:exists 'update)
-      (match-let
-       ([(list proc-stdout stdin proc-id stderr control-fn)
-         (process (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file))])
-       (control-fn 'wait)
-       (when (not (equal? 0 (control-fn 'exit-code)))
-         (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
-                        (port->string proc-stdout)
-                        (port->string stderr))))
-       (close-input-port proc-stdout)
-       (close-input-port stderr)
-       (close-output-port stdin))
+      (match-let ([(list proc-stdout stdin proc-id stderr control-fn)
+                   (process
+                    (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file))])
+        (control-fn 'wait)
+        (when (not (equal? 0 (control-fn 'exit-code)))
+          (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
+                         (port->string proc-stdout)
+                         (port->string stderr))))
+        (close-input-port proc-stdout)
+        (close-input-port stderr)
+        (close-output-port stdin))
 
       ;;; The class name of the C++ class produced by Verilator after Verilating our .v file.
       (define verilated-type-name (format "V~a" module-name))
@@ -157,13 +166,12 @@ here-string-delimiter
    (define tests (string-join (map first results) "\n"))
    (define verilated-type-names (map second results))
    (define verilog-files (map third results))
-   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
    (define includes
      (string-join
       (for/list ([verilog-file verilog-files])
         (format "#include \"~a\""
                 (build-path
-                 verilator-make-dir
+                 working-directory
                  (format "V~a.h" (path-replace-extension (file-name-from-path verilog-file) "")))))
       "\n"))
 
@@ -190,52 +198,89 @@ here-string-delimiter
       includes
       tests))
 
-   (define testbench-file (make-temporary-file "rkttmp_testbench_~a.cc"))
+   (define testbench-file (make-temporary-file "rkttmp_testbench_~a.cc" #f working-directory))
    (display-to-file testbench-source testbench-file #:exists 'update)
    (log-info "testbench file: ~a" testbench-file)
 
    (define include-dirs-string
      (string-join (for/list ([include-dir include-dirs])
                     (format "-I~a" include-dir))))
-   (define executable-filepath (make-temporary-file))
 
-   ;;; Verilate each Verilog file.
-   (for ([verilog-file verilog-files])
-     ;;; Will eventually need to call with these:
-     ;;; (string-join (map path->string verilog-files) " ")
-     ;;; (string-join additional-files-to-build " ")
-     (system (format "verilator --cc -Mdir ~a ~a ~a ~a"
-                     verilator-make-dir
-                     include-dirs-string
-                     extra-verilator-args
-                     verilog-file)))
+   (define makefile-source
+     #<<here-string-delimiter
+# Builds Verilog .v files into a Verilated testbench.
+# Environment variable arguments:
+# - VERILOG_FILES: The Verilog files to Verilate. These contain the modules to test.
+# - TESTBENCH: The testbench file to build.
+# - VFLAGS: Flags for Verilator.
+# - CXXFLAGS: Flags for C++ compiler.
+# - VERILATOR_INCLUDE_DIR: Path to Verilator's include directory.
 
-   ;;; Build the testbench executable.
-   (define cc-command
-     ;;; TODO hardcoded paths.
+VERILATOR = verilator
+CXX = c++
+
+ifndef VERILATOR_INCLUDE_DIR
+$(error VERILATOR_INCLUDE_DIR is not set)
+endif
+
+ifndef VERILOG_FILES
+$(error VERILOG_FILES is not set)
+endif
+
+ifndef TESTBENCH
+$(error TESTBENCH is not set)
+endif
+
+out: $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(TESTBENCH) $(VERILOG_FILES:.v=.v.o)
+	$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -lstdc++ -stdlib=libc++ -std=c++11 $^ -o $@
+
+%.v.o: %.v
+	verilator --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
+	cp $(addprefix $(dir $<)/V, $(patsubst %.v,%__ALL.o,$(notdir $<))) $@
+
+here-string-delimiter
+     ;
+     )
+
+   (display-to-file makefile-source (build-path working-directory "Makefile") #:exists 'error)
+
+   (define make-invocation
      (format
-      "cc ~a -lstdc++ -stdlib=libc++ -std=c++11 -I/usr/local/Cellar/verilator/4.222/share/verilator/include/ /usr/local/Cellar/verilator/4.222/share/verilator/include/verilated.cpp -o ~a ~a ~a"
-      extra-cc-args
-      executable-filepath
+      #<<here-string-delimiter
+VERILATOR_INCLUDE_DIR=~a \
+VERILOG_FILES="~a" \
+TESTBENCH=~a \
+VFLAGS="~a ~a" \
+make --no-builtin-rules -j ~a -C ~a out
+here-string-delimiter
+      ;
+      verilator-include-dir
+      (string-join (map path->string verilog-files) " ")
       testbench-file
-      (build-path verilator-make-dir "*.cpp")))
+      include-dirs-string
+      extra-verilator-args
+      num-make-jobs
+      working-directory))
 
-   (log-info "running command: ~a" cc-command)
-   (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process cc-command)])
-              ;;; Wait until Verilator completes.
-              (control-fn 'wait)
-              ;;; Error out if it errors.
-              (when (not (equal? 0 (control-fn 'exit-code)))
-                (error (format "cc command failed:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
-                               cc-command
-                               (port->string proc-stdout)
-                               (port->string stderr))))
-              (close-input-port proc-stdout)
-              (close-input-port stderr)
-              (close-output-port stdin))
+   (log-info "invoking make")
+   ;;; It seems like using (process) might be slow? Am I using it wrong?
+   ;;;  (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process make-invocation)])
+   ;;;    (control-fn 'wait)
+   ;;;    (when (not (equal? 0 (control-fn 'exit-code)))
+   ;;;      (error (format "Calling make command failed.\nCommand:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
+   ;;;                     make-invocation
+   ;;;                     (port->string proc-stdout)
+   ;;;                     (port->string stderr))))
+   ;;;    (close-input-port proc-stdout)
+   ;;;    (close-input-port stderr)
+   ;;;    (close-output-port stdin))
+   ;;; TODO(@gussmith23) Fail on warnings.
+   (parameterize ([current-output-port (open-output-bytes)] [current-error-port (open-output-bytes)])
+     (when (not (system make-invocation))
+       (error "make invocation failed")))
 
-   (log-info "executing executable: ~a" executable-filepath)
-   (system* executable-filepath)))
+   (log-info "running testbench")
+   (system* (build-path working-directory "out"))))
 
 (module+ test
 
