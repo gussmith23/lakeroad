@@ -98,7 +98,7 @@
           (define limit (min 256 (expt 2 (bvlen var))))
 
           ;;; Open the for loop that iterates over this variable.
-          (format "for (long long int ~a = 0; ~a < ~a; ++~a) {"
+          (format "for (uint64_t ~a = 0; ~a < ~a; ++~a) {"
                   idx-variable-name
                   idx-variable-name
                   limit
@@ -113,7 +113,7 @@
       (define value-definitions
         (for/list ([var (symbolics bv-expr)])
           (format
-           "long long int ~a = ~a;"
+           "uint64_t ~a = ~a;"
            (val-var var)
            (if (> (bvlen var) 8)
                "(((uint64_t)std::rand() & 0xff) << 56) | (((uint64_t)std::rand() & 0xff) << 48) | (((uint64_t)std::rand() & 0xff) << 40)| (((uint64_t)std::rand() & 0xff) << 32) | (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff)"
@@ -137,8 +137,9 @@
   ~a
   ~a
   top->eval();
-  long long int out_actual = top->out0;
-  long long int out_expected = ~a & ~a;
+  uint64_t out_actual = top->out0;
+  // Constants are suffixed with "ULL" to be safe.
+  uint64_t out_expected = ~a & ~aULL;
   if (out_actual != out_expected) printf("actual != expected: %llu != %llu\n", out_actual, out_expected);
   // Uncomment this if you want to see verbose output.
   // else printf("actual == expected: %llu == %llu\n", out_actual, out_expected);
@@ -181,7 +182,7 @@ here-string-delimiter
 #include <cstdlib>
 ~a
 
-int main(int argc, char **argv, char **env)
+int main(int argc, char **argv)
 {
   std::srand(23);
 
