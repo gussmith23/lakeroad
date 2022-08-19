@@ -217,7 +217,6 @@ here-string-delimiter
 # - VERILATOR_INCLUDE_DIR: Path to Verilator's include directory.
 
 VERILATOR = verilator
-CXX = c++
 
 ifndef VERILATOR_INCLUDE_DIR
 $(error VERILATOR_INCLUDE_DIR is not set)
