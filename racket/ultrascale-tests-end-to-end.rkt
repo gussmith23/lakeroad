@@ -81,6 +81,5 @@
     #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx")
                          (build-path (getenv "LAKEROAD_DIR") "verilator-unisims"))
     #:extra-verilator-args "-Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING"
-    #:extra-cc-args "-DVL_TIME_STAMP64 -DVL_NO_LEGACY"
     to-simulate-list
     (getenv "VERILATOR_INCLUDE_DIR"))))
