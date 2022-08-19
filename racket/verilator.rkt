@@ -264,7 +264,7 @@ here-string-delimiter
       num-make-jobs
       working-directory))
 
-   (log-info "invoking make")
+   (log-info "invoking make:\n~a" make-invocation)
    ;;; It seems like using (process) might be slow? Am I using it wrong?
    ;;;  (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process make-invocation)])
    ;;;    (control-fn 'wait)
