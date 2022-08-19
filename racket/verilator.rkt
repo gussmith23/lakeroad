@@ -253,7 +253,7 @@ here-string-delimiter
 VERILATOR_INCLUDE_DIR=~a \
 VERILOG_FILES="~a" \
 TESTBENCH=~a \
-VFLAGS="~a ~a" \
+VFLAGS="~a ~a ~a" \
 make --no-builtin-rules -j ~a -C ~a out
 here-string-delimiter
       ;
@@ -262,6 +262,7 @@ here-string-delimiter
       testbench-file
       include-dirs-string
       extra-verilator-args
+      (string-join (map path->string additional-files-to-build) " ")
       num-make-jobs
       working-directory))
 
