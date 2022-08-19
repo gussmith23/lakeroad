@@ -31,8 +31,8 @@
                           #:extra-cc-args [extra-cc-args ""]
                           #:num-make-jobs [num-make-jobs (processor-count)])
  (->* ((listof to-simulate?) path-string?)
-      (#:additional-files-to-build (listof string?)
-       #:include-dirs (listof (or/c string? path?))
+      (#:additional-files-to-build (listof path-string?)
+       #:include-dirs (listof path-string?)
        #:extra-verilator-args string?
        #:extra-cc-args string?
        #:num-make-jobs integer?)
