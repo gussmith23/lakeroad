@@ -231,10 +231,13 @@ $(error TESTBENCH is not set)
 endif
 
 out: $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(TESTBENCH) $(VERILOG_FILES:.v=.v.o)
-	$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -lstdc++ -stdlib=libc++ -std=c++11 $^ -o $@
+  # -lstdc++ and -stdlib=libc++ fix build problems on Mac.
+	$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -lstdc++ -stdlib=libc++ -std=c++11 -Wall -Wextra -Werror $^ -o $@
 
 %.v.o: %.v
-	verilator --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
+  # The CFLAGS values fix issues with timing functions not being found.
+	$(VERILATOR) --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
+  # Copy the compiled result, which is named V<filename>__ALL.o, to <filename>.v.o.
 	cp $(addprefix $(dir $<)/V, $(patsubst %.v,%__ALL.o,$(notdir $<))) $@
 
 here-string-delimiter
