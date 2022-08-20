@@ -12,19 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Log in to the Container registry
-      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GHCR_PRUNE_PAT }}
-
     - name: GHCR Pruning
       # You may pin to the exact commit or the version.
       uses: vlaurin/action-ghcr-prune@3c4f76ff904f206ace31dab45f37eb7c5a8e3d37
       with:
         token: ${{ secrets.GHCR_PRUNE_PAT }}
         container: lakeroad
+        organization: uwsampl
         dry-run: false
         older-than: 7
         keep-last: 3
