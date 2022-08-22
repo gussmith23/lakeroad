@@ -297,7 +297,6 @@
 ;;; Expects a list of logical outputs in least significant->most significant order.
 ;;; For example, in a Xilinx UltraScale+ CLB, this list would be (LUTA out, LUTB out, ...).
 (define (interpret-physical-to-logical-mapping interpreter f logical-outputs)
-
   (for/all
    ([f f])
    ;;; We have to use nested for/alls here because Rosette will merge (union '(bitwise)

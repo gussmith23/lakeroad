@@ -41,8 +41,8 @@
                ;;; Lakeroad language.
                [(lr:logical-to-physical-mapping f inputs)
                 (interpret-logical-to-physical-mapping interpret-helper f inputs)]
-               [(lr:physical-to-logical-mapping f inputs)
-                (interpret-physical-to-logical-mapping interpret-helper f inputs)]
+               [(lr:physical-to-logical-mapping f outputs)
+                (interpret-physical-to-logical-mapping interpret-helper f outputs)]
                [`(ultrascale-plus-clb ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
                [`(ultrascale-plus-lut6-2 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
                [`(ultrascale-plus-lut3 ,_ ...) (interpret-ultrascale-plus interpret-helper expr)]
@@ -94,6 +94,7 @@
                   (list (bvxor cins s) cout))]
 
                ;;; Racket functions lifted to our language.
+               [(lr:first lst) (first (interpret-helper lst))]
                [(lr:append lsts) (apply append (interpret-helper lsts))]
                [(lr:take l n) (take (interpret-helper l) (interpret-helper n))]
                [(lr:drop l n) (drop (interpret-helper l) (interpret-helper n))]
@@ -115,10 +116,12 @@
 
                ;;; Datatypes.
                [(? bv? v) v]
+               [(? bitvector? v) v]
                [(? integer? v) v]
                ;;; This needs to be near the end, as nearly everything's a list!
                ;;; Maybe make this tighter somehow? If it's a list of specific types?
-               [(? list? v) (map interpret-helper v)])))
+               [(? list? v) (map interpret-helper v)]
+               )))
           (hash-set! interpreter-memo-hash expr out)
           out)))
   (interpret-helper expr))

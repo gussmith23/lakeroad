@@ -47,11 +47,9 @@
                                                            (lr:list-ref physical-inputs i)))])
                           (lr:extract (sub1 outwidth)
                                       0
-                                      (lr:list-ref (lr:physical-to-logical-mapping
+                                      (lr:first (lr:physical-to-logical-mapping
                                                     (choose* '(bitwise) '(bitwise-reverse))
-                                                    physical-outputs)
-                                                   0)))])
-
+                                                    physical-outputs))))])
     (when (not (concrete? max-bw))
       (error "Input bitwidths must be statically known."))
 
@@ -74,7 +72,7 @@
 
          [lakeroad-expr-carry
           (lr:carry nbits architecture (?? (bitvector 1)) logical-input lakeroad-expr-lut)]
-         [output (choose* (lr:list-ref lakeroad-expr-carry 0) (lr:list-ref lakeroad-expr-carry 1))])
+         [output (choose* (lr:first lakeroad-expr-carry) (lr:list-ref lakeroad-expr-carry 1))])
     output))
 
 ;;; Comparison template: the general template is two columns of LUTs that feed into the DI and S

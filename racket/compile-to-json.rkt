@@ -202,6 +202,7 @@
                  [(lr:take l n) (take (compile l) n)]
                  [(lr:drop l n) (drop (compile l) n)]
                  [(lr:list-ref l n) (list-ref (compile l) n)]
+                 [(lr:first lst) (first (compile lst))]
                  [(lr:append lsts) (apply append (compile lsts))]
                  [(lr:map f lsts) (apply map f (compile lsts))]
 
