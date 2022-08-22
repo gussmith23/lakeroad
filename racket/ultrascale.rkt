@@ -42,103 +42,93 @@
 
   ; Make module for CLB.
   (match-let*
-   ([`(ultrascale-plus-clb ,cin
-                           ,lut-a
-                           ,lut-b
-                           ,lut-c
-                           ,lut-d
-                           ,lut-e
-                           ,lut-f
-                           ,lut-g
-                           ,lut-h
-                           ,mux-selector-a
-                           ,mux-selector-b
-                           ,mux-selector-c
-                           ,mux-selector-d
-                           ,mux-selector-e
-                           ,mux-selector-f
-                           ,mux-selector-g
-                           ,mux-selector-h
-                           ,inputs)
-     expr]
-    ;;; Compile input expression.
-    [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) (lakeroad->jsexpr inputs)]
-    ;;; Index bitvector at bit id.
-    [bit (lambda (n l) (list-ref l n))]
-    ;;; Nets.
-    [luts_O5 (get-bits 8)]
-    [luts_O6 (get-bits 8)]
-    [o (get-bits 8)]
-    [co (get-bits 8)]
-    [mux-helper
-     (lambda (o5 o6 carry-o carry-co selector)
-       (if (bveq selector (bv 0 2))
-           o5
-           (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
-    [out
-     (map mux-helper
-          luts_O5
-          luts_O6
-          o
-          co
-          (list mux-selector-a
-                mux-selector-b
-                mux-selector-c
-                mux-selector-d
-                mux-selector-e
-                mux-selector-f
-                mux-selector-g
-                mux-selector-h))]
-    ;;; LUTs.
-    [A_LUT
-     (apply make-ultrascale-plus-lut6-2
-            (make-literal-value-from-bv lut-a)
-            (append a-ins (list (bit 0 luts_O5) (bit 0 luts_O6))))]
-    [B_LUT
-     (apply make-ultrascale-plus-lut6-2
-            (make-literal-value-from-bv lut-b)
-            (append b-ins (list (bit 1 luts_O5) (bit 1 luts_O6))))]
-    [C_LUT
-     (apply make-ultrascale-plus-lut6-2
-            (make-literal-value-from-bv lut-c)
-            (append c-ins (list (bit 2 luts_O5) (bit 2 luts_O6))))]
-    [D_LUT
-     (apply make-ultrascale-plus-lut6-2
-            (make-literal-value-from-bv lut-d)
-            (append d-ins (list (bit 3 luts_O5) (bit 3 luts_O6))))]
-    [E_LUT
-     (apply make-ultrascale-plus-lut6-2
-            (make-literal-value-from-bv lut-e)
-            (append e-ins (list (bit 4 luts_O5) (bit 4 luts_O6))))]
-    [F_LUT
-     (apply make-ultrascale-plus-lut6-2
-            (make-literal-value-from-bv lut-f)
-            (append f-ins (list (bit 5 luts_O5) (bit 5 luts_O6))))]
-    [G_LUT
-     (apply make-ultrascale-plus-lut6-2
-            (make-literal-value-from-bv lut-g)
-            (append g-ins (list (bit 6 luts_O5) (bit 6 luts_O6))))]
-    [H_LUT
-     (apply make-ultrascale-plus-lut6-2
-            (make-literal-value-from-bv lut-h)
-            (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
-    ;;; Carry.
-    [carry (make-ultrascale-plus-carry8 "0" (bit 0 (lakeroad->jsexpr cin)) luts_O5 luts_O6 o co)])
-   (add-cell 'A_LUT A_LUT)
-   (add-cell 'B_LUT B_LUT)
-   (add-cell 'C_LUT C_LUT)
-   (add-cell 'D_LUT D_LUT)
-   (add-cell 'E_LUT E_LUT)
-   (add-cell 'F_LUT F_LUT)
-   (add-cell 'G_LUT G_LUT)
-   (add-cell 'H_LUT H_LUT)
-   (add-cell 'carry carry)
-   (add-netname 'luts_O5 (make-net-details luts_O5))
-   (add-netname 'luts_O6 (make-net-details luts_O6))
-   (add-netname 'o (make-net-details o))
-   (add-netname 'co (make-net-details co))
-   ; Return ((lut-a-out) (lut-b-out) ... (lut-h-out) (cout)).
-   (append (map list out) (list (list (list-ref co 7))))))
+      ([`(ultrascale-plus-clb ,cin
+                              ,lut-a
+                              ,lut-b
+                              ,lut-c
+                              ,lut-d
+                              ,lut-e
+                              ,lut-f
+                              ,lut-g
+                              ,lut-h
+                              ,mux-selector-a
+                              ,mux-selector-b
+                              ,mux-selector-c
+                              ,mux-selector-d
+                              ,mux-selector-e
+                              ,mux-selector-f
+                              ,mux-selector-g
+                              ,mux-selector-h
+                              ,inputs) expr]
+       ;;; Compile input expression.
+       [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) (lakeroad->jsexpr inputs)]
+       ;;; Index bitvector at bit id.
+       [bit (lambda (n l) (list-ref l n))]
+       ;;; Nets.
+       [luts_O5 (get-bits 8)]
+       [luts_O6 (get-bits 8)]
+       [o (get-bits 8)]
+       [co (get-bits 8)]
+       [mux-helper
+        (lambda (o5 o6 carry-o carry-co selector)
+          (if (bveq selector (bv 0 2))
+              o5
+              (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
+       [out (map mux-helper
+                 luts_O5
+                 luts_O6
+                 o
+                 co
+                 (list mux-selector-a
+                       mux-selector-b
+                       mux-selector-c
+                       mux-selector-d
+                       mux-selector-e
+                       mux-selector-f
+                       mux-selector-g
+                       mux-selector-h))]
+       ;;; LUTs.
+       [A_LUT (apply make-ultrascale-plus-lut6-2
+                     (make-literal-value-from-bv lut-a)
+                     (append a-ins (list (bit 0 luts_O5) (bit 0 luts_O6))))]
+       [B_LUT (apply make-ultrascale-plus-lut6-2
+                     (make-literal-value-from-bv lut-b)
+                     (append b-ins (list (bit 1 luts_O5) (bit 1 luts_O6))))]
+       [C_LUT (apply make-ultrascale-plus-lut6-2
+                     (make-literal-value-from-bv lut-c)
+                     (append c-ins (list (bit 2 luts_O5) (bit 2 luts_O6))))]
+       [D_LUT (apply make-ultrascale-plus-lut6-2
+                     (make-literal-value-from-bv lut-d)
+                     (append d-ins (list (bit 3 luts_O5) (bit 3 luts_O6))))]
+       [E_LUT (apply make-ultrascale-plus-lut6-2
+                     (make-literal-value-from-bv lut-e)
+                     (append e-ins (list (bit 4 luts_O5) (bit 4 luts_O6))))]
+       [F_LUT (apply make-ultrascale-plus-lut6-2
+                     (make-literal-value-from-bv lut-f)
+                     (append f-ins (list (bit 5 luts_O5) (bit 5 luts_O6))))]
+       [G_LUT (apply make-ultrascale-plus-lut6-2
+                     (make-literal-value-from-bv lut-g)
+                     (append g-ins (list (bit 6 luts_O5) (bit 6 luts_O6))))]
+       [H_LUT (apply make-ultrascale-plus-lut6-2
+                     (make-literal-value-from-bv lut-h)
+                     (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
+       ;;; Carry.
+       [carry (make-ultrascale-plus-carry8 "0" (bit 0 (lakeroad->jsexpr cin)) luts_O5 luts_O6 o co)])
+    (add-cell 'A_LUT A_LUT)
+    (add-cell 'B_LUT B_LUT)
+    (add-cell 'C_LUT C_LUT)
+    (add-cell 'D_LUT D_LUT)
+    (add-cell 'E_LUT E_LUT)
+    (add-cell 'F_LUT F_LUT)
+    (add-cell 'G_LUT G_LUT)
+    (add-cell 'H_LUT H_LUT)
+    (add-cell 'carry carry)
+    (add-netname 'luts_O5 (make-net-details luts_O5))
+    (add-netname 'luts_O6 (make-net-details luts_O6))
+    (add-netname 'o (make-net-details o))
+    (add-netname 'co (make-net-details co))
+    ; Return ((lut-a-out) (lut-b-out) ... (lut-h-out) (cout)).
+    (append (map list out) (list (list (list-ref co 7))))))
 
 ;;; (module+ test
 ;;;   (require rackunit)
@@ -196,30 +186,30 @@
  [physical-list
   ;;; We currently drop the cout bit.
   (lr:take `(ultrascale-plus-clb
-          ,(cin)
-          ,(lutmem)
-          ,(lutmem)
-          ,(lutmem)
-          ,(lutmem)
-          ,(lutmem)
-          ,(lutmem)
-          ,(lutmem)
-          ,(lutmem)
-          ,(mux)
-          ,(mux)
-          ,(mux)
-          ,(mux)
-          ,(mux)
-          ,(mux)
-          ,(mux)
-          ,(mux)
-          ,(lr:logical-to-physical-mapping (choose '(bitwise) '(bitwise-reverse)) (logical-list)))
-         8)]
+             ,(cin)
+             ,(lutmem)
+             ,(lutmem)
+             ,(lutmem)
+             ,(lutmem)
+             ,(lutmem)
+             ,(lutmem)
+             ,(lutmem)
+             ,(lutmem)
+             ,(mux)
+             ,(mux)
+             ,(mux)
+             ,(mux)
+             ,(mux)
+             ,(mux)
+             ,(mux)
+             ,(mux)
+             ,(lr:logical-to-physical-mapping (choose '(bitwise) '(bitwise-reverse)) (logical-list)))
+           8)]
  [logical-list
   (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
           (lr:physical-to-logical-mapping
-            (choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-            (physical-list)))]
+           (choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+           (physical-list)))]
  ;;; 8bit logical input
  ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for the sixth
  ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two
@@ -405,49 +395,49 @@
                                             lut-input-h)
 
   (match-let*
-   ([(list a-o5 a-o6)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-a clb) lut-input-a)]
-    [(list b-o5 b-o6)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-b clb) lut-input-b)]
-    [(list c-o5 c-o6)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-c clb) lut-input-c)]
-    [(list d-o5 d-o6)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-d clb) lut-input-d)]
-    [(list e-o5 e-o6)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-e clb) lut-input-e)]
-    [(list f-o5 f-o6)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-f clb) lut-input-f)]
-    [(list g-o5 g-o6)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-g clb) lut-input-g)]
-    [(list h-o5 h-o6)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-h clb) lut-input-h)]
-    [(list carry-o carry-co)
-     (interpret-ultrascale-plus-carry8 (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
-                                       (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
-                                       cin)]
-    [cout (bit 7 carry-co)]
-    [(list carry-o0 carry-co0) (list (bit 0 carry-o) (bit 0 carry-co))]
-    [(list carry-o1 carry-co1) (list (bit 1 carry-o) (bit 1 carry-co))]
-    [(list carry-o2 carry-co2) (list (bit 2 carry-o) (bit 2 carry-co))]
-    [(list carry-o3 carry-co3) (list (bit 3 carry-o) (bit 3 carry-co))]
-    [(list carry-o4 carry-co4) (list (bit 4 carry-o) (bit 4 carry-co))]
-    [(list carry-o5 carry-co5) (list (bit 5 carry-o) (bit 5 carry-co))]
-    [(list carry-o6 carry-co6) (list (bit 6 carry-o) (bit 6 carry-co))]
-    [(list carry-o7 carry-co7) (list (bit 7 carry-o) (bit 7 carry-co))]
-    [mux-helper
-     (lambda (o5 o6 carry-o carry-co selector)
-       (if (bveq selector (bv 0 2))
-           o5
-           (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
-    [a-mux-out (mux-helper a-o5 a-o6 carry-o0 carry-co0 (ultrascale-plus-clb-mux-selector-a clb))]
-    [b-mux-out (mux-helper b-o5 b-o6 carry-o1 carry-co1 (ultrascale-plus-clb-mux-selector-b clb))]
-    [c-mux-out (mux-helper c-o5 c-o6 carry-o2 carry-co2 (ultrascale-plus-clb-mux-selector-c clb))]
-    [d-mux-out (mux-helper d-o5 d-o6 carry-o3 carry-co3 (ultrascale-plus-clb-mux-selector-d clb))]
-    [e-mux-out (mux-helper e-o5 e-o6 carry-o4 carry-co4 (ultrascale-plus-clb-mux-selector-e clb))]
-    [f-mux-out (mux-helper f-o5 f-o6 carry-o5 carry-co5 (ultrascale-plus-clb-mux-selector-f clb))]
-    [g-mux-out (mux-helper g-o5 g-o6 carry-o6 carry-co6 (ultrascale-plus-clb-mux-selector-g clb))]
-    [h-mux-out (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-mux-selector-h clb))])
-   (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out cout)))
+      ([(list a-o5 a-o6)
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-a clb) lut-input-a)]
+       [(list b-o5 b-o6)
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-b clb) lut-input-b)]
+       [(list c-o5 c-o6)
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-c clb) lut-input-c)]
+       [(list d-o5 d-o6)
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-d clb) lut-input-d)]
+       [(list e-o5 e-o6)
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-e clb) lut-input-e)]
+       [(list f-o5 f-o6)
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-f clb) lut-input-f)]
+       [(list g-o5 g-o6)
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-g clb) lut-input-g)]
+       [(list h-o5 h-o6)
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-h clb) lut-input-h)]
+       [(list carry-o carry-co) (interpret-ultrascale-plus-carry8
+                                 (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
+                                 (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
+                                 cin)]
+       [cout (bit 7 carry-co)]
+       [(list carry-o0 carry-co0) (list (bit 0 carry-o) (bit 0 carry-co))]
+       [(list carry-o1 carry-co1) (list (bit 1 carry-o) (bit 1 carry-co))]
+       [(list carry-o2 carry-co2) (list (bit 2 carry-o) (bit 2 carry-co))]
+       [(list carry-o3 carry-co3) (list (bit 3 carry-o) (bit 3 carry-co))]
+       [(list carry-o4 carry-co4) (list (bit 4 carry-o) (bit 4 carry-co))]
+       [(list carry-o5 carry-co5) (list (bit 5 carry-o) (bit 5 carry-co))]
+       [(list carry-o6 carry-co6) (list (bit 6 carry-o) (bit 6 carry-co))]
+       [(list carry-o7 carry-co7) (list (bit 7 carry-o) (bit 7 carry-co))]
+       [mux-helper
+        (lambda (o5 o6 carry-o carry-co selector)
+          (if (bveq selector (bv 0 2))
+              o5
+              (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
+       [a-mux-out (mux-helper a-o5 a-o6 carry-o0 carry-co0 (ultrascale-plus-clb-mux-selector-a clb))]
+       [b-mux-out (mux-helper b-o5 b-o6 carry-o1 carry-co1 (ultrascale-plus-clb-mux-selector-b clb))]
+       [c-mux-out (mux-helper c-o5 c-o6 carry-o2 carry-co2 (ultrascale-plus-clb-mux-selector-c clb))]
+       [d-mux-out (mux-helper d-o5 d-o6 carry-o3 carry-co3 (ultrascale-plus-clb-mux-selector-d clb))]
+       [e-mux-out (mux-helper e-o5 e-o6 carry-o4 carry-co4 (ultrascale-plus-clb-mux-selector-e clb))]
+       [f-mux-out (mux-helper f-o5 f-o6 carry-o5 carry-co5 (ultrascale-plus-clb-mux-selector-f clb))]
+       [g-mux-out (mux-helper g-o5 g-o6 carry-o6 carry-co6 (ultrascale-plus-clb-mux-selector-g clb))]
+       [h-mux-out (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-mux-selector-h clb))])
+    (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out cout)))
 
 ; Programmable state for DSP48E2. See spec in the spec-sheets dir.
 (struct ultrascale-plus-dsp48e2 ())
@@ -798,114 +788,113 @@ here-string-delimiter
                                       add-netname
                                       add-parameter-default-value
                                       expr)
-  (match-let*
-   ([P (get-bits 48)]
-    [`(ultrascale-plus-dsp48e2 ,a ,b ,c ,d) expr]
-    [cell
-     (make-cell "DSP48E2"
-                (make-cell-port-directions (list 'A 'B 'C 'D 'OPMODE) (list 'P))
-                (hash 'A
-                      (compile a)
-                      'B
-                      (compile b)
-                      'D
-                      (compile d)
-                      'P
-                      P
-                      'OPMODE
-                      (map ~a (map bitvector->natural (bitvector->bits (bv #b000000101 9)))))
-                #:params (hash 'AMULTSEL
-                               "A"
-                               'A_INPUT
-                               "DIRECT"
-                               'BMULTSEL
-                               "B"
-                               'B_INPUT
-                               "DIRECT"
-                               'PREADDINSEL
-                               "A"
-                               'RND
-                               (make-literal-value-from-bv (bv 0 48))
-                               'USE_MULT
-                               "MULTIPLY"
-                               'USE_SIMD
-                               "ONE48"
-                               'USE_WIDEXOR
-                               "FALSE"
-                               'XORSIMD
-                               "XOR24_48_96"
-                               'AUTORESET_PATDET
-                               "NO_RESET"
-                               'AUTORESET_PRIORITY
-                               "RESET"
-                               'MASK
-                               (make-literal-value-from-bv (bv #x3fffffffffff 48))
-                               'PATTERN
-                               (make-literal-value-from-bv (bv 0 48))
-                               'SEL_MASK
-                               "MASK"
-                               'SEL_PATTERN
-                               "PATTERN"
-                               'USE_PATTERN_DETECT
-                               "NO_PATDET"
-                               'IS_ALUMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 4))
-                               'IS_CARRYIN_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_CLK_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_INMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 5))
-                               'IS_OPMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 9))
-                               'IS_RSTALLCARRYIN_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTALUMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTA_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTB_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTCTRL_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTC_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTD_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTINMODE_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTM_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'IS_RSTP_INVERTED
-                               (make-literal-value-from-bv (bv 0 1))
-                               'ACASCREG
-                               0
-                               'ADREG
-                               0
-                               'ALUMODEREG
-                               0
-                               'AREG
-                               0
-                               'BCASCREG
-                               0
-                               'BREG
-                               0
-                               'CARRYINREG
-                               0
-                               'CARRYINSELREG
-                               0
-                               'CREG
-                               0
-                               'DREG
-                               0
-                               'INMODEREG
-                               0
-                               'MREG
-                               0
-                               'OPMODEREG
-                               0
-                               'PREG
-                               0))])
-   (add-netname 'P (make-net-details P))
-   (add-cell 'DSP48E2 cell)
-   (list P)))
+  (match-let* ([P (get-bits 48)]
+               [`(ultrascale-plus-dsp48e2 ,a ,b ,c ,d) expr]
+               [cell (make-cell
+                      "DSP48E2"
+                      (make-cell-port-directions (list 'A 'B 'C 'D 'OPMODE) (list 'P))
+                      (hash 'A
+                            (compile a)
+                            'B
+                            (compile b)
+                            'D
+                            (compile d)
+                            'P
+                            P
+                            'OPMODE
+                            (map ~a (map bitvector->natural (bitvector->bits (bv #b000000101 9)))))
+                      #:params (hash 'AMULTSEL
+                                     "A"
+                                     'A_INPUT
+                                     "DIRECT"
+                                     'BMULTSEL
+                                     "B"
+                                     'B_INPUT
+                                     "DIRECT"
+                                     'PREADDINSEL
+                                     "A"
+                                     'RND
+                                     (make-literal-value-from-bv (bv 0 48))
+                                     'USE_MULT
+                                     "MULTIPLY"
+                                     'USE_SIMD
+                                     "ONE48"
+                                     'USE_WIDEXOR
+                                     "FALSE"
+                                     'XORSIMD
+                                     "XOR24_48_96"
+                                     'AUTORESET_PATDET
+                                     "NO_RESET"
+                                     'AUTORESET_PRIORITY
+                                     "RESET"
+                                     'MASK
+                                     (make-literal-value-from-bv (bv #x3fffffffffff 48))
+                                     'PATTERN
+                                     (make-literal-value-from-bv (bv 0 48))
+                                     'SEL_MASK
+                                     "MASK"
+                                     'SEL_PATTERN
+                                     "PATTERN"
+                                     'USE_PATTERN_DETECT
+                                     "NO_PATDET"
+                                     'IS_ALUMODE_INVERTED
+                                     (make-literal-value-from-bv (bv 0 4))
+                                     'IS_CARRYIN_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_CLK_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_INMODE_INVERTED
+                                     (make-literal-value-from-bv (bv 0 5))
+                                     'IS_OPMODE_INVERTED
+                                     (make-literal-value-from-bv (bv 0 9))
+                                     'IS_RSTALLCARRYIN_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTALUMODE_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTA_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTB_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTCTRL_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTC_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTD_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTINMODE_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTM_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'IS_RSTP_INVERTED
+                                     (make-literal-value-from-bv (bv 0 1))
+                                     'ACASCREG
+                                     0
+                                     'ADREG
+                                     0
+                                     'ALUMODEREG
+                                     0
+                                     'AREG
+                                     0
+                                     'BCASCREG
+                                     0
+                                     'BREG
+                                     0
+                                     'CARRYINREG
+                                     0
+                                     'CARRYINSELREG
+                                     0
+                                     'CREG
+                                     0
+                                     'DREG
+                                     0
+                                     'INMODEREG
+                                     0
+                                     'MREG
+                                     0
+                                     'OPMODEREG
+                                     0
+                                     'PREG
+                                     0))])
+    (add-netname 'P (make-net-details P))
+    (add-cell 'DSP48E2 cell)
+    (list P)))

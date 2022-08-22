@@ -101,8 +101,9 @@
     (let* (;; ccu2cs holds the CCU2Cs in MSB to LSB order. We now want to fold
            ;; over these and collect the individual bits (below)
            [ccu2cs (foldl ccu2c-foldl-helper '() paired-inputs)]
-           [ccu2c-bit-extractor-helper
-            (lambda (ccu2c acc) (cons (list (lr:list-ref ccu2c 0)) (cons (list (lr:list-ref ccu2c 1)) acc)))]
+           [ccu2c-bit-extractor-helper (lambda (ccu2c acc)
+                                         (cons (list (lr:list-ref ccu2c 0))
+                                               (cons (list (lr:list-ref ccu2c 1)) acc)))]
 
            ;; bits is a list of list of individual bits in reverse order (LSB to
            ;; MSB). It may be the case that bits has an extra bit (e.g., if we
@@ -256,7 +257,8 @@
       (let* ([a-idx (- j i)]
              [b-idx i]
              [lut-inputs
-              (lr:concat (list (lr:extract a-idx a-idx a) (lr:extract b-idx b-idx b) (bv 1 1) (bv 1 1)))])
+              (lr:concat
+               (list (lr:extract a-idx a-idx a) (lr:extract b-idx b-idx b) (bv 1 1) (bv 1 1)))])
         (make-lattice-lut4-expr lut-inputs #:INIT INIT))))
 
 ; Create a lakeroad expression capable of discovering `bitwidth`-bit
@@ -305,7 +307,9 @@
          [output (add-all-lists and-luts #:INIT0 add-lut-init #:INIT1 add-lut-init)]
          [output2 (for/list ([x output])
                     (lr:list-ref x 0))])
-    (lr:extract (sub1 bitwidth) 0 (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) output2) 0))))
+    (lr:extract (sub1 bitwidth)
+                0
+                (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) output2) 0))))
 
 (module+ test
   (require rackunit

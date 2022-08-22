@@ -333,20 +333,20 @@
     (when (not ((bitvector 4) input))
       (error (format "expected input to be a (bitvector 4), found ~a" input))))
   (match-let*
-   ([`(,i0 ,i1 ,i2 ,i3 ,i4 ,i5 ,i6 ,i7) inputs]
-    ;; Slice 0
-    [result-0 (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN (list i0 i1))]
-    [`(,S0 ,S1 ,carry-bit-0) result-0]
-    ;; Slice 1
-    [result-1 (interpret-ecp5-ccu2c-impl INIT2 INIT3 INJECT1_2 INJECT1_3 carry-bit-0 (list i2 i3))]
-    [`(,S2 ,S3 ,carry-bit-1) result-1]
-    ;; Slice 2
-    [result-2 (interpret-ecp5-ccu2c-impl INIT4 INIT5 INJECT1_4 INJECT1_5 carry-bit-1 (list i4 i5))]
-    [`(,S4 ,S5 ,carry-bit-2) result-2]
-    ;; Slice 3
-    [result-3 (interpret-ecp5-ccu2c-impl INIT6 INIT7 INJECT1_6 INJECT1_7 carry-bit-2 (list i6 i7))]
-    [`(,S6 ,S7 ,COUT) result-3])
-   (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
+      ([`(,i0 ,i1 ,i2 ,i3 ,i4 ,i5 ,i6 ,i7) inputs]
+       ;; Slice 0
+       [result-0 (interpret-ecp5-ccu2c-impl INIT0 INIT1 INJECT1_0 INJECT1_1 CIN (list i0 i1))]
+       [`(,S0 ,S1 ,carry-bit-0) result-0]
+       ;; Slice 1
+       [result-1 (interpret-ecp5-ccu2c-impl INIT2 INIT3 INJECT1_2 INJECT1_3 carry-bit-0 (list i2 i3))]
+       [`(,S2 ,S3 ,carry-bit-1) result-1]
+       ;; Slice 2
+       [result-2 (interpret-ecp5-ccu2c-impl INIT4 INIT5 INJECT1_4 INJECT1_5 carry-bit-1 (list i4 i5))]
+       [`(,S4 ,S5 ,carry-bit-2) result-2]
+       ;; Slice 3
+       [result-3 (interpret-ecp5-ccu2c-impl INIT6 INIT7 INJECT1_6 INJECT1_7 carry-bit-2 (list i6 i7))]
+       [`(,S6 ,S7 ,COUT) result-3])
+    (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
 ;;; Interpret a CCU2C
 ;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
 ;;; OUTPUTS: (S0 S1 COUT)
@@ -357,42 +357,42 @@
     (when (not ((bitvector 4) input))
       (error (format "expected input to be a (bitvector 4), found ~a" input))))
   (match-let* ([`(,INPUTS0 ,INPUTS1) inputs])
-              (let* (;;; // First Half
-                     ;;; wire LUT4_0, LUT2_0;
-                     ;;; LUT4 #(.INIT(INIT0)) lut4_0(.A(A0), .B(B0), .C(C0), .D(D0), .Z(LUT4_0));
-                     [LUT4_0 (interpret-lut4-impl INIT0 INPUTS0)]
-                     ;;; LUT2 #(.INIT(INIT0[3:0])) lut2_0(.A(A0), .B(B0), .Z(LUT2_0));
-                     ; TODO: is this extract correct?
-                     [LUT2_0 (interpret-lut2-impl (extract 3 0 INIT0) (extract 1 0 INPUTS0))]
-                     ;;; wire gated_cin_0 = (INJECT1_0 == "YES") ? 1'b0 : CIN;
-                     [gated_cin_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) CIN)]
-                     ;;; assign S0 = LUT4_0 ^ gated_cin_0;
-                     [S0 (bvxor LUT4_0 gated_cin_0)]
+    (let* (;;; // First Half
+           ;;; wire LUT4_0, LUT2_0;
+           ;;; LUT4 #(.INIT(INIT0)) lut4_0(.A(A0), .B(B0), .C(C0), .D(D0), .Z(LUT4_0));
+           [LUT4_0 (interpret-lut4-impl INIT0 INPUTS0)]
+           ;;; LUT2 #(.INIT(INIT0[3:0])) lut2_0(.A(A0), .B(B0), .Z(LUT2_0));
+           ; TODO: is this extract correct?
+           [LUT2_0 (interpret-lut2-impl (extract 3 0 INIT0) (extract 1 0 INPUTS0))]
+           ;;; wire gated_cin_0 = (INJECT1_0 == "YES") ? 1'b0 : CIN;
+           [gated_cin_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) CIN)]
+           ;;; assign S0 = LUT4_0 ^ gated_cin_0;
+           [S0 (bvxor LUT4_0 gated_cin_0)]
 
-                     ;;; wire gated_lut2_0 = (INJECT1_0 == "YES") ? 1'b0 : LUT2_0;
-                     [gated_lut2_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) LUT2_0)]
-                     ;;; wire cout_0 = (~LUT4_0 & gated_lut2_0) | (LUT4_0 & CIN);
-                     [cout_0 (bvor (bvand (bvnot LUT4_0) gated_lut2_0) (bvand LUT4_0 CIN))]
+           ;;; wire gated_lut2_0 = (INJECT1_0 == "YES") ? 1'b0 : LUT2_0;
+           [gated_lut2_0 (if (bveq INJECT1_0 (bv 1 1)) (bv 0 1) LUT2_0)]
+           ;;; wire cout_0 = (~LUT4_0 & gated_lut2_0) | (LUT4_0 & CIN);
+           [cout_0 (bvor (bvand (bvnot LUT4_0) gated_lut2_0) (bvand LUT4_0 CIN))]
 
-                     ;;; // Second half
-                     ;;; wire LUT4_1, LUT2_1;
-                     ;;; LUT4 #(.INIT(INIT1)) lut4_1(.A(A1), .B(B1), .C(C1), .D(D1), .Z(LUT4_1));
-                     [LUT4_1 (interpret-lut4-impl INIT1 INPUTS1)]
-                     ;;; LUT2 #(.INIT(INIT1[3:0])) lut2_1(.A(A1), .B(B1), .Z(LUT2_1));
-                     ; TODO: is this extract correct?
-                     [LUT2_1 (interpret-lut2-impl (extract 3 0 INIT1) (extract 1 0 INPUTS1))]
-                     ;;;
-                     ;;; wire gated_cin_1 = (INJECT1_1 == "YES") ? 1'b0 : cout_0;
-                     [gated_cin_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) cout_0)]
-                     ;;; assign S1 = LUT4_1 ^ gated_cin_1;
-                     [S1 (bvxor LUT4_1 gated_cin_1)]
-                     ;;;
-                     ;;; wire gated_lut2_1 = (INJECT1_1 == "YES") ? 1'b0 : LUT2_1;
-                     [gated_lut2_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) LUT2_1)]
-                     ;;; assign COUT = (~LUT4_1 & gated_lut2_1) | (LUT4_1 & cout_0);
-                     [COUT (bvor (bvand (bvnot LUT4_1) gated_lut2_1) (bvand LUT4_1 cout_0))])
-                ;  (printf "\033[34;1mRESULT:\n\033[0m~a\n" (pretty-format (list S0 S1 COUT)))
-                (list S0 S1 COUT))))
+           ;;; // Second half
+           ;;; wire LUT4_1, LUT2_1;
+           ;;; LUT4 #(.INIT(INIT1)) lut4_1(.A(A1), .B(B1), .C(C1), .D(D1), .Z(LUT4_1));
+           [LUT4_1 (interpret-lut4-impl INIT1 INPUTS1)]
+           ;;; LUT2 #(.INIT(INIT1[3:0])) lut2_1(.A(A1), .B(B1), .Z(LUT2_1));
+           ; TODO: is this extract correct?
+           [LUT2_1 (interpret-lut2-impl (extract 3 0 INIT1) (extract 1 0 INPUTS1))]
+           ;;;
+           ;;; wire gated_cin_1 = (INJECT1_1 == "YES") ? 1'b0 : cout_0;
+           [gated_cin_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) cout_0)]
+           ;;; assign S1 = LUT4_1 ^ gated_cin_1;
+           [S1 (bvxor LUT4_1 gated_cin_1)]
+           ;;;
+           ;;; wire gated_lut2_1 = (INJECT1_1 == "YES") ? 1'b0 : LUT2_1;
+           [gated_lut2_1 (if (bveq INJECT1_1 (bv 1 1)) (bv 0 1) LUT2_1)]
+           ;;; assign COUT = (~LUT4_1 & gated_lut2_1) | (LUT4_1 & cout_0);
+           [COUT (bvor (bvand (bvnot LUT4_1) gated_lut2_1) (bvand LUT4_1 cout_0))])
+      ;  (printf "\033[34;1mRESULT:\n\033[0m~a\n" (pretty-format (list S0 S1 COUT)))
+      (list S0 S1 COUT))))
 
 ; Returns the physical outputs of the PFU as a list of bits
 ;
@@ -692,73 +692,64 @@
                                           ,INJECT1_6
                                           ,INJECT1_7
                                           ,CIN
-                                          ,inputs)
-                expr]
+                                          ,inputs) expr]
                [(list i0 i1 i2 i3 i4 i5 i6 i7) (compiler inputs)]
                [`(,CIN) (compiler CIN)]
                [sum-bits (get-unique-bit-ids 8)]
                [(list cout-bit) (get-unique-bit-ids 1)]
                ;;; CCU2C 0
-               [ccu2c-0
-                (make-lattice-ccu2c-expr #:inputs (list i0 i1)
-                                         #:CIN `(,CIN)
-                                         #:INIT0 INIT0
-                                         #:INIT1 INIT1
-                                         #:INJECT1_0 INJECT1_0
-                                         #:INJECT1_1 INJECT1_1)]
-               [`(,S0 ,S1 (,COUT-0))
-                (compile-lattice-ccu2c compiler
-                                       get-unique-bit-ids
-                                       add-cell-to-module
-                                       add-netname-to-module
-                                       add-parameter-default-value
-                                       ccu2c-0)]
+               [ccu2c-0 (make-lattice-ccu2c-expr #:inputs (list i0 i1)
+                                                 #:CIN `(,CIN)
+                                                 #:INIT0 INIT0
+                                                 #:INIT1 INIT1
+                                                 #:INJECT1_0 INJECT1_0
+                                                 #:INJECT1_1 INJECT1_1)]
+               [`(,S0 ,S1 (,COUT-0)) (compile-lattice-ccu2c compiler
+                                                            get-unique-bit-ids
+                                                            add-cell-to-module
+                                                            add-netname-to-module
+                                                            add-parameter-default-value
+                                                            ccu2c-0)]
                ;;; CCU2C 1
-               [ccu2c-1
-                (make-lattice-ccu2c-expr #:inputs (list i2 i3)
-                                         #:CIN `(,COUT-0)
-                                         #:INIT0 INIT2
-                                         #:INIT1 INIT3
-                                         #:INJECT1_0 INJECT1_2
-                                         #:INJECT1_1 INJECT1_3)]
-               [`(,S2 ,S3 (,COUT-1))
-                (compile-lattice-ccu2c compiler
-                                       get-unique-bit-ids
-                                       add-cell-to-module
-                                       add-netname-to-module
-                                       add-parameter-default-value
-                                       ccu2c-1)]
+               [ccu2c-1 (make-lattice-ccu2c-expr #:inputs (list i2 i3)
+                                                 #:CIN `(,COUT-0)
+                                                 #:INIT0 INIT2
+                                                 #:INIT1 INIT3
+                                                 #:INJECT1_0 INJECT1_2
+                                                 #:INJECT1_1 INJECT1_3)]
+               [`(,S2 ,S3 (,COUT-1)) (compile-lattice-ccu2c compiler
+                                                            get-unique-bit-ids
+                                                            add-cell-to-module
+                                                            add-netname-to-module
+                                                            add-parameter-default-value
+                                                            ccu2c-1)]
                ;;; CCU2C 2
-               [ccu2c-2
-                (make-lattice-ccu2c-expr #:inputs (list i4 i5)
-                                         #:CIN `(,COUT-1)
-                                         #:INIT0 INIT4
-                                         #:INIT1 INIT5
-                                         #:INJECT1_0 INJECT1_4
-                                         #:INJECT1_1 INJECT1_5)]
-               [`(,S4 ,S5 (,COUT-2))
-                (compile-lattice-ccu2c compiler
-                                       get-unique-bit-ids
-                                       add-cell-to-module
-                                       add-netname-to-module
-                                       add-parameter-default-value
-                                       ccu2c-2)]
+               [ccu2c-2 (make-lattice-ccu2c-expr #:inputs (list i4 i5)
+                                                 #:CIN `(,COUT-1)
+                                                 #:INIT0 INIT4
+                                                 #:INIT1 INIT5
+                                                 #:INJECT1_0 INJECT1_4
+                                                 #:INJECT1_1 INJECT1_5)]
+               [`(,S4 ,S5 (,COUT-2)) (compile-lattice-ccu2c compiler
+                                                            get-unique-bit-ids
+                                                            add-cell-to-module
+                                                            add-netname-to-module
+                                                            add-parameter-default-value
+                                                            ccu2c-2)]
                ;;; CCU2C 3
-               [ccu2c-3
-                (make-lattice-ccu2c-expr #:inputs (list i6 i7)
-                                         #:CIN `(,COUT-2)
-                                         #:INIT0 INIT6
-                                         #:INIT1 INIT7
-                                         #:INJECT1_0 INJECT1_6
-                                         #:INJECT1_1 INJECT1_7)]
-               [`(,S6 ,S7 ,COUT)
-                (compile-lattice-ccu2c compiler
-                                       get-unique-bit-ids
-                                       add-cell-to-module
-                                       add-netname-to-module
-                                       add-parameter-default-value
-                                       ccu2c-3)])
-              (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
+               [ccu2c-3 (make-lattice-ccu2c-expr #:inputs (list i6 i7)
+                                                 #:CIN `(,COUT-2)
+                                                 #:INIT0 INIT6
+                                                 #:INIT1 INIT7
+                                                 #:INJECT1_0 INJECT1_6
+                                                 #:INJECT1_1 INJECT1_7)]
+               [`(,S6 ,S7 ,COUT) (compile-lattice-ccu2c compiler
+                                                        get-unique-bit-ids
+                                                        add-cell-to-module
+                                                        add-netname-to-module
+                                                        add-parameter-default-value
+                                                        ccu2c-3)])
+    (list S0 S1 S2 S3 S4 S5 S6 S7 COUT)))
 
 (define (compile-lattice-pfu compiler
                              get-unique-bit-ids
@@ -766,20 +757,20 @@
                              add-netname-to-module
                              add-parameter-default-value
                              expr)
-  (match-let*
-   ([`(lattice-ecp5-pfu ,a ,b ,c ,d ,e ,f ,g ,h ,inputs) expr]
-    [inputs (compiler inputs)]
-    ; Reserve ds for output pins for 8 luts in the PFU
-    [luts-z (get-unique-bit-ids 8)]
-    [lut-mems (list a b c d e f g h)]
-    [LUTS
-     (for/list ([lut lut-mems] [lut-input inputs] [z luts-z])
-       (apply make-lattice-lut4-cell (make-literal-value-from-bv lut) (append lut-input (list z))))])
-   ;; Add LUT cells
-   (for ([lut LUTS] [c "ABCDEFGH"])
-     (add-cell-to-module (as-symbol (format "~a_LUT" c)) lut))
-   (for/list ([z luts-z])
-     (list z))))
+  (match-let* ([`(lattice-ecp5-pfu ,a ,b ,c ,d ,e ,f ,g ,h ,inputs) expr]
+               [inputs (compiler inputs)]
+               ; Reserve ds for output pins for 8 luts in the PFU
+               [luts-z (get-unique-bit-ids 8)]
+               [lut-mems (list a b c d e f g h)]
+               [LUTS (for/list ([lut lut-mems] [lut-input inputs] [z luts-z])
+                       (apply make-lattice-lut4-cell
+                              (make-literal-value-from-bv lut)
+                              (append lut-input (list z))))])
+    ;; Add LUT cells
+    (for ([lut LUTS] [c "ABCDEFGH"])
+      (add-cell-to-module (as-symbol (format "~a_LUT" c)) lut))
+    (for/list ([z luts-z])
+      (list z))))
 
 ;;; Compile a Lakeroad CCU2C expression
 ;;; Return list of bits ((s0) (s1) (cout))
@@ -794,25 +785,25 @@
                [compiled-inputs (compiler inputs)]
                [(list (list A0 B0 C0 D0) (list A1 B1 C1 D1)) compiled-inputs]
                [(list s0 s1 cout) (get-unique-bit-ids 3)]
-               [ccu2c
-                (make-lattice-ccu2c-cell (if (bv? INIT0) (make-literal-value-from-bv INIT0) INIT0)
-                                         (if (bv? INIT1) (make-literal-value-from-bv INIT1) INIT1)
-                                         (if (bvzero? INJECT1_0) "NO" "YES")
-                                         (if (bvzero? INJECT1_1) "NO" "YES")
-                                         A0
-                                         B0
-                                         C0
-                                         D0
-                                         A1
-                                         B1
-                                         C1
-                                         D1
-                                         CIN
-                                         s0
-                                         s1
-                                         cout)])
-              (add-cell-to-module 'CCU2C ccu2c)
-              (list (list s0) (list s1) (list cout))))
+               [ccu2c (make-lattice-ccu2c-cell
+                       (if (bv? INIT0) (make-literal-value-from-bv INIT0) INIT0)
+                       (if (bv? INIT1) (make-literal-value-from-bv INIT1) INIT1)
+                       (if (bvzero? INJECT1_0) "NO" "YES")
+                       (if (bvzero? INJECT1_1) "NO" "YES")
+                       A0
+                       B0
+                       C0
+                       D0
+                       A1
+                       B1
+                       C1
+                       D1
+                       CIN
+                       s0
+                       s1
+                       cout)])
+    (add-cell-to-module 'CCU2C ccu2c)
+    (list (list s0) (list s1) (list cout))))
 
 (define (compile-lattice-l6mux21 compiler
                                  get-unique-bit-ids
@@ -824,8 +815,8 @@
                [(list D0 D1 SD) (apply append (compiler (list D0 D1 SD)))]
                [(list Z) (get-unique-bit-ids 1)]
                [l6mux21 (make-lattice-l6mux21-cell D0 D1 SD Z)])
-              (add-cell-to-module 'L6MUX21 l6mux21)
-              (list Z)))
+    (add-cell-to-module 'L6MUX21 l6mux21)
+    (list Z)))
 
 (define (compile-lattice-mux21 compiler
                                get-unique-bit-ids
@@ -837,8 +828,8 @@
                [(list D0 D1 SD) (apply append (compiler (list D0 D1 SD)))]
                [(list Z) (get-unique-bit-ids 1)]
                [mux21 (make-lattice-mux21-cell D0 D1 SD Z)])
-              (add-cell-to-module 'MUX21 mux21)
-              (list Z)))
+    (add-cell-to-module 'MUX21 mux21)
+    (list Z)))
 
 (define (compile-lattice-pfumx compiler
                                get-unique-bit-ids
@@ -850,8 +841,8 @@
                [(list ALUT BLUT CO) (apply append (compiler (list ALUT BLUT CO)))]
                [(list Z) (get-unique-bit-ids 1)]
                [pfumx (make-lattice-pfumx-cell ALUT BLUT CO Z)])
-              (add-cell-to-module 'PFUMX pfumx)
-              (list Z)))
+    (add-cell-to-module 'PFUMX pfumx)
+    (list Z)))
 
 ;;; Compile a Lattice LUT4 expression
 ;;; Return output bit Z
@@ -863,12 +854,12 @@
                               expr)
   (match-let* ([`(lattice-ecp5-lut4 ,INIT ,inputs) expr]
                [compiled-inputs (compiler inputs)]
-               (init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT))
+               [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
                [lut4 (make-lattice-lut4-cell init A B C D Z)])
-              (add-cell-to-module 'LUT4 lut4)
-              (list (list Z))))
+    (add-cell-to-module 'LUT4 lut4)
+    (list (list Z))))
 
 ;;; Compile a Lattice LUT5 expression
 ;;; Return output bit Z
@@ -880,12 +871,12 @@
                               expr)
   (match-let* ([`(lattice-ecp5-lut5 ,INIT ,inputs) expr]
                [compiled-inputs (compiler inputs)]
-               (init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT))
+               [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D E) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
                [lut5 (make-lattice-lut5-cell init A B C D E Z)])
-              (add-cell-to-module 'LUT5 lut5)
-              (list (list Z))))
+    (add-cell-to-module 'LUT5 lut5)
+    (list (list Z))))
 
 ;;; Compile a Lattice LUT6 expression
 ;;; Return output bit Z
@@ -897,12 +888,12 @@
                               expr)
   (match-let* ([`(lattice-ecp5-lut6 ,INIT ,inputs) expr]
                [compiled-inputs (compiler inputs)]
-               (init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT))
+               [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D E F) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
                [lut6 (make-lattice-lut6-cell init A B C D E F Z)])
-              (add-cell-to-module 'LUT6 lut6)
-              (list Z)))
+    (add-cell-to-module 'LUT6 lut6)
+    (list Z)))
 
 ;;; Compile a Lattice LUT8 expression
 ;;; Return output bit Z
@@ -914,12 +905,12 @@
                               expr)
   (match-let* ([`(lattice-ecp5-lut7 ,INIT ,inputs) expr]
                [compiled-inputs (compiler inputs)]
-               (init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT))
+               [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D E F G) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
                [lut7 (make-lattice-lut7-cell init A B C D E F G Z)])
-              (add-cell-to-module 'LUT7 lut7)
-              (list Z)))
+    (add-cell-to-module 'LUT7 lut7)
+    (list Z)))
 
 ;;; Compile a Lattice LUT8 expression
 ;;; Return output bit Z
@@ -931,12 +922,12 @@
                               expr)
   (match-let* ([`(lattice-ecp5-lut8 ,INIT ,inputs) expr]
                [compiled-inputs (compiler inputs)]
-               (init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT))
+               [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D E F G H) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
                [lut8 (make-lattice-lut8-cell init A B C D E F G H Z)])
-              (add-cell-to-module 'LUT8 lut8)
-              (list Z)))
+    (add-cell-to-module 'LUT8 lut8)
+    (list Z)))
 
 (define test-pfu
   `(lattice-ecp5-pfu ,(bv 0 16)

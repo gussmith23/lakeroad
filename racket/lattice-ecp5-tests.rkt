@@ -22,12 +22,12 @@
   (define bv-expr (apply f (take logical-inputs arity)))
   (define lakeroad-expr
     (lr:list-ref (lr:physical-to-logical-mapping
-             '(bitwise)
-             (match primitive
-                ['pfu (make-lattice-pfu-expr logical-inputs)]
-                ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
-                ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]))
-             0))
+                  '(bitwise)
+                  (match primitive
+                    ['pfu (make-lattice-pfu-expr logical-inputs)]
+                    ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
+                    ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]))
+                 0))
   (define interpretted (interpret lakeroad-expr))
   ; Carries will return an extra leading bit, so we need to extract the sum
   ; signal and discard the carry
@@ -55,15 +55,15 @@
   (define (curry-carry INIT0 INIT1 INJECT1_0 INJECT1_1)
     (lambda (CIN inputs)
       (interpret (lr:list-ref (lr:physical-to-logical-mapping
-                          '(bitwise)
-                          (make-lattice-ccu2c-expr
-                            #:CIN CIN
-                            #:inputs (lr:logical-to-physical-mapping '(bitwise) inputs)
-                            #:INIT0 INIT0
-                            #:INIT1 INIT1
-                            #:INJECT1_0 INJECT1_0
-                            #:INJECT1_1 INJECT1_1))
-                          0))))
+                               '(bitwise)
+                               (make-lattice-ccu2c-expr
+                                #:CIN CIN
+                                #:inputs (lr:logical-to-physical-mapping '(bitwise) inputs)
+                                #:INIT0 INIT0
+                                #:INIT1 INIT1
+                                #:INJECT1_0 INJECT1_0
+                                #:INJECT1_1 INJECT1_1))
+                              0))))
   ;; Test an adder above, on inputs `inputs` against
   ;; outputs ; #:S0 #:S1 and cout #:COUT. Optionally specify a carry in with #:CIN
   ;; (defaults to 0)

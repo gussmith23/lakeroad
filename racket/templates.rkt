@@ -29,30 +29,28 @@
          [max-bw (apply max outwidth (map bvlen logical-inputs))]
          ;;; Form the list of logical inputs.
          ;;; Zero-extend them so they're all the same size.
-         [logical-inputs
-          (map (lambda (v)
-                 (choose* (lr:zero-extend v (bitvector max-bw))
-                          (lr:dup-extend v (bitvector max-bw))))
-               logical-inputs)]
+         [logical-inputs (map (lambda (v)
+                                (choose* (lr:zero-extend v (bitvector max-bw))
+                                         (lr:dup-extend v (bitvector max-bw))))
+                              logical-inputs)]
          [lutmem (match lutmems
                    [(list lm0) (choose* lm0)]
                    [(list lm0 lm1) (choose* lm0 lm1)])]
          [lakeroad-expr (let* ([physical-inputs (lr:logical-to-physical-mapping
-                                                  (choose* '(bitwise) '(bitwise-reverse))
-                                                  logical-inputs)]
+                                                 (choose* '(bitwise) '(bitwise-reverse))
+                                                 logical-inputs)]
                                [physical-outputs (for/list ([i max-bw])
                                                    (lr:lut (length logical-inputs)
-                                                         1
-                                                         architecture
-                                                         lutmem
-                                                         (lr:list-ref physical-inputs i)))])
-                              (lr:extract
-                                  (sub1 outwidth)
-                                  0
-                                  (lr:list-ref (lr:physical-to-logical-mapping
-                                                 (choose* '(bitwise) '(bitwise-reverse))
-                                                 physical-outputs)
-                                               0)))])
+                                                           1
+                                                           architecture
+                                                           lutmem
+                                                           (lr:list-ref physical-inputs i)))])
+                          (lr:extract (sub1 outwidth)
+                                      0
+                                      (lr:list-ref (lr:physical-to-logical-mapping
+                                                    (choose* '(bitwise) '(bitwise-reverse))
+                                                    physical-outputs)
+                                                   0)))])
 
     (when (not (concrete? max-bw))
       (error "Input bitwidths must be statically known."))
@@ -66,11 +64,10 @@
 
          ;;; Then, we add on top of it.
          [max-bw (apply max outwidth (map bvlen logical-inputs))]
-         [logical-inputs
-          (map (lambda (v)
-                 (choose* (lr:zero-extend v (bitvector max-bw))
-                          (lr:dup-extend v (bitvector max-bw))))
-               logical-inputs)]
+         [logical-inputs (map (lambda (v)
+                                (choose* (lr:zero-extend v (bitvector max-bw))
+                                         (lr:dup-extend v (bitvector max-bw))))
+                              logical-inputs)]
          [logical-input (match logical-inputs
                           [(list l0) (choose* l0)]
                           [(list l0 l1) (choose* l0 l1)])]

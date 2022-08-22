@@ -203,7 +203,7 @@
                  [(lr:drop l n) (drop (compile l) n)]
                  [(lr:list-ref l n) (list-ref (compile l) n)]
                  [(lr:append lsts) (apply append (compile lsts))]
-                 [`(map ,f ,lsts ...) (apply map f (compile lsts))]
+                 [(lr:map f lsts) (apply map f (compile lsts))]
 
                  ;;; Rosette operators.
                  [(or (expression (== lr:extract) high low v) (lr:extract high low v))
@@ -216,8 +216,7 @@
                  ;; TODO: How to handle variadic rosette concats?
                  [(lr:concat rst) (apply append (compile (reverse rst)))]
 
-                 [(lr:dup-extend v bv-type)
-                  (make-list (bitvector-size bv-type) (first (compile v)))]
+                 [(lr:dup-extend v bv-type) (make-list (bitvector-size bv-type) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
                  [(? bv? (? symbolic? (? constant? s)))
@@ -281,38 +280,40 @@
     (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
 
-  (test-begin (current-solver (boolector))
-              (define-symbolic a b (bitvector 8))
-              (define expr
-                (lr:list-ref (lr:physical-to-logical-mapping
-                         '(bitwise)
-                         ;;; Take the 8 outputs from the LUTs; drop cout.
-                         (lr:take `(ultrascale-plus-clb ,(?? (bitvector 1))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(lr:logical-to-physical-mapping
-                                                     '(bitwise)
-                                                     (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
-                               8)) 0))
-              (define soln
-                (synthesize #:forall (list a b)
-                            #:guarantee
-                            (begin
-                              ; Assert that the output of the CLB implements the requested function f.
-                              (assert (bveq (bvand a b) (interpret expr))))))
-              (check-true (sat? soln))
-              (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))
+  (test-begin
+   (current-solver (boolector))
+   (define-symbolic a b (bitvector 8))
+   (define expr
+     (lr:list-ref (lr:physical-to-logical-mapping
+                   '(bitwise)
+                   ;;; Take the 8 outputs from the LUTs; drop cout.
+                   (lr:take `(ultrascale-plus-clb ,(?? (bitvector 1))
+                                                  ,(?? (bitvector 64))
+                                                  ,(?? (bitvector 64))
+                                                  ,(?? (bitvector 64))
+                                                  ,(?? (bitvector 64))
+                                                  ,(?? (bitvector 64))
+                                                  ,(?? (bitvector 64))
+                                                  ,(?? (bitvector 64))
+                                                  ,(?? (bitvector 64))
+                                                  ,(?? (bitvector 2))
+                                                  ,(?? (bitvector 2))
+                                                  ,(?? (bitvector 2))
+                                                  ,(?? (bitvector 2))
+                                                  ,(?? (bitvector 2))
+                                                  ,(?? (bitvector 2))
+                                                  ,(?? (bitvector 2))
+                                                  ,(?? (bitvector 2))
+                                                  ,(lr:logical-to-physical-mapping
+                                                    '(bitwise)
+                                                    (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
+                            8))
+                  0))
+   (define soln
+     (synthesize #:forall (list a b)
+                 #:guarantee
+                 (begin
+                   ; Assert that the output of the CLB implements the requested function f.
+                   (assert (bveq (bvand a b) (interpret expr))))))
+   (check-true (sat? soln))
+   (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))

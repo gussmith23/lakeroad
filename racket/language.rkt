@@ -8,6 +8,7 @@
          drop
          take
          append
+         map
          concat
          lut
          carry
@@ -22,6 +23,7 @@
 (struct drop (l n) #:transparent)
 (struct take (l n) #:transparent)
 (struct append (lsts) #:transparent)
+(struct map (f lsts) #:transparent)
 (struct concat (vs) #:transparent)
 (struct lut (ins width architecture lutmem inputs) #:transparent)
 (struct carry (width architecture cin di s) #:transparent)

@@ -201,48 +201,48 @@
 ;;; Attempt to synthesize expression using a DSP.
 (define (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
   (let/ec
-      return
-    (begin
+   return
+   (begin
 
-      ;;; Only supporting 4 inputs, a, b, c, d.
-      (when (> (length (symbolics bv-expr)) 4)
-        (return #f))
+     ;;; Only supporting 4 inputs, a, b, c, d.
+     (when (> (length (symbolics bv-expr)) 4)
+       (return #f))
 
-      ;;; Max supported input/output width is 27 (if we're being safe; a is 30 bits wide, but only 27
-      ;;; bits of a are multiplied).
-      (when (> (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 27)
-        (return #f))
+     ;;; Max supported input/output width is 27 (if we're being safe; a is 30 bits wide, but only 27
+     ;;; bits of a are multiplied).
+     (when (> (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 27)
+       (return #f))
 
-      (define in0 (if (>= (length (symbolics bv-expr)) 1) (list-ref (symbolics bv-expr) 0) (bv 0 1)))
-      (define in1 (if (>= (length (symbolics bv-expr)) 2) (list-ref (symbolics bv-expr) 1) (bv 0 1)))
-      (define in2 (if (>= (length (symbolics bv-expr)) 3) (list-ref (symbolics bv-expr) 2) (bv 0 1)))
-      (define in3 (if (>= (length (symbolics bv-expr)) 4) (list-ref (symbolics bv-expr) 3) (bv 0 1)))
+     (define in0 (if (>= (length (symbolics bv-expr)) 1) (list-ref (symbolics bv-expr) 0) (bv 0 1)))
+     (define in1 (if (>= (length (symbolics bv-expr)) 2) (list-ref (symbolics bv-expr) 1) (bv 0 1)))
+     (define in2 (if (>= (length (symbolics bv-expr)) 3) (list-ref (symbolics bv-expr) 2) (bv 0 1)))
+     (define in3 (if (>= (length (symbolics bv-expr)) 4) (list-ref (symbolics bv-expr) 3) (bv 0 1)))
 
-      (define a (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 30)))
-      (define b (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 18)))
-      (define c (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 48)))
-      (define d (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 27)))
+     (define a (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 30)))
+     (define b (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 18)))
+     (define c (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 48)))
+     (define d (zero-extend (choose* in0 in1 in2 in3 (bv 0 1)) (bitvector 27)))
 
-      (define lakeroad-expr
-        (lr:extract (sub1 (bitvector-size (type-of bv-expr)))
-                  0
-                  (lr:list-ref `(ultrascale-plus-dsp48e2 ,a ,b ,c ,d) 0)))
+     (define lakeroad-expr
+       (lr:extract (sub1 (bitvector-size (type-of bv-expr)))
+                   0
+                   (lr:list-ref `(ultrascale-plus-dsp48e2 ,a ,b ,c ,d) 0)))
 
-      (interpret lakeroad-expr)
-      (define soln
-        ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-        ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-        (synthesize #:forall (symbolics bv-expr)
-                    #:guarantee (begin
-                                  (assert (bveq bv-expr (interpret lakeroad-expr))))))
+     (interpret lakeroad-expr)
+     (define soln
+       ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
+       ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
+       (synthesize #:forall (symbolics bv-expr)
+                   #:guarantee (begin
+                                 (assert (bveq bv-expr (interpret lakeroad-expr))))))
 
-      (if (sat? soln)
-          (begin
-            (evaluate lakeroad-expr
-                      (complete-solution soln
-                                         (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                                  (list->set (symbolics bv-expr)))))))
-          #f))))
+     (if (sat? soln)
+         (begin
+           (evaluate lakeroad-expr
+                     (complete-solution soln
+                                        (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                                 (list->set (symbolics bv-expr)))))))
+         #f))))
 
 (module+ test
   (require rosette/solver/smt/boolector
@@ -340,9 +340,10 @@
 
   (define lakeroad-expr
     (lr:extract (sub1 out-bw)
-              0
-              (lr:list-ref (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
-                                                  physical-outputs) 0)))
+                0
+                (lr:list-ref (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+                                                             physical-outputs)
+                             0)))
   (define soln
     (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
@@ -472,10 +473,9 @@
                                                #:INIT1 lutmem)])
 
                                (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
-                            [acc-phys-out
-                             (if (equal? acc-phys-out 'first)
-                                 this-ccu2c-physical-outputs
-                                 `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                            [acc-phys-out (if (equal? acc-phys-out 'first)
+                                              this-ccu2c-physical-outputs
+                                              `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
                  (list acc-phys-out this-cout)))
              (list 'first cin)
              logical-inputs-per-ccu2c)))
@@ -494,10 +494,9 @@
                                                #:INIT1 lutmem)])
 
                                (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
-                            [acc-phys-out
-                             (if (equal? acc-phys-out 'first)
-                                 this-ccu2c-physical-outputs
-                                 `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                            [acc-phys-out (if (equal? acc-phys-out 'first)
+                                              this-ccu2c-physical-outputs
+                                              `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
                  (list acc-phys-out this-cout)))
              (list 'first cin)
              logical-inputs-per-ccu2c)))
@@ -515,9 +514,11 @@
                     (list (lr:concat (list (bv #b11 2)
                                            (lr:concat (list (lr:list-ref phys-0 (* 2 ccu2c-i))
                                                             (lr:list-ref phys-1 (* 2 ccu2c-i))))))
-                          (lr:concat (list (bv #b11 2)
-                                           (lr:concat (list (lr:list-ref phys-0 (sub1 (* 2 (add1 ccu2c-i))))
-                                                            (lr:list-ref phys-1 (sub1 (* 2 (add1 ccu2c-i))))))))))]
+                          (lr:concat
+                           (list (bv #b11 2)
+                                 (lr:concat
+                                  (list (lr:list-ref phys-0 (sub1 (* 2 (add1 ccu2c-i))))
+                                        (lr:list-ref phys-1 (sub1 (* 2 (add1 ccu2c-i))))))))))]
           [cin (?? (bitvector 1))]
           [lutmem (?? (bitvector 16))])
       (foldl (lambda (gis previous-cout)
@@ -609,9 +610,10 @@
 
   (define lakeroad-expr
     (lr:extract (sub1 out-bw)
-              0
-              (lr:list-ref (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
-                                                  physical-output) 0)))
+                0
+                (lr:list-ref (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+                                                             physical-output)
+                             0)))
 
   (interpret lakeroad-expr)
 
@@ -661,19 +663,21 @@
 
   (define logical-output
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
-      (foldl (lambda (logical-inputs previous-out)
-               (match-let* ([accumulated-logical-output previous-out]
-                            [this-pfu-logical-outputs
-                             (let ([pfu-out (make-lattice-pfu-expr logical-inputs)])
-                               (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) (lr:take pfu-out 8)) 0))]
-                            [accumulated-logical-output
-                             (if (equal? accumulated-logical-output 'first-iter)
-                                 this-pfu-logical-outputs
-                                 (lr:concat this-pfu-logical-outputs accumulated-logical-output))])
-                 accumulated-logical-output))
-             ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
-             'first-iter
-             logical-inputs-per-pfu)))
+      (foldl
+       (lambda (logical-inputs previous-out)
+         (match-let* ([accumulated-logical-output previous-out]
+                      [this-pfu-logical-outputs
+                       (let ([pfu-out (make-lattice-pfu-expr logical-inputs)])
+                         (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) (lr:take pfu-out 8))
+                                      0))]
+                      [accumulated-logical-output
+                       (if (equal? accumulated-logical-output 'first-iter)
+                           this-pfu-logical-outputs
+                           (lr:concat this-pfu-logical-outputs accumulated-logical-output))])
+           accumulated-logical-output))
+       ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
+       'first-iter
+       logical-inputs-per-pfu)))
 
   (define lakeroad-expr (lr:extract (sub1 out-bw) 0 logical-output))
 

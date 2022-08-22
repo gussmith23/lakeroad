@@ -185,51 +185,51 @@
               ;;; their carry out values, while we are using the carry out value of ripple PFU 2 as
               ;;; our output (and ignoring its LUT values).
               [ripple-pfu-2-lutmem (?? (bitvector 16))]
-              [ripple-pfu-2-output `(lattice-ecp5-ripple-pfu
-                                     ,ripple-pfu-2-lutmem
-                                     ,ripple-pfu-2-lutmem
-                                     ,ripple-pfu-2-lutmem
-                                     ,ripple-pfu-2-lutmem
-                                     ,ripple-pfu-2-lutmem
-                                     ,ripple-pfu-2-lutmem
-                                     ,ripple-pfu-2-lutmem
-                                     ,ripple-pfu-2-lutmem
-                                     ,(bv 0 1)
-                                     ,(bv 0 1)
-                                     ,(bv 0 1)
-                                     ,(bv 0 1)
-                                     ,(bv 0 1)
-                                     ,(bv 0 1)
-                                     ,(bv 0 1)
-                                     ,(bv 0 1)
-                                     ,(?? (bitvector 1))
-                                     ;;; Once again, note the use of all ones (and not zeros) when
-                                     ;;; padding the inputs to the ripple PFUs.
-                                     ,(list (lr:concat (list (bv #b11 2)
-                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 0)
-                                                                              (lr:list-ref ripple-pfu-1-output 0)))))
-                                            (lr:concat (list (bv #b11 2)
-                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 1)
-                                                                              (lr:list-ref ripple-pfu-1-output 1)))))
-                                            (lr:concat (list (bv #b11 2)
-                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 2)
-                                                                              (lr:list-ref ripple-pfu-1-output 2)))))
-                                            (lr:concat (list (bv #b11 2)
-                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 3)
-                                                                              (lr:list-ref ripple-pfu-1-output 3)))))
-                                            (lr:concat (list (bv #b11 2)
-                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 4)
-                                                                              (lr:list-ref ripple-pfu-1-output 4)))))
-                                            (lr:concat (list (bv #b11 2)
-                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 5)
-                                                                              (lr:list-ref ripple-pfu-1-output 5)))))
-                                            (lr:concat (list (bv #b11 2)
-                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 6)
-                                                                              (lr:list-ref ripple-pfu-1-output 6)))))
-                                            (lr:concat (list (bv #b11 2)
-                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 7)
-                                                                              (lr:list-ref ripple-pfu-1-output 7)))))
-                                            ))]
+              [ripple-pfu-2-output
+               `(lattice-ecp5-ripple-pfu
+                 ,ripple-pfu-2-lutmem
+                 ,ripple-pfu-2-lutmem
+                 ,ripple-pfu-2-lutmem
+                 ,ripple-pfu-2-lutmem
+                 ,ripple-pfu-2-lutmem
+                 ,ripple-pfu-2-lutmem
+                 ,ripple-pfu-2-lutmem
+                 ,ripple-pfu-2-lutmem
+                 ,(bv 0 1)
+                 ,(bv 0 1)
+                 ,(bv 0 1)
+                 ,(bv 0 1)
+                 ,(bv 0 1)
+                 ,(bv 0 1)
+                 ,(bv 0 1)
+                 ,(bv 0 1)
+                 ,(?? (bitvector 1))
+                 ;;; Once again, note the use of all ones (and not zeros) when
+                 ;;; padding the inputs to the ripple PFUs.
+                 ,(list (lr:concat (list (bv #b11 2)
+                                         (lr:concat (list (lr:list-ref ripple-pfu-0-output 0)
+                                                          (lr:list-ref ripple-pfu-1-output 0)))))
+                        (lr:concat (list (bv #b11 2)
+                                         (lr:concat (list (lr:list-ref ripple-pfu-0-output 1)
+                                                          (lr:list-ref ripple-pfu-1-output 1)))))
+                        (lr:concat (list (bv #b11 2)
+                                         (lr:concat (list (lr:list-ref ripple-pfu-0-output 2)
+                                                          (lr:list-ref ripple-pfu-1-output 2)))))
+                        (lr:concat (list (bv #b11 2)
+                                         (lr:concat (list (lr:list-ref ripple-pfu-0-output 3)
+                                                          (lr:list-ref ripple-pfu-1-output 3)))))
+                        (lr:concat (list (bv #b11 2)
+                                         (lr:concat (list (lr:list-ref ripple-pfu-0-output 4)
+                                                          (lr:list-ref ripple-pfu-1-output 4)))))
+                        (lr:concat (list (bv #b11 2)
+                                         (lr:concat (list (lr:list-ref ripple-pfu-0-output 5)
+                                                          (lr:list-ref ripple-pfu-1-output 5)))))
+                        (lr:concat (list (bv #b11 2)
+                                         (lr:concat (list (lr:list-ref ripple-pfu-0-output 6)
+                                                          (lr:list-ref ripple-pfu-1-output 6)))))
+                        (lr:concat (list (bv #b11 2)
+                                         (lr:concat (list (lr:list-ref ripple-pfu-0-output 7)
+                                                          (lr:list-ref ripple-pfu-1-output 7)))))))]
 
               ;;; Our output is the carry out of ripple PFU 2.
               [cout (lr:list-ref ripple-pfu-2-output 8)])

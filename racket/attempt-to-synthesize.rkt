@@ -50,7 +50,8 @@
                                         ,(?? (bitvector 2))
                                         ,(?? (bitvector 2))
                                         ,(?? (bitvector 2))
-                                        ,(lr:logical-to-physical-mapping '(bitwise) logical-inputs))) 0))
+                                        ,(lr:logical-to-physical-mapping '(bitwise) logical-inputs)))
+                 0))
 
   ; Unused logical inputs which we will assume are zero.
   (define assume-zero

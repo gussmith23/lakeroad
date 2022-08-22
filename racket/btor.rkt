@@ -21,9 +21,10 @@
 
   (for ([line (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
                       (string-split str #rx"\n+"))])
-    (match-let* ;;; Remove comments.
-        ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)]
-                                                [id (string->number id-str)])
+    ;;; Remove comments.
+    (match-let* ([line (first (string-split line ";"))]
+                 [(cons id-str tokens) (string-split line)]
+                 [id (string->number id-str)])
       (match tokens
         [`("sort" "bitvec" ,width-str) (hash-set! h id (bitvector (string->number width-str)))]
         ;;; Sometimes the .btor files contain inputs without names. I'm unsure what these are. We just
@@ -51,7 +52,9 @@
                         (get-str true-val-id-str)
                         (get-str false-val-id-str)))]
         [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
-         (hash-set! h id (extract (string->number u-str) (string->number l-str) (get-str val-id-str)))]
+         (hash-set! h
+                    id
+                    (extract (string->number u-str) (string->number l-str) (get-str val-id-str)))]
         [`("output" ,id-str ,name)
          (hash-set! outs name (get-str id-str))
          (hash-set! h id name)]
@@ -1975,13 +1978,15 @@ here-string-delimiter
      (check-equal?
       (verify (begin
                 (match-define (list lrO5 lrO6)
-                  (interpret `(ultrascale-plus-lut6-2
-                               ,INIT
-                               ,(lr:concat (list I5
-                                                 (lr:concat (list I4
-                                                                  (lr:concat (list I3
-                                                                                   (lr:concat (list I2
-                                                                                                    (lr:concat (list I1 I0)))))))))))))
+                  (interpret
+                   `(ultrascale-plus-lut6-2
+                     ,INIT
+                     ,(lr:concat
+                       (list I5
+                             (lr:concat
+                              (list I4
+                                    (lr:concat
+                                     (list I3 (lr:concat (list I2 (lr:concat (list I1 I0)))))))))))))
                 (assert (bveq O5 lrO5))
                 (assert (bveq O6 lrO6))))
       (unsat)))))
@@ -2026,9 +2031,10 @@ here-string-delimiter
 
   (for ([line (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
                       (string-split str #rx"\n+"))])
-    (match-let* ;;; Remove comments.
-        ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)]
-                                                [id (string->number id-str)])
+    ;;; Remove comments.
+    (match-let* ([line (first (string-split line ";"))]
+                 [(cons id-str tokens) (string-split line)]
+                 [id (string->number id-str)])
       (match tokens
         [`("next" ,sort-id-str ,state-id-str ,next-val-id-str)
          ;;; A next statement determines the value of the state var that we return out.
@@ -4779,32 +4785,32 @@ here-string-delimiter
 
      ;;; Generate a full dictionary of inputs.
      (define/contract
-       (generate-inputs input-types default-value inputs)
-       (-> any/c
-           (or/c integer? 'symbolic)
-           (hash/c symbol? (or/c signal? bv? integer? 'symbolic))
-           hash?)
-       ;;; Initialize defaults.
-       (make-immutable-hash
-        (append
-         ;;; Initialize all values to a default value.
-         (map (lambda (key)
-                (cons key
-                      (match default-value
-                        [(? integer?) (bv->signal (bv default-value (hash-ref input-types key)))]
-                        ;;(define-symbolic* default-symbolic-input (hash-ref input-types key))
-                        ['symbolic (bv->signal (constant key (hash-ref input-types key)))])))
-              (hash-keys input-types))
-         ;;; Overwrite defaults with user-specified values.
-         (map (λ (key)
-                (cons key
-                      (match (hash-ref inputs key)
-                        [(? integer? v) (bv->signal (bv v (hash-ref input-types key)))]
-                        [(? bv? v) (bv->signal v)]
-                        [(? signal? v) v]
-                        ;;(define-symbolic* symbolic-input (hash-ref input-types key))
-                        ['symbolic (bv->signal (constant key (hash-ref input-types key)))])))
-              (hash-keys inputs)))))
+      (generate-inputs input-types default-value inputs)
+      (-> any/c
+          (or/c integer? 'symbolic)
+          (hash/c symbol? (or/c signal? bv? integer? 'symbolic))
+          hash?)
+      ;;; Initialize defaults.
+      (make-immutable-hash
+       (append
+        ;;; Initialize all values to a default value.
+        (map (lambda (key)
+               (cons key
+                     (match default-value
+                       [(? integer?) (bv->signal (bv default-value (hash-ref input-types key)))]
+                       ;;(define-symbolic* default-symbolic-input (hash-ref input-types key))
+                       ['symbolic (bv->signal (constant key (hash-ref input-types key)))])))
+             (hash-keys input-types))
+        ;;; Overwrite defaults with user-specified values.
+        (map (λ (key)
+               (cons key
+                     (match (hash-ref inputs key)
+                       [(? integer? v) (bv->signal (bv v (hash-ref input-types key)))]
+                       [(? bv? v) (bv->signal v)]
+                       [(? signal? v) v]
+                       ;;(define-symbolic* symbolic-input (hash-ref input-types key))
+                       ['symbolic (bv->signal (constant key (hash-ref input-types key)))])))
+             (hash-keys inputs)))))
 
      (define inputs
        (generate-inputs input-types

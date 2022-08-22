@@ -107,8 +107,7 @@
 
   (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
     (cond
-      [(not lakeroad-expr)
-       (displayln (format "Warning: synthesis routine returned #f"))]
+      [(not lakeroad-expr) (displayln (format "Warning: synthesis routine returned #f"))]
 
       [else
        ;;; TODO(@gussmith23): Rosette incorrectly accepts (if ... (begin (define x ...) ...) ...). If
