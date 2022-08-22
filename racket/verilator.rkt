@@ -140,9 +140,9 @@
   uint64_t out_actual = top->out0;
   // Constants are suffixed with "ULL" to be safe.
   uint64_t out_expected = ~a & ~aULL;
-  if (out_actual != out_expected) printf("actual != expected: %llu != %llu\n", out_actual, out_expected);
+  if (out_actual != out_expected) printf("actual != expected: %" PRIu64 " != %" PRIu64 "\n", out_actual, out_expected);
   // Uncomment this if you want to see verbose output.
-  // else printf("actual == expected: %llu == %llu\n", out_actual, out_expected);
+  // else printf("actual == expected: %" PRIu64 " == %" PRIu64 "\n", out_actual, out_expected);
   assert(out_actual == out_expected);
   ~a
   delete top;
@@ -180,6 +180,7 @@ here-string-delimiter
      (format
       #<<here-string-delimiter
 #include <cstdlib>
+#include <inttypes.h>
 ~a
 
 int main(int argc, char **argv)
