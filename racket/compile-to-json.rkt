@@ -193,8 +193,8 @@
                                        (make-cell-connections 'I0 i0 'I1 i1 'I2 i2 'O (first o))
                                        #:params (hasheq 'INIT (make-literal-value-from-bv init))))
                   o]
-                 [(lr:physical-to-logical-mapping f inputs)
-                  (compile-physical-to-logical-mapping compile f inputs)]
+                 [(lr:physical-to-logical-mapping f outputs)
+                  (compile-physical-to-logical-mapping compile f outputs)]
                  [(lr:logical-to-physical-mapping f inputs)
                   (compile-logical-to-physical-mapping compile f inputs)]
 
@@ -285,31 +285,31 @@
    (current-solver (boolector))
    (define-symbolic a b (bitvector 8))
    (define expr
-     (lr:list-ref (lr:physical-to-logical-mapping
-                   '(bitwise)
-                   ;;; Take the 8 outputs from the LUTs; drop cout.
-                   (lr:take `(ultrascale-plus-clb ,(?? (bitvector 1))
-                                                  ,(?? (bitvector 64))
-                                                  ,(?? (bitvector 64))
-                                                  ,(?? (bitvector 64))
-                                                  ,(?? (bitvector 64))
-                                                  ,(?? (bitvector 64))
-                                                  ,(?? (bitvector 64))
-                                                  ,(?? (bitvector 64))
-                                                  ,(?? (bitvector 64))
-                                                  ,(?? (bitvector 2))
-                                                  ,(?? (bitvector 2))
-                                                  ,(?? (bitvector 2))
-                                                  ,(?? (bitvector 2))
-                                                  ,(?? (bitvector 2))
-                                                  ,(?? (bitvector 2))
-                                                  ,(?? (bitvector 2))
-                                                  ,(?? (bitvector 2))
-                                                  ,(lr:logical-to-physical-mapping
-                                                    '(bitwise)
-                                                    (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
-                            8))
-                  0))
+     (lr:first (lr:physical-to-logical-mapping
+                '(bitwise)
+                ;;; Take the 8 outputs from the LUTs; drop cout.
+                (lr:take `(ultrascale-plus-clb ,(?? (bitvector 1))
+                                               ,(?? (bitvector 64))
+                                               ,(?? (bitvector 64))
+                                               ,(?? (bitvector 64))
+                                               ,(?? (bitvector 64))
+                                               ,(?? (bitvector 64))
+                                               ,(?? (bitvector 64))
+                                               ,(?? (bitvector 64))
+                                               ,(?? (bitvector 64))
+                                               ,(?? (bitvector 2))
+                                               ,(?? (bitvector 2))
+                                               ,(?? (bitvector 2))
+                                               ,(?? (bitvector 2))
+                                               ,(?? (bitvector 2))
+                                               ,(?? (bitvector 2))
+                                               ,(?? (bitvector 2))
+                                               ,(?? (bitvector 2))
+                                               ,(lr:logical-to-physical-mapping
+                                                 '(bitwise)
+                                                 (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
+                         8))))
+   (display expr)
    (define soln
      (synthesize #:forall (list a b)
                  #:guarantee

@@ -58,8 +58,8 @@
 (define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4] #:expected-bw [expected-bw 8])
   (let ([symbs (symbolics bv-expr)] [out-bw (bvlen bv-expr)])
     (map (lambda (v)
-           (choose* `(zero-extend ,v ,(bitvector expected-bw))
-                    `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector expected-bw))))
+           (choose* (lr:zero-extend v (bitvector expected-bw))
+                    (lr:dup-extend v (bitvector expected-bw))))
          (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
 
 (define (make-lattice-lut4-expr logical-inputs #:INIT [INIT #f])

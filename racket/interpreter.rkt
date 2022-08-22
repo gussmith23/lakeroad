@@ -120,8 +120,7 @@
                [(? integer? v) v]
                ;;; This needs to be near the end, as nearly everything's a list!
                ;;; Maybe make this tighter somehow? If it's a list of specific types?
-               [(? list? v) (map interpret-helper v)]
-               )))
+               [(? list? v) (map interpret-helper v)])))
           (hash-set! interpreter-memo-hash expr out)
           out)))
   (interpret-helper expr))

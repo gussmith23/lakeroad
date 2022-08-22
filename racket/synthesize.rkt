@@ -226,7 +226,7 @@
      (define lakeroad-expr
        (lr:extract (sub1 (bitvector-size (type-of bv-expr)))
                    0
-                   (lr:list-ref `(ultrascale-plus-dsp48e2 ,a ,b ,c ,d) 0)))
+                   (lr:first `(ultrascale-plus-dsp48e2 ,a ,b ,c ,d))))
 
      (interpret lakeroad-expr)
      (define soln
@@ -341,9 +341,8 @@
   (define lakeroad-expr
     (lr:extract (sub1 out-bw)
                 0
-                (lr:list-ref (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
-                                                             physical-outputs)
-                             0)))
+                (lr:first (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+                                                          physical-outputs))))
   (define soln
     (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
@@ -611,9 +610,8 @@
   (define lakeroad-expr
     (lr:extract (sub1 out-bw)
                 0
-                (lr:list-ref (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
-                                                             physical-output)
-                             0)))
+                (lr:first (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+                                                          physical-output))))
 
   (interpret lakeroad-expr)
 
@@ -668,12 +666,11 @@
          (match-let* ([accumulated-logical-output previous-out]
                       [this-pfu-logical-outputs
                        (let ([pfu-out (make-lattice-pfu-expr logical-inputs)])
-                         (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) (lr:take pfu-out 8))
-                                      0))]
+                         (lr:first (lr:physical-to-logical-mapping '(bitwise) (lr:take pfu-out 8))))]
                       [accumulated-logical-output
                        (if (equal? accumulated-logical-output 'first-iter)
                            this-pfu-logical-outputs
-                           (lr:concat this-pfu-logical-outputs accumulated-logical-output))])
+                           (lr:concat (list this-pfu-logical-outputs accumulated-logical-output)))])
            accumulated-logical-output))
        ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
        'first-iter

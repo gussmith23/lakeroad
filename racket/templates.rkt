@@ -48,8 +48,8 @@
                           (lr:extract (sub1 outwidth)
                                       0
                                       (lr:first (lr:physical-to-logical-mapping
-                                                    (choose* '(bitwise) '(bitwise-reverse))
-                                                    physical-outputs))))])
+                                                 (choose* '(bitwise) '(bitwise-reverse))
+                                                 physical-outputs))))])
     (when (not (concrete? max-bw))
       (error "Input bitwidths must be statically known."))
 
