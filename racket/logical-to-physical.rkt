@@ -81,61 +81,66 @@
    (match-define `(,fn-name ,args ...) f)
    (for/all
     ([fn-name fn-name])
-     (match `(,fn-name ,@args)
-       ['(identity) inputs]
-       ;;; Variant which uses a Rosette uninterpreted function.
-       [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group inputs)]
-       ;;;
-       ;;; Uses an uninterpreted function plus a mask.
-       [`(uf-with-mask ,uf ,bw ,bits-per-group ,masks)
-        (map bvor (helper uf bw bits-per-group inputs) masks)]
-       ;;;
-       ;;; "Bitwise" logical-to-physical mapping.
-       ;;;
-       ;;; The "bitwise" logical to physical mapping groups the 0th bits of each logical input, the 1st
-       ;;; bit, the 2nd bit, etc., together into groups, with groups ordered from least significant up to
-       ;;; most significant. E.g., if we had two 8-bit inputs, the bitwise mapping would return a list of
-       ;;; pairs containing the pair of their 0th bits, the pair of their 1st bits, etc. up to the pair
-       ;;; of their 7th bit.
-       ;;;
-       ;;; Args:
-       ;;;   inputs: the list of logical inputs. Expects a list of Rosette bitvectors of the same length.
-       ;;;
-       ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern
-       ;;;   described above.
-       ['(bitwise) (transpose (interpreter inputs))]
-       ;;;
-       ;;; "Shift" logical-to-physical-mapping.
-       ;;;
-       ;;; The "shift" logical to physical mapping is like the "bitwise" mapping
-       ;;; but shifts the physical bits by n. If n is positive then it is a left
-       ;;; shift; if n is negative then it is a right shift.
-       ;;;
-       ;;; Note this uses 'logical' shifting, not 'arithmetic' shifting.
-       ;;;
-       ;;; Since bits are grouped from least significant to most significant, a
-       ;;; 'left shift' actually of the underlying number corresponds to a 'right
-       ;;; shift' of our list and vice versa.
-       [`(shift ,n) (let* ([transposed (transpose (interpreter inputs))]
-                           [num-cols (length transposed)]
-                           [pad-col  (bv #x0 (length inputs))]
-                           [num-pads (min (abs n) num-cols)]
-                           [pads (make-list num-pads pad-col)])
-                      (cond [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
-                            [(< n 0) (append (drop transposed num-pads) pads)]
-                            [else transposed]))]
-       ;;;
-       ;;; "Shift-Reverse" logical-to-physical-mapping.
-       ;;;
-       ;;; Like "shift" but using "bitwise-reverse" instead of "bitwise" before shifting by n
-       [`(shift-reverse ,n) (let* ([transposed (transpose (map (lambda (v) (apply concat (bitvector->bits v))) (interpreter inputs)))]
-                           [num-cols (length transposed)]
-                           [pad-col  (bv #x0 (length inputs))]
-                           [num-pads (abs n)]
-                           [pads (make-list num-pads pad-col)])
-                      (cond [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
-                            [(< n 0) (append (drop transposed num-pads) pads)]
-                            [else transposed]))]
+    (match `(,fn-name ,@args)
+      ['(identity) inputs]
+      ;;; Variant which uses a Rosette uninterpreted function.
+      [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group inputs)]
+      ;;;
+      ;;; Uses an uninterpreted function plus a mask.
+      [`(uf-with-mask ,uf ,bw ,bits-per-group ,masks)
+       (map bvor (helper uf bw bits-per-group inputs) masks)]
+      ;;;
+      ;;; "Bitwise" logical-to-physical mapping.
+      ;;;
+      ;;; The "bitwise" logical to physical mapping groups the 0th bits of each logical input, the 1st
+      ;;; bit, the 2nd bit, etc., together into groups, with groups ordered from least significant up to
+      ;;; most significant. E.g., if we had two 8-bit inputs, the bitwise mapping would return a list of
+      ;;; pairs containing the pair of their 0th bits, the pair of their 1st bits, etc. up to the pair
+      ;;; of their 7th bit.
+      ;;;
+      ;;; Args:
+      ;;;   inputs: the list of logical inputs. Expects a list of Rosette bitvectors of the same length.
+      ;;;
+      ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern
+      ;;;   described above.
+      ['(bitwise) (transpose (interpreter inputs))]
+      ;;;
+      ;;; "Shift" logical-to-physical-mapping.
+      ;;;
+      ;;; The "shift" logical to physical mapping is like the "bitwise" mapping
+      ;;; but shifts the physical bits by n. If n is positive then it is a left
+      ;;; shift; if n is negative then it is a right shift.
+      ;;;
+      ;;; Note this uses 'logical' shifting, not 'arithmetic' shifting.
+      ;;;
+      ;;; Since bits are grouped from least significant to most significant, a
+      ;;; 'left shift' actually of the underlying number corresponds to a 'right
+      ;;; shift' of our list and vice versa.
+      [`(shift ,n)
+       (let* ([transposed (transpose (interpreter inputs))]
+              [num-cols (length transposed)]
+              [pad-col (bv #x0 (length inputs))]
+              [num-pads (min (abs n) num-cols)]
+              [pads (make-list num-pads pad-col)])
+         (cond
+           [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
+           [(< n 0) (append (drop transposed num-pads) pads)]
+           [else transposed]))]
+      ;;;
+      ;;; "Shift-Reverse" logical-to-physical-mapping.
+      ;;;
+      ;;; Like "shift" but using "bitwise-reverse" instead of "bitwise" before shifting by n
+      [`(shift-reverse ,n)
+       (let* ([transposed (transpose (map (lambda (v) (apply concat (bitvector->bits v)))
+                                          (interpreter inputs)))]
+              [num-cols (length transposed)]
+              [pad-col (bv #x0 (length inputs))]
+              [num-pads (abs n)]
+              [pads (make-list num-pads pad-col)])
+         (cond
+           [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
+           [(< n 0) (append (drop transposed num-pads) pads)]
+           [else transposed]))]
       ;;;
       ;;; Same as bitwise, but includes masks on the physical outputs.
       ;;;
@@ -350,10 +355,11 @@
                  identity
                  `(logical-to-physical-mapping (shift 3) ,(list (bv #b01 2))))
                 (list (bv #b0 1) (bv #b0 1)))
-  (check-equal? (interpret-logical-to-physical-mapping
-                 identity
-                 `(logical-to-physical-mapping (shift 4) ,(list (bv #xff 8))))
-                (list (bv #b0 1) (bv #b0 1) (bv #b0 1) (bv #b0 1) (bv #b1 1) (bv #b1 1) (bv #b1 1) (bv #b1 1)))
+  (check-equal?
+   (interpret-logical-to-physical-mapping
+    identity
+    `(logical-to-physical-mapping (shift 4) ,(list (bv #xff 8))))
+   (list (bv #b0 1) (bv #b0 1) (bv #b0 1) (bv #b0 1) (bv #b1 1) (bv #b1 1) (bv #b1 1) (bv #b1 1)))
   ;; Test rshifts
   (check-equal? (interpret-logical-to-physical-mapping
                  identity
@@ -367,10 +373,11 @@
                  identity
                  `(logical-to-physical-mapping (shift 3) ,(list (bv #b01 2))))
                 (list (bv #b0 1) (bv #b0 1)))
-  (check-equal? (interpret-logical-to-physical-mapping
-                 identity
-                 `(logical-to-physical-mapping (shift -4) ,(list (bv #xff 8))))
-                (list (bv #b1 1) (bv #b1 1) (bv #b1 1) (bv #b1 1) (bv #b0 1) (bv #b0 1) (bv #b0 1) (bv #b0 1)))
+  (check-equal?
+   (interpret-logical-to-physical-mapping
+    identity
+    `(logical-to-physical-mapping (shift -4) ,(list (bv #xff 8))))
+   (list (bv #b1 1) (bv #b1 1) (bv #b1 1) (bv #b1 1) (bv #b0 1) (bv #b0 1) (bv #b0 1) (bv #b0 1)))
   (check-exn
    (regexp
     "@map: arity mismatch;\n the expected number of arguments does not match the given number\n  expected: at least 2\n  given: 1")

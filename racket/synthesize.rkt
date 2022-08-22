@@ -6,7 +6,9 @@
 (provide synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
-         synthesize-lattice-ecp5-impl)
+         synthesize-lattice-ecp5-impl
+         synthesize-lattice-ecp5-wire
+         make-wire-lrexpr)
 
 (require "interpreter.rkt"
          "ultrascale.rkt"
@@ -723,3 +725,61 @@
                                 (set->list (set-subtract (list->set (symbolics lakeroad-expr))
                                                          (list->set (symbolics bv-expr))))))
             #f))))
+
+(define (make-wire-lrexpr inputs shiftby)
+  (printf "inputs: ~a\n" inputs)
+  (printf "shiftby ~a\n" shiftby)
+  (define lakeroad-expr
+    `(first (physical-to-logical-mapping
+             (bitwise)
+             (logical-to-physical-mapping
+              ,(choose '(bitwise) '(bitwise-reverse) `(shift ,(choose 2 1)))
+              ,inputs))))
+
+  (printf "lakeroad-expr: ~a\n" lakeroad-expr)
+  lakeroad-expr)
+
+(define (synthesize-lattice-ecp5-wire bv-expr #:shiftby [shiftby '()])
+  (printf "bv-expr: ~a\n" bv-expr)
+  (define out-bw (bvlen bv-expr))
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  ;(define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
+  (define logical-inputs (symbolics bv-expr))
+
+  (if (or (not (concrete? out-bw)) (not (concrete? max-input-bw)))
+      #f
+      (begin
+        (define shift-by
+          (if (null? shiftby)
+              (apply choose*
+                     (for/list ([i (range (add1 (- out-bw)) (add1 out-bw))] #:when (not (zero? i)))
+                       i))
+              shiftby))
+
+        (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by))
+        (displayln (interpret lakeroad-expr))
+        (define soln
+          (synthesize #:forall (symbolics bv-expr)
+                      #:guarantee (begin
+                                    (assert (bveq bv-expr (interpret lakeroad-expr))))))
+        (printf "soln is sat?: ~a\n" (sat? soln))
+        (if (sat? soln)
+            (evaluate lakeroad-expr
+                      (complete-solution
+                       soln
+                       (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                (list->set (symbolics bv-expr))))))
+            #f))))
+
+(module+ test
+  (require rosette/solver/smt/boolector
+           rosette
+           rackunit)
+  (current-solver (boolector))
+  (with-terms (begin
+                (define-symbolic a (bitvector 4))
+                (define lrexpr (synthesize-lattice-ecp5-wire (bvshl a (bv 1 4))))
+                (check-not-false lrexpr)
+                (printf "interpreted: ~a\n" (interpret lrexpr))
+                (check-equal? (interpret lrexpr) (concat (extract 2 0 a) (bv 0 1))))))
