@@ -23,7 +23,8 @@
            rosette/lib/synthax
            rosette/lib/angelic
            rackunit
-           "interpreter.rkt")
+           "interpreter.rkt"
+           (prefix-in lr: "language.rkt"))
 
   ;;; Boolector is a fast solver for the theory of bitvectors. We have intentionally kept all of
   ;;; Lakeroad in the theory of bitvectors to be able to use fast solvers like boolector.
@@ -65,7 +66,7 @@
               ;;; LUT7, rather than LUT0, bit 1 will feed into LUT6, etc. The reason why we use
               ;;; bitwise-reverse is specific to implementing some comparisons (>, <, >=, <=); other
               ;;; comparisons (==, !=) can use bitwise OR bitwise-reverse.
-              [physical-inputs `(logical-to-physical-mapping (bitwise-reverse) ,padded-inputs)]
+              [physical-inputs (lr:logical-to-physical-mapping '(bitwise-reverse) padded-inputs)]
               ;;; A symbolic value representing a LUT memory. All 8 LUTs will perform the same function,
               ;;; so we can just use a single LUT memory. This significantly speeds up search.
               [ripple-pfu-lutmem (?? (bitvector 16))]
@@ -109,7 +110,7 @@
               ;;; will indicate the result of our comparison. Ripple PFUs in Lakeroad return 9 values:
               ;;; the 8 LUT outputs (xor'ed with the carry value at that location, which allows
               ;;; ripple PFUs to implement adders) plus the carry out value.
-              [cout `(list-ref ,ripple-pfu-output 8)])
+              [cout (lr:list-ref ripple-pfu-output 8)])
          cout))
 
      ;;; Synthesize an implementation of the template which implements ==.
@@ -134,7 +135,7 @@
                                    (zero-extend b (bitvector 8))
                                    (bv #xff 8)
                                    (bv #xff 8))]
-              [physical-inputs `(logical-to-physical-mapping (bitwise-reverse) ,padded-inputs)]
+              [physical-inputs (lr:logical-to-physical-mapping '(bitwise-reverse) padded-inputs)]
 
               ;;; To implement the more complicated comparisons, we need more than one ripple PFU. We
               ;;; may be able to implement this with two ripple PFUs, but I just use three, as I think
@@ -204,33 +205,34 @@
                                      ,(?? (bitvector 1))
                                      ;;; Once again, note the use of all ones (and not zeros) when
                                      ;;; padding the inputs to the ripple PFUs.
-                                     ,(list `(concat ,(bv #b11 2)
-                                                     (concat (list-ref ,ripple-pfu-0-output 0)
-                                                             (list-ref ,ripple-pfu-1-output 0)))
-                                            `(concat ,(bv #b11 2)
-                                                     (concat (list-ref ,ripple-pfu-0-output 1)
-                                                             (list-ref ,ripple-pfu-1-output 1)))
-                                            `(concat ,(bv #b11 2)
-                                                     (concat (list-ref ,ripple-pfu-0-output 2)
-                                                             (list-ref ,ripple-pfu-1-output 2)))
-                                            `(concat ,(bv #b11 2)
-                                                     (concat (list-ref ,ripple-pfu-0-output 3)
-                                                             (list-ref ,ripple-pfu-1-output 3)))
-                                            `(concat ,(bv #b11 2)
-                                                     (concat (list-ref ,ripple-pfu-0-output 4)
-                                                             (list-ref ,ripple-pfu-1-output 4)))
-                                            `(concat ,(bv #b11 2)
-                                                     (concat (list-ref ,ripple-pfu-0-output 5)
-                                                             (list-ref ,ripple-pfu-1-output 5)))
-                                            `(concat ,(bv #b11 2)
-                                                     (concat (list-ref ,ripple-pfu-0-output 6)
-                                                             (list-ref ,ripple-pfu-1-output 6)))
-                                            `(concat ,(bv #b11 2)
-                                                     (concat (list-ref ,ripple-pfu-0-output 7)
-                                                             (list-ref ,ripple-pfu-1-output 7)))))]
+                                     ,(list (lr:concat (list (bv #b11 2)
+                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 0)
+                                                                              (lr:list-ref ripple-pfu-1-output 0)))))
+                                            (lr:concat (list (bv #b11 2)
+                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 1)
+                                                                              (lr:list-ref ripple-pfu-1-output 1)))))
+                                            (lr:concat (list (bv #b11 2)
+                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 2)
+                                                                              (lr:list-ref ripple-pfu-1-output 2)))))
+                                            (lr:concat (list (bv #b11 2)
+                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 3)
+                                                                              (lr:list-ref ripple-pfu-1-output 3)))))
+                                            (lr:concat (list (bv #b11 2)
+                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 4)
+                                                                              (lr:list-ref ripple-pfu-1-output 4)))))
+                                            (lr:concat (list (bv #b11 2)
+                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 5)
+                                                                              (lr:list-ref ripple-pfu-1-output 5)))))
+                                            (lr:concat (list (bv #b11 2)
+                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 6)
+                                                                              (lr:list-ref ripple-pfu-1-output 6)))))
+                                            (lr:concat (list (bv #b11 2)
+                                                             (lr:concat (list (lr:list-ref ripple-pfu-0-output 7)
+                                                                              (lr:list-ref ripple-pfu-1-output 7)))))
+                                            ))]
 
               ;;; Our output is the carry out of ripple PFU 2.
-              [cout `(list-ref ,ripple-pfu-2-output 8)])
+              [cout (lr:list-ref ripple-pfu-2-output 8)])
          cout))
 
      ;;; Use the template to synthesize solutions.

@@ -10,7 +10,8 @@
            rackunit
            rosette
            rosette/lib/synthax
-           rosette/solver/smt/boolector)
+           rosette/solver/smt/boolector
+           (prefix-in lr: "language.rkt"))
 
   (current-solver (boolector))
 
@@ -44,11 +45,11 @@
                                            ,mux
                                            ,mux
                                            ,mux
-                                           (logical-to-physical-mapping (bitwise) ,logical-inputs))])
-           (list `(first (physical-to-logical-mapping (bitwise) (take ,clb 8))) `(list-ref ,clb 8))))]
+                                           ,(lr:logical-to-physical-mapping '(bitwise) logical-inputs))])
+           (list (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) (lr:take clb 8)) 0) (lr:list-ref clb 8))))]
       [(list logical-outputs-clb-0 cout0) (make-clb (?? (bitvector 1)) logical-inputs-clb-0)]
       [(list logical-outputs-clb-1 cout1) (make-clb cout0 logical-inputs-clb-1)])
-     `(concat ,logical-outputs-clb-1 ,logical-outputs-clb-0)))
+     (lr:concat (list logical-outputs-clb-1 logical-outputs-clb-0))))
 
   ;;; We can do a bitwise function like and.
   (check-true (sat? (synthesize #:forall (list a b)

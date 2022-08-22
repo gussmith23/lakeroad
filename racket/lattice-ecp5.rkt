@@ -4,7 +4,8 @@
          rosette/lib/synthax
          rosette/lib/angelic
          "utils.rkt"
-         "comp-json.rkt")
+         "comp-json.rkt"
+         (prefix-in lr: "language.rkt"))
 
 (provide interpret-lattice-ecp5
          lattice-ecp5-logical-to-physical-inputs
@@ -137,7 +138,7 @@
                      ,(??* (bitvector 16))
                      ,(??* (bitvector 16))
                      ,(??* (bitvector 16))
-                     (logical-to-physical-mapping (bitwise) ,logical-inputs)))
+                     ,(lr:logical-to-physical-mapping '(bitwise) logical-inputs)))
 
 ;;; Create a Lakeroad expression for a CCU2C. This can be used to specify a
 ;;; 2-bit add, etc
@@ -229,7 +230,7 @@
                               ,(or INJECT1_6 (??* (bitvector 1)))
                               ,(or INJECT1_7 (??* (bitvector 1)))
                               ,(or CIN (??* (bitvector 1)))
-                              (logical-to-physical-mapping ,MAPPING ,inputs))))
+                              ,(lr:logical-to-physical-mapping MAPPING inputs))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;        INTERPRETING LAKEROAD EXPRESSIONS         ;;;;;;;;;;;;;;;

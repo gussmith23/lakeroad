@@ -8,7 +8,8 @@
          "interpreter.rkt"
          "compile-to-json.rkt"
          "utils.rkt"
-         "lattice-ecp5.rkt")
+         "lattice-ecp5.rkt"
+         (prefix-in lr: "language.rkt"))
 
 (provide lattice-mul-with-carry)
 ;; Return inputs to be added as pairs _in order_.
@@ -53,7 +54,7 @@
          ;; Thus, element 0 of the resulting list is the input bitvector to the
          ;; least significant adder
          [lut4-inputs (for/list ([a-bit a] [b-bit b])
-                        `(concat ,(bv -1 2) (first ,a-bit) (first ,b-bit)))]
+                        (lr:concat (list (bv -1 2) (lr:list-ref a-bit 0) (lr:list-ref b-bit 0))))]
 
          ;; paired-inputs: We need to combine `inputs` formed in the previous step
          ;; so that hey can be fed into ccu2cs (which have 2 luts each). Thus we
@@ -101,7 +102,7 @@
            ;; over these and collect the individual bits (below)
            [ccu2cs (foldl ccu2c-foldl-helper '() paired-inputs)]
            [ccu2c-bit-extractor-helper
-            (lambda (ccu2c acc) (cons (list `(first ,ccu2c)) (cons (list `(second ,ccu2c)) acc)))]
+            (lambda (ccu2c acc) (cons (list (lr:list-ref ccu2c 0)) (cons (list (list-ref ccu2c 1)) acc)))]
 
            ;; bits is a list of list of individual bits in reverse order (LSB to
            ;; MSB). It may be the case that bits has an extra bit (e.g., if we
@@ -247,7 +248,7 @@
          [bits-out (for/list ([bit-idx (range n)])
                      (make-lattice-n-bit-lookup-expr
                       (concat (extract bit-idx 0 a) (extract bit-idx 0 b))))])
-    `(extract ,(sub1 n) 0 (first (physical-to-logical-mapping (bitwise) ,bits-out)))))
+    (lr:extract (sub1 n) 0 (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) bits-out) 0))))
 
 (define (and-lut-helper a b i j #:INIT [INIT (?? (bitvector 16))])
   (if (> i j)
@@ -255,7 +256,7 @@
       (let* ([a-idx (- j i)]
              [b-idx i]
              [lut-inputs
-              `(concat (extract ,a-idx ,a-idx ,a) (extract ,b-idx ,b-idx ,b) ,(bv 1 1) ,(bv 1 1))])
+              (lr:concat (list (extract a-idx a-idx a) (extract b-idx b-idx b) (bv 1 1) (bv 1 1)))])
         (make-lattice-lut4-expr lut-inputs #:INIT INIT))))
 
 ; Create a lakeroad expression capable of discovering `bitwidth`-bit
@@ -303,8 +304,8 @@
                        (and-lut-helper a b i j #:INIT and-lut-init)))]
          [output (add-all-lists and-luts #:INIT0 add-lut-init #:INIT1 add-lut-init)]
          [output2 (for/list ([x output])
-                    `(first ,x))])
-    `(extract ,(sub1 bitwidth) 0 (first (physical-to-logical-mapping (bitwise) ,output2)))))
+                    (lr:list-ref x 0))])
+    (lr:extract (sub1 bitwidth) 0 (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) output2) 0))))
 
 (module+ test
   (require rackunit
@@ -412,7 +413,7 @@
   (define m
     (list (make-lattice-lut4-expr (apply concat (list a0 b0 (bv 1 1) (bv 1 1))) #:INIT INIT0)
           (make-lattice-lut4-expr (apply concat (list a0 b0 a1 b1)) #:INIT INIT1)))
-  `(extract 1 0 (first (physical-to-logical-mapping (bitwise) ,m))))
+  (lr:extract 1 0 (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) m) 0)))
 
 ;;; Special case for 3bit multiplication
 (define (3bit-mul a b #:INIT0 [INIT0 #f] #:INIT1 [INIT1 #f] #:INIT2 [INIT2 #f])
@@ -426,4 +427,4 @@
     (list (make-lattice-lut4-expr (apply concat (list a0 b0 (bv 1 1) (bv 1 1))) #:INIT INIT0)
           (make-lattice-lut4-expr (apply concat (list a0 b0 a1 b1)) #:INIT INIT1)
           (make-lattice-lut6-expr (apply concat (list a0 b0 a1 b1 a2 b2)) #:INIT INIT2)))
-  `(extract 2 0 (first (physical-to-logical-mapping (bitwise) ,m))))
+  (lr:extract 2 0 (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) m) 0)))

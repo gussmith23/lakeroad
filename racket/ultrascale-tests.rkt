@@ -7,7 +7,8 @@
          "circt-comb-operators.rkt"
          rosette/solver/smt/boolector
          rosette/lib/synthax
-         "utils.rkt")
+         "utils.rkt"
+         (prefix-in lr: "language.rkt"))
 
 (current-solver (boolector))
 
@@ -148,9 +149,9 @@
     (unsat?
      (verify (assert (bveq (bool->bitvector (bveq a b))
                            (first (interpret
-                                   `(physical-to-logical-mapping
-                                     (choose-one ,(bv 0 1))
-                                     (ultrascale-plus-clb
+                                   (lr:physical-to-logical-mapping
+                                     `(choose-one ,(bv 0 1))
+                                     `(ultrascale-plus-clb
                                       ,(bv 1 1)
                                       ,(bv #x9000000000000000 64)
                                       ,(bv #x9000000000000000 64)

@@ -8,7 +8,8 @@
          rosette/lib/angelic
          rosette/lib/synthax
          "utils.rkt"
-         "interpreter.rkt")
+         "interpreter.rkt"
+         (prefix-in lr: "language.rkt"))
 
 ;;; TODO All of these templates could be merged into one, if we wanted!
 
@@ -30,26 +31,28 @@
          ;;; Zero-extend them so they're all the same size.
          [logical-inputs
           (map (lambda (v)
-                 (choose* `(zero-extend ,v ,(bitvector max-bw))
-                          `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-bw))))
+                 (choose* (lr:zero-extend v (bitvector max-bw))
+                          (lr:dup-extend v (bitvector max-bw))))
                logical-inputs)]
          [lutmem (match lutmems
                    [(list lm0) (choose* lm0)]
                    [(list lm0 lm1) (choose* lm0 lm1)])]
-         [lakeroad-expr (let* ([physical-inputs `(logical-to-physical-mapping
-                                                  ,(choose* '(bitwise) '(bitwise-reverse))
-                                                  ,logical-inputs)]
+         [lakeroad-expr (let* ([physical-inputs (lr:logical-to-physical-mapping
+                                                  (choose* '(bitwise) '(bitwise-reverse))
+                                                  logical-inputs)]
                                [physical-outputs (for/list ([i max-bw])
-                                                   `(lut ,(length logical-inputs)
+                                                   (lr:lut (length logical-inputs)
                                                          1
-                                                         ,architecture
-                                                         ,lutmem
-                                                         (list-ref ,physical-inputs ,i)))])
-                          `(extract ,(sub1 outwidth)
-                                    0
-                                    (first (physical-to-logical-mapping
-                                            ,(choose* '(bitwise) '(bitwise-reverse))
-                                            ,physical-outputs))))])
+                                                         architecture
+                                                         lutmem
+                                                         (lr:list-ref physical-inputs i)))])
+                              (lr:extract
+                                  (sub1 outwidth)
+                                  0
+                                  (lr:list-ref (lr:physical-to-logical-mapping
+                                                 (choose* '(bitwise) '(bitwise-reverse))
+                                                 physical-outputs)
+                                               0)))])
 
     (when (not (concrete? max-bw))
       (error "Input bitwidths must be statically known."))
@@ -74,7 +77,7 @@
 
          [lakeroad-expr-carry
           `(carry nbits architecture ,(?? (bitvector 1)) ,logical-input ,lakeroad-expr-lut)]
-         [output (choose* (lr-first lakeroad-expr-carry) (lr-second lakeroad-expr-carry))])
+         [output (choose* (lr:list-ref lakeroad-expr-carry 0) (lr:list-ref lakeroad-expr-carry 1))])
     output))
 
 ;;; Comparison template: the general template is two columns of LUTs that feed into the DI and S
@@ -87,7 +90,7 @@
          ;;; Then, we add on top of it.
          [lakeroad-expr-carry
           `(carry nbits architecture ,(?? (bitvector 1)) ,lakeroad-expr-lut-0 ,lakeroad-expr-lut-1)]
-         [output (lr-second lakeroad-expr-carry)])
+         [output (lr:list-ref lakeroad-expr-carry 1)])
     output))
 
 (module+ test
@@ -107,6 +110,7 @@
 
     (define lakeroad-expr (lut nbits 'generic (symbolics bvexpr) lutmems (bvlen bvexpr)))
 
+    (interpret lakeroad-expr)
     (define soln
       (synthesize #:forall (symbolics bvexpr)
                   #:guarantee (assert (bveq (interpret lakeroad-expr) bvexpr))))

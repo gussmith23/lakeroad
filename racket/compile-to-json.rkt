@@ -10,7 +10,8 @@
          "utils.rkt"
          "interpreter.rkt"
          racket/pretty
-         rosette)
+         rosette
+         (prefix-in lr: "language.rkt"))
 
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
 ;;;
@@ -63,20 +64,20 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
-                 [`(lut 1 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                 [(lr:lut 1 1 'xilinx-ultrascale-plus lutmem inputs)
                   (compile `(ultrascale-plus-lut1 ,lutmem ,inputs))]
-                 [`(lut 2 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                 [(lr:lut 2 1 'xilinx-ultrascale-plus lutmem inputs)
                   (compile `(ultrascale-plus-lut2 ,lutmem ,inputs))]
-                 [`(lut 3 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                 [(lr:lut 3 1 'xilinx-ultrascale-plus lutmem inputs)
                   (compile `(ultrascale-plus-lut3 ,lutmem ,inputs))]
-                 [`(lut 4 1 xilinx-ultrascale-plus ,lutmem ,inputs)
+                 [(lr:lut 4 1 'xilinx-ultrascale-plus lutmem inputs)
                   (compile `(ultrascale-plus-lut4 ,lutmem ,inputs))]
 
                  ;;; Have to reverse the inputs for SOFA. Could also reverse the lutmem.
                  ;;;
                  ;;; TODO(@gussmith23): It's probably not great to have the compiler depend on the
                  ;;; interpreter.
-                 [`(lut 4 1 sofa ,lutmem ,inputs)
+                 [(lr:lut 4 1 'sofa lutmem inputs)
                   (compile `(sofa-lut4 ,lutmem ,(apply concat (bitvector->bits (interpret inputs)))))]
 
                  [`(ultrascale-plus-dsp48e2 ,_ ...)
@@ -192,36 +193,30 @@
                                        (make-cell-connections 'I0 i0 'I1 i1 'I2 i2 'O (first o))
                                        #:params (hasheq 'INIT (make-literal-value-from-bv init))))
                   o]
-                 [`(physical-to-logical-mapping ,_ ...)
-                  (compile-physical-to-logical-mapping compile expr)]
-                 [`(logical-to-physical-mapping ,_ ...)
-                  (compile-logical-to-physical-mapping compile expr)]
+                 [(lr:physical-to-logical-mapping f inputs)
+                  (compile-physical-to-logical-mapping compile f inputs)]
+                 [(lr:logical-to-physical-mapping f inputs)
+                  (compile-logical-to-physical-mapping compile f inputs)]
 
                  ;;; Racket operators.
-                 [`(first ,v) (first (compile v))]
-                 [`(second ,v) (second (compile v))]
-                 [`(third ,v) (third (compile v))]
-                 [`(fourth ,v) (fourth (compile v))]
-                 [`(fifth ,v) (fifth (compile v))]
-                 [`(sixth ,v) (sixth (compile v))]
-                 [`(take ,l ,n) (take (compile l) n)]
-                 [`(drop ,l ,n) (drop (compile l) n)]
-                 [`(list-ref ,l ,n) (list-ref (compile l) n)]
-                 [`(append ,lsts ...) (apply append (compile lsts))]
+                 [(lr:take l n) (take (compile l) n)]
+                 [(lr:drop l n) (drop (compile l) n)]
+                 [(lr:list-ref l n) (list-ref (compile l) n)]
+                 [(lr:append lsts) (apply append (compile lsts))]
                  [`(map ,f ,lsts ...) (apply map f (compile lsts))]
 
                  ;;; Rosette operators.
-                 [(or (expression (== extract) high low v) `(extract ,high ,low ,v))
+                 [(or (expression (== lr:extract) high low v) (lr:extract high low v))
                   (drop (take (compile v) (add1 high)) low)]
-                 [(or (expression (== zero-extend) v bv-type) `(zero-extend ,v ,bv-type))
+                 [(or (expression (== lr:zero-extend) v bv-type) (lr:zero-extend v bv-type))
                   (append (compile v)
                           (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
-                 [(or `(concat ,v0 ,v1) (expression (== concat) v0 v1))
+                 [(or (lr:concat (list v0 v1)) (expression (== lr:concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
-                 [`(concat ,rst ...) (apply append (compile (reverse rst)))]
+                 [(lr:concat rst) (apply append (compile (reverse rst)))]
 
-                 [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv-type)
+                 [(lr:dup-extend v bv-type)
                   (make-list (bitvector-size bv-type) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
@@ -289,10 +284,10 @@
   (test-begin (current-solver (boolector))
               (define-symbolic a b (bitvector 8))
               (define expr
-                `(first (physical-to-logical-mapping
-                         (bitwise)
+                (lr:list-ref (lr:physical-to-logical-mapping
+                         '(bitwise)
                          ;;; Take the 8 outputs from the LUTs; drop cout.
-                         (take (ultrascale-plus-clb ,(?? (bitvector 1))
+                         (lr:take `(ultrascale-plus-clb ,(?? (bitvector 1))
                                                     ,(?? (bitvector 64))
                                                     ,(?? (bitvector 64))
                                                     ,(?? (bitvector 64))
@@ -309,10 +304,10 @@
                                                     ,(?? (bitvector 2))
                                                     ,(?? (bitvector 2))
                                                     ,(?? (bitvector 2))
-                                                    (logical-to-physical-mapping
-                                                     (bitwise)
-                                                     ,(list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
-                               8))))
+                                                    ,(lr:logical-to-physical-mapping
+                                                     '(bitwise)
+                                                     (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
+                               8)) 0))
               (define soln
                 (synthesize #:forall (list a b)
                             #:guarantee

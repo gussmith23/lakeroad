@@ -14,7 +14,8 @@
 (require rosette
          rosette/lib/synthax
          "comp-json.rkt"
-         "lut.rkt")
+         "lut.rkt"
+         (prefix-in lr: "language.rkt"))
 
 ;;; Compile program in Lakeroad DSL to module.
 
@@ -194,7 +195,7 @@
     [(list i0 i1 i2 i3) (choose i0 i1 i2 i3)])]
  [physical-list
   ;;; We currently drop the cout bit.
-  `(take (ultrascale-plus-clb
+  (lr:take `(ultrascale-plus-clb
           ,(cin)
           ,(lutmem)
           ,(lutmem)
@@ -212,19 +213,19 @@
           ,(mux)
           ,(mux)
           ,(mux)
-          (logical-to-physical-mapping ,(choose '(bitwise) '(bitwise-reverse)) ,(logical-list)))
+          ,(lr:logical-to-physical-mapping (choose '(bitwise) '(bitwise-reverse)) (logical-list)))
          8)]
  [logical-list
   (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
-          `(physical-to-logical-mapping
-            ,(choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-            ,(physical-list)))]
+          (lr:physical-to-logical-mapping
+            (choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+            (physical-list)))]
  ;;; 8bit logical input
  ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for the sixth
  ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two
  ;;; distinct outputs. By providing #xff as a choosable constant, we let the synthesizer decide when
  ;;; to use it.
- [logical-8bit (choose (logical-input) (bv #xff 8) (bv #x00 8) `(first ,(logical-list)))])
+ [logical-8bit (choose (logical-input) (bv #xff 8) (bv #x00 8) (lr:list-ref (logical-list) 0))])
 
 ; Contains the state for a LUT6_2.
 ; memory is the LUT's memory: (bitvector 64).
