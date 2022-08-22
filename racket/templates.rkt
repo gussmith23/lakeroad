@@ -68,15 +68,15 @@
          [max-bw (apply max outwidth (map bvlen logical-inputs))]
          [logical-inputs
           (map (lambda (v)
-                 (choose* `(zero-extend ,v ,(bitvector max-bw))
-                          `(dup-extend this-is-a-hack-for-dup-extend ,v ,(bitvector max-bw))))
+                 (choose* (lr:zero-extend v (bitvector max-bw))
+                          (lr:dup-extend v (bitvector max-bw))))
                logical-inputs)]
          [logical-input (match logical-inputs
                           [(list l0) (choose* l0)]
                           [(list l0 l1) (choose* l0 l1)])]
 
          [lakeroad-expr-carry
-          `(carry nbits architecture ,(?? (bitvector 1)) ,logical-input ,lakeroad-expr-lut)]
+          (lr:carry nbits architecture (?? (bitvector 1)) logical-input lakeroad-expr-lut)]
          [output (choose* (lr:list-ref lakeroad-expr-carry 0) (lr:list-ref lakeroad-expr-carry 1))])
     output))
 
@@ -89,7 +89,7 @@
 
          ;;; Then, we add on top of it.
          [lakeroad-expr-carry
-          `(carry nbits architecture ,(?? (bitvector 1)) ,lakeroad-expr-lut-0 ,lakeroad-expr-lut-1)]
+          (lr:carry nbits architecture (?? (bitvector 1)) lakeroad-expr-lut-0 lakeroad-expr-lut-1)]
          [output (lr:list-ref lakeroad-expr-carry 1)])
     output))
 

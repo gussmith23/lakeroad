@@ -248,7 +248,8 @@
   (define-symbolic a (bitvector 8))
   (define-symbolic b (bitvector 8))
   (define-symbolic c (bitvector 8))
-  (match-define (list o0 o1 o2 o3 o4 o5) (interpret-logical-to-physical-mapping identity `(uf ,(?? (~> (bitvector 5) (bitvector 5))) 5 4) (list a b c)))
+  (define pttn (?? (~> (bitvector 5) (bitvector 5))))
+  (match-define (list o0 o1 o2 o3 o4 o5) (interpret-logical-to-physical-mapping identity `(uf ,pttn 5 4) (list a b c)))
   (define soln
     (synthesize #:forall (list a b c)
                 #:guarantee (begin
@@ -261,7 +262,7 @@
                                             (extract 2 0 o3))))))
   (check-true (sat? soln))
   ;;; Get the mapping function...
-  (define f (evaluate (?? (~> (bitvector 5) (bitvector 5))) soln))
+  (define f (evaluate pttn soln))
 
   ;;; Helper to help us run checks. Checks that the logical index maps to the expected physical index.
   (define (ch logical-idx physical-idx)
@@ -282,31 +283,31 @@
                  identity
                  '(bitwise)
                  (list (bv #b01 2) (bv #b10 2)))
-  (list (bv #b01 2) (bv #b10 2)))
-(check-equal? (interpret-logical-to-physical-mapping
-               identity
-               '(bitwise)
-               (list (bv #b01 2)))
-              (list (bv #b1 1) (bv #b0 1)))
-(check-equal? (interpret-logical-to-physical-mapping
-               identity
-               '(bitwise)
-               (list (bv #b01 2)))
-              (list (bv #b1 1) (bv #b0 1)))
-(check-exn
- (regexp
-  "@map: arity mismatch;\n the expected number of arguments does not match the given number\n  expected: at least 2\n  given: 1")
- (lambda ()
-   (interpret-logical-to-physical-mapping identity '(bitwise) (list))
-   (list)))
-(check-exn
- (regexp
-  "map: all lists must have same size\n  first list length: 1\n  other list length: 2\n  procedure: concat")
- (lambda ()
-   (interpret-logical-to-physical-mapping
-    identity
-    '(bitwise)
-    (list (bv #b01 2) (bv #b1 1))))))
+                (list (bv #b01 2) (bv #b10 2)))
+  (check-equal? (interpret-logical-to-physical-mapping
+                 identity
+                 '(bitwise)
+                 (list (bv #b01 2)))
+                (list (bv #b1 1) (bv #b0 1)))
+  (check-equal? (interpret-logical-to-physical-mapping
+                 identity
+                 '(bitwise)
+                 (list (bv #b01 2)))
+                (list (bv #b1 1) (bv #b0 1)))
+  (check-exn
+   (regexp
+    "@map: arity mismatch;\n the expected number of arguments does not match the given number\n  expected: at least 2\n  given: 1")
+   (lambda ()
+     (interpret-logical-to-physical-mapping identity '(bitwise) (list))
+     (list)))
+  (check-exn
+   (regexp
+    "map: all lists must have same size\n  first list length: 1\n  other list length: 2\n  procedure: concat")
+   (lambda ()
+     (interpret-logical-to-physical-mapping
+      identity
+      '(bitwise)
+      (list (bv #b01 2) (bv #b1 1))))))
 
 ;;; Interprets physical-to-logical mappings.
 ;;; Expects a list of logical outputs in least significant->most significant order.
@@ -364,14 +365,15 @@
    (define-symbolic logical-out-f (bitvector 1))
    (define-symbolic logical-out-g (bitvector 1))
    (define-symbolic logical-out-h (bitvector 1))
-   (match-define (list physical-out) (interpret-physical-to-logical-mapping identity '(uf ,(?? (~> (bitvector 3) (bitvector 3))) 3 8) (list logical-out-a
-                                                                                                                                           logical-out-b
-                                                                                                                                           logical-out-c
-                                                                                                                                           logical-out-d
-                                                                                                                                           logical-out-e
-                                                                                                                                           logical-out-f
-                                                                                                                                           logical-out-g
-                                                                                                                                           logical-out-h)))
+   (define pttn (?? (~> (bitvector 3) (bitvector 3))))
+   (match-define (list physical-out) (interpret-physical-to-logical-mapping identity `(uf ,pttn 3 8) (list logical-out-a
+                                                                                                           logical-out-b
+                                                                                                           logical-out-c
+                                                                                                           logical-out-d
+                                                                                                           logical-out-e
+                                                                                                           logical-out-f
+                                                                                                           logical-out-g
+                                                                                                           logical-out-h)))
    (define soln
      (synthesize #:forall (list logical-out-a
                                 logical-out-b
@@ -395,11 +397,11 @@
    (check-equal? (list (bv 0 1))
                  (interpret-physical-to-logical-mapping
                   identity
-                  '(choose-one ,(bv 0 3))
+                  `(choose-one ,(bv 0 3))
                   (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))
    (check-equal?
     (list (bv 1 1))
     (interpret-physical-to-logical-mapping
      identity
-     '(choose-one ,(bv 7 3))
+     `(choose-one ,(bv 7 3))
      (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))))

@@ -86,7 +86,7 @@
                    ;; interpreted result
                    [carry-in (match acc
                                ['() (bv 0 1)]
-                               [(list cc rst ...) `(third ,cc)])]
+                               [(list cc rst ...) (lr:list-ref cc 2)])]
                    [ccu2c (match input
                             ;; Inputs are in (Least significant, most significant) order
                             [(list i0 i1)
@@ -102,7 +102,7 @@
            ;; over these and collect the individual bits (below)
            [ccu2cs (foldl ccu2c-foldl-helper '() paired-inputs)]
            [ccu2c-bit-extractor-helper
-            (lambda (ccu2c acc) (cons (list (lr:list-ref ccu2c 0)) (cons (list (list-ref ccu2c 1)) acc)))]
+            (lambda (ccu2c acc) (cons (list (lr:list-ref ccu2c 0)) (cons (list (lr:list-ref ccu2c 1)) acc)))]
 
            ;; bits is a list of list of individual bits in reverse order (LSB to
            ;; MSB). It may be the case that bits has an extra bit (e.g., if we
@@ -256,7 +256,7 @@
       (let* ([a-idx (- j i)]
              [b-idx i]
              [lut-inputs
-              (lr:concat (list (extract a-idx a-idx a) (extract b-idx b-idx b) (bv 1 1) (bv 1 1)))])
+              (lr:concat (list (lr:extract a-idx a-idx a) (lr:extract b-idx b-idx b) (bv 1 1) (bv 1 1)))])
         (make-lattice-lut4-expr lut-inputs #:INIT INIT))))
 
 ; Create a lakeroad expression capable of discovering `bitwidth`-bit

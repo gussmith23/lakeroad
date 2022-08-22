@@ -513,11 +513,11 @@
   (define lakeroad-expr
     (let ([inputs (for/list ([ccu2c-i (range num-mods)])
                     (list (lr:concat (list (bv #b11 2)
-                                           (lr:concat (list (list-ref phys-0 (* 2 ccu2c-i))
-                                                            (list-ref phys-1 (* 2 ccu2c-i))))))
+                                           (lr:concat (list (lr:list-ref phys-0 (* 2 ccu2c-i))
+                                                            (lr:list-ref phys-1 (* 2 ccu2c-i))))))
                           (lr:concat (list (bv #b11 2)
-                                           (lr:concat (list (list-ref phys-0 (sub1 (* 2 (add1 ccu2c-i))))
-                                                            (list-ref phys-1 (sub1 (* 2 (add1 ccu2c-i))))))))))]
+                                           (lr:concat (list (lr:list-ref phys-0 (sub1 (* 2 (add1 ccu2c-i))))
+                                                            (lr:list-ref phys-1 (sub1 (* 2 (add1 ccu2c-i))))))))))]
           [cin (?? (bitvector 1))]
           [lutmem (?? (bitvector 16))])
       (foldl (lambda (gis previous-cout)
