@@ -212,7 +212,7 @@
                  [(or (expression (== zero-extend) v bv-type) (lr:zero-extend v bv-type))
                   (append (compile v)
                           (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
-                 [(or (lr:concat (list v0 v1)) (expression (== lr:concat) v0 v1))
+                 [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
                  [(lr:concat rst) (apply append (compile (reverse rst)))]
