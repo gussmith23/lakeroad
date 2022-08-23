@@ -234,7 +234,7 @@ endif
 
 out: $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(TESTBENCH) $(VERILOG_FILES:.v=.v.o)
   # -lstdc++ and -stdlib=libc++ fix build problems on Mac.
-	$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -lstdc++ -std=c++11 -Wall -Wextra -Werror $^ -o $@
+	$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -faligned-new -lstdc++ -std=c++11 -Wall -Wextra -Werror $^ -o $@
 
 %.v.o: %.v
   # The CFLAGS values fix issues with timing functions not being found.
