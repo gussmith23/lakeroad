@@ -30,6 +30,7 @@
 
   (define json-file (make-temporary-file "rkttmp~a.json"))
   (define verilog-file (make-temporary-file "rkttmp~a.v"))
+  (log-info "~a" verilog-file)
   (display-to-file (jsexpr->string (lakeroad->jsexpr lakeroad-expr)) json-file #:exists 'update)
 
   (match-let ([(list proc-stdout stdin proc-id stderr control-fn)
@@ -131,6 +132,7 @@
             (bvexpr->cexpr bv-expr)))
 
   (define testbench-file (make-temporary-file "rkttmp~a.cc"))
+  (log-info "~a" testbench-file)
   (display-to-file testbench-source testbench-file #:exists 'update)
 
   (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
@@ -152,6 +154,7 @@
      testbench-file
      include-dirs-string
      extra-verilator-args))
+  (log-info "~a" verilator-command)
 
   (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process verilator-command)])
     ;;; Wait until Verilator completes.
