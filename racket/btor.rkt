@@ -2257,184 +2257,187 @@ here-string-delimiter
   (define (simple-compile btor-id-str)
     ;;; Find the line that equals
     (define matching-lines
-      (filter (lambda (line)
-                (match-let* ;;; Remove comments.
-                 ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)])
-                 (equal? id-str btor-id-str)))
-              ;; Split file into lines and filter empty lines.
-              (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
-                      (string-split str #rx"\n+"))))
+      (filter
+       (lambda (line)
+         (match-let* ;;; Remove comments.
+             ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)])
+           (equal? id-str btor-id-str)))
+       ;; Split file into lines and filter empty lines.
+       (filter (lambda (line) (not (equal? #\; (string-ref line 0)))) (string-split str #rx"\n+"))))
 
     (when (not (equal? (length matching-lines) 1))
       (error "expected exactly 1 match"))
 
-    (match-let* ;;; Remove comments.
-     ([line (first matching-lines)] [line (first (string-split line ";"))]
-                                    [(cons id-str tokens) (string-split line)]
-                                    [id (string->number id-str)])
-     (match tokens
-       [`("sort" "bitvec" ,bw-str) `(bitvector ,(string->number bw-str))]
-       [`("const" ,sort-id-str ,value-str)
-        `(bv ,(string->number value-str 2) ,(simple-compile sort-id-str))])))
+    ;;; Remove comments.
+    (match-let* ([line (first matching-lines)]
+                 [line (first (string-split line ";"))]
+                 [(cons id-str tokens) (string-split line)]
+                 [id (string->number id-str)])
+      (match tokens
+        [`("sort" "bitvec" ,bw-str) `(bitvector ,(string->number bw-str))]
+        [`("const" ,sort-id-str ,value-str)
+         `(bv ,(string->number value-str 2) ,(simple-compile sort-id-str))])))
 
   ;;; First pass to compile init values.
   (for ([line (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
                       (string-split str #rx"\n+"))])
-    (match-let* ;;; Remove comments.
-     ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)]
-                                             [id (string->number id-str)])
-     (match tokens
-       [`("init" ,sort-id-str ,state-id-str ,next-val-id-str)
-        (set! init-hash
-              `(hash-set ,init-hash
-                         ',(string->symbol (format "state~a" state-id-str))
-                         ,(simple-compile next-val-id-str)))]
-       [_ (void)])))
+    ;;; Remove comments.
+    (match-let* ([line (first (string-split line ";"))]
+                 [(cons id-str tokens) (string-split line)]
+                 [id (string->number id-str)])
+      (match tokens
+        [`("init" ,sort-id-str ,state-id-str ,next-val-id-str)
+         (set! init-hash
+               `(hash-set ,init-hash
+                          ',(string->symbol (format "state~a" state-id-str))
+                          ,(simple-compile next-val-id-str)))]
+        [_ (void)])))
 
   ;;; Make let clause defining init-hash-symbol.
   (add-expr init-hash-symbol init-hash)
 
   (define (compile-line line)
-    (match-let* ;;; Remove comments.
-     ([line (first (string-split line ";"))] [(cons id-str tokens) (string-split line)]
-                                             [id (string->number id-str)])
-     (match tokens
-       [`("next" ,sort-id-str ,state-id-str ,next-val-id-str)
-        ;;; A next statement determines the value of the state var that we return out.
-        ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
-        ;;; the output value for the state.
-        (set! output-state-hash
-              `(hash-set ,output-state-hash
-                         ',(hash-ref state-symbols (string->number state-id-str))
-                         (signal-value ,(get-expr-id-str next-val-id-str))))]
-       ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
-       [`("init" ,sort-id-str ,state-id-str ,val-id-str) (void)]
-       [`("state" ,sort-id-str)
-        ;;; It should draw from the incoming state. But how? The problem is that, with our current
-        ;;; setup, i think you have to get the state value from a "nearby" signal that's also in
-        ;;; context. Does there need to be some kind of top level wrapper that holds state? state can
-        ;;; only be associated with values, but that doesn't make sense. what about a module that
-        ;;; takes no inputs (not even a clock) and yet has a state? Does that make sense? does it make
-        ;;; sense? I think that thing can only be a constant. If it doesn't take an input, there's
-        ;;; nothing to trigger internal state difference. A register doesn't work without a clock. if
-        ;;; you have a register, you need a clock, or the register won't function. You can have a
-        ;;; combinational loop, but that doesn't really make much sense in our framework. Or, it
-        ;;; could, but i guess it depends on what level we consider state changes as happening. For
-        ;;; the most part, I guess it's on the callee to determine what state they care to track.
+    ;;; Remove comments.
+    (match-let* ([line (first (string-split line ";"))]
+                 [(cons id-str tokens) (string-split line)]
+                 [id (string->number id-str)])
+      (match tokens
+        [`("next" ,sort-id-str ,state-id-str ,next-val-id-str)
+         ;;; A next statement determines the value of the state var that we return out.
+         ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
+         ;;; the output value for the state.
+         (set! output-state-hash
+               `(hash-set ,output-state-hash
+                          ',(hash-ref state-symbols (string->number state-id-str))
+                          (signal-value ,(get-expr-id-str next-val-id-str))))]
+        ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
+        [`("init" ,sort-id-str ,state-id-str ,val-id-str) (void)]
+        [`("state" ,sort-id-str)
+         ;;; It should draw from the incoming state. But how? The problem is that, with our current
+         ;;; setup, i think you have to get the state value from a "nearby" signal that's also in
+         ;;; context. Does there need to be some kind of top level wrapper that holds state? state can
+         ;;; only be associated with values, but that doesn't make sense. what about a module that
+         ;;; takes no inputs (not even a clock) and yet has a state? Does that make sense? does it make
+         ;;; sense? I think that thing can only be a constant. If it doesn't take an input, there's
+         ;;; nothing to trigger internal state difference. A register doesn't work without a clock. if
+         ;;; you have a register, you need a clock, or the register won't function. You can have a
+         ;;; combinational loop, but that doesn't really make much sense in our framework. Or, it
+         ;;; could, but i guess it depends on what level we consider state changes as happening. For
+         ;;; the most part, I guess it's on the callee to determine what state they care to track.
 
-        ;;; The value is either
-        ;;;
-        ;;; - the lookup of the state id in the state dictionary, or
-        ;;;
-        ;;; - the init value, if it's not there.
-        ;;;
-        ;;; But what is the state dictionary? this is a context-dependent thing, isn't it?
-        ;;;
-        ;;; So I think there's a dict that we build up from a merger of the state values on the inputs
-        ;;; to the module, and then that's the dictionary we'd use here. So if there's no inputs,
-        ;;; there's no state. Does that make sense? State without input is a constant? I guess so. it
-        ;;; would always be the init value, or if there's no init value...well idk.
-        (let* ([state-symbol (string->symbol (format "state~a" id))])
-          (hash-set! state-symbols (string->number id-str) state-symbol)
-          (hash-set! state-types state-symbol (hash-ref sorts (string->number sort-id-str)))
-          ;;; From the merged state formed by merging the state of all the inputs, find the state
-          ;;; value by name and convert it to a signal.
-          (add-expr-id-str
-           id-str
-           `(let* ([state-value
-                    (cond
-                      [(hash-has-key? ,merged-input-state-hash-symbol ',state-symbol)
-                       (bv->signal (hash-ref ,merged-input-state-hash-symbol ',state-symbol))]
-                      [(hash-has-key? ,init-hash-symbol ',state-symbol)
-                       (bv->signal (hash-ref ,init-hash-symbol ',state-symbol))]
-                      [else
-                       (log-warning
-                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-                        ',state-symbol)
-                       (bv->signal (bv 0 ,(hash-ref sorts (string->number sort-id-str))))])])
-              (when (not (signal? state-value))
-                (error "Expected signal"))
-              (when (not (bv? (signal-value state-value)))
-                (error "Signal value invalid"))
-              state-value)))]
-       [`("sort" "bitvec" ,width-str)
-        (hash-set! sorts (string->number id-str) (bitvector (string->number width-str)))
-        (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))]
-       ;;; Sometimes the .btor files contain inputs without names. I'm pretty sure these correspond
-       ;;; either to Z or X values, or both.
-       [`("input" ,type-id-str)
-        (set! ins (append ins (list (string->symbol (format "unnamed-input-~a" id)))))
-        (hash-set! input-types
-                   (string->symbol (format "unnamed-input-~a" id))
-                   (hash-ref sorts (string->number type-id-str)))
-        (add-expr-id-str id-str (string->symbol (format "unnamed-input-~a" id)))]
-       ;;; A named input should get a symbol representing it.
-       [`("input" ,type-id-str ,name)
-        (set! ins (append ins (list (string->symbol name))))
-        (hash-set! input-types (string->symbol name) (hash-ref sorts (string->number type-id-str)))
-        (add-expr-id-str id-str (string->symbol name))
-        (add-expr merged-input-state-hash-symbol
-                  `(hash-union ,merged-input-state-hash-symbol
-                               (signal-state ,(string->symbol name))))]
-       [`("const" ,type-id-str ,value-str)
-        (let* ([type (hash-ref sorts (string->number type-id-str))]
-               [value (string->number value-str 2)])
-          (add-expr-id-str id-str `(bv->signal (bv ,value ,type))))]
-       [`("ite" ,type-id-str ,cond-id-str ,true-val-id-str ,false-val-id-str)
-        (let ([true-val (get-expr-id-str true-val-id-str)]
-              [false-val (get-expr-id-str false-val-id-str)]
-              [cond-val (get-expr-id-str cond-id-str)])
-          (add-expr-id-str id-str
-                           `(if (bitvector->bool (signal-value ,cond-val)) ,true-val ,false-val)))]
-       [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
-        (let ([s (get-expr-id-str val-id-str)])
-          (add-expr-id-str
-           id-str
-           `(signal (extract ,(string->number u-str) ,(string->number l-str) (signal-value ,s))
-                    (signal-state ,s))))]
-       [`("output" ,id-str ,name) (hash-set! outs (string->symbol name) (get-expr-id-str id-str))]
-       [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
-        (let ([s (get-expr-id-str in-id-str)])
-          (add-expr-id-str
-           id-str
-           `(bv->signal (zero-extend (signal-value ,s)
-                                     ,(hash-ref sorts (string->number out-type-id-str)))
-                        ,s)))]
-       [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (op-call-builder concat a b)))]
-       [`("add" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (op-call-builder bvadd a b)))]
-       [`("xor" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (op-call-builder bvxor a b)))]
-       [`("and" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (op-call-builder bvand a b)))]
-       [`("sub" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (op-call-builder bvsub a b)))]
-       [`("or" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (op-call-builder bvor a b)))]
-       [`("mul" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (op-call-builder bvmul a b)))]
-       [`("not" ,out-type-id-str ,a-id-str)
-        (let ([a (get-expr-id-str a-id-str)]) (add-expr-id-str id-str (op-call-builder bvnot a)))]
-       [`("redor" ,out-type-id-str ,in-id-str)
-        (add-expr-id-str id-str (redop-call-builder bvor (get-expr-id-str in-id-str)))]
-       [`("redxor" ,out-type-id-str ,in-id-str)
-        (add-expr-id-str id-str (redop-call-builder bvxor (get-expr-id-str in-id-str)))]
-       [`("redand" ,out-type-id-str ,in-id-str)
-        (add-expr-id-str id-str (redop-call-builder bvand (get-expr-id-str in-id-str)))]
-       [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (compop-call-builder bveq a b)))]
-       [`("neq" ,out-type-id-str ,a-id-str ,b-id-str)
-        (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-          (add-expr-id-str id-str (compop-call-builder `(compose1 not bveq) a b)))])))
+         ;;; The value is either
+         ;;;
+         ;;; - the lookup of the state id in the state dictionary, or
+         ;;;
+         ;;; - the init value, if it's not there.
+         ;;;
+         ;;; But what is the state dictionary? this is a context-dependent thing, isn't it?
+         ;;;
+         ;;; So I think there's a dict that we build up from a merger of the state values on the inputs
+         ;;; to the module, and then that's the dictionary we'd use here. So if there's no inputs,
+         ;;; there's no state. Does that make sense? State without input is a constant? I guess so. it
+         ;;; would always be the init value, or if there's no init value...well idk.
+         (let* ([state-symbol (string->symbol (format "state~a" id))])
+           (hash-set! state-symbols (string->number id-str) state-symbol)
+           (hash-set! state-types state-symbol (hash-ref sorts (string->number sort-id-str)))
+           ;;; From the merged state formed by merging the state of all the inputs, find the state
+           ;;; value by name and convert it to a signal.
+           (add-expr-id-str
+            id-str
+            `(let* ([state-value
+                     (cond
+                       [(hash-has-key? ,merged-input-state-hash-symbol ',state-symbol)
+                        (bv->signal (hash-ref ,merged-input-state-hash-symbol ',state-symbol))]
+                       [(hash-has-key? ,init-hash-symbol ',state-symbol)
+                        (bv->signal (hash-ref ,init-hash-symbol ',state-symbol))]
+                       [else
+                        (log-warning
+                         "state ~a with no initial value, init to 0, this may not be correct in the long term"
+                         ',state-symbol)
+                        (bv->signal (bv 0 ,(hash-ref sorts (string->number sort-id-str))))])])
+               (when (not (signal? state-value))
+                 (error "Expected signal"))
+               (when (not (bv? (signal-value state-value)))
+                 (error "Signal value invalid"))
+               state-value)))]
+        [`("sort" "bitvec" ,width-str)
+         (hash-set! sorts (string->number id-str) (bitvector (string->number width-str)))
+         (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))]
+        ;;; Sometimes the .btor files contain inputs without names. I'm pretty sure these correspond
+        ;;; either to Z or X values, or both.
+        [`("input" ,type-id-str)
+         (set! ins (append ins (list (string->symbol (format "unnamed-input-~a" id)))))
+         (hash-set! input-types
+                    (string->symbol (format "unnamed-input-~a" id))
+                    (hash-ref sorts (string->number type-id-str)))
+         (add-expr-id-str id-str (string->symbol (format "unnamed-input-~a" id)))]
+        ;;; A named input should get a symbol representing it.
+        [`("input" ,type-id-str ,name)
+         (set! ins (append ins (list (string->symbol name))))
+         (hash-set! input-types (string->symbol name) (hash-ref sorts (string->number type-id-str)))
+         (add-expr-id-str id-str (string->symbol name))
+         (add-expr merged-input-state-hash-symbol
+                   `(hash-union ,merged-input-state-hash-symbol
+                                (signal-state ,(string->symbol name))))]
+        [`("const" ,type-id-str ,value-str)
+         (let* ([type (hash-ref sorts (string->number type-id-str))]
+                [value (string->number value-str 2)])
+           (add-expr-id-str id-str `(bv->signal (bv ,value ,type))))]
+        [`("ite" ,type-id-str ,cond-id-str ,true-val-id-str ,false-val-id-str)
+         (let ([true-val (get-expr-id-str true-val-id-str)]
+               [false-val (get-expr-id-str false-val-id-str)]
+               [cond-val (get-expr-id-str cond-id-str)])
+           (add-expr-id-str id-str
+                            `(if (bitvector->bool (signal-value ,cond-val)) ,true-val ,false-val)))]
+        [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
+         (let ([s (get-expr-id-str val-id-str)])
+           (add-expr-id-str
+            id-str
+            `(signal (extract ,(string->number u-str) ,(string->number l-str) (signal-value ,s))
+                     (signal-state ,s))))]
+        [`("output" ,id-str ,name) (hash-set! outs (string->symbol name) (get-expr-id-str id-str))]
+        [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
+         (let ([s (get-expr-id-str in-id-str)])
+           (add-expr-id-str
+            id-str
+            `(bv->signal (zero-extend (signal-value ,s)
+                                      ,(hash-ref sorts (string->number out-type-id-str)))
+                         ,s)))]
+        [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (op-call-builder concat a b)))]
+        [`("add" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (op-call-builder bvadd a b)))]
+        [`("xor" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (op-call-builder bvxor a b)))]
+        [`("and" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (op-call-builder bvand a b)))]
+        [`("sub" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (op-call-builder bvsub a b)))]
+        [`("or" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (op-call-builder bvor a b)))]
+        [`("mul" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (op-call-builder bvmul a b)))]
+        [`("not" ,out-type-id-str ,a-id-str)
+         (let ([a (get-expr-id-str a-id-str)]) (add-expr-id-str id-str (op-call-builder bvnot a)))]
+        [`("redor" ,out-type-id-str ,in-id-str)
+         (add-expr-id-str id-str (redop-call-builder bvor (get-expr-id-str in-id-str)))]
+        [`("redxor" ,out-type-id-str ,in-id-str)
+         (add-expr-id-str id-str (redop-call-builder bvxor (get-expr-id-str in-id-str)))]
+        [`("redand" ,out-type-id-str ,in-id-str)
+         (add-expr-id-str id-str (redop-call-builder bvand (get-expr-id-str in-id-str)))]
+        [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (compop-call-builder bveq a b)))]
+        [`("neq" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (compop-call-builder `(compose1 not bveq) a b)))])))
 
   (for ([line (filter (lambda (line) (not (equal? #\; (string-ref line 0))))
                       (string-split str #rx"\n+"))])
