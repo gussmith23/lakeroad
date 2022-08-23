@@ -1,10 +1,17 @@
-name: Run checks
+# For now, this is disabled, as we were having issues when running both lakeroad
+# and lakeroad-evaluation CI on boba. Regardless, I think it's valuable to make
+# sure that Lakeroad builds and tests in reasonable time (i.e. within the time
+# limit of GitHub runners.)
+name: Run checks on self-hosted machine
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # This workflow is disabled, though we allow it to be manually triggered with
+  # workflow_dispatch.
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+  workflow_dispatch:
 
 jobs:
 

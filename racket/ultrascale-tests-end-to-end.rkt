@@ -25,7 +25,8 @@
   (simulate-expr
    lakeroad-expr
    bv-expr
-   #:includes includes
+   #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx")
+                        (build-path (getenv "LAKEROAD_DIR") "verilator-unisims"))
    #:extra-verilator-args
    "-Wno-LATCH -Wno-ASSIGNDLY --CFLAGS -DVL_TIME_STAMP64 --CFLAGS -DVL_NO_LEGACY -DXIL_XECLIB"))
 
@@ -44,6 +45,7 @@
            (check-equal? (bvlen l0) sz)
            (check-equal? (bvlen l1) sz)
            (check-equal? (bvlen l2) 1)
+           (displayln (format "Testing UltraScale+ ~a bit ops end-to-end" sz))
            (test-true (format "~a bit mux" sz) (end-to-end-test (circt-comb-mux l2 l0 l1)))
            (test-true (format "~a bit <" sz) (end-to-end-test (bool->bitvector (bvult l0 l1))))
            (test-true (format "~a bit <=" sz) (end-to-end-test (bool->bitvector (bvule l0 l1))))
