@@ -1,4 +1,4 @@
-#lang racket/base
+#lang rosette/safe
 ;;; Base Lakeroad language.
 
 (provide logical-to-physical-mapping

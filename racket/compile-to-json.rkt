@@ -207,9 +207,9 @@
                  [(lr:map f lsts) (apply map f (compile lsts))]
 
                  ;;; Rosette operators.
-                 [(or (expression (== lr:extract) high low v) (lr:extract high low v))
+                 [(or (expression (== extract) high low v) (lr:extract high low v))
                   (drop (take (compile v) (add1 high)) low)]
-                 [(or (expression (== lr:zero-extend) v bv-type) (lr:zero-extend v bv-type))
+                 [(or (expression (== zero-extend) v bv-type) (lr:zero-extend v bv-type))
                   (append (compile v)
                           (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
                  [(or (lr:concat (list v0 v1)) (expression (== lr:concat) v0 v1))
