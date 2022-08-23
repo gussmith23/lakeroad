@@ -43,7 +43,7 @@ int main(int argc, char **argv, char **env)
               uint8_t out = run(top, l0, l1, l2, l3, l4, l5);
               uint8_t expected = ~a & ((1 << ~a) - 1);
 
-              // Uncoment this when you want to debug.
+              // Uncomment this when you want to debug.
               if (out != expected){
                 printf("~a with l0=%d l1=%d l2=%d  == %d, should equal %d\n", l0, l1, l2, out, expected);
               }
