@@ -10,11 +10,12 @@ StrOrPath = Union[str, Path]
 
 def preprocess_and_flatten_verilog(
     infiles: List[StrOrPath],
-    include_directories: List[StrOrPath],
-    defines: Dict[str, Optional[str]],
     top: str,
+    outfile: StrOrPath,
+    include_directories: List[StrOrPath] = [],
+    defines: Dict[str, Optional[str]] = {},
     check_for_not_derived: bool = True,
-) -> str:
+) -> None:
     """Preprocess and flatten Verilog in preparation for importing.
 
     Uses Yosys. Could use Icarus Verilog instead.
@@ -50,7 +51,7 @@ def preprocess_and_flatten_verilog(
         f"hierarchy -simcheck -top {top}",
         "flatten",
         "proc",
-        f"write_verilog -sv",
+        f"write_verilog -sv {outfile}",
     ]
 
     p = subprocess.run(
@@ -64,12 +65,13 @@ def preprocess_and_flatten_verilog(
     )
     p.check_returncode()
 
-    out = p.stdout.decode("utf-8")
-
     if check_for_not_derived:
-        assert "not_derived" not in out, "Found not_derived in output."
-
-    return out
+        assert "not_derived" not in p.stdout.decode(
+            "utf-8"
+        ), "Found not_derived in output."
+        assert "not_derived" not in p.stderr.decode(
+            "utf-8"
+        ), "Found not_derived in output."
 
 
 def verilog_to_racket(infiles: List[StrOrPath], top: str) -> str:
