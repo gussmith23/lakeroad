@@ -735,9 +735,9 @@
                (match-let* ([(list acc-phys-out previous-cout) previous-out]
                             [(list this-ccu2c-physical-outputs this-cout)
                              (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                               #:inputs `(logical-to-physical-mapping
-                                                          ,(choose '(bitwise) '(bitwise-reverse))
-                                                          ,logical-inputs)
+                                               #:inputs (lr:logical-to-physical-mapping
+                                                         (choose '(bitwise) '(bitwise-reverse))
+                                                         logical-inputs)
                                                #:CIN previous-cout
                                                #:INIT0 lutmem
                                                #:INIT1 lutmem)])
