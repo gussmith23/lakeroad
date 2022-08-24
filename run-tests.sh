@@ -8,3 +8,4 @@ cargo test --manifest-path rust/Cargo.toml -- --nocapture
 # cause some thrashing.
 bash -c 'raco test racket/*.rkt'
 source utils/tests/run-tests.sh
+pytest python/
