@@ -7,7 +7,7 @@
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
          synthesize-lattice-ecp5-impl
-         synthesize-lattice-ecp5-wire
+         synthesize-wire
          make-wire-lrexpr)
 
 (require "interpreter.rkt"
@@ -726,21 +726,18 @@
                                                          (list->set (symbolics bv-expr))))))
             #f))))
 
-(define (make-wire-lrexpr inputs shiftby)
-  (printf "inputs: ~a\n" inputs)
-  (printf "shiftby ~a\n" shiftby)
+(define (make-wire-lrexpr inputs shift-by bitwidth)
   (define lakeroad-expr
     `(first (physical-to-logical-mapping
              (bitwise)
              (logical-to-physical-mapping
-              ,(choose '(bitwise) '(bitwise-reverse) `(shift ,(choose 2 1)))
+              ,(choose '(bitwise) '(bitwise-reverse) `(shift ,shift-by) `(constant ,(??* (bitvector bitwidth))))
               ,inputs))))
 
-  (printf "lakeroad-expr: ~a\n" lakeroad-expr)
   lakeroad-expr)
 
-(define (synthesize-lattice-ecp5-wire bv-expr #:shiftby [shiftby '()])
-  (printf "bv-expr: ~a\n" bv-expr)
+; Synthesize a wire instruction
+(define (synthesize-wire bv-expr #:shift-by [shift-by '()])
   (define out-bw (bvlen bv-expr))
   (define max-input-bw
     (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
@@ -750,20 +747,21 @@
   (if (or (not (concrete? out-bw)) (not (concrete? max-input-bw)))
       #f
       (begin
-        (define shift-by
-          (if (null? shiftby)
-              (apply choose*
-                     (for/list ([i (range (add1 (- out-bw)) (add1 out-bw))] #:when (not (zero? i)))
-                       i))
-              shiftby))
+        (define shift-by-concrete
+          (cond
+            [(null? shift-by)
+             (apply choose*
+                    (for/list ([i (range (- out-bw) (add1 (add1 out-bw)))] #:when (not (zero? i)))
+                      i))]
+            [(list? shift-by) (apply choose* shift-by)]
+            [(int? shift-by) shift-by]
+            [else (error "Invalid shift-by: ~a" shift-by)]))
 
-        (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by))
-        (displayln (interpret lakeroad-expr))
+        (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
         (define soln
           (synthesize #:forall (symbolics bv-expr)
                       #:guarantee (begin
                                     (assert (bveq bv-expr (interpret lakeroad-expr))))))
-        (printf "soln is sat?: ~a\n" (sat? soln))
         (if (sat? soln)
             (evaluate lakeroad-expr
                       (complete-solution
@@ -779,7 +777,56 @@
   (current-solver (boolector))
   (with-terms (begin
                 (define-symbolic a (bitvector 4))
-                (define lrexpr (synthesize-lattice-ecp5-wire (bvshl a (bv 1 4))))
-                (check-not-false lrexpr)
-                (printf "interpreted: ~a\n" (interpret lrexpr))
-                (check-equal? (interpret lrexpr) (concat (extract 2 0 a) (bv 0 1))))))
+                (printf "\nChecking lshift 0\n")
+                (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking lshift 1\n")
+                (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking lshift 2\n")
+                (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking lshift 3\n")
+                (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking rshift 0\n")
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking rshift 1\n")
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking rshift 2\n")
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking rshift 3\n")
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking rshift 4\n")
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking rshift 5\n")
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking constant (bv #xff 8)\n")
+                (let ([lrexpr (synthesize-wire (bv #xff 8))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking constant (bv #x12 8)\n")
+                (let ([lrexpr (synthesize-wire (bv #x12 8))])
+                  (check-not-false lrexpr))
+
+                (printf "\nChecking constant (bv #x123456789abcdef0123456789abcdef0 128)\n")
+                (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
+                  (check-not-false lrexpr))
+
+                  )))
