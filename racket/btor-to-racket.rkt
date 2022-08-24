@@ -38,3 +38,7 @@
                                   ,(second (hash-ref output-signals output-signal-symbol))
                                   ,(first (hash-ref output-signals output-signal-symbol)))
                 (output-port)))
+
+(module test racket/base
+  ;;; Empty tests for now. If this file is run as a test, it will hang indefinitely waiting on stdin.
+  )
