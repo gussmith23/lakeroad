@@ -1,4 +1,6 @@
 `include "sky130_fd_sc_hd__or2_1.v"
+`include "sky130_fd_sc_hd__inv_1.v"
+`include "frac_lut4_mux.v"
 
 //
 //
