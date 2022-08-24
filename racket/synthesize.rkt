@@ -602,7 +602,7 @@
                             [accumulated-physical-output
                              (if (equal? accumulated-physical-output 'first)
                                  this-clb-physical-outputs
-                                 `(append ,accumulated-physical-output ,this-clb-physical-outputs))])
+                                 (lr:append (list accumulated-physical-output this-clb-physical-outputs)))])
                  (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              (list 'first cin)
@@ -666,9 +666,9 @@
     (foldl (lambda (logical-inputs previous-cout)
              (match-let* ([(list this-ccu2c-physical-outputs this-cout)
                            (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                             #:inputs `(logical-to-physical-mapping
-                                                        ,(choose '(bitwise) '(bitwise-reverse))
-                                                        ,logical-inputs)
+                                             #:inputs (lr:logical-to-physical-mapping
+                                                        (choose '(bitwise) '(bitwise-reverse))
+                                                        logical-inputs)
                                              #:CIN previous-cout
                                              #:INIT0 lutmem
                                              #:INIT1 lutmem)])
@@ -744,7 +744,7 @@
                                (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
                             [acc-phys-out (if (equal? acc-phys-out 'first)
                                               this-ccu2c-physical-outputs
-                                              `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                                              (lr:append (list acc-phys-out this-ccu2c-physical-outputs)))])
                  (list acc-phys-out this-cout)))
              (list 'first cin)
              logical-inputs-per-ccu2c)))
@@ -755,9 +755,9 @@
                (match-let* ([(list acc-phys-out previous-cout) previous-out]
                             [(list this-ccu2c-physical-outputs this-cout)
                              (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                               #:inputs `(logical-to-physical-mapping
-                                                          ,(choose '(bitwise) '(bitwise-reverse))
-                                                          ,logical-inputs)
+                                               #:inputs (lr:logical-to-physical-mapping
+                                                          (choose '(bitwise) '(bitwise-reverse))
+                                                          logical-inputs)
                                                #:CIN previous-cout
                                                #:INIT0 lutmem
                                                #:INIT1 lutmem)])
@@ -765,7 +765,7 @@
                                (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
                             [acc-phys-out (if (equal? acc-phys-out 'first)
                                               this-ccu2c-physical-outputs
-                                              `(append ,acc-phys-out ,this-ccu2c-physical-outputs))])
+                                              (lr:append (list acc-phys-out this-ccu2c-physical-outputs)))])
                  (list acc-phys-out this-cout)))
              (list 'first cin)
              logical-inputs-per-ccu2c)))
@@ -871,7 +871,7 @@
                             [accumulated-physical-output
                              (if (equal? accumulated-physical-output 'first)
                                  this-pfu-physical-outputs
-                                 `(append ,accumulated-physical-output ,this-pfu-physical-outputs))])
+                                 (lr:append (list accumulated-physical-output this-pfu-physical-outputs)))])
                  (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
              (list 'first cin)
