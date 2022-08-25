@@ -34,7 +34,26 @@
     [`(logical-to-physical-mapping (bitwise) ,logical-expr) (apply map list (compile logical-expr))]
     [`(logical-to-physical-mapping (bitwise-reverse) ,logical-expr)
      (apply map list (map reverse (compile logical-expr)))]
-    [`(logical-to-physical-mapping (identity) ,logical-expr) (compile logical-expr)]))
+    [`(logical-to-physical-mapping (shift ,n) ,logical-expr)
+    (let* ([compiled (apply map list (compile logical-expr))]
+           [num-bits (length compiled)]
+           [shift-amount (min (abs n) num-bits)]
+           [num-pads (max 0 (- num-bits shift-amount)) ]
+           [shifted (if (> n 0) 
+                        (append (make-list shift-amount (list "0")) (take compiled num-pads))
+                        (append (drop compiled shift-amount)  (make-list shift-amount (list "0"))))])
+
+
+
+      (printf "compiled: ~a\n" compiled)
+      (printf "n: ~a, num-bits: ~a, shift-amount: ~a, num-pads: ~a, shifted: ~a\n" n num-bits shift-amount num-pads shifted)
+
+      shifted)
+     ]
+    [`(logical-to-physical-mapping (constant ,n) ,logical-expr)
+     (list (compile n))]
+    [`(logical-to-physical-mapping (identity) ,logical-expr) (compile logical-expr)]
+    ))
 
 (module+ test
   (require rackunit)
@@ -74,7 +93,6 @@
 ;;; Returns: list of physical input bitvectors: (physical input 0, physical input 1, ...).
 (define (interpret-logical-to-physical-mapping interpreter expr)
   (match-define `(logical-to-physical-mapping ,f ,inputs) expr)
-  (printf "Logical-to-physical-mapping: ~a\n" expr)
   (for/all
    ([f f])
    ;;; We have to use nested for/alls here because Rosette will merge (union '(bitwise)

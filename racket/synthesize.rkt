@@ -7,8 +7,7 @@
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
          synthesize-lattice-ecp5-impl
-         synthesize-wire
-         make-wire-lrexpr)
+         synthesize-wire)
 
 (require "interpreter.rkt"
          "ultrascale.rkt"
@@ -90,7 +89,8 @@
 
 (define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed] #:timeout [timeout 5.0])
   (synthesize-with finish-when
-                   (list synthesize-lattice-ecp5-for-pfu
+                   (list synthesize-wire
+                         synthesize-lattice-ecp5-for-pfu
                          synthesize-lattice-ecp5-for-ripple-pfu
                          synthesize-lattice-ecp5-for-ccu2c
                          synthesize-lattice-ecp5-for-ccu2c-tri
@@ -827,6 +827,4 @@
 
                 (printf "\nChecking constant (bv #x123456789abcdef0123456789abcdef0 128)\n")
                 (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
-                  (check-not-false lrexpr))
-
-                  )))
+                  (check-not-false lrexpr)))))
