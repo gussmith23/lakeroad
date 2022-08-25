@@ -99,7 +99,8 @@
     [(? concrete? (? (bitvector 16) a)) (format "((uint16_t) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 32) a)) (format "((uint32_t) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 64) a)) (format "((uint64_t) ~a)" (bitvector->natural a))]
-    [(? constant? a) (format "(~a & ~a)" a (- (expt 2 (bvlen a)) 1))]))
+    ;;; We suffix the mask with ULL to be safe.
+    [(? constant? a) (format "(~a & ~aULL)" a (- (expt 2 (bvlen a)) 1))]))
 
 (define (json->verilog json verilog #:logfile [logfile "/dev/null"])
   (let ([command
