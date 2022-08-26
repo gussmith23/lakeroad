@@ -35,25 +35,25 @@
     [`(logical-to-physical-mapping (bitwise-reverse) ,logical-expr)
      (apply map list (map reverse (compile logical-expr)))]
     [`(logical-to-physical-mapping (shift ,n) ,logical-expr)
-    (let* ([compiled (apply map list (compile logical-expr))]
-           [num-bits (length compiled)]
-           [shift-amount (min (abs n) num-bits)]
-           [num-pads (max 0 (- num-bits shift-amount)) ]
-           [shifted (if (> n 0) 
-                        (append (make-list shift-amount (list "0")) (take compiled num-pads))
-                        (append (drop compiled shift-amount)  (make-list shift-amount (list "0"))))])
+     (let* ([compiled (apply map list (compile logical-expr))]
+            [num-bits (length compiled)]
+            [shift-amount (min (abs n) num-bits)]
+            [num-pads (max 0 (- num-bits shift-amount))]
+            [shifted (if (> n 0)
+                         (append (make-list shift-amount (list "0")) (take compiled num-pads))
+                         (append (drop compiled shift-amount) (make-list shift-amount (list "0"))))])
 
+       (printf "compiled: ~a\n" compiled)
+       (printf "n: ~a, num-bits: ~a, shift-amount: ~a, num-pads: ~a, shifted: ~a\n"
+               n
+               num-bits
+               shift-amount
+               num-pads
+               shifted)
 
-
-      (printf "compiled: ~a\n" compiled)
-      (printf "n: ~a, num-bits: ~a, shift-amount: ~a, num-pads: ~a, shifted: ~a\n" n num-bits shift-amount num-pads shifted)
-
-      shifted)
-     ]
-    [`(logical-to-physical-mapping (constant ,n) ,logical-expr)
-     (list (compile n))]
-    [`(logical-to-physical-mapping (identity) ,logical-expr) (compile logical-expr)]
-    ))
+       shifted)]
+    [`(logical-to-physical-mapping (constant ,n) ,logical-expr) (list (compile n))]
+    [`(logical-to-physical-mapping (identity) ,logical-expr) (compile logical-expr)]))
 
 (module+ test
   (require rackunit)
@@ -137,18 +137,17 @@
       ;;; shift' of our list and vice versa.
       [`(shift ,n)
        (for/all ([n n #:exhaustive])
-         (let* ([transposed (transpose (interpreter inputs))]
-                [num-cols (length transposed)]
-                [pad-col (bv #x0 (length inputs))]
-                [num-pads (min (abs n) num-cols)]
-                [pads (make-list num-pads pad-col)])
-           (cond
-             [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
-             [(< n 0) (append (drop transposed num-pads) pads)]
-             [else transposed])))]
-      
-      [`(constant ,c)
-       (bitvector->bits c)]
+                (let* ([transposed (transpose (interpreter inputs))]
+                       [num-cols (length transposed)]
+                       [pad-col (bv #x0 (length inputs))]
+                       [num-pads (min (abs n) num-cols)]
+                       [pads (make-list num-pads pad-col)])
+                  (cond
+                    [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
+                    [(< n 0) (append (drop transposed num-pads) pads)]
+                    [else transposed])))]
+
+      [`(constant ,c) (bitvector->bits c)]
       ;;;
       ;;; Same as bitwise, but includes masks on the physical outputs.
       ;;;
@@ -350,13 +349,15 @@
     (first (interpret-physical-to-logical-mapping
             ; interpret
             (lambda (x) (interpret-logical-to-physical-mapping identity x))
-            `(physical-to-logical-mapping (bitwise) (logical-to-physical-mapping (shift ,shift-by) ,inputs)))))
+            `(physical-to-logical-mapping (bitwise)
+                                          (logical-to-physical-mapping (shift ,shift-by) ,inputs)))))
 
   (define (interpret-constant-instruction bitwidth)
     (first (interpret-physical-to-logical-mapping
             ; interpret
             (lambda (x) (interpret-logical-to-physical-mapping identity x))
-            `(physical-to-logical-mapping (bitwise) (logical-to-physical-mapping (constant ,bitwidth) ())))))
+            `(physical-to-logical-mapping (bitwise)
+                                          (logical-to-physical-mapping (constant ,bitwidth) ())))))
   ;;;                 TEST CONSTANTS                    ;;;
   (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 0) (bv 1 2))
 
@@ -370,7 +371,7 @@
   (check-equal? (interpret-shift-instruction #:inputs (list (bv #b10 2)) #:shift-by -3) (bv 0 2))
 
   ;; Test right shifts
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by  0) (bv #xaa 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 0) (bv #xaa 8))
   (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -1) (bv #x55 8))
   (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -2) (bv #x2a 8))
   (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -3) (bv #x15 8))

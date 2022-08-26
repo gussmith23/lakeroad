@@ -1000,9 +1000,11 @@
   (define lakeroad-expr
     `(first (physical-to-logical-mapping
              (bitwise)
-             (logical-to-physical-mapping
-              ,(choose '(bitwise) '(bitwise-reverse) `(shift ,shift-by) `(constant ,(??* (bitvector bitwidth))))
-              ,inputs))))
+             (logical-to-physical-mapping ,(choose '(bitwise)
+                                                   '(bitwise-reverse)
+                                                   `(shift ,shift-by)
+                                                   `(constant ,(??* (bitvector bitwidth))))
+                                          ,inputs))))
 
   lakeroad-expr)
 
@@ -1045,56 +1047,45 @@
            rosette
            rackunit)
   (current-solver (boolector))
-  (with-terms (begin
-                (define-symbolic a (bitvector 4))
-                (printf "\nChecking lshift 0\n")
-                (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))])
-                  (check-not-false lrexpr))
+  (with-terms
+   (begin
+     (define-symbolic a (bitvector 4))
+     (printf "\nChecking lshift 0\n")
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking lshift 1\n")
-                (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking lshift 1\n")
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking lshift 2\n")
-                (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking lshift 2\n")
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking lshift 3\n")
-                (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking lshift 3\n")
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking rshift 0\n")
-                (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking rshift 0\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking rshift 1\n")
-                (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking rshift 1\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking rshift 2\n")
-                (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking rshift 2\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking rshift 3\n")
-                (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking rshift 3\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking rshift 4\n")
-                (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)])
-                  (check-not-false lrexpr))
+     (printf "\nChecking rshift 4\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)]) (check-not-false lrexpr))
 
-                (printf "\nChecking rshift 5\n")
-                (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking rshift 5\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))]) (check-not-false lrexpr))
 
-                (printf "\nChecking constant (bv #xff 8)\n")
-                (let ([lrexpr (synthesize-wire (bv #xff 8))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking constant (bv #xff 8)\n")
+     (let ([lrexpr (synthesize-wire (bv #xff 8))]) (check-not-false lrexpr))
 
-                (printf "\nChecking constant (bv #x12 8)\n")
-                (let ([lrexpr (synthesize-wire (bv #x12 8))])
-                  (check-not-false lrexpr))
+     (printf "\nChecking constant (bv #x12 8)\n")
+     (let ([lrexpr (synthesize-wire (bv #x12 8))]) (check-not-false lrexpr))
 
-                (printf "\nChecking constant (bv #x123456789abcdef0123456789abcdef0 128)\n")
-                (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
-                  (check-not-false lrexpr)))))
+     (printf "\nChecking constant (bv #x123456789abcdef0123456789abcdef0 128)\n")
+     (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
+       (check-not-false lrexpr)))))
