@@ -42,15 +42,6 @@
             [shifted (if (> n 0)
                          (append (make-list shift-amount (list "0")) (take compiled num-pads))
                          (append (drop compiled shift-amount) (make-list shift-amount (list "0"))))])
-
-       (printf "compiled: ~a\n" compiled)
-       (printf "n: ~a, num-bits: ~a, shift-amount: ~a, num-pads: ~a, shifted: ~a\n"
-               n
-               num-bits
-               shift-amount
-               num-pads
-               shifted)
-
        shifted)]
     [`(logical-to-physical-mapping (constant ,n) ,logical-expr) (list (compile n))]
     [`(logical-to-physical-mapping (identity) ,logical-expr) (compile logical-expr)]))
