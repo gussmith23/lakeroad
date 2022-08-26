@@ -334,8 +334,6 @@ here-string-delimiter
                        #:extra-verilator-args [extra-verilator-args ""]
                        #:verilator-jobs [verilator-jobs 2])
   ;;; TODO anonymize.
-  (when (not (getenv "LAKEROAD_DIR"))
-    (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
 
   (define json-file (make-temporary-file "rkttmp~a.json"))
   (define verilog-file (make-temporary-file "rkttmp~a.v"))
@@ -377,7 +375,7 @@ here-string-delimiter
   (define verilated-type-name
     (format "V~a" (path-replace-extension (file-name-from-path verilog-file) "")))
   (define testbench-source
-    (format (file->string (build-path (getenv "LAKEROAD_DIR") "racket" testbench-filename))
+    (format (file->string (build-path (get-lakeroad-directory) "racket" testbench-filename))
             (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
             verilated-type-name
             (if (>= (length (symbolics bv-expr)) 1)
@@ -444,7 +442,7 @@ here-string-delimiter
   (log-info "~a" testbench-file)
   (display-to-file testbench-source testbench-file #:exists 'update)
 
-  (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+  (define verilator-unisims-dir (build-path (get-lakeroad-directory) "verilator_xilinx"))
   (define includes-string
     (string-join (for/list ([include includes])
                    (format "~a" include))))

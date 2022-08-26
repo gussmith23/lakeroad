@@ -89,9 +89,7 @@
 
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
-  (when (not (getenv "LAKEROAD_DIR"))
-    (error "LAKEROAD_DIR environment variable must be set"))
-  (define include-dir (build-path (getenv "LAKEROAD_DIR") "f4pga-arch-defs/ecp5/primitives/slice"))
+  (define include-dir (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
   (test-true "simulate all synthesized designs with Verilator"
              (simulate-with-verilator #:include-dirs (list include-dir)
                                       #:extra-verilator-args "-Wno-UNUSED"
