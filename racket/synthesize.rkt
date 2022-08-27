@@ -73,7 +73,7 @@
           templates)]))
 
 (define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
-  (synthesize-with finish-when (list (synthesize-using-lut 'sofa 1 4)) bv-expr))
+  (synthesize-with finish-when (list synthesize-wire (synthesize-using-lut 'sofa 1 4)) bv-expr))
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
 ;;;
@@ -82,7 +82,8 @@
 ;;; defining those as keyword args with default values.
 (define (synthesize-xilinx-ultrascale-plus-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when
-                   (list synthesize-constant
+                   (list synthesize-wire
+                         synthesize-constant
                          synthesize-xilinx-ultrascale-plus-dsp
                          (synthesize-using-lut 'xilinx-ultrascale-plus 1)
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
