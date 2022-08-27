@@ -1,3 +1,4 @@
+#!/usr/bin/env racket
 #lang racket/base
 
 (require racket/cmdline
@@ -5,7 +6,7 @@
          racket/port
          racket/pretty
          racket/list
-         "btor.rkt")
+         "../racket/btor.rkt")
 
 (define input-port (make-parameter (current-input-port)))
 (define output-port (make-parameter (current-output-port)))
@@ -34,11 +35,10 @@
 (for ([require requires])
   (pretty-display require (output-port)))
 (for ([output-signal-symbol (output-signal-symbols)])
-  (pretty-write `(define/contract ,output-signal-symbol
-                                  ,(second (hash-ref output-signals output-signal-symbol))
-                                  ,(first (hash-ref output-signals output-signal-symbol)))
-                (output-port)))
-
-(module test racket/base
-  ;;; Empty tests for now. If this file is run as a test, it will hang indefinitely waiting on stdin.
-  )
+  ;;; TODO(@gussmith): Fix contract generation. Seems to generate incorrect contracts right now.
+  ;;; (pretty-write `(define/contract ,output-signal-symbol
+  ;;;                                 ,(second (hash-ref output-signals output-signal-symbol))
+  ;;;                                 ,(first (hash-ref output-signals output-signal-symbol)))
+  (pretty-write
+   `(define ,output-signal-symbol ,(first (hash-ref output-signals output-signal-symbol)))
+   (output-port)))

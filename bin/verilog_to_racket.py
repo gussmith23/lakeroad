@@ -1,0 +1,241 @@
+#!/usr/bin/env python3
+"""Convert a Verilog module to a Racket (Rosette) function.
+
+For a module to be convertible with this tool, its parameters must be converted
+to ports. For example, the following module:
+
+module foo #(parameter param0=0) (input a, input b, output c);
+    parameter param1 = 1; ...impl...
+endmodule
+
+should be converted to:
+
+module foo (input a, input b, output c, input param0);
+    input param1; ...impl...
+endmodule
+
+or:
+
+module foo (input a, input b, output c, input param0, input param1);
+    ...impl...
+endmodule
+
+This is due to the fact that Yosys converts parameters to constants upon
+reading, whereas we need constants to be seen as variables.
+
+A script for doing this conversion automatically can be found in
+scripts/convert_params_to_ports.py---however, it is likely easier and safer to
+do the conversion by hand.
+
+Example invocation:
+python3 verilog_to_racket.py     \\
+    --infile mymodule.v          \\
+    --top mymodule               \\
+    --output-signal out          \\
+    --outfile mymodule.rkt       \\
+    --infile othermodule.v       \\
+    --include verilog_files_dir/ \\
+    --define MYVAR
+
+In this case, our module `mymodule` lives in `mymodule.v`. It includes files in
+`verilog_files_dir/`. If it 'implicitly' depends on other modules, e.g.
+`othermodule`, you can ensure those files are included with --infile as well. We
+request that the script convert the `out` output of `mymodule` to a
+Racket/Rosette function. The resulting Racket/Rosette code will be written to
+`mymodule.rkt`.
+
+Preprocessor defines can be specified with --define.
+
+TODO(@gussmith23): Support --define with values.
+TODO(@gussmith23): Generate all outputs, return them in a list or map.
+"""
+
+import argparse
+import sys
+import verilog_to_racket
+from pathlib import Path
+from typing import Dict, Optional, Union, List
+import subprocess
+import itertools
+from tempfile import NamedTemporaryFile
+import logging
+
+StrOrPath = Union[str, Path]
+
+
+def preprocess_flatten_convert_verilog(
+    infiles: List[StrOrPath],
+    top: str,
+    outfile: StrOrPath,
+    output_signal: str,
+    include_directories: List[StrOrPath] = [],
+    defines: Dict[str, Optional[str]] = {},
+    check_for_not_derived: bool = True,
+) -> None:
+    """Preprocess, flatten, and convert Verilog to btor.
+
+    Preprocess: run a Verilog preprocessor on the code.
+    Flatten: flatten the code into a single module.
+    Convert: convert the code to btor.
+
+    Uses Yosys. Could use Icarus Verilog instead.
+
+    Args:
+        infiles: List of Verilog files.
+        output_signal: Name of signal to generate output for.
+
+    Returns:
+        Preprocessed Verilog code."""
+
+    ## FIRST: Convert Verilog to btor.
+
+    # Produces a string "-I <dir> -I <dir> ..." for each directory in include_directories.
+    include_flags = " ".join(
+        [f"-I {include_directory}" for include_directory in include_directories]
+    )
+
+    # Produces a string "-D <key>[=<val>] ..." for each define in defines.
+    define_flags = " ".join(
+        itertools.chain(
+            *[
+                ["-D", f"{k}={v}" if v is not None else f"{k}"]
+                for (k, v) in defines.items()
+            ]
+        )
+    )
+
+    read_verilog_commands = [
+        f"read_verilog -sv {include_flags} {define_flags} {infile}"
+        for infile in infiles
+    ]
+
+    # Temporary btor and Verilog files.
+    btorfile = NamedTemporaryFile()
+    vfile = NamedTemporaryFile()
+
+    yosys_commands = read_verilog_commands + [
+        # -simcheck runs checks like -check, but aslso checks that there are no blackboxes.
+        f"hierarchy -simcheck -top {top}",
+        "prep",
+        "proc",
+        "flatten",
+        "clk2fflogic",
+        f"write_btor {btorfile.name}",
+        f"write_verilog -sv {vfile.name}",
+    ]
+
+    try:
+        cmd = [
+                "yosys",
+                "-p",
+                "\n".join(yosys_commands),
+            ]
+        logging.info(f"Running command: {' '.join(cmd)}")
+        subprocess.run(
+            args=cmd,
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print("Yosys failed. stdout:", file=sys.stderr)
+        print(e.stdout.decode("utf-8"),file= sys.stderr)
+        print("stderr:", file=sys.stderr)
+        print(e.stderr.decode("utf-8"),file= sys.stderr)
+        raise e
+
+    if check_for_not_derived:
+        vfile.seek(0)
+        vfile_contents = vfile.read().decode("utf-8")
+        assert "not_derived" not in vfile_contents, "Found not_derived in output."
+
+    ## SECOND: Convert the btor file to Racket.
+
+    LAKEROAD_DIR = Path(__file__).parent.parent.resolve()
+    BTOR_TO_RACKET_SCRIPT = LAKEROAD_DIR / "bin" / "btor-to-racket.rkt"
+
+    try:
+        cmd = [
+                str(BTOR_TO_RACKET_SCRIPT),
+                "--input-file",
+                str(btorfile.name),
+                "--output-file",
+                str(outfile),
+                "--output-signal",
+                output_signal,
+            ]
+        logging.info(f"Running command: {' '.join(cmd)}")
+        subprocess.run(
+            args=cmd,
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print("btor-to-racket.rkt failed. stdout:", file=sys.stderr)
+        print(e.stdout.decode("utf-8"),file= sys.stderr)
+        print("stderr:", file=sys.stderr)
+        print(e.stderr.decode("utf-8"),file= sys.stderr)
+        raise e
+
+    vfile.close()
+    btorfile.close()
+
+
+if __name__ == "__main__":
+    import os
+
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument(
+        "--infile",
+        type=argparse.FileType("r"),
+        action="append",
+        required=True,
+        help=(
+            "Verilog file containing module to convert. Please see the"
+            " requirements for modules in the docstring."
+        ),
+    )
+    parser.add_argument(
+        "--outfile",
+        type=Path,
+        required=True,
+        help="File to write Racket/Rosette code to.",
+    )
+    parser.add_argument(
+        "--top", type=str, required=True, help="Top module name."
+    )
+    parser.add_argument(
+        "--output-signal",
+        type=str,
+        required=True,
+        help="Name of the output signal which the Racket/Rosette function should output.",
+    )
+    parser.add_argument(
+        "--include",
+        type=Path,
+        default=[],
+        action="append",
+        help="Include directories needed by `include statements in the Verilog code.",
+    )
+    parser.add_argument(
+        "--define",
+        type=str,
+        default=[],
+        action="append",
+        help="Variables to define for the preprocessor.",
+    )
+    args = parser.parse_args()
+
+    LOGLEVEL = os.environ.get("LOGLEVEL", "WARNING").upper()
+    logging.basicConfig(level=LOGLEVEL)
+
+    verilog_to_racket.preprocess_flatten_convert_verilog(
+        infiles=[f.name for f in args.infile],
+        top=args.top,
+        output_signal=args.output_signal,
+        outfile=args.outfile,
+        check_for_not_derived=True,
+        include_directories=args.include,
+        defines={k: None for k in args.define},
+    )
