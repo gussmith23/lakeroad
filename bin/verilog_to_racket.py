@@ -66,12 +66,11 @@ StrOrPath = Union[str, Path]
 def preprocess_flatten_convert_verilog(
     infiles: List[StrOrPath],
     top: str,
-    outfile: StrOrPath,
     output_signal: str,
     include_directories: List[StrOrPath] = [],
     defines: Dict[str, Optional[str]] = {},
     check_for_not_derived: bool = True,
-) -> None:
+) -> str:
     """Preprocess, flatten, and convert Verilog to btor.
 
     Preprocess: run a Verilog preprocessor on the code.
@@ -151,26 +150,24 @@ def preprocess_flatten_convert_verilog(
     ## SECOND: Convert the btor file to Racket.
 
     LAKEROAD_DIR = Path(__file__).parent.parent.resolve()
-    BTOR_TO_RACKET_SCRIPT = LAKEROAD_DIR / "bin" / "btor-to-racket.rkt"
+    BTOR_TO_RACKET_SCRIPT = LAKEROAD_DIR / "bin" / "btor_to_racket.rkt"
 
     try:
         cmd = [
                 str(BTOR_TO_RACKET_SCRIPT),
                 "--input-file",
                 str(btorfile.name),
-                "--output-file",
-                str(outfile),
                 "--output-signal",
                 output_signal,
             ]
         logging.info(f"Running command: {' '.join(cmd)}")
-        subprocess.run(
+        p = subprocess.run(
             args=cmd,
             capture_output=True,
             check=True,
         )
     except subprocess.CalledProcessError as e:
-        print("btor-to-racket.rkt failed. stdout:", file=sys.stderr)
+        print("btor_to_racket.rkt failed. stdout:", file=sys.stderr)
         print(e.stdout.decode("utf-8"),file= sys.stderr)
         print("stderr:", file=sys.stderr)
         print(e.stderr.decode("utf-8"),file= sys.stderr)
@@ -178,6 +175,8 @@ def preprocess_flatten_convert_verilog(
 
     vfile.close()
     btorfile.close()
+
+    return p.stdout.decode("utf-8")
 
 
 if __name__ == "__main__":
@@ -198,9 +197,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--outfile",
-        type=Path,
-        required=True,
-        help="File to write Racket/Rosette code to.",
+        type=argparse.FileType("w"),
+        default=sys.stdout,
+        help="File to write Racket/Rosette code to. When not set, writes to stdout.",
     )
     parser.add_argument(
         "--top", type=str, required=True, help="Top module name."
@@ -230,12 +229,13 @@ if __name__ == "__main__":
     LOGLEVEL = os.environ.get("LOGLEVEL", "WARNING").upper()
     logging.basicConfig(level=LOGLEVEL)
 
-    verilog_to_racket.preprocess_flatten_convert_verilog(
+    out = verilog_to_racket.preprocess_flatten_convert_verilog(
         infiles=[f.name for f in args.infile],
         top=args.top,
         output_signal=args.output_signal,
-        outfile=args.outfile,
         check_for_not_derived=True,
         include_directories=args.include,
         defines={k: None for k in args.define},
     )
+
+    print(out, file=args.outfile)
