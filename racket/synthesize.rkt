@@ -997,6 +997,8 @@
                                                          (list->set (symbolics bv-expr))))))
             #f))))
 
+;;; make-wire-lrexpr: a helper function for `synthesize-wire`. This creates a FULL
+;;; (input-to-output) wire template that is ready for synthesis.
 (define (make-wire-lrexpr inputs shift-by bitwidth)
   (define lakeroad-expr
     `(first (physical-to-logical-mapping
@@ -1009,13 +1011,19 @@
 
   lakeroad-expr)
 
-; Synthesize a wire instruction
+;;; Synthesize a wire instruction. This is architecture-independent and involves
+;;; pure routing of wires. This includes:
+;;; + bitwise (direct routing of input wires to output wires)
+;;; + bitwise revierse (reversing he order of wires)
+;;; + constant (ignoring inputs and routing a constant to the output)
+;;; + shift (logical shifting the input wires to the left or right by a constant
+;;;   statically know amount)
 (define (synthesize-wire bv-expr #:shift-by [shift-by '()])
   (define out-bw (bvlen bv-expr))
   (define max-input-bw
     (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
-  ;(define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
-  (define logical-inputs (symbolics bv-expr))
+  (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
+  ;(define logical-inputs (symbolics bv-expr))
 
   (if (or (not (concrete? out-bw)) (not (concrete? max-input-bw)))
       #f

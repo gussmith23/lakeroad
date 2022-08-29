@@ -336,6 +336,16 @@
                  `(logical-to-physical-mapping (bitwise) ,(list (bv #b01 2))))
                 (list (bv #b1 1) (bv #b0 1)))
 
+  ; The following two functions are helpers to help us test our wire
+  ; implementations. They each create and interpret a logical-to-physical
+  ; mapping (a shift and a constant) respectively.
+  ;
+  ; The functions create a lakeroad expression of the given type and then
+  ; interpret it using a custom 'interpreter'. Note that we cannot pass in the
+  ; `interpret` function from `interpret.rkt` since that would result in a
+  ; circular dependency. Instead, we pass a simple lambda that uses
+  ; `interpret-logical-to-physical-mapping identity...` on the nested expression
+  ; we want to recursively interpret.
   (define (interpret-shift-instruction #:inputs inputs #:shift-by shift-by)
     (first (interpret-physical-to-logical-mapping
             ; interpret
@@ -343,6 +353,7 @@
             `(physical-to-logical-mapping (bitwise)
                                           (logical-to-physical-mapping (shift ,shift-by) ,inputs)))))
 
+  ; Helper function for testing
   (define (interpret-constant-instruction bitwidth)
     (first (interpret-physical-to-logical-mapping
             ; interpret
