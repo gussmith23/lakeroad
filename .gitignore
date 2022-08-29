@@ -5,4 +5,6 @@
 utils/tests/convert-module-to-btor/.lit_test_times.txt
 utils/tests/convert-module-to-btor/Output/*
 
-**/.DS_Store
+**/.DS_Store**/__pycache__/
+**/.lit_test_times.txt
+**/Output/
