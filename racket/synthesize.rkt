@@ -1028,7 +1028,7 @@
   ;       problem, for instance.  We don't really need to use dup extensions for
   ;       wire instruction synthesis, so I think we can get away with just using
   ;       the symbolics of the bv-expr as the logical inputs.
-  
+
   ; (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
   (define logical-inputs (symbolics bv-expr))
 
