@@ -1022,8 +1022,15 @@
   (define out-bw (bvlen bv-expr))
   (define max-input-bw
     (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
-  (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
-  ;(define logical-inputs (symbolics bv-expr))
+
+  ; TODO: (Ben) get-lattice-logical-inputs is lattice-specific, and is also
+  ;       causing an error at some locations for mux: (abs ??) seems to be a
+  ;       problem, for instance.  We don't really need to use dup extensions for
+  ;       wire instruction synthesis, so I think we can get away with just using
+  ;       the symbolics of the bv-expr as the logical inputs.
+  
+  ; (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
+  (define logical-inputs (symbolics bv-expr))
 
   (if (or (not (concrete? out-bw)) (not (concrete? max-input-bw)))
       #f
