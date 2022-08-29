@@ -20,6 +20,17 @@
          compile-lattice-pfu
          compile-lattice-ccu2c
          compile-lattice-ripple-pfu
+         lattice-ecp5-lut4
+         lattice-ecp5-lut5
+         lattice-ecp5-lut6
+         lattice-ecp5-lut7
+         lattice-ecp5-lut8
+         lattice-ecp5-mux21
+         lattice-ecp5-l6mux21
+         lattice-ecp5-pfumx
+         lattice-ecp5-pfu
+         lattice-ecp5-ccu2c
+         lattice-ripple-pfu
          get-lattice-logical-inputs
          make-lattice-lut4-expr
          make-lattice-lut5-expr
@@ -33,6 +44,36 @@
          make-lattice-pfu-expr
          make-lattice-ccu2c-expr
          make-lattice-ripple-pfu-expr)
+
+(struct lattice-ecp5-lut4 (INIT inputs) #:transparent)
+(struct lattice-ecp5-lut5 (INIT inputs) #:transparent)
+(struct lattice-ecp5-lut6 (INIT inputs) #:transparent)
+(struct lattice-ecp5-lut7 (INIT inputs) #:transparent)
+(struct lattice-ecp5-lut8 (INIT inputs) #:transparent)
+(struct lattice-ecp5-mux21 (D0 D1 SD) #:transparent)
+(struct lattice-ecp5-l6mux21 (D0 D1 SD) #:transparent)
+(struct lattice-ecp5-pfumx (ALUT BLUT CO) #:transparent)
+(struct lattice-ecp5-pfu (lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h inputs) #:transparent)
+(struct lattice-ecp5-ccu2c (INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs) #:transparent)
+(struct lattice-ripple-pfu
+        (INIT0 INIT1
+               INIT2
+               INIT3
+               INIT4
+               INIT5
+               INIT6
+               INIT7
+               INJECT1_0
+               INJECT1_1
+               INJECT1_2
+               INJECT1_3
+               INJECT1_4
+               INJECT1_5
+               INJECT1_6
+               INJECT1_7
+               CIN
+               inputs)
+  #:transparent)
 
 ; The output of a LUT is simply the bit at the entry pointed to by `inputs`,
 ; when interpreted as an integer.
@@ -63,27 +104,27 @@
      (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
 
 (define (make-lattice-lut4-expr logical-inputs #:INIT [INIT #f])
-  `(lattice-ecp5-lut4 ,(or INIT (??* (bitvector 16))) ,logical-inputs))
+  (lattice-ecp5-lut4 (or INIT (??* (bitvector 16))) logical-inputs))
 
 (define (make-lattice-lut5-expr logical-inputs #:INIT [INIT #f] #:DECOMPOSE [decompose #t])
   (if decompose
       (decompose-lookup logical-inputs #:DECOMPOSE decompose)
-      `(lattice-ecp5-lut5 ,(or INIT (??* (bitvector 32))) ,logical-inputs)))
+      (lattice-ecp5-lut5 (or INIT (??* (bitvector 32))) logical-inputs)))
 
 (define (make-lattice-lut6-expr logical-inputs #:INIT [INIT #f] #:DECOMPOSE [decompose #t])
   (if decompose
       (decompose-lookup logical-inputs #:DECOMPOSE decompose)
-      `(lattice-ecp5-lut6 ,(or INIT (??* (bitvector 64))) ,logical-inputs)))
+      (lattice-ecp5-lut6 (or INIT (??* (bitvector 64))) logical-inputs)))
 
 (define (make-lattice-lut7-expr logical-inputs #:INIT [INIT #f] #:DECOMPOSE [decompose #t])
   (if decompose
       (decompose-lookup logical-inputs #:DECOMPOSE decompose)
-      `(lattice-ecp5-lut7 ,(or INIT (??* (bitvector 128))) ,logical-inputs)))
+      (lattice-ecp5-lut7 (or INIT (??* (bitvector 128))) logical-inputs)))
 
 (define (make-lattice-lut8-expr logical-inputs #:INIT [INIT #f] #:DECOMPOSE [decompose #t])
   (if decompose
       (decompose-lookup logical-inputs #:DECOMPOSE decompose)
-      `(lattice-ecp5-lut8 ,(or INIT (??* (bitvector 256))) ,logical-inputs)))
+      (lattice-ecp5-lut8 (or INIT (??* (bitvector 256))) logical-inputs)))
 
 (define (decompose-lookup inputs #:DECOMPOSE [decompose #t])
   (let* ([n (bvlen inputs)]
@@ -120,25 +161,25 @@
         [_ (decompose-lookup logical-inputs #:DECOMPOSE decompose)])))
 
 (define (make-lattice-mux21-expr D0 D1 SD)
-  `(lattice-ecp5-mux21 ,D0 ,D1 ,SD))
+  (lattice-ecp5-mux21 D0 D1 SD))
 
 (define (make-lattice-l6mux21-expr D0 D1 SD)
-  `(lattice-ecp5-l6mux21 ,D0 ,D1 ,SD))
+  (lattice-ecp5-l6mux21 D0 D1 SD))
 
 (define (make-lattice-pfumx-expr ALUT BLUT CO)
-  `(lattice-ecp5-pfumx ,ALUT ,BLUT ,CO))
+  (lattice-ecp5-pfumx ALUT BLUT CO))
 
 ;;; Create a lakeroad expression for a pfu
 (define (make-lattice-pfu-expr logical-inputs)
-  `(lattice-ecp5-pfu ,(??* (bitvector 16))
-                     ,(??* (bitvector 16))
-                     ,(??* (bitvector 16))
-                     ,(??* (bitvector 16))
-                     ,(??* (bitvector 16))
-                     ,(??* (bitvector 16))
-                     ,(??* (bitvector 16))
-                     ,(??* (bitvector 16))
-                     ,(lr:logical-to-physical-mapping '(bitwise) logical-inputs)))
+  (lattice-ecp5-pfu (??* (bitvector 16))
+                    (??* (bitvector 16))
+                    (??* (bitvector 16))
+                    (??* (bitvector 16))
+                    (??* (bitvector 16))
+                    (??* (bitvector 16))
+                    (??* (bitvector 16))
+                    (??* (bitvector 16))
+                    (logical-to-physical-mapping '(bitwise) logical-inputs)))
 
 ;;; Create a Lakeroad expression for a CCU2C. This can be used to specify a
 ;;; 2-bit add, etc
@@ -150,12 +191,12 @@
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
                                  #:INJECT1_1 [INJECT1_1 #f])
-  `(lattice-ecp5-ccu2c ,(or INIT0 (??* (bitvector 16))) ; INIT0
-                       ,(or INIT1 (??* (bitvector 16))) ; INIT1
-                       ,(or INJECT1_0 (??* (bitvector 1))) ; INJECT1_0
-                       ,(or INJECT1_1 (??* (bitvector 1))) ; INJECT1_1
-                       ,(or CIN (??* (bitvector 1))) ; CIN
-                       ,inputs))
+  (lattice-ecp5-ccu2c (or INIT0 (??* (bitvector 16))) ; INIT0
+                      (or INIT1 (??* (bitvector 16))) ; INIT1
+                      (or INJECT1_0 (??* (bitvector 1))) ; INJECT1_0
+                      (or INJECT1_1 (??* (bitvector 1))) ; INJECT1_1
+                      (or CIN (??* (bitvector 1))) ; CIN
+                      inputs))
 
 ;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
 ;;; an 8-bit add, etc.
@@ -213,24 +254,24 @@
   ;    (error (format "~a: all inputs must satisfy (bitvector ~a): ~a" fn-name out-bw input))))
 
   (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv -1 out-bw)))])
-    `(lattice-ecp5-ripple-pfu ,(or INIT0 (??* (bitvector 16)))
-                              ,(or INIT1 (??* (bitvector 16)))
-                              ,(or INIT2 (??* (bitvector 16)))
-                              ,(or INIT3 (??* (bitvector 16)))
-                              ,(or INIT4 (??* (bitvector 16)))
-                              ,(or INIT5 (??* (bitvector 16)))
-                              ,(or INIT6 (??* (bitvector 16)))
-                              ,(or INIT7 (??* (bitvector 16)))
-                              ,(or INJECT1_0 (??* (bitvector 1)))
-                              ,(or INJECT1_1 (??* (bitvector 1)))
-                              ,(or INJECT1_2 (??* (bitvector 1)))
-                              ,(or INJECT1_3 (??* (bitvector 1)))
-                              ,(or INJECT1_4 (??* (bitvector 1)))
-                              ,(or INJECT1_5 (??* (bitvector 1)))
-                              ,(or INJECT1_6 (??* (bitvector 1)))
-                              ,(or INJECT1_7 (??* (bitvector 1)))
-                              ,(or CIN (??* (bitvector 1)))
-                              ,(lr:logical-to-physical-mapping MAPPING inputs))))
+    (lattice-ecp5-ripple-pfu (or INIT0 (??* (bitvector 16)))
+                             (or INIT1 (??* (bitvector 16)))
+                             (or INIT2 (??* (bitvector 16)))
+                             (or INIT3 (??* (bitvector 16)))
+                             (or INIT4 (??* (bitvector 16)))
+                             (or INIT5 (??* (bitvector 16)))
+                             (or INIT6 (??* (bitvector 16)))
+                             (or INIT7 (??* (bitvector 16)))
+                             (or INJECT1_0 (??* (bitvector 1)))
+                             (or INJECT1_1 (??* (bitvector 1)))
+                             (or INJECT1_2 (??* (bitvector 1)))
+                             (or INJECT1_3 (??* (bitvector 1)))
+                             (or INJECT1_4 (??* (bitvector 1)))
+                             (or INJECT1_5 (??* (bitvector 1)))
+                             (or INJECT1_6 (??* (bitvector 1)))
+                             (or INJECT1_7 (??* (bitvector 1)))
+                             (or CIN (??* (bitvector 1)))
+                             (logical-to-physical-mapping MAPPING inputs))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;        INTERPRETING LAKEROAD EXPRESSIONS         ;;;;;;;;;;;;;;;
@@ -243,28 +284,28 @@
 (define (interpret-lattice-ecp5 interpreter expr)
   (match expr
     ;; Interpret PFUs/non primitives
-    [`(lattice-ecp5-pfu ,lut-a ,lut-b ,lut-c ,lut-d ,lut-e ,lut-f ,lut-g ,lut-h ,inputs)
+    [(lattice-ecp5-pfu lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h inputs)
      (let* ([inputs (interpreter inputs)]
             [pfu (list lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h)])
        (interpret-ecp5-pfu-impl pfu inputs))]
-    [`(lattice-ecp5-ripple-pfu ,INIT0
-                               ,INIT1
-                               ,INIT2
-                               ,INIT3
-                               ,INIT4
-                               ,INIT5
-                               ,INIT6
-                               ,INIT7
-                               ,INJECT1_0
-                               ,INJECT1_1
-                               ,INJECT1_2
-                               ,INJECT1_3
-                               ,INJECT1_4
-                               ,INJECT1_5
-                               ,INJECT1_6
-                               ,INJECT1_7
-                               ,CIN
-                               ,inputs)
+    [(lattice-ecp5-ripple-pfu INIT0
+                              INIT1
+                              INIT2
+                              INIT3
+                              INIT4
+                              INIT5
+                              INIT6
+                              INIT7
+                              INJECT1_0
+                              INJECT1_1
+                              INJECT1_2
+                              INJECT1_3
+                              INJECT1_4
+                              INJECT1_5
+                              INJECT1_6
+                              INJECT1_7
+                              CIN
+                              inputs)
      (interpret-ecp5-ripple-pfu-impl INIT0
                                      INIT1
                                      INIT2
@@ -285,22 +326,22 @@
                                      (interpreter inputs))]
 
     ;; Interpret LUT primitives
-    [`(lattice-ecp5-lut4 ,INIT ,inputs) (list (interpret-lut4-impl INIT (interpreter inputs)))]
-    [`(lattice-ecp5-lut5 ,INIT ,inputs) (list (interpret-lut5-impl INIT (interpreter inputs)))]
-    [`(lattice-ecp5-lut6 ,INIT ,inputs) (list (interpret-lut6-impl INIT (interpreter inputs)))]
-    [`(lattice-ecp5-lut7 ,INIT ,inputs) (list (interpret-lut7-impl INIT (interpreter inputs)))]
-    [`(lattice-ecp5-lut8 ,INIT ,inputs) (list (interpret-lut8-impl INIT (interpreter inputs)))]
+    [(lattice-ecp5-lut4 INIT inputs) (list (interpret-lut4-impl INIT (interpreter inputs)))]
+    [(lattice-ecp5-lut5 INIT inputs) (list (interpret-lut5-impl INIT (interpreter inputs)))]
+    [(lattice-ecp5-lut6 INIT inputs) (list (interpret-lut6-impl INIT (interpreter inputs)))]
+    [(lattice-ecp5-lut7 INIT inputs) (list (interpret-lut7-impl INIT (interpreter inputs)))]
+    [(lattice-ecp5-lut8 INIT inputs) (list (interpret-lut8-impl INIT (interpreter inputs)))]
 
     ;; Interpret MUX primitives
-    [`(lattice-ecp5-pfumx ,ALUT ,BLUT ,CO)
+    [(lattice-ecp5-pfumx ALUT BLUT CO)
      (list (interpret-pfumx-impl (interpreter ALUT) (interpreter BLUT) (interpreter CO)))]
-    [`(lattice-ecp5-l6mux21 ,D0 ,D1 ,SD)
+    [(lattice-ecp5-l6mux21 D0 D1 SD)
      (list (interpret-l6mux21-impl (interpreter D0) (interpreter D1) (interpreter SD)))]
-    [`(lattice-ecp5-mux21 ,D0 ,D1 ,SD)
+    [(lattice-ecp5-mux21 D0 D1 SD)
      (list (interpret-mux21-impl (interpreter D0) (interpreter D1) (interpreter SD)))]
 
     ;; Interpret Carry primitives
-    [`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs)
+    [(lattice-ecp5-ccu2c INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
      (interpret-ecp5-ccu2c-impl INIT0
                                 INIT1
                                 INJECT1_0
@@ -675,24 +716,24 @@
                                     add-netname-to-module
                                     add-parameter-default-value
                                     expr)
-  (match-let* ([`(lattice-ecp5-ripple-pfu ,INIT0
-                                          ,INIT1
-                                          ,INIT2
-                                          ,INIT3
-                                          ,INIT4
-                                          ,INIT5
-                                          ,INIT6
-                                          ,INIT7
-                                          ,INJECT1_0
-                                          ,INJECT1_1
-                                          ,INJECT1_2
-                                          ,INJECT1_3
-                                          ,INJECT1_4
-                                          ,INJECT1_5
-                                          ,INJECT1_6
-                                          ,INJECT1_7
-                                          ,CIN
-                                          ,inputs) expr]
+  (match-let* ([(lattice-ecp5-ripple-pfu INIT0
+                                         INIT1
+                                         INIT2
+                                         INIT3
+                                         INIT4
+                                         INIT5
+                                         INIT6
+                                         INIT7
+                                         INJECT1_0
+                                         INJECT1_1
+                                         INJECT1_2
+                                         INJECT1_3
+                                         INJECT1_4
+                                         INJECT1_5
+                                         INJECT1_6
+                                         INJECT1_7
+                                         CIN
+                                         inputs) expr]
                [(list i0 i1 i2 i3 i4 i5 i6 i7) (compiler inputs)]
                [`(,CIN) (compiler CIN)]
                [sum-bits (get-unique-bit-ids 8)]
@@ -757,7 +798,7 @@
                              add-netname-to-module
                              add-parameter-default-value
                              expr)
-  (match-let* ([`(lattice-ecp5-pfu ,a ,b ,c ,d ,e ,f ,g ,h ,inputs) expr]
+  (match-let* ([(lattice-ecp5-pfu a b c d e f g h inputs) expr]
                [inputs (compiler inputs)]
                ; Reserve ds for output pins for 8 luts in the PFU
                [luts-z (get-unique-bit-ids 8)]
@@ -780,7 +821,7 @@
                                add-netname-to-module
                                add-parameter-default-value
                                expr)
-  (match-let* ([`(lattice-ecp5-ccu2c ,INIT0 ,INIT1 ,INJECT1_0 ,INJECT1_1 ,CIN ,inputs) expr]
+  (match-let* ([(lattice-ecp5-ccu2c INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs) expr]
                [`(,CIN) (compiler CIN)]
                [compiled-inputs (compiler inputs)]
                [(list (list A0 B0 C0 D0) (list A1 B1 C1 D1)) compiled-inputs]
@@ -811,7 +852,7 @@
                                  add-netname-to-module
                                  add-parameter-default-value
                                  expr)
-  (match-let* ([`(lattice-ecp5-l6mux21 ,D0 ,D1 ,SD) expr]
+  (match-let* ([(lattice-ecp5-l6mux21 D0 D1 SD) expr]
                [(list D0 D1 SD) (apply append (compiler (list D0 D1 SD)))]
                [(list Z) (get-unique-bit-ids 1)]
                [l6mux21 (make-lattice-l6mux21-cell D0 D1 SD Z)])
@@ -824,7 +865,7 @@
                                add-netname-to-module
                                add-parameter-default-value
                                expr)
-  (match-let* ([`(lattice-ecp5-mux21 ,D0 ,D1 ,SD) expr]
+  (match-let* ([(lattice-ecp5-mux21 D0 D1 SD) expr]
                [(list D0 D1 SD) (apply append (compiler (list D0 D1 SD)))]
                [(list Z) (get-unique-bit-ids 1)]
                [mux21 (make-lattice-mux21-cell D0 D1 SD Z)])
@@ -837,7 +878,7 @@
                                add-netname-to-module
                                add-parameter-default-value
                                expr)
-  (match-let* ([`(lattice-ecp5-pfumx ,ALUT ,BLUT ,CO) expr]
+  (match-let* ([(lattice-ecp5-pfumx ALUT BLUT CO) expr]
                [(list ALUT BLUT CO) (apply append (compiler (list ALUT BLUT CO)))]
                [(list Z) (get-unique-bit-ids 1)]
                [pfumx (make-lattice-pfumx-cell ALUT BLUT CO Z)])
@@ -852,7 +893,7 @@
                               add-netname-to-module
                               add-parameter-default-value
                               expr)
-  (match-let* ([`(lattice-ecp5-lut4 ,INIT ,inputs) expr]
+  (match-let* ([(lattice-ecp5-lut4 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D) compiled-inputs]
@@ -869,7 +910,7 @@
                               add-netname-to-module
                               add-parameter-default-value
                               expr)
-  (match-let* ([`(lattice-ecp5-lut5 ,INIT ,inputs) expr]
+  (match-let* ([(lattice-ecp5-lut5 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D E) compiled-inputs]
@@ -886,7 +927,7 @@
                               add-netname-to-module
                               add-parameter-default-value
                               expr)
-  (match-let* ([`(lattice-ecp5-lut6 ,INIT ,inputs) expr]
+  (match-let* ([(lattice-ecp5-lut6 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D E F) compiled-inputs]
@@ -903,7 +944,7 @@
                               add-netname-to-module
                               add-parameter-default-value
                               expr)
-  (match-let* ([`(lattice-ecp5-lut7 ,INIT ,inputs) expr]
+  (match-let* ([(lattice-ecp5-lut7 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D E F G) compiled-inputs]
@@ -920,7 +961,7 @@
                               add-netname-to-module
                               add-parameter-default-value
                               expr)
-  (match-let* ([`(lattice-ecp5-lut8 ,INIT ,inputs) expr]
+  (match-let* ([(lattice-ecp5-lut8 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D E F G H) compiled-inputs]
@@ -930,12 +971,12 @@
     (list Z)))
 
 (define test-pfu
-  `(lattice-ecp5-pfu ,(bv 0 16)
-                     ,(bv 1 16)
-                     ,(bv 2 16)
-                     ,(bv 4 16)
-                     ,(bv 8 16)
-                     ,(bv 16 16)
-                     ,(bv 32 16)
-                     ,(bv 64 16)
-                     ,(list (bv 0 4) (bv 0 4) (bv 0 4) (bv 0 4))))
+  (lattice-ecp5-pfu (bv 0 16)
+                    (bv 1 16)
+                    (bv 2 16)
+                    (bv 4 16)
+                    (bv 8 16)
+                    (bv 16 16)
+                    (bv 32 16)
+                    (bv 64 16)
+                    (list (bv 0 4) (bv 0 4) (bv 0 4) (bv 0 4))))

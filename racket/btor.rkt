@@ -299,12 +299,12 @@ here-string-delimiter
                 (assume (bvzero? INJECT1_1))
 
                 (match-define (list iS0 iS1 iCOUT)
-                  (interpret `(lattice-ecp5-ccu2c ,INIT0
-                                                  ,INIT1
-                                                  ,(bv 0 1)
-                                                  ,(bv 0 1)
-                                                  ,CIN
-                                                  ,(list (concat D0 C0 B0 A0) (concat D1 C1 B1 A1)))))
+                  (interpret (lattice-ecp5-ccu2c INIT0
+                                                 INIT1
+                                                 (bv 0 1)
+                                                 (bv 0 1)
+                                                 CIN
+                                                 (list (concat D0 C0 B0 A0) (concat D1 C1 B1 A1)))))
                 (assert (bveq S0 iS0))
                 (assert (bveq S1 iS1))
                 (assert (bveq COUT iCOUT)))))))
@@ -1981,14 +1981,14 @@ here-string-delimiter
       (verify (begin
                 (match-define (list lrO5 lrO6)
                   (interpret
-                   `(ultrascale-plus-lut6-2
-                     ,INIT
-                     ,(lr:concat
-                       (list I5
-                             (lr:concat
-                              (list I4
-                                    (lr:concat
-                                     (list I3 (lr:concat (list I2 (lr:concat (list I1 I0)))))))))))))
+                   (ultrascale-plus-lut6-2
+                    INIT
+                    (lr:concat
+                     (list I5
+                           (lr:concat
+                            (list I4
+                                  (lr:concat
+                                   (list I3 (lr:concat (list I2 (lr:concat (list I1 I0)))))))))))))
                 (assert (bveq O5 lrO5))
                 (assert (bveq O6 lrO6))))
       (unsat)))))

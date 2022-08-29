@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang errortrace rosette/safe
 
 ;;; Logical to physical (and vice versa) mapping tools for Lakeroad.
 ;;;
@@ -9,12 +9,17 @@
 (provide interpret-logical-to-physical-mapping
          interpret-physical-to-logical-mapping
          compile-logical-to-physical-mapping
-         compile-physical-to-logical-mapping)
+         compile-physical-to-logical-mapping
+         logical-to-physical-mapping
+         physical-to-logical-mapping)
 
 (require rosette
          racket/pretty
          rosette/lib/synthax
          (prefix-in lr: "language.rkt"))
+
+(struct logical-to-physical-mapping (f inputs) #:transparent)
+(struct physical-to-logical-mapping (f outputs) #:transparent)
 
 (define (transpose inputs)
   (apply map concat (map bitvector->bits (reverse inputs))))

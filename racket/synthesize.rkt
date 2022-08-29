@@ -312,95 +312,95 @@
      (define lakeroad-expr
        (lr:extract (sub1 (bvlen bv-expr))
                    0
-                   (lr:first `(ultrascale-plus-dsp48e2 ,A
-                                                       ,ACASCREG
-                                                       ,ACIN
-                                                       ,ADREG
-                                                       ,ALUMODE
-                                                       ,ALUMODEREG
-                                                       ,AMULTSEL
-                                                       ,AREG
-                                                       ,AUTORESET_PATDET
-                                                       ,AUTORESET_PRIORITY
-                                                       ,A_INPUT
-                                                       ,B
-                                                       ,BCASCREG
-                                                       ,BCIN
-                                                       ,BMULTSEL
-                                                       ,BREG
-                                                       ,B_INPUT
-                                                       ,C
-                                                       ,CARRYCASCIN
-                                                       ,CARRYIN
-                                                       ,CARRYINREG
-                                                       ,CARRYINSEL
-                                                       ,CARRYINSELREG
-                                                       ,CEA1
-                                                       ,CEA2
-                                                       ,CEAD
-                                                       ,CEALUMODE
-                                                       ,CEB1
-                                                       ,CEB2
-                                                       ,CEC
-                                                       ,CECARRYIN
-                                                       ,CECTRL
-                                                       ,CED
-                                                       ,CEINMODE
-                                                       ,CEM
-                                                       ,CEP
-                                                       ,CLK
-                                                       ,CREG
-                                                       ,D
-                                                       ,DREG
-                                                       ,INMODE
-                                                       ,INMODEREG
-                                                       ,IS_ALUMODE_INVERTED
-                                                       ,IS_CARRYIN_INVERTED
-                                                       ,IS_CLK_INVERTED
-                                                       ,IS_INMODE_INVERTED
-                                                       ,IS_OPMODE_INVERTED
-                                                       ,IS_RSTALLCARRYIN_INVERTED
-                                                       ,IS_RSTALUMODE_INVERTED
-                                                       ,IS_RSTA_INVERTED
-                                                       ,IS_RSTB_INVERTED
-                                                       ,IS_RSTCTRL_INVERTED
-                                                       ,IS_RSTC_INVERTED
-                                                       ,IS_RSTD_INVERTED
-                                                       ,IS_RSTINMODE_INVERTED
-                                                       ,IS_RSTM_INVERTED
-                                                       ,IS_RSTP_INVERTED
-                                                       ,MASK
-                                                       ,MREG
-                                                       ,MULTSIGNIN
-                                                       ,OPMODE
-                                                       ,OPMODEREG
-                                                       ,PATTERN
-                                                       ,PCIN
-                                                       ,PREADDINSEL
-                                                       ,PREG
-                                                       ,RND
-                                                       ,RSTA
-                                                       ,RSTALLCARRYIN
-                                                       ,RSTALUMODE
-                                                       ,RSTB
-                                                       ,RSTC
-                                                       ,RSTCTRL
-                                                       ,RSTD
-                                                       ,RSTINMODE
-                                                       ,RSTM
-                                                       ,RSTP
-                                                       ,SEL_MASK
-                                                       ,SEL_PATTERN
-                                                       ,USE_MULT
-                                                       ,USE_PATTERN_DETECT
-                                                       ,USE_SIMD
-                                                       ,USE_WIDEXOR
-                                                       ,XORSIMD
-                                                       ,unnamed-input-331
-                                                       ,unnamed-input-488
-                                                       ,unnamed-input-750
-                                                       ,unnamed-input-806
-                                                       ,unnamed-input-850))))
+                   (lr:first (ultrascale-plus-dsp48e2 A
+                                                      ACASCREG
+                                                      ACIN
+                                                      ADREG
+                                                      ALUMODE
+                                                      ALUMODEREG
+                                                      AMULTSEL
+                                                      AREG
+                                                      AUTORESET_PATDET
+                                                      AUTORESET_PRIORITY
+                                                      A_INPUT
+                                                      B
+                                                      BCASCREG
+                                                      BCIN
+                                                      BMULTSEL
+                                                      BREG
+                                                      B_INPUT
+                                                      C
+                                                      CARRYCASCIN
+                                                      CARRYIN
+                                                      CARRYINREG
+                                                      CARRYINSEL
+                                                      CARRYINSELREG
+                                                      CEA1
+                                                      CEA2
+                                                      CEAD
+                                                      CEALUMODE
+                                                      CEB1
+                                                      CEB2
+                                                      CEC
+                                                      CECARRYIN
+                                                      CECTRL
+                                                      CED
+                                                      CEINMODE
+                                                      CEM
+                                                      CEP
+                                                      CLK
+                                                      CREG
+                                                      D
+                                                      DREG
+                                                      INMODE
+                                                      INMODEREG
+                                                      IS_ALUMODE_INVERTED
+                                                      IS_CARRYIN_INVERTED
+                                                      IS_CLK_INVERTED
+                                                      IS_INMODE_INVERTED
+                                                      IS_OPMODE_INVERTED
+                                                      IS_RSTALLCARRYIN_INVERTED
+                                                      IS_RSTALUMODE_INVERTED
+                                                      IS_RSTA_INVERTED
+                                                      IS_RSTB_INVERTED
+                                                      IS_RSTCTRL_INVERTED
+                                                      IS_RSTC_INVERTED
+                                                      IS_RSTD_INVERTED
+                                                      IS_RSTINMODE_INVERTED
+                                                      IS_RSTM_INVERTED
+                                                      IS_RSTP_INVERTED
+                                                      MASK
+                                                      MREG
+                                                      MULTSIGNIN
+                                                      OPMODE
+                                                      OPMODEREG
+                                                      PATTERN
+                                                      PCIN
+                                                      PREADDINSEL
+                                                      PREG
+                                                      RND
+                                                      RSTA
+                                                      RSTALLCARRYIN
+                                                      RSTALUMODE
+                                                      RSTB
+                                                      RSTC
+                                                      RSTCTRL
+                                                      RSTD
+                                                      RSTINMODE
+                                                      RSTM
+                                                      RSTP
+                                                      SEL_MASK
+                                                      SEL_PATTERN
+                                                      USE_MULT
+                                                      USE_PATTERN_DETECT
+                                                      USE_SIMD
+                                                      USE_WIDEXOR
+                                                      XORSIMD
+                                                      unnamed-input-331
+                                                      unnamed-input-488
+                                                      unnamed-input-750
+                                                      unnamed-input-806
+                                                      unnamed-input-850))))
      (define soln
        (synthesize
         #:forall (append (symbolics bv-expr)
@@ -564,7 +564,7 @@
          (append (symbolics bv-expr)
                  (make-list (- 6 (length (symbolics bv-expr))) (bvnot (bv 0 logical-input-width))))))
 
-  (define physical-inputs (lr:logical-to-physical-mapping '(bitwise) logical-inputs))
+  (define physical-inputs (logical-to-physical-mapping '(bitwise) logical-inputs))
 
   ;;; Split the physical inputs into groups, grouped by LUT.
   (define physical-inputs-per-clb
@@ -573,24 +573,24 @@
 
   ;;; Returns (list logical-outputs cout).
   (define (clb cin lutmem mux physical-inputs)
-    (let* ([clb-out `(ultrascale-plus-clb ,cin
-                                          ,lutmem
-                                          ,lutmem
-                                          ,lutmem
-                                          ,lutmem
-                                          ,lutmem
-                                          ,lutmem
-                                          ,lutmem
-                                          ,lutmem
-                                          ,mux
-                                          ,mux
-                                          ,mux
-                                          ,mux
-                                          ,mux
-                                          ,mux
-                                          ,mux
-                                          ,mux
-                                          ,physical-inputs)])
+    (let* ([clb-out (ultrascale-plus-clb cin
+                                         lutmem
+                                         lutmem
+                                         lutmem
+                                         lutmem
+                                         lutmem
+                                         lutmem
+                                         lutmem
+                                         lutmem
+                                         mux
+                                         mux
+                                         mux
+                                         mux
+                                         mux
+                                         mux
+                                         mux
+                                         mux
+                                         physical-inputs)])
       (list (lr:take clb-out 8) (lr:list-ref clb-out 8))))
 
   (match-define (list physical-outputs cout)
@@ -612,8 +612,8 @@
   (define lakeroad-expr
     (lr:extract (sub1 out-bw)
                 0
-                (lr:first (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
-                                                          physical-outputs))))
+                (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+                                                       physical-outputs))))
   (define soln
     (synthesize #:forall (symbolics bv-expr)
                 #:guarantee (begin
@@ -667,7 +667,7 @@
     (foldl (lambda (logical-inputs previous-cout)
              (match-let* ([(list this-ccu2c-physical-outputs this-cout)
                            (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                             #:inputs (lr:logical-to-physical-mapping
+                                             #:inputs (logical-to-physical-mapping
                                                        (choose '(bitwise) '(bitwise-reverse))
                                                        logical-inputs)
                                              #:CIN previous-cout
@@ -735,7 +735,7 @@
                (match-let* ([(list acc-phys-out previous-cout) previous-out]
                             [(list this-ccu2c-physical-outputs this-cout)
                              (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                               #:inputs (lr:logical-to-physical-mapping
+                                               #:inputs (logical-to-physical-mapping
                                                          (choose '(bitwise) '(bitwise-reverse))
                                                          logical-inputs)
                                                #:CIN previous-cout
@@ -757,7 +757,7 @@
                (match-let* ([(list acc-phys-out previous-cout) previous-out]
                             [(list this-ccu2c-physical-outputs this-cout)
                              (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                               #:inputs (lr:logical-to-physical-mapping
+                                               #:inputs (logical-to-physical-mapping
                                                          (choose '(bitwise) '(bitwise-reverse))
                                                          logical-inputs)
                                                #:CIN previous-cout
@@ -884,8 +884,8 @@
   (define lakeroad-expr
     (lr:extract (sub1 out-bw)
                 0
-                (lr:first (lr:physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
-                                                          physical-output))))
+                (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+                                                       physical-output))))
 
   (interpret lakeroad-expr)
 
@@ -940,7 +940,7 @@
          (match-let* ([accumulated-logical-output previous-out]
                       [this-pfu-logical-outputs
                        (let ([pfu-out (make-lattice-pfu-expr logical-inputs)])
-                         (lr:first (lr:physical-to-logical-mapping '(bitwise) (lr:take pfu-out 8))))]
+                         (lr:first (physical-to-logical-mapping '(bitwise) (lr:take pfu-out 8))))]
                       [accumulated-logical-output
                        (if (equal? accumulated-logical-output 'first-iter)
                            this-pfu-logical-outputs

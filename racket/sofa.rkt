@@ -4,38 +4,47 @@
 ;;; https://skywater-openfpga.readthedocs.io/en/latest/device/hd_fpga/
 
 (provide interpret-sofa
-         compile-sofa)
+         compile-sofa
+         sofa-lut1
+         sofa-lut2
+         sofa-lut3
+         sofa-lut4)
 
 (require "lut.rkt"
          rosette
          "utils.rkt"
          "comp-json.rkt")
 
+(struct sofa-lut1 (sram inputs) #:transparent)
+(struct sofa-lut2 (sram inputs) #:transparent)
+(struct sofa-lut3 (sram inputs) #:transparent)
+(struct sofa-lut4 (sram inputs) #:transparent)
+
 (define (interpret-sofa interpreter expr)
   (match expr
     ;;; I'm not sure SOFA actually has lut1-3, but we can simulate them on LUT4.
-    [`(sofa-lut1 ,sram ,inputs)
+    [(sofa-lut1 sram inputs)
      (when (not (equal? (bvlen sram) 2))
        (error "SOFA LUT1 should have a LUT memory of length 2."))
      (interpret-sofa-lut sram (interpreter inputs))]
-    [`(sofa-lut2 ,sram ,inputs)
+    [(sofa-lut2 sram inputs)
      (when (not (equal? (bvlen sram) 4))
        (error "SOFA LUT2 should have a LUT memory of length 4."))
      (interpret-sofa-lut sram (interpreter inputs))]
-    [`(sofa-lut3 ,sram ,inputs)
+    [(sofa-lut3 sram inputs)
      (when (not (equal? (bvlen sram) 8))
        (error "SOFA LUT3 should have a LUT memory of length 8."))
      (interpret-sofa-lut sram (interpreter inputs))]
 
     ;;; SOFA does have a LUT4, potentially with even more features than exposed here.
-    [`(sofa-lut4 ,sram ,inputs)
+    [(sofa-lut4 sram inputs)
      (when (not (equal? (bvlen sram) 16))
        (error "SOFA LUT4 should have a LUT memory of length 16."))
      (interpret-sofa-lut sram (interpreter inputs))]))
 
 (define (compile-sofa compile get-bits add-cell add-netname add-parameter-default-value expr)
   (match expr
-    [`(sofa-lut4 ,sram ,inputs)
+    [(sofa-lut4 sram inputs)
      (define lut4-out (get-bits 1))
      (define lut3-out-unused (get-bits 2))
      (add-netname 'lut4_out (make-net-details lut4-out))

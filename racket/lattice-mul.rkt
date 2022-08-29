@@ -249,7 +249,7 @@
          [bits-out (for/list ([bit-idx (range n)])
                      (make-lattice-n-bit-lookup-expr
                       (concat (extract bit-idx 0 a) (extract bit-idx 0 b))))])
-    (lr:extract (sub1 n) 0 (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) bits-out) 0))))
+    (lr:extract (sub1 n) 0 (lr:list-ref (physical-to-logical-mapping '(bitwise) bits-out) 0))))
 
 (define (and-lut-helper a b i j #:INIT [INIT (?? (bitvector 16))])
   (if (> i j)
@@ -307,9 +307,7 @@
          [output (add-all-lists and-luts #:INIT0 add-lut-init #:INIT1 add-lut-init)]
          [output2 (for/list ([x output])
                     (lr:list-ref x 0))])
-    (lr:extract (sub1 bitwidth)
-                0
-                (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) output2) 0))))
+    (lr:extract (sub1 bitwidth) 0 (lr:list-ref (physical-to-logical-mapping '(bitwise) output2) 0))))
 
 (module+ test
   (require rackunit
@@ -417,7 +415,7 @@
   (define m
     (list (make-lattice-lut4-expr (apply concat (list a0 b0 (bv 1 1) (bv 1 1))) #:INIT INIT0)
           (make-lattice-lut4-expr (apply concat (list a0 b0 a1 b1)) #:INIT INIT1)))
-  (lr:extract 1 0 (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) m) 0)))
+  (lr:extract 1 0 (lr:list-ref (physical-to-logical-mapping '(bitwise) m) 0)))
 
 ;;; Special case for 3bit multiplication
 (define (3bit-mul a b #:INIT0 [INIT0 #f] #:INIT1 [INIT1 #f] #:INIT2 [INIT2 #f])
@@ -431,4 +429,4 @@
     (list (make-lattice-lut4-expr (apply concat (list a0 b0 (bv 1 1) (bv 1 1))) #:INIT INIT0)
           (make-lattice-lut4-expr (apply concat (list a0 b0 a1 b1)) #:INIT INIT1)
           (make-lattice-lut6-expr (apply concat (list a0 b0 a1 b1 a2 b2)) #:INIT INIT2)))
-  (lr:extract 2 0 (lr:list-ref (lr:physical-to-logical-mapping '(bitwise) m) 0)))
+  (lr:extract 2 0 (lr:list-ref (physical-to-logical-mapping '(bitwise) m) 0)))

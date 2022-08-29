@@ -3,9 +3,12 @@
 (provide interpret-ultrascale-plus
          ultrascale-plus-clb
          ultrascale-plus-lut6-2
+         ultrascale-plus-lut3
+         ultrascale-plus-lut2
+         ultrascale-plus-lut1
+         ultrascale-plus-dsp48e2
          compile-ultrascale-plus-dsp48e2
          interpret-ultrascale-plus-dsp48e2
-         ultrascale-plus-dsp48e2
          ultrascale-plus-grammar
          make-ultrascale-plus-clb
          make-ultrascale-plus-dsp48e2
@@ -18,6 +21,120 @@
          (prefix-in lr: "language.rkt")
          "ultrascale-plus-dsp48e2.rkt"
          "stateful-design-experiment.rkt")
+
+(struct ultrascale-plus-clb
+        (cin lut-a
+             lut-b
+             lut-c
+             lut-d
+             lut-e
+             lut-f
+             lut-g
+             lut-h
+             mux-selector-a
+             mux-selector-b
+             mux-selector-c
+             mux-selector-d
+             mux-selector-e
+             mux-selector-f
+             mux-selector-g
+             mux-selector-h
+             inputs)
+  #:transparent)
+(struct ultrascale-plus-lut6-2 (init inputs) #:transparent)
+(struct ultrascale-plus-lut3 (init inputs) #:transparent)
+(struct ultrascale-plus-lu2 (init inputs) #:transparent)
+(struct ultrascale-plus-lut1 (init inputs) #:transparent)
+(struct ultrascale-plus-dsp48e2
+        (A ACASCREG
+           ACIN
+           ADREG
+           ALUMODE
+           ALUMODEREG
+           AMULTSEL
+           AREG
+           AUTORESET_PATDET
+           AUTORESET_PRIORITY
+           A_INPUT
+           B
+           BCASCREG
+           BCIN
+           BMULTSEL
+           BREG
+           B_INPUT
+           C
+           CARRYCASCIN
+           CARRYIN
+           CARRYINREG
+           CARRYINSEL
+           CARRYINSELREG
+           CEA1
+           CEA2
+           CEAD
+           CEALUMODE
+           CEB1
+           CEB2
+           CEC
+           CECARRYIN
+           CECTRL
+           CED
+           CEINMODE
+           CEM
+           CEP
+           CLK
+           CREG
+           D
+           DREG
+           INMODE
+           INMODEREG
+           IS_ALUMODE_INVERTED
+           IS_CARRYIN_INVERTED
+           IS_CLK_INVERTED
+           IS_INMODE_INVERTED
+           IS_OPMODE_INVERTED
+           IS_RSTALLCARRYIN_INVERTED
+           IS_RSTALUMODE_INVERTED
+           IS_RSTA_INVERTED
+           IS_RSTB_INVERTED
+           IS_RSTCTRL_INVERTED
+           IS_RSTC_INVERTED
+           IS_RSTD_INVERTED
+           IS_RSTINMODE_INVERTED
+           IS_RSTM_INVERTED
+           IS_RSTP_INVERTED
+           MASK
+           MREG
+           MULTSIGNIN
+           OPMODE
+           OPMODEREG
+           PATTERN
+           PCIN
+           PREADDINSEL
+           PREG
+           RND
+           RSTA
+           RSTALLCARRYIN
+           RSTALUMODE
+           RSTB
+           RSTC
+           RSTCTRL
+           RSTD
+           RSTINMODE
+           RSTM
+           RSTP
+           SEL_MASK
+           SEL_PATTERN
+           USE_MULT
+           USE_PATTERN_DETECT
+           USE_SIMD
+           USE_WIDEXOR
+           XORSIMD
+           unnamed-input-331
+           unnamed-input-488
+           unnamed-input-750
+           unnamed-input-806
+           unnamed-input-850)
+  #:transparent)
 
 ;;; Compile program in Lakeroad DSL to module.
 
@@ -44,24 +161,24 @@
 
   ; Make module for CLB.
   (match-let*
-      ([`(ultrascale-plus-clb ,cin
-                              ,lut-a
-                              ,lut-b
-                              ,lut-c
-                              ,lut-d
-                              ,lut-e
-                              ,lut-f
-                              ,lut-g
-                              ,lut-h
-                              ,mux-selector-a
-                              ,mux-selector-b
-                              ,mux-selector-c
-                              ,mux-selector-d
-                              ,mux-selector-e
-                              ,mux-selector-f
-                              ,mux-selector-g
-                              ,mux-selector-h
-                              ,inputs) expr]
+      ([(ultrascale-plus-clb cin
+                             lut-a
+                             lut-b
+                             lut-c
+                             lut-d
+                             lut-e
+                             lut-f
+                             lut-g
+                             lut-h
+                             mux-selector-a
+                             mux-selector-b
+                             mux-selector-c
+                             mux-selector-d
+                             mux-selector-e
+                             mux-selector-f
+                             mux-selector-g
+                             mux-selector-h
+                             inputs) expr]
        ;;; Compile input expression.
        [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) (lakeroad->jsexpr inputs)]
        ;;; Index bitvector at bit id.
@@ -187,25 +304,25 @@
     [(list i0 i1 i2 i3) (choose i0 i1 i2 i3)])]
  [physical-list
   ;;; We currently drop the cout bit.
-  (lr:take `(ultrascale-plus-clb
-             ,(cin)
-             ,(lutmem)
-             ,(lutmem)
-             ,(lutmem)
-             ,(lutmem)
-             ,(lutmem)
-             ,(lutmem)
-             ,(lutmem)
-             ,(lutmem)
-             ,(mux)
-             ,(mux)
-             ,(mux)
-             ,(mux)
-             ,(mux)
-             ,(mux)
-             ,(mux)
-             ,(mux)
-             ,(lr:logical-to-physical-mapping (choose '(bitwise) '(bitwise-reverse)) (logical-list)))
+  (lr:take (ultrascale-plus-clb
+            (cin)
+            (lutmem)
+            (lutmem)
+            (lutmem)
+            (lutmem)
+            (lutmem)
+            (lutmem)
+            (lutmem)
+            (lutmem)
+            (mux)
+            (mux)
+            (mux)
+            (mux)
+            (mux)
+            (mux)
+            (mux)
+            (mux)
+            (logical-to-physical-mapping (choose '(bitwise) '(bitwise-reverse)) (logical-list)))
            8)]
  [logical-list
   (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
@@ -221,7 +338,7 @@
 
 ; Contains the state for a LUT6_2.
 ; memory is the LUT's memory: (bitvector 64).
-(struct ultrascale-plus-lut6-2 (memory))
+(struct ultrascale-plus-lut6-2-state (memory))
 
 (module+ test
   (require rackunit)
@@ -232,8 +349,9 @@
 
 (define (interpret-ultrascale-plus-lut6-2 interpreter expr)
   (match expr
-    [`(ultrascale-plus-lut6-2 ,memory ,inputs)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-lut6-2 memory) (interpreter inputs))]))
+    [(ultrascale-plus-lut6-2 memory inputs)
+     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-lut6-2-state memory)
+                                            (interpreter inputs))]))
 
 ; LUT6_2 primitive described on page 37 of
 ; https://www.xilinx.com/support/documentation/user_guides/ug574-ultrascale-clb.pdf
@@ -255,19 +373,19 @@
   (require rackunit)
   (check-equal? (second (interpret-ultrascale-plus-lut6-2
                          identity
-                         `(ultrascale-plus-lut6-2 ,(bv #x0000000000000008 64) ,(bv 0 6))))
+                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64) (bv 0 6))))
                 (bv 0 1))
   (check-equal? (second (interpret-ultrascale-plus-lut6-2
                          identity
-                         `(ultrascale-plus-lut6-2 ,(bv #x0000000000000008 64) ,(bv 1 6))))
+                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64) (bv 1 6))))
                 (bv 0 1))
   (check-equal? (second (interpret-ultrascale-plus-lut6-2
                          identity
-                         `(ultrascale-plus-lut6-2 ,(bv #x0000000000000008 64) ,(bv 2 6))))
+                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64) (bv 2 6))))
                 (bv 0 1))
   (check-equal? (second (interpret-ultrascale-plus-lut6-2
                          identity
-                         `(ultrascale-plus-lut6-2 ,(bv #x0000000000000008 64) ,(bv 3 6))))
+                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64) (bv 3 6))))
                 (bv 1 1)))
 
 ; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4. Note that, to implement a mux with
@@ -301,7 +419,7 @@
     (list O CO)))
 
 ; Defines the programmable state of an UltraScale+ CLB.
-(struct ultrascale-plus-clb
+(struct ultrascale-plus-clb-state
         (lut-a lut-b
                lut-c
                lut-d
@@ -321,29 +439,29 @@
 ;;; Top level UltraScale+ interpreter.
 (define (interpret-ultrascale-plus interpreter expr)
   (match expr
-    [`(ultrascale-plus-dsp48e2 ,_ ...) (interpret-ultrascale-plus-dsp48e2-new interpreter expr)]
-    [`(ultrascale-plus-lut6-2 ,init ,inputs) (interpret-ultrascale-plus-lut6-2 interpreter expr)]
-    [`(ultrascale-plus-lut3 ,init ,inputs) (lut init (interpreter inputs))]
-    [`(ultrascale-plus-lut2 ,init ,inputs) (lut init (interpreter inputs))]
-    [`(ultrascale-plus-lut1 ,init ,inputs) (lut init (interpreter inputs))]
-    [`(ultrascale-plus-clb ,cin
-                           ,lut-a
-                           ,lut-b
-                           ,lut-c
-                           ,lut-d
-                           ,lut-e
-                           ,lut-f
-                           ,lut-g
-                           ,lut-h
-                           ,mux-selector-a
-                           ,mux-selector-b
-                           ,mux-selector-c
-                           ,mux-selector-d
-                           ,mux-selector-e
-                           ,mux-selector-f
-                           ,mux-selector-g
-                           ,mux-selector-h
-                           ,inputs)
+    [(ultrascale-plus-dsp48e2 ,_ ...) (interpret-ultrascale-plus-dsp48e2-new interpreter expr)]
+    [(ultrascale-plus-lut6-2 init inputs) (interpret-ultrascale-plus-lut6-2 interpreter expr)]
+    [(ultrascale-plus-lut3 init inputs) (lut init (interpreter inputs))]
+    [(ultrascale-plus-lut2 init inputs) (lut init (interpreter inputs))]
+    [(ultrascale-plus-lut1 init inputs) (lut init (interpreter inputs))]
+    [(ultrascale-plus-clb cin
+                          lut-a
+                          lut-b
+                          lut-c
+                          lut-d
+                          lut-e
+                          lut-f
+                          lut-g
+                          lut-h
+                          mux-selector-a
+                          mux-selector-b
+                          mux-selector-c
+                          mux-selector-d
+                          mux-selector-e
+                          mux-selector-f
+                          mux-selector-g
+                          mux-selector-h
+                          inputs)
 
      (let* ([inputs (interpreter inputs)]
             [lut-input-a (first inputs)]
@@ -354,31 +472,32 @@
             [lut-input-f (sixth inputs)]
             [lut-input-g (seventh inputs)]
             [lut-input-h (eighth inputs)])
-       (interpret-ultrascale-plus-clb-impl (ultrascale-plus-clb (ultrascale-plus-lut6-2 lut-a)
-                                                                (ultrascale-plus-lut6-2 lut-b)
-                                                                (ultrascale-plus-lut6-2 lut-c)
-                                                                (ultrascale-plus-lut6-2 lut-d)
-                                                                (ultrascale-plus-lut6-2 lut-e)
-                                                                (ultrascale-plus-lut6-2 lut-f)
-                                                                (ultrascale-plus-lut6-2 lut-g)
-                                                                (ultrascale-plus-lut6-2 lut-h)
-                                                                mux-selector-a
-                                                                mux-selector-b
-                                                                mux-selector-c
-                                                                mux-selector-d
-                                                                mux-selector-e
-                                                                mux-selector-f
-                                                                mux-selector-g
-                                                                mux-selector-h)
-                                           (interpreter cin)
-                                           lut-input-a
-                                           lut-input-b
-                                           lut-input-c
-                                           lut-input-d
-                                           lut-input-e
-                                           lut-input-f
-                                           lut-input-g
-                                           lut-input-h))]))
+       (interpret-ultrascale-plus-clb-impl
+        (ultrascale-plus-clb-state (ultrascale-plus-lut6-2-state lut-a)
+                                   (ultrascale-plus-lut6-2-state lut-b)
+                                   (ultrascale-plus-lut6-2-state lut-c)
+                                   (ultrascale-plus-lut6-2-state lut-d)
+                                   (ultrascale-plus-lut6-2-state lut-e)
+                                   (ultrascale-plus-lut6-2-state lut-f)
+                                   (ultrascale-plus-lut6-2-state lut-g)
+                                   (ultrascale-plus-lut6-2-state lut-h)
+                                   mux-selector-a
+                                   mux-selector-b
+                                   mux-selector-c
+                                   mux-selector-d
+                                   mux-selector-e
+                                   mux-selector-f
+                                   mux-selector-g
+                                   mux-selector-h)
+        (interpreter cin)
+        lut-input-a
+        lut-input-b
+        lut-input-c
+        lut-input-d
+        lut-input-e
+        lut-input-f
+        lut-input-g
+        lut-input-h))]))
 
 ; Returns the physical outputs of the CLB.
 (define (interpret-ultrascale-plus-clb-impl clb
@@ -438,7 +557,7 @@
     (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out cout)))
 
 ; Programmable state for DSP48E2. See spec in the spec-sheets dir.
-(struct ultrascale-plus-dsp48e2 ())
+(struct ultrascale-plus-dsp48e2-state ())
 
 ; Output of DSP48E2. See spec in the spec-sheets dir.
 ; p: the P signal in the spec. (bitvector 48).
@@ -461,95 +580,95 @@
     out))
 
 (define (interpret-ultrascale-plus-dsp48e2-new interpreter expr)
-  (match-define `(ultrascale-plus-dsp48e2 ,A
-                                          ,ACASCREG
-                                          ,ACIN
-                                          ,ADREG
-                                          ,ALUMODE
-                                          ,ALUMODEREG
-                                          ,AMULTSEL
-                                          ,AREG
-                                          ,AUTORESET_PATDET
-                                          ,AUTORESET_PRIORITY
-                                          ,A_INPUT
-                                          ,B
-                                          ,BCASCREG
-                                          ,BCIN
-                                          ,BMULTSEL
-                                          ,BREG
-                                          ,B_INPUT
-                                          ,C
-                                          ,CARRYCASCIN
-                                          ,CARRYIN
-                                          ,CARRYINREG
-                                          ,CARRYINSEL
-                                          ,CARRYINSELREG
-                                          ,CEA1
-                                          ,CEA2
-                                          ,CEAD
-                                          ,CEALUMODE
-                                          ,CEB1
-                                          ,CEB2
-                                          ,CEC
-                                          ,CECARRYIN
-                                          ,CECTRL
-                                          ,CED
-                                          ,CEINMODE
-                                          ,CEM
-                                          ,CEP
-                                          ,CLK
-                                          ,CREG
-                                          ,D
-                                          ,DREG
-                                          ,INMODE
-                                          ,INMODEREG
-                                          ,IS_ALUMODE_INVERTED
-                                          ,IS_CARRYIN_INVERTED
-                                          ,IS_CLK_INVERTED
-                                          ,IS_INMODE_INVERTED
-                                          ,IS_OPMODE_INVERTED
-                                          ,IS_RSTALLCARRYIN_INVERTED
-                                          ,IS_RSTALUMODE_INVERTED
-                                          ,IS_RSTA_INVERTED
-                                          ,IS_RSTB_INVERTED
-                                          ,IS_RSTCTRL_INVERTED
-                                          ,IS_RSTC_INVERTED
-                                          ,IS_RSTD_INVERTED
-                                          ,IS_RSTINMODE_INVERTED
-                                          ,IS_RSTM_INVERTED
-                                          ,IS_RSTP_INVERTED
-                                          ,MASK
-                                          ,MREG
-                                          ,MULTSIGNIN
-                                          ,OPMODE
-                                          ,OPMODEREG
-                                          ,PATTERN
-                                          ,PCIN
-                                          ,PREADDINSEL
-                                          ,PREG
-                                          ,RND
-                                          ,RSTA
-                                          ,RSTALLCARRYIN
-                                          ,RSTALUMODE
-                                          ,RSTB
-                                          ,RSTC
-                                          ,RSTCTRL
-                                          ,RSTD
-                                          ,RSTINMODE
-                                          ,RSTM
-                                          ,RSTP
-                                          ,SEL_MASK
-                                          ,SEL_PATTERN
-                                          ,USE_MULT
-                                          ,USE_PATTERN_DETECT
-                                          ,USE_SIMD
-                                          ,USE_WIDEXOR
-                                          ,XORSIMD
-                                          ,unnamed-input-331
-                                          ,unnamed-input-488
-                                          ,unnamed-input-750
-                                          ,unnamed-input-806
-                                          ,unnamed-input-850)
+  (match-define (ultrascale-plus-dsp48e2 A
+                                         ACASCREG
+                                         ACIN
+                                         ADREG
+                                         ALUMODE
+                                         ALUMODEREG
+                                         AMULTSEL
+                                         AREG
+                                         AUTORESET_PATDET
+                                         AUTORESET_PRIORITY
+                                         A_INPUT
+                                         B
+                                         BCASCREG
+                                         BCIN
+                                         BMULTSEL
+                                         BREG
+                                         B_INPUT
+                                         C
+                                         CARRYCASCIN
+                                         CARRYIN
+                                         CARRYINREG
+                                         CARRYINSEL
+                                         CARRYINSELREG
+                                         CEA1
+                                         CEA2
+                                         CEAD
+                                         CEALUMODE
+                                         CEB1
+                                         CEB2
+                                         CEC
+                                         CECARRYIN
+                                         CECTRL
+                                         CED
+                                         CEINMODE
+                                         CEM
+                                         CEP
+                                         CLK
+                                         CREG
+                                         D
+                                         DREG
+                                         INMODE
+                                         INMODEREG
+                                         IS_ALUMODE_INVERTED
+                                         IS_CARRYIN_INVERTED
+                                         IS_CLK_INVERTED
+                                         IS_INMODE_INVERTED
+                                         IS_OPMODE_INVERTED
+                                         IS_RSTALLCARRYIN_INVERTED
+                                         IS_RSTALUMODE_INVERTED
+                                         IS_RSTA_INVERTED
+                                         IS_RSTB_INVERTED
+                                         IS_RSTCTRL_INVERTED
+                                         IS_RSTC_INVERTED
+                                         IS_RSTD_INVERTED
+                                         IS_RSTINMODE_INVERTED
+                                         IS_RSTM_INVERTED
+                                         IS_RSTP_INVERTED
+                                         MASK
+                                         MREG
+                                         MULTSIGNIN
+                                         OPMODE
+                                         OPMODEREG
+                                         PATTERN
+                                         PCIN
+                                         PREADDINSEL
+                                         PREG
+                                         RND
+                                         RSTA
+                                         RSTALLCARRYIN
+                                         RSTALUMODE
+                                         RSTB
+                                         RSTC
+                                         RSTCTRL
+                                         RSTD
+                                         RSTINMODE
+                                         RSTM
+                                         RSTP
+                                         SEL_MASK
+                                         SEL_PATTERN
+                                         USE_MULT
+                                         USE_PATTERN_DETECT
+                                         USE_SIMD
+                                         USE_WIDEXOR
+                                         XORSIMD
+                                         unnamed-input-331
+                                         unnamed-input-488
+                                         unnamed-input-750
+                                         unnamed-input-806
+                                         unnamed-input-850)
     expr)
 
   ;;; Constrain the inputs based on the information in the DSP48E2 user manual. (see spec-sheets/.)
@@ -913,95 +1032,95 @@ here-string-delimiter
                                       add-parameter-default-value
                                       expr)
   (match-let* ([P (get-bits 48)]
-               [`(ultrascale-plus-dsp48e2 ,A
-                                          ,ACASCREG
-                                          ,ACIN
-                                          ,ADREG
-                                          ,ALUMODE
-                                          ,ALUMODEREG
-                                          ,AMULTSEL
-                                          ,AREG
-                                          ,AUTORESET_PATDET
-                                          ,AUTORESET_PRIORITY
-                                          ,A_INPUT
-                                          ,B
-                                          ,BCASCREG
-                                          ,BCIN
-                                          ,BMULTSEL
-                                          ,BREG
-                                          ,B_INPUT
-                                          ,C
-                                          ,CARRYCASCIN
-                                          ,CARRYIN
-                                          ,CARRYINREG
-                                          ,CARRYINSEL
-                                          ,CARRYINSELREG
-                                          ,CEA1
-                                          ,CEA2
-                                          ,CEAD
-                                          ,CEALUMODE
-                                          ,CEB1
-                                          ,CEB2
-                                          ,CEC
-                                          ,CECARRYIN
-                                          ,CECTRL
-                                          ,CED
-                                          ,CEINMODE
-                                          ,CEM
-                                          ,CEP
-                                          ,CLK
-                                          ,CREG
-                                          ,D
-                                          ,DREG
-                                          ,INMODE
-                                          ,INMODEREG
-                                          ,IS_ALUMODE_INVERTED
-                                          ,IS_CARRYIN_INVERTED
-                                          ,IS_CLK_INVERTED
-                                          ,IS_INMODE_INVERTED
-                                          ,IS_OPMODE_INVERTED
-                                          ,IS_RSTALLCARRYIN_INVERTED
-                                          ,IS_RSTALUMODE_INVERTED
-                                          ,IS_RSTA_INVERTED
-                                          ,IS_RSTB_INVERTED
-                                          ,IS_RSTCTRL_INVERTED
-                                          ,IS_RSTC_INVERTED
-                                          ,IS_RSTD_INVERTED
-                                          ,IS_RSTINMODE_INVERTED
-                                          ,IS_RSTM_INVERTED
-                                          ,IS_RSTP_INVERTED
-                                          ,MASK
-                                          ,MREG
-                                          ,MULTSIGNIN
-                                          ,OPMODE
-                                          ,OPMODEREG
-                                          ,PATTERN
-                                          ,PCIN
-                                          ,PREADDINSEL
-                                          ,PREG
-                                          ,RND
-                                          ,RSTA
-                                          ,RSTALLCARRYIN
-                                          ,RSTALUMODE
-                                          ,RSTB
-                                          ,RSTC
-                                          ,RSTCTRL
-                                          ,RSTD
-                                          ,RSTINMODE
-                                          ,RSTM
-                                          ,RSTP
-                                          ,SEL_MASK
-                                          ,SEL_PATTERN
-                                          ,USE_MULT
-                                          ,USE_PATTERN_DETECT
-                                          ,USE_SIMD
-                                          ,USE_WIDEXOR
-                                          ,XORSIMD
-                                          ,unnamed-input-331
-                                          ,unnamed-input-488
-                                          ,unnamed-input-750
-                                          ,unnamed-input-806
-                                          ,unnamed-input-850) expr]
+               [(ultrascale-plus-dsp48e2 A
+                                         ACASCREG
+                                         ACIN
+                                         ADREG
+                                         ALUMODE
+                                         ALUMODEREG
+                                         AMULTSEL
+                                         AREG
+                                         AUTORESET_PATDET
+                                         AUTORESET_PRIORITY
+                                         A_INPUT
+                                         B
+                                         BCASCREG
+                                         BCIN
+                                         BMULTSEL
+                                         BREG
+                                         B_INPUT
+                                         C
+                                         CARRYCASCIN
+                                         CARRYIN
+                                         CARRYINREG
+                                         CARRYINSEL
+                                         CARRYINSELREG
+                                         CEA1
+                                         CEA2
+                                         CEAD
+                                         CEALUMODE
+                                         CEB1
+                                         CEB2
+                                         CEC
+                                         CECARRYIN
+                                         CECTRL
+                                         CED
+                                         CEINMODE
+                                         CEM
+                                         CEP
+                                         CLK
+                                         CREG
+                                         D
+                                         DREG
+                                         INMODE
+                                         INMODEREG
+                                         IS_ALUMODE_INVERTED
+                                         IS_CARRYIN_INVERTED
+                                         IS_CLK_INVERTED
+                                         IS_INMODE_INVERTED
+                                         IS_OPMODE_INVERTED
+                                         IS_RSTALLCARRYIN_INVERTED
+                                         IS_RSTALUMODE_INVERTED
+                                         IS_RSTA_INVERTED
+                                         IS_RSTB_INVERTED
+                                         IS_RSTCTRL_INVERTED
+                                         IS_RSTC_INVERTED
+                                         IS_RSTD_INVERTED
+                                         IS_RSTINMODE_INVERTED
+                                         IS_RSTM_INVERTED
+                                         IS_RSTP_INVERTED
+                                         MASK
+                                         MREG
+                                         MULTSIGNIN
+                                         OPMODE
+                                         OPMODEREG
+                                         PATTERN
+                                         PCIN
+                                         PREADDINSEL
+                                         PREG
+                                         RND
+                                         RSTA
+                                         RSTALLCARRYIN
+                                         RSTALUMODE
+                                         RSTB
+                                         RSTC
+                                         RSTCTRL
+                                         RSTD
+                                         RSTINMODE
+                                         RSTM
+                                         RSTP
+                                         SEL_MASK
+                                         SEL_PATTERN
+                                         USE_MULT
+                                         USE_PATTERN_DETECT
+                                         USE_SIMD
+                                         USE_WIDEXOR
+                                         XORSIMD
+                                         unnamed-input-331
+                                         unnamed-input-488
+                                         unnamed-input-750
+                                         unnamed-input-806
+                                         unnamed-input-850) expr]
                [cell (make-cell "DSP48E2"
                                 (make-cell-port-directions (list 'A
                                                                  'ACIN
