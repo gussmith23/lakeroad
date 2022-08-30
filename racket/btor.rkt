@@ -2174,7 +2174,8 @@ here-string-delimiter
 ;;; signals.
 ;;;
 ;;; Returns:
-;;; - A function representing the btor file.
+;;; - A function representing the btor file. The function returns a map, mapping output symbols to
+;;;   their values.
 ;;; - A list of strings representing the requires needed for the generated code.
 (define (btor->racket str #:default-value [default-value 'symbolic])
 
@@ -2473,12 +2474,34 @@ here-string-delimiter
           (signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))))
    (list function contract))
 
+  ;;; Instead of using make-function to make a function for each output, we make a single function
+  ;;; which returns all outputs in a map.
+  (define out-function
+    `(λ (,@(apply append
+                  (for/list ([input ins])
+                    (let* ([type (hash-ref input-types input)])
+                      (list (string->keyword (symbol->string input))
+                            `[,input
+                              ,(match default-value
+                                 ['symbolic
+                                  `(bv->signal (constant (list ',input 'symbolic-constant)
+                                                         ,type))])])))))
+       (let* (,@let*-clauses)
+         ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
+         ;;; with the updated state.
+         (make-immutable-hash
+          ,@(map (lambda (k v) `(cons ,k ,v))
+                 (hash-keys outs)
+                 (map (lambda (out-symbol)
+                        `(signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))
+                      (hash-keys outs)))))))
+
   (define requires
     (list (format "(require (file \"~a\"))" stateful-design-experiment-runtime-path)
           "(require rosette)"
           "(require racket/hash)"))
 
-  (list (make-immutable-hash (map cons (hash-keys outs) (map make-function (hash-keys outs))))
+  (list out-function
         requires))
 
 ;;; Expressions all have signal values.

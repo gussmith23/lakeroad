@@ -31,7 +31,7 @@ Example invocation:
 python3 verilog_to_racket.py     \\
     --infile mymodule.v          \\
     --top mymodule               \\
-    --output-signal out          \\
+    --function-name out          \\
     --outfile mymodule.rkt       \\
     --infile othermodule.v       \\
     --include verilog_files_dir/ \\
@@ -66,7 +66,7 @@ StrOrPath = Union[str, Path]
 def preprocess_flatten_convert_verilog(
     infiles: List[StrOrPath],
     top: str,
-    output_signal: str,
+    function_name: str,
     include_directories: List[StrOrPath] = [],
     defines: Dict[str, Optional[str]] = {},
     check_for_not_derived: bool = True,
@@ -81,7 +81,7 @@ def preprocess_flatten_convert_verilog(
 
     Args:
         infiles: List of Verilog files.
-        output_signal: Name of signal to generate output for.
+        function_name: Name to give the function.
 
     Returns:
         Preprocessed Verilog code."""
@@ -157,8 +157,7 @@ def preprocess_flatten_convert_verilog(
                 str(BTOR_TO_RACKET_SCRIPT),
                 "--input-file",
                 str(btorfile.name),
-                "--output-signal",
-                output_signal,
+                function_name,
             ]
         logging.info(f"Running command: {' '.join(cmd)}")
         p = subprocess.run(
@@ -205,10 +204,10 @@ if __name__ == "__main__":
         "--top", type=str, required=True, help="Top module name."
     )
     parser.add_argument(
-        "--output-signal",
+        "--function-name",
         type=str,
         required=True,
-        help="Name of the output signal which the Racket/Rosette function should output.",
+        help="Name to assign to the Rosette/Racket function generated.",
     )
     parser.add_argument(
         "--include",
@@ -232,7 +231,7 @@ if __name__ == "__main__":
     out = verilog_to_racket.preprocess_flatten_convert_verilog(
         infiles=[f.name for f in args.infile],
         top=args.top,
-        output_signal=args.output_signal,
+        function_name=args.function_name,
         check_for_not_derived=True,
         include_directories=args.include,
         defines={k: None for k in args.define},
