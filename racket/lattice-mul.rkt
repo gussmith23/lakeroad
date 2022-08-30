@@ -9,6 +9,7 @@
          "compile-to-json.rkt"
          "utils.rkt"
          "lattice-ecp5.rkt"
+         "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt"))
 
 (provide lattice-mul-with-carry)

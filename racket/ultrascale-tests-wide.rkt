@@ -11,6 +11,8 @@
            rosette
            rosette/lib/synthax
            rosette/solver/smt/boolector
+           "ultrascale.rkt"
+           "logical-to-physical.rkt"
            (prefix-in lr: "language.rkt"))
 
   (current-solver (boolector))

@@ -20,6 +20,7 @@
          racket/sandbox
          rosette/solver/smt/boolector
          "utils.rkt"
+         "logical-to-physical.rkt"
          (prefix-in template: "templates.rkt")
          (prefix-in lr: "language.rkt"))
 

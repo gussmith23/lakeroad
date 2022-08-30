@@ -80,7 +80,95 @@
                  [(lr:lut 4 1 'sofa lutmem inputs)
                   (compile (sofa-lut4 lutmem (apply concat (bitvector->bits (interpret inputs)))))]
 
-                 [(ultrascale-plus-dsp48e2 ,_ ...)
+                 [(ultrascale-plus-dsp48e2 A
+                                           ACASCREG
+                                           ACIN
+                                           ADREG
+                                           ALUMODE
+                                           ALUMODEREG
+                                           AMULTSEL
+                                           AREG
+                                           AUTORESET_PATDET
+                                           AUTORESET_PRIORITY
+                                           A_INPUT
+                                           B
+                                           BCASCREG
+                                           BCIN
+                                           BMULTSEL
+                                           BREG
+                                           B_INPUT
+                                           C
+                                           CARRYCASCIN
+                                           CARRYIN
+                                           CARRYINREG
+                                           CARRYINSEL
+                                           CARRYINSELREG
+                                           CEA1
+                                           CEA2
+                                           CEAD
+                                           CEALUMODE
+                                           CEB1
+                                           CEB2
+                                           CEC
+                                           CECARRYIN
+                                           CECTRL
+                                           CED
+                                           CEINMODE
+                                           CEM
+                                           CEP
+                                           CLK
+                                           CREG
+                                           D
+                                           DREG
+                                           INMODE
+                                           INMODEREG
+                                           IS_ALUMODE_INVERTED
+                                           IS_CARRYIN_INVERTED
+                                           IS_CLK_INVERTED
+                                           IS_INMODE_INVERTED
+                                           IS_OPMODE_INVERTED
+                                           IS_RSTALLCARRYIN_INVERTED
+                                           IS_RSTALUMODE_INVERTED
+                                           IS_RSTA_INVERTED
+                                           IS_RSTB_INVERTED
+                                           IS_RSTCTRL_INVERTED
+                                           IS_RSTC_INVERTED
+                                           IS_RSTD_INVERTED
+                                           IS_RSTINMODE_INVERTED
+                                           IS_RSTM_INVERTED
+                                           IS_RSTP_INVERTED
+                                           MASK
+                                           MREG
+                                           MULTSIGNIN
+                                           OPMODE
+                                           OPMODEREG
+                                           PATTERN
+                                           PCIN
+                                           PREADDINSEL
+                                           PREG
+                                           RND
+                                           RSTA
+                                           RSTALLCARRYIN
+                                           RSTALUMODE
+                                           RSTB
+                                           RSTC
+                                           RSTCTRL
+                                           RSTD
+                                           RSTINMODE
+                                           RSTM
+                                           RSTP
+                                           SEL_MASK
+                                           SEL_PATTERN
+                                           USE_MULT
+                                           USE_PATTERN_DETECT
+                                           USE_SIMD
+                                           USE_WIDEXOR
+                                           XORSIMD
+                                           unnamed-input-331
+                                           unnamed-input-488
+                                           unnamed-input-750
+                                           unnamed-input-806
+                                           unnamed-input-850)
                   (make-ultrascale-plus-dsp48e2 compile
                                                 get-bits
                                                 add-cell
@@ -94,7 +182,24 @@
                                 add-netname
                                 add-parameter-default-value
                                 expr)]
-                 [(ultrascale-plus-clb ,_ ...)
+                 [(ultrascale-plus-clb cin
+                                       lut-a
+                                       lut-b
+                                       lut-c
+                                       lut-d
+                                       lut-e
+                                       lut-f
+                                       lut-g
+                                       lut-h
+                                       mux-selector-a
+                                       mux-selector-b
+                                       mux-selector-c
+                                       mux-selector-d
+                                       mux-selector-e
+                                       mux-selector-f
+                                       mux-selector-g
+                                       mux-selector-h
+                                       inputs)
                   (make-ultrascale-plus-clb compile
                                             get-bits
                                             add-cell

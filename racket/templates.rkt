@@ -9,6 +9,7 @@
          rosette/lib/synthax
          "utils.rkt"
          "interpreter.rkt"
+         "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt"))
 
 ;;; TODO All of these templates could be merged into one, if we wanted!

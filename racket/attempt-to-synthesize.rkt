@@ -5,6 +5,8 @@
 (require rosette
          rosette/lib/synthax
          "interpreter.rkt"
+         "logical-to-physical.rkt"
+         "ultrascale.rkt"
          (prefix-in lr: "language.rkt"))
 
 (define-namespace-anchor anc)

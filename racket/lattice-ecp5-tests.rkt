@@ -11,6 +11,7 @@
          "circt-comb-operators.rkt"
          "comp-json.rkt"
          "utils.rkt"
+         "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt"))
 
 (current-solver (boolector))

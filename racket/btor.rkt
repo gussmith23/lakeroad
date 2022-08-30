@@ -6,6 +6,8 @@
 
 (require rosette
          racket/hash
+         "lattice-ecp5.rkt"
+         "ultrascale.rkt"
          (prefix-in lr: "language.rkt")
          racket/runtime-path)
 

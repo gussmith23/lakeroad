@@ -3,10 +3,12 @@
 (provide interpret-ultrascale-plus
          ultrascale-plus-clb
          ultrascale-plus-lut6-2
+         ultrascale-plus-lut4
          ultrascale-plus-lut3
          ultrascale-plus-lut2
          ultrascale-plus-lut1
          ultrascale-plus-dsp48e2
+         ultrascale-plus-dsp48e2-state
          compile-ultrascale-plus-dsp48e2
          interpret-ultrascale-plus-dsp48e2
          ultrascale-plus-grammar
@@ -20,6 +22,7 @@
          "lut.rkt"
          (prefix-in lr: "language.rkt")
          "ultrascale-plus-dsp48e2.rkt"
+         "logical-to-physical.rkt"
          "stateful-design-experiment.rkt")
 
 (struct ultrascale-plus-clb
@@ -42,8 +45,9 @@
              inputs)
   #:transparent)
 (struct ultrascale-plus-lut6-2 (init inputs) #:transparent)
+(struct ultrascale-plus-lut4 (init inputs) #:transparent)
 (struct ultrascale-plus-lut3 (init inputs) #:transparent)
-(struct ultrascale-plus-lu2 (init inputs) #:transparent)
+(struct ultrascale-plus-lut2 (init inputs) #:transparent)
 (struct ultrascale-plus-lut1 (init inputs) #:transparent)
 (struct ultrascale-plus-dsp48e2
         (A ACASCREG
@@ -326,9 +330,8 @@
            8)]
  [logical-list
   (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
-          (lr:physical-to-logical-mapping
-           (choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-           (physical-list)))]
+          (physical-to-logical-mapping (choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
+                                       (physical-list)))]
  ;;; 8bit logical input
  ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for the sixth
  ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two
@@ -362,7 +365,7 @@
 ;
 ; Returns the O5 and O6 signals.
 (define (interpret-ultrascale-plus-lut6-2-impl lut6-2 inputs)
-  (let* ([memory (ultrascale-plus-lut6-2-memory lut6-2)]
+  (let* ([memory (ultrascale-plus-lut6-2-state-memory lut6-2)]
          [lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
          [lut5-1 (lut (extract 31 0 memory) (extract 4 0 inputs))]
          [O6 (if (bitvector->bool (bit 5 inputs)) lut5-0 lut5-1)]
@@ -439,7 +442,96 @@
 ;;; Top level UltraScale+ interpreter.
 (define (interpret-ultrascale-plus interpreter expr)
   (match expr
-    [(ultrascale-plus-dsp48e2 ,_ ...) (interpret-ultrascale-plus-dsp48e2-new interpreter expr)]
+    [(ultrascale-plus-dsp48e2 A
+                              ACASCREG
+                              ACIN
+                              ADREG
+                              ALUMODE
+                              ALUMODEREG
+                              AMULTSEL
+                              AREG
+                              AUTORESET_PATDET
+                              AUTORESET_PRIORITY
+                              A_INPUT
+                              B
+                              BCASCREG
+                              BCIN
+                              BMULTSEL
+                              BREG
+                              B_INPUT
+                              C
+                              CARRYCASCIN
+                              CARRYIN
+                              CARRYINREG
+                              CARRYINSEL
+                              CARRYINSELREG
+                              CEA1
+                              CEA2
+                              CEAD
+                              CEALUMODE
+                              CEB1
+                              CEB2
+                              CEC
+                              CECARRYIN
+                              CECTRL
+                              CED
+                              CEINMODE
+                              CEM
+                              CEP
+                              CLK
+                              CREG
+                              D
+                              DREG
+                              INMODE
+                              INMODEREG
+                              IS_ALUMODE_INVERTED
+                              IS_CARRYIN_INVERTED
+                              IS_CLK_INVERTED
+                              IS_INMODE_INVERTED
+                              IS_OPMODE_INVERTED
+                              IS_RSTALLCARRYIN_INVERTED
+                              IS_RSTALUMODE_INVERTED
+                              IS_RSTA_INVERTED
+                              IS_RSTB_INVERTED
+                              IS_RSTCTRL_INVERTED
+                              IS_RSTC_INVERTED
+                              IS_RSTD_INVERTED
+                              IS_RSTINMODE_INVERTED
+                              IS_RSTM_INVERTED
+                              IS_RSTP_INVERTED
+                              MASK
+                              MREG
+                              MULTSIGNIN
+                              OPMODE
+                              OPMODEREG
+                              PATTERN
+                              PCIN
+                              PREADDINSEL
+                              PREG
+                              RND
+                              RSTA
+                              RSTALLCARRYIN
+                              RSTALUMODE
+                              RSTB
+                              RSTC
+                              RSTCTRL
+                              RSTD
+                              RSTINMODE
+                              RSTM
+                              RSTP
+                              SEL_MASK
+                              SEL_PATTERN
+                              USE_MULT
+                              USE_PATTERN_DETECT
+                              USE_SIMD
+                              USE_WIDEXOR
+                              XORSIMD
+                              unnamed-input-331
+                              unnamed-input-488
+                              unnamed-input-750
+                              unnamed-input-806
+                              unnamed-input-850)
+     (interpret-ultrascale-plus-dsp48e2-new interpreter expr)]
     [(ultrascale-plus-lut6-2 init inputs) (interpret-ultrascale-plus-lut6-2 interpreter expr)]
     [(ultrascale-plus-lut3 init inputs) (lut init (interpreter inputs))]
     [(ultrascale-plus-lut2 init inputs) (lut init (interpreter inputs))]
@@ -513,21 +605,21 @@
 
   (match-let*
       ([(list a-o5 a-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-a clb) lut-input-a)]
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-a clb) lut-input-a)]
        [(list b-o5 b-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-b clb) lut-input-b)]
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-b clb) lut-input-b)]
        [(list c-o5 c-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-c clb) lut-input-c)]
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-c clb) lut-input-c)]
        [(list d-o5 d-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-d clb) lut-input-d)]
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-d clb) lut-input-d)]
        [(list e-o5 e-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-e clb) lut-input-e)]
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-e clb) lut-input-e)]
        [(list f-o5 f-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-f clb) lut-input-f)]
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-f clb) lut-input-f)]
        [(list g-o5 g-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-g clb) lut-input-g)]
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-g clb) lut-input-g)]
        [(list h-o5 h-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-lut-h clb) lut-input-h)]
+        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-h clb) lut-input-h)]
        [(list carry-o carry-co) (interpret-ultrascale-plus-carry8
                                  (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
                                  (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
@@ -546,14 +638,22 @@
           (if (bveq selector (bv 0 2))
               o5
               (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
-       [a-mux-out (mux-helper a-o5 a-o6 carry-o0 carry-co0 (ultrascale-plus-clb-mux-selector-a clb))]
-       [b-mux-out (mux-helper b-o5 b-o6 carry-o1 carry-co1 (ultrascale-plus-clb-mux-selector-b clb))]
-       [c-mux-out (mux-helper c-o5 c-o6 carry-o2 carry-co2 (ultrascale-plus-clb-mux-selector-c clb))]
-       [d-mux-out (mux-helper d-o5 d-o6 carry-o3 carry-co3 (ultrascale-plus-clb-mux-selector-d clb))]
-       [e-mux-out (mux-helper e-o5 e-o6 carry-o4 carry-co4 (ultrascale-plus-clb-mux-selector-e clb))]
-       [f-mux-out (mux-helper f-o5 f-o6 carry-o5 carry-co5 (ultrascale-plus-clb-mux-selector-f clb))]
-       [g-mux-out (mux-helper g-o5 g-o6 carry-o6 carry-co6 (ultrascale-plus-clb-mux-selector-g clb))]
-       [h-mux-out (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-mux-selector-h clb))])
+       [a-mux-out
+        (mux-helper a-o5 a-o6 carry-o0 carry-co0 (ultrascale-plus-clb-state-mux-selector-a clb))]
+       [b-mux-out
+        (mux-helper b-o5 b-o6 carry-o1 carry-co1 (ultrascale-plus-clb-state-mux-selector-b clb))]
+       [c-mux-out
+        (mux-helper c-o5 c-o6 carry-o2 carry-co2 (ultrascale-plus-clb-state-mux-selector-c clb))]
+       [d-mux-out
+        (mux-helper d-o5 d-o6 carry-o3 carry-co3 (ultrascale-plus-clb-state-mux-selector-d clb))]
+       [e-mux-out
+        (mux-helper e-o5 e-o6 carry-o4 carry-co4 (ultrascale-plus-clb-state-mux-selector-e clb))]
+       [f-mux-out
+        (mux-helper f-o5 f-o6 carry-o5 carry-co5 (ultrascale-plus-clb-state-mux-selector-f clb))]
+       [g-mux-out
+        (mux-helper g-o5 g-o6 carry-o6 carry-co6 (ultrascale-plus-clb-state-mux-selector-g clb))]
+       [h-mux-out
+        (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-state-mux-selector-h clb))])
     (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out cout)))
 
 ; Programmable state for DSP48E2. See spec in the spec-sheets dir.

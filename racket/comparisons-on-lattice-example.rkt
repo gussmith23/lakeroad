@@ -24,6 +24,8 @@
            rosette/lib/angelic
            rackunit
            "interpreter.rkt"
+           "logical-to-physical.rkt"
+           "lattice-ecp5.rkt"
            (prefix-in lr: "language.rkt"))
 
   ;;; Boolector is a fast solver for the theory of bitvectors. We have intentionally kept all of

@@ -5,6 +5,7 @@
          rosette/lib/angelic
          "utils.rkt"
          "comp-json.rkt"
+         "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt"))
 
 (provide interpret-lattice-ecp5
@@ -30,7 +31,7 @@
          lattice-ecp5-pfumx
          lattice-ecp5-pfu
          lattice-ecp5-ccu2c
-         lattice-ripple-pfu
+         lattice-ecp5-ripple-pfu
          get-lattice-logical-inputs
          make-lattice-lut4-expr
          make-lattice-lut5-expr
@@ -55,7 +56,7 @@
 (struct lattice-ecp5-pfumx (ALUT BLUT CO) #:transparent)
 (struct lattice-ecp5-pfu (lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h inputs) #:transparent)
 (struct lattice-ecp5-ccu2c (INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs) #:transparent)
-(struct lattice-ripple-pfu
+(struct lattice-ecp5-ripple-pfu
         (INIT0 INIT1
                INIT2
                INIT3

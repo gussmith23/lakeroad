@@ -8,6 +8,7 @@
          rosette/solver/smt/boolector
          rosette/lib/synthax
          "utils.rkt"
+         "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt"))
 
 (current-solver (boolector))
@@ -186,7 +187,7 @@
   (define-symbolic b (bitvector 18))
   (define-symbolic c (bitvector 48))
   (define-symbolic d (bitvector 48))
-  (define dsp (ultrascale-plus-dsp48e2))
+  (define dsp (ultrascale-plus-dsp48e2-state))
 
   ; This synthesis doesn't actually do anything right now -- it basically just verifies that our very
   ; simple DSP model implements fused multiply-add.
@@ -203,7 +204,14 @@
   ;;;(displayln (model soln))
 
   (define dsp-source
-    (compile-ultrascale-plus-dsp48e2 (ultrascale-plus-dsp48e2) "p" "clk" "a" "b" "c" "ce" "rst"))
+    (compile-ultrascale-plus-dsp48e2 (ultrascale-plus-dsp48e2-state)
+                                     "p"
+                                     "clk"
+                                     "a"
+                                     "b"
+                                     "c"
+                                     "ce"
+                                     "rst"))
 
   (define verilog-source
     (format

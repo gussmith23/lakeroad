@@ -10,6 +10,7 @@
          "lattice-ecp5.rkt"
          "circt-comb-operators.rkt"
          "synthesize.rkt"
+         "logical-to-physical.rkt"
          "utils.rkt")
 
 (define include-dir (build-path (getenv "LAKEROAD_DIR") "f4pga-arch-defs/ecp5/primitives/slice"))
