@@ -81,6 +81,7 @@ ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
 # Build and install latest Verilator.
 ARG MAKE_JOBS=2
+WORKDIR /root
 RUN  git clone https://github.com/verilator/verilator \
   && unset VERILATOR_ROOT \
   && cd verilator \
@@ -89,6 +90,7 @@ RUN  git clone https://github.com/verilator/verilator \
   && ./configure \
   && make -j${MAKE_JOBS} \
   && make install
+ENV VERILATOR_INCLUDE_DIR=/root/verilator/include
 
 # pip dependencies
 WORKDIR /root/lakeroad
