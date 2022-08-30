@@ -2491,7 +2491,7 @@ here-string-delimiter
          ;;; with the updated state.
          (make-immutable-hash
           ,@(map (lambda (k v) `(cons ,k ,v))
-                 (hash-keys outs)
+                 (map (λ (s) `(quote ,s)) (hash-keys outs))
                  (map (lambda (out-symbol)
                         `(signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))
                       (hash-keys outs)))))))
