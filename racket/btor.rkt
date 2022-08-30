@@ -2425,6 +2425,9 @@ here-string-delimiter
         [`("mul" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
            (add-expr-id-str id-str (op-call-builder bvmul a b)))]
+        [`("srl" ,out-type-id-str ,a-id-str ,b-id-str)
+         (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
+           (add-expr-id-str id-str (op-call-builder bvlshr a b)))]
         [`("not" ,out-type-id-str ,a-id-str)
          (let ([a (get-expr-id-str a-id-str)]) (add-expr-id-str id-str (op-call-builder bvnot a)))]
         [`("redor" ,out-type-id-str ,in-id-str)
