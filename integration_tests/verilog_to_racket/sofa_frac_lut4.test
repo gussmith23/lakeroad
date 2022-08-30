@@ -1,7 +1,7 @@
 RUN: $LAKEROAD_DIR/bin/verilog_to_racket.py \
 RUN:   --infile $LAKEROAD_DIR/SOFA_modules/frac_lut4.v \
 RUN:   --top frac_lut4 \
-RUN:   --function-name frac-lut4 \
+RUN:   --function-name sofa-frac-lut4 \
 RUN:   --include $LAKEROAD_DIR/SOFA_modules/ \
 RUN:   --include $LAKEROAD_DIR/skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2 \
 RUN:   --include $LAKEROAD_DIR/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2 \
@@ -14,11 +14,11 @@ RUN:   --define FUNCTIONAL \
 RUN: | FileCheck %s
 
 CHECK: #lang racket/base
-CHECK: (provide frac-lut4)
+CHECK: (provide sofa-frac-lut4)
 CHECK: (require (file "/Users/gus/lakeroad/racket/stateful-design-experiment.rkt"))
 CHECK: (require rosette)
 CHECK: (require racket/hash)
-CHECK: (define frac-lut4
+CHECK: (define sofa-frac-lut4
 CHECK:   (λ (#:in
 CHECK:       (in (bv->signal (constant (list 'in 'symbolic-constant) (bitvector 4))))
 CHECK:       #:mode
