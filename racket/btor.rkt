@@ -2489,12 +2489,12 @@ here-string-delimiter
        (let* (,@let*-clauses)
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.
-         (make-immutable-hash
-          ,@(map (lambda (k v) `(cons ,k ,v))
-                 (map (λ (s) `(quote ,s)) (hash-keys outs))
-                 (map (lambda (out-symbol)
-                        `(signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))
-                      (hash-keys outs)))))))
+         (make-immutable-hash (list ,@(map (lambda (k v) `(cons ,k ,v))
+                                           (map (λ (s) `(quote ,s)) (hash-keys outs))
+                                           (map (lambda (out-symbol)
+                                                  `(signal (signal-value ,(hash-ref outs out-symbol))
+                                                           ,output-state-hash))
+                                                (hash-keys outs))))))))
 
   (define requires
     (list (format "(require (file \"~a\"))" stateful-design-experiment-runtime-path)
