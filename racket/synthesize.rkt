@@ -83,7 +83,6 @@
 (define (synthesize-xilinx-ultrascale-plus-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when
                    (list synthesize-wire
-                         synthesize-constant
                          synthesize-xilinx-ultrascale-plus-dsp
                          (synthesize-using-lut 'xilinx-ultrascale-plus 1)
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
@@ -1020,8 +1019,13 @@
 ;;;   statically know amount)
 (define (synthesize-wire bv-expr #:shift-by [shift-by '()])
   (define out-bw (bvlen bv-expr))
+  (when (not (concrete? out-bw))
+    (error "Out bitwidth must be statically known."))
+
   (define max-input-bw
     (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (when (not (concrete? max-input-bw))
+    (error "Input bitwidths must be statically known."))
 
   ; TODO: (Ben) get-lattice-logical-inputs is lattice-specific, and is also
   ;       causing an error at some locations for mux: (abs ??) seems to be a
@@ -1032,31 +1036,27 @@
   ; (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
   (define logical-inputs (symbolics bv-expr))
 
-  (if (or (not (concrete? out-bw)) (not (concrete? max-input-bw)))
-      #f
-      (begin
-        (define shift-by-concrete
-          (cond
-            [(null? shift-by)
-             (apply choose*
-                    (for/list ([i (range (- out-bw) (add1 (add1 out-bw)))] #:when (not (zero? i)))
-                      i))]
-            [(list? shift-by) (apply choose* shift-by)]
-            [(int? shift-by) shift-by]
-            [else (error "Invalid shift-by: ~a" shift-by)]))
+  (define shift-by-concrete
+    (cond
+      [(null? shift-by)
+       (apply choose*
+              (for/list ([i (range (- out-bw) (add1 (add1 out-bw)))] #:when (not (zero? i)))
+                i))]
+      [(list? shift-by) (apply choose* shift-by)]
+      [(int? shift-by) shift-by]
+      [else (error "Invalid shift-by: ~a" shift-by)]))
 
-        (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
-        (define soln
-          (synthesize #:forall (symbolics bv-expr)
-                      #:guarantee (begin
-                                    (assert (bveq bv-expr (interpret lakeroad-expr))))))
-        (if (sat? soln)
-            (evaluate lakeroad-expr
-                      (complete-solution
-                       soln
-                       (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                (list->set (symbolics bv-expr))))))
-            #f))))
+  (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
+  (define soln
+    (synthesize #:forall (symbolics bv-expr)
+                #:guarantee (begin
+                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+  (if (sat? soln)
+      (evaluate lakeroad-expr
+                (complete-solution soln
+                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                            (list->set (symbolics bv-expr))))))
+      #f))
 
 (module+ test
   (require rosette/solver/smt/boolector
