@@ -108,15 +108,6 @@
 ;;; lakeroad templates, which generically define building blocks (e.g. luts)
 ;;; modulo the specific architecture used.
 
-;;; A synthesis strategy that checks if the input bv-expr is constant (i.e. has
-;;; no symbolic vars and returns it if so. Otherwise returns #f.
-(define (synthesize-constant bv-expr)
-  (if (empty? (symbolics bv-expr))
-      ;;; If the expression is a constant, then it's a valid Lakeroad expression. Return it!
-      bv-expr
-      ;;; Otherwise, for this template, just give up lmao
-      #f))
-
 ;;; A function which, when given an architecture, a target number of lutmems,
 ;;; whether to use a carry, and how many arguments to pad the inputs to, if any,
 ;;; returns a synthesis strategy which uses the lut template.
