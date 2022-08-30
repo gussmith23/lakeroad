@@ -1,5 +1,5 @@
 RUN: $LAKEROAD_DIR/bin/verilog_to_racket.py \
-RUN:   --infile $LAKEROAD_DIR/SOFA_modules/frac_lut4.v \
+RUN:   --infile $LAKEROAD_DIR/modules_for_importing/SOFA/frac_lut4.v \
 RUN:   --top frac_lut4 \
 RUN:   --function-name sofa-frac-lut4 \
 RUN:   --include $LAKEROAD_DIR/SOFA_modules/ \
