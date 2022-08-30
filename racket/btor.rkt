@@ -2501,8 +2501,7 @@ here-string-delimiter
           "(require rosette)"
           "(require racket/hash)"))
 
-  (list out-function
-        requires))
+  (list out-function requires))
 
 ;;; Expressions all have signal values.
 ;;;
