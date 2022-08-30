@@ -430,7 +430,6 @@
                                                '(bitwise)
                                                (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
                          8))))
-   (display expr)
    (define soln
      (synthesize #:forall (list a b)
                  #:guarantee
