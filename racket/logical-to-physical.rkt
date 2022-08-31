@@ -336,17 +336,17 @@
   (define (interpret-shift-instruction #:inputs inputs #:shift-by shift-by)
     (first (interpret-physical-to-logical-mapping
             ; interpret
-            (lambda (x) (interpret-logical-to-physical-mapping identity x))
-            `(physical-to-logical-mapping (bitwise)
-                                          (logical-to-physical-mapping (shift ,shift-by) ,inputs)))))
+            (lambda (x) (interpret-logical-to-physical-mapping identity `(shift ,shift-by) x))
+            '(bitwise)
+            inputs)))
 
   ; Helper function for testing
   (define (interpret-constant-instruction bitwidth)
     (first (interpret-physical-to-logical-mapping
             ; interpret
-            (lambda (x) (interpret-logical-to-physical-mapping identity x))
-            `(physical-to-logical-mapping (bitwise)
-                                          (logical-to-physical-mapping (constant ,bitwidth) ())))))
+            (lambda (x) (interpret-logical-to-physical-mapping identity `(constant bitwidth) x))
+            '(bitwise)
+            '())))
   ;;;                 TEST CONSTANTS                    ;;;
   (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 0) (bv 1 2))
 
