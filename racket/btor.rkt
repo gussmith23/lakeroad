@@ -2186,6 +2186,12 @@ here-string-delimiter
 ;;; - A function representing the btor file. The function returns a map, mapping output symbols to
 ;;;   their values.
 ;;; - A list of strings representing the requires needed for the generated code.
+;;;
+;;; TODO(@gussmith): We rely heavily on hash tables for this implementation. Hash tables are not
+;;; lifted in Rosette, and thus we have to be very careful with them. In general, I think these are
+;;; the rules to obey when using hash tables in Rosette:
+;;; - Only use immutable hash tables.
+;;; - Keys should never be symbolic. They should always be concrete.
 (define (btor->racket str #:default-value [default-value 'symbolic])
 
   ;;; Input signals.
