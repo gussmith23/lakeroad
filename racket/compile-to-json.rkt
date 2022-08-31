@@ -10,7 +10,8 @@
          "utils.rkt"
          "interpreter.rkt"
          racket/pretty
-         rosette)
+         rosette
+         (prefix-in lr: "language.rkt"))
 
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
 ;;;
@@ -63,80 +64,184 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
-                 [`(lut 1 1 xilinx-ultrascale-plus ,lutmem ,inputs)
-                  (compile `(ultrascale-plus-lut1 ,lutmem ,inputs))]
-                 [`(lut 2 1 xilinx-ultrascale-plus ,lutmem ,inputs)
-                  (compile `(ultrascale-plus-lut2 ,lutmem ,inputs))]
-                 [`(lut 3 1 xilinx-ultrascale-plus ,lutmem ,inputs)
-                  (compile `(ultrascale-plus-lut3 ,lutmem ,inputs))]
-                 [`(lut 4 1 xilinx-ultrascale-plus ,lutmem ,inputs)
-                  (compile `(ultrascale-plus-lut4 ,lutmem ,inputs))]
+                 [(lr:lut 1 1 'xilinx-ultrascale-plus lutmem inputs)
+                  (compile (ultrascale-plus-lut1 lutmem inputs))]
+                 [(lr:lut 2 1 'xilinx-ultrascale-plus lutmem inputs)
+                  (compile (ultrascale-plus-lut2 lutmem inputs))]
+                 [(lr:lut 3 1 'xilinx-ultrascale-plus lutmem inputs)
+                  (compile (ultrascale-plus-lut3 lutmem inputs))]
+                 [(lr:lut 4 1 'xilinx-ultrascale-plus lutmem inputs)
+                  (compile (ultrascale-plus-lut4 lutmem inputs))]
 
                  ;;; Have to reverse the inputs for SOFA. Could also reverse the lutmem.
                  ;;;
                  ;;; TODO(@gussmith23): It's probably not great to have the compiler depend on the
                  ;;; interpreter.
-                 [`(lut 4 1 sofa ,lutmem ,inputs)
-                  (compile `(sofa-lut4 ,lutmem ,(apply concat (bitvector->bits (interpret inputs)))))]
+                 [(lr:lut 4 1 'sofa lutmem inputs)
+                  (compile (sofa-lut4 lutmem (apply concat (bitvector->bits (interpret inputs)))))]
 
-                 [`(ultrascale-plus-dsp48e2 ,_ ...)
+                 [(ultrascale-plus-dsp48e2 A
+                                           ACASCREG
+                                           ACIN
+                                           ADREG
+                                           ALUMODE
+                                           ALUMODEREG
+                                           AMULTSEL
+                                           AREG
+                                           AUTORESET_PATDET
+                                           AUTORESET_PRIORITY
+                                           A_INPUT
+                                           B
+                                           BCASCREG
+                                           BCIN
+                                           BMULTSEL
+                                           BREG
+                                           B_INPUT
+                                           C
+                                           CARRYCASCIN
+                                           CARRYIN
+                                           CARRYINREG
+                                           CARRYINSEL
+                                           CARRYINSELREG
+                                           CEA1
+                                           CEA2
+                                           CEAD
+                                           CEALUMODE
+                                           CEB1
+                                           CEB2
+                                           CEC
+                                           CECARRYIN
+                                           CECTRL
+                                           CED
+                                           CEINMODE
+                                           CEM
+                                           CEP
+                                           CLK
+                                           CREG
+                                           D
+                                           DREG
+                                           INMODE
+                                           INMODEREG
+                                           IS_ALUMODE_INVERTED
+                                           IS_CARRYIN_INVERTED
+                                           IS_CLK_INVERTED
+                                           IS_INMODE_INVERTED
+                                           IS_OPMODE_INVERTED
+                                           IS_RSTALLCARRYIN_INVERTED
+                                           IS_RSTALUMODE_INVERTED
+                                           IS_RSTA_INVERTED
+                                           IS_RSTB_INVERTED
+                                           IS_RSTCTRL_INVERTED
+                                           IS_RSTC_INVERTED
+                                           IS_RSTD_INVERTED
+                                           IS_RSTINMODE_INVERTED
+                                           IS_RSTM_INVERTED
+                                           IS_RSTP_INVERTED
+                                           MASK
+                                           MREG
+                                           MULTSIGNIN
+                                           OPMODE
+                                           OPMODEREG
+                                           PATTERN
+                                           PCIN
+                                           PREADDINSEL
+                                           PREG
+                                           RND
+                                           RSTA
+                                           RSTALLCARRYIN
+                                           RSTALUMODE
+                                           RSTB
+                                           RSTC
+                                           RSTCTRL
+                                           RSTD
+                                           RSTINMODE
+                                           RSTM
+                                           RSTP
+                                           SEL_MASK
+                                           SEL_PATTERN
+                                           USE_MULT
+                                           USE_PATTERN_DETECT
+                                           USE_SIMD
+                                           USE_WIDEXOR
+                                           XORSIMD
+                                           unnamed-input-331
+                                           unnamed-input-488
+                                           unnamed-input-750
+                                           unnamed-input-806
+                                           unnamed-input-850)
                   (make-ultrascale-plus-dsp48e2 compile
                                                 get-bits
                                                 add-cell
                                                 add-netname
                                                 add-parameter-default-value
                                                 expr)]
-                 [`(sofa-lut4 ,_ ...)
-
+                 [(sofa-lut4 sram inputs)
                   (compile-sofa compile
                                 get-bits
                                 add-cell
                                 add-netname
                                 add-parameter-default-value
                                 expr)]
-                 [`(ultrascale-plus-clb ,_ ...)
+                 [(ultrascale-plus-clb cin
+                                       lut-a
+                                       lut-b
+                                       lut-c
+                                       lut-d
+                                       lut-e
+                                       lut-f
+                                       lut-g
+                                       lut-h
+                                       mux-selector-a
+                                       mux-selector-b
+                                       mux-selector-c
+                                       mux-selector-d
+                                       mux-selector-e
+                                       mux-selector-f
+                                       mux-selector-g
+                                       mux-selector-h
+                                       inputs)
                   (make-ultrascale-plus-clb compile
                                             get-bits
                                             add-cell
                                             add-netname
                                             add-parameter-default-value
                                             expr)]
-                 [`(lattice-ecp5-pfu ,_ ...)
+                 [(lattice-ecp5-pfu lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h inputs)
                   (compile-lattice-pfu compile
                                        get-bits
                                        add-cell
                                        add-netname
                                        add-parameter-default-value
                                        expr)]
-                 [`(lattice-ecp5-ccu2c ,_ ...)
+                 [(lattice-ecp5-ccu2c INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
                   (compile-lattice-ccu2c compile
                                          get-bits
                                          add-cell
                                          add-netname
                                          add-parameter-default-value
                                          expr)]
-                 [`(lattice-ecp5-lut4 ,_ ...)
+                 [(lattice-ecp5-lut4 INIT inputs)
                   (compile-lattice-lut4 compile
                                         get-bits
                                         add-cell
                                         add-netname
                                         add-parameter-default-value
                                         expr)]
-                 [`(lattice-ecp5-lut6 ,_ ...)
+                 [(lattice-ecp5-lut6 INIT inputs)
                   (compile-lattice-lut6 compile
                                         get-bits
                                         add-cell
                                         add-netname
                                         add-parameter-default-value
                                         expr)]
-                 [`(lattice-ecp5-lut8 ,_ ...)
+                 [(lattice-ecp5-lut8 INIT inputs)
                   (compile-lattice-lut8 compile
                                         get-bits
                                         add-cell
                                         add-netname
                                         add-parameter-default-value
                                         expr)]
-                 [`(lattice-ecp5-mux21 ,_ ...)
+                 [(lattice-ecp5-mux21 D0 D1 SD)
                   (compile-lattice-mux21 compile
                                          get-bits
                                          add-cell
@@ -144,28 +249,45 @@
                                          add-parameter-default-value
                                          expr)]
 
-                 [`(lattice-ecp5-l6mux21 ,_ ...)
+                 [(lattice-ecp5-l6mux21 D0 D1 SD)
                   (compile-lattice-l6mux21 compile
                                            get-bits
                                            add-cell
                                            add-netname
                                            add-parameter-default-value
                                            expr)]
-                 [`(lattice-ecp5-pfumx ,_ ...)
+                 [(lattice-ecp5-pfumx ALUT BLUT CO)
                   (compile-lattice-pfumx compile
                                          get-bits
                                          add-cell
                                          add-netname
                                          add-parameter-default-value
                                          expr)]
-                 [`(lattice-ecp5-ripple-pfu ,_ ...)
+                 [(lattice-ecp5-ripple-pfu INIT0
+                                           INIT1
+                                           INIT2
+                                           INIT3
+                                           INIT4
+                                           INIT5
+                                           INIT6
+                                           INIT7
+                                           INJECT1_0
+                                           INJECT1_1
+                                           INJECT1_2
+                                           INJECT1_3
+                                           INJECT1_4
+                                           INJECT1_5
+                                           INJECT1_6
+                                           INJECT1_7
+                                           CIN
+                                           inputs)
                   (compile-lattice-ripple-pfu compile
                                               get-bits
                                               add-cell
                                               add-netname
                                               add-parameter-default-value
                                               expr)]
-                 [`(ultrascale-plus-lut1 ,init ,inputs)
+                 [(ultrascale-plus-lut1 init inputs)
                   (match-define (list i0) (compile inputs))
                   (define o (get-bits 1))
                   (add-cell 'lut1
@@ -174,7 +296,7 @@
                                        (make-cell-connections 'I0 i0 'O (first o))
                                        #:params (hasheq 'INIT (make-literal-value-from-bv init))))
                   o]
-                 [`(ultrascale-plus-lut2 ,init ,inputs)
+                 [(ultrascale-plus-lut2 init inputs)
                   (match-define (list i0 i1) (compile inputs))
                   (define o (get-bits 1))
                   (add-cell 'lut2
@@ -183,7 +305,7 @@
                                        (make-cell-connections 'I0 i0 'I1 i1 'O (first o))
                                        #:params (hasheq 'INIT (make-literal-value-from-bv init))))
                   o]
-                 [`(ultrascale-plus-lut3 ,init ,inputs)
+                 [(ultrascale-plus-lut3 init inputs)
                   (match-define (list i0 i1 i2) (compile inputs))
                   (define o (get-bits 1))
                   (add-cell 'lut3
@@ -192,37 +314,31 @@
                                        (make-cell-connections 'I0 i0 'I1 i1 'I2 i2 'O (first o))
                                        #:params (hasheq 'INIT (make-literal-value-from-bv init))))
                   o]
-                 [`(physical-to-logical-mapping ,_ ...)
-                  (compile-physical-to-logical-mapping compile expr)]
-                 [`(logical-to-physical-mapping ,_ ...)
-                  (compile-logical-to-physical-mapping compile expr)]
+                 [(physical-to-logical-mapping f outputs)
+                  (compile-physical-to-logical-mapping compile f outputs)]
+                 [(logical-to-physical-mapping f inputs)
+                  (compile-logical-to-physical-mapping compile f inputs)]
 
                  ;;; Racket operators.
-                 [`(first ,v) (first (compile v))]
-                 [`(second ,v) (second (compile v))]
-                 [`(third ,v) (third (compile v))]
-                 [`(fourth ,v) (fourth (compile v))]
-                 [`(fifth ,v) (fifth (compile v))]
-                 [`(sixth ,v) (sixth (compile v))]
-                 [`(take ,l ,n) (take (compile l) n)]
-                 [`(drop ,l ,n) (drop (compile l) n)]
-                 [`(list-ref ,l ,n) (list-ref (compile l) n)]
-                 [`(append ,lsts ...) (apply append (compile lsts))]
-                 [`(map ,f ,lsts ...) (apply map f (compile lsts))]
+                 [(lr:take l n) (take (compile l) n)]
+                 [(lr:drop l n) (drop (compile l) n)]
+                 [(lr:list-ref l n) (list-ref (compile l) n)]
+                 [(lr:first lst) (first (compile lst))]
+                 [(lr:append lsts) (apply append (compile lsts))]
+                 [(lr:map f lsts) (apply map f (compile lsts))]
 
                  ;;; Rosette operators.
-                 [(or (expression (== extract) high low v) `(extract ,high ,low ,v))
+                 [(or (expression (== extract) high low v) (lr:extract high low v))
                   (drop (take (compile v) (add1 high)) low)]
-                 [(or (expression (== zero-extend) v bv-type) `(zero-extend ,v ,bv-type))
+                 [(or (expression (== zero-extend) v bv-type) (lr:zero-extend v bv-type))
                   (append (compile v)
                           (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
-                 [(or `(concat ,v0 ,v1) (expression (== concat) v0 v1))
+                 [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
-                 [`(concat ,rst ...) (apply append (compile (reverse rst)))]
+                 [(lr:concat rst) (apply append (compile (reverse rst)))]
 
-                 [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv-type)
-                  (make-list (bitvector-size bv-type) (first (compile v)))]
+                 [(lr:dup-extend v bv-type) (make-list (bitvector-size bv-type) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
                  [(? bv? (? symbolic? (? constant? s)))
@@ -286,38 +402,39 @@
     (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
 
-  (test-begin (current-solver (boolector))
-              (define-symbolic a b (bitvector 8))
-              (define expr
-                `(first (physical-to-logical-mapping
-                         (bitwise)
-                         ;;; Take the 8 outputs from the LUTs; drop cout.
-                         (take (ultrascale-plus-clb ,(?? (bitvector 1))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 64))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    ,(?? (bitvector 2))
-                                                    (logical-to-physical-mapping
-                                                     (bitwise)
-                                                     ,(list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
-                               8))))
-              (define soln
-                (synthesize #:forall (list a b)
-                            #:guarantee
-                            (begin
-                              ; Assert that the output of the CLB implements the requested function f.
-                              (assert (bveq (bvand a b) (interpret expr))))))
-              (check-true (sat? soln))
-              (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))
+  (test-begin
+   (current-solver (boolector))
+   (define-symbolic a b (bitvector 8))
+   (define expr
+     (lr:first (physical-to-logical-mapping
+                '(bitwise)
+                ;;; Take the 8 outputs from the LUTs; drop cout.
+                (lr:take (ultrascale-plus-clb (?? (bitvector 1))
+                                              (?? (bitvector 64))
+                                              (?? (bitvector 64))
+                                              (?? (bitvector 64))
+                                              (?? (bitvector 64))
+                                              (?? (bitvector 64))
+                                              (?? (bitvector 64))
+                                              (?? (bitvector 64))
+                                              (?? (bitvector 64))
+                                              (?? (bitvector 2))
+                                              (?? (bitvector 2))
+                                              (?? (bitvector 2))
+                                              (?? (bitvector 2))
+                                              (?? (bitvector 2))
+                                              (?? (bitvector 2))
+                                              (?? (bitvector 2))
+                                              (?? (bitvector 2))
+                                              (logical-to-physical-mapping
+                                               '(bitwise)
+                                               (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
+                         8))))
+   (define soln
+     (synthesize #:forall (list a b)
+                 #:guarantee
+                 (begin
+                   ; Assert that the output of the CLB implements the requested function f.
+                   (assert (bveq (bvand a b) (interpret expr))))))
+   (check-true (sat? soln))
+   (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))
