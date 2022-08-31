@@ -43,7 +43,7 @@
                          (append (make-list shift-amount (list "0")) (take compiled num-pads))
                          (append (drop compiled shift-amount) (make-list shift-amount (list "0"))))])
        shifted)]
-    [`(logical-to-physical-mapping (constant ,n) ,logical-expr) (list (compile n))]
+    [`(logical-to-physical-mapping (constant ,n) ,logical-expr) (map list (compile n)) ]
     [`(logical-to-physical-mapping (identity) ,logical-expr) (compile logical-expr)]))
 
 (module+ test
