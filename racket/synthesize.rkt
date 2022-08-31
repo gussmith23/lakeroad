@@ -7,6 +7,7 @@
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
          synthesize-lattice-ecp5-impl
+         synthesize-wire
          synthesize-xilinx-ultrascale-plus-dsp)
 
 (require "interpreter.rkt"
@@ -74,7 +75,7 @@
           templates)]))
 
 (define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
-  (synthesize-with finish-when (list (synthesize-using-lut 'sofa 1 4)) bv-expr))
+  (synthesize-with finish-when (list synthesize-wire (synthesize-using-lut 'sofa 1 4)) bv-expr))
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
 ;;;
@@ -83,7 +84,7 @@
 ;;; defining those as keyword args with default values.
 (define (synthesize-xilinx-ultrascale-plus-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when
-                   (list synthesize-constant
+                   (list synthesize-wire
                          synthesize-xilinx-ultrascale-plus-dsp
                          (synthesize-using-lut 'xilinx-ultrascale-plus 1)
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
@@ -91,7 +92,8 @@
 
 (define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed] #:timeout [timeout 5.0])
   (synthesize-with finish-when
-                   (list synthesize-lattice-ecp5-for-pfu
+                   (list synthesize-wire
+                         synthesize-lattice-ecp5-for-pfu
                          synthesize-lattice-ecp5-for-ripple-pfu
                          synthesize-lattice-ecp5-for-ccu2c
                          synthesize-lattice-ecp5-for-ccu2c-tri
@@ -107,15 +109,6 @@
 ;;; components and synthesis holes. These generic synthesis strategies call into
 ;;; lakeroad templates, which generically define building blocks (e.g. luts)
 ;;; modulo the specific architecture used.
-
-;;; A synthesis strategy that checks if the input bv-expr is constant (i.e. has
-;;; no symbolic vars and returns it if so. Otherwise returns #f.
-(define (synthesize-constant bv-expr)
-  (if (empty? (symbolics bv-expr))
-      ;;; If the expression is a constant, then it's a valid Lakeroad expression. Return it!
-      bv-expr
-      ;;; Otherwise, for this template, just give up lmao
-      #f))
 
 ;;; A function which, when given an architecture, a target number of lutmems,
 ;;; whether to use a carry, and how many arguments to pad the inputs to, if any,
@@ -1002,3 +995,113 @@
                                 (set->list (set-subtract (list->set (symbolics lakeroad-expr))
                                                          (list->set (symbolics bv-expr))))))
             #f))))
+
+;;; make-wire-lrexpr: a helper function for `synthesize-wire`. This creates a FULL
+;;; (input-to-output) wire template that is ready for synthesis.
+(define (make-wire-lrexpr inputs shift-by bitwidth)
+  (define lakeroad-expr
+    (lr:first (physical-to-logical-mapping
+               '(bitwise)
+               (logical-to-physical-mapping (choose '(bitwise)
+                                                    '(bitwise-reverse)
+                                                    `(shift ,shift-by)
+                                                    `(constant ,(??* (bitvector bitwidth))))
+                                            inputs))))
+
+  lakeroad-expr)
+
+;;; Synthesize a wire instruction. This is architecture-independent and involves
+;;; pure routing of wires. This includes:
+;;; + bitwise (direct routing of input wires to output wires)
+;;; + bitwise revierse (reversing he order of wires)
+;;; + constant (ignoring inputs and routing a constant to the output)
+;;; + shift (logical shifting the input wires to the left or right by a constant
+;;;   statically know amount)
+(define (synthesize-wire bv-expr #:shift-by [shift-by '()])
+  (define out-bw (bvlen bv-expr))
+  (when (not (concrete? out-bw))
+    (error "Out bitwidth must be statically known."))
+
+  (define max-input-bw
+    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+  (when (not (concrete? max-input-bw))
+    (error "Input bitwidths must be statically known."))
+
+  ; TODO: (Ben) get-lattice-logical-inputs is lattice-specific, and is also
+  ;       causing an error at some locations for mux: (abs ??) seems to be a
+  ;       problem, for instance.  We don't really need to use dup extensions for
+  ;       wire instruction synthesis, so I think we can get away with just using
+  ;       the symbolics of the bv-expr as the logical inputs.
+
+  ; (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
+  (define logical-inputs (symbolics bv-expr))
+
+  (define shift-by-concrete
+    (cond
+      [(null? shift-by)
+       (apply choose*
+              (for/list ([i (range (- out-bw) (add1 (add1 out-bw)))] #:when (not (zero? i)))
+                i))]
+      [(list? shift-by) (apply choose* shift-by)]
+      [(int? shift-by) shift-by]
+      [else (error "Invalid shift-by: ~a" shift-by)]))
+
+  (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
+  (define soln
+    (synthesize #:forall (symbolics bv-expr)
+                #:guarantee (begin
+                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+  (if (sat? soln)
+      (evaluate lakeroad-expr
+                (complete-solution soln
+                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
+                                                            (list->set (symbolics bv-expr))))))
+      #f))
+
+(module+ test
+  (require rosette/solver/smt/boolector
+           rosette
+           rackunit)
+  (current-solver (boolector))
+  (with-terms
+   (begin
+     (define-symbolic a (bitvector 4))
+     (printf "\nChecking lshift 0\n")
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking lshift 1\n")
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking lshift 2\n")
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking lshift 3\n")
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking rshift 0\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking rshift 1\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking rshift 2\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking rshift 3\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking rshift 4\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)]) (check-not-false lrexpr))
+
+     (printf "\nChecking rshift 5\n")
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))]) (check-not-false lrexpr))
+
+     (printf "\nChecking constant (bv #xff 8)\n")
+     (let ([lrexpr (synthesize-wire (bv #xff 8))]) (check-not-false lrexpr))
+
+     (printf "\nChecking constant (bv #x12 8)\n")
+     (let ([lrexpr (synthesize-wire (bv #x12 8))]) (check-not-false lrexpr))
+
+     (printf "\nChecking constant (bv #x123456789abcdef0123456789abcdef0 128)\n")
+     (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
+       (check-not-false lrexpr)))))

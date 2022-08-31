@@ -16,6 +16,7 @@
 (require rosette
          racket/pretty
          rosette/lib/synthax
+         "utils.rkt"
          (prefix-in lr: "language.rkt"))
 
 (struct logical-to-physical-mapping (f inputs) #:transparent)
@@ -37,7 +38,17 @@
   (match f
     ['(bitwise) (apply map list (compile logical-expr))]
     ['(bitwise-reverse) (apply map list (map reverse (compile logical-expr)))]
-    ['(identity) (compile logical-expr)]))
+    ['(identity) (compile logical-expr)]
+    [`(shift ,n)
+     (let* ([compiled (apply map list (compile logical-expr))]
+            [num-bits (length compiled)]
+            [shift-amount (min (abs n) num-bits)]
+            [num-pads (max 0 (- num-bits shift-amount))]
+            [shifted (if (> n 0)
+                         (append (make-list shift-amount (list "0")) (take compiled num-pads))
+                         (append (drop compiled shift-amount) (make-list shift-amount (list "0"))))])
+       shifted)]
+    [`(constant ,n) (map list (compile n))]))
 
 (module+ test
   (require rackunit)
@@ -104,6 +115,31 @@
       ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern
       ;;;   described above.
       ['(bitwise) (transpose (interpreter inputs))]
+      ;;;
+      ;;; "Shift" logical-to-physical-mapping.
+      ;;;
+      ;;; The "shift" logical to physical mapping is like the "bitwise" mapping
+      ;;; but shifts the physical bits by n. If n is positive then it is a left
+      ;;; shift; if n is negative then it is a right shift.
+      ;;;
+      ;;; Note this uses 'logical' shifting, not 'arithmetic' shifting.
+      ;;;
+      ;;; Since bits are grouped from least significant to most significant, a
+      ;;; 'left shift' actually of the underlying number corresponds to a 'right
+      ;;; shift' of our list and vice versa.
+      [`(shift ,n)
+       (for/all ([n n #:exhaustive])
+                (let* ([transposed (transpose (interpreter inputs))]
+                       [num-cols (length transposed)]
+                       [pad-col (bv #x0 (length inputs))]
+                       [num-pads (min (abs n) num-cols)]
+                       [pads (make-list num-pads pad-col)])
+                  (cond
+                    [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
+                    [(< n 0) (append (drop transposed num-pads) pads)]
+                    [else transposed])))]
+
+      [`(constant ,c) (bitvector->bits c)]
       ;;;
       ;;; Same as bitwise, but includes masks on the physical outputs.
       ;;;
@@ -286,6 +322,64 @@
                 (list (bv #b1 1) (bv #b0 1)))
   (check-equal? (interpret-logical-to-physical-mapping identity '(bitwise) (list (bv #b01 2)))
                 (list (bv #b1 1) (bv #b0 1)))
+
+  ; The following two functions are helpers to help us test our wire
+  ; implementations. They each create and interpret a logical-to-physical
+  ; mapping (a shift and a constant) respectively.
+  ;
+  ; The functions create a lakeroad expression of the given type and then
+  ; interpret it using a custom 'interpreter'. Note that we cannot pass in the
+  ; `interpret` function from `interpret.rkt` since that would result in a
+  ; circular dependency. Instead, we pass a simple lambda that uses
+  ; `interpret-logical-to-physical-mapping identity...` on the nested expression
+  ; we want to recursively interpret.
+  (define (interpret-shift-instruction #:inputs inputs #:shift-by shift-by)
+    (first (interpret-physical-to-logical-mapping
+            ; interpret
+            (lambda (x) (interpret-logical-to-physical-mapping identity `(shift ,shift-by) x))
+            '(bitwise)
+            inputs)))
+
+  ; Helper function for testing
+  (define (interpret-constant-instruction bitwidth)
+    (first (interpret-physical-to-logical-mapping
+            ; interpret
+            (lambda (x) (interpret-logical-to-physical-mapping identity `(constant bitwidth) x))
+            '(bitwise)
+            '())))
+  ;;;                 TEST CONSTANTS                    ;;;
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 0) (bv 1 2))
+
+  ;;;                 TEST SHIFTS                    ;;;
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 0) (bv 1 2))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 1) (bv 2 2))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 2) (bv 0 2))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 3) (bv 0 2))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b10 2)) #:shift-by -1) (bv 1 2))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b10 2)) #:shift-by -2) (bv 0 2))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b10 2)) #:shift-by -3) (bv 0 2))
+
+  ;; Test right shifts
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 0) (bv #xaa 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -1) (bv #x55 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -2) (bv #x2a 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -3) (bv #x15 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -4) (bv #x0a 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -5) (bv #x05 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -6) (bv #x02 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -7) (bv #x01 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -8) (bv #x00 8))
+
+  ;; Test left shifts
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 1) (bv #x54 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 2) (bv #xa8 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 3) (bv #x50 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 4) (bv #xa0 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 5) (bv #x40 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 6) (bv #x80 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 7) (bv #x00 8))
+  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 8) (bv #x00 8))
+
   (check-exn
    (regexp
     "@map: arity mismatch;\n the expected number of arguments does not match the given number\n  expected: at least 2\n  given: 1")
