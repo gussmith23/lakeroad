@@ -1000,13 +1000,13 @@
 ;;; (input-to-output) wire template that is ready for synthesis.
 (define (make-wire-lrexpr inputs shift-by bitwidth)
   (define lakeroad-expr
-    `(first (physical-to-logical-mapping
-             (bitwise)
-             (logical-to-physical-mapping ,(choose '(bitwise)
-                                                   '(bitwise-reverse)
-                                                   `(shift ,shift-by)
-                                                   `(constant ,(??* (bitvector bitwidth))))
-                                          ,inputs))))
+    (lr:first (physical-to-logical-mapping
+           '(bitwise)
+           (logical-to-physical-mapping (choose '(bitwise)
+                                                '(bitwise-reverse)
+                                                `(shift ,shift-by)
+                                                `(constant ,(??* (bitvector bitwidth))))
+                                          inputs))))
 
   lakeroad-expr)
 
