@@ -1001,12 +1001,12 @@
 (define (make-wire-lrexpr inputs shift-by bitwidth)
   (define lakeroad-expr
     (lr:first (physical-to-logical-mapping
-           '(bitwise)
-           (logical-to-physical-mapping (choose '(bitwise)
-                                                '(bitwise-reverse)
-                                                `(shift ,shift-by)
-                                                `(constant ,(??* (bitvector bitwidth))))
-                                          inputs))))
+               '(bitwise)
+               (logical-to-physical-mapping (choose '(bitwise)
+                                                    '(bitwise-reverse)
+                                                    `(shift ,shift-by)
+                                                    `(constant ,(??* (bitvector bitwidth))))
+                                            inputs))))
 
   lakeroad-expr)
 
