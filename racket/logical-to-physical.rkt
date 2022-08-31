@@ -39,7 +39,8 @@
     ['(bitwise) (apply map list (compile logical-expr))]
     ['(bitwise-reverse) (apply map list (map reverse (compile logical-expr)))]
     ['(identity) (compile logical-expr)]
-    [`(shift ,n)  (let* ([compiled (apply map list (compile logical-expr))]
+    [`(shift ,n)
+     (let* ([compiled (apply map list (compile logical-expr))]
             [num-bits (length compiled)]
             [shift-amount (min (abs n) num-bits)]
             [num-pads (max 0 (- num-bits shift-amount))]
@@ -47,8 +48,7 @@
                          (append (make-list shift-amount (list "0")) (take compiled num-pads))
                          (append (drop compiled shift-amount) (make-list shift-amount (list "0"))))])
        shifted)]
-    [`(constant ,n) (map list (compile n))]
-    ))
+    [`(constant ,n) (map list (compile n))]))
 
 (module+ test
   (require rackunit)
