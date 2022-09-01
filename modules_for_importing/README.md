@@ -10,7 +10,5 @@ See the importer for details, but the primary modifications
   standard among many Verilog tools,
   and the addition of include statements.
 
-The Verilog modules that make up the SOFA architecture.
-I needed to extract these out of various repositories
-  so that I could convert them into the one-file-one-module
-  format that Verilator expects.
+It is of utmost importance that these modifications
+  do not change the functionality of the modules.
