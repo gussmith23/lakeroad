@@ -8,17 +8,29 @@
          sofa-lut1
          sofa-lut2
          sofa-lut3
-         sofa-lut4)
+         sofa-lut4
+         (struct-out sofa-frac-lut4))
 
 (require "lut.rkt"
          rosette
          "utils.rkt"
-         "comp-json.rkt")
+         "comp-json.rkt"
+         (rename-in (file "sofa-frac-lut4.rkt") (sofa-frac-lut4 interpret-sofa-frac-lut4))
+         "stateful-design-experiment.rkt")
 
 (struct sofa-lut1 (sram inputs) #:transparent)
 (struct sofa-lut2 (sram inputs) #:transparent)
 (struct sofa-lut3 (sram inputs) #:transparent)
 (struct sofa-lut4 (sram inputs) #:transparent)
+;;; frac_lut4 module from SOFA.
+;;;
+;;; Inputs:
+;;; - in: LUT inputs. (bitvector 4)
+;;; - mode: (bitvector 1)
+;;; - mode_inv: Seems to be unused. (bitvector 1)
+;;; - sram: LUT memory. (bitvector 16)
+;;; - sram_inv: Seems to be unused. (bitvector 16)
+(struct sofa-frac-lut4 (in mode mode-inv sram sram-inv) #:transparent)
 
 (define (interpret-sofa interpreter expr)
   (match expr
@@ -40,7 +52,17 @@
     [(sofa-lut4 sram inputs)
      (when (not (equal? (bvlen sram) 16))
        (error "SOFA LUT4 should have a LUT memory of length 16."))
-     (interpret-sofa-lut sram (interpreter inputs))]))
+     (interpret-sofa-lut sram (interpreter inputs))]
+    [(sofa-frac-lut4 in mode mode-inv sram sram-inv)
+     (let* ([out (interpret-sofa-frac-lut4 #:in (bv->signal (interpreter in))
+                                           #:mode (bv->signal (interpreter mode))
+                                           #:mode_inv (bv->signal (interpreter mode-inv))
+                                           #:sram (bv->signal (interpreter sram))
+                                           #:sram_inv (bv->signal (interpreter sram-inv)))]
+            [lut2-out (signal-value (hash-ref out 'lut2_out))]
+            [lut3-out (signal-value (hash-ref out 'lut3_out))]
+            [lut4-out (signal-value (hash-ref out 'lut4_out))])
+       (list lut2-out lut3-out lut4-out))]))
 
 (define (compile-sofa compile get-bits add-cell add-netname add-parameter-default-value expr)
   (match expr
@@ -51,7 +73,26 @@
      (define lut4-cell (make-sofa-lut4 (compile sram) (compile inputs) lut4-out lut3-out-unused))
      (add-cell 'lut4 lut4-cell)
 
-     lut4-out]))
+     lut4-out]
+
+    [(sofa-frac-lut4 in mode mode-inv sram sram-inv)
+     (define lut2-out (get-bits 2))
+     (define lut3-out (get-bits 2))
+     (define lut4-out (get-bits 1))
+     (add-netname 'lut2_out (make-net-details lut2-out))
+     (add-netname 'lut3_out (make-net-details lut3-out))
+     (add-netname 'lut4_out (make-net-details lut4-out))
+     (define frac-lut4-cell
+       (make-sofa-frac-lut4 (compile in)
+                            (compile mode)
+                            (compile mode-inv)
+                            (compile sram)
+                            (compile sram-inv)
+                            (compile lut2-out)
+                            (compile lut3-out)
+                            (compile lut4-out)))
+     (add-cell 'frac-lut4 frac-lut4-cell)
+     (list lut2-out lut3-out lut4-out)]))
 
 ;;; Simplified model of a SOFA LUT4 based on the code here:
 ;;; https://github.com/lnis-uofu/SOFA/blob/e508bdd9056639101993f84a215ab10354659ad6/FPGA1212_SOFA_HD_PNR/FPGA1212_SOFA_HD_Verilog/SRC/sub_module/luts.v
@@ -86,3 +127,25 @@
                   lut3-out
                   'lut4_out
                   lut4-out)))
+
+;;; Compile frac_lut4.
+(define (make-sofa-frac-lut4 in mode mode-inv sram sram-inv lut2-out lut3-out lut4-out)
+  (make-cell "frac_lut4"
+             (make-cell-port-directions (list 'in 'sram 'sram_inv 'mode 'mode_inv)
+                                        (list 'lut2_out 'lut3_out 'lut4_out))
+             (hasheq-helper 'in
+                            in
+                            'sram
+                            sram
+                            'sram_inv
+                            sram-inv
+                            'mode
+                            mode
+                            'mode_inv
+                            mode-inv
+                            'lut2_out
+                            lut2-out
+                            'lut3_out
+                            lut3-out
+                            'lut4_out
+                            lut4-out)))

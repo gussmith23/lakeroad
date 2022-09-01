@@ -182,6 +182,13 @@
                                 add-netname
                                 add-parameter-default-value
                                 expr)]
+                 [(sofa-frac-lut4 in mode mode-inv sram sram-inv)
+                  (compile-sofa compile
+                                get-bits
+                                add-cell
+                                add-netname
+                                add-parameter-default-value
+                                expr)]
                  [(ultrascale-plus-clb cin
                                        lut-a
                                        lut-b

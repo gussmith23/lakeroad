@@ -188,10 +188,12 @@
                                          CIN
                                          inputs)
                 (interpret-lattice-ecp5 interpret-helper expr)]
-               [(sofa-lut1 sram inputs) (interpret-sofa interpret-helper sram inputs)]
-               [(sofa-lut2 sram inputs) (interpret-sofa interpret-helper sram inputs)]
-               [(sofa-lut3 sram inputs) (interpret-sofa interpret-helper sram inputs)]
-               [(sofa-lut4 sram inputs) (interpret-sofa interpret-helper sram inputs)]
+               [(sofa-lut1 sram inputs) (interpret-sofa interpret-helper expr)]
+               [(sofa-lut2 sram inputs) (interpret-sofa interpret-helper expr)]
+               [(sofa-lut3 sram inputs) (interpret-sofa interpret-helper expr)]
+               [(sofa-lut4 sram inputs) (interpret-sofa interpret-helper expr)]
+               [(sofa-frac-lut4 in mode mode-inv sram sram-inv)
+                (interpret-sofa interpret-helper expr)]
                ;;; Generic hardware blocks.
                ;;;
                ;;; Returns a (bitvector 1): the result of looking up the entry specified by `inputs` in
