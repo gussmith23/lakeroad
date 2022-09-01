@@ -6,7 +6,7 @@
 
 #lang racket/base
 (provide xilinx-ultrascale-plus-carry8)
-(require (file "/Users/gus/lakeroad/racket/stateful-design-experiment.rkt"))
+(require "stateful-design-experiment.rkt")
 (require rosette)
 (require racket/hash)
 (define xilinx-ultrascale-plus-carry8

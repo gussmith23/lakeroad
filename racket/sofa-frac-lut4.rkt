@@ -18,7 +18,7 @@
 ;;; TODO(@gussmith23): Hash tables are not in rosette/safe! That's bad!
 #lang racket/base
 (provide sofa-frac-lut4)
-(require (file "/Users/gus/lakeroad/racket/stateful-design-experiment.rkt"))
+(require "stateful-design-experiment.rkt")
 (require rosette)
 (require racket/hash)
 (define sofa-frac-lut4
