@@ -14,7 +14,9 @@
          ultrascale-plus-grammar
          make-ultrascale-plus-clb
          make-ultrascale-plus-dsp48e2
-         interpret-ultrascale-plus-carry8)
+         interpret-ultrascale-plus-carry8
+         (struct-out xilinx-ultrascale-plus-carry8)
+         compile-xilinx-ultrascale-plus-carry8)
 
 (require rosette
          rosette/lib/synthax
@@ -23,7 +25,9 @@
          (prefix-in lr: "language.rkt")
          "ultrascale-plus-dsp48e2.rkt"
          "logical-to-physical.rkt"
-         "stateful-design-experiment.rkt")
+         "stateful-design-experiment.rkt"
+         (rename-in (file "xilinx-ultrascale-plus-carry8.rkt")
+                    (xilinx-ultrascale-plus-carry8 interpret-xilinx-ultrascale-plus-carry8)))
 
 (struct ultrascale-plus-clb
         (cin lut-a
@@ -139,6 +143,7 @@
            unnamed-input-806
            unnamed-input-850)
   #:transparent)
+(struct xilinx-ultrascale-plus-carry8 (carry-type ci ci-top di s) #:transparent)
 
 ;;; Compile program in Lakeroad DSL to module.
 
@@ -589,7 +594,14 @@
         lut-input-e
         lut-input-f
         lut-input-g
-        lut-input-h))]))
+        lut-input-h))]
+    [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
+     (let ([out (interpret-xilinx-ultrascale-plus-carry8 #:CARRY_TYPE (bv->signal carry-type)
+                                                         #:CI (bv->signal ci)
+                                                         #:CI_TOP (bv->signal ci-top)
+                                                         #:DI (bv->signal di)
+                                                         #:S (bv->signal s))])
+       (list (signal-value (hash-ref out 'CO)) (signal-value (hash-ref out 'O))))]))
 
 ; Returns the physical outputs of the CLB.
 (define (interpret-ultrascale-plus-clb-impl clb
@@ -1434,3 +1446,34 @@ here-string-delimiter
     (add-netname 'P (make-net-details P))
     (add-cell 'DSP48E2 cell)
     (list P)))
+
+(define (compile-xilinx-ultrascale-plus-carry8 compile
+                                               get-bits
+                                               add-cell
+                                               add-netname
+                                               add-parameter-default-value
+                                               expr)
+  (match-define (xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s) expr)
+  (define o (get-bits 8))
+  (define co (get-bits 8))
+  (add-netname 'o (make-net-details o))
+  (add-netname 'co (make-net-details co))
+  (define carry8-cell
+    (make-cell "CARRY8"
+               (make-cell-port-directions (list 'CARRY_TYPE 'CI 'CI_TOP 'DI 'S) (list 'CO 'O))
+               (hasheq-helper 'CARRY_TYPE
+                              (compile carry-type)
+                              'CI
+                              (compile ci)
+                              'CI_TOP
+                              (compile ci-top)
+                              'DI
+                              (compile di)
+                              'S
+                              (compile s)
+                              'O
+                              o
+                              'CO
+                              co)))
+  (add-cell 'carry8 carry8-cell)
+  (list co o))

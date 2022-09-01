@@ -175,6 +175,13 @@
                                                 add-netname
                                                 add-parameter-default-value
                                                 expr)]
+                 [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
+                  (compile-xilinx-ultrascale-plus-carry8 compile
+                                                         get-bits
+                                                         add-cell
+                                                         add-netname
+                                                         add-parameter-default-value
+                                                         expr)]
                  [(sofa-lut4 sram inputs)
                   (compile-sofa compile
                                 get-bits
