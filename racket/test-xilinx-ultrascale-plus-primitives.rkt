@@ -51,6 +51,7 @@
 
   (verify-lakeroad-expression
    "Xilinx UltraScale+ LUT6"
+   ;;; Set up symbolic variables.
    (begin
      (define-symbolic i0 (bitvector 1))
      (define-symbolic i1 (bitvector 1))
@@ -59,12 +60,14 @@
      (define-symbolic i4 (bitvector 1))
      (define-symbolic i5 (bitvector 1))
      (define-symbolic lut-init (bitvector 64)))
+   ;;; Expression to test.
    (xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 lut-init)
+   ;;; Expression to verify against. The above expression should have the same semantics as the below
+   ;;; expression.
    (lut lut-init (concat i5 i4 i3 i2 i1 i0))
-   ;;; We don't have `verify-lakeroad-expression` add this to the list of
-   ;;; things to simulate, as compiliation to Verilog through Yosys
-   ;;; requires `lut-init` to be concrete. Thus, we simulate below with some
-   ;;; concrete `lut-init` values.
+   ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
+   ;;; compiliation to Verilog through Yosys requires `lut-init` to be concrete. Thus, we simulate
+   ;;; below with some concrete `lut-init` values.
    ;;;
    ;;; add-to-simulate
    )
