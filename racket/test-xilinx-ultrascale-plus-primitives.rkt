@@ -104,10 +104,9 @@
      (define-symbolic lut-init-o6 (bitvector 32)))
    (lr:list-ref (xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 (concat lut-init-o6 lut-init-o5)) 0)
    (lut lut-init-o5 (concat i4 i3 i2 i1 i0))
-   ;;; We don't have `verify-lakeroad-expression` add this to the list of
-   ;;; things to simulate, as compiliation to Verilog through Yosys
-   ;;; requires `lut-init` to be concrete. Thus, we simulate below with some
-   ;;; concrete `lut-init` values.
+   ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
+   ;;; compiliation to Verilog through Yosys requires `lut-init` to be concrete. Thus, we simulate
+   ;;; below with some concrete `lut-init` values.
    ;;;
    ;;; add-to-simulate
    )
