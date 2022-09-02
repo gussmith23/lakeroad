@@ -100,9 +100,34 @@
      (define-symbolic i3 (bitvector 1))
      (define-symbolic i4 (bitvector 1))
      (define-symbolic i5 (bitvector 1))
-     (define-symbolic lut-init (bitvector 64)))
-   (lr:list-ref (xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 lut-init) 0)
-   (bit 0 (lut lut-init (concat i5 i4 i3 i2 i1 i0) #:num-output-bits 2))
+     (define-symbolic lut-init-o5 (bitvector 32))
+     (define-symbolic lut-init-o6 (bitvector 32)))
+   (lr:list-ref (xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 (concat lut-init-o6 lut-init-o5)) 0)
+   (lut lut-init-o5 (concat i4 i3 i2 i1 i0))
+   ;;; We don't have `verify-lakeroad-expression` add this to the list of
+   ;;; things to simulate, as compiliation to Verilog through Yosys
+   ;;; requires `lut-init` to be concrete. Thus, we simulate below with some
+   ;;; concrete `lut-init` values.
+   ;;;
+   ;;; add-to-simulate
+   )
+
+  (verify-lakeroad-expression
+   "Xilinx UltraScale+ LUT6_2"
+   (begin
+     (define-symbolic i0 (bitvector 1))
+     (define-symbolic i1 (bitvector 1))
+     (define-symbolic i2 (bitvector 1))
+     (define-symbolic i3 (bitvector 1))
+     (define-symbolic i4 (bitvector 1))
+     (define-symbolic i5 (bitvector 1))
+     (define-symbolic lut-init-o5 (bitvector 32))
+     (define-symbolic lut-init-o6 (bitvector 32)))
+   (lr:concat (xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 (concat lut-init-o6 lut-init-o5)))
+   (concat (lut lut-init-o5 (concat i4 i3 i2 i1 i0))
+           (if (bvzero? i5)
+               (lut lut-init-o5 (concat i4 i3 i2 i1 i0))
+               (lut lut-init-o6 (concat i4 i3 i2 i1 i0))))
    ;;; We don't have `verify-lakeroad-expression` add this to the list of
    ;;; things to simulate, as compiliation to Verilog through Yosys
    ;;; requires `lut-init` to be concrete. Thus, we simulate below with some
