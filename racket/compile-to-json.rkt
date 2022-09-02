@@ -182,6 +182,20 @@
                                                          add-netname
                                                          add-parameter-default-value
                                                          expr)]
+                 [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
+                  (compile-xilinx-ultrascale-plus-lut6 compile
+                                                       get-bits
+                                                       add-cell
+                                                       add-netname
+                                                       add-parameter-default-value
+                                                       expr)]
+                 [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
+                  (compile-xilinx-ultrascale-plus-lut6-2 compile
+                                                         get-bits
+                                                         add-cell
+                                                         add-netname
+                                                         add-parameter-default-value
+                                                         expr)]
                  [(sofa-lut4 sram inputs)
                   (compile-sofa compile
                                 get-bits

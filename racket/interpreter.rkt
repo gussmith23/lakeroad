@@ -69,6 +69,10 @@
                [(ultrascale-plus-lut1 init inputs) (interpret-ultrascale-plus interpret-helper expr)]
                [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
                 (interpret-ultrascale-plus interpret-helper expr)]
+               [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
+                (interpret-ultrascale-plus interpret-helper expr)]
+               [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
+                (interpret-ultrascale-plus interpret-helper expr)]
                [(ultrascale-plus-dsp48e2 A
                                          ACASCREG
                                          ACIN

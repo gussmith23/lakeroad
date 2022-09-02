@@ -16,7 +16,11 @@
          make-ultrascale-plus-dsp48e2
          interpret-ultrascale-plus-carry8
          (struct-out xilinx-ultrascale-plus-carry8)
-         compile-xilinx-ultrascale-plus-carry8)
+         (struct-out xilinx-ultrascale-plus-lut6)
+         (struct-out xilinx-ultrascale-plus-lut6-2)
+         compile-xilinx-ultrascale-plus-carry8
+         compile-xilinx-ultrascale-plus-lut6
+         compile-xilinx-ultrascale-plus-lut6-2)
 
 (require rosette
          rosette/lib/synthax
@@ -27,7 +31,11 @@
          "logical-to-physical.rkt"
          "stateful-design-experiment.rkt"
          (rename-in (file "xilinx-ultrascale-plus-carry8.rkt")
-                    (xilinx-ultrascale-plus-carry8 interpret-xilinx-ultrascale-plus-carry8)))
+                    (xilinx-ultrascale-plus-carry8 interpret-xilinx-ultrascale-plus-carry8))
+         (rename-in (file "xilinx-ultrascale-plus-lut6.rkt")
+                    (xilinx-ultrascale-plus-lut6 interpret-xilinx-ultrascale-plus-lut6))
+         (rename-in (file "xilinx-ultrascale-plus-lut6-2.rkt")
+                    (xilinx-ultrascale-plus-lut6-2 interpret-xilinx-ultrascale-plus-lut6-2)))
 
 (struct ultrascale-plus-clb
         (cin lut-a
@@ -144,6 +152,8 @@
            unnamed-input-850)
   #:transparent)
 (struct xilinx-ultrascale-plus-carry8 (carry-type ci ci-top di s) #:transparent)
+(struct xilinx-ultrascale-plus-lut6-2 (i0 i1 i2 i3 i4 i5 init) #:transparent)
+(struct xilinx-ultrascale-plus-lut6 (i0 i1 i2 i3 i4 i5 init) #:transparent)
 
 ;;; Compile program in Lakeroad DSL to module.
 
@@ -601,7 +611,25 @@
                                                          #:CI_TOP (bv->signal ci-top)
                                                          #:DI (bv->signal di)
                                                          #:S (bv->signal s))])
-       (list (signal-value (hash-ref out 'CO)) (signal-value (hash-ref out 'O))))]))
+       (list (signal-value (hash-ref out 'CO)) (signal-value (hash-ref out 'O))))]
+    [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
+     (let ([out (interpret-xilinx-ultrascale-plus-lut6 #:I0 (bv->signal i0)
+                                                       #:I1 (bv->signal i1)
+                                                       #:I2 (bv->signal i2)
+                                                       #:I3 (bv->signal i3)
+                                                       #:I4 (bv->signal i4)
+                                                       #:I5 (bv->signal i5)
+                                                       #:INIT (bv->signal init))])
+       (signal-value (hash-ref out 'O)))]
+    [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
+     (let ([out (interpret-xilinx-ultrascale-plus-lut6-2 #:I0 (bv->signal i0)
+                                                         #:I1 (bv->signal i1)
+                                                         #:I2 (bv->signal i2)
+                                                         #:I3 (bv->signal i3)
+                                                         #:I4 (bv->signal i4)
+                                                         #:I5 (bv->signal i5)
+                                                         #:INIT (bv->signal init))])
+       (list (signal-value (hash-ref out 'O5)) (signal-value (hash-ref out 'O6))))]))
 
 ; Returns the physical outputs of the CLB.
 (define (interpret-ultrascale-plus-clb-impl clb
@@ -1477,3 +1505,67 @@ here-string-delimiter
                               co)))
   (add-cell 'carry8 carry8-cell)
   (list co o))
+
+(define (compile-xilinx-ultrascale-plus-lut6 compile
+                                             get-bits
+                                             add-cell
+                                             add-netname
+                                             add-parameter-default-value
+                                             expr)
+  (match-define (xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init) expr)
+  (define o (get-bits 1))
+  (add-netname 'O (make-net-details o))
+  (define lut6-cell
+    (make-cell "LUT6"
+               (make-cell-port-directions (list 'I0 'I1 'I2 'I3 'I4 'I5) (list 'O))
+               (hasheq-helper 'I0
+                              (compile i0)
+                              'I1
+                              (compile i1)
+                              'I2
+                              (compile i2)
+                              'I3
+                              (compile i3)
+                              'I4
+                              (compile i4)
+                              'I5
+                              (compile i5)
+                              'O
+                              o)
+               #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+  (add-cell 'lut6 lut6-cell)
+  o)
+
+(define (compile-xilinx-ultrascale-plus-lut6-2 compile
+                                               get-bits
+                                               add-cell
+                                               add-netname
+                                               add-parameter-default-value
+                                               expr)
+  (match-define (xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init) expr)
+  (define o5 (get-bits 1))
+  (define o6 (get-bits 1))
+  (add-netname 'O5 (make-net-details o5))
+  (add-netname 'O6 (make-net-details o6))
+  (define lut6-2-cell
+    (make-cell "LUT6_2"
+               (make-cell-port-directions (list 'I0 'I1 'I2 'I3 'I4 'I5) (list 'O5 'O6))
+               (hasheq-helper 'I0
+                              (compile i0)
+                              'I1
+                              (compile i1)
+                              'I2
+                              (compile i2)
+                              'I3
+                              (compile i3)
+                              'I4
+                              (compile i4)
+                              'I5
+                              (compile i5)
+                              'O5
+                              o5
+                              'O6
+                              o6)
+               #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+  (add-cell 'lut6-2 lut6-2-cell)
+  (list o5 o6))
