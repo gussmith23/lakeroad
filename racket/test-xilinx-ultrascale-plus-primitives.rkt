@@ -92,28 +92,6 @@
         (add-to-simulate (to-simulate (xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 lut-init1)
                                       (lut lut-init1 (concat i5 i4 i3 i2 i1 i0)))))))))
 
-  ;;; TODO(@gussmith23): This test is broken.
-  ;;; TODO(@gussmith23): This test also needs manual simulation tasks added, just as in LUT6.
-  (verify-lakeroad-expression
-   "Xilinx UltraScale+ LUT6_2 O5 output"
-   (begin
-     (define-symbolic i0 (bitvector 1))
-     (define-symbolic i1 (bitvector 1))
-     (define-symbolic i2 (bitvector 1))
-     (define-symbolic i3 (bitvector 1))
-     (define-symbolic i4 (bitvector 1))
-     (define-symbolic i5 (bitvector 1))
-     (define-symbolic lut-init-o5 (bitvector 32))
-     (define-symbolic lut-init-o6 (bitvector 32)))
-   (lr:list-ref (xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 (concat lut-init-o6 lut-init-o5)) 0)
-   (lut lut-init-o5 (concat i4 i3 i2 i1 i0))
-   ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
-   ;;; compiliation to Verilog through Yosys requires `lut-init` to be concrete. Thus, we simulate
-   ;;; below with some concrete `lut-init` values.
-   ;;;
-   ;;; add-to-simulate
-   )
-
   (verify-lakeroad-expression
    "Xilinx UltraScale+ LUT6_2"
    (begin
