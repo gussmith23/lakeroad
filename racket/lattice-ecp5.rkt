@@ -6,7 +6,9 @@
          "utils.rkt"
          "comp-json.rkt"
          "logical-to-physical.rkt"
-         (prefix-in lr: "language.rkt"))
+         (prefix-in lr: "language.rkt")
+         (rename-in (file "lattice-ecp5-ccu2c.rkt") (lattice-ecp5-ccu2c interpret-lattice-ecp5-ccu2c))
+         "stateful-design-experiment.rkt")
 
 (provide interpret-lattice-ecp5
          lattice-ecp5-logical-to-physical-inputs
@@ -343,12 +345,33 @@
 
     ;; Interpret Carry primitives
     [(lattice-ecp5-ccu2c INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
-     (interpret-ecp5-ccu2c-impl INIT0
-                                INIT1
-                                INJECT1_0
-                                INJECT1_1
-                                (interpreter CIN)
-                                (interpreter inputs))]
+     (let* (;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
+            [inputs (interpreter inputs)]
+            [A0 (bit 0 (list-ref inputs 0))]
+            [A1 (bit 0 (list-ref inputs 1))]
+            [B0 (bit 1 (list-ref inputs 0))]
+            [B1 (bit 1 (list-ref inputs 1))]
+            [C0 (bit 2 (list-ref inputs 0))]
+            [C1 (bit 2 (list-ref inputs 1))]
+            [D0 (bit 3 (list-ref inputs 0))]
+            [D1 (bit 3 (list-ref inputs 1))]
+            [out (interpret-lattice-ecp5-ccu2c #:CIN (bv->signal CIN)
+                                               #:A0 (bv->signal A0)
+                                               #:A1 (bv->signal A1)
+                                               #:B0 (bv->signal B0)
+                                               #:B1 (bv->signal B1)
+                                               #:C0 (bv->signal C0)
+                                               #:C1 (bv->signal C1)
+                                               #:D0 (bv->signal D0)
+                                               #:D1 (bv->signal D1)
+                                               #:INIT0 (bv->signal (interpreter INIT0))
+                                               #:INIT1 (bv->signal (interpreter INIT1))
+                                               #:INJECT1_0 (bv->signal (interpreter INJECT1_0))
+                                               #:INJECT1_1 (bv->signal (interpreter INJECT1_1)))])
+       ;;; OUTPUTS: (S0 S1 COUT)
+       (list (signal-value (hash-ref out 'S0))
+             (signal-value (hash-ref out 'S1))
+             (signal-value (hash-ref out 'COUT))))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
 (define (interpret-ecp5-ripple-pfu-impl INIT0
