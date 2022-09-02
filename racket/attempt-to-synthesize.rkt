@@ -4,7 +4,10 @@
 
 (require rosette
          rosette/lib/synthax
-         "interpreter.rkt")
+         "interpreter.rkt"
+         "logical-to-physical.rkt"
+         "ultrascale.rkt"
+         (prefix-in lr: "language.rkt"))
 
 (define-namespace-anchor anc)
 (define ns (namespace-anchor->namespace anc))
@@ -30,26 +33,27 @@
           logical-input-4
           logical-input-5))
   (define expr
-    `(first (physical-to-logical-mapping
-             (bitwise)
-             (ultrascale-plus-clb ,(?? (bitvector 1))
-                                  ,(?? (bitvector 64))
-                                  ,(?? (bitvector 64))
-                                  ,(?? (bitvector 64))
-                                  ,(?? (bitvector 64))
-                                  ,(?? (bitvector 64))
-                                  ,(?? (bitvector 64))
-                                  ,(?? (bitvector 64))
-                                  ,(?? (bitvector 64))
-                                  ,(?? (bitvector 2))
-                                  ,(?? (bitvector 2))
-                                  ,(?? (bitvector 2))
-                                  ,(?? (bitvector 2))
-                                  ,(?? (bitvector 2))
-                                  ,(?? (bitvector 2))
-                                  ,(?? (bitvector 2))
-                                  ,(?? (bitvector 2))
-                                  (logical-to-physical-mapping (bitwise) ,logical-inputs)))))
+    (lr:list-ref (physical-to-logical-mapping
+                  '(bitwise)
+                  (ultrascale-plus-clb (?? (bitvector 1))
+                                       (?? (bitvector 64))
+                                       (?? (bitvector 64))
+                                       (?? (bitvector 64))
+                                       (?? (bitvector 64))
+                                       (?? (bitvector 64))
+                                       (?? (bitvector 64))
+                                       (?? (bitvector 64))
+                                       (?? (bitvector 64))
+                                       (?? (bitvector 2))
+                                       (?? (bitvector 2))
+                                       (?? (bitvector 2))
+                                       (?? (bitvector 2))
+                                       (?? (bitvector 2))
+                                       (?? (bitvector 2))
+                                       (?? (bitvector 2))
+                                       (?? (bitvector 2))
+                                       (logical-to-physical-mapping '(bitwise) logical-inputs)))
+                 0))
 
   ; Unused logical inputs which we will assume are zero.
   (define assume-zero

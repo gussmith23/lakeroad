@@ -7,7 +7,9 @@
          "circt-comb-operators.rkt"
          rosette/solver/smt/boolector
          rosette/lib/synthax
-         "utils.rkt")
+         "utils.rkt"
+         "logical-to-physical.rkt"
+         (prefix-in lr: "language.rkt"))
 
 (current-solver (boolector))
 
@@ -145,37 +147,37 @@
    (define-symbolic a (bitvector 8))
    (define-symbolic b (bitvector 8))
    (check-true
-    (unsat?
-     (verify (assert (bveq (bool->bitvector (bveq a b))
-                           (first (interpret
-                                   `(physical-to-logical-mapping
-                                     (choose-one ,(bv 0 1))
-                                     (ultrascale-plus-clb
-                                      ,(bv 1 1)
-                                      ,(bv #x9000000000000000 64)
-                                      ,(bv #x9000000000000000 64)
-                                      ,(bv #x9000000000000000 64)
-                                      ,(bv #x9000000000000000 64)
-                                      ,(bv #x9000000000000000 64)
-                                      ,(bv #x9000000000000000 64)
-                                      ,(bv #x9000000000000000 64)
-                                      ,(bv #x9000000000000000 64)
-                                      ,(bv 3 2)
-                                      ,(bv 3 2)
-                                      ,(bv 3 2)
-                                      ,(bv 3 2)
-                                      ,(bv 3 2)
-                                      ,(bv 3 2)
-                                      ,(bv 3 2)
-                                      ,(bv 3 2)
-                                      ,(list (concat (bv #b1111 4) (bit 0 b) (bit 0 a))
-                                             (concat (bv #b1111 4) (bit 1 b) (bit 1 a))
-                                             (concat (bv #b1111 4) (bit 2 b) (bit 2 a))
-                                             (concat (bv #b1111 4) (bit 3 b) (bit 3 a))
-                                             (concat (bv #b1111 4) (bit 4 b) (bit 4 a))
-                                             (concat (bv #b1111 4) (bit 5 b) (bit 5 a))
-                                             (concat (bv #b1111 4) (bit 6 b) (bit 6 a))
-                                             (concat (bv #b1111 4) (bit 7 b) (bit 7 a))))))))))))))
+    (unsat? (verify (assert (bveq (bool->bitvector (bveq a b))
+                                  (first (interpret (physical-to-logical-mapping
+                                                     `(choose-one ,(bv 0 1))
+                                                     (ultrascale-plus-clb
+                                                      (bv 1 1)
+                                                      (bv #x9000000000000000 64)
+                                                      (bv #x9000000000000000 64)
+                                                      (bv #x9000000000000000 64)
+                                                      (bv #x9000000000000000 64)
+                                                      (bv #x9000000000000000 64)
+                                                      (bv #x9000000000000000 64)
+                                                      (bv #x9000000000000000 64)
+                                                      (bv #x9000000000000000 64)
+                                                      (bv 3 2)
+                                                      (bv 3 2)
+                                                      (bv 3 2)
+                                                      (bv 3 2)
+                                                      (bv 3 2)
+                                                      (bv 3 2)
+                                                      (bv 3 2)
+                                                      (bv 3 2)
+                                                      (list (concat (bv #b1111 4) (bit 0 b) (bit 0 a))
+                                                            (concat (bv #b1111 4) (bit 1 b) (bit 1 a))
+                                                            (concat (bv #b1111 4) (bit 2 b) (bit 2 a))
+                                                            (concat (bv #b1111 4) (bit 3 b) (bit 3 a))
+                                                            (concat (bv #b1111 4) (bit 4 b) (bit 4 a))
+                                                            (concat (bv #b1111 4) (bit 5 b) (bit 5 a))
+                                                            (concat (bv #b1111 4) (bit 6 b) (bit 6 a))
+                                                            (concat (bv #b1111 4)
+                                                                    (bit 7 b)
+                                                                    (bit 7 a))))))))))))))
 
 (define (end-to-end-dsp-test expected-expression-str)
   (define verilator-make-dir (make-temporary-file "rkttmp~a" 'directory))
@@ -185,7 +187,7 @@
   (define-symbolic b (bitvector 18))
   (define-symbolic c (bitvector 48))
   (define-symbolic d (bitvector 48))
-  (define dsp (ultrascale-plus-dsp48e2))
+  (define dsp (ultrascale-plus-dsp48e2-state))
 
   ; This synthesis doesn't actually do anything right now -- it basically just verifies that our very
   ; simple DSP model implements fused multiply-add.
@@ -202,7 +204,14 @@
   ;;;(displayln (model soln))
 
   (define dsp-source
-    (compile-ultrascale-plus-dsp48e2 (ultrascale-plus-dsp48e2) "p" "clk" "a" "b" "c" "ce" "rst"))
+    (compile-ultrascale-plus-dsp48e2 (ultrascale-plus-dsp48e2-state)
+                                     "p"
+                                     "clk"
+                                     "a"
+                                     "b"
+                                     "c"
+                                     "ce"
+                                     "rst"))
 
   (define verilog-source
     (format

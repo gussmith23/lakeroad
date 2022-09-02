@@ -10,7 +10,9 @@
          "programs-to-synthesize.rkt"
          "circt-comb-operators.rkt"
          "comp-json.rkt"
-         "utils.rkt")
+         "utils.rkt"
+         "logical-to-physical.rkt"
+         (prefix-in lr: "language.rkt"))
 
 (current-solver (boolector))
 
@@ -20,12 +22,13 @@
 
   (define bv-expr (apply f (take logical-inputs arity)))
   (define lakeroad-expr
-    `(first (physical-to-logical-mapping
-             (bitwise)
-             ,(match primitive
-                ['pfu (make-lattice-pfu-expr logical-inputs)]
-                ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
-                ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]))))
+    (lr:list-ref (physical-to-logical-mapping
+                  '(bitwise)
+                  (match primitive
+                    ['pfu (make-lattice-pfu-expr logical-inputs)]
+                    ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
+                    ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]))
+                 0))
   (define interpretted (interpret lakeroad-expr))
   ; Carries will return an extra leading bit, so we need to extract the sum
   ; signal and discard the carry
@@ -52,15 +55,16 @@
 
   (define (curry-carry INIT0 INIT1 INJECT1_0 INJECT1_1)
     (lambda (CIN inputs)
-      (interpret `(first (physical-to-logical-mapping
-                          (bitwise)
-                          ,(make-lattice-ccu2c-expr
-                            #:CIN CIN
-                            #:inputs `(logical-to-physical-mapping (bitwise) ,inputs)
-                            #:INIT0 INIT0
-                            #:INIT1 INIT1
-                            #:INJECT1_0 INJECT1_0
-                            #:INJECT1_1 INJECT1_1))))))
+      (interpret (lr:list-ref (physical-to-logical-mapping
+                               '(bitwise)
+                               (make-lattice-ccu2c-expr
+                                #:CIN CIN
+                                #:inputs (logical-to-physical-mapping '(bitwise) inputs)
+                                #:INIT0 INIT0
+                                #:INIT1 INIT1
+                                #:INJECT1_0 INJECT1_0
+                                #:INJECT1_1 INJECT1_1))
+                              0))))
   ;; Test an adder above, on inputs `inputs` against
   ;; outputs ; #:S0 #:S1 and cout #:COUT. Optionally specify a carry in with #:CIN
   ;; (defaults to 0)
