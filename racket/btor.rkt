@@ -6,6 +6,9 @@
 
 (require rosette
          racket/hash
+         "lattice-ecp5.rkt"
+         "ultrascale.rkt"
+         (prefix-in lr: "language.rkt")
          racket/runtime-path)
 
 (define (parse-btor str)
@@ -298,12 +301,12 @@ here-string-delimiter
                 (assume (bvzero? INJECT1_1))
 
                 (match-define (list iS0 iS1 iCOUT)
-                  (interpret `(lattice-ecp5-ccu2c ,INIT0
-                                                  ,INIT1
-                                                  ,(bv 0 1)
-                                                  ,(bv 0 1)
-                                                  ,CIN
-                                                  ,(list (concat D0 C0 B0 A0) (concat D1 C1 B1 A1)))))
+                  (interpret (lattice-ecp5-ccu2c INIT0
+                                                 INIT1
+                                                 (bv 0 1)
+                                                 (bv 0 1)
+                                                 CIN
+                                                 (list (concat D0 C0 B0 A0) (concat D1 C1 B1 A1)))))
                 (assert (bveq S0 iS0))
                 (assert (bveq S1 iS1))
                 (assert (bveq COUT iCOUT)))))))
@@ -1979,9 +1982,15 @@ here-string-delimiter
      (check-equal?
       (verify (begin
                 (match-define (list lrO5 lrO6)
-                  (interpret `(ultrascale-plus-lut6-2
-                               ,INIT
-                               (concat ,I5 (concat ,I4 (concat ,I3 (concat ,I2 (concat ,I1 ,I0))))))))
+                  (interpret
+                   (ultrascale-plus-lut6-2
+                    INIT
+                    (lr:concat
+                     (list I5
+                           (lr:concat
+                            (list I4
+                                  (lr:concat
+                                   (list I3 (lr:concat (list I2 (lr:concat (list I1 I0)))))))))))))
                 (assert (bveq O5 lrO5))
                 (assert (bveq O6 lrO6))))
       (unsat)))))
@@ -2101,17 +2110,17 @@ here-string-delimiter
            (hash-set! h id `(if ,cond-val ,true-val ,false-val)))]
         [`("slice" ,type-id-str ,val-id-str ,u-str ,l-str)
          (let ([signal (get-str val-id-str)])
-           (hash-set! h id `(extract ,(string->number u-str) ,(string->number l-str) ,signal)))]
+           (hash-set! h id (lr:extract (string->number u-str) (string->number l-str) signal)))]
         [`("output" ,id-str ,name)
          (hash-set! outs (string->symbol name) (string->number id-str))
          ;;;(hash-set! h id (get-str id-str))
          ]
         [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
          (let ([signal (get-str in-id-str)])
-           (hash-set! h id `(zero-extend ,signal ,(get-str out-type-id-str))))]
+           (hash-set! h id (lr:zero-extend signal (get-str out-type-id-str))))]
         [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
-           (hash-set! h id `(concat ,a-signal ,b-signal)))]
+           (hash-set! h id (lr:concat (list a-signal b-signal))))]
         [`("add" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a-signal (get-str a-id-str)] [b-signal (get-str b-id-str)])
            (hash-set! h id `(bvadd ,a-signal ,b-signal)))]
@@ -2562,13 +2571,13 @@ here-string-delimiter
               [`(bvnot ,a)
                (let* ([a (new-interpreter a env init)])
                  (signal (bvnot (signal-value a)) (signal-state a)))]
-              [`(zero-extend ,val ,type)
+              [(lr:zero-extend val type)
                (let* ([val (new-interpreter val env init)] [type (new-interpreter type env init)])
                  (bv->signal (zero-extend (signal-value val) type) val))]
-              [`(concat ,a ,b)
+              [(lr:concat (list a b))
                (let* ([a (new-interpreter a env init)] [b (new-interpreter b env init)])
                  (signal (concat (signal-value a) (signal-value b)) (merge-state (list a b))))]
-              [`(extract ,hi ,lo ,sig)
+              [(lr:extract hi lo sig)
                (let* ([sig (new-interpreter sig env init)])
                  (signal (extract hi lo (signal-value sig)) (signal-state sig)))]
               [`(redor ,a)
