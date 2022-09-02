@@ -1,113 +1,20 @@
 #lang racket/base
-;;; Implementation automatically generated via
+;;; Generated via:
+;;; $LAKEROAD_DIR/bin/verilog_to_racket.py \
+;;;   --infile $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v \
+;;;   --top DSP48E2 \
+;;;   --define XIL_XECLIB \
+;;;   --function-name xilinx-ultrascale-plus-dsp48e2
 ;;;
-;;; racket racket/btor-to-racket.rkt --input-file racket/DSP48E2.btor --output-signal P \
-;;;   --output-file ultrascale-plus-dsp48e2.rkt
-;;;
-;;; See the enum in utils/tests/convert-module-to-btor/DSP48E2.v to understand how to set the values
-;;; of parameters that originally took string arguments. E.g. if you wanted to feed the A_INPUT param
-;;; the setting "DIRECT", you would give it the value (bv->signal (bv 7 5)), as the DIRECT enum
-;;; variant is defined as DIRECT_ENUM_VAL = 7.
-
-(provide ultrascale-plus-dsp48e2-P)
-
-(require "stateful-design-experiment.rkt"
-         rosette
-         racket/hash)
-
-(define ultrascale-plus-dsp48e2-P
-  ;;; (define/contract ultrascale-plus-dsp48e2-P
-  ;;;  (->* ()
-  ;;;       (#:A (struct/c signal (bitvector 30) (hash/c symbol? bv?))
-  ;;;        #:ACASCREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:ACIN (struct/c signal (bitvector 30) (hash/c symbol? bv?))
-  ;;;        #:ADREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:ALUMODE (struct/c signal (bitvector 4) (hash/c symbol? bv?))
-  ;;;        #:ALUMODEREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:AMULTSEL (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:AREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:AUTORESET_PATDET (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:AUTORESET_PRIORITY (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:A_INPUT (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:B (struct/c signal (bitvector 18) (hash/c symbol? bv?))
-  ;;;        #:BCASCREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:BCIN (struct/c signal (bitvector 18) (hash/c symbol? bv?))
-  ;;;        #:BMULTSEL (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:BREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:B_INPUT (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:C (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:CARRYCASCIN (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CARRYIN (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CARRYINREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:CARRYINSEL (struct/c signal (bitvector 3) (hash/c symbol? bv?))
-  ;;;        #:CARRYINSELREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:CEA1 (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEA2 (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEAD (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEALUMODE (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEB1 (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEB2 (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEC (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CECARRYIN (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CECTRL (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEINMODE (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEM (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CEP (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CLK (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:CREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:D (struct/c signal (bitvector 27) (hash/c symbol? bv?))
-  ;;;        #:DREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:INMODE (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:INMODEREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:IS_ALUMODE_INVERTED (struct/c signal (bitvector 4) (hash/c symbol? bv?))
-  ;;;        #:IS_CARRYIN_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_CLK_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_INMODE_INVERTED (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:IS_OPMODE_INVERTED (struct/c signal (bitvector 9) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTALLCARRYIN_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTALUMODE_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTA_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTB_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTCTRL_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTC_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTD_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTINMODE_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTM_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:IS_RSTP_INVERTED (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:MASK (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:MREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:MULTSIGNIN (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:OPMODE (struct/c signal (bitvector 9) (hash/c symbol? bv?))
-  ;;;        #:OPMODEREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:PATTERN (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:PCIN (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:PREADDINSEL (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:PREG (struct/c signal (bitvector 32) (hash/c symbol? bv?))
-  ;;;        #:RND (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:RSTA (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTALLCARRYIN (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTALUMODE (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTB (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTC (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTCTRL (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTD (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTINMODE (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTM (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:RSTP (struct/c signal (bitvector 1) (hash/c symbol? bv?))
-  ;;;        #:SEL_MASK (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:SEL_PATTERN (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:USE_MULT (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:USE_PATTERN_DETECT (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:USE_SIMD (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:USE_WIDEXOR (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:XORSIMD (struct/c signal (bitvector 5) (hash/c symbol? bv?))
-  ;;;        #:unnamed-input-531 (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:unnamed-input-897 (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:unnamed-input-1276 (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:unnamed-input-1332 (struct/c signal (bitvector 48) (hash/c symbol? bv?))
-  ;;;        #:unnamed-input-1376 (struct/c signal (bitvector 1) (hash/c symbol? bv?)))
-  ;;;       (struct/c signal bv? hash?))
+;;; See the enum in modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v to understand how to set
+;;; the values of parameters that originally took string arguments. E.g. if you wanted to feed the
+;;; A_INPUT param the setting "DIRECT", you would give it the value (bv->signal (bv 7 5)), as the
+;;; DIRECT enum variant is defined as DIRECT_ENUM_VAL = 7.
+(provide xilinx-ultrascale-plus-dsp48e2)
+(require "stateful-design-experiment.rkt")
+(require rosette)
+(require racket/hash)
+(define xilinx-ultrascale-plus-dsp48e2
   (λ (#:A (A (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 30))))
       #:ACASCREG (ACASCREG (bv->signal (constant (list 'ACASCREG 'symbolic-constant) (bitvector 32))))
       #:ACIN (ACIN (bv->signal (constant (list 'ACIN 'symbolic-constant) (bitvector 30))))
@@ -3704,11 +3611,12 @@
            [btor1721 (if (bitvector->bool (signal-value btor1621)) btor1247 btor1254)]
            [btor1722 (bv->signal (bv 0 (bitvector 8)))]
            [btor1723 (if (bitvector->bool (signal-value btor1623)) btor1722 btor1721)])
-      (signal
-       (signal-value btor1173)
-       (hash-set
-        (hash-set
-         (hash-set
+      (make-immutable-hash
+       (list
+        (cons
+         'XOROUT
+         (signal
+          (signal-value btor1255)
           (hash-set
            (hash-set
             (hash-set
@@ -3777,149 +3685,2619 @@
                                                                            (hash-set
                                                                             (hash-set
                                                                              (hash-set
-                                                                              (hash-set (hash)
-                                                                                        'state95
-                                                                                        (signal-value
-                                                                                         btor105))
-                                                                              'state96
-                                                                              (signal-value btor1589))
-                                                                             'state98
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
                                                                              (signal-value btor100))
-                                                                            'state116
-                                                                            (signal-value btor122))
-                                                                           'state117
-                                                                           (signal-value btor1596))
-                                                                          'state118
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
                                                                           (signal-value btor100))
-                                                                         'state130
-                                                                         (signal-value btor136))
-                                                                        'state131
-                                                                        (signal-value btor1604))
-                                                                       'state132
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
                                                                        (signal-value btor100))
-                                                                      'state144
-                                                                      (signal-value btor150))
-                                                                     'state145
-                                                                     (signal-value btor1611))
-                                                                    'state146
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
                                                                     (signal-value btor100))
-                                                                   'state173
-                                                                   (signal-value btor179))
-                                                                  'state174
-                                                                  (signal-value btor1617))
-                                                                 'state175
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
                                                                  (signal-value btor100))
-                                                                'state332
-                                                                (signal-value btor338))
-                                                               'state333
-                                                               (signal-value btor1624))
-                                                              'state334
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
                                                               (signal-value btor100))
-                                                             'state409
-                                                             (signal-value btor415))
-                                                            'state410
-                                                            (signal-value btor1630))
-                                                           'state411
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
                                                            (signal-value btor100))
-                                                          'state468
-                                                          (signal-value btor474))
-                                                         'state469
-                                                         (signal-value btor1637))
-                                                        'state470
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
                                                         (signal-value btor100))
-                                                       'state517
-                                                       (signal-value btor523))
-                                                      'state518
-                                                      (signal-value btor1645))
-                                                     'state519
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
                                                      (signal-value btor100))
-                                                    'state541
-                                                    (signal-value btor547))
-                                                   'state542
-                                                   (signal-value btor1652))
-                                                  'state543
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
                                                   (signal-value btor100))
-                                                 'state610
-                                                 (signal-value btor616))
-                                                'state611
-                                                (signal-value btor1657))
-                                               'state612
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
                                                (signal-value btor100))
-                                              'state721
-                                              (signal-value btor727))
-                                             'state722
-                                             (signal-value btor1664))
-                                            'state723
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
                                             (signal-value btor100))
-                                           'state762
-                                           (signal-value btor768))
-                                          'state763
-                                          (signal-value btor1669))
-                                         'state764
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
                                          (signal-value btor100))
-                                        'state853
-                                        (signal-value btor859))
-                                       'state854
-                                       (signal-value btor1674))
-                                      'state855
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
                                       (signal-value btor100))
-                                     'state868
-                                     (signal-value btor874))
-                                    'state869
-                                    (signal-value btor1519))
-                                   'state870
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
                                    (signal-value btor100))
-                                  'state882
-                                  (signal-value btor888))
-                                 'state883
-                                 (signal-value btor1682))
-                                'state884
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
                                 (signal-value btor100))
-                               'state889
-                               (signal-value btor895))
-                              'state890
-                              (signal-value btor1687))
-                             'state891
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
                              (signal-value btor100))
-                            'state914
-                            (signal-value btor920))
-                           'state915
-                           (signal-value btor1692))
-                          'state916
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
                           (signal-value btor100))
-                         'state984
-                         (signal-value btor990))
-                        'state985
-                        (signal-value btor1697))
-                       'state986
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
                        (signal-value btor100))
-                      'state1141
-                      (signal-value btor1147))
-                     'state1142
-                     (signal-value btor1702))
-                    'state1143
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
                     (signal-value btor100))
-                   'state1152
-                   (signal-value btor1158))
-                  'state1153
-                  (signal-value btor1707))
-                 'state1154
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
                  (signal-value btor100))
-                'state1162
-                (signal-value btor1168))
-               'state1163
-               (signal-value btor1712))
-              'state1164
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
               (signal-value btor100))
-             'state1178
-             (signal-value btor1184))
-            'state1179
-            (signal-value btor1717))
-           'state1180
-           (signal-value btor100))
-          'state1248
-          (signal-value btor1254))
-         'state1249
-         (signal-value btor1723))
-        'state1250
-        (signal-value btor100))))))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'PCOUT
+         (signal
+          (signal-value btor1173)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'PATTERNBDETECT
+         (signal
+          (signal-value btor1159)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'CARRYCASCOUT
+         (signal
+          (signal-value btor952)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'P
+         (signal
+          (signal-value btor1173)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'CARRYOUT
+         (signal
+          (signal-value btor981)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'UNDERFLOW
+         (signal
+          (signal-value btor1187)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'BCOUT
+         (signal
+          (signal-value btor156)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'MULTSIGNOUT
+         (signal
+          (signal-value btor991)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'OVERFLOW
+         (signal
+          (signal-value btor1171)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'ACOUT
+         (signal
+          (signal-value btor128)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100))))
+        (cons
+         'PATTERNDETECT
+         (signal
+          (signal-value btor1148)
+          (hash-set
+           (hash-set
+            (hash-set
+             (hash-set
+              (hash-set
+               (hash-set
+                (hash-set
+                 (hash-set
+                  (hash-set
+                   (hash-set
+                    (hash-set
+                     (hash-set
+                      (hash-set
+                       (hash-set
+                        (hash-set
+                         (hash-set
+                          (hash-set
+                           (hash-set
+                            (hash-set
+                             (hash-set
+                              (hash-set
+                               (hash-set
+                                (hash-set
+                                 (hash-set
+                                  (hash-set
+                                   (hash-set
+                                    (hash-set
+                                     (hash-set
+                                      (hash-set
+                                       (hash-set
+                                        (hash-set
+                                         (hash-set
+                                          (hash-set
+                                           (hash-set
+                                            (hash-set
+                                             (hash-set
+                                              (hash-set
+                                               (hash-set
+                                                (hash-set
+                                                 (hash-set
+                                                  (hash-set
+                                                   (hash-set
+                                                    (hash-set
+                                                     (hash-set
+                                                      (hash-set
+                                                       (hash-set
+                                                        (hash-set
+                                                         (hash-set
+                                                          (hash-set
+                                                           (hash-set
+                                                            (hash-set
+                                                             (hash-set
+                                                              (hash-set
+                                                               (hash-set
+                                                                (hash-set
+                                                                 (hash-set
+                                                                  (hash-set
+                                                                   (hash-set
+                                                                    (hash-set
+                                                                     (hash-set
+                                                                      (hash-set
+                                                                       (hash-set
+                                                                        (hash-set
+                                                                         (hash-set
+                                                                          (hash-set
+                                                                           (hash-set
+                                                                            (hash-set
+                                                                             (hash-set
+                                                                              (hash-set
+                                                                               (hash-set
+                                                                                (hash-set
+                                                                                 (hash-set
+                                                                                  (hash)
+                                                                                  'state95
+                                                                                  (signal-value
+                                                                                   btor105))
+                                                                                 'state96
+                                                                                 (signal-value
+                                                                                  btor1589))
+                                                                                'state98
+                                                                                (signal-value
+                                                                                 btor100))
+                                                                               'state116
+                                                                               (signal-value btor122))
+                                                                              'state117
+                                                                              (signal-value btor1596))
+                                                                             'state118
+                                                                             (signal-value btor100))
+                                                                            'state130
+                                                                            (signal-value btor136))
+                                                                           'state131
+                                                                           (signal-value btor1604))
+                                                                          'state132
+                                                                          (signal-value btor100))
+                                                                         'state144
+                                                                         (signal-value btor150))
+                                                                        'state145
+                                                                        (signal-value btor1611))
+                                                                       'state146
+                                                                       (signal-value btor100))
+                                                                      'state173
+                                                                      (signal-value btor179))
+                                                                     'state174
+                                                                     (signal-value btor1617))
+                                                                    'state175
+                                                                    (signal-value btor100))
+                                                                   'state332
+                                                                   (signal-value btor338))
+                                                                  'state333
+                                                                  (signal-value btor1624))
+                                                                 'state334
+                                                                 (signal-value btor100))
+                                                                'state409
+                                                                (signal-value btor415))
+                                                               'state410
+                                                               (signal-value btor1630))
+                                                              'state411
+                                                              (signal-value btor100))
+                                                             'state468
+                                                             (signal-value btor474))
+                                                            'state469
+                                                            (signal-value btor1637))
+                                                           'state470
+                                                           (signal-value btor100))
+                                                          'state517
+                                                          (signal-value btor523))
+                                                         'state518
+                                                         (signal-value btor1645))
+                                                        'state519
+                                                        (signal-value btor100))
+                                                       'state541
+                                                       (signal-value btor547))
+                                                      'state542
+                                                      (signal-value btor1652))
+                                                     'state543
+                                                     (signal-value btor100))
+                                                    'state610
+                                                    (signal-value btor616))
+                                                   'state611
+                                                   (signal-value btor1657))
+                                                  'state612
+                                                  (signal-value btor100))
+                                                 'state721
+                                                 (signal-value btor727))
+                                                'state722
+                                                (signal-value btor1664))
+                                               'state723
+                                               (signal-value btor100))
+                                              'state762
+                                              (signal-value btor768))
+                                             'state763
+                                             (signal-value btor1669))
+                                            'state764
+                                            (signal-value btor100))
+                                           'state853
+                                           (signal-value btor859))
+                                          'state854
+                                          (signal-value btor1674))
+                                         'state855
+                                         (signal-value btor100))
+                                        'state868
+                                        (signal-value btor874))
+                                       'state869
+                                       (signal-value btor1519))
+                                      'state870
+                                      (signal-value btor100))
+                                     'state882
+                                     (signal-value btor888))
+                                    'state883
+                                    (signal-value btor1682))
+                                   'state884
+                                   (signal-value btor100))
+                                  'state889
+                                  (signal-value btor895))
+                                 'state890
+                                 (signal-value btor1687))
+                                'state891
+                                (signal-value btor100))
+                               'state914
+                               (signal-value btor920))
+                              'state915
+                              (signal-value btor1692))
+                             'state916
+                             (signal-value btor100))
+                            'state984
+                            (signal-value btor990))
+                           'state985
+                           (signal-value btor1697))
+                          'state986
+                          (signal-value btor100))
+                         'state1141
+                         (signal-value btor1147))
+                        'state1142
+                        (signal-value btor1702))
+                       'state1143
+                       (signal-value btor100))
+                      'state1152
+                      (signal-value btor1158))
+                     'state1153
+                     (signal-value btor1707))
+                    'state1154
+                    (signal-value btor100))
+                   'state1162
+                   (signal-value btor1168))
+                  'state1163
+                  (signal-value btor1712))
+                 'state1164
+                 (signal-value btor100))
+                'state1178
+                (signal-value btor1184))
+               'state1179
+               (signal-value btor1717))
+              'state1180
+              (signal-value btor100))
+             'state1248
+             (signal-value btor1254))
+            'state1249
+            (signal-value btor1723))
+           'state1250
+           (signal-value btor100)))))))))
