@@ -20,8 +20,9 @@
     (set! to-simulate-list (cons v to-simulate-list)))
 
   (verify-lakeroad-expression "sofa frac_lut4"
-                              (define-symbolic in (bitvector 4))
-                              (define-symbolic sram (bitvector 16))
+                              (begin
+                                (define-symbolic in (bitvector 4))
+                                (define-symbolic sram (bitvector 16)))
                               (lr:list-ref (sofa-frac-lut4 in (bv 0 1) (bv 0 1) sram (bv 0 16)) 2)
                               (lut sram (apply concat (bitvector->bits in)))
                               add-to-simulate)
