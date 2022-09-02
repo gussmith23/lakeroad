@@ -165,6 +165,7 @@
                 (interpret-ultrascale-plus interpret-helper expr)]
                [(lattice-ecp5-pfu lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h inputs)
                 (interpret-lattice-ecp5 interpret-helper expr)]
+               [(lattice-ecp5-lut2 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]
                [(lattice-ecp5-lut4 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]
                [(lattice-ecp5-lut5 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]
                [(lattice-ecp5-lut6 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]

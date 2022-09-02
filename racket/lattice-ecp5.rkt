@@ -8,10 +8,13 @@
          "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt")
          (rename-in (file "lattice-ecp5-ccu2c.rkt") (lattice-ecp5-ccu2c interpret-lattice-ecp5-ccu2c))
+         (rename-in (file "lattice-ecp5-lut2.rkt") (lattice-ecp5-lut2 interpret-lattice-ecp5-lut2))
+         (rename-in (file "lattice-ecp5-lut4.rkt") (lattice-ecp5-lut4 interpret-lattice-ecp5-lut4))
          "stateful-design-experiment.rkt")
 
 (provide interpret-lattice-ecp5
          lattice-ecp5-logical-to-physical-inputs
+         compile-lattice-lut2
          compile-lattice-lut4
          compile-lattice-lut5
          compile-lattice-lut6
@@ -23,7 +26,8 @@
          compile-lattice-pfu
          compile-lattice-ccu2c
          compile-lattice-ripple-pfu
-         lattice-ecp5-lut4
+         (struct-out lattice-ecp5-lut2)
+         (struct-out lattice-ecp5-lut4)
          lattice-ecp5-lut5
          lattice-ecp5-lut6
          lattice-ecp5-lut7
@@ -48,6 +52,7 @@
          make-lattice-ccu2c-expr
          make-lattice-ripple-pfu-expr)
 
+(struct lattice-ecp5-lut2 (INIT inputs) #:transparent)
 (struct lattice-ecp5-lut4 (INIT inputs) #:transparent)
 (struct lattice-ecp5-lut5 (INIT inputs) #:transparent)
 (struct lattice-ecp5-lut6 (INIT inputs) #:transparent)
@@ -329,7 +334,22 @@
                                      (interpreter inputs))]
 
     ;; Interpret LUT primitives
-    [(lattice-ecp5-lut4 INIT inputs) (list (interpret-lut4-impl INIT (interpreter inputs)))]
+    [(lattice-ecp5-lut4 INIT inputs)
+     (let* ([inputs (interpreter inputs)]
+            [out (interpret-lattice-ecp5-lut4 #:A (bv->signal (bit 0 inputs))
+                                              #:B (bv->signal (bit 1 inputs))
+                                              #:C (bv->signal (bit 2 inputs))
+                                              #:D (bv->signal (bit 3 inputs))
+                                              #:INIT (bv->signal (interpreter INIT)))])
+
+       (signal-value (hash-ref out 'Z)))]
+    [(lattice-ecp5-lut2 INIT inputs)
+     (let* ([inputs (interpreter inputs)]
+            [out (interpret-lattice-ecp5-lut2 #:A (bv->signal (bit 0 inputs))
+                                              #:B (bv->signal (bit 1 inputs))
+                                              #:INIT (bv->signal (interpreter INIT)))])
+
+       (signal-value (hash-ref out 'Z)))]
     [(lattice-ecp5-lut5 INIT inputs) (list (interpret-lut5-impl INIT (interpreter inputs)))]
     [(lattice-ecp5-lut6 INIT inputs) (list (interpret-lut6-impl INIT (interpreter inputs)))]
     [(lattice-ecp5-lut7 INIT inputs) (list (interpret-lut7-impl INIT (interpreter inputs)))]
@@ -658,6 +678,12 @@
              (make-cell-port-directions (list 'D0 'D1 'SD) (list 'Z))
              (make-cell-connections 'D0 D0 'D1 D1 'SD SD 'Z Z)))
 
+(define (make-lattice-lut2-cell init-mem A B Z #:attrs [attrs (hasheq)])
+  (make-cell "LUT2"
+             (make-cell-port-directions (list 'A 'B) (list 'Z))
+             (make-cell-connections 'A A 'B B 'Z Z)
+             #:params (hasheq 'INIT init-mem)))
+
 (define (make-lattice-lut4-cell init-mem A B C D Z #:attrs [attrs (hasheq)])
   (make-cell "LUT4"
              (make-cell-port-directions (list 'A 'B 'C 'D) (list 'Z))
@@ -909,6 +935,22 @@
     (add-cell-to-module 'PFUMX pfumx)
     (list Z)))
 
+;;; Compile a Lattice LUT2 expression
+;;; Return output bit Z
+(define (compile-lattice-lut2 compiler
+                              get-unique-bit-ids
+                              add-cell-to-module
+                              add-netname-to-module
+                              add-parameter-default-value
+                              expr)
+  (match-let* ([(lattice-ecp5-lut2 INIT inputs) expr]
+               [compiled-inputs (compiler inputs)]
+               [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
+               [(list A B) compiled-inputs]
+               [(list Z) (get-unique-bit-ids 1)]
+               [lut2 (make-lattice-lut2-cell init A B Z)])
+    (add-cell-to-module 'LUT2 lut2)
+    (list Z)))
 ;;; Compile a Lattice LUT4 expression
 ;;; Return output bit Z
 (define (compile-lattice-lut4 compiler
@@ -924,7 +966,7 @@
                [(list Z) (get-unique-bit-ids 1)]
                [lut4 (make-lattice-lut4-cell init A B C D Z)])
     (add-cell-to-module 'LUT4 lut4)
-    (list (list Z))))
+    (list Z)))
 
 ;;; Compile a Lattice LUT5 expression
 ;;; Return output bit Z

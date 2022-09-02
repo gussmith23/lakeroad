@@ -98,6 +98,80 @@
                 (add-test lut-init-1 lut-init-2)
                 (add-test lut-init-2 lut-init-0))))))
 
+  (verify-lakeroad-expression
+   "Lattice ECP5 LUT2"
+   (begin
+     (define-symbolic INIT (bitvector 4))
+     (define-symbolic A (bitvector 1))
+     (define-symbolic B (bitvector 1)))
+   (lattice-ecp5-lut2 INIT (concat B A))
+   (lut INIT (concat B A))
+   ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
+   ;;; compiliation to Verilog through Yosys requires parameters to be concrete. Thus, we simulate
+   ;;; below with some concrete values.
+   ;;;
+   ;;; TODO(@gussmith23): This is a common issue -- should have tools to handle it.
+   ;;;
+   ;;; add-to-simulate
+   )
+
+  ;;; Add some simulation tasks for LUT2 using concrete LUT init memory values.
+  (test-true
+   "normal return"
+   (normal? (with-vc (with-terms
+                      (begin
+                        (define-symbolic A (bitvector 1))
+                        (define-symbolic B (bitvector 1))
+                        (define lut-init-0 (bv #xd 4))
+                        (define lut-init-1 (bv #xe 4))
+                        (define lut-init-2 (bv #x2 4))
+
+                        (add-to-simulate (to-simulate (lattice-ecp5-lut2 lut-init-0 (concat B A))
+                                                      (lut lut-init-0 (concat B A))))
+                        (add-to-simulate (to-simulate (lattice-ecp5-lut2 lut-init-1 (concat B A))
+                                                      (lut lut-init-1 (concat B A))))
+                        (add-to-simulate (to-simulate (lattice-ecp5-lut2 lut-init-2 (concat B A))
+                                                      (lut lut-init-2 (concat B A)))))))))
+
+  (verify-lakeroad-expression
+   "Lattice ECP5 LUT4"
+   (begin
+     (define-symbolic INIT (bitvector 16))
+     (define-symbolic A (bitvector 1))
+     (define-symbolic B (bitvector 1))
+     (define-symbolic C (bitvector 1))
+     (define-symbolic D (bitvector 1)))
+   (lattice-ecp5-lut4 INIT (concat D C B A))
+   (lut INIT (concat D C B A))
+   ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
+   ;;; compiliation to Verilog through Yosys requires parameters to be concrete. Thus, we simulate
+   ;;; below with some concrete values.
+   ;;;
+   ;;; TODO(@gussmith23): This is a common issue -- should have tools to handle it.
+   ;;;
+   ;;; add-to-simulate
+   )
+
+  ;;; Add some simulation tasks for LUT4 using concrete LUT init memory values.
+  (test-true
+   "normal return"
+   (normal? (with-vc (with-terms
+                      (begin
+                        (define-symbolic A (bitvector 1))
+                        (define-symbolic B (bitvector 1))
+                        (define-symbolic C (bitvector 1))
+                        (define-symbolic D (bitvector 1))
+                        (define lut-init-0 (bv #xdead 16))
+                        (define lut-init-1 (bv #xbeef 16))
+                        (define lut-init-2 (bv #x2323 16))
+
+                        (add-to-simulate (to-simulate (lattice-ecp5-lut4 lut-init-0 (concat D C B A))
+                                                      (lut lut-init-0 (concat D C B A))))
+                        (add-to-simulate (to-simulate (lattice-ecp5-lut4 lut-init-1 (concat D C B A))
+                                                      (lut lut-init-1 (concat D C B A))))
+                        (add-to-simulate (to-simulate (lattice-ecp5-lut4 lut-init-2 (concat D C B A))
+                                                      (lut lut-init-2 (concat D C B A)))))))))
+
   ;;; Simulate with Verilator.
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))

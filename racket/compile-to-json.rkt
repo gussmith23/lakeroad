@@ -248,6 +248,13 @@
                                          add-netname
                                          add-parameter-default-value
                                          expr)]
+                 [(lattice-ecp5-lut2 INIT inputs)
+                  (compile-lattice-lut2 compile
+                                        get-bits
+                                        add-cell
+                                        add-netname
+                                        add-parameter-default-value
+                                        expr)]
                  [(lattice-ecp5-lut4 INIT inputs)
                   (compile-lattice-lut4 compile
                                         get-bits
