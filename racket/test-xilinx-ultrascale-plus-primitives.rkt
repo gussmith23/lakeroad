@@ -89,6 +89,8 @@
         (add-to-simulate (to-simulate (xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 lut-init1)
                                       (lut lut-init1 (concat i5 i4 i3 i2 i1 i0)))))))))
 
+  ;;; TODO(@gussmith23): This test is broken.
+  ;;; TODO(@gussmith23): This test also needs manual simulation tasks added, just as in LUT6.
   (verify-lakeroad-expression
    "Xilinx UltraScale+ LUT6_2 O5 output"
    (begin
@@ -108,6 +110,8 @@
    ;;;
    ;;; add-to-simulate
    )
+
+  ;;; TODO(@gussmith23): Test O6 output as well.
 
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
