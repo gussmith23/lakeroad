@@ -31,23 +31,25 @@
            [cins (apply concat (drop couts-list 1))])
       (list (apply concat (take couts-list 8)) (bvxor cins s))))
 
-  ;;; TODO(@gussmith23): Would be nice if we didn't have to test O and CO separately.
-  ;;; (verify-lakeroad-expression
-  ;;;  "Xilinx UltraScale+ CARRY8 CO output"
-  ;;;  (define-symbolic cin (bitvector 1))
-  ;;;  (define-symbolic di (bitvector 8))
-  ;;;  (define-symbolic s (bitvector 8))
-  ;;;  (lr:list-ref (xilinx-ultrascale-plus-carry8 (bv 0 1) cin (bv 0 1) di s) 0)
-  ;;;  (list-ref (carry8-semantics cin di s) 0)
-  ;;;  add-to-simulate)
-  ;;; (verify-lakeroad-expression
-  ;;;  "Xilinx UltraScale+ CARRY8 O output"
-  ;;;  (define-symbolic cin (bitvector 1))
-  ;;;  (define-symbolic di (bitvector 8))
-  ;;;  (define-symbolic s (bitvector 8))
-  ;;;  (lr:list-ref (xilinx-ultrascale-plus-carry8 (bv 0 1) cin (bv 0 1) di s) 1)
-  ;;;  (list-ref (carry8-semantics cin di s) 1)
-  ;;;  add-to-simulate)
+  (verify-lakeroad-expression
+   "Xilinx UltraScale+ CARRY8 CO output"
+   (begin
+     (define-symbolic cin (bitvector 1))
+     (define-symbolic di (bitvector 8))
+     (define-symbolic s (bitvector 8)))
+   (lr:list-ref (xilinx-ultrascale-plus-carry8 (bv 0 1) cin (bv 0 1) di s) 0)
+   (list-ref (carry8-semantics cin di s) 0)
+   add-to-simulate)
+
+  (verify-lakeroad-expression
+   "Xilinx UltraScale+ CARRY8 O output"
+   (begin
+     (define-symbolic cin (bitvector 1))
+     (define-symbolic di (bitvector 8))
+     (define-symbolic s (bitvector 8)))
+   (lr:list-ref (xilinx-ultrascale-plus-carry8 (bv 0 1) cin (bv 0 1) di s) 1)
+   (list-ref (carry8-semantics cin di s) 1)
+   add-to-simulate)
 
   (verify-lakeroad-expression
    "Xilinx UltraScale+ LUT6"
