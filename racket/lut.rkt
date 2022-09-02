@@ -9,6 +9,6 @@
 ; It's probably worth putting this somewhere more generally usable.
 ; LUTs must return only one bit. TODO: figure out how to return multiple bits while still using
 ; theory of bitvectors only. The old solution used theory of integers to index into the bitvector.
-(define (lut memory inputs)
+(define (lut memory inputs #:num-output-bits [num-output-bits 1])
   (let* ([inputs (zero-extend inputs (bitvector (length (bitvector->bits memory))))])
-    (bit 0 (bvlshr memory inputs))))
+    (extract (sub1 num-output-bits) 0 (bvlshr memory inputs))))
