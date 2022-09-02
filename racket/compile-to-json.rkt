@@ -364,7 +364,8 @@
                  [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
-                 [(lr:concat rst) (apply append (compile (reverse rst)))]
+                 ;;; TODO(@gussmith23): Compile, then reverse? Or reverse, then compile?
+                 [(lr:concat rst) (apply append (reverse (compile rst)))]
 
                  [(lr:dup-extend v bv-type) (make-list (bitvector-size bv-type) (first (compile v)))]
 
