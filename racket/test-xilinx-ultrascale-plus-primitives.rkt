@@ -127,15 +127,41 @@
            (if (bvzero? i5)
                (lut lut-init-o5 (concat i4 i3 i2 i1 i0))
                (lut lut-init-o6 (concat i4 i3 i2 i1 i0))))
-   ;;; We don't have `verify-lakeroad-expression` add this to the list of
-   ;;; things to simulate, as compiliation to Verilog through Yosys
-   ;;; requires `lut-init` to be concrete. Thus, we simulate below with some
-   ;;; concrete `lut-init` values.
+   ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
+   ;;; compiliation to Verilog through Yosys requires `lut-init` to be concrete. Thus, we simulate
+   ;;; below with some concrete `lut-init` values.
    ;;;
    ;;; add-to-simulate
    )
 
-  ;;; TODO(@gussmith23): Test O6 output as well.
+  ;;; Add some simulation tasks for LUT6_2 using concrete lut-init values.
+  (test-true
+   "normal return"
+   (normal? (with-vc (with-terms
+                      (begin
+                        (define-symbolic i0 (bitvector 1))
+                        (define-symbolic i1 (bitvector 1))
+                        (define-symbolic i2 (bitvector 1))
+                        (define-symbolic i3 (bitvector 1))
+                        (define-symbolic i4 (bitvector 1))
+                        (define-symbolic i5 (bitvector 1))
+                        (define lut-init-0 (bv #xdeadbeef 32))
+                        (define lut-init-1 (bv #x23242526 32))
+                        (define lut-init-2 (bv #x10710810 32))
+
+                        (define (add-test lut0 lut1)
+                          (add-to-simulate
+                           (to-simulate
+                            (lr:concat
+                             (xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 (concat lut0 lut1)))
+                            (concat (lut lut1 (concat i4 i3 i2 i1 i0))
+                                    (if (bvzero? i5)
+                                        (lut lut1 (concat i4 i3 i2 i1 i0))
+                                        (lut lut0 (concat i4 i3 i2 i1 i0)))))))
+
+                        (add-test lut-init-0 lut-init-1)
+                        (add-test lut-init-1 lut-init-2)
+                        (add-test lut-init-2 lut-init-0))))))
 
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
