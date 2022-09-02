@@ -1,6 +1,8 @@
 #lang racket/base
 ;;; Specifically test that some functions work on DSPs.
 
+;;; TODO(@gussmith23): Restructure to use batched simulation w/ Verilator.
+
 (module+ test
 
   (require "synthesize.rkt"
