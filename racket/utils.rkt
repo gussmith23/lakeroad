@@ -95,8 +95,6 @@
     [(expression (== bvnot) a) (format "(~~~a)" (bvexpr->cexpr a))]
     [(expression (== bvneg) a) (format "(-~a)" (bvexpr->cexpr a))]
     [(expression (== bvshl) a b) (format "(~a << ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    ;;; TODO(@gussmith23) Compiling right shifts may be buggy. We may need to cast to unsigned (in the case of bvlshr) and signed (in the case of bvashr) to correctly implement them.
-    [(expression (== bvlshr) a b) (format "(~a >> ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(expression (== bvmul) a b) (format "(~a * ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(? concrete? (? (bitvector 1) a)) (format "((bool) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 2) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
