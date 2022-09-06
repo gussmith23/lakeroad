@@ -146,98 +146,309 @@
                         (add-test lut-init-1 lut-init-2)
                         (add-test lut-init-2 lut-init-0))))))
 
-  ;;; TODO(@gussmith23): Finish DSP verificaiton and testing.
-  ;;; (verify-lakeroad-expression "Xilinx UltraScale+ DSP48E2 P output, 0 cycle multiplication"
-  ;;;                             (begin)
-  ;;;                             (ultrascale-plus-dsp48e2 A
-  ;;;                                                      ACASCREG
-  ;;;                                                      ACIN
-  ;;;                                                      ADREG
-  ;;;                                                      ALUMODE
-  ;;;                                                      ALUMODEREG
-  ;;;                                                      AMULTSEL
-  ;;;                                                      AREG
-  ;;;                                                      AUTORESET_PATDET
-  ;;;                                                      AUTORESET_PRIORITY
-  ;;;                                                      A_INPUT
-  ;;;                                                      B
-  ;;;                                                      BCASCREG
-  ;;;                                                      BCIN
-  ;;;                                                      BMULTSEL
-  ;;;                                                      BREG
-  ;;;                                                      B_INPUT
-  ;;;                                                      C
-  ;;;                                                      CARRYCASCIN
-  ;;;                                                      CARRYIN
-  ;;;                                                      CARRYINREG
-  ;;;                                                      CARRYINSEL
-  ;;;                                                      CARRYINSELREG
-  ;;;                                                      CEA1
-  ;;;                                                      CEA2
-  ;;;                                                      CEAD
-  ;;;                                                      CEALUMODE
-  ;;;                                                      CEB1
-  ;;;                                                      CEB2
-  ;;;                                                      CEC
-  ;;;                                                      CECARRYIN
-  ;;;                                                      CECTRL
-  ;;;                                                      CED
-  ;;;                                                      CEINMODE
-  ;;;                                                      CEM
-  ;;;                                                      CEP
-  ;;;                                                      CLK
-  ;;;                                                      CREG
-  ;;;                                                      D
-  ;;;                                                      DREG
-  ;;;                                                      INMODE
-  ;;;                                                      INMODEREG
-  ;;;                                                      IS_ALUMODE_INVERTED
-  ;;;                                                      IS_CARRYIN_INVERTED
-  ;;;                                                      IS_CLK_INVERTED
-  ;;;                                                      IS_INMODE_INVERTED
-  ;;;                                                      IS_OPMODE_INVERTED
-  ;;;                                                      IS_RSTALLCARRYIN_INVERTED
-  ;;;                                                      IS_RSTALUMODE_INVERTED
-  ;;;                                                      IS_RSTA_INVERTED
-  ;;;                                                      IS_RSTB_INVERTED
-  ;;;                                                      IS_RSTCTRL_INVERTED
-  ;;;                                                      IS_RSTC_INVERTED
-  ;;;                                                      IS_RSTD_INVERTED
-  ;;;                                                      IS_RSTINMODE_INVERTED
-  ;;;                                                      IS_RSTM_INVERTED
-  ;;;                                                      IS_RSTP_INVERTED
-  ;;;                                                      MASK
-  ;;;                                                      MREG
-  ;;;                                                      MULTSIGNIN
-  ;;;                                                      OPMODE
-  ;;;                                                      OPMODEREG
-  ;;;                                                      PATTERN
-  ;;;                                                      PCIN
-  ;;;                                                      PREADDINSEL
-  ;;;                                                      PREG
-  ;;;                                                      RND
-  ;;;                                                      RSTA
-  ;;;                                                      RSTALLCARRYIN
-  ;;;                                                      RSTALUMODE
-  ;;;                                                      RSTB
-  ;;;                                                      RSTC
-  ;;;                                                      RSTCTRL
-  ;;;                                                      RSTD
-  ;;;                                                      RSTINMODE
-  ;;;                                                      RSTM
-  ;;;                                                      RSTP
-  ;;;                                                      SEL_MASK
-  ;;;                                                      SEL_PATTERN
-  ;;;                                                      USE_MULT
-  ;;;                                                      USE_PATTERN_DETECT
-  ;;;                                                      USE_SIMD
-  ;;;                                                      USE_WIDEXOR
-  ;;;                                                      XORSIMD
-  ;;;                                                      unnamed-input-331
-  ;;;                                                      unnamed-input-488
-  ;;;                                                      unnamed-input-750
-  ;;;                                                      unnamed-input-806
-  ;;;                                                      unnamed-input-850))
+  ;;; This one's 4 bits because 16 bits takes too long in simulation. 4 variables, each one getting
+  ;;; 256 random values --> 2^32 sample points. Far too many!
+  ;;;
+  ;;; TODO(@gussmith23): give more control over how many points are sampled in random simulation.
+  (verify-lakeroad-expression
+   "Xilinx UltraScale+ DSP48E2 P output, 0 cycle 4bit mul-add-mul"
+   (begin
+     (define-symbolic a b c d (bitvector 4)))
+   ;;; Expression taken from the DSP48E2 end-to-end synthesis test.
+   (lr:extract 3
+               0
+               (lr:first (ultrascale-plus-dsp48e2 (zero-extend b (bitvector 30))
+                                                  (bv #x00000000 32)
+                                                  (bv #b000000000000000000000000000000 30)
+                                                  (bv #x00000000 32)
+                                                  (bv #x0 4)
+                                                  (bv #x00000000 32)
+                                                  (bv #b00010 5)
+                                                  (bv #x00000000 32)
+                                                  (bv #b00100 5)
+                                                  (bv #b10000 5)
+                                                  (bv #b00111 5)
+                                                  (zero-extend c (bitvector 18))
+                                                  (bv #x00000000 32)
+                                                  (bv #b000000000000000000 18)
+                                                  (bv #b00001 5)
+                                                  (bv #x00000000 32)
+                                                  (bv #b00111 5)
+                                                  (zero-extend d (bitvector 48))
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #x00000000 32)
+                                                  (bv #b000 3)
+                                                  (bv #x00000000 32)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b0 1)
+                                                  (bv #x00000000 32)
+                                                  (zero-extend a (bitvector 27))
+                                                  (bv #x00000000 32)
+                                                  (bv #b00100 5)
+                                                  (bv #x00000000 32)
+                                                  (bv #x0 4)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b00000 5)
+                                                  (bv #b000000000 9)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x00000000 32)
+                                                  (bv #b0 1)
+                                                  (bv #b100110101 9)
+                                                  (bv #x00000000 32)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x000000000000 48)
+                                                  (bv #b00000 5)
+                                                  (bv #x00000000 32)
+                                                  (bv #x000000010000 48)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b10001 5)
+                                                  (bv #b10001 5)
+                                                  (bv #b10010 5)
+                                                  (bv #b10101 5)
+                                                  (bv #b01100 5)
+                                                  (bv #b11000 5)
+                                                  (bv #b11010 5)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x000000000000 48)
+                                                  (bv #b0 1))))
+   (bvadd (bvmul (bvadd a b) c) d)
+   add-to-simulate)
+
+  (verify-lakeroad-expression
+   "Xilinx UltraScale+ DSP48E2 P output, 0 cycle 16x16 sub"
+   (begin
+     (define-symbolic a b (bitvector 16)))
+   ;;; Expression taken from the DSP48E2 end-to-end synthesis test.
+   (lr:extract 15
+               0
+               (lr:first (ultrascale-plus-dsp48e2 (zero-extend a (bitvector 30))
+                                                  (bv #x00000000 32)
+                                                  (bv #b000000000000000000000000000000 30)
+                                                  (bv #x00000000 32)
+                                                  (bv #x3 4)
+                                                  (bv #x00000000 32)
+                                                  (bv #b00010 5)
+                                                  (bv #x00000000 32)
+                                                  (bv #b00101 5)
+                                                  (bv #b10000 5)
+                                                  (bv #b00111 5)
+                                                  (zero-extend b (bitvector 18))
+                                                  (bv #x00000000 32)
+                                                  (bv #b000000000000000000 18)
+                                                  (bv #b00001 5)
+                                                  (bv #x00000000 32)
+                                                  (bv #b00111 5)
+                                                  (zero-extend a (bitvector 48))
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #x00000000 32)
+                                                  (bv #b000 3)
+                                                  (bv #x00000000 32)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b1 1)
+                                                  (bv #b0 1)
+                                                  (bv #x00000000 32)
+                                                  (zero-extend a (bitvector 27))
+                                                  (bv #x00000000 32)
+                                                  (bv #b01000 5)
+                                                  (bv #x00000000 32)
+                                                  (bv #x0 4)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b00000 5)
+                                                  (bv #b000000000 9)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x00000000 32)
+                                                  (bv #b0 1)
+                                                  (bv #b010110111 9)
+                                                  (bv #x00000000 32)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x000000000000 48)
+                                                  (bv #b00000 5)
+                                                  (bv #x00000000 32)
+                                                  (bv #x000800800715 48)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b0 1)
+                                                  (bv #b10111 5)
+                                                  (bv #b10001 5)
+                                                  (bv #b10010 5)
+                                                  (bv #b10101 5)
+                                                  (bv #b11001 5)
+                                                  (bv #b01101 5)
+                                                  (bv #b01110 5)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x000000000000 48)
+                                                  (bv #x000000000000 48)
+                                                  (bv #b0 1))))
+   (bvsub a b)
+   add-to-simulate)
+
+  (verify-lakeroad-expression
+   "Xilinx UltraScale+ DSP48E2 P output, 0 cycle 16x16 multiplication"
+   (begin
+     (define-symbolic a b (bitvector 16)))
+   ;;; Expression taken from the DSP48E2 end-to-end synthesis test.
+   (lr:extract
+    15
+    0
+    (lr:first (ultrascale-plus-dsp48e2
+               (bv #b000000000000000000000000000001 30)
+               (bv #x00000000 32)
+               (bv #b000000000000000000000000000000 30)
+               (bv #x00000000 32)
+               (bv #xd 4)
+               (bv #x00000000 32)
+               (bv #b00010 5)
+               (bv #x00000000 32)
+               (bv #b00101 5)
+               (bv #b10000 5)
+               (bv #b00111 5)
+               (zero-extend a (bitvector 18))
+               (bv #x00000000 32)
+               (bv #b000000000000000000 18)
+               (bv #b00001 5)
+               (bv #x00000000 32)
+               (bv #b00111 5)
+               (zero-extend b (bitvector 48))
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #x00000000 32)
+               (bv #b000 3)
+               (bv #x00000000 32)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b1 1)
+               (bv #b0 1)
+               (bv #x00000000 32)
+               ;;; b probably doesn't have to be used twice; just a strange artifact of synthesis.
+               (zero-extend b (bitvector 27))
+               (bv #x00000000 32)
+               (bv #b00101 5)
+               (bv #x00000000 32)
+               (bv #x0 4)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b00000 5)
+               (bv #b000000000 9)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #x000000000000 48)
+               (bv #x00000000 32)
+               (bv #b0 1)
+               (bv #b101010101 9)
+               (bv #x00000000 32)
+               (bv #x000000000000 48)
+               (bv #x000000000000 48)
+               (bv #b00000 5)
+               (bv #x00000000 32)
+               (bv #x0fffffff0000 48)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b0 1)
+               (bv #b10111 5)
+               (bv #b10001 5)
+               (bv #b10010 5)
+               (bv #b10101 5)
+               (bv #b01100 5)
+               (bv #b01101 5)
+               (bv #b01110 5)
+               (bv #x000000000000 48)
+               (bv #x000000000000 48)
+               (bv #x000000000000 48)
+               (bv #x000000000000 48)
+               (bv #b0 1))))
+   (bvmul a b)
+   add-to-simulate)
 
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
@@ -246,7 +457,8 @@
   (define include-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
   (test-true "simulate all synthesized designs with Verilator"
              (simulate-with-verilator
-              #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+              #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "verilator-unisims")
+                                   (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
               #:extra-verilator-args
               "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING"
               to-simulate-list
