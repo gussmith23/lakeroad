@@ -4,6 +4,7 @@
          bvtype
          dup-extend
          bvexpr->cexpr
+         get-lakeroad-directory
          json->verilog
          ??*
          make-n-symbolics
@@ -12,7 +13,8 @@
          run-lakeroad)
 
 (require rosette
-         rosette/base/core/polymorphic)
+         rosette/base/core/polymorphic
+         racket/runtime-path)
 
 ;;; Length of bitvector.
 (define (bvlen v)
@@ -153,3 +155,7 @@
     (solve (for ([input (hash-keys inputs)])
              (assume (bveq input (hash-ref inputs input))))))
   (evaluate (interpreter p) sol))
+
+(define-runtime-path LAKEROAD_DIR "..")
+(define (get-lakeroad-directory)
+  LAKEROAD_DIR)

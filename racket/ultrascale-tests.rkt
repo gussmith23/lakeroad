@@ -342,8 +342,7 @@ here-string-delimiter
                          #:exists 'update)
   ;(displayln testbench-file)
 
-  (if (not (getenv "LAKEROAD_DIR")) (error "LAKEROAD_DIR must be set to base dir of Lakeroad") '())
-  (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+  (define verilator-unisims-dir (build-path (get-lakeroad-directory) "verilator_xilinx"))
 
   ; TODO(@gussmith23) hardcoded dir
   (if (not
@@ -351,9 +350,10 @@ here-string-delimiter
         (lambda ()
           (system
            (format
-            "verilator -Wno-LATCH -Wno-TIMESCALEMOD -DXIL_XECLIB -Wno-STMTDLY -Wno-COMBDLY -Wno-WIDTH -Wno-BLKANDNBLK -Wno-CASEX -Wno-UNOPTFLAT --Mdir ~a --cc ~a -I $LAKEROAD_DIR/Nitro-Parts-lib-Xilinx/DSP48E2.v --build --exe ~a"
+            "verilator -Wno-LATCH -Wno-TIMESCALEMOD -DXIL_XECLIB -Wno-STMTDLY -Wno-COMBDLY -Wno-WIDTH -Wno-BLKANDNBLK -Wno-CASEX -Wno-UNOPTFLAT --Mdir ~a --cc ~a -I ~a/Nitro-Parts-lib-Xilinx/DSP48E2.v --build --exe ~a"
             verilator-make-dir
             verilog-file
+            (get-lakeroad-directory)
             testbench-file)))))
       (error "Verilator failed")
       '())
