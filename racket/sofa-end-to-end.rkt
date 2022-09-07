@@ -65,25 +65,22 @@
              (clear-terms!)
              (collect-garbage))))
 
-  (when (not (getenv "LAKEROAD_DIR"))
-    (raise "LAKEROAD_DIR not set"))
-
   (define skywater-or2-1-dir
-    (build-path (getenv "LAKEROAD_DIR") "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/"))
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/"))
   (define skywater-inv-dir
-    (build-path (getenv "LAKEROAD_DIR") "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/"))
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/"))
   (define skywater-buf-dir
-    (build-path (getenv "LAKEROAD_DIR") "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/"))
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/"))
   (define skywater-mux2-dir
-    (build-path (getenv "LAKEROAD_DIR") "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/"))
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/"))
   (define skywater-udp-mux-2to1-dir
-    (build-path (getenv "LAKEROAD_DIR") "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
 
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
   (test-true "simulate all synthesized designs with Verilator"
              (simulate-with-verilator
-              #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "SOFA_modules")
+              #:include-dirs (list (build-path (get-lakeroad-directory) "SOFA_modules")
                                    skywater-or2-1-dir
                                    skywater-inv-dir
                                    skywater-buf-dir
