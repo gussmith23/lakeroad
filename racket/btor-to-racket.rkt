@@ -1,4 +1,4 @@
-#lang racket/base
+#lang rosette/safe
 
 (require racket/cmdline
          racket/match

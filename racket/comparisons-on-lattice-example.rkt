@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang errortrace rosette/safe
 ;;; In this file, we demonstrate how to synthesize comparisons (==, !=, >=, >, <=, <) on Lattice
 ;;; FPGAs. Comparisons are tricky for three reasons:
 ;;;

@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang errortrace rosette/safe
 
 ;;; "Wide" tests for Xilinx UltraScale+, i.e. synthesizing instructions wider than 8 bits (and thus
 ;;; needing to go on multiple CLBs.)

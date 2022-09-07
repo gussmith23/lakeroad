@@ -1,4 +1,4 @@
-#lang racket/base
+#lang rosette/safe
 
 (require rosette)
 

@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang errortrace rosette/safe
 
 (require rosette
          rosette/lib/synthax

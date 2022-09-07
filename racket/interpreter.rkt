@@ -1,5 +1,5 @@
 ;;; Interpreter for the Lakeroad FPGA modeling DSL.
-#lang errortrace racket
+#lang errortrace rosette/safe
 
 (provide interpret
          report-memoization)

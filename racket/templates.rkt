@@ -1,4 +1,4 @@
-#lang errortrace racket/base
+#lang errortrace rosette/safe
 
 (provide lut
          lut-with-carry

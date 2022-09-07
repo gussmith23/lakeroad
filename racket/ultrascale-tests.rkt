@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang errortrace rosette/safe
 
 (require "interpreter.rkt"
          "ultrascale.rkt"

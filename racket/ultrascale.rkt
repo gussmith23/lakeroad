@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang errortrace rosette/safe
 
 (provide interpret-ultrascale-plus
          ultrascale-plus-clb

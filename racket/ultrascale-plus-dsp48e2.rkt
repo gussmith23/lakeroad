@@ -1,4 +1,4 @@
-#lang racket/base
+#lang rosette/safe
 ;;; Implementation automatically generated via
 ;;;
 ;;; racket racket/btor-to-racket.rkt --input-file racket/DSP48E2.btor --output-signal P \

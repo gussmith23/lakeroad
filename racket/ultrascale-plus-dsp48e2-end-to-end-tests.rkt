@@ -1,4 +1,4 @@
-#lang racket/base
+#lang rosette/safe
 ;;; Specifically test that some functions work on DSPs.
 
 (module+ test
