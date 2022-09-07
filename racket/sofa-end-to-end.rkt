@@ -83,7 +83,7 @@
     (raise "VERILATOR_INCLUDE_DIR not set"))
   (test-true "simulate all synthesized designs with Verilator"
              (simulate-with-verilator
-              #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "SOFA_modules")
+              #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "modules_for_importing" "SOFA")
                                    skywater-or2-1-dir
                                    skywater-inv-dir
                                    skywater-buf-dir
