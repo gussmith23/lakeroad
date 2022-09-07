@@ -375,6 +375,11 @@
             [C1 (bit 2 (list-ref inputs 1))]
             [D0 (bit 3 (list-ref inputs 0))]
             [D1 (bit 3 (list-ref inputs 1))]
+            [CIN (interpreter CIN)]
+            [INIT0 (interpreter INIT0)]
+            [INIT1 (interpreter INIT1)]
+            [INJECT1_0 (interpreter INJECT1_0)]
+            [INJECT1_1 (interpreter INJECT1_1)]
             [out (interpret-lattice-ecp5-ccu2c #:CIN (bv->signal CIN)
                                                #:A0 (bv->signal A0)
                                                #:A1 (bv->signal A1)
