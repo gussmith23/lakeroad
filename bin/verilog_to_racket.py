@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Convert a Verilog module to a Racket (Rosette) function.
 
+This tool converts a Verilog module to Racket code---specifically, the generated
+code will use our "signal" library, which is built on top of Rosette bitvectors.
+Documentation for our "signal" library can be found in
+`racket/stateful-design-experiment.rkt`.
+
 For a module to be convertible with this tool, its parameters must be converted
 to ports. For example, the following module:
 
@@ -38,11 +43,11 @@ python3 verilog_to_racket.py     \\
     --define MYVAR
 
 In this case, our module `mymodule` lives in `mymodule.v`. It includes files in
-`verilog_files_dir/`. If it 'implicitly' depends on other modules, e.g.
-`othermodule`, you can ensure those files are included with --infile as well. We
-request that the script convert the `out` output of `mymodule` to a
-Racket/Rosette function. The resulting Racket/Rosette code will be written to
-`mymodule.rkt`.
+`verilog_files_dir/`. It also explicitly includes `othermodule.v`. If your
+module *implicitly* depends on other modules---that is, it uses them without
+`include-ing them, you can explicitly include those files by passing them in via
+--infile, as we do here with othermodule.v. The resulting Racket/Rosette code
+will be written to `mymodule.rkt`, in a function named `out`.
 
 Preprocessor defines can be specified with --define.
 
@@ -113,7 +118,7 @@ def preprocess_flatten_convert_verilog(
     vfile = NamedTemporaryFile()
 
     yosys_commands = read_verilog_commands + [
-        # -simcheck runs checks like -check, but aslso checks that there are no blackboxes.
+        # -simcheck runs checks like -check, but also checks that there are no blackboxes.
         f"hierarchy -simcheck -top {top}",
         "prep",
         "proc",

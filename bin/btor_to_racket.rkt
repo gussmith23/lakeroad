@@ -1,5 +1,6 @@
 #!/usr/bin/env racket
 #lang racket/base
+;;; Script to convert .btor files to Racket/Rosette code.
 
 (require racket/cmdline
          racket/match

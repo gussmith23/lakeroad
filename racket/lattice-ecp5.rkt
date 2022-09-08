@@ -341,14 +341,12 @@
                                               #:C (bv->signal (bit 2 inputs))
                                               #:D (bv->signal (bit 3 inputs))
                                               #:INIT (bv->signal (interpreter INIT)))])
-
        (list (signal-value (hash-ref out 'Z))))]
     [(lattice-ecp5-lut2 INIT inputs)
      (let* ([inputs (interpreter inputs)]
             [out (interpret-lattice-ecp5-lut2 #:A (bv->signal (bit 0 inputs))
                                               #:B (bv->signal (bit 1 inputs))
                                               #:INIT (bv->signal (interpreter INIT)))])
-
        (list (signal-value (hash-ref out 'Z))))]
     [(lattice-ecp5-lut5 INIT inputs) (list (interpret-lut5-impl INIT (interpreter inputs)))]
     [(lattice-ecp5-lut6 INIT inputs) (list (interpret-lut6-impl INIT (interpreter inputs)))]
@@ -365,8 +363,7 @@
 
     ;; Interpret Carry primitives
     [(lattice-ecp5-ccu2c INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
-     (let* (;;; INPUTS: (CIN A0 A1 B0 B1 C0 C1 D0 D1)
-            [inputs (interpreter inputs)]
+     (let* ([inputs (interpreter inputs)]
             [A0 (bit 0 (list-ref inputs 0))]
             [A1 (bit 0 (list-ref inputs 1))]
             [B0 (bit 1 (list-ref inputs 0))]
@@ -393,7 +390,6 @@
                                                #:INIT1 (bv->signal (interpreter INIT1))
                                                #:INJECT1_0 (bv->signal (interpreter INJECT1_0))
                                                #:INJECT1_1 (bv->signal (interpreter INJECT1_1)))])
-       ;;; OUTPUTS: (S0 S1 COUT)
        (list (signal-value (hash-ref out 'S0))
              (signal-value (hash-ref out 'S1))
              (signal-value (hash-ref out 'COUT))))]

@@ -4,12 +4,10 @@
 
 (require rosette)
 
-;;; The output of a LUT is simply the bit at the entry pointed to by `inputs-a`, when interpreted as
-;;; an integer. It's probably worth putting this somewhere more generally usable. LUTs must return
-;;; only one bit.
+;;; Generic LUT semantics.
 ;;;
-;;; TODO(@gussmith23): figure out how to return multiple bits while still using theory of bitvectors
-;;; only. The old solution used theory of integers to index into the bitvector.
+;;; The output of a LUT is simply the bit at the entry pointed to by `inputs`, when interpreted as an
+;;; integer. For now, LUTs return only one bit.
 (define (lut memory inputs)
   (let* ([inputs (zero-extend inputs (bitvector (length (bitvector->bits memory))))])
     (bit 0 (bvlshr memory inputs))))
