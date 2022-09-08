@@ -6,7 +6,7 @@
 // RUN: tmpfile=$(mktemp)
 // RUN: sed -E 's/^[[:space:]]*x_lut3_mux8/x_lut3_mux8 inst/' %s > $tmpfile
 // Run through our tool.
-// RUN: python3 $LAKEROAD_DIR/utils/convert-module-to-btor.py \
+// RUN: python3 $LAKEROAD_DIR/bin/convert_module_to_btor.py \
 // RUN:   --infile $tmpfile --top LUT3 2>&1 | FileCheck %s
 // Remove tmpfile.
 // RUN: rm $tmpfile

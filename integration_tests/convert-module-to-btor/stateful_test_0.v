@@ -1,4 +1,4 @@
-// RUN: python3 $LAKEROAD_DIR/utils/convert-module-to-btor.py \
+// RUN: python3 $LAKEROAD_DIR/bin/convert_module_to_btor.py \
 // RUN:   --top counter --infile %s 2>/dev/null \
 // RUN:   | FileCheck %s
 

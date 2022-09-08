@@ -45,8 +45,8 @@ for filename in args.infile:
             PYTHON_EXE,
             str(
                 pathlib.Path(os.environ["LAKEROAD_DIR"])
-                / "utils"
-                / "convert-params-to-inputs.py"
+                / "bin"
+                / "convert_params_to_inputs.py"
             ),
             "--remove_string",
             "--infile",

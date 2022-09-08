@@ -1,4 +1,4 @@
-// RUN: python3 $LAKEROAD_DIR/utils/convert-module-to-btor.py \
+// RUN: python3 $LAKEROAD_DIR/bin/convert_module_to_btor.py \
 // RUN:   --infile %s --top LUT6 --remove-lines-with '$finish' \
 // RUN:   --define XIL_XECLIB | FileCheck %s
 

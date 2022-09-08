@@ -5,7 +5,7 @@
 //
 // RUN: tmpfile=$(mktemp)
 // RUN: sed -E "s/bx/b0/" %s > $tmpfile
-// RUN: python3 $LAKEROAD_DIR/utils/convert-module-to-btor.py \
+// RUN: python3 $LAKEROAD_DIR/bin/convert_module_to_btor.py \
 // RUN:   --remove-lines-with '$finish' \
 // RUN:   --define XIL_XECLIB --top DSP48E2 --infile $tmpfile 2>/dev/null \
 // RUN:   | FileCheck %s
