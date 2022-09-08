@@ -88,6 +88,6 @@
                          skywater-mux2-dir
                          skywater-udp-mux-2to1-dir)
     #:extra-verilator-args
-    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD"
+    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES"
     to-simulate-list
     (getenv "VERILATOR_INCLUDE_DIR"))))
