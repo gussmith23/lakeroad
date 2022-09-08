@@ -26,7 +26,7 @@ cargo test --manifest-path $SCRIPT_DIR/rust/Cargo.toml -- --nocapture
 # cause some thrashing.
 #
 # We also time the tests, as the Racket tests are the slowest part of the testing process.
-bash -c "for f in $SCRIPT_DIR/racket/*.rkt; do time raco test $f; done"
+for f in $SCRIPT_DIR/racket/*.rkt; do time raco test $f; done
 
 # Integration tests.
 source $SCRIPT_DIR/integration_tests/run.sh
