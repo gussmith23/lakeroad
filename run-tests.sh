@@ -18,5 +18,7 @@ cargo test --manifest-path rust/Cargo.toml -- --nocapture
 # parallelizing individual tests (like how we use make to parallelize Verilation
 # in end-to-end builds), and multiple levels of parallelization would probably
 # cause some thrashing.
-bash -c "raco test racket/*.rkt"
+#
+# We also time the tests, as the Racket tests are the slowest part of the testing process.
+bash -c "for f in racket/*.rkt; do time raco test $f; done"
 source utils/tests/run-tests.sh
