@@ -6,7 +6,8 @@ RUN: | FileCheck %s
 
 CHECK: #lang racket/base
 CHECK: (provide xilinx-ultrascale-plus-carry8)
-CHECK: (require (file "/Users/gus/lakeroad/racket/stateful-design-experiment.rkt"))
+CHECK: (require (file "
+
 CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define xilinx-ultrascale-plus-carry8
