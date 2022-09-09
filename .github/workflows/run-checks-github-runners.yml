@@ -70,6 +70,12 @@ jobs:
           cache-to: type=gha,mode=max
           cache-from: type=gha
 
+  # This can be run on ubuntu-latest (i.e., on GitHub's provided runners), but
+  # it will be much slower. Specifically, our end-to-end tests using Verilator
+  # take advantage of the many threads on our machines, whereas the GitHub
+  # machines only have two threads.
+  #
+  # Perhaps we should run this on both?
   run-tests:
     runs-on: self-hosted
     needs: [build-and-push-image, cleaner]
