@@ -1,4 +1,4 @@
-#lang rosette/safe
+#lang errortrace racket
 (require racket/generic)
 
 ; This is a _generic interface_ that primitive structs implement. This allows a
@@ -41,7 +41,7 @@
       (match v
         [(? symbol?) (list v 1)]
         [(list (? symbol?) (? integer?)) v])))
-  (signature (normalize-values inputs) (normalize-values outputs) (normalize-values paramters)))
+  (signature (normalize-values inputs) (normalize-values outputs) (normalize-values parameters)))
 
 ; Represents an architecture-specific primitive
 ;
@@ -58,24 +58,70 @@
 
 ; architecture: name of the architecture
 ; luts: list of lut primitives supported by the architecture
-(struct arch-config (architecture luts muxes) #:transparent)
+(struct arch-config (architecture luts muxes other) #:transparent)
 
+(define (make-arch-config architecture primitives)
+  (let* ([luts (for/list ([prim primitives] #:when (eq? (primitive-type prim) "lut"))
+                 prim)]
+         [muxes (for/list ([prim primitives] #:when (eq? (primitive-type prim) "mux"))
+                  prim)]
+         [other (for/list ([prim primitives]
+                           #:when (and (not (eq? (primitive-type prim) "lut"))
+                                       (not (eq? (primitive-type prim) "mux"))))
+                  prim)])
+    (arch-config architecture luts muxes other)))
+
+; TODO: handle multiple output sizes
+(define (arch-config-get-lut config num-input-bits)
+  (let* (; get luts sorted by length of inputs
+         [luts (sort (arch-config-luts config)
+                     (lambda (a b)
+                       (< (length (signature-inputs (primitive-signature a)))
+                          (length (signature-inputs (primitive-signature b))))))]
+
+         [biggest-lut (last luts)]
+         ; Get all luts that are big enough to handle num-input-bits and use the
+         ; smallest one.
+         ;
+         ; Also: I like big LUTs and I cannot lie
+         [big-luts (filter (lambda (l)
+                             (>= (length (signature-inputs (primitive-signature l))) num-input-bits))
+                           luts)])
+                           (if (empty? big-luts)
+                               (error "TODO: create larger lut")
+                               (first big-luts))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    EXAMPLES    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Example of a LUT4 Primitive for lattice ecp5
-; Verilog Sig:
-;     module LUT4(input A, B, C, D, output Z);
-;     parameter [15:0] INIT = 16'h0000;
-(define ecp5:lut4
-  (make-primitive "Lattice-ECP5"
-                  "LUT4"
-                  "lut"
-                  (signature '((A 1) (B 1) (C 1) (D 1)) '(Z) '((INIT 16)))))
 
-; Example of a L6MUX21 Primitive for lattice ecp5
-; Verilog:
-;     module L6MUX21 (input D0, D1, SD, output Z);
-(define ecp5:l6mux21
-  (make-primitive "Lattice-ECP5" "L6MUX21" "mux" (signature '((A 1) (B 1) (C 1) (D 1)) '((Z 1)))))
+(module+ test
+  (require rackunit)
+  (test-begin
+  
+    ; Example of a LUT4 Primitive for lattice ecp5
+    ; Verilog Sig:
+    ;     module LUT4(input A, B, C, D, output Z);
+    ;     parameter [15:0] INIT = 16'h0000;
+    (define ecp5:lut4
+    (make-primitive "Lattice-ECP5"
+                    "LUT4"
+                    "lut"
+                    (signature '((A 1) (B 1) (C 1) (D 1)) '(Z) '((INIT 16)))))
+
+    ; Example of a L6MUX21 Primitive for lattice ecp5
+    ; Verilog:
+    ;     module L6MUX21 (input D0, D1, SD, output Z);
+    (define ecp5:l6mux21
+      (make-primitive "Lattice-ECP5" "L6MUX21" "mux" (signature '((A 1) (B 1) (C 1) (D 1)) '((Z 1)) '())))
+
+    (define lattice:ecp5:config (make-arch-config "lattice-ECP5" (list ecp5:lut4 ecp5:l6mux21)))
+    (check-equal? (arch-config-luts lattice:ecp5:config) (list ecp5:lut4))
+    (check-equal? (arch-config-muxes lattice:ecp5:config) (list ecp5:l6mux21))
+    (check-equal? (arch-config-other lattice:ecp5:config) (list))
+
+    (check-equal? (arch-config-get-lut lattice:ecp5:config 4) ecp5:lut4)
+    (check-equal? (arch-config-get-lut lattice:ecp5:config 3) ecp5:lut4)
+    (check-equal? (arch-config-get-lut lattice:ecp5:config 2) ecp5:lut4)
+    (check-equal? (arch-config-get-lut lattice:ecp5:config 1) ecp5:lut4)
+    (check-exn exn:fail? (thunk (arch-config-get-lut lattice:ecp5:config 5)))))
