@@ -2,7 +2,8 @@
 *.zo
 
 .vscode/*
-utils/tests/convert-module-to-btor/.lit_test_times.txt
-utils/tests/convert-module-to-btor/Output/*
+.lit_test_times.txt
+**/Output
 
 **/.DS_Store
+**/__pycache__
