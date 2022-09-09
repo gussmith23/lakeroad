@@ -1,0 +1,50 @@
+RUN: $LAKEROAD_DIR/bin/verilog_to_racket.py \
+RUN:   --infile $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/LUT2.v \
+RUN:   --top LUT2 \
+RUN:   --function-name lattice-ecp5-lut2 \
+RUN: | FileCheck %s
+
+CHECK: #lang racket/base
+CHECK: (provide lattice-ecp5-lut2)
+CHECK: (require (file "
+
+CHECK: (require rosette)
+CHECK: (require racket/hash)
+CHECK: (define lattice-ecp5-lut2
+CHECK:   (λ (#:A
+CHECK:       (A (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 1))))
+CHECK:       #:B
+CHECK:       (B (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 1))))
+CHECK:       #:INIT
+CHECK:       (INIT
+CHECK:        (bv->signal (constant (list 'INIT 'symbolic-constant) (bitvector 4)))))
+CHECK:     (let* ((merged-input-state-hash (hash))
+CHECK:            (init-hash (hash))
+CHECK:            (btor1 (bitvector 1))
+CHECK:            (btor2 A)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state A)))
+CHECK:            (btor3 B)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state B)))
+CHECK:            (btor4 (bitvector 4))
+CHECK:            (btor5 INIT)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state INIT)))
+CHECK:            (btor6 (bitvector 2))
+CHECK:            (btor7
+CHECK:             (signal (extract 1 0 (signal-value btor5)) (signal-state btor5)))
+CHECK:            (btor8
+CHECK:             (signal (extract 3 2 (signal-value btor5)) (signal-state btor5)))
+CHECK:            (btor9 (if (bitvector->bool (signal-value btor3)) btor8 btor7))
+CHECK:            (btor10
+CHECK:             (signal (extract 0 0 (signal-value btor9)) (signal-state btor9)))
+CHECK:            (btor11
+CHECK:             (signal (extract 1 1 (signal-value btor9)) (signal-state btor9)))
+CHECK:            (btor12 (if (bitvector->bool (signal-value btor2)) btor11 btor10))
+CHECK:            (btor14
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor9) (bitvector 2))
+CHECK:              btor9)))
+CHECK:       (make-immutable-hash
+CHECK:        (list (cons 'Z (signal (signal-value btor12) (hash))))))))

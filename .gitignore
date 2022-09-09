@@ -6,4 +6,6 @@
 **/Output
 
 **/.DS_Store
+**/.lit_test_times.txt
+**/Output/
 **/__pycache__

@@ -1,5 +1,7 @@
 set -e
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 LAKEROAD_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 declare -rx LAKEROAD_DIR
 
@@ -12,7 +14,11 @@ if [ -z ${VERILATOR_INCLUDE_DIR+x} ] ; then
     declare -rx VERILATOR_INCLUDE_DIR
 fi
 
-cargo test --manifest-path rust/Cargo.toml -- --nocapture
+# Rust tests.
+cargo test --manifest-path $SCRIPT_DIR/rust/Cargo.toml -- --nocapture
+
+# Racket tests.
+#
 # We could use the -j flag of raco test to run tests in parallel, but instead,
 # we expect every test to parallelize itself if needed. We get more value out of
 # parallelizing individual tests (like how we use make to parallelize Verilation
@@ -20,5 +26,7 @@ cargo test --manifest-path rust/Cargo.toml -- --nocapture
 # cause some thrashing.
 #
 # We also time the tests, as the Racket tests are the slowest part of the testing process.
-for f in racket/*.rkt; do time raco test $f; done
-source utils/tests/run-tests.sh
+for f in $SCRIPT_DIR/racket/*.rkt; do time raco test $f; done
+
+# Integration tests.
+source $SCRIPT_DIR/integration_tests/run.sh
