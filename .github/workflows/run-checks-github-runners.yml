@@ -21,6 +21,17 @@ env:
 
 jobs:
 
+  # Job which cleans up GitHub Actions workspace. This is only needed when
+  # running on self-hosted runners.
+  #
+  # TODO(@gussmith23) It would be nice if this wasn't necessary. We could use
+  # this: https://docs.github.com/en/actions/hosting-your-own-runners/running-scripts-before-or-after-a-job
+  cleaner:
+    runs-on: self-hosted
+    steps:
+      - name: Clean up previous runs
+        run: rm -rf "${{ github.workspace }}"
+
   build-and-push-image:
     runs-on: ubuntu-latest
     permissions:
@@ -60,8 +71,8 @@ jobs:
           cache-from: type=gha
 
   run-tests:
-    runs-on: ubuntu-latest
-    needs: build-and-push-image
+    runs-on: self-hosted
+    needs: [build-and-push-image, cleaner]
     steps:
 
       - name: Log in to the Container registry
