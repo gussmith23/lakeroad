@@ -1,5 +1,9 @@
 #lang errortrace racket
 (require racket/generic)
+(provide arch-config-get-lut
+         (rename-out [make-signature signature]
+                     [make-arch-config arch-config]
+                     [make-primitive primitive]))
 
 ; This is a _generic interface_ that primitive structs implement. This allows a
 ; primtive struct to register which abstract Lakeroad primitives it implements
@@ -87,41 +91,42 @@
          [big-luts (filter (lambda (l)
                              (>= (length (signature-inputs (primitive-signature l))) num-input-bits))
                            luts)])
-                           (if (empty? big-luts)
-                               (error "TODO: create larger lut")
-                               (first big-luts))))
+    (if (empty? big-luts) (error "TODO: create larger lut") (first big-luts))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    EXAMPLES    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define ecp5:lut4
+  (make-primitive "Lattice-ECP5"
+                  "LUT4"
+                  "lut"
+                  (signature '((A 1) (B 1) (C 1) (D 1)) '(Z) '((INIT 16)))))
+
+; Example of a L6MUX21 Primitive for lattice ecp5
+; Verilog:
+;     module L6MUX21 (input D0, D1, SD, output Z);
+(define ecp5:l6mux21
+  (make-primitive "Lattice-ECP5" "L6MUX21" "mux" (signature '((A 1) (B 1) (C 1) (D 1)) '((Z 1)) '())))
+
+(define ecp5:config (make-arch-config "lattice-ECP5" (list ecp5:lut4 ecp5:l6mux21)))
+
+(module* test-values #f
+  (provide ecp5:lut4
+           ecp5:l6mux21
+           ecp5:config))
 
 (module+ test
   (require rackunit)
-  (test-begin
-  
-    ; Example of a LUT4 Primitive for lattice ecp5
-    ; Verilog Sig:
-    ;     module LUT4(input A, B, C, D, output Z);
-    ;     parameter [15:0] INIT = 16'h0000;
-    (define ecp5:lut4
-    (make-primitive "Lattice-ECP5"
-                    "LUT4"
-                    "lut"
-                    (signature '((A 1) (B 1) (C 1) (D 1)) '(Z) '((INIT 16)))))
-
-    ; Example of a L6MUX21 Primitive for lattice ecp5
-    ; Verilog:
-    ;     module L6MUX21 (input D0, D1, SD, output Z);
-    (define ecp5:l6mux21
-      (make-primitive "Lattice-ECP5" "L6MUX21" "mux" (signature '((A 1) (B 1) (C 1) (D 1)) '((Z 1)) '())))
-
-    (define lattice:ecp5:config (make-arch-config "lattice-ECP5" (list ecp5:lut4 ecp5:l6mux21)))
-    (check-equal? (arch-config-luts lattice:ecp5:config) (list ecp5:lut4))
-    (check-equal? (arch-config-muxes lattice:ecp5:config) (list ecp5:l6mux21))
-    (check-equal? (arch-config-other lattice:ecp5:config) (list))
-
-    (check-equal? (arch-config-get-lut lattice:ecp5:config 4) ecp5:lut4)
-    (check-equal? (arch-config-get-lut lattice:ecp5:config 3) ecp5:lut4)
-    (check-equal? (arch-config-get-lut lattice:ecp5:config 2) ecp5:lut4)
-    (check-equal? (arch-config-get-lut lattice:ecp5:config 1) ecp5:lut4)
-    (check-exn exn:fail? (thunk (arch-config-get-lut lattice:ecp5:config 5)))))
+  ; Example of a LUT4 Primitive for lattice ecp5
+  ; Verilog Sig:
+  ;     module LUT4(input A, B, C, D, output Z);
+  ;     parameter [15:0] INIT = 16'h0000;
+  (test-begin (check-equal? (arch-config-luts ecp5:config) (list ecp5:lut4))
+              (check-equal? (arch-config-muxes ecp5:config) (list ecp5:l6mux21))
+              (check-equal? (arch-config-other ecp5:config) (list))
+              (check-equal? (arch-config-get-lut ecp5:config 4) ecp5:lut4)
+              (check-equal? (arch-config-get-lut ecp5:config 3) ecp5:lut4)
+              (check-equal? (arch-config-get-lut ecp5:config 2) ecp5:lut4)
+              (check-equal? (arch-config-get-lut ecp5:config 1) ecp5:lut4)
+              (check-exn exn:fail? (thunk (arch-config-get-lut ecp5:config 5)))))
