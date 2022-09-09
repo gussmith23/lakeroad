@@ -30,6 +30,3 @@ for f in $SCRIPT_DIR/racket/*.rkt; do time raco test $f; done
 
 # Integration tests.
 source $SCRIPT_DIR/integration_tests/run.sh
-
-# Python tests.
-pytest $SCRIPT_DIR/python/
