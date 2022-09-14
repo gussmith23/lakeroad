@@ -19,26 +19,32 @@
 ; How do we decide what goes in ???. This is non-trivial. The first question is:
 ;
 
+(provide (rename-out [make-symbolic-allocator symbolic-allocator])
+         symbolic-allocator?
+         symbolic-allocator-f
+         symbolic-allocator-hashed)
+
 (require "../utils.rkt"
          rosette
          rosette/lib/angelic)
+
+; Create an n-choose* over a given type
+(define (make-n-choose n tp)
+  (apply choose* (make-list n (??* tp))))
 
 ; A `symbolic-allocator` is repsonsible for allocating symbolic variables during
 ; sketch generation.
 (struct symbolic-allocator (f [hashed #:mutable]))
 
-; Lookup a value memoized in the symbolic allocator under bitwidth `bw` and
-; optional hint `#:hint`.
-(define (symbolic-allocator-lookup-bw sra bw #:hint [hint '()])
-  (let ([key (cons bw hint)] [hashed (symbolic-allocator-hashed sra)])
-    (match (assoc key hashed)
-      [(cons _ stored) stored]
-      [#f #f]
-      [x (error (format "illegal state! found ~a and expected (cons a b) or #f" x))])))
-
-(define (make-n-choose n tp)
-  (apply choose* (make-list n (??* tp))))
-
+; Make a symbolic allocator. This wraps the struct's constructor.
+;
+; Parameters:
+; + #:allocation-size the number of symoblic variables we want to allocate each
+;   time we call our allocator. This value is passed to #:allocator
+; + #:allocator a function accepting a number of symbolics and the type of
+;   symbolics to allocate. Default is `make-n-choose`
+;
+; NOTE: We rename-out this to `symbolic-allocator` to mask the struct's constructor
 (define (make-symbolic-allocator #:allocation-size [allocation-size 1]
                                  #:allocator [allocator make-n-choose])
   (define f
@@ -54,6 +60,15 @@
              (set-symbolic-allocator-hashed! sra new-hashed)
              allocated)]))))
   (symbolic-allocator f '()))
+
+; Lookup a value memoized in the symbolic allocator under bitwidth `bw` and
+; optional hint `#:hint`.
+(define (symbolic-allocator-lookup-bw sra bw #:hint [hint '()])
+  (let ([key (cons bw hint)] [hashed (symbolic-allocator-hashed sra)])
+    (match (assoc key hashed)
+      [(cons _ stored) stored]
+      [#f #f]
+      [x (error (format "illegal state! found ~a and expected (cons a b) or #f" x))])))
 
 (module+ test
   (require rackunit)
