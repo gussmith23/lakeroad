@@ -54,7 +54,11 @@
     (error "primitive-interface inputs must be a list?"))
   ; We need to ensure that the inputs are the right size
   (when (not (equal? (length inputs) (length (interface-signature-inputs sig))))
-    (error "primitive-interfaces must not take more inputs than specified in signature"))
+    (error (format
+            "primitive interface ~a: length of actual inputs ~a does not match signature's inputs ~a"
+            type
+            inputs
+            (interface-signature-inputs sig))))
   (primitive-interface type sig inputs))
 
 ; NOTE: We rename-out this to `interface-signature` to mask the struct's constructor
@@ -81,4 +85,6 @@
 (module+ test
   (require rackunit)
   (check-true (lut? (lut4-interface '(1 2 3 4))))
-  (check-false (mux? (lut4-interface '(1 2 3 4)))))
+  (check-false (mux? (lut4-interface '(1 2 3 4))))
+  (check-true (mux? (mux21-interface '(1 2 3))))
+  (check-false (lut? (mux21-interface '(1 2 3)))))
