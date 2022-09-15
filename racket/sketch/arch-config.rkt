@@ -25,8 +25,8 @@
 ;    primitive
 ;    TODO: how exactly should this work?
 (define-generics lr-primitive-implementation
-                 (register-implementation lr-primitive-implementation lr-primitive implementation)
-                 (implement-primitive lr-primitive-implementation lr-primitive))
+  (register-implementation lr-primitive-implementation lr-primitive implementation)
+  (implement-primitive lr-primitive-implementation lr-primitive))
 
 ; A signature captures all input, output, and paramter information provided by a
 ; verilog file. Each inputs/outputs/parameters are a list of name/bitwidth
@@ -135,11 +135,18 @@
 
                 (check-equal? (cdr (assoc 'INIT bound-params)) 'INIT))))
 
+; Parameter allocation helper: accepts a (cons name arity) pair and allocates a 
+(define (param-alloc-helper alloc param-pair)
+  (match param-pair 
+    [(cons param-name bw) (alloc bw)]))
+
 ; Get a arch-specific lakeroad expression for a LUT.
 ; TODO: how should we handle
 ; TODO: handle multiple output sizes
 ; TODO: handle larger luts
-(define (arch-config-get-lut config inputs params)
+(define (arch-config-get-lut sra config inputs num-outputs #:hint [hint '()])
+  ; TODO: Handle multi-output luts
+  (when (not (= num-outputs 1)) (error "currently only support 1-output luts"))
   (let* (; get luts sorted by length of inputs
          [num-input-bits (length inputs)]
          [luts (sort (arch-config-luts config)
@@ -158,8 +165,14 @@
                       (error "TODO: create larger lut")
                       (match (first big-luts)
                         [(primitive arch name type sig implementations)
-                         (let ([bound-inputs (bind-inputs-to-sig inputs sig)]
-                               [bound-params (bind-params-to-sig params sig)])
+                         (let* (; First, bind actual inputs to the signatures
+                                [bound-inputs (bind-inputs-to-sig inputs sig)]
+                                ; We set up a simple allocator function
+                                [alloc (lambda (bw) (sra-f sra bw #:hint hint))]
+                                ; Next allocate symbolic values for our params
+                                [params (signature-parameters sig)]
+                                [params (for/list ([param params]) (param-alloc-helper alloc param))]
+                                [bound-params (bind-params-to-sig params sig)])
                            (lr:primitive name bound-inputs bound-params))]))])
     lr-expr))
 
@@ -168,19 +181,19 @@
 ;
 ; PARAMS
 ; ======
+; + sra: the symbolic resource allocator
 ; + config: the `arch-config` that will generate the architecture-specific
 ;   primitive
 ; + primitive: the primitive-interface that is to be replaced
 ; + inputs: the lakeroad expressions that will be created
-(define (arch-config-get-primitive config primitive inputs)
+(define (arch-config-get-primitive sra config primitive inputs #:hint [hint '()])
   (or (primitive-interface? primitive)
       (error (format "arch-config-get-primitive expected a primitive-interface? but got ~a"
                      primitive)))
   (define type (primitive-interface-type primitive))
-  (define num-inputs (primitive-interface-num-inputs))
-  (define num-outputs (primitive-interface-num-outputs))
+  (define num-outputs (primitive-interface-num-outputs primitive))
   (match type
-    ['LUT (arch-config-get-lut config num-inputs num-outputs)]
+    ['LUT (arch-config-get-lut sra config inputs num-outputs #:hint hint)]
     ['MUX (error "todo")]
     [_ (error "todo")]))
 
