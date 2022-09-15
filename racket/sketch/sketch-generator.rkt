@@ -4,55 +4,21 @@
          (prefix-in lr: "../language.rkt")
          "../logical-to-physical.rkt"
          "../utils.rkt"
-         "arch-config.rkt")
+         "arch-config.rkt"
+         "symbolic-allocator.rkt"
+         "primitive-interface.rkt"
+         (submod "primitive-interface.rkt" helpers))
 
-(struct generic-signature (inputs outputs) #:transparent)
-(struct generic-primitive (type sig inputs) #:transparent)
-
-(define (generic-primitive-num-inputs prim)
-  (length (generic-signature-inputs (generic-primitive-sig prim))))
-(define (generic-primitive-num-outputs prim)
-  (length (generic-signature-outputs (generic-primitive-sig prim))))
-(define (generic-primitive-type? prim type)
-  (equal? (generic-primitive-type prim) type))
-
-(define (make-generic-primitive type sig inputs)
-  ; Let's sanity check types!
-  (when (not (symbol? type))
-    (error "generic-primitive type must be a symbol?"))
-  (when (not (generic-signature? sig))
-    (error "generic-primitive sig must be a generic-signature?"))
-  (when (not (list? inputs))
-    (error "generic-primitive inputs must be a list?"))
-  ; We need to ensure that the inputs are the right size
-  (when (not (equal? (length inputs) (generic-primitive-num-inputs)))
-    (error "generic-primitives must not take more inputs than specified in signature"))
-  (generic-primitive type sig inputs))
-
-(define (make-generic-lut4 inputs)
-  (make-generic-primitive 'LUT (generic-signature '(I0 I1 I2 I3) '(O)) inputs))
-
-(define (make-generic-mux21 inputs)
-  (generic-primitive 'MUX (generic-signature '(D0 D1 S) '(O)) inputs))
-
-; Test if a value is a lakeroad lut primitive, and optionally test input and
-; output arity
-(define (generic-lut? val #:input-arity [input-arity #f] #:output-arity [output-arity #f])
-  (and (generic-primitive? val)
-       (eq? (generic-primitive-type val) 'LUT)
-       (if input-arity (= (generic-primitive-num-inputs val) input-arity) #t)
-       (if output-arity (= (generic-primitive-num-outputs val) output-arity) #t)))
-
-(define (generic-mux? val)
-  (and (generic-primitive? val) (generic-primitive-type? val 'LUT)))
-
-; Recursively visit a sketch template and replace all generic-primitives with values
+; Recursively visit a sketch template and replace all primitive-interfaces with values
 ; provided by the arch-config
-(define (generate-sketch sketch-template arch-config)
+(define (generate-sketch sketch-template arch-config #:symbolic-allocator [symb-alloc #f])
+
+  ; Make a default symbolic allocator if we need to
+  (define sra (if symb-alloc symballoc (symbolic-allocator)))
+  
   (define (replacer expr)
     (match expr
-      [(? generic-lut? template)
-       (arch-config-get-lut arch-config (generic-primitive-num-inputs template))]
+      [(? lut? template) (arch-config-get-lut arch-config (primitive-interface-num-inputs template))]
       [(logical-to-physical-mapping f inputs) (logical-to-physical-mapping f (replacer inputs))]
       [(physical-to-logical-mapping f inputs) (physical-to-logical-mapping f (replacer inputs))]
       [(lr:first xs) (lr:first (replacer xs))]
@@ -74,7 +40,7 @@
 ; This is a _sketch template_: this has generic primitives that will be replaced
 ; during sketch generation.
 ;
-; In this particular instance, the only generic primitives are generic-lut4s (one for
+; In this particular instance, the only generic primitives are lut4s (one for
 ; each output bit)
 (define (bitwise-example-sketch-template logical-inputs)
   (let* ([bitwidth (apply max (map bvlen logical-inputs))]
@@ -86,7 +52,7 @@
          [physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse))
                                                        logical-inputs)]
          [physical-outputs (for/list ([i bitwidth])
-                             (make-generic-lut4 (lr:list-ref physical-inputs i)))]
+                             (lut4-interface (lr:list-ref physical-inputs i)))]
          [lr-expr (lr:extract (sub1 bitwidth)
                               0
                               (lr:first (physical-to-logical-mapping
@@ -101,7 +67,7 @@
 (module+ test
   (require rackunit
            (submod "arch-config.rkt" test-values))
-  (check-equal? (generate-sketch (make-generic-lut4 (list (bv 0 4))) ecp5:config) ecp5:lut4)
+  (check-equal? (generate-sketch (lut4-interface (list (bv 0 4))) ecp5:config) ecp5:lut4)
 
   (check-match (generate-sketch (bitwise-example-sketch-template (list (bv 0 2))) ecp5:config)
                (lr:extract 1 0 (lr:first (physical-to-logical-mapping _ (list ecp5:lut4 ecp5:lut4)))))

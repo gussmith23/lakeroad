@@ -22,7 +22,8 @@
 (provide (rename-out [make-symbolic-allocator symbolic-allocator])
          symbolic-allocator?
          symbolic-allocator-f
-         symbolic-allocator-hashed)
+         symbolic-allocator-hashed
+         sra-f)
 
 (require "../utils.rkt"
          rosette
@@ -69,6 +70,11 @@
       [(cons _ stored) stored]
       [#f #f]
       [x (error (format "illegal state! found ~a and expected (cons a b) or #f" x))])))
+
+; An easier way to invoke the f on an SRA
+(define (sra-f sra bw #:hint [hint '()])
+  (let ([f (symbolic-allocator-f sra)])
+    (f sra bw #:hint hint)))
 
 (module+ test
   (require rackunit)
