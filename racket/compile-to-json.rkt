@@ -175,7 +175,35 @@
                                                 add-netname
                                                 add-parameter-default-value
                                                 expr)]
+                 [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
+                  (compile-xilinx-ultrascale-plus-carry8 compile
+                                                         get-bits
+                                                         add-cell
+                                                         add-netname
+                                                         add-parameter-default-value
+                                                         expr)]
+                 [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
+                  (compile-xilinx-ultrascale-plus-lut6 compile
+                                                       get-bits
+                                                       add-cell
+                                                       add-netname
+                                                       add-parameter-default-value
+                                                       expr)]
+                 [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
+                  (compile-xilinx-ultrascale-plus-lut6-2 compile
+                                                         get-bits
+                                                         add-cell
+                                                         add-netname
+                                                         add-parameter-default-value
+                                                         expr)]
                  [(sofa-lut4 sram inputs)
+                  (compile-sofa compile
+                                get-bits
+                                add-cell
+                                add-netname
+                                add-parameter-default-value
+                                expr)]
+                 [(sofa-frac-lut4 in mode mode-inv sram sram-inv)
                   (compile-sofa compile
                                 get-bits
                                 add-cell
@@ -220,6 +248,13 @@
                                          add-netname
                                          add-parameter-default-value
                                          expr)]
+                 [(lattice-ecp5-lut2 INIT inputs)
+                  (compile-lattice-lut2 compile
+                                        get-bits
+                                        add-cell
+                                        add-netname
+                                        add-parameter-default-value
+                                        expr)]
                  [(lattice-ecp5-lut4 INIT inputs)
                   (compile-lattice-lut4 compile
                                         get-bits
@@ -336,7 +371,8 @@
                  [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
-                 [(lr:concat rst) (apply append (compile (reverse rst)))]
+                 ;;; TODO(@gussmith23): Compile, then reverse? Or reverse, then compile?
+                 [(lr:concat rst) (apply append (reverse (compile rst)))]
 
                  [(lr:dup-extend v bv-type) (make-list (bitvector-size bv-type) (first (compile v)))]
 

@@ -1,0 +1,354 @@
+RUN: $LAKEROAD_DIR/bin/verilog_to_racket.py \
+RUN:   --infile $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/CCU2C.v \
+RUN:   --top CCU2C \
+RUN:   --function-name lattice-ecp5-ccu2c \
+RUN: | FileCheck %s
+
+CHECK: #lang racket/base
+CHECK: (provide lattice-ecp5-ccu2c)
+CHECK: (require (file "
+
+CHECK: (require rosette)
+CHECK: (require racket/hash)
+CHECK: (define lattice-ecp5-ccu2c
+CHECK:   (λ (#:A0
+CHECK:       (A0 (bv->signal (constant (list 'A0 'symbolic-constant) (bitvector 1))))
+CHECK:       #:A1
+CHECK:       (A1 (bv->signal (constant (list 'A1 'symbolic-constant) (bitvector 1))))
+CHECK:       #:B0
+CHECK:       (B0 (bv->signal (constant (list 'B0 'symbolic-constant) (bitvector 1))))
+CHECK:       #:B1
+CHECK:       (B1 (bv->signal (constant (list 'B1 'symbolic-constant) (bitvector 1))))
+CHECK:       #:C0
+CHECK:       (C0 (bv->signal (constant (list 'C0 'symbolic-constant) (bitvector 1))))
+CHECK:       #:C1
+CHECK:       (C1 (bv->signal (constant (list 'C1 'symbolic-constant) (bitvector 1))))
+CHECK:       #:CIN
+CHECK:       (CIN
+CHECK:        (bv->signal (constant (list 'CIN 'symbolic-constant) (bitvector 1))))
+CHECK:       #:D0
+CHECK:       (D0 (bv->signal (constant (list 'D0 'symbolic-constant) (bitvector 1))))
+CHECK:       #:D1
+CHECK:       (D1 (bv->signal (constant (list 'D1 'symbolic-constant) (bitvector 1))))
+CHECK:       #:INIT0
+CHECK:       (INIT0
+CHECK:        (bv->signal (constant (list 'INIT0 'symbolic-constant) (bitvector 16))))
+CHECK:       #:INIT1
+CHECK:       (INIT1
+CHECK:        (bv->signal (constant (list 'INIT1 'symbolic-constant) (bitvector 16))))
+CHECK:       #:INJECT1_0
+CHECK:       (INJECT1_0
+CHECK:        (bv->signal
+CHECK:         (constant (list 'INJECT1_0 'symbolic-constant) (bitvector 1))))
+CHECK:       #:INJECT1_1
+CHECK:       (INJECT1_1
+CHECK:        (bv->signal
+CHECK:         (constant (list 'INJECT1_1 'symbolic-constant) (bitvector 1)))))
+CHECK:     (let* ((merged-input-state-hash (hash))
+CHECK:            (init-hash (hash))
+CHECK:            (btor1 (bitvector 1))
+CHECK:            (btor2 A0)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state A0)))
+CHECK:            (btor3 A1)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state A1)))
+CHECK:            (btor4 B0)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state B0)))
+CHECK:            (btor5 B1)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state B1)))
+CHECK:            (btor6 C0)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state C0)))
+CHECK:            (btor7 C1)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state C1)))
+CHECK:            (btor8 CIN)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state CIN)))
+CHECK:            (btor9 D0)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state D0)))
+CHECK:            (btor10 D1)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state D1)))
+CHECK:            (btor11 (bitvector 16))
+CHECK:            (btor12 INIT0)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state INIT0)))
+CHECK:            (btor13 INIT1)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state INIT1)))
+CHECK:            (btor14 INJECT1_0)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state INJECT1_0)))
+CHECK:            (btor15 INJECT1_1)
+CHECK:            (merged-input-state-hash
+CHECK:             (hash-union merged-input-state-hash (signal-state INJECT1_1)))
+CHECK:            (btor16 (bitvector 8))
+CHECK:            (btor17
+CHECK:             (signal (extract 7 0 (signal-value btor13)) (signal-state btor13)))
+CHECK:            (btor18
+CHECK:             (signal
+CHECK:              (extract 15 8 (signal-value btor13))
+CHECK:              (signal-state btor13)))
+CHECK:            (btor19 (if (bitvector->bool (signal-value btor10)) btor18 btor17))
+CHECK:            (btor20 (bitvector 4))
+CHECK:            (btor21
+CHECK:             (signal (extract 3 0 (signal-value btor19)) (signal-state btor19)))
+CHECK:            (btor22
+CHECK:             (signal (extract 7 4 (signal-value btor19)) (signal-state btor19)))
+CHECK:            (btor23 (if (bitvector->bool (signal-value btor7)) btor22 btor21))
+CHECK:            (btor24 (bitvector 2))
+CHECK:            (btor25
+CHECK:             (signal (extract 1 0 (signal-value btor23)) (signal-state btor23)))
+CHECK:            (btor26
+CHECK:             (signal (extract 3 2 (signal-value btor23)) (signal-state btor23)))
+CHECK:            (btor27 (if (bitvector->bool (signal-value btor5)) btor26 btor25))
+CHECK:            (btor28
+CHECK:             (signal (extract 0 0 (signal-value btor27)) (signal-state btor27)))
+CHECK:            (btor29
+CHECK:             (signal (extract 1 1 (signal-value btor27)) (signal-state btor27)))
+CHECK:            (btor30 (if (bitvector->bool (signal-value btor3)) btor29 btor28))
+CHECK:            (btor31
+CHECK:             (signal (bvnot (signal-value btor30)) (merge-state (list btor30))))
+CHECK:            (btor32
+CHECK:             (signal (extract 1 0 (signal-value btor13)) (signal-state btor13)))
+CHECK:            (btor33
+CHECK:             (signal (extract 3 2 (signal-value btor13)) (signal-state btor13)))
+CHECK:            (btor34 (if (bitvector->bool (signal-value btor5)) btor33 btor32))
+CHECK:            (btor35
+CHECK:             (signal (extract 0 0 (signal-value btor34)) (signal-state btor34)))
+CHECK:            (btor36
+CHECK:             (signal (extract 1 1 (signal-value btor34)) (signal-state btor34)))
+CHECK:            (btor37 (if (bitvector->bool (signal-value btor3)) btor36 btor35))
+CHECK:            (btor38 (bv->signal (bv 0 (bitvector 1))))
+CHECK:            (btor39 (if (bitvector->bool (signal-value btor15)) btor38 btor37))
+CHECK:            (btor40
+CHECK:             (signal
+CHECK:              (bvand (signal-value btor31) (signal-value btor39))
+CHECK:              (merge-state (list btor31 btor39))))
+CHECK:            (btor41
+CHECK:             (signal (extract 7 0 (signal-value btor12)) (signal-state btor12)))
+CHECK:            (btor42
+CHECK:             (signal
+CHECK:              (extract 15 8 (signal-value btor12))
+CHECK:              (signal-state btor12)))
+CHECK:            (btor43 (if (bitvector->bool (signal-value btor9)) btor42 btor41))
+CHECK:            (btor44
+CHECK:             (signal (extract 3 0 (signal-value btor43)) (signal-state btor43)))
+CHECK:            (btor45
+CHECK:             (signal (extract 7 4 (signal-value btor43)) (signal-state btor43)))
+CHECK:            (btor46 (if (bitvector->bool (signal-value btor6)) btor45 btor44))
+CHECK:            (btor47
+CHECK:             (signal (extract 1 0 (signal-value btor46)) (signal-state btor46)))
+CHECK:            (btor48
+CHECK:             (signal (extract 3 2 (signal-value btor46)) (signal-state btor46)))
+CHECK:            (btor49 (if (bitvector->bool (signal-value btor4)) btor48 btor47))
+CHECK:            (btor50
+CHECK:             (signal (extract 0 0 (signal-value btor49)) (signal-state btor49)))
+CHECK:            (btor51
+CHECK:             (signal (extract 1 1 (signal-value btor49)) (signal-state btor49)))
+CHECK:            (btor52 (if (bitvector->bool (signal-value btor2)) btor51 btor50))
+CHECK:            (btor53
+CHECK:             (signal (bvnot (signal-value btor52)) (merge-state (list btor52))))
+CHECK:            (btor54
+CHECK:             (signal (extract 1 0 (signal-value btor12)) (signal-state btor12)))
+CHECK:            (btor55
+CHECK:             (signal (extract 3 2 (signal-value btor12)) (signal-state btor12)))
+CHECK:            (btor56 (if (bitvector->bool (signal-value btor4)) btor55 btor54))
+CHECK:            (btor57
+CHECK:             (signal (extract 0 0 (signal-value btor56)) (signal-state btor56)))
+CHECK:            (btor58
+CHECK:             (signal (extract 1 1 (signal-value btor56)) (signal-state btor56)))
+CHECK:            (btor59 (if (bitvector->bool (signal-value btor2)) btor58 btor57))
+CHECK:            (btor60 (if (bitvector->bool (signal-value btor14)) btor38 btor59))
+CHECK:            (btor61
+CHECK:             (signal
+CHECK:              (bvand (signal-value btor53) (signal-value btor60))
+CHECK:              (merge-state (list btor53 btor60))))
+CHECK:            (btor62
+CHECK:             (signal
+CHECK:              (bvand (signal-value btor52) (signal-value btor8))
+CHECK:              (merge-state (list btor52 btor8))))
+CHECK:            (btor63
+CHECK:             (signal
+CHECK:              (bvor (signal-value btor61) (signal-value btor62))
+CHECK:              (merge-state (list btor61 btor62))))
+CHECK:            (btor64
+CHECK:             (signal
+CHECK:              (bvand (signal-value btor30) (signal-value btor63))
+CHECK:              (merge-state (list btor30 btor63))))
+CHECK:            (btor65
+CHECK:             (signal
+CHECK:              (bvor (signal-value btor40) (signal-value btor64))
+CHECK:              (merge-state (list btor40 btor64))))
+CHECK:            (btor67 (if (bitvector->bool (signal-value btor14)) btor38 btor8))
+CHECK:            (btor68
+CHECK:             (signal
+CHECK:              (bvxor (signal-value btor52) (signal-value btor67))
+CHECK:              (merge-state (list btor52 btor67))))
+CHECK:            (btor70 (if (bitvector->bool (signal-value btor15)) btor38 btor63))
+CHECK:            (btor71
+CHECK:             (signal
+CHECK:              (bvxor (signal-value btor30) (signal-value btor70))
+CHECK:              (merge-state (list btor30 btor70))))
+CHECK:            (btor73
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor56) (bitvector 2))
+CHECK:              btor56))
+CHECK:            (btor74
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor59) (bitvector 1))
+CHECK:              btor59))
+CHECK:            (btor75
+CHECK:             (signal (extract 3 0 (signal-value btor12)) (signal-state btor12)))
+CHECK:            (btor76
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor75) (bitvector 4))
+CHECK:              btor75))
+CHECK:            (btor77
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor4) (bitvector 1))
+CHECK:              btor4))
+CHECK:            (btor78
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor2) (bitvector 1))
+CHECK:              btor2))
+CHECK:            (btor79
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor34) (bitvector 2))
+CHECK:              btor34))
+CHECK:            (btor80
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor37) (bitvector 1))
+CHECK:              btor37))
+CHECK:            (btor81
+CHECK:             (signal (extract 3 0 (signal-value btor13)) (signal-state btor13)))
+CHECK:            (btor82
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor81) (bitvector 4))
+CHECK:              btor81))
+CHECK:            (btor83
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor5) (bitvector 1))
+CHECK:              btor5))
+CHECK:            (btor84
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor3) (bitvector 1))
+CHECK:              btor3))
+CHECK:            (btor85
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor43) (bitvector 8))
+CHECK:              btor43))
+CHECK:            (btor86
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor46) (bitvector 4))
+CHECK:              btor46))
+CHECK:            (btor87
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor49) (bitvector 2))
+CHECK:              btor49))
+CHECK:            (btor88
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor52) (bitvector 1))
+CHECK:              btor52))
+CHECK:            (btor89
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor12) (bitvector 16))
+CHECK:              btor12))
+CHECK:            (btor90
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor9) (bitvector 1))
+CHECK:              btor9))
+CHECK:            (btor91
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor6) (bitvector 1))
+CHECK:              btor6))
+CHECK:            (btor92
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor4) (bitvector 1))
+CHECK:              btor4))
+CHECK:            (btor93
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor2) (bitvector 1))
+CHECK:              btor2))
+CHECK:            (btor94
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor19) (bitvector 8))
+CHECK:              btor19))
+CHECK:            (btor95
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor23) (bitvector 4))
+CHECK:              btor23))
+CHECK:            (btor96
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor27) (bitvector 2))
+CHECK:              btor27))
+CHECK:            (btor97
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor30) (bitvector 1))
+CHECK:              btor30))
+CHECK:            (btor98
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor13) (bitvector 16))
+CHECK:              btor13))
+CHECK:            (btor99
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor10) (bitvector 1))
+CHECK:              btor10))
+CHECK:            (btor100
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor7) (bitvector 1))
+CHECK:              btor7))
+CHECK:            (btor101
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor5) (bitvector 1))
+CHECK:              btor5))
+CHECK:            (btor102
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor3) (bitvector 1))
+CHECK:              btor3))
+CHECK:            (btor103
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor59) (bitvector 1))
+CHECK:              btor59))
+CHECK:            (btor104
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor37) (bitvector 1))
+CHECK:              btor37))
+CHECK:            (btor105
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor52) (bitvector 1))
+CHECK:              btor52))
+CHECK:            (btor106
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor30) (bitvector 1))
+CHECK:              btor30))
+CHECK:            (btor107
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor63) (bitvector 1))
+CHECK:              btor63))
+CHECK:            (btor108
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor67) (bitvector 1))
+CHECK:              btor67))
+CHECK:            (btor109
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor70) (bitvector 1))
+CHECK:              btor70))
+CHECK:            (btor110
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor60) (bitvector 1))
+CHECK:              btor60))
+CHECK:            (btor111
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor39) (bitvector 1))
+CHECK:              btor39)))
+CHECK:       (make-immutable-hash
+CHECK:        (list
+CHECK:         (cons 'COUT (signal (signal-value btor65) (hash)))
+CHECK:         (cons 'S0 (signal (signal-value btor68) (hash)))
+CHECK:         (cons 'S1 (signal (signal-value btor71) (hash))))))))

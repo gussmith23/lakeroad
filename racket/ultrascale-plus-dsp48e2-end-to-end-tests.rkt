@@ -1,6 +1,8 @@
 #lang rosette/safe
 ;;; Specifically test that some functions work on DSPs.
 
+;;; TODO(@gussmith23): Restructure to use batched simulation w/ Verilator.
+
 (module+ test
 
   (require "synthesize.rkt"
@@ -9,11 +11,11 @@
            rackunit
            rosette)
 
-  (define includes-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+  (define includes-dir (build-path (get-lakeroad-directory) "verilator_xilinx"))
   (define includes
     (append (for/list ([mod (list "CARRY8.v" "LUT6_2.v" "LUT3.v" "LUT2.v" "LUT1.v")])
               (format "~a/~a" includes-dir mod))
-            (list (build-path (getenv "LAKEROAD_DIR") "verilator-unisims" "DSP48E2.v"))))
+            (list (build-path (get-lakeroad-directory) "verilator-unisims" "DSP48E2.v"))))
   (define (end-to-end-test bv-expr)
     (define with-vc-result (with-vc (with-terms (synthesize-xilinx-ultrascale-plus-dsp bv-expr))))
     (when (failed? with-vc-result)

@@ -4,6 +4,7 @@
          bvtype
          dup-extend
          bvexpr->cexpr
+         get-lakeroad-directory
          json->verilog
          ??*
          make-n-symbolics
@@ -12,7 +13,8 @@
          run-lakeroad)
 
 (require rosette
-         rosette/base/core/polymorphic)
+         rosette/base/core/polymorphic
+         racket/runtime-path)
 
 ;;; Length of bitvector.
 (define (bvlen v)
@@ -50,6 +52,16 @@
 ;;; Rosette bitvector expression to C expression.
 (define (bvexpr->cexpr expr)
   (match expr
+    [(expression (== concat) a b)
+     (format "((((uint64_t)~a) << ~a) | (~a))" (bvexpr->cexpr a) (bvlen b) (bvexpr->cexpr b))]
+    [(expression (== extract) h l v)
+     ;;; Just b/c I'm lazy. Doesn't have to be the case.
+     (when (or (not (concrete? h)) (not (concrete? l)))
+       (error "Only supporting concrete h and l for now."))
+     (format "((~a >> ~a) & ((1<<(~a - ~a + 1)) - 1))" (bvexpr->cexpr v) l h l)]
+    [(expression (== bvlshr) a b)
+     (format "(((uint64_t)~a) >> ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== zero-extend) a b) (bvexpr->cexpr a)]
     [(expression (== bvult) a b)
      (when (> (bvlen a) 64)
        (error))
@@ -85,21 +97,19 @@
     [(expression (== bvnot) a) (format "(~~~a)" (bvexpr->cexpr a))]
     [(expression (== bvneg) a) (format "(-~a)" (bvexpr->cexpr a))]
     [(expression (== bvshl) a b) (format "(~a << ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    ;;; TODO(@gussmith23) Compiling right shifts may be buggy. We may need to cast to unsigned (in the case of bvlshr) and signed (in the case of bvashr) to correctly implement them.
-    [(expression (== bvlshr) a b) (format "(~a >> ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(expression (== bvmul) a b) (format "(~a * ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(? concrete? (? (bitvector 1) a)) (format "((bool) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 2) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 3) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 4) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 5) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 6) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 7) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 8) a)) (format "((uint8_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 12) a)) (format "((uint16_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 16) a)) (format "((uint16_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 32) a)) (format "((uint32_t) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 64) a)) (format "((uint64_t) ~a)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 2) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 3) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 4) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 5) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 6) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 7) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 8) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 12) a)) (format "((uint16_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 16) a)) (format "((uint16_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 32) a)) (format "((uint32_t) ~aULL)" (bitvector->natural a))]
+    [(? concrete? (? (bitvector 64) a)) (format "((uint64_t) ~aULL)" (bitvector->natural a))]
     ;;; We suffix the mask with ULL to be safe.
     [(? constant? a) (format "(~a & ~aULL)" a (- (expt 2 (bvlen a)) 1))]))
 
@@ -145,3 +155,7 @@
     (solve (for ([input (hash-keys inputs)])
              (assume (bveq input (hash-ref inputs input))))))
   (evaluate (interpreter p) sol))
+
+(define-runtime-path LAKEROAD_DIR "..")
+(define (get-lakeroad-directory)
+  LAKEROAD_DIR)

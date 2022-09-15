@@ -67,6 +67,12 @@
                [(ultrascale-plus-lut3 init inputs) (interpret-ultrascale-plus interpret-helper expr)]
                [(ultrascale-plus-lut2 init inputs) (interpret-ultrascale-plus interpret-helper expr)]
                [(ultrascale-plus-lut1 init inputs) (interpret-ultrascale-plus interpret-helper expr)]
+               [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
+                (interpret-ultrascale-plus interpret-helper expr)]
+               [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
+                (interpret-ultrascale-plus interpret-helper expr)]
+               [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
+                (interpret-ultrascale-plus interpret-helper expr)]
                [(ultrascale-plus-dsp48e2 A
                                          ACASCREG
                                          ACIN
@@ -159,6 +165,7 @@
                 (interpret-ultrascale-plus interpret-helper expr)]
                [(lattice-ecp5-pfu lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h inputs)
                 (interpret-lattice-ecp5 interpret-helper expr)]
+               [(lattice-ecp5-lut2 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]
                [(lattice-ecp5-lut4 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]
                [(lattice-ecp5-lut5 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]
                [(lattice-ecp5-lut6 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]
@@ -188,10 +195,12 @@
                                          CIN
                                          inputs)
                 (interpret-lattice-ecp5 interpret-helper expr)]
-               [(sofa-lut1 sram inputs) (interpret-sofa interpret-helper sram inputs)]
-               [(sofa-lut2 sram inputs) (interpret-sofa interpret-helper sram inputs)]
-               [(sofa-lut3 sram inputs) (interpret-sofa interpret-helper sram inputs)]
-               [(sofa-lut4 sram inputs) (interpret-sofa interpret-helper sram inputs)]
+               [(sofa-lut1 sram inputs) (interpret-sofa interpret-helper expr)]
+               [(sofa-lut2 sram inputs) (interpret-sofa interpret-helper expr)]
+               [(sofa-lut3 sram inputs) (interpret-sofa interpret-helper expr)]
+               [(sofa-lut4 sram inputs) (interpret-sofa interpret-helper expr)]
+               [(sofa-frac-lut4 in mode mode-inv sram sram-inv)
+                (interpret-sofa interpret-helper expr)]
                ;;; Generic hardware blocks.
                ;;;
                ;;; Returns a (bitvector 1): the result of looking up the entry specified by `inputs` in

@@ -118,9 +118,6 @@
 
        (match (out-format)
          ["verilog"
-          (when (not (getenv "LAKEROAD_DIR"))
-            (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
-
           (define json-file (json-file-name))
           (define verilog-file (make-temporary-file "rkttmp~a.v"))
           (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)

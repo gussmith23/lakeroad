@@ -109,6 +109,7 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:$PATH"
 
 ENV LAKEROAD_DIR=/root/lakeroad
+ENV PYTHONPATH="${LAKEROAD_DIR}/python:${PYTHONPATH}"
 
 # Build Rust package.
 WORKDIR /root/lakeroad

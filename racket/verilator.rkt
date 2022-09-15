@@ -209,7 +209,8 @@ here-string-delimiter
                     (format "-I~a" include-dir))))
 
    (define makefile-source
-     #<<here-string-delimiter
+     (format
+      #<<here-string-delimiter
 # Builds Verilog .v files into a Verilated testbench.
 # Environment variable arguments:
 # - VERILOG_FILES: The Verilog files to Verilate. These contain the modules to test.
@@ -219,6 +220,10 @@ here-string-delimiter
 # - VERILATOR_INCLUDE_DIR: Path to Verilator's include directory.
 
 VERILATOR = verilator
+VERILATOR_INCLUDE_DIR = ~a
+VERILOG_FILES = ~a
+TESTBENCH = ~a
+VFLAGS = ~a ~a ~a
 
 ifndef VERILATOR_INCLUDE_DIR
 $(error VERILATOR_INCLUDE_DIR is not set)
@@ -232,32 +237,18 @@ ifndef TESTBENCH
 $(error TESTBENCH is not set)
 endif
 
-out: $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(TESTBENCH) $(VERILOG_FILES:.v=.v.o)
+out: $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(TESTBENCH) $(VERILOG_FILES:.v=.vo)
   # -lstdc++ fixes build problems on Mac.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
 	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -faligned-new -lstdc++ -std=c++11 -Wall -Wextra -Werror $^ -o $@
 
-%.v.o: %.v
+%.vo: %.v
   # The CFLAGS values fix issues with timing functions not being found.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
 	+$(VERILATOR) -Wall --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
-  # Copy the compiled result, which is named V<filename>__ALL.o, to <filename>.v.o.
+  # Copy the compiled result, which is named V<filename>__ALL.o, to <filename>.vo.
 	cp $(addprefix $(dir $<)/V, $(patsubst %.v,%__ALL.o,$(notdir $<))) $@
 
-here-string-delimiter
-     ;
-     )
-
-   (display-to-file makefile-source (build-path working-directory "Makefile") #:exists 'error)
-
-   (define make-invocation
-     (format
-      #<<here-string-delimiter
-VERILATOR_INCLUDE_DIR=~a \
-VERILOG_FILES="~a" \
-TESTBENCH=~a \
-VFLAGS="~a ~a ~a" \
-make --no-builtin-rules -j ~a -C ~a out
 here-string-delimiter
       ;
       verilator-include-dir
@@ -265,9 +256,12 @@ here-string-delimiter
       testbench-file
       include-dirs-string
       extra-verilator-args
-      (string-join (map path->string additional-files-to-build) " ")
-      num-make-jobs
-      working-directory))
+      (string-join (map path->string additional-files-to-build) " ")))
+
+   (display-to-file makefile-source (build-path working-directory "Makefile") #:exists 'error)
+
+   (define make-invocation
+     (format "make --no-builtin-rules -j ~a -C ~a out" num-make-jobs working-directory))
 
    (log-info "invoking make:\n~a" make-invocation)
    ;;; It seems like using (process) might be slow? Am I using it wrong?
@@ -334,8 +328,6 @@ here-string-delimiter
                        #:extra-verilator-args [extra-verilator-args ""]
                        #:verilator-jobs [verilator-jobs 2])
   ;;; TODO anonymize.
-  (when (not (getenv "LAKEROAD_DIR"))
-    (error "LAKEROAD_DIR must be set to base dir of Lakeroad"))
 
   (define json-file (make-temporary-file "rkttmp~a.json"))
   (define verilog-file (make-temporary-file "rkttmp~a.v"))
@@ -377,7 +369,7 @@ here-string-delimiter
   (define verilated-type-name
     (format "V~a" (path-replace-extension (file-name-from-path verilog-file) "")))
   (define testbench-source
-    (format (file->string (build-path (getenv "LAKEROAD_DIR") "racket" testbench-filename))
+    (format (file->string (build-path (get-lakeroad-directory) "racket" testbench-filename))
             (path-replace-extension (build-path verilator-make-dir verilated-type-name) ".h")
             verilated-type-name
             (if (>= (length (symbolics bv-expr)) 1)
@@ -444,7 +436,7 @@ here-string-delimiter
   (log-info "~a" testbench-file)
   (display-to-file testbench-source testbench-file #:exists 'update)
 
-  (define verilator-unisims-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+  (define verilator-unisims-dir (build-path (get-lakeroad-directory) "verilator_xilinx"))
   (define includes-string
     (string-join (for/list ([include includes])
                    (format "~a" include))))
