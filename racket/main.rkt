@@ -1,4 +1,4 @@
-#lang rosette/safe
+#lang racket/base
 
 (require rosette
          "synthesize.rkt"
