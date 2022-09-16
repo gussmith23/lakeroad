@@ -1,32 +1,12 @@
 #lang errortrace racket
-(require racket/generic
-         (prefix-in lr: "../language.rkt")
+(require (prefix-in lr: "../language.rkt")
          (submod "primitive-interface.rkt" helpers)
-         "symbolic-allocator.rkt"
          "primitive-interface.rkt")
 
 (provide arch-config-get-lut
          (rename-out [make-signature signature]
                      [make-arch-config arch-config]
                      [make-primitive primitive]))
-
-; This is a _primitive interface_ that primitive structs implement. This allows a
-; primitive struct to register which abstract Lakeroad primitives it implements
-; by providing a procedure to do so.
-;
-; This involves implementing two methods in the `primtive` struct:
-;
-; 1. register-implementation: register an implementation procedure for a
-;    lakeroad primitive.
-;    TODO: what exactly does this function look like?
-; 2. get-implementation: request the primitive struct for an implementation of
-;    the lakeroad primitive. This can act as a simple hash lookup, or it may do
-;    more complicated logic to combine simpler primitives into a more complex
-;    primitive
-;    TODO: how exactly should this work?
-(define-generics lr-primitive-implementation
-  (register-implementation lr-primitive-implementation lr-primitive implementation)
-  (implement-primitive lr-primitive-implementation lr-primitive))
 
 ; A signature captures all input, output, and paramter information provided by a
 ; verilog file. Each inputs/outputs/parameters are a list of name/bitwidth
@@ -117,6 +97,7 @@
                         params
                         formals)))]))
 
+; Test our binding functions
 (module+ test
   (require rackunit)
   (test-begin (let* ([sig (make-signature '(A B C D) '(Z) '((INIT 16)))]
@@ -135,16 +116,11 @@
 
                 (check-equal? (cdr (assoc 'INIT bound-params)) 'INIT))))
 
-; Parameter allocation helper: accepts a (cons name arity) pair and allocates a 
-(define (param-alloc-helper alloc param-pair)
-  (match param-pair 
-    [(cons param-name bw) (alloc bw)]))
-
 ; Get a arch-specific lakeroad expression for a LUT.
 ; TODO: how should we handle
 ; TODO: handle multiple output sizes
 ; TODO: handle larger luts
-(define (arch-config-get-lut sra config inputs num-outputs #:hint [hint '()])
+(define (arch-config-get-lut config inputs num-outputs #:hint [hint '()])
   ; TODO: Handle multi-output luts
   (when (not (= num-outputs 1)) (error "currently only support 1-output luts"))
   (let* (; get luts sorted by length of inputs
@@ -166,14 +142,8 @@
                       (match (first big-luts)
                         [(primitive arch name type sig implementations)
                          (let* (; First, bind actual inputs to the signatures
-                                [bound-inputs (bind-inputs-to-sig inputs sig)]
-                                ; We set up a simple allocator function
-                                [alloc (lambda (bw) (sra-f sra bw #:hint hint))]
-                                ; Next allocate symbolic values for our params
-                                [params (signature-parameters sig)]
-                                [params (for/list ([param params]) (param-alloc-helper alloc param))]
-                                [bound-params (bind-params-to-sig params sig)])
-                           (lr:primitive name bound-inputs bound-params))]))])
+                                [bound-inputs (bind-inputs-to-sig inputs sig)])
+                           (error "todo"))]))])
     lr-expr))
 
 ; This function provides a way for Sketch Generation to get an
@@ -181,19 +151,18 @@
 ;
 ; PARAMS
 ; ======
-; + sra: the symbolic resource allocator
 ; + config: the `arch-config` that will generate the architecture-specific
 ;   primitive
 ; + primitive: the primitive-interface that is to be replaced
 ; + inputs: the lakeroad expressions that will be created
-(define (arch-config-get-primitive sra config primitive inputs #:hint [hint '()])
+(define (arch-config-get-primitive config primitive inputs #:hint [hint '()])
   (or (primitive-interface? primitive)
       (error (format "arch-config-get-primitive expected a primitive-interface? but got ~a"
                      primitive)))
   (define type (primitive-interface-type primitive))
   (define num-outputs (primitive-interface-num-outputs primitive))
   (match type
-    ['LUT (arch-config-get-lut sra config inputs num-outputs #:hint hint)]
+    ['LUT (arch-config-get-lut config inputs num-outputs #:hint hint)]
     ['MUX (error "todo")]
     [_ (error "todo")]))
 

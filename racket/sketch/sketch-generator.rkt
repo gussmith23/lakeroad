@@ -5,17 +5,13 @@
          "../logical-to-physical.rkt"
          "../utils.rkt"
          "arch-config.rkt"
-         "symbolic-allocator.rkt"
          "primitive-interface.rkt"
          (submod "primitive-interface.rkt" helpers))
 
 ; Recursively visit a sketch template and replace all primitive-interfaces with values
 ; provided by the arch-config
-(define (generate-sketch sketch-template arch-config #:symbolic-allocator [symb-alloc #f])
+(define (generate-sketch sketch-template arch-config)
 
-  ; Make a default symbolic allocator if we need to
-  (define sra (if symb-alloc symballoc (symbolic-allocator)))
-  
   (define (replacer expr)
     (match expr
       [(? lut? template) (arch-config-get-lut arch-config (primitive-interface-num-inputs template))]
