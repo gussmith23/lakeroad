@@ -283,4 +283,48 @@
                                           (assert (bveq (bvmul a b)
                                                         (signal-value
                                                          (tick-clock clock-ticks a b)))))))
-      (bv 3 bw)))))
+      (bv 3 bw))))
+
+  ;; (Simulated) Bit Serial Adder
+  (define (bit-serial-adder clk a b)
+    (let* (;
+           [merged-state (merge-state (list clk a b))]
+           [old-clk (if (hash-has-key? merged-state 'clk) (hash-ref merged-state 'clk) (bv 0 1))]
+           [current-clk (signal-value clk)]
+           [clock-ticked (rising-edge old-clk current-clk)]
+           [current-a (signal-value a)]
+           [current-b (signal-value b)]
+           [rst-reg (if (hash-has-key? merged-state 'rst) (hash-ref merged-state 'rst) (bv 0 1))]
+           [carry-reg
+            (if (hash-has-key? merged-state 'carry) (hash-ref merged-state 'carry) (bv 0 1))]
+           [new-rst-reg
+            (if clock-ticked (concat (bvxor carry-reg current-a current-b) rst-reg) rst-reg)]
+           [new-carry-reg (if clock-ticked
+                              (bvor (bvand current-a current-b)
+                                    (bvand carry-reg current-a)
+                                    (bvand carry-reg current-b))
+                              carry-reg)]
+           [out (signal new-rst-reg (hash 'clk current-clk 'rst new-rst-reg 'carry new-carry-reg))])
+      out))
+
+  (test-case
+   "Test bit-serial adder"
+   (begin ;
+     ;;;
+     (define-bounded
+      (tick-clock n a b #:previous-value [previous-value (bv->signal (bv 0 1))])
+      (if (= n 0)
+          previous-value
+          (let* ([out0 (bit-serial-adder (bv->signal (bv 0 1) previous-value)
+                                         (bv->signal (lsb a))
+                                         (bv->signal (lsb b)))]
+                 [out1 (bit-serial-adder (bv->signal (bv 1 1) out0)
+                                         (bv->signal (lsb a))
+                                         (bv->signal (lsb b)))])
+            (tick-clock (- n 1) (rotate-right 1 a) (rotate-right 1 b) #:previous-value out1))))
+     (check-equal? (signal-value (experimental-interpreter (tick-clock 8 (bv 7 8) (bv 8 8))))
+                   (concat (bv 15 8) (bv 0 1)))
+     (check-equal? (signal-value (experimental-interpreter (tick-clock 8 (bv 5 8) (bv 6 8))))
+                   (concat (bv 11 8) (bv 0 1)))
+     (check-equal? (signal-value (experimental-interpreter (tick-clock 8 (bv 64 8) (bv 16 8))))
+                   (concat (bv 80 8) (bv 0 1))))))
