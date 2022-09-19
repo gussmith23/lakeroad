@@ -807,7 +807,8 @@
 (define (rosette-synthesize bv-expr
                             lakeroad-expr
                             #:extra-forall [inputs '()]
-                            #:extra-guarantee [expr '()])
+                            #:extra-guarantee [expr '()]
+                            #:multi-cycle [multi-cycle #f])
   ;; (interpret lakeroad-expr)
 
   (define soln
@@ -815,9 +816,6 @@
                 #:guarantee (begin
                               expr
                               (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-  (when (not (sat? soln))
-    (error "expected sat soln"))
 
   (if (sat? soln)
       (evaluate
