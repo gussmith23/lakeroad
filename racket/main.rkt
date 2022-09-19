@@ -32,7 +32,7 @@
 (define module-names (make-parameter '() (lambda (name) name)))
 (define json-file-name (make-parameter (make-temporary-file "rkttmp~a.json") (lambda (name) name)))
 (define template-timeout
-  (make-parameter '() (lambda (to) (if (equal? "0" to) #f (string->number to)))))
+  (make-parameter #f (lambda (to) (if (equal? "0" to) #f (string->number to)))))
 
 (command-line
  #:program "lakeroad"
