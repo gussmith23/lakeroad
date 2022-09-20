@@ -26,41 +26,166 @@
 
 ; Represents an architecture-specific primitive
 ;
-; + arch: the name of the architecture
-; + name: the name of the primitive (this is the Verilog module name, e.g. "LUT4")
-; + type: the 'type' of this primitive (e.g., 'LUT, 'MUX)
-;
-;         TODO: `type` is redundant to `implementations` but I haven't figured
-;         out how `implementations` will work yet
+; + architecture: the name of the architecture
+; + name: the name of the primitive (this is the Verilog module name, e.g. 'LUT4)
+; + type: the type of this primitive, if applicable (e.g., 'LUT, 'MUX', 'DSP, 'OTHER)
 ; + signature: the signature of this
-; + implementations: TODO: This is not used currently but should specify how to
-;   use this arch-specific primitive to implement primitive interfaces. This will
-;   make `type` redundant.
-; + inputs
-(struct primitive (arch name type signature implementations))
+(struct primitive (architecture name type signature))
 
+; make-primitive: a wrapper around the `primitive` constructor. This gives a
+; static description of an architecture-specific primitive and is later
+; translated to a lr:primitive during sketch generation.
+;
+; Parameters
+; ----------
+; + architecture: the name of the architecture
+; + name: name of the primitive (this should be the Verilog module name, e.g. 'LUT4)
+; + signature: a `signature` object representing names and types of inputs,
+;   ouptuts, and paramaters: use (signature ...) to construct (defined above as
+;   make-signature and renamed-out to signature)
+; + #:type: the type of this primitive, defaults to 'OTHER
 ; NOTE: We rename-out this to `primitive` to mask the struct's constructor
-(define (make-primitive arch name type signature #:implementations [implementations #f])
-  (let ([impls (or implementations (make-hash))]) (primitive arch name type signature (make-hash))))
+(define (make-primitive architecture name signature #:type [type 'OTHER])
+  (primitive architecture name type signature))
 
-; architecture: name of the architecture
-; primitives: a list of all primitives in this architecture
-; luts: list of lut primitives supported by the architecture
-; muxes: list of mux primitives supported by the architecture
-; other: list of other primitives supported by the architecture
-(struct arch-config (architecture primitives luts muxes other) #:transparent)
+; arch-config
+;
+; An arch-config struct represents an architecture configuration used during sketch generation.
+; This struct contains the following data:
+;
+; + arch-name: the string-name of the architecture that this config applies to
+; + primitives: a list of the raw `primitive` structs contained by this
+;   arch-config
+; + implementations: this is a function with the signature:
+;
+;     f: arch-config, primitive-interface, #:symbolic-state -> lr:primitive, symbolic-state
+;
+; In detail, implementations takes the following inputs and outputs
+;
+; `implementations` inputs
+; ------------------------
+; + an arch-config describing the architecture that will be implementing the
+;   primtive-interface
+; + a primitive-interface to be implemented with the arch-config
+; + Optionally, a keyword argument #:symbolic-state that defaults to #f. This
+;   can be used to pass in an opaque reference to some symbolic state to be
+;   reused from another primitive. We describe the motivation for this parameter
+;   in more detail below
+;
+; `implementations` outputs
+;
+(struct arch-config (arch-name primitives implementations) #:transparent)
 
+; make-arch-config: a wrapper around the `arch-config` constructor.
+;
+; TODO: document function
 ; NOTE: We rename-out this to `arch-config` to mask the struct's constructor
-(define (make-arch-config architecture primitives)
-  (let* ([luts (for/list ([prim primitives] #:when (eq? (primitive-type prim) 'LUT))
-                 prim)]
-         [muxes (for/list ([prim primitives] #:when (eq? (primitive-type prim) 'MUX))
-                  prim)]
-         [other (for/list ([prim primitives]
-                           #:when (and (not (eq? (primitive-type prim) 'LUT))
-                                       (not (eq? (primitive-type prim) 'MUX))))
-                  prim)])
-    (arch-config architecture primitives luts muxes other)))
+(define (make-arch-config architecture primitives implementations)
+  (arch-config architecture primitives implementations))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   HELPER FUNCTIONS   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; get-interface-impl
+;
+; This is a helper function to pull out an arch-config's `implementions`
+; function and use it to impelemnt a primtive-interface.
+(define (get-interface-impl config primitive-interface #:symbolic-state [symbolic-state #f])
+  (let ([fn (arch-config-implementations config)]) (fn config primitive-interface symbolic-state)))
+
+; This is an architecture-agnostic helper function that recursively creates a
+; LUT-n from smaller LUTs.
+;
+; This design takes the following pieces of data as arugments:
+;
+; Parameters
+; ----------
+; + lut-prim-interface: the `primitive-interface` that we are trying to implement
+; + arch-specific-lut: a `primitive` struct of the architecture-specific LUT we
+;       will be using to build a larger LUT. This is provided to determine when
+;       a basecase is reached.
+; + fn-make-arch-specific-lut: this is a function provided by the arch config to
+;       create an arch-specific-lut. This is invoked by this function once a
+;       basecase is reached
+;       TODO: specify signature
+; + fn-make-arch-specific-mux21: similar to fn-make-arch-specific-lut, this
+;       function is provided by the arch-config to create an arch-specific mux
+;       2->1. This is invoked to combine recursive calls
+; + #:symbolic-state: optional symbolic state to be passed along recursively.
+(define (recursively-create-lut lut-prim-interface
+                                arch-specific-lut
+                                fn-make-arch-specific-lut
+                                fn-make-arch-specific-mux21
+                                #:symbolic-state [symbolic-state #f])
+  (match-let* (; First, destructure the primitive-interface
+               [(primitive-interface type interface-sig actual-inputs) lut-prim-interface]
+               [(interface-signature interface-inputs interface-outputs) interface-sig]
+               ; Next, destructure the arch-specific primitive
+               [(primitive arch name type arch-sig) arch-specific-lut]
+               [(signature arch-inputs arch-outputs arch-params) arch-sig]
+
+               ; Now we want to determine if the architecture can implement the
+               ; primitive directly. This is equivalent to checking that the interface
+               ; inputs is not longer than the arch-specific inputs
+               [arch-can-impl-prim-interface (<= (length interface-inputs) (length arch-inputs))])
+    (if (arch-can-impl-prim-interface)
+        ; We can implement this w/ an arch primitive, so let's do it
+        (fn-make-arch-specific-lut actual-inputs #:symbolic-state symbolic-state)
+
+        ; We can't implement this directly so we build it recursively
+        (begin
+          ; We want to build this recursively. First, let's deconstruct symbolic
+          ; state and make sure it looks right. There are two possible valid
+          ; forms that symbolic state can take:
+          ; 1. (list LEFT-LUT-STATE MUX-STATE RIGHT-LUT-STATE)
+          ; 2. #f (which gets expanded to form 1: (list #f #f #f))
+          (match-define (list left-sym-state mux-sym-state right-sym-state)
+            (match symbolic-state
+              [(list left mux right) symbolic-state]
+              [#f (list #f #f #f)]
+              [else
+               (error (format "Invalid symbolic state ~a for recursively creating a lut"
+                              symbolic-state))]))
+          ; Next w build a LUT N out of two LUT N-1s and a MUX. We use Bit N as the
+          ; MUX selector bit, and Bits 1..N-1 as the inputs to the two LUT N-1s.
+          (match-let*
+              (; Break up the actual inputs. We use the next (left-most)
+               ; input as a selector bit for our MUX, and the rest are
+               ; past down recursively
+               [(cons selector-bit rest-actual-inputs) actual-inputs]
+               ; Next, create a smaller primitive-interface for our
+               ; recursive calls to target. We use the values that we
+               ; destructured above at the start of this function
+               [(cons next-interface-input-sig rest-interface-input-sigs) interface-inputs]
+               [smaller-sig (interface-signature rest-interface-input-sig interface-outputs)]
+               [smaller-prim-interface (primitive-interface type smaller-sig rest-actual-inputs)]
+
+               ; Okay, we've built the smaller primitive interface and
+               ; we use this to recursively build two new LUTs and get
+               ; their associated symbolic state.
+               [(cons left-result left-state)
+                (recursively-create-lut smaller-prim-interface
+                                        arch-specific-lut
+                                        fn-make-arch-specific-lut
+                                        fn-make-arch-specific-mux21
+                                        #:symbolic-state left-sym-state)]
+               [(cons right-result right-state)
+                (recursively-create-lut smaller-prim-interface
+                                        arch-specific-lut
+                                        fn-make-arch-specific-lut
+                                        fn-make-arch-specific-mux21
+                                        #:symbolic-state right-sym-state)]
+               ; Then, combine the two recursively-defined LUTs w/ a mux
+               [(cons mux mux-state) (fn-make-arch-specific-mux21 selector-bit
+                                                                  left-result
+                                                                  right-result
+                                                                  next-actual-input
+                                                                  #:symbolic-state mux-sym-state)]
+               ; Finally, combine the symbolic state from the two LUTs and the
+               ; MUX into the opaque symbolic state representation
+               [sym-state (list left-state mux-state right-state)])
+            (cons mux sym-state))))))
 
 ; Create an association-list mapping input names defined in `sig` to the actual
 ; input values provided by `inputs`, effectively 'binding' the input values to
@@ -116,59 +241,28 @@
 
                 (check-equal? (cdr (assoc 'INIT bound-params)) 'INIT))))
 
-; Get a arch-specific lakeroad expression for a LUT.
-; TODO: how should we handle
-; TODO: handle multiple output sizes
-; TODO: handle larger luts
-(define (arch-config-get-lut config inputs num-outputs #:hint [hint '()])
-  ; TODO: Handle multi-output luts
-  (when (not (= num-outputs 1)) (error "currently only support 1-output luts"))
-  (let* (; get luts sorted by length of inputs
-         [num-input-bits (length inputs)]
-         [luts (sort (arch-config-luts config)
-                     (lambda (a b)
-                       (< (length (signature-inputs (primitive-signature a)))
-                          (length (signature-inputs (primitive-signature b))))))]
-
-         ; Get all luts that are big enough to handle num-input-bits and use the
-         ; smallest one.
-         ;
-         ; Also: I like big LUTs and I cannot lie
-         [big-luts (filter (lambda (l)
-                             (>= (length (signature-inputs (primitive-signature l))) num-input-bits))
-                           luts)]
-         [lr-expr (if (empty? big-luts)
-                      (error "TODO: create larger lut")
-                      (match (first big-luts)
-                        [(primitive arch name type sig implementations)
-                         (let* (; First, bind actual inputs to the signatures
-                                [bound-inputs (bind-inputs-to-sig inputs sig)])
-                           (error "todo"))]))])
-    lr-expr))
-
-; This function provides a way for Sketch Generation to get an
-; architecture-specific primitive to replace a primitive-interface in a sketch.
-;
-; PARAMS
-; ======
-; + config: the `arch-config` that will generate the architecture-specific
-;   primitive
-; + primitive: the primitive-interface that is to be replaced
-; + inputs: the lakeroad expressions that will be created
-(define (arch-config-get-primitive config primitive inputs #:hint [hint '()])
-  (or (primitive-interface? primitive)
-      (error (format "arch-config-get-primitive expected a primitive-interface? but got ~a"
-                     primitive)))
-  (define type (primitive-interface-type primitive))
-  (define num-outputs (primitive-interface-num-outputs primitive))
-  (match type
-    ['LUT (arch-config-get-lut config inputs num-outputs #:hint hint)]
-    ['MUX (error "todo")]
-    [_ (error "todo")]))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    EXAMPLES    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; ---------------------------------------------------------------------------- ;
+;;;;;;;;;;;;;;;;;;;;  A Sample Lattice ECP5 Implementation ;;;;;;;;;;;;;;;;;;;;;
+; ---------------------------------------------------------------------------- ;
+
+; This function is responsible for implementing primitive interfaces for
+; lattice-ecp5. This will be used as the `implementations` field of the
+; `arch-config` struct
+(define (ecp5:lattice:impl config prim-interface #:symbolic-state [symbolic-state #f])
+  (match-define
+    (primitive-interface type (interface-signature formal-ins formal-outs) actuals)
+    prim-interface)
+  (match type
+    ['LUT      ; Make a LUT
+     (cond [(<= (length formal-ins ) 4) (error "todo")]
+           [(> (length formal-ins ) 4) (error "todo")])]
+    ['MUX
+     (cond [_ (error "todo")])])
+  )
 
 (define ecp5:lut4
   (make-primitive "Lattice-ECP5"
