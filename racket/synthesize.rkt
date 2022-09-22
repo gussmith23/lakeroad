@@ -37,8 +37,6 @@
                (synthesize-using-lut 'xilinx-ultrascale-plus 1))
          (cons "synthesize_xilinx_ultrascale_plus_kitchen_sink"
                synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
-         (cons "synthesize-xilinx-ultrascale-plus-impl-smaller-luts"
-               synthesize-xilinx-ultrascale-plus-impl-smaller-luts)
          (cons "synthesize_lattice_ecp5_for_pfu" synthesize-lattice-ecp5-for-pfu)
          (cons "synthesize_lattice_ecp5_for_ripple_pfu" synthesize-lattice-ecp5-for-ripple-pfu)
          (cons "synthesize_lattice_ecp5_for_ccu2c" synthesize-lattice-ecp5-for-ccu2c)
