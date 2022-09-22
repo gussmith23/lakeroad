@@ -134,7 +134,6 @@
     (define lakeroad-expr
       ((if carry? template:lut-with-carry template:lut) nbits arch inputs lutmems (bvlen bv-expr)))
 
-    (assert (bveq bv-expr (interpret lakeroad-expr)))
     (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
 
 ;;; A function which, when given an architecture, a target number of lutmems,
@@ -159,7 +158,6 @@
         lutmem))
 
     (define lakeroad-expr (template:comparison nbits arch inputs lutmems))
-    (assert (bveq bv-expr (interpret lakeroad-expr)))
     (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
 
 ;;;;;;
@@ -464,7 +462,6 @@
      (assume (bvzero? unnamed-input-806))
      (assume (bvzero? unnamed-input-850))
 
-     (assert (bveq bv-expr (interpret lakeroad-expr)))
      (rosette-synthesize bv-expr
                          lakeroad-expr
                          (append (symbolics bv-expr)
@@ -574,7 +571,6 @@
                 0
                 (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
                                                        physical-outputs))))
-  (assert (bveq bv-expr (interpret lakeroad-expr)))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 ;;; Synthesizes a lattice expression using ccu2c modules.
@@ -628,7 +624,6 @@
                this-cout))
            initial-cin
            logical-inputs-per-ccu2c))
-  (assert (bveq bv-expr (interpret lakeroad-expr)))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 ;;; Synthesizes a lattice expression using multiple ccu2c modules.
@@ -741,7 +736,6 @@
              cin
              inputs)))
 
-  (assert (bveq bv-expr (interpret lakeroad-expr)))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 (define (synthesize-lattice-ecp5-for-ripple-pfu bv-expr)
@@ -809,13 +803,13 @@
                 0
                 (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
                                                        physical-output))))
-  (assert (bveq bv-expr (interpret lakeroad-expr)))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 (define (rosette-synthesize bv-expr lakeroad-expr inputs #:multi-cycle [multi-cycle #f])
   ;; (interpret lakeroad-expr)
 
-  (define soln (synthesize #:forall inputs #:guarantee '()))
+  (define soln
+    (synthesize #:forall inputs #:guarantee (assert (bveq bv-expr (interpret lakeroad-expr)))))
 
   (if (sat? soln)
       (evaluate
@@ -875,7 +869,6 @@
 
   (define lakeroad-expr (lr:extract (sub1 out-bw) 0 logical-output))
 
-  (assert (bveq bv-expr (interpret lakeroad-expr)))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 (define (synthesize-lattice-ecp5-multiply-circt bv-expr)
@@ -899,7 +892,6 @@
         (define a (first logical-inputs))
         (define b (second logical-inputs))
         (define lakeroad-expr (lattice-mul-with-carry out-bw a b))
-        (assert (bveq bv-expr (interpret lakeroad-expr)))
         (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))))
 
 ;;; make-wire-lrexpr: a helper function for `synthesize-wire`. This creates a FULL
@@ -953,7 +945,6 @@
       [else (error "Invalid shift-by: ~a" shift-by)]))
 
   (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
-  (assert (bveq bv-expr (interpret lakeroad-expr)))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 (module+ test
