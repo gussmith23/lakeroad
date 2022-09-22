@@ -1,10 +1,11 @@
-#lang racket
+#lang errortrace racket
 
 (require rosette
          "synthesize.rkt"
          "compile-to-json.rkt"
          "circt-comb-operators.rkt"
-         json)
+         json
+         racket/sandbox)
 
 (define architecture
   (make-parameter ""
@@ -20,41 +21,41 @@
                     (match v
                       [(or "verilog") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
-(define finish-when
-  (make-parameter 'first-to-succeed
-                  (lambda (v)
-                    (case v
-                      [("exhaustive") 'exhaustive]
-                      [("first-to-succeed") 'first-to-succeed]
-                      [else (error (format "Unsupported finish condition ~a." v))]))))
-
-(define instructions (make-parameter '() (lambda (instr) instr)))
-(define module-names (make-parameter '() (lambda (name) name)))
-(define json-file-name (make-parameter (make-temporary-file "rkttmp~a.json") (lambda (name) name)))
+(define instruction (make-parameter #f identity))
+(define module-name (make-parameter #f identity))
+(define json-filepath (make-parameter (make-temporary-file "rkttmp~a.json") identity))
+(define out-filepath (make-parameter #f identity))
 (define template-timeout
   (make-parameter #f (lambda (to) (if (equal? "0" to) #f (string->number to)))))
+(define template (make-parameter #f identity))
 
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
  ["--out-format" fmt "Output format. Supported: 'verilog'" (out-format fmt)]
- ["--json-file" name "JSON file to output to" (json-file-name name)]
- ;;; A better API might be to to default to first-to-succeed, and toggle exhaustive with a flag?
- ["--finish-when" c "Condition to stop synthesis" (finish-when c)]
+ ["--json-filepath"
+  v
+  "JSON file to output to. JSON is our intermediate representation. Defaults to a temporary file; set"
+  " this flag if you would like access to the JSON file."
+  (json-filepath v)]
+ ["--out-filepath"
+  v
+  "Output filepath, where the output file is in the format requested."
+  (out-filepath v)]
+ ["--template"
+  v
+  "Specifies which template to synthesize with. When not set, the synthesis procedure will run"
+  " through all relevant templates for the architecture until one works."
+  (template v)]
  ["--timeout" timeout "Timeout in seconds for each template" (template-timeout timeout)]
  #:once-any
  #:multi
  [("--instruction")
-  instr
-  "The instruction to synthesize, written in Rosette bitvector semantics. Use (var <name> <bw>) to indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
-  (instructions (append (instructions) (list instr)))]
- [("--module-name")
-  module-name
-  "Name given to the module produced. Each --instruction should be paired with a --module-name."
-  (module-names (append (module-names) (list module-name)))])
-
-(when (not (equal? (length (instructions)) (length (module-names))))
-  (error "There should be one --module-name per --instruction."))
+  v
+  "The instruction to synthesize, written in Rosette bitvector semantics. Use (var <name> <bw>) to"
+  " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
+  (instruction v)]
+ [("--module-name") v "Name given to the module produced." (module-name v)])
 
 ;;; Parse instruction.
 ;;;
@@ -85,53 +86,55 @@
 
   (helper expr))
 
-;;; Synthesize a Lakeroad implementation of the given instruction.
+;;; Synthesize a Lakeroad implementation of the given bv-expr.
 ;;;
 ;;; Returns a Lakeroad expression.
-(define (synthesize instruction architecture finish-when #:timeout [timeout #f])
-  (match architecture
-    ["xilinx-ultrascale-plus" (synthesize-xilinx-ultrascale-plus-impl instruction finish-when)]
-    ["lattice-ecp5" (synthesize-lattice-ecp5-impl instruction finish-when #:timeout timeout)]
-    ["sofa" (synthesize-sofa-impl instruction finish-when)]
-    [other
-     (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
-                    other))]))
+(define (synthesize bv-expr template architecture #:timeout [timeout #f])
+  (let ([result
+         (with-vc
+          (with-terms
+           (if (template)
+               ;;; If the template is set, use that template explicitly.
+               ;;; If it times out, return false.
+               (with-handlers ([exn:fail:resource? (lambda (_) #f)])
+                 (call-with-limits timeout
+                                   #f
+                                   (lambda () ((hash-ref (template-map) (template)) bv-expr))))
 
-(for ([instruction (instructions)] [module-name (module-names)])
-  (define bv-expr (parse-instruction (read (open-input-string instruction))))
-  (define all-exprs
-    (match (finish-when)
-      ['first-to-succeed
-       (list (synthesize bv-expr (architecture) 'first-to-succeed #:timeout (template-timeout)))]
-      ['exhaustive (synthesize bv-expr (architecture) 'exhaustive #:timeout (template-timeout))]))
+               ;;; Otherwise, use the helper functions in synthesize.rkt for the specific architecture
+               ;;; to attempt multiple templates.
+               (match architecture
+                 ["xilinx-ultrascale-plus"
+                  (synthesize-xilinx-ultrascale-plus-impl bv-expr 'first-to-succeed)]
+                 ["lattice-ecp5"
+                  (displayln "Hi")
+                  (synthesize-lattice-ecp5-impl bv-expr 'first-to-succeed #:timeout timeout)]
+                 ["sofa" (synthesize-sofa-impl bv-expr 'first-to-succeed)]
+                 [other
+                  (error (format
+                          "Invalid architecture given (value: ~a). Did you specify --architecture?"
+                          other))]))))])
+    (when (failed? result)
+      (error "Failed: ~a" result))
+    (result-value result)))
 
-  (for ([i (in-naturals 1)] [lakeroad-expr all-exprs])
-    (cond
-      [(not lakeroad-expr) (displayln (format "Warning: synthesis routine returned #f"))]
+(define bv-expr (parse-instruction (read (open-input-string (instruction)))))
 
-      [else
-       ;;; TODO(@gussmith23): Rosette incorrectly accepts (if ... (begin (define x ...) ...) ...). If
-       ;;; we switch to Racket, this code will fail. It's probably best to change this away from using
-       ;;; defines.
-       (define json-source
-         (lakeroad->jsexpr lakeroad-expr #:module-name (format "~a_~a" module-name i)))
+(define lakeroad-expr (synthesize bv-expr template (architecture) #:timeout (template-timeout)))
 
-       (match (out-format)
-         ["verilog"
-          (define json-file (json-file-name))
-          (define verilog-file (make-temporary-file "rkttmp~a.v"))
-          (display-to-file (jsexpr->string json-source) json-file #:exists 'replace)
-          (when (not (with-output-to-string
-                      (lambda ()
-                        (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
-                                        json-file
-                                        verilog-file)))))
-            (error "Converting JSON to Verilog via Yosys failed."))
+(cond
+  [(not lakeroad-expr) (error "Synthesis failed.")]
 
-          ;;; TODO(@gussmith23): Support returning multiple files.
-          (displayln (file->string verilog-file))])])
-    (displayln ""))
+  [else
+   (define json-source (lakeroad->jsexpr lakeroad-expr #:module-name (module-name)))
+   (display-to-file (jsexpr->string json-source) (json-filepath) #:exists 'replace)
 
-  ;;; Clean up the VC and un-bind the symbolic terms created for this instruction.
-  (clear-vc!)
-  (clear-terms! (symbolics bv-expr)))
+   (match (out-format)
+     ["verilog"
+      (when (not (with-output-to-string (lambda ()
+                                          (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
+                                                          (json-filepath)
+                                                          (out-filepath))))))
+        (error "Converting JSON to Verilog via Yosys failed."))]
+
+     [_ (error "Invalid output format.")])])
