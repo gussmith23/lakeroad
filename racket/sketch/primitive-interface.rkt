@@ -88,5 +88,5 @@
   (require rackunit)
   (check-true (lut? (lut4-interface '(1 2 3 4))))
   (check-false (mux? (lut4-interface '(1 2 3 4))))
-  (check-true (mux? (mux21-interface '(1 2 3))))
-  (check-false (lut? (mux21-interface '(1 2 3)))))
+  (check-true (mux? (mux21-interface 1 2 3)))
+  (check-false (lut? (mux21-interface 1 2 3))))
