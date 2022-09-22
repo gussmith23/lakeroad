@@ -65,7 +65,8 @@
 
 ; NOTE: We rename-out this to `interface-signature` to mask the struct's constructor
 (define (make-interface-signature formal-inputs formal-outputs)
-  (interface-signature (normalize-signature-values formal-inputs) (normalize-signature-values formal-outputs)))
+  (interface-signature (normalize-signature-values formal-inputs)
+                       (normalize-signature-values formal-outputs)))
 
 (define (lut4-interface inputs)
   (make-primitive-interface 'LUT (make-interface-signature '(I0 I1 I2 I3) '(O)) inputs))
