@@ -134,20 +134,7 @@
     (define lakeroad-expr
       ((if carry? template:lut-with-carry template:lut) nbits arch inputs lutmems (bvlen bv-expr)))
 
-    (interpret lakeroad-expr)
-    (define soln
-      ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-      ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-      (synthesize #:forall (symbolics bv-expr)
-                  #:guarantee (begin
-                                (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-    (if (sat? soln)
-        (evaluate lakeroad-expr
-                  (complete-solution soln
-                                     (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                              (list->set (symbolics bv-expr))))))
-        #f)))
+    (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
 
 ;;; A function which, when given an architecture, a target number of lutmems,
 ;;; and a number of arguments to pad the inputs to,
@@ -171,21 +158,7 @@
         lutmem))
 
     (define lakeroad-expr (template:comparison nbits arch inputs lutmems))
-
-    (interpret lakeroad-expr)
-    (define soln
-      ; TODO(@gussmith23) Time synthesis. For some reason, time-apply doesn't mix well with synthesize.
-      ; And time just prints to stdout, which is not ideal (but we could deal with it if necessary).
-      (synthesize #:forall (symbolics bv-expr)
-                  #:guarantee (begin
-                                (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-    (if (sat? soln)
-        (evaluate lakeroad-expr
-                  (complete-solution soln
-                                     (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                              (list->set (symbolics bv-expr))))))
-        #f)))
+    (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
 
 ;;;;;;
 ;;;
@@ -395,118 +368,108 @@
                                                       unnamed-input-750
                                                       unnamed-input-806
                                                       unnamed-input-850))))
-     (define soln
-       (synthesize
-        #:forall (append (symbolics bv-expr)
-                         (list unnamed-input-331
-                               unnamed-input-488
-                               unnamed-input-750
-                               unnamed-input-806
-                               unnamed-input-850))
-        #:guarantee
-        (begin
-          ;;; For some reason I can't get this working for the full
-          ;;; bitwidth. I expect it to work for 26x17 (because we do
-          ;;; unsigned mult, but DSP is signed, so we can't use all
-          ;;; 27/18 bits.) 16x16 seems to be the most I can get.
-          (assume (bvult A (bv (expt 2 16) 30)))
-          (assume (bvult B (bv (expt 2 16) 18)))
 
-          ;;; Force to DYNAMIC to avoid:
-          ;;;
-          ;;; OPMODE Input Warning : [Unisim DSP48E2-8] The OPMODE[1:0] (11) is
-          ;;; invalid when using attributes USE_MULT = MULTIPLY and (A, B and
-          ;;; M) or (A, B and P) or (M and P) are not REGISTERED at time 0.000
-          ;;; ns. Please set USE_MULT to either NONE or DYNAMIC or REGISTER one
-          ;;; of each group. (A or B) and (M or P) will satisfy the
-          ;;; requirement. Instance TOP.top.DSP48E2_0
-          (assert (bveq USE_MULT (bv 18 5)))
+     ;;; For some reason I can't get this working for the full
+     ;;; bitwidth. I expect it to work for 26x17 (because we do
+     ;;; unsigned mult, but DSP is signed, so we can't use all
+     ;;; 27/18 bits.) 16x16 seems to be the most I can get.
+     (assume (bvult A (bv (expt 2 16) 30)))
+     (assume (bvult B (bv (expt 2 16) 18)))
 
-          (assert (bvzero? CARRYIN))
-          (assert (bvzero? CARRYCASCIN))
+     ;;; Force to DYNAMIC to avoid:
+     ;;;
+     ;;; OPMODE Input Warning : [Unisim DSP48E2-8] The OPMODE[1:0] (11) is
+     ;;; invalid when using attributes USE_MULT = MULTIPLY and (A, B and
+     ;;; M) or (A, B and P) or (M and P) are not REGISTERED at time 0.000
+     ;;; ns. Please set USE_MULT to either NONE or DYNAMIC or REGISTER one
+     ;;; of each group. (A or B) and (M or P) will satisfy the
+     ;;; requirement. Instance TOP.top.DSP48E2_0
+     (assert (bveq USE_MULT (bv 18 5)))
 
-          (assert (bvzero? CLK))
+     (assert (bvzero? CARRYIN))
+     (assert (bvzero? CARRYCASCIN))
 
-          (assert (bvzero? PCIN))
-          (assert (bvzero? ACIN))
-          (assert (bvzero? BCIN))
-          ;;;(assert (bvzero? MASK))
-          ;;;(assert (bvzero? PATTERN))
-          ;;;(assert (bvzero? RND))
-          (assert (bvzero? RSTA))
-          (assert (bvzero? RSTALLCARRYIN))
-          (assert (bvzero? RSTALUMODE))
-          (assert (bvzero? RSTB))
-          (assert (bvzero? RSTC))
-          (assert (bvzero? RSTCTRL))
-          (assert (bvzero? RSTD))
-          (assert (bvzero? RSTINMODE))
-          (assert (bvzero? RSTM))
-          (assert (bvzero? RSTP))
-          (assert (bvzero? AREG))
-          (assert (bvzero? ADREG))
-          (assert (bvzero? ACASCREG))
-          (assert (bvzero? BREG))
-          (assert (bvzero? BCASCREG))
-          (assert (bvzero? CREG))
-          (assert (bvzero? DREG))
-          (assert (bvzero? PREG))
-          (assert (bvzero? MREG))
-          (assert (bvzero? INMODEREG))
-          (assert (bvzero? OPMODEREG))
-          (assert (bvzero? ALUMODEREG))
-          (assert (bvzero? CARRYINREG))
-          (assert (bvzero? CARRYINSELREG))
-          (assert (bvzero? CARRYINSEL))
-          (assert (bvzero? MULTSIGNIN))
+     (assert (bvzero? CLK))
 
-          (assert (bvzero? IS_ALUMODE_INVERTED))
-          (assert (bvzero? IS_CARRYIN_INVERTED))
-          (assert (bvzero? IS_CLK_INVERTED))
-          (assert (bvzero? IS_INMODE_INVERTED))
-          (assert (bvzero? IS_OPMODE_INVERTED))
-          (assert (bvzero? IS_RSTALLCARRYIN_INVERTED))
-          (assert (bvzero? IS_RSTALUMODE_INVERTED))
-          (assert (bvzero? IS_RSTA_INVERTED))
-          (assert (bvzero? IS_RSTB_INVERTED))
-          (assert (bvzero? IS_RSTCTRL_INVERTED))
-          (assert (bvzero? IS_RSTC_INVERTED))
-          (assert (bvzero? IS_RSTD_INVERTED))
-          (assert (bvzero? IS_RSTINMODE_INVERTED))
-          (assert (bvzero? IS_RSTM_INVERTED))
-          (assert (bvzero? IS_RSTP_INVERTED))
+     (assert (bvzero? PCIN))
+     (assert (bvzero? ACIN))
+     (assert (bvzero? BCIN))
+     ;;;(assert (bvzero? MASK))
+     ;;;(assert (bvzero? PATTERN))
+     ;;;(assert (bvzero? RND))
+     (assert (bvzero? RSTA))
+     (assert (bvzero? RSTALLCARRYIN))
+     (assert (bvzero? RSTALUMODE))
+     (assert (bvzero? RSTB))
+     (assert (bvzero? RSTC))
+     (assert (bvzero? RSTCTRL))
+     (assert (bvzero? RSTD))
+     (assert (bvzero? RSTINMODE))
+     (assert (bvzero? RSTM))
+     (assert (bvzero? RSTP))
+     (assert (bvzero? AREG))
+     (assert (bvzero? ADREG))
+     (assert (bvzero? ACASCREG))
+     (assert (bvzero? BREG))
+     (assert (bvzero? BCASCREG))
+     (assert (bvzero? CREG))
+     (assert (bvzero? DREG))
+     (assert (bvzero? PREG))
+     (assert (bvzero? MREG))
+     (assert (bvzero? INMODEREG))
+     (assert (bvzero? OPMODEREG))
+     (assert (bvzero? ALUMODEREG))
+     (assert (bvzero? CARRYINREG))
+     (assert (bvzero? CARRYINSELREG))
+     (assert (bvzero? CARRYINSEL))
+     (assert (bvzero? MULTSIGNIN))
 
-          (assert (not (bvzero? CEA1)))
-          (assert (not (bvzero? CEA2)))
-          (assert (not (bvzero? CEAD)))
-          (assert (not (bvzero? CEALUMODE)))
-          (assert (not (bvzero? CEB1)))
-          (assert (not (bvzero? CEB2)))
-          (assert (not (bvzero? CEC)))
-          (assert (not (bvzero? CECARRYIN)))
-          (assert (not (bvzero? CECTRL)))
-          (assert (not (bvzero? CED)))
-          (assert (not (bvzero? CEINMODE)))
-          (assert (not (bvzero? CEM)))
-          (assert (not (bvzero? CEP)))
+     (assert (bvzero? IS_ALUMODE_INVERTED))
+     (assert (bvzero? IS_CARRYIN_INVERTED))
+     (assert (bvzero? IS_CLK_INVERTED))
+     (assert (bvzero? IS_INMODE_INVERTED))
+     (assert (bvzero? IS_OPMODE_INVERTED))
+     (assert (bvzero? IS_RSTALLCARRYIN_INVERTED))
+     (assert (bvzero? IS_RSTALUMODE_INVERTED))
+     (assert (bvzero? IS_RSTA_INVERTED))
+     (assert (bvzero? IS_RSTB_INVERTED))
+     (assert (bvzero? IS_RSTCTRL_INVERTED))
+     (assert (bvzero? IS_RSTC_INVERTED))
+     (assert (bvzero? IS_RSTD_INVERTED))
+     (assert (bvzero? IS_RSTINMODE_INVERTED))
+     (assert (bvzero? IS_RSTM_INVERTED))
+     (assert (bvzero? IS_RSTP_INVERTED))
 
-          ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
-          ;;; assumes.
-          (assume (bvzero? unnamed-input-331))
-          (assume (bvzero? unnamed-input-488))
-          (assume (bvzero? unnamed-input-750))
-          (assume (bvzero? unnamed-input-806))
-          (assume (bvzero? unnamed-input-850))
+     (assert (not (bvzero? CEA1)))
+     (assert (not (bvzero? CEA2)))
+     (assert (not (bvzero? CEAD)))
+     (assert (not (bvzero? CEALUMODE)))
+     (assert (not (bvzero? CEB1)))
+     (assert (not (bvzero? CEB2)))
+     (assert (not (bvzero? CEC)))
+     (assert (not (bvzero? CECARRYIN)))
+     (assert (not (bvzero? CECTRL)))
+     (assert (not (bvzero? CED)))
+     (assert (not (bvzero? CEINMODE)))
+     (assert (not (bvzero? CEM)))
+     (assert (not (bvzero? CEP)))
 
-          (assert (bveq bv-expr (interpret lakeroad-expr))))))
+     ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
+     ;;; assumes.
+     (assume (bvzero? unnamed-input-331))
+     (assume (bvzero? unnamed-input-488))
+     (assume (bvzero? unnamed-input-750))
+     (assume (bvzero? unnamed-input-806))
+     (assume (bvzero? unnamed-input-850))
 
-     (if (sat? soln)
-         (begin
-           (evaluate lakeroad-expr
-                     (complete-solution soln
-                                        (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                                 (list->set (symbolics bv-expr)))))))
-         #f))))
+     (rosette-synthesize bv-expr
+                         lakeroad-expr
+                         (append (symbolics bv-expr)
+                                 (list unnamed-input-331
+                                       unnamed-input-488
+                                       unnamed-input-750
+                                       unnamed-input-806
+                                       unnamed-input-850))))))
 
 (module+ test
   (require rosette/solver/smt/boolector
@@ -608,18 +571,7 @@
                 0
                 (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
                                                        physical-outputs))))
-  (define soln
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-  (when (not (sat? soln))
-    (error "expected sat soln"))
-
-  (evaluate lakeroad-expr
-            (complete-solution soln
-                               (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                        (list->set (symbolics bv-expr)))))))
+  (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 ;;; Synthesizes a lattice expression using ccu2c modules.
 ;;; This template is designed for use with simple comparison operators which
@@ -672,22 +624,7 @@
                this-cout))
            initial-cin
            logical-inputs-per-ccu2c))
-
-  (interpret lakeroad-expr)
-
-  (define soln
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-  (if (sat? soln)
-      (evaluate
-       lakeroad-expr
-       ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-       (complete-solution soln
-                          (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics bv-expr))))))
-      #f))
+  (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 ;;; Synthesizes a lattice expression using multiple ccu2c modules.
 ;;; This differs from the single ccu2c module template in that this template uses
@@ -799,21 +736,7 @@
              cin
              inputs)))
 
-  (interpret lakeroad-expr)
-
-  (define soln
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-  (if (sat? soln)
-      (evaluate
-       lakeroad-expr
-       ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-       (complete-solution soln
-                          (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics bv-expr))))))
-      #f))
+  (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 (define (synthesize-lattice-ecp5-for-ripple-pfu bv-expr)
 
@@ -880,13 +803,13 @@
                 0
                 (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
                                                        physical-output))))
+  (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
-  (interpret lakeroad-expr)
+(define (rosette-synthesize bv-expr lakeroad-expr inputs #:multi-cycle [multi-cycle #f])
+  ;; (interpret lakeroad-expr)
 
   (define soln
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
+    (synthesize #:forall inputs #:guarantee (assert (bveq bv-expr (interpret lakeroad-expr)))))
 
   (if (sat? soln)
       (evaluate
@@ -946,21 +869,7 @@
 
   (define lakeroad-expr (lr:extract (sub1 out-bw) 0 logical-output))
 
-  (interpret lakeroad-expr)
-
-  (define soln
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
-
-  (if (sat? soln)
-      (evaluate
-       lakeroad-expr
-       ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-       (complete-solution soln
-                          (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics bv-expr))))))
-      #f))
+  (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 (define (synthesize-lattice-ecp5-multiply-circt bv-expr)
 
@@ -983,18 +892,7 @@
         (define a (first logical-inputs))
         (define b (second logical-inputs))
         (define lakeroad-expr (lattice-mul-with-carry out-bw a b))
-        (define soln
-          (synthesize #:forall (symbolics bv-expr)
-                      #:guarantee (begin
-                                    (assert (bveq bv-expr (interpret lakeroad-expr))))))
-        (if (sat? soln)
-            (evaluate
-             lakeroad-expr
-             ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-             (complete-solution soln
-                                (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                         (list->set (symbolics bv-expr))))))
-            #f))))
+        (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))))
 
 ;;; make-wire-lrexpr: a helper function for `synthesize-wire`. This creates a FULL
 ;;; (input-to-output) wire template that is ready for synthesis.
@@ -1047,16 +945,7 @@
       [else (error "Invalid shift-by: ~a" shift-by)]))
 
   (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
-  (define soln
-    (synthesize #:forall (symbolics bv-expr)
-                #:guarantee (begin
-                              (assert (bveq bv-expr (interpret lakeroad-expr))))))
-  (if (sat? soln)
-      (evaluate lakeroad-expr
-                (complete-solution soln
-                                   (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                            (list->set (symbolics bv-expr))))))
-      #f))
+  (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 (module+ test
   (require rosette/solver/smt/boolector
