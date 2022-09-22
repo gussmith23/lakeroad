@@ -1,7 +1,9 @@
 #lang errortrace racket
 
-(provide (rename-out [make-primitive-interface primitive-interface]
-                     [make-interface-signature interface-signature])
+(provide primitive-interface
+         interface-signature
+         make-interface-signature
+         make-primitive-interface
          ; TODO: do we need to provide all struct functions explicitly?
          primitive-interface?
          primitive-interface-num-inputs
@@ -62,14 +64,14 @@
   (primitive-interface type sig inputs))
 
 ; NOTE: We rename-out this to `interface-signature` to mask the struct's constructor
-(define (make-interface-signature inputs outputs)
-  (interface-signature (normalize-signature-values inputs) (normalize-signature-values outputs)))
+(define (make-interface-signature formal-inputs formal-outputs)
+  (interface-signature (normalize-signature-values formal-inputs) (normalize-signature-values formal-outputs)))
 
 (define (lut4-interface inputs)
   (make-primitive-interface 'LUT (make-interface-signature '(I0 I1 I2 I3) '(O)) inputs))
 
-(define (mux21-interface inputs)
-  (primitive-interface 'MUX (make-interface-signature '(D0 D1 S) '(O)) inputs))
+(define (mux21-interface D0 D1 S)
+  (primitive-interface 'MUX (make-interface-signature '(D0 D1 S) '(O)) (list D0 D1 S)))
 
 ; Test if a value is a lakeroad lut primitive, and optionally test input and
 ; output arity
