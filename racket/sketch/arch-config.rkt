@@ -148,7 +148,7 @@
 ; not be used for production. The defined ecp5 components, including:          ;
 ;                                                                              ;
 ;   + ecp5:lut4                                                                ;
-;   + ecp5:l6mux21                                                             ;
+;   + ecp5:pfumx                                                               ;
 ;   + ecp5:impl                                                                ;
 ;                                                                              ;
 ; are provided in sub-module ecp5:test-values                                  ;
@@ -214,7 +214,7 @@
         (recursively-create-lut config prim-interface #:symbolic-state symbolic-state)])]
     ['MUX
      (if (= num-inputs 3)
-         (cons (lr:primitive 'PFUMX21 actuals '()) '())
+         (cons (lr:primitive 'PFUMX actuals '()) '())
          (error "Only MUX21 are currently supported"))]
     [else (error (format "unsupported primitive type ~a" type))]))
 
@@ -382,7 +382,7 @@
    ; Test that these implementations are all the correct form.                 ;
    ; ------------------------------------------------------------------------- ;
    ; Destructure the lut5 primitive. We do this step by step:
-   (match-let* ([(lr:primitive 'PFUMX21 (list (lr:first lut-a) (lr:first lut-b) selector) '())
+   (match-let* ([(lr:primitive 'PFUMX (list (lr:first lut-a) (lr:first lut-b) selector) '())
                  lut5-prim]
                 [(lr:primitive 'LUT4 (list 1 2 3 4) (list (cons 'INIT sym-state-a))) lut-a]
                 [(lr:primitive 'LUT4 (list 1 2 3 4) (list (cons 'INIT sym-state-b))) lut-b])
@@ -391,12 +391,12 @@
      (check-true ((bitvector 16) sym-state-a))
      (check-true ((bitvector 16) sym-state-b)))
    ; Destructure the lut6 primitive. We do this step by step:
-   (match-define (lr:primitive 'PFUMX21 (list (lr:first lut5-a) (lr:first lut5-b) selector-1) '())
+   (match-define (lr:primitive 'PFUMX (list (lr:first lut5-a) (lr:first lut5-b) selector-1) '())
      lut6-prim)
    ; Destructure second layer of PFUMXs. In this layer we bind lut4-a..lut4-d
-   (match-define (lr:primitive 'PFUMX21 (list (lr:first lut4-a) (lr:first lut4-b) selector-2-a) '())
+   (match-define (lr:primitive 'PFUMX (list (lr:first lut4-a) (lr:first lut4-b) selector-2-a) '())
      lut5-a)
-   (match-define (lr:primitive 'PFUMX21 (list (lr:first lut4-c) (lr:first lut4-d) selector-2-b) '())
+   (match-define (lr:primitive 'PFUMX (list (lr:first lut4-c) (lr:first lut4-d) selector-2-b) '())
      lut5-b)
    ; Destructure third layer of LUT4s. In this layer we bind
    ; sym-state-a..sym-state-d
