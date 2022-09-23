@@ -1,9 +1,10 @@
-#lang errortrace racket
+#!/usr/bin/env racket
+#lang racket/base
 
 (require rosette
-         "synthesize.rkt"
-         "compile-to-json.rkt"
-         "circt-comb-operators.rkt"
+         "../racket/synthesize.rkt"
+         "../racket/compile-to-json.rkt"
+         "../racket/circt-comb-operators.rkt"
          json
          racket/sandbox)
 
@@ -107,7 +108,6 @@
                  ["xilinx-ultrascale-plus"
                   (synthesize-xilinx-ultrascale-plus-impl bv-expr 'first-to-succeed)]
                  ["lattice-ecp5"
-                  (displayln "Hi")
                   (synthesize-lattice-ecp5-impl bv-expr 'first-to-succeed #:timeout timeout)]
                  ["sofa" (synthesize-sofa-impl bv-expr 'first-to-succeed)]
                  [other
