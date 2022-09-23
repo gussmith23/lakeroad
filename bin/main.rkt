@@ -58,6 +58,9 @@
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)])
 
+(when (not (out-filepath))
+  (error "Must specify --out-filepath."))
+
 ;;; Parse instruction.
 ;;;
 ;;; This function will introduce new symbolic constants. Make sure you have good (vc) hygeine when
