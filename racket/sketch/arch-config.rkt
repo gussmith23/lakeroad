@@ -7,11 +7,12 @@
          racket/pretty)
 
 (provide make-signature
-         signature
+         (struct-out signature)
          make-arch-config
          arch-config
          make-primitive
-         primitive)
+         primitive
+         implement-primitive-interface)
 
 ; A signature captures all input, output, and paramter information provided by a
 ; verilog file. Each inputs/outputs/parameters are a list of name/bitwidth
@@ -85,6 +86,11 @@
 ; NOTE: We rename-out this to `arch-config` to mask the struct's constructor
 (define (make-arch-config architecture primitives implementations)
   (arch-config architecture primitives implementations))
+
+; implement-primitive-interface: ask an arch-config for an implementation of a
+; primitive interface, optionally using some already allocated symbolic state
+(define (implement-primitive-interface config prim-interface #:symbolic-state [sym-state #f])
+  ((arch-config-implementations) config prim-interface #:symbolic-state #f))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   HELPER FUNCTIONS   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

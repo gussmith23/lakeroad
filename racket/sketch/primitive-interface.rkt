@@ -4,21 +4,15 @@
          interface-signature
          make-interface-signature
          make-primitive-interface
-         ; TODO: do we need to provide all struct functions explicitly?
-         primitive-interface?
+         (struct-out primitive-interface)
+         (struct-out interface-signature)
          primitive-interface-num-inputs
          primitive-interface-num-outputs
-         primitive-interface-type?
-         primitive-interface-type
-         primitive-interface-sig
-         primitive-interface-inputs
-         interface-signature?
-         interface-signature-inputs
-         interface-signature-outputs
          lut4-interface
          mux21-interface
          lut?
-         mux?)
+         mux?
+         make-interface-signature-of-shape)
 
 ; Normalize a list of values. A "normal" value has type (list symbol? integer?)
 ; To make things a bit nicer we accept raw symbols and transform them into
@@ -26,11 +20,22 @@
 ;
 ; E.g., (normalize-values (list '(a 1) b (c 2)))
 ; becomes (list '(a 1) '(b 1) '(c 2))
-(define (normalize-signature-values values)
-  (for/list ([v values])
-    (match v
-      [(? symbol?) (list v 1)]
-      [(list (? symbol?) (? integer?)) v])))
+(define (normalize-signature-values values #:name-base [name-base #f])
+  (if (integer? values)
+      ; values is an integer so we make a default list of the given length
+      (begin
+        (when (< 0 values)
+          (error (format "Signature value that is an integer must be non-negative: ~a" values)))
+        (when (not name-base)
+          (error
+           "Cannot make a default signature values list of a given length without a name-base: use the #:name-base keyword argument to specify a name-base"))
+        (for/list ([i values])
+          (list (string->symbol (format "~a~a" name-base i)) 1)))
+      ; values is not an integer so we iterate over it
+      (for/list ([v values])
+        (match v
+          [(? symbol?) (list v 1)]
+          [(list (? symbol?) (? integer?)) v]))))
 
 (module* helpers #f
   (provide normalize-signature-values))
@@ -44,6 +49,10 @@
   (length (interface-signature-outputs (primitive-interface-sig prim))))
 (define (primitive-interface-type? prim type)
   (equal? (primitive-interface-type prim) type))
+
+(define (make-interface-signature-of-shape num-inputs num-outputs)
+  (interface-signature (normalize-signature-values num-inputs #:base-name 'I)
+                       (normalize-signature-values num-outputs #:base-name 'O)))
 
 ; NOTE: We rename-out this to `primitive-interface` to mask the struct's constructor
 (define (make-primitive-interface type sig inputs)

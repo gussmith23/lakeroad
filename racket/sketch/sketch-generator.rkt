@@ -1,6 +1,7 @@
 #lang errortrace racket
 (require rosette
          rosette/lib/angelic
+         racket/pretty
          (prefix-in lr: "../language.rkt")
          "../logical-to-physical.rkt"
          "../utils.rkt"
@@ -14,7 +15,7 @@
 
   (define (replacer expr)
     (match expr
-      [(? lut? template) (arch-config-get-lut arch-config (primitive-interface-num-inputs template))]
+      [(? primitive-interface? template) (implement-primitive-interface arch-config template)]
       [(logical-to-physical-mapping f inputs) (logical-to-physical-mapping f (replacer inputs))]
       [(physical-to-logical-mapping f inputs) (physical-to-logical-mapping f (replacer inputs))]
       [(lr:first xs) (lr:first (replacer xs))]
@@ -33,12 +34,7 @@
       [(? list?) (map replacer expr)]))
   (replacer sketch-template))
 
-; This is a _sketch template_: this has generic primitives that will be replaced
-; during sketch generation.
-;
-; In this particular instance, the only generic primitives are lut4s (one for
-; each output bit)
-(define (bitwise-example-sketch-template logical-inputs)
+(define (bitwise-sketch-generator arch-config logical-inputs)
   (let* ([bitwidth (apply max (map bvlen logical-inputs))]
          [lut-width (length logical-inputs)]
          [logical-inputs (map (lambda (v)
@@ -47,29 +43,33 @@
                               logical-inputs)]
          [physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse))
                                                        logical-inputs)]
-         [physical-outputs (for/list ([i bitwidth])
-                             (lut4-interface (lr:list-ref physical-inputs i)))]
-         [lr-expr (lr:extract (sub1 bitwidth)
-                              0
-                              (lr:first (physical-to-logical-mapping
-                                         (choose* '(bitwise) '(bitwise-reverse))
-                                         physical-outputs)))])
 
-    (when (not (concrete? bitwidth))
-      (error "Input bitwidths must be statically known."))
-    lr-expr))
+         ; This proc is fed to foldr. It produces a list of (cons lr:primitive
+         ; symbolic-state) pairs, allowing symbolic state to be reused between
+         ; lr:primitives. The result of this should have `(map car ...)` applied
+         ; to it to discard symbolic states
+         [proc (lambda (phys-input xs)
+                 ; First, make the primitive-interface we want to implement
+                 (let* ([prim-interface (make-primitive-interface
+                                         'LUT
+                                         (make-interface-signature-of-shape lut-width 1)
+                                         phys-input)]
+                        ; Next, grab previous symbolic state if it exists
+                        [symbolic-state (match xs
+                                          [(list (cons _ sym-state) _ ...) sym-state]
+                                          ['() #f])]
+                        ; Implement the primitive interface
+                        [impl (implement-primitive-interface arch-config
+                                                             #:symbolic-state symbolic-state)])
+                   (cons impl xs)))]
+         [impl-output-pairs (foldr proc '() physical-inputs)])
+    (map car impl-output-pairs)))
 
 ;;;;;;;;; TESTS ;;;;;;;;
 (module+ test
   (require rackunit
            (submod "arch-config.rkt" test-values))
-  (check-equal? (generate-sketch (lut4-interface (list (bv 0 4))) ecp5:config) ecp5:lut4)
-
-  (check-match (generate-sketch (bitwise-example-sketch-template (list (bv 0 2))) ecp5:config)
-               (lr:extract 1 0 (lr:first (physical-to-logical-mapping _ (list ecp5:lut4 ecp5:lut4)))))
-
-  (check-match
-   (generate-sketch (bitwise-example-sketch-template
-                     (list (bv 0 2) (bv 0 2) (bv 0 2) (bv 0 2) (bv 0 2)))
-                    ecp5:config)
-   (lr:extract 1 0 (lr:first (physical-to-logical-mapping _ (list ecp5:lut4 ecp5:lut4))))))
+  (with-terms (with-vc (begin
+                         (define-symbolic a b c d (bitvector 1))
+                         (let* ([sketch (bitwise-sketch-generator ecp5:config (list a))])
+                           (pretty-print sketch))))))
