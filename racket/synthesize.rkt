@@ -8,7 +8,8 @@
          synthesize-sofa-impl
          synthesize-lattice-ecp5-impl
          synthesize-wire
-         synthesize-xilinx-ultrascale-plus-dsp)
+         synthesize-xilinx-ultrascale-plus-dsp
+         template-map)
 
 (require "interpreter.rkt"
          "ultrascale.rkt"
@@ -26,6 +27,21 @@
          (prefix-in lr: "language.rkt"))
 
 (current-solver (boolector))
+
+(define (template-map)
+  (make-immutable-hash
+   (list (cons "synthesize_wire" synthesize-wire)
+         (cons "synthesize_sofa_bitwise" (synthesize-using-lut 'sofa 1 4))
+         (cons "synthesize_xilinx_ultrascale_plus_dsp" synthesize-xilinx-ultrascale-plus-dsp)
+         (cons "synthesize_xilinx_ultrascale_plus_bitwise"
+               (synthesize-using-lut 'xilinx-ultrascale-plus 1))
+         (cons "synthesize_xilinx_ultrascale_plus_kitchen_sink"
+               synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
+         (cons "synthesize_lattice_ecp5_for_pfu" synthesize-lattice-ecp5-for-pfu)
+         (cons "synthesize_lattice_ecp5_for_ripple_pfu" synthesize-lattice-ecp5-for-ripple-pfu)
+         (cons "synthesize_lattice_ecp5_for_ccu2c" synthesize-lattice-ecp5-for-ccu2c)
+         (cons "synthesize_lattice_ecp5_for_ccu2c_tri" synthesize-lattice-ecp5-for-ccu2c-tri)
+         (cons "synthesize_lattice_ecp5_multiply_circt" synthesize-lattice-ecp5-multiply-circt))))
 
 (define (synthesize-with-timeout strat input timeout)
   (let ([t (current-thread)] [timeout-time (if (null? timeout) 5.0 timeout)])
