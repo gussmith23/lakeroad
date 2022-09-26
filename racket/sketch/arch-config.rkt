@@ -286,13 +286,22 @@
    ; bits (list a b) as inputs it gets padded to (list a b (bv 1 1) (bv 1 1)) so
    ; that all LUT4 input ports are defined].
    (define (helper expected-xs)
-     (lambda (actual-xs) (equal? (lr:append (list expected-xs (make-list (- 4 (length expected-xs)) (bv 1 1)))) actual-xs)))
+     (lambda (actual-xs)
+       (equal? (lr:append (list expected-xs (make-list (- 4 (length expected-xs)) (bv 1 1))))
+               actual-xs)))
    (check-match lut4-prim (lr:primitive 'LUT4 inputs-4 (list (cons 'INIT _))))
    ; TODO: i'm having trouble getting the (bv _ _)s to match when I change them
    ; to literals (bv #b1 1)
-   (check-match lut3-prim (lr:primitive 'LUT4 (lr:append (list inputs-3 (list (bv _ _)))) (list (cons 'INIT _))))
-   (check-match lut2-prim (lr:primitive 'LUT4 (lr:append (list inputs-2 (list (bv _ _) (bv _ _)))) (list (cons 'INIT _))))
-   (check-match lut1-prim (lr:primitive 'LUT4 (lr:append (list inputs-1 (list (bv _ _) (bv _ _) (bv _ _) ))) (list (cons 'INIT _))))
+   (check-match
+    lut3-prim
+    (lr:primitive 'LUT4 (lr:append (list inputs-3 (list (bv _ _)))) (list (cons 'INIT _))))
+   (check-match
+    lut2-prim
+    (lr:primitive 'LUT4 (lr:append (list inputs-2 (list (bv _ _) (bv _ _)))) (list (cons 'INIT _))))
+   (check-match lut1-prim
+                (lr:primitive 'LUT4
+                              (lr:append (list inputs-1 (list (bv _ _) (bv _ _) (bv _ _))))
+                              (list (cons 'INIT _))))
    ; ------------------------------------------------------------------------- ;
    ; Test that symbolic states are of the correct form                         ;
    ;                                                                           ;
