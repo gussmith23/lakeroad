@@ -90,7 +90,7 @@
 ; implement-primitive-interface: ask an arch-config for an implementation of a
 ; primitive interface, optionally using some already allocated symbolic state
 (define (implement-primitive-interface config prim-interface #:symbolic-state [sym-state #f])
-  ((arch-config-implementations) config prim-interface #:symbolic-state #f))
+  ((arch-config-implementations config) config prim-interface #:symbolic-state #f))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   HELPER FUNCTIONS   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -175,7 +175,7 @@
 (define (ecp5:impl config prim-interface #:symbolic-state [symbolic-state #f])
   (match-define (primitive-interface type (interface-signature formal-ins formal-outs) actuals)
     prim-interface)
-  (when (not (= (length actuals) (length formal-ins)))
+  (when (and (list? actuals) (not (= (length actuals) (length formal-ins))))
     (format
      (error "invalid state: length of formal inputs ~a does not match length of actual inputs ~a")
      formal-ins
@@ -188,7 +188,7 @@
        [(< num-inputs 4) ; Pad extra constant bitvectors to inputs and use for LUT4
         (let* ([pad-size (- 4 num-inputs)]
                [pads (make-list pad-size (bv 1 1))] ; Default to padding to high
-               [padded-actuals (append actuals pads)] ; We pad inputs to the right
+               [padded-actuals (lr:append (list actuals pads))] ; We pad inputs to the right
                [sym-state (match symbolic-state
                             ; If no symbolic state is present we build up an
                             ; assoc list mapping the only parameter (INIT) to
