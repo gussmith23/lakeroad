@@ -7,11 +7,11 @@
 ;;; This module provides tools for representing these mappings.
 
 (provide interpret-logical-to-physical-mapping
+         (struct-out logical-to-physical-mapping)
+         (struct-out physical-to-logical-mapping)
          interpret-physical-to-logical-mapping
          compile-logical-to-physical-mapping
-         compile-physical-to-logical-mapping
-         logical-to-physical-mapping
-         physical-to-logical-mapping)
+         compile-physical-to-logical-mapping)
 
 (require rosette
          racket/pretty
