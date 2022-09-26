@@ -24,7 +24,7 @@
   (if (integer? values)
       ; values is an integer so we make a default list of the given length
       (begin
-        (when (< 0 values)
+        (when (> 0 values)
           (error (format "Signature value that is an integer must be non-negative: ~a" values)))
         (when (not name-base)
           (error
@@ -51,8 +51,8 @@
   (equal? (primitive-interface-type prim) type))
 
 (define (make-interface-signature-of-shape num-inputs num-outputs)
-  (interface-signature (normalize-signature-values num-inputs #:base-name 'I)
-                       (normalize-signature-values num-outputs #:base-name 'O)))
+  (interface-signature (normalize-signature-values num-inputs #:name-base 'I)
+                       (normalize-signature-values num-outputs #:name-base 'O)))
 
 ; NOTE: We rename-out this to `primitive-interface` to mask the struct's constructor
 (define (make-primitive-interface type sig inputs)
@@ -61,10 +61,13 @@
     (error "primitive-interface type must be a symbol?"))
   (when (not (interface-signature? sig))
     (error "primitive-interface sig must be a interface-signature?"))
-  (when (not (list? inputs))
-    (error "primitive-interface inputs must be a list?"))
   ; We need to ensure that the inputs are the right size
-  (when (not (equal? (length inputs) (length (interface-signature-inputs sig))))
+  ; TODO: at creation time we actually can't tell the length of inputs because
+  ;       they are wrapped in an opaque `logical-to-physical-mapping` struct.
+  ;       Thus we only perform this check when inputs is a list, but it would be
+  ;       good to find a way to perform this check even when inputs is _not_ a
+  ;       list (or to find a way to make inputs always a list)
+  (when (and (list? inputs) (not (equal? (length inputs) (length (interface-signature-inputs sig)))))
     (error (format
             "primitive interface ~a: length of actual inputs ~a does not match signature's inputs ~a"
             type
