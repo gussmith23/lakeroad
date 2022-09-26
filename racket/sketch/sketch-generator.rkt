@@ -16,8 +16,10 @@
                                 (choose* (lr:zero-extend v (bitvector bitwidth))
                                          (lr:dup-extend v (bitvector bitwidth))))
                               logical-inputs)]
-         [physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse)) logical-inputs)]
-         [physical-inputs (for/list ([i bitwidth]) (lr:list-ref physical-inputs i))]
+         [physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse))
+                                                       logical-inputs)]
+         [physical-inputs (for/list ([i bitwidth])
+                            (lr:list-ref physical-inputs i))]
 
          ; This proc is fed to foldr. It produces a list of (cons lr:primitive
          ; symbolic-state) pairs, allowing symbolic state to be reused between
@@ -39,14 +41,31 @@
                                                              #:symbolic-state symbolic-state)])
                    (cons impl xs)))]
 
-         [impl-output-pairs (foldr proc '() physical-inputs)])
-    (map car impl-output-pairs)))
+         [impl-output-pairs (foldr proc '() physical-inputs)]
+         [impl-pairs (map car impl-output-pairs)]
+         [outputs (physical-to-logical-mapping (choose* '(bitwise) '(bitwise-reverse)) impl-pairs)])
+    outputs))
 
 ;;;;;;;;; TESTS ;;;;;;;;
 (module+ test
   (require rackunit
            (submod "arch-config.rkt" test-values))
-  (with-terms (with-vc (begin
-                         (define-symbolic a b c d (bitvector 1))
-                         (let* ([sketch (bitwise-sketch-generator ecp5:config (list a))])
-                           (pretty-print sketch))))))
+  (with-terms
+   (with-vc (begin
+              (define-symbolic a b c d (bitvector 2))
+              (define sketch (bitwise-sketch-generator ecp5:config (list a)))
+              ; Check sketch:
+              (check-match sketch
+                           ; Sketch should produce a physical-to-logical mapping
+                           (physical-to-logical-mapping
+                            ; The first arg is a union over '(bitwise) and '(bitwise-reverse)
+                            ; TODO: Make a stronger assertion about this form
+                            (list _)
+                            ; The second arg is a list of primitives.
+                            ;
+                            ; There should be two primitives since we are
+                            ; working with logical inputs of 2 bits: each bit
+                            ; needs a single 'LUT' in this sketch
+                            (list (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT _)))
+                                  (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT _))))))
+              (pretty-print sketch)))))
