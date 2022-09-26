@@ -9,31 +9,6 @@
          "primitive-interface.rkt"
          (submod "primitive-interface.rkt" helpers))
 
-; Recursively visit a sketch template and replace all primitive-interfaces with values
-; provided by the arch-config
-(define (generate-sketch sketch-template arch-config)
-
-  (define (replacer expr)
-    (match expr
-      [(? primitive-interface? template) (implement-primitive-interface arch-config template)]
-      [(logical-to-physical-mapping f inputs) (logical-to-physical-mapping f (replacer inputs))]
-      [(physical-to-logical-mapping f inputs) (physical-to-logical-mapping f (replacer inputs))]
-      [(lr:first xs) (lr:first (replacer xs))]
-      [(lr:append xs) (lr:append (replacer xs))]
-      [(lr:take xs n) (lr:take (replacer xs) (replacer n))]
-      [(lr:drop xs n) (lr:drop (replacer xs) (replacer n))]
-      [(lr:list-ref xs n) (lr:list-ref (replacer xs) (replacer n))]
-      [(lr:map f xs) (lr:map f (replacer xs))]
-      [(lr:zero-extend v bv) (lr:zero-extend (replacer v) (replacer bv))]
-      [(lr:dup-extend v bv) (lr:dup-extend (replacer v) (replacer bv))]
-      [(lr:extract h l v) (lr:extract (replacer h) (replacer l) (replacer v))]
-      [(lr:concat xs) (lr:concat (replacer xs))]
-
-      [(? int?) expr]
-      [(? bv?) expr]
-      [(? list?) (map replacer expr)]))
-  (replacer sketch-template))
-
 (define (bitwise-sketch-generator arch-config logical-inputs)
   (let* ([bitwidth (apply max (map bvlen logical-inputs))]
          [lut-width (length logical-inputs)]
@@ -41,8 +16,8 @@
                                 (choose* (lr:zero-extend v (bitvector bitwidth))
                                          (lr:dup-extend v (bitvector bitwidth))))
                               logical-inputs)]
-         [physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse))
-                                                       logical-inputs)]
+         [physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse)) logical-inputs)]
+         [physical-inputs (for/list ([i bitwidth]) (lr:list-ref physical-inputs i))]
 
          ; This proc is fed to foldr. It produces a list of (cons lr:primitive
          ; symbolic-state) pairs, allowing symbolic state to be reused between
@@ -60,8 +35,10 @@
                                           ['() #f])]
                         ; Implement the primitive interface
                         [impl (implement-primitive-interface arch-config
+                                                             prim-interface
                                                              #:symbolic-state symbolic-state)])
                    (cons impl xs)))]
+
          [impl-output-pairs (foldr proc '() physical-inputs)])
     (map car impl-output-pairs)))
 
