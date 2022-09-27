@@ -9,7 +9,12 @@
          "primitive-interface.rkt"
          (submod "primitive-interface.rkt" helpers))
 
-(define (bitwise-sketch-generator arch-config logical-inputs)
+; helper function that transforms logical inputs into the following three pieces
+; of information:
+; 1. physical-inputs
+; 2. bitwidth
+; 3. lut-width (num-args)
+(define (process-inputs logical-inputs)
   (let* ([bitwidth (apply max (map bvlen logical-inputs))]
          [lut-width (length logical-inputs)]
          [logical-inputs (map (lambda (v)
@@ -19,12 +24,15 @@
          [physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse))
                                                        logical-inputs)]
          [physical-inputs (for/list ([i bitwidth])
-                            (lr:list-ref physical-inputs i))]
+                            (lr:list-ref physical-inputs i))])
+    (list physical-inputs bitwidth lut-width))
 
-         ; This proc is fed to foldr. It produces a list of (cons lr:primitive
-         ; symbolic-state) pairs, allowing symbolic state to be reused between
-         ; lr:primitives. The result of this should have `(map car ...)` applied
-         ; to it to discard symbolic states
+(define (bitwise-sketch-generator arch-config logical-inputs)
+  (match-define (list physical-inputs bitwidth lut-width) (process-inputs logical-inputs))
+  (let* (; This proc is fed to foldr. It produces a list of
+         ; (cons lr:primitive symbolic-state) pairs, allowing symbolic state to
+         ; be reused between lr:primitives. The result of this should have `(map
+         ; car ...)` applied to it to discard symbolic states
          [proc (lambda (phys-input xs)
                  ; First, make the primitive-interface we want to implement
                  (let* ([prim-interface (make-primitive-interface
@@ -45,6 +53,28 @@
          [impl-pairs (map car impl-output-pairs)]
          [outputs (physical-to-logical-mapping (choose* '(bitwise) '(bitwise-reverse)) impl-pairs)])
     outputs))
+
+(define (lut-with-carry-sketch-generator arch-config logical-inputs)
+  (match-define (list physical-inputs bitwidth lut-width) (process-inputs logical-inputs))
+  (let* (; This proc will be fed to foldr. It produces a list of 
+         ; (cons lr:primitive symbolic-state) pairs
+         [proc (lambda (phys-input xs)
+                 ; First, make the primitive-interface we want to implement
+                 (let* ([prim-interface (make-primitive-interface
+                                         'LUT+CARRY
+                                         (make-interface-signature-of-shape lut-width 1)
+                                         phys-input)]
+                        ; Next, grab previous symbolic state if it exists
+                        [symbolic-state (match xs
+                                          [(list (cons _ sym-state) _ ...) sym-state]
+                                          ['() #f])]
+                        ; Implement the primitive interface
+                        [impl (implement-primitive-interface arch-config
+                                                             prim-interface
+                                                             #:symbolic-state symbolic-state)])
+                   (cons impl xs)))]
+         )
+    '()))
 
 ;;;;;;;;; TESTS ;;;;;;;;
 (module+ test
