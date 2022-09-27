@@ -106,12 +106,27 @@
 ; This is an architecture-agnostic helper function that recursively creates a
 ; LUT-N from smaller LUTs. This function breaks the problem of creating a LUT N
 ; down into two LUT N-1s.
-
+;
+; This API also allows for already-allocated symbolic state to be passed in. The
+; expected form is:
+; 
+;     (list
+;       mux-symbolic-state
+;       left-sub-lut-symbolic-state
+;       right-sub-lut-symbolic-state)
+;
+; By default #f is passed as symbolic state: this causes new symbolic state to
+; be allocated.
 (define (recursively-create-lut arch-config lut-prim-interface #:symbolic-state [symbolic-state #f])
   (match-let*
       (; First, destructure the primitive-interface
-       [(primitive-interface type interface-sig actual-inputs) lut-prim-interface]
-       [(interface-signature interface-inputs interface-outputs) interface-sig]
+       [(primitive-interface 'LUT _ params actual-inputs) lut-prim-interface]
+
+       ; Get the relevent parameters (num-inputs and num-outputs)
+       [(cons _ num-inputs) (assoc 'num-inputs params)]
+       [(cons _ num-outputs) (assoc 'num-outputs params)]
+
+       ; Reuse or allocate symbolic state
        [(list mux-sym-state left-sym-state right-sym-state)
         (match symbolic-state
           [(list left mux right) symbolic-state]
@@ -120,9 +135,7 @@
            (error (format "Invalid symbolic state ~a for recursively creating a lut"
                           symbolic-state))])]
        [(cons selector-bit rest-actual-inputs) actual-inputs]
-       [(cons next-interface-input-sig rest-interface-input-sigs) interface-inputs]
-       [smaller-sig (make-interface-signature rest-interface-input-sigs interface-outputs)]
-       [smaller-prim-interface (make-primitive-interface type smaller-sig rest-actual-inputs)]
+       [smaller-prim-interface (make-lut-interface (sub1 num-inputs) num-outputs rest-actual-inputs)]
        [impl-fn-tmp (arch-config-implementations arch-config)]
        ; Convenience function to implement smaller primitives
        [impl-fn (lambda (prim symstate) (impl-fn-tmp arch-config prim #:symbolic-state symstate))]
@@ -173,7 +186,7 @@
 ; lattice-ecp5. This will be used as the `implementations` field of the
 ; `arch-config` struct
 (define (ecp5:impl config prim-interface #:symbolic-state [symbolic-state #f])
-  (match-define (primitive-interface type (interface-signature formal-ins formal-outs) actuals)
+  (match-define (primitive-interface type (interface-signature formal-ins formal-outs) params actuals)
     prim-interface)
   (when (and (list? actuals) (not (= (length actuals) (length formal-ins))))
     (format
@@ -181,47 +194,48 @@
      formal-ins
      actuals))
 
-  (define num-inputs (length formal-ins))
+
   (match type
     ['LUT
-     (cond
-       [(< num-inputs 4) ; Pad extra constant bitvectors to inputs and use for LUT4
-        (let* ([pad-size (- 4 num-inputs)]
-               [pads (make-list pad-size (bv 1 1))] ; Default to padding to high
-               [padded-actuals (lr:append (list actuals pads))] ; We pad inputs to the right
-               [sym-state (match symbolic-state
-                            ; If no symbolic state is present we build up an
-                            ; assoc list mapping the only parameter (INIT) to
-                            ; fresh symbolic state
-                            ;
-                            ; TODO: sym state allocation should be done
-                            ; automatically based off of the primitive
-                            ; definition
-                            [#f (list (cons 'INIT (??* (bitvector 16))))]
-                            [(list (cons 'INIT hole)) symbolic-state]
-                            [_
-                             (error (string-append "Invalid symbolic state for ECP5 LUT4:\n"
-                                                   "Expected (list (cons 'INIT _)) but got"
-                                                   symbolic-state))])])
-          (cons (lr:primitive 'LUT4 padded-actuals sym-state) sym-state))]
-       [(= num-inputs 4)
-        (let* ([sym-state (match symbolic-state
-                            ; TODO: sym state allocation should be done
-                            ; automatically based off of the primitive
-                            ; definition
-                            [#f (list (cons 'INIT (??* (bitvector 16))))]
-                            [(list (cons 'INIT hole)) symbolic-state]
-                            [else
-                             (error (string-append "Invalid symbolic state for ECP5 LUT4:\n"
-                                                   "Expected (list (cons 'INIT _)) but got"
-                                                   symbolic-state))])])
-          (cons (lr:primitive 'LUT4 actuals sym-state) sym-state))]
-       [(> num-inputs 4)
-        (recursively-create-lut config prim-interface #:symbolic-state symbolic-state)])]
+     (let ([num-inputs (primitive-interface-get-param prim-interface 'num-inputs)])
+       (cond
+         [(< num-inputs 4) ; Pad extra constant bitvectors to inputs and use for LUT4
+          (let* ([pad-size (- 4 num-inputs)]
+                 [pads (make-list pad-size (bv 1 1))] ; Default to padding to high
+                 [padded-actuals (lr:append (list actuals pads))] ; We pad inputs to the right
+                 [sym-state (match symbolic-state
+                              ; If no symbolic state is present we build up an
+                              ; assoc list mapping the only parameter (INIT) to
+                              ; fresh symbolic state
+                              ;
+                              ; TODO: sym state allocation should be done
+                              ; automatically based off of the primitive
+                              ; definition
+                              [#f (list (cons 'INIT (??* (bitvector 16))))]
+                              [(list (cons 'INIT hole)) symbolic-state]
+                              [_
+                               (error (string-append "Invalid symbolic state for ECP5 LUT4:\n"
+                                                     "Expected (list (cons 'INIT _)) but got"
+                                                     symbolic-state))])])
+            (cons (lr:primitive 'LUT4 padded-actuals sym-state) sym-state))]
+         [(= num-inputs 4)
+          (let* ([sym-state (match symbolic-state
+                              ; TODO: sym state allocation should be done
+                              ; automatically based off of the primitive
+                              ; definition
+                              [#f (list (cons 'INIT (??* (bitvector 16))))]
+                              [(list (cons 'INIT hole)) symbolic-state]
+                              [else
+                               (error (string-append "Invalid symbolic state for ECP5 LUT4:\n"
+                                                     "Expected (list (cons 'INIT _)) but got"
+                                                     symbolic-state))])])
+            (cons (lr:primitive 'LUT4 actuals sym-state) sym-state))]
+         [(> num-inputs 4)
+          (recursively-create-lut config prim-interface #:symbolic-state symbolic-state)]))]
     ['MUX
-     (if (= num-inputs 3)
-         (cons (lr:primitive 'PFUMX actuals '()) '())
-         (error "Only MUX21 are currently supported"))]
+     (let ([num-inputs (primitive-interface-get-param prim-interface 'num-inputs)])
+       (when (not (= num-inputs 2)) (error "Only MUX21 are currently supported"))
+       (cons (lr:primitive 'PFUMX actuals '()) '()))]
     [else (error (format "unsupported primitive type ~a" type))]))
 
 (define ecp5:config (make-arch-config 'Lattice-ECP5 (list ecp5:lut4 ecp5:l6mux21) ecp5:impl))
@@ -255,14 +269,10 @@
    ; with a Lattice LUT4 primitive (we test larger luts requiring multiple     ;
    ; LUT4 primitives below.                                                    ;
    ; ------------------------------------------------------------------------- ;
-   (define lut4-interface
-     (make-primitive-interface 'LUT (make-interface-signature '(I0 I1 I2 I3) '(O)) inputs-4))
-   (define lut3-interface
-     (make-primitive-interface 'LUT (make-interface-signature '(I0 I1 I2) '(O)) inputs-3))
-   (define lut2-interface
-     (make-primitive-interface 'LUT (make-interface-signature '(I0 I1) '(O)) inputs-2))
-   (define lut1-interface
-     (make-primitive-interface 'LUT (make-interface-signature '(I0) '(O)) inputs-1))
+   (define lut4-interface (make-lut-interface 4 1 inputs-4))
+   (define lut3-interface (make-lut-interface 3 1 inputs-3))
+   (define lut2-interface (make-lut-interface 2 1 inputs-2))
+   (define lut1-interface (make-lut-interface 1 1 inputs-1))
    ; ------------------------------------------------------------------------- ;
    ; Implement the above lut primitive interfaces.                             ;
    ; ------------------------------------------------------------------------- ;
@@ -384,10 +394,9 @@
    ; with a Lattice LUT4 primitive (we test larger luts requiring multiple     ;
    ; LUT4 primitives below.                                                    ;
    ; ------------------------------------------------------------------------- ;
-   (define lut5-interface
-     (make-primitive-interface 'LUT (make-interface-signature '(I0 I1 I2 I3 I4) '(O)) inputs-5))
-   (define lut6-interface
-     (make-primitive-interface 'LUT (make-interface-signature '(I0 I1 I2 I3 I4 I5) '(O)) inputs-6))
+   (define lut5-interface (make-lut-interface 5 1 inputs-5))
+   (define lut6-interface (make-lut-interface 6 1 inputs-6))
+
    ; ------------------------------------------------------------------------- ;
    ; Implement the above lut primitive interfaces.                             ;
    ; ------------------------------------------------------------------------- ;
