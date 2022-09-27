@@ -109,7 +109,7 @@
 ;
 ; This API also allows for already-allocated symbolic state to be passed in. The
 ; expected form is:
-; 
+;
 ;     (list
 ;       mux-symbolic-state
 ;       left-sub-lut-symbolic-state
@@ -194,7 +194,6 @@
      formal-ins
      actuals))
 
-
   (match type
     ['LUT
      (let ([num-inputs (primitive-interface-get-param prim-interface 'num-inputs)])
@@ -234,7 +233,8 @@
           (recursively-create-lut config prim-interface #:symbolic-state symbolic-state)]))]
     ['MUX
      (let ([num-inputs (primitive-interface-get-param prim-interface 'num-inputs)])
-       (when (not (= num-inputs 2)) (error "Only MUX21 are currently supported"))
+       (when (not (= num-inputs 2))
+         (error "Only MUX21 are currently supported"))
        (cons (lr:primitive 'PFUMX actuals '()) '()))]
     [else (error (format "unsupported primitive type ~a" type))]))
 
@@ -396,7 +396,6 @@
    ; ------------------------------------------------------------------------- ;
    (define lut5-interface (make-lut-interface 5 1 inputs-5))
    (define lut6-interface (make-lut-interface 6 1 inputs-6))
-
    ; ------------------------------------------------------------------------- ;
    ; Implement the above lut primitive interfaces.                             ;
    ; ------------------------------------------------------------------------- ;

@@ -53,7 +53,7 @@
 
 (define (lut-with-carry-sketch-generator arch-config logical-inputs)
   (match-define (list physical-inputs bitwidth lut-width) (process-inputs logical-inputs))
-  (let* (; This proc will be fed to foldr. It produces a list of 
+  (let* (; This proc will be fed to foldr. It produces a list of
          ; (cons lr:primitive symbolic-state) pairs
          [proc (lambda (phys-input xs)
                  ; First, make the primitive-interface we want to implement
@@ -69,8 +69,7 @@
                         [impl (implement-primitive-interface arch-config
                                                              prim-interface
                                                              #:symbolic-state symbolic-state)])
-                   (cons impl xs)))]
-         )
+                   (cons impl xs)))])
     '()))
 
 ;;;;;;;;; TESTS ;;;;;;;;
@@ -82,17 +81,17 @@
               (define-symbolic a b c d (bitvector 2))
               (define sketch (bitwise-sketch-generator ecp5:config (list a)))
               ; Check sketch:
-              (check-match sketch
-                           ; Sketch should produce a physical-to-logical mapping
-                           (physical-to-logical-mapping
-                            ; The first arg is a union over '(bitwise) and '(bitwise-reverse)
-                            ; TODO: Make a stronger assertion about this form
-                            (list _)
-                            ; The second arg is a list of primitives.
-                            ;
-                            ; There should be two primitives since we are
-                            ; working with logical inputs of 2 bits: each bit
-                            ; needs a single 'LUT' in this sketch
-                            (list (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT _)))
-                                  (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT _))))))
-              (pretty-print sketch)))))
+              (check-match
+               sketch
+               ; Sketch should produce a physical-to-logical mapping
+               (physical-to-logical-mapping
+                ; The first arg is a union over '(bitwise) and '(bitwise-reverse)
+                ; TODO: Make a stronger assertion about this form
+                (list _)
+                ; The second arg is a list of primitives.
+                ;
+                ; There should be two primitives since we are
+                ; working with logical inputs of 2 bits: each bit
+                ; needs a single 'LUT' in this sketch
+                (list (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT _)))
+                      (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT _))))))))))

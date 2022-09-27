@@ -117,6 +117,62 @@
          [params (list (cons 'num-inputs num-inputs))])
     (make-primitive-interface 'MUX sig inputs #:parameters params)))
 
+; A LUT With Carry interface represents N LUT-Ms hooked up to a carry chain.
+; This interface expects N * M + 1 inputs and produces N + 1 outputs.  Inputs
+; should be in the order (note the last input is a carry-in bit):
+;
+;     (list
+;         lut-1-input-1
+;         lut-1-input-2
+;            ...
+;         lut-1-input-M
+;         lut-2-input-1
+;         lut-2-input-2
+;            ...
+;         lut-2-input-M
+;            ...
+;            ...
+;         lut-N-input-1
+;         lut-N-input-2
+;            ...
+;         lut-N-input-M
+;         carry-in)
+;
+; Outputs should be in order:
+;
+;     (list
+;         lut-1-output
+;         lut-2-output
+;            ...
+;         lut-N-output
+;         carry-out)
+;
+; This has the following parameters:
+;  + num-luts
+;  + inputs-per-lut
+;  + num-inputs: always equal to (add1 (* num-luts inputs-per-lut))
+;  + num-outputs always equal to (add1 num-luts)
+(define (make-lut-with-carry-interface num-luts inputs-per-lut inputs)
+  (when (or (< inputs-per-lut 1) (< num-luts 1))
+    (error "lut-with-carry interface must have at least one input per lut and at least one lut"))
+  (let* (; A lut with a carry has num-luts * inputs-per-lut + 1 inputs,
+         ; where the +1 comes from the carry-in
+         [num-inputs (add1 (* inputs-per-lut num-luts))]
+         ; A lut with carry has an output for each lut plus a carry out
+         [num-outputs (add1 num-luts)]
+         [formal-inputs (append (for*/list ([lut-n num-luts] [lut-idx inputs-per-lut])
+                                  (list (string->symbol (format "I~a_~a" lut-n lut-idx)) 1))
+                                (list (list 'CIN 1)))]
+         [formal-outputs (append (for*/list ([lut-n num-luts])
+                                   (list (string->symbol (format "O~a" lut-n)) 1))
+                                 (list (list 'COUT 1)))]
+         [sig (make-interface-signature formal-inputs formal-outputs)]
+         [params (list (cons 'num-luts num-luts)
+                       (cons 'inputs-per-lut inputs-per-lut)
+                       (cons 'num-inputs num-inputs)
+                       (cons 'num-outputs num-outputs))])
+    (make-primitive-interface 'LUT-WITH-CARRY sig inputs #:parameters params)))
+
 (define (lut4-interface inputs)
   (make-lut-interface 4 1 inputs))
 
@@ -134,4 +190,19 @@
                (primitive-interface 'MUX
                                     (interface-signature '((D0 1) (D1 1) (S 1)) '((O 1)))
                                     '((num-inputs . 2))
-                                    '(1 2 3))))
+                                    '(1 2 3)))
+  (let ([carry-3-2 (make-lut-with-carry-interface 3 2 '(1 2 3 4 5 6 7))])
+    ;; Check form of carr-3-2
+    (check-match carry-3-2
+                 (primitive-interface
+                  'LUT-WITH-CARRY
+                  (interface-signature
+                   '((I0_0 1) (I0_1 1) (I1_0 1) (I1_1 1) (I2_0 1) (I2_1 1) (CIN 1))
+                   '((O0 1) (O1 1) (O2 1) (COUT 1)))
+                  _
+                  '(1 2 3 4 5 6 7)))
+    ;; Check parameters
+    (check-equal? (primitive-interface-get-param carry-3-2 'num-luts) 3)
+    (check-equal? (primitive-interface-get-param carry-3-2 'inputs-per-lut) 2)
+    (check-equal? (primitive-interface-get-param carry-3-2 'num-inputs) 7)
+    (check-equal? (primitive-interface-get-param carry-3-2 'num-outputs) 4)))
