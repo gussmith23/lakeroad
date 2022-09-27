@@ -25,7 +25,7 @@
                                                        logical-inputs)]
          [physical-inputs (for/list ([i bitwidth])
                             (lr:list-ref physical-inputs i))])
-    (list physical-inputs bitwidth lut-width))
+    (list physical-inputs bitwidth lut-width)))
 
 (define (bitwise-sketch-generator arch-config logical-inputs)
   (match-define (list physical-inputs bitwidth lut-width) (process-inputs logical-inputs))
@@ -35,10 +35,7 @@
          ; car ...)` applied to it to discard symbolic states
          [proc (lambda (phys-input xs)
                  ; First, make the primitive-interface we want to implement
-                 (let* ([prim-interface (make-primitive-interface
-                                         'LUT
-                                         (make-interface-signature-of-shape lut-width 1)
-                                         phys-input)]
+                 (let* ([prim-interface (make-lut-interface lut-width 1 phys-input)]
                         ; Next, grab previous symbolic state if it exists
                         [symbolic-state (match xs
                                           [(list (cons _ sym-state) _ ...) sym-state]
