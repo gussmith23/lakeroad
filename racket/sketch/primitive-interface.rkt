@@ -8,10 +8,10 @@
          (struct-out interface-signature)
          primitive-interface-num-inputs
          primitive-interface-num-outputs
-         lut4-interface
+         primitive-interface-get-param
+         make-mux-interface
+         make-lut-interface
          mux21-interface
-         lut?
-         mux?
          make-interface-signature-of-shape)
 
 ; Normalize a list of values. A "normal" value has type (list symbol? integer?)
@@ -41,7 +41,7 @@
   (provide normalize-signature-values))
 
 (struct interface-signature (inputs outputs) #:transparent)
-(struct primitive-interface (type sig inputs) #:transparent)
+(struct primitive-interface (type sig params inputs) #:transparent)
 
 (define (primitive-interface-num-inputs prim)
   (length (interface-signature-inputs (primitive-interface-sig prim))))
@@ -50,12 +50,18 @@
 (define (primitive-interface-type? prim type)
   (equal? (primitive-interface-type prim) type))
 
+; Retrieve a parameter from a primitive-interface: if no such paramter is
+; stored, returns #f
+(define (primitive-interface-get-param prim param)
+  (let* ([params (primitive-interface-params prim)] [pair (assoc param params)])
+    (if pair (cdr pair) #f)))
+
 (define (make-interface-signature-of-shape num-inputs num-outputs)
   (interface-signature (normalize-signature-values num-inputs #:name-base 'I)
                        (normalize-signature-values num-outputs #:name-base 'O)))
 
 ; NOTE: We rename-out this to `primitive-interface` to mask the struct's constructor
-(define (make-primitive-interface type sig inputs)
+(define (make-primitive-interface type sig inputs #:parameters [parameters '()])
   ; Let's sanity check types!
   (when (not (symbol? type))
     (error "primitive-interface type must be a symbol?"))
@@ -73,33 +79,59 @@
             type
             inputs
             (interface-signature-inputs sig))))
-  (primitive-interface type sig inputs))
+  ; Paramters must be a list of (cons symbol _)
+  (match parameters
+    ['() '()]
+    [(list (cons (? symbol?) _) ...) '()]
+    [_
+     (error (format "Invalid paramters: expected a list of (cons (? symbol?) _) but found ~a"
+                    parameters))])
+
+  (primitive-interface type sig parameters inputs))
 
 ; NOTE: We rename-out this to `interface-signature` to mask the struct's constructor
 (define (make-interface-signature formal-inputs formal-outputs)
   (interface-signature (normalize-signature-values formal-inputs)
                        (normalize-signature-values formal-outputs)))
 
+; Create a LUT interface on N inputs and M outputs
+(define (make-lut-interface num-inputs num-outputs inputs)
+  (when (or (< num-inputs 1) (< num-outputs 1))
+    (error "lut interface must have at least one input and one output"))
+  (let ([sig (make-interface-signature-of-shape num-inputs num-outputs)]
+        [params (list (cons 'num-inputs num-inputs) (cons 'num-outputs num-outputs))])
+    (make-primitive-interface 'LUT sig inputs #:parameters params)))
+
+; Create a MUX interface to select over N inputs
+;
+; Currently only muxing over single bits (we could, for instance, mux over 2
+; 8-bit numbers a and b, but we don't support this yet. I don't think we
+; actually would need to modify much to handle this)
+(define (make-mux-interface num-inputs inputs)
+  (when (or (< num-inputs 2))
+    (error "mux interface must have at least two inputs"))
+  (let* ([signal-names (for/list ([i num-inputs])
+                         (list (string->symbol (format "~a~a" 'D i)) 1))]
+         [formals (append signal-names '(S))]
+         [sig (make-interface-signature formals '(O))]
+         [params (list (cons 'num-inputs num-inputs))])
+    (make-primitive-interface 'MUX sig inputs #:parameters params)))
+
 (define (lut4-interface inputs)
-  (make-primitive-interface 'LUT (make-interface-signature '(I0 I1 I2 I3) '(O)) inputs))
+  (make-lut-interface 4 1 inputs))
 
 (define (mux21-interface D0 D1 S)
-  (primitive-interface 'MUX (make-interface-signature '(D0 D1 S) '(O)) (list D0 D1 S)))
-
-; Test if a value is a lakeroad lut primitive, and optionally test input and
-; output arity
-(define (lut? val #:input-arity [input-arity #f] #:output-arity [output-arity #f])
-  (and (primitive-interface? val)
-       (eq? (primitive-interface-type val) 'LUT)
-       (if input-arity (= (primitive-interface-num-inputs val) input-arity) #t)
-       (if output-arity (= (primitive-interface-num-outputs val) output-arity) #t)))
-
-(define (mux? val)
-  (and (primitive-interface? val) (primitive-interface-type? val 'MUX)))
+  (make-mux-interface 2 (list D0 D1 S)))
 
 (module+ test
   (require rackunit)
-  (check-true (lut? (lut4-interface '(1 2 3 4))))
-  (check-false (mux? (lut4-interface '(1 2 3 4))))
-  (check-true (mux? (mux21-interface 1 2 3)))
-  (check-false (lut? (mux21-interface 1 2 3))))
+  (check-match (lut4-interface '(1 2 3 4))
+               (primitive-interface 'LUT
+                                    (interface-signature '((I0 1) (I1 1) (I2 1) (I3 1)) '((O0 1)))
+                                    (list (cons 'num-inputs 4) (cons 'num-outputs 1))
+                                    '(1 2 3 4)))
+  (check-match (mux21-interface 1 2 3)
+               (primitive-interface 'MUX
+                                    (interface-signature '((D0 1) (D1 1) (S 1)) '((O 1)))
+                                    '((num-inputs . 2))
+                                    '(1 2 3))))
