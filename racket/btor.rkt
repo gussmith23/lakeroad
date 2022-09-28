@@ -2358,7 +2358,11 @@ here-string-delimiter
          ;;; to the module, and then that's the dictionary we'd use here. So if there's no inputs,
          ;;; there's no state. Does that make sense? State without input is a constant? I guess so. it
          ;;; would always be the init value, or if there's no init value...well idk.
-         (let* ([state-symbol (string->symbol (format "state~a" id))])
+         ;;;
+         ;;; The symbol for this state is given a default name unless the name is provided.
+         (let* ([state-symbol (if (equal? (length name) 1)
+                                  (string->symbol (first name))
+                                  (string->symbol (format "state~a" id)))])
            (hash-set! state-symbols (string->number id-str) state-symbol)
            (hash-set! state-types state-symbol (hash-ref sorts (string->number sort-id-str)))
            ;;; From the merged state formed by merging the state of all the inputs, find the state
