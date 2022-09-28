@@ -2384,7 +2384,7 @@ here-string-delimiter
         [`("sort" "bitvec" ,width-str)
          (hash-set! sorts (string->number id-str) (bitvector (string->number width-str)))
          (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))]
-        [`("sort" "array" ,element-width-str ,index-width-str)
+        [`("sort" "array" ,index-width-str ,element-width-str)
          (hash-set! sorts (string->number id-str) vector?)
          (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))]
         ;;; Sometimes the .btor files contain inputs without names. I'm pretty sure these correspond
