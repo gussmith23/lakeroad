@@ -194,14 +194,19 @@
      formal-ins
      actuals))
 
+  ; Helper funtion for readability
+  (define (get-param param)
+    (primitive-interface-get-param prim-interface param))
+
   (match type
     ['LUT
-     (let ([num-inputs (primitive-interface-get-param prim-interface 'num-inputs)])
+     (let ([num-inputs (get-param 'num-inputs)])
        (cond
          [(< num-inputs 4) ; Pad extra constant bitvectors to inputs and use for LUT4
           (let* ([pad-size (- 4 num-inputs)]
                  [pads (make-list pad-size (bv 1 1))] ; Default to padding to high
                  [padded-actuals (lr:append (list actuals pads))] ; We pad inputs to the right
+                 [padded-actuals (lr:map cons (list '(A B C D) padded-actuals))]
                  [sym-state (match symbolic-state
                               ; If no symbolic state is present we build up an
                               ; assoc list mapping the only parameter (INIT) to
@@ -227,15 +232,104 @@
                               [else
                                (error (string-append "Invalid symbolic state for ECP5 LUT4:\n"
                                                      "Expected (list (cons 'INIT _)) but got"
-                                                     symbolic-state))])])
+                                                     symbolic-state))])]
+                 [actuals (lr:map cons (list '(A B C D) actuals))])
             (cons (lr:primitive 'LUT4 actuals sym-state) sym-state))]
          [(> num-inputs 4)
           (recursively-create-lut config prim-interface #:symbolic-state symbolic-state)]))]
     ['MUX
-     (let ([num-inputs (primitive-interface-get-param prim-interface 'num-inputs)])
+     (let ([num-inputs (get-param 'num-inputs)])
        (when (not (= num-inputs 2))
          (error "Only MUX21 are currently supported"))
-       (cons (lr:primitive 'PFUMX actuals '()) '()))]
+       (cons (lr:primitive 'PFUMX (lr:map cons (list '(ALUT BLUT C0) actuals)) '()) '()))]
+    ['LUT-WITH-CARRY
+     (let* ([num-luts (get-param 'num-luts)]
+            [inputs-per-lut (get-param 'inputs-per-lut)]
+            [num-inputs (get-param 'num-inputs)]
+            [num-outputs (get-param 'num-outputs)]
+            [sym-state (error "todo")]
+            ; Now we want a procedure to fold over CCU2Cs. This takes two inputs:
+            ; + the list of remaining physical inputs
+            ; + the accumulator data value, a list comprising:
+            ;   1. the carry-out from the previous ccu2c
+            ;   2. a list of the generated sum-bits
+            ;   3. number of luts left to generate
+            ;
+            ; Symbolic state must one of the following forms
+            ; + #f: this represents no symbolic state has been generated yet
+            ; + (cons SUM-LUT-STATE EXTRA-LUT-STATE): this represents symbolic state
+            ;   that has maybe been allocated.
+            ;   - SUM-LUT-STATE is the state of a SUM lut (the main kind of
+            ;     lut), and is used for all LUTs in CCU2Cs except for maybe the
+            ;     final LUT in the case of odd arity.
+            ;
+            ;   - EXTRA-LUT-STATE is state for a LUT that isn't used in a CCU2C.
+            ;     However, it might need to pass some carry information along,
+            ;     so we need to synthesize over it. EXTRA-LUT-STATE is only used
+            ;     when an odd number of sum-bits are computed, and only for the
+            ;     last LUT created to represent such an expression.
+            ;
+            ; Both SUM-LUT-STATE and EXTRA-LUT-STATE are either #f (unallocated)
+            ; or an assoc list of the form:
+            ;
+            ;   (list (cons 'INIT (bitvector 16)) (cons 'INJECT1 (bitvector 1)))
+            ;
+            ; NOTE: We need to start folding on the LSB and build up to the MSB.
+            ; This is because the MSB requires the carry-in from the previous
+            ; CCU2C.
+            ;
+            ; Inputs are expected to look like this:
+            ;
+            [proc
+             (lambda (phys-inputs acc)
+               (match-let*
+                   (; First, destructure the accumulator value
+                    [(list prev-carry-out sum-bits num-luts-left) acc]
+                    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                    ;                      SYMBOLIC STATE
+                    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                    ; Let's get symbolic state sorted. By construction we have
+                    ; at least one sum lut, so this will be our LUTA
+                    [(cons sum-lut-state extra-lut-state) sym-state]
+                    [sym-state-a (list (cons 'INIT0 (cdr (assoc 'INIT sum-lut-state)))
+                                       (cons 'INJECT1_0 (cdr (assoc 'INJECT1 sum-lut-state))))]
+                    ; Our sym-state-b depends on whether or not this is a sum
+                    ; lut or an extra lut. This is determined by num-luts-left.
+                    ; If this is > 1 then we need at least another sum-lut.
+                    ; Otherwise, this is an extra lut
+                    [sym-state-b (if (equal? 1 num-luts-left)
+                                     (list (cons 'INIT1 (cdr (assoc 'INIT extra-lut-state)))
+                                           (cons 'INJECT1_1 (cdr (assoc 'INJECT1 extra-lut-state))))
+                                     (list (cons 'INIT1 (cdr (assoc 'INIT sum-lut-state)))
+                                           (cons 'INJECT1_1 (cdr (assoc 'INJECT1 sum-lut-state)))))]
+                    ; combine these into a single ccu2c params
+                    [sym-state-ccu2c (append sym-state-b sym-state-a)]
+
+                    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                    ;                      ACTUAL INPUTS
+                    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                    ; As with the above symbolic state we know that, by
+                    ; construction, we always have inputs for a
+                    [(cons actuals-a phys-inputs) phys-inputs]
+
+                    ; The actual inputs to b and the remaining physical-inputs
+                    ; depend on predicate (equal? num-luts-left 1), so as with
+                    ; sym-state-b we build these values conditioned on this
+                    ; predicate.
+                    [(cons actuals-b phys-inputs) (if (equal? num-luts-left 1)
+                                                      ; we are creating 'dummy'
+                                                      ; inputs, so just a bunch
+                                                      ; of bits wired to high
+                                                      (cons (for/list ([i inputs-per-lut])
+                                                              (bv 1 1))
+                                                            '())
+                                                      ; we are taking and
+                                                      ; dropping as normal
+                                                      phys-inputs)]
+                    [actuals (append actuals-a actuals-b)]
+                    [ccu2c (lr:primitive 'CCU2C actuals sym-state-ccu2c)])
+                 '()))])
+       (error "todo"))]
     [else (error (format "unsupported primitive type ~a" type))]))
 
 (define ecp5:config (make-arch-config 'Lattice-ECP5 (list ecp5:lut4 ecp5:l6mux21) ecp5:impl))
@@ -302,16 +396,22 @@
    (check-match lut4-prim (lr:primitive 'LUT4 inputs-4 (list (cons 'INIT _))))
    ; TODO: i'm having trouble getting the (bv _ _)s to match when I change them
    ; to literals (bv #b1 1)
+   (check-match lut3-prim
+                (lr:primitive
+                 'LUT4
+                 (lr:map cons (list '(A B C D) (lr:append (list inputs-3 (list (bv _ _))))))
+                 (list (cons 'INIT _))))
+   (check-match lut2-prim
+                (lr:primitive
+                 'LUT4
+                 (lr:map cons (list '(A B C D) (lr:append (list inputs-2 (list (bv _ _) (bv _ _))))))
+                 (list (cons 'INIT _))))
    (check-match
-    lut3-prim
-    (lr:primitive 'LUT4 (lr:append (list inputs-3 (list (bv _ _)))) (list (cons 'INIT _))))
-   (check-match
-    lut2-prim
-    (lr:primitive 'LUT4 (lr:append (list inputs-2 (list (bv _ _) (bv _ _)))) (list (cons 'INIT _))))
-   (check-match lut1-prim
-                (lr:primitive 'LUT4
-                              (lr:append (list inputs-1 (list (bv _ _) (bv _ _) (bv _ _))))
-                              (list (cons 'INIT _))))
+    lut1-prim
+    (lr:primitive
+     'LUT4
+     (lr:map cons (list '(A B C D) (lr:append (list inputs-1 (list (bv _ _) (bv _ _) (bv _ _))))))
+     (list (cons 'INIT _))))
    ; ------------------------------------------------------------------------- ;
    ; Test that symbolic states are of the correct form                         ;
    ;                                                                           ;
@@ -407,28 +507,58 @@
    ; Test that these implementations are all the correct form.                 ;
    ; ------------------------------------------------------------------------- ;
    ; Destructure the lut5 primitive. We do this step by step:
-   (match-let* ([(lr:primitive 'PFUMX (list (lr:first lut-a) (lr:first lut-b) selector) '())
-                 lut5-prim]
-                [(lr:primitive 'LUT4 (list 1 2 3 4) (list (cons 'INIT sym-state-a))) lut-a]
-                [(lr:primitive 'LUT4 (list 1 2 3 4) (list (cons 'INIT sym-state-b))) lut-b])
+   (match-let* ([(lr:primitive
+                  'PFUMX
+                  (lr:map _ (list '(ALUT BLUT C0) (list (lr:first lut-a) (lr:first lut-b) selector)))
+                  '()) lut5-prim]
+                [(lr:primitive 'LUT4
+                               (lr:map _ (list '(A B C D) (list 1 2 3 4)))
+                               (list (cons 'INIT sym-state-a))) lut-a]
+                [(lr:primitive 'LUT4
+                               (lr:map _ (list '(A B C D) (list 1 2 3 4)))
+                               (list (cons 'INIT sym-state-b))) lut-b])
      (check-equal? 0 selector)
      (check-not-equal? sym-state-a sym-state-b)
      (check-true ((bitvector 16) sym-state-a))
      (check-true ((bitvector 16) sym-state-b)))
    ; Destructure the lut6 primitive. We do this step by step:
-   (match-define (lr:primitive 'PFUMX (list (lr:first lut5-a) (lr:first lut5-b) selector-1) '())
+   (match-define (lr:primitive 'PFUMX
+                               (lr:map _
+                                       (list '(ALUT BLUT C0)
+                                             (list (lr:first lut5-a) (lr:first lut5-b) selector-1)))
+                               '())
      lut6-prim)
    ; Destructure second layer of PFUMXs. In this layer we bind lut4-a..lut4-d
-   (match-define (lr:primitive 'PFUMX (list (lr:first lut4-a) (lr:first lut4-b) selector-2-a) '())
+   (match-define (lr:primitive 'PFUMX
+                               (lr:map _
+                                       (list '(ALUT BLUT C0)
+                                             (list (lr:first lut4-a) (lr:first lut4-b) selector-2-a)))
+                               '())
      lut5-a)
-   (match-define (lr:primitive 'PFUMX (list (lr:first lut4-c) (lr:first lut4-d) selector-2-b) '())
+   (match-define (lr:primitive 'PFUMX
+                               (lr:map _
+                                       (list '(ALUT BLUT C0)
+                                             (list (lr:first lut4-c) (lr:first lut4-d) selector-2-b)))
+                               '())
      lut5-b)
    ; Destructure third layer of LUT4s. In this layer we bind
    ; sym-state-a..sym-state-d
-   (match-define (lr:primitive 'LUT4 (list 2 3 4 5) (list (cons 'INIT sym-state-a))) lut4-a)
-   (match-define (lr:primitive 'LUT4 (list 2 3 4 5) (list (cons 'INIT sym-state-b))) lut4-b)
-   (match-define (lr:primitive 'LUT4 (list 2 3 4 5) (list (cons 'INIT sym-state-c))) lut4-c)
-   (match-define (lr:primitive 'LUT4 (list 2 3 4 5) (list (cons 'INIT sym-state-d))) lut4-d)
+   (match-define (lr:primitive 'LUT4
+                               (lr:map _ (list '(A B C D) (list 2 3 4 5)))
+                               (list (cons 'INIT sym-state-a)))
+     lut4-a)
+   (match-define (lr:primitive 'LUT4
+                               (lr:map _ (list '(A B C D) (list 2 3 4 5)))
+                               (list (cons 'INIT sym-state-b)))
+     lut4-b)
+   (match-define (lr:primitive 'LUT4
+                               (lr:map _ (list '(A B C D) (list 2 3 4 5)))
+                               (list (cons 'INIT sym-state-c)))
+     lut4-c)
+   (match-define (lr:primitive 'LUT4
+                               (lr:map _ (list '(A B C D) (list 2 3 4 5)))
+                               (list (cons 'INIT sym-state-d)))
+     lut4-d)
    ; Commence the test!
    (check-equal? 0 selector-1)
    (check-equal? 1 selector-2-a)
