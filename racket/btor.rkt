@@ -2328,7 +2328,12 @@ here-string-delimiter
                           (signal-value ,(get-expr-id-str next-val-id-str))))]
         ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
         [`("init" ,sort-id-str ,state-id-str ,val-id-str) (void)]
-        [`("state" ,sort-id-str)
+        ;;; `name` is optional. We approximate optional using `...`, which will match whatever's left.
+        ;;; Then we can check whether `name` has length 0 or 1.
+        [`("state" ,sort-id-str ,name ...)
+         (when (not (or (equal? (length name) 0) (equal? (length name) 1)))
+           (error "expected 1 or 2 arguments to 'state', but go ~a" tokens))
+
          ;;; It should draw from the incoming state. But how? The problem is that, with our current
          ;;; setup, i think you have to get the state value from a "nearby" signal that's also in
          ;;; context. Does there need to be some kind of top level wrapper that holds state? state can
