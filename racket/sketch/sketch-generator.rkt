@@ -90,21 +90,23 @@
                       ; TODO: make stronger assertions on the inputs to each of the luts
                       (list (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT _)))
                             (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT _))))))
-        (check-match sketch-2
-                     ; Sketch should produce a physical-to-logical mapping
-                     (physical-to-logical-mapping
-                      ; The first arg is a union over '(bitwise) and '(bitwise-reverse)
-                      ; TODO: Make a stronger assertion about this form
-                      (list _)
-                      ; The second arg is a list of primitives.
-                      ;
-                      ; There should be two primitives since we are
-                      ; working with logical inputs of 2 bits: each bit
-                      ; needs a single 'LUT' in this sketch
-                      ;
-                      ; TODO: make stronger assertions on the inputs to each of the luts
-                      (list (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT (? (bitvector 16)))))
-                            (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT (? (bitvector 16))))))))))))
+        (check-match
+         sketch-2
+         ; Sketch should produce a physical-to-logical mapping
+         (physical-to-logical-mapping
+          ; The first arg is a union over '(bitwise) and '(bitwise-reverse)
+          ; TODO: Make a stronger assertion about this form
+          (list _)
+          ; The second arg is a list of primitives.
+          ;
+          ; There should be two primitives since we are
+          ; working with logical inputs of 2 bits: each bit
+          ; needs a single 'LUT' in this sketch
+          ;
+          ; TODO: make stronger assertions on the inputs to each of the luts
+          (list
+           (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT (? (bitvector 16)))))
+           (lr:primitive 'LUT4 (lr:append (? list)) (list (cons 'INIT (? (bitvector 16))))))))))))
   (clear-terms!)
   (clear-vc!)
 
@@ -116,19 +118,18 @@
               (define-symbolic a b c d (bitvector 2))
               (let ([sketch-1 (luts-with-carry-sketch-generator ecp5:config (list a))])
                 ; Check that the sketch is of the correct form.
-                (check-match
-                 sketch-1
-                 ; Sketch should produce a physical-to-logical mapping
-                 (physical-to-logical-mapping
-                  ; The first arg is a union over '(bitwise) and '(bitwise-reverse)
-                  ; TODO: Make a stronger assertion about this form
-                  (list _)
-                  ; The second arg is a list of primitives.
-                  ;
-                  ; There should be two primitives since we are
-                  ; working with logical inputs of 2 bits: each bit
-                  ; needs a single 'LUT' in this sketch
-                  (list (lr:primitive 'CCU2C (lr:append (? list)) (? list)))))
+                (check-match sketch-1
+                             ; Sketch should produce a physical-to-logical mapping
+                             (physical-to-logical-mapping
+                              ; The first arg is a union over '(bitwise) and '(bitwise-reverse)
+                              ; TODO: Make a stronger assertion about this form
+                              (list _)
+                              ; The second arg is a list of primitives.
+                              ;
+                              ; There should be two primitives since we are
+                              ; working with logical inputs of 2 bits: each bit
+                              ; needs a single 'LUT' in this sketch
+                              (list (lr:primitive 'CCU2C (lr:append (? list)) (? list)))))
                 ; Sketch is of the correct form but we haven't tried to match
                 ; the assoc list of paramters
                 (match-let ([(lr:primitive 'CCU2C _ params) sketch-1])
