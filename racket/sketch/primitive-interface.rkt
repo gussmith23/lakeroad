@@ -11,6 +11,7 @@
          primitive-interface-get-param
          make-mux-interface
          make-lut-interface
+         make-lut-with-carry-interface
          mux21-interface
          make-interface-signature-of-shape)
 
