@@ -2318,7 +2318,34 @@ here-string-delimiter
                  [(cons id-str tokens) (string-split line)]
                  [id (string->number id-str)])
       (match tokens
-        [`("next" ,sort-id-str ,state-id-str ,next-val-id-str)
+        [`("read" ,sort-id-str ,array-id-str ,index-id-str)
+         (let ([array (get-expr-id-str array-id-str)] [index (get-expr-id-str index-id-str)])
+           (add-expr-id-str id-str
+                            `(signal (vector-ref-bv (signal-value ,array) (signal-value ,index))
+                                     (merge-state (list ,array ,index)))))]
+        [`("write" ,sort-id-str ,array-id-str ,index-id-str ,value-id-str)
+         (let ([array (get-expr-id-str array-id-str)]
+               [index (get-expr-id-str index-id-str)]
+               [value (get-expr-id-str value-id-str)])
+           (add-expr-id-str
+            id-str
+            `(begin
+               (vector-set!-bv (signal-value ,array) (signal-value ,index) (signal-value ,value))
+               (signal (signal-value ,array) (merge-state (list ,array ,index ,value))))))]
+        ;;; `next` can optionally have a name associated with it.
+        [`("next" ,sort-id-str ,state-id-str ,next-val-id-str ,maybe-name-str ...)
+         ;;; Check that there's at most one name.
+         (when (> (length maybe-name-str) 1)
+           (error "expected three or four arguments to 'next', but got ~a" tokens))
+
+         ;;; If the name is set, make sure it matches the name we originally gave the state.
+         (when (and (equal? (length maybe-name-str) 1)
+                    (not (equal? (string->symbol (first maybe-name-str))
+                                 (hash-ref state-symbols (string->number state-id-str)))))
+           (error "setting state with name ~a but reassigning with new name ~a"
+                  (first maybe-name-str)
+                  (hash-ref state-symbols (string->number state-id-str))))
+
          ;;; A next statement determines the value of the state var that we return out.
          ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
          ;;; the output value for the state.
