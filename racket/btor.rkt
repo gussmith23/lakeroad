@@ -2265,6 +2265,11 @@ here-string-delimiter
   ;;; The expression for the output state hash.
   (define output-state-hash '(hash))
 
+  ;;; When a state is not in the state hash, we use these functions to get an initial value.
+  ;;;
+  ;;; Maps id (integer) of a sort expression to a function that returns a default value for that sort.
+  (define get-default-value-fn-hash (make-hash))
+
   ;;; Annoyingly, initial state values are defined at the end of btor files, but we need the init
   ;;; values at the beginning. So we do a first pass to compile the init values.
 
@@ -2402,22 +2407,40 @@ here-string-delimiter
                         (bv->signal (hash-ref ,merged-input-state-hash-symbol ',state-symbol))]
                        [(hash-has-key? ,init-hash-symbol ',state-symbol)
                         (bv->signal (hash-ref ,init-hash-symbol ',state-symbol))]
+                       ;;;  [else
+                       ;;;   (log-warning
+                       ;;;    "state ~a with no initial value, init to 0, this may not be correct in the long term"
+                       ;;;    ',state-symbol)
+                       ;;;   (bv->signal (bv 0 ,(hash-ref sorts (string->number sort-id-str))))]
                        [else
-                        (log-warning
-                         "state ~a with no initial value, init to 0, this may not be correct in the long term"
-                         ',state-symbol)
-                        (bv->signal (bv 0 ,(hash-ref sorts (string->number sort-id-str))))])])
+                        (bv->signal (,(hash-ref get-default-value-fn-hash
+                                                (string->number sort-id-str))))])])
                (when (not (signal? state-value))
                  (error "Expected signal"))
-               (when (not (bv? (signal-value state-value)))
-                 (error "Signal value invalid"))
+               ;;; TODO(@gussmith23): Signals don't just have to contain bvs, now that we've enabled
+               ;;; arrays.
+               ;;;  (when (not (bv? (signal-value state-value)))
+               ;;;    (error "Signal value invalid"))
                state-value)))]
         [`("sort" "bitvec" ,width-str)
          (hash-set! sorts (string->number id-str) (bitvector (string->number width-str)))
-         (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))]
-        [`("sort" "array" ,index-width-str ,element-width-str)
+         (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))
+         (hash-set! get-default-value-fn-hash
+                    (string->number id-str)
+                    `(lambda ()
+                       (log-warning
+                        "Getting default value of 0 for bitvector, this may be a bad idea!")
+                       (bv 0 ,(string->number width-str))))]
+        [`("sort" "array" ,index-sort-id-str ,element-sort-id-str)
          (hash-set! sorts (string->number id-str) vector?)
-         (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))]
+         (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))
+         (hash-set!
+          get-default-value-fn-hash
+          (string->number id-str)
+          `(lambda ()
+             (log-warning "Getting default value array of 0s for array, this may be a bad idea!")
+             (make-vector (expt 2 (bitvector-size ,(id-str-to-btor-id index-sort-id-str)))
+                          (bv 0 (bitvector-size ,(id-str-to-btor-id element-sort-id-str))))))]
         ;;; Sometimes the .btor files contain inputs without names. I'm pretty sure these correspond
         ;;; either to Z or X values, or both.
         [`("input" ,type-id-str)
