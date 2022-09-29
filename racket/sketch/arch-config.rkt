@@ -8,7 +8,6 @@
 
 (provide make-signature
          (struct-out signature)
-         make-arch-config
          arch-config
          make-primitive
          primitive
@@ -79,13 +78,6 @@
 ; `implementations` outputs
 ;
 (struct arch-config (arch-name primitives implementations) #:transparent)
-
-; make-arch-config: a wrapper around the `arch-config` constructor.
-;
-; TODO: document function
-; NOTE: We rename-out this to `arch-config` to mask the struct's constructor
-(define (make-arch-config architecture primitives implementations)
-  (arch-config architecture primitives implementations))
 
 ; implement-primitive-interface: ask an arch-config for an implementation of a
 ; primitive interface, optionally using some already allocated symbolic state
@@ -197,6 +189,15 @@
   ; Helper funtion for readability
   (define (get-param param)
     (primitive-interface-get-param prim-interface param))
+  (define (make-lut4 actuals params)
+    (lr:primitive 'LUT4 (lr:map cons (list '(A B C D) actuals)) params))
+  (define (make-pfumx actuals)
+    (lr:primitive 'PFUMX (lr:map cons (list '(ALUT BLUT C0) actuals)) '()))
+  (define (make-ccu2c actuals-a actuals-b cin params)
+    (let* ([actuals-a (lr:map cons (list '(A0 B0 C0 D0) actuals-a))]
+           [actuals-b (lr:map cons (list '(A1 B1 C1 D1) actuals-b))]
+           [actuals (cons (cons 'CIN cin) (append actuals-a actuals-b))])
+      (lr:primitive 'CCU2C actuals params)))
 
   (match type
     ['LUT
@@ -206,7 +207,6 @@
           (let* ([pad-size (- 4 num-inputs)]
                  [pads (make-list pad-size (bv 1 1))] ; Default to padding to high
                  [padded-actuals (lr:append (list actuals pads))] ; We pad inputs to the right
-                 [padded-actuals (lr:map cons (list '(A B C D) padded-actuals))]
                  [sym-state (match symbolic-state
                               ; If no symbolic state is present we build up an
                               ; assoc list mapping the only parameter (INIT) to
@@ -221,7 +221,7 @@
                                (error (string-append "Invalid symbolic state for ECP5 LUT4:\n"
                                                      "Expected (list (cons 'INIT _)) but got"
                                                      symbolic-state))])])
-            (cons (lr:primitive 'LUT4 padded-actuals sym-state) sym-state))]
+            (cons (make-lut4 padded-actuals sym-state) sym-state))]
          [(= num-inputs 4)
           (let* ([sym-state (match symbolic-state
                               ; TODO: sym state allocation should be done
@@ -232,33 +232,31 @@
                               [else
                                (error (string-append "Invalid symbolic state for ECP5 LUT4:\n"
                                                      "Expected (list (cons 'INIT _)) but got"
-                                                     symbolic-state))])]
-                 [actuals (lr:map cons (list '(A B C D) actuals))])
-            (cons (lr:primitive 'LUT4 actuals sym-state) sym-state))]
+                                                     symbolic-state))])])
+            (cons (make-lut4 actuals sym-state) sym-state))]
          [(> num-inputs 4)
           (recursively-create-lut config prim-interface #:symbolic-state symbolic-state)]))]
     ['MUX
      (let ([num-inputs (get-param 'num-inputs)])
        (when (not (= num-inputs 2))
          (error "Only MUX21 are currently supported"))
-       (cons (lr:primitive 'PFUMX (lr:map cons (list '(ALUT BLUT C0) actuals)) '()) '()))]
+       (cons (make-pfumx actuals) '()))]
     ['LUT-WITH-CARRY
      (let* ([num-luts (get-param 'num-luts)]
             [inputs-per-lut (get-param 'inputs-per-lut)]
             [num-inputs (get-param 'num-inputs)]
             [num-outputs (get-param 'num-outputs)]
-            [sym-state (error "todo")]
+            [sum-lut-state (list (cons 'INIT (??* (bitvector 16))) ('INJECT1 (??* (bitvector 1))))]
+            [extra-lut-state (list (cons 'INIT (??* (bitvector 16))) ('INJECT1 (??* (bitvector 1))))]
+            [sym-state (sum-lut-state extra-lut-state)]
             ; Now we want a procedure to fold over CCU2Cs. This takes two inputs:
             ; + the list of remaining physical inputs
             ; + the accumulator data value, a list comprising:
-            ;   1. the carry-out from the previous ccu2c
-            ;   2. a list of the generated sum-bits
-            ;   3. number of luts left to generate
+            ;   1. a list of the generated sum-bits
+            ;   2. the carry-out from the previous ccu2c
             ;
-            ; Symbolic state must one of the following forms
-            ; + #f: this represents no symbolic state has been generated yet
-            ; + (cons SUM-LUT-STATE EXTRA-LUT-STATE): this represents symbolic state
-            ;   that has maybe been allocated.
+            ; Symbolic state is of form (cons SUM-LUT-STATE EXTRA-LUT-STATE),
+            ; where
             ;   - SUM-LUT-STATE is the state of a SUM lut (the main kind of
             ;     lut), and is used for all LUTs in CCU2Cs except for maybe the
             ;     final LUT in the case of odd arity.
@@ -284,7 +282,8 @@
              (lambda (phys-inputs acc)
                (match-let*
                    (; First, destructure the accumulator value
-                    [(list prev-carry-out sum-bits num-luts-left) acc]
+                    [(list sum-bits cin) acc]
+                    [num-luts-left (- num-luts (length sum-bits))]
                     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                     ;                      SYMBOLIC STATE
                     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -303,7 +302,7 @@
                                      (list (cons 'INIT1 (cdr (assoc 'INIT sum-lut-state)))
                                            (cons 'INJECT1_1 (cdr (assoc 'INJECT1 sum-lut-state)))))]
                     ; combine these into a single ccu2c params
-                    [sym-state-ccu2c (append sym-state-b sym-state-a)]
+                    [ccu2c-params (append sym-state-b sym-state-a)]
 
                     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                     ;                      ACTUAL INPUTS
@@ -326,13 +325,17 @@
                                                       ; we are taking and
                                                       ; dropping as normal
                                                       phys-inputs)]
-                    [actuals (append actuals-a actuals-b)]
-                    [ccu2c (lr:primitive 'CCU2C actuals sym-state-ccu2c)])
-                 '()))])
+                    [ccu2c (make-ccu2c actuals-a actuals-b cin ccu2c-params)]
+                    ; Now, let's get the sum bits and carry-out bits from the ccu2c
+                    [s0 (lr:list-ref ccu2c 0)]
+                    [s1 (lr:list-ref ccu2c 1)]
+                    [cout (lr:list-ref ccu2c 2)]
+                    [sum-bits (cons s1 (cons s0 sum-bits))])
+                 (list sum-bits cout (- num-luts-left 2))))])
        (error "todo"))]
     [else (error (format "unsupported primitive type ~a" type))]))
 
-(define ecp5:config (make-arch-config 'Lattice-ECP5 (list ecp5:lut4 ecp5:l6mux21) ecp5:impl))
+(define ecp5:config (arch-config 'Lattice-ECP5 (list ecp5:lut4 ecp5:l6mux21) ecp5:impl))
 
 (module* test-values #f
   (provide ecp5:lut4
