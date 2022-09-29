@@ -198,6 +198,14 @@
            [actuals-b (lr:map cons (list '(A1 B1 C1 D1) actuals-b))]
            [actuals (cons (cons 'CIN cin) (append actuals-a actuals-b))])
       (lr:primitive 'CCU2C actuals params)))
+  ; This is a helper function for CCU2C. We want to fold over inputs two at a
+  ; time, so we make inputs into a list of (cons .. ..). We add a default value
+  ; at the end if needed of size bits-per-lut
+  (define (inputs->pairs inputs bits-per-lut)
+    (match inputs
+      ['() '()]
+      [(list x) (list (cons x (make-list bits-per-lut (bv 1 1))))]
+      [(list a b c ...) (cons (cons a b) (inputs->pairs c bits-per-lut))]))
 
   (match type
     ['LUT
@@ -242,97 +250,89 @@
          (error "Only MUX21 are currently supported"))
        (cons (make-pfumx actuals) '()))]
     ['LUT-WITH-CARRY
-     (let* ([num-luts (get-param 'num-luts)]
-            [inputs-per-lut (get-param 'inputs-per-lut)]
-            [num-inputs (get-param 'num-inputs)]
-            [num-outputs (get-param 'num-outputs)]
-            [sum-lut-state (list (cons 'INIT (??* (bitvector 16))) ('INJECT1 (??* (bitvector 1))))]
-            [extra-lut-state (list (cons 'INIT (??* (bitvector 16))) ('INJECT1 (??* (bitvector 1))))]
-            [sym-state (sum-lut-state extra-lut-state)]
-            ; Now we want a procedure to fold over CCU2Cs. This takes two inputs:
-            ; + the list of remaining physical inputs
-            ; + the accumulator data value, a list comprising:
-            ;   1. a list of the generated sum-bits
-            ;   2. the carry-out from the previous ccu2c
-            ;
-            ; Symbolic state is of form (cons SUM-LUT-STATE EXTRA-LUT-STATE),
-            ; where
-            ;   - SUM-LUT-STATE is the state of a SUM lut (the main kind of
-            ;     lut), and is used for all LUTs in CCU2Cs except for maybe the
-            ;     final LUT in the case of odd arity.
-            ;
-            ;   - EXTRA-LUT-STATE is state for a LUT that isn't used in a CCU2C.
-            ;     However, it might need to pass some carry information along,
-            ;     so we need to synthesize over it. EXTRA-LUT-STATE is only used
-            ;     when an odd number of sum-bits are computed, and only for the
-            ;     last LUT created to represent such an expression.
-            ;
-            ; Both SUM-LUT-STATE and EXTRA-LUT-STATE are either #f (unallocated)
-            ; or an assoc list of the form:
-            ;
-            ;   (list (cons 'INIT (bitvector 16)) (cons 'INJECT1 (bitvector 1)))
-            ;
-            ; NOTE: We need to start folding on the LSB and build up to the MSB.
-            ; This is because the MSB requires the carry-in from the previous
-            ; CCU2C.
-            ;
-            ; Inputs are expected to look like this:
-            ;
-            [proc
-             (lambda (phys-inputs acc)
-               (match-let*
-                   (; First, destructure the accumulator value
-                    [(list sum-bits cin) acc]
-                    [num-luts-left (- num-luts (length sum-bits))]
-                    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                    ;                      SYMBOLIC STATE
-                    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                    ; Let's get symbolic state sorted. By construction we have
-                    ; at least one sum lut, so this will be our LUTA
-                    [(cons sum-lut-state extra-lut-state) sym-state]
-                    [sym-state-a (list (cons 'INIT0 (cdr (assoc 'INIT sum-lut-state)))
-                                       (cons 'INJECT1_0 (cdr (assoc 'INJECT1 sum-lut-state))))]
-                    ; Our sym-state-b depends on whether or not this is a sum
-                    ; lut or an extra lut. This is determined by num-luts-left.
-                    ; If this is > 1 then we need at least another sum-lut.
-                    ; Otherwise, this is an extra lut
-                    [sym-state-b (if (equal? 1 num-luts-left)
-                                     (list (cons 'INIT1 (cdr (assoc 'INIT extra-lut-state)))
-                                           (cons 'INJECT1_1 (cdr (assoc 'INJECT1 extra-lut-state))))
-                                     (list (cons 'INIT1 (cdr (assoc 'INIT sum-lut-state)))
-                                           (cons 'INJECT1_1 (cdr (assoc 'INJECT1 sum-lut-state)))))]
-                    ; combine these into a single ccu2c params
-                    [ccu2c-params (append sym-state-b sym-state-a)]
-
-                    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                    ;                      ACTUAL INPUTS
-                    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                    ; As with the above symbolic state we know that, by
-                    ; construction, we always have inputs for a
-                    [(cons actuals-a phys-inputs) phys-inputs]
-
-                    ; The actual inputs to b and the remaining physical-inputs
-                    ; depend on predicate (equal? num-luts-left 1), so as with
-                    ; sym-state-b we build these values conditioned on this
-                    ; predicate.
-                    [(cons actuals-b phys-inputs) (if (equal? num-luts-left 1)
-                                                      ; we are creating 'dummy'
-                                                      ; inputs, so just a bunch
-                                                      ; of bits wired to high
-                                                      (cons (for/list ([i inputs-per-lut])
-                                                              (bv 1 1))
-                                                            '())
-                                                      ; we are taking and
-                                                      ; dropping as normal
-                                                      phys-inputs)]
-                    [ccu2c (make-ccu2c actuals-a actuals-b cin ccu2c-params)]
-                    ; Now, let's get the sum bits and carry-out bits from the ccu2c
-                    [s0 (lr:list-ref ccu2c 0)]
-                    [s1 (lr:list-ref ccu2c 1)]
-                    [cout (lr:list-ref ccu2c 2)]
-                    [sum-bits (cons s1 (cons s0 sum-bits))])
-                 (list sum-bits cout (- num-luts-left 2))))])
-       (error "todo"))]
+     (match-let*
+         ([num-luts (get-param 'num-luts)]
+          [inputs-per-lut (get-param 'inputs-per-lut)]
+          [num-inputs (get-param 'num-inputs)]
+          [num-outputs (get-param 'num-outputs)]
+          ; Destructure symbolic state: if it's passed in it will be of the form
+          [sym-state
+           (if symbolic-state
+               symbolic-state
+               (cons (list (cons 'INIT (??* (bitvector 16))) ('INJECT1 (??* (bitvector 1))))))]
+          [(cons sum-lut-state extra-lut-state) sym-state]
+          ; Now we want a procedure to fold over CCU2Cs. This takes two inputs:
+          ; + the list of remaining physical inputs
+          ; + the accumulator data value, a list comprising:
+          ;   1. a list of the generated sum-bits
+          ;   2. the carry-out from the previous ccu2c
+          ;
+          ; Symbolic state is of form (cons SUM-LUT-STATE EXTRA-LUT-STATE),
+          ; where
+          ;   - SUM-LUT-STATE is the state of a SUM lut (the main kind of lut),
+          ;     and is used for all LUTs in CCU2Cs except for maybe the final
+          ;     LUT in the case of odd arity.
+          ;
+          ;   - EXTRA-LUT-STATE is state for a LUT that isn't used in a CCU2C.
+          ;     However, it might need to pass some carry information along, so
+          ;     we need to synthesize over it. EXTRA-LUT-STATE is only used when
+          ;     an odd number of sum-bits are computed, and only for the last
+          ;     LUT created to represent such an expression.
+          ;
+          ; NOTE: We need to start folding on the LSB and build up to the MSB.
+          ; This is because the MSB requires the carry-in from the previous
+          ; CCU2C.
+          ;
+          ; Inputs are expected to look like this:
+          ;
+          ; **Convention:** CCU2Cs each have two LUTs. I'm calling the lut lower
+          ; on the carry chain (i.e., the lut that may generate a carry signal
+          ; that propegates to the other LUT) LUT-a. The other LUT is LUT-b.  In
+          ; a normal adding type operation LUT-a is the LSB and LUT-b is the
+          ; MSB.
+          ;
+          [proc (lambda (phys-inputs acc)
+                  (match-let* ([(cons actuals-a actuals-b) phys-inputs]
+                               ; First, destructure the accumulator value
+                               [(list sum-bits cin) acc]
+                               [num-luts-left (- num-luts (length sum-bits))]
+                               [_ (when (>= 0 num-luts-left (error "Illegal state"))
+                                    )]
+                               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                               ;                      SYMBOLIC STATE
+                               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                               ; Over the next few lines we build up symbolic state for
+                               ; LUT-a and LUT-b
+                               ;
+                               ;                        LUT-a
+                               ; By construction there is at least one sum lut, so LUT-a
+                               ; always uses the sum-lut symbolic state state
+                               [sym-state-a
+                                (list (cons 'INIT0 (cdr (assoc 'INIT sum-lut-state)))
+                                      (cons 'INJECT1_0 (cdr (assoc 'INJECT1 sum-lut-state))))]
+                               ;                        LUT-b
+                               ; LUT-b uses a sum-lut-state whenever num-luts-left is
+                               ; greater than 1. Otherwise it uses extra-lut-state
+                               [sym-state-b
+                                (if (equal? 1 num-luts-left)
+                                    (list (cons 'INIT1 (cdr (assoc 'INIT extra-lut-state)))
+                                          (cons 'INJECT1_1 (cdr (assoc 'INJECT1 extra-lut-state))))
+                                    (list (cons 'INIT1 (cdr (assoc 'INIT sum-lut-state)))
+                                          (cons 'INJECT1_1 (cdr (assoc 'INJECT1 sum-lut-state)))))]
+                               ; combine these into a single ccu2c params assoc list. It
+                               ; should have four entries: INIT0 INJECT1_0 INIT1 INJECT1_1
+                               [ccu2c-params (append sym-state-b sym-state-a)]
+                               [ccu2c (make-ccu2c actuals-a actuals-b cin ccu2c-params)]
+                               ; Now, let's get the sum bits and carry-out bits from the ccu2c
+                               [s0 (lr:list-ref ccu2c 0)]
+                               [s1 (lr:list-ref ccu2c 1)]
+                               [cout (lr:list-ref ccu2c 2)]
+                               [sum-bits (cons s1 (cons s0 sum-bits))])
+                    (list sum-bits cout (- num-luts-left 2))))]
+          [paired-inputs (inputs-to-pairs actuals inputs-per-lut)]
+          [base (list '() (bv 0 1))] ; The base accumulator
+          [result (foldr proc base paired-inputs)])
+       (cons result sym-state))]
     [else (error (format "unsupported primitive type ~a" type))]))
 
 (define ecp5:config (arch-config 'Lattice-ECP5 (list ecp5:lut4 ecp5:l6mux21) ecp5:impl))
