@@ -232,6 +232,7 @@
 
                ;;; Racket functions lifted to our language.
                [(lr:first lst) (first (interpret-helper lst))]
+               [(lr:last lst) (last (interpret-helper lst))]
                [(lr:append lsts) (apply append (interpret-helper lsts))]
                [(lr:take l n) (take (interpret-helper l) (interpret-helper n))]
                [(lr:drop l n) (drop (interpret-helper l) (interpret-helper n))]
@@ -255,6 +256,7 @@
                [(? bv? v) v]
                [(? bitvector? v) v]
                [(? integer? v) v]
+               [(? symbol? v) v]
                ;;; This needs to be near the end, as nearly everything's a list!
                ;;; Maybe make this tighter somehow? If it's a list of specific types?
                [(? list? v) (map interpret-helper v)])))

@@ -3,6 +3,7 @@
 
 (provide list-ref
          first
+         last
          extract
          drop
          take
@@ -18,6 +19,7 @@
 ;;; Functions from Racket/Rosette.
 (struct list-ref (lst pos) #:transparent)
 (struct first (lst) #:transparent)
+(struct last (lst) #:transparent)
 (struct extract (h l v) #:transparent)
 (struct drop (l n) #:transparent)
 (struct take (l n) #:transparent)
