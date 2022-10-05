@@ -210,15 +210,6 @@
            [actuals (cons (cons 'CIN cin) (lr:append (list actuals-a actuals-b)))])
       (lr:primitive 'CCU2C actuals params)))
 
-  ; This is a helper function for CCU2C. We want to fold over inputs two at a
-  ; time, so we make inputs into a list of (cons .. ..). We add a default value
-  ; at the end if needed of size bits-per-lut
-  (define (inputs->pairs inputs bits-per-lut)
-    (match inputs
-      ['() '()]
-      [(list x) (list (cons x (make-list bits-per-lut (bv 1 1))))]
-      [(list a b c ...) (cons (cons a b) (inputs->pairs c bits-per-lut))]))
-
   ; This is a helper function to break a flat list of inputs (list 1 2 3 4 5 6 7
   ; 8) into a nested list of inputs, one for each ccu2c:
   ; (list
