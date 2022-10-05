@@ -17,7 +17,7 @@
 (define (interpret-primitive-inputs p)
   (match p
     [(lr:primitive name inputs parameters)
-     (begin 
+     (begin
        (printf "\033[32;1mInputs:\033[0m~a\n" p)
        (lr:primitive name (interpret inputs) parameters))]))
 
@@ -79,19 +79,17 @@
      (lambda (actual-xs)
        (equal? (lr:append (list expected-xs (make-list (- 4 (length expected-xs)) (bv 1 1))))
                actual-xs)))
-   (check-match (interpret-primitive-inputs lut4-prim) (lr:primitive 'LUT4 inputs-4 (list (cons 'INIT _))))
+   (check-match (interpret-primitive-inputs lut4-prim)
+                (lr:primitive 'LUT4 inputs-4 (list (cons 'INIT _))))
    ; TODO: i'm having trouble getting the (bv _ _)s to match when I change them
    ; to literals (bv #b1 1)
-   (check-match (interpret-primitive-inputs lut3-prim)
-                (lr:primitive
-                 'LUT4
-                 (list (cons 'A 1) (cons 'B 2) (cons 'C 3) (cons 'D (bv _ _)))
-                 (? list?)))
+   (check-match
+    (interpret-primitive-inputs lut3-prim)
+    (lr:primitive 'LUT4 (list (cons 'A 1) (cons 'B 2) (cons 'C 3) (cons 'D (bv _ _))) (? list?)))
    (check-match (interpret-primitive-inputs lut2-prim)
-                (lr:primitive
-                 'LUT4
-                 (list (cons 'A 1) (cons 'B 2) (cons 'C (bv _ _)) (cons 'D (bv _ _)))
-                 (? list?)))
+                (lr:primitive 'LUT4
+                              (list (cons 'A 1) (cons 'B 2) (cons 'C (bv _ _)) (cons 'D (bv _ _)))
+                              (? list?)))
    (check-match
     lut1-prim
     (lr:primitive
@@ -298,10 +296,8 @@
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;                         TEST CCU2C IMPLEMENTATIONS                       ;;
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (test-begin
-   ; the lut-with-carry-interface is defined in `primitive-interface.rkt`
-   (define carry4-2-interface (make-lut-with-carry-interface 2 2 (list 1 2 3 4 5)))
-   (pretty-print carry4-2-interface)
-   (define carry4-2-impl (get-interface-impl ecp5:config carry4-2-interface))
-   (pretty-print carry4-2-impl)
-   ))
+  ; the lut-with-carry-interface is defined in `primitive-interface.rkt`
+  (test-begin (define carry4-2-interface (make-lut-with-carry-interface 2 2 (list 1 2 3 4 5)))
+              (pretty-print carry4-2-interface)
+              (define carry4-2-impl (get-interface-impl ecp5:config carry4-2-interface))
+              (pretty-print carry4-2-impl)))

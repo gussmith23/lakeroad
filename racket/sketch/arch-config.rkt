@@ -88,7 +88,8 @@
 ; This is a helper function to pull out an arch-config's `implementions`
 ; function and use it to impelemnt a primtive-interface.
 (define (get-interface-impl config primitive-interface #:symbolic-state [symbolic-state #f])
-  (let ([fn (arch-config-implementations config)]) (fn config primitive-interface #:symbolic-state symbolic-state)))
+  (let ([fn (arch-config-implementations config)])
+    (fn config primitive-interface #:symbolic-state symbolic-state)))
 
 ; This is an architecture-agnostic helper function that recursively creates a
 ; LUT-N from smaller LUTs. This function breaks the problem of creating a LUT N
@@ -231,7 +232,8 @@
       [(< num-inputs 0) (error "Illegal state")]
       [(equal? num-inputs 0) '()]
       [(equal? num-inputs bits-per-lut)
-       (cons (lr:append (list inputs (make-list (- 4 bits-per-lut) (bv 1 1)))) (make-list 4 (bv 1 1))) ]
+       (cons (lr:append (list inputs (make-list (- 4 bits-per-lut) (bv 1 1))))
+             (make-list 4 (bv 1 1)))]
       [(>= num-inputs (* 2 bits-per-lut))
        (let* ([inputs-a (lr:take inputs bits-per-lut)]
               [inputs-a (lr:append (list inputs-a (make-list (- 4 bits-per-lut) (bv 1 1))))]
@@ -240,8 +242,10 @@
               [inputs-b (lr:append (list inputs-b (make-list (- 4 bits-per-lut) (bv 1 1))))]
               [inputs (lr:drop inputs bits-per-lut)]
               [num-remaining-inputs (- num-inputs (* 2 bits-per-lut))])
-         (cons (cons inputs-a inputs-b) (flat-inputs->ccu2c-inputs inputs bits-per-lut num-remaining-inputs)))]
-      [else (error (format "illegal state: ~a inputs with ~a bits-per-lut" num-inputs bits-per-lut))]))
+         (cons (cons inputs-a inputs-b)
+               (flat-inputs->ccu2c-inputs inputs bits-per-lut num-remaining-inputs)))]
+      [else
+       (error (format "illegal state: ~a inputs with ~a bits-per-lut" num-inputs bits-per-lut))]))
 
   (match type
     ['LUT
@@ -329,12 +333,14 @@
           ; a normal adding type operation LUT-a is the LSB and LUT-b is the
           ; MSB.
           ;
-          [proc (lambda (phys-inputs acc) '()
+          [proc (lambda (phys-inputs acc)
+                  '()
                   (match-let* ([(cons actuals-a actuals-b) phys-inputs]
                                ; First, destructure the accumulator value
                                [(list sum-bits cin) acc]
                                [num-luts-left (- num-luts (length sum-bits))]
-                               [_ (when (>= 0 num-luts-left) (error "Illegal state"))]
+                               [_ (when (>= 0 num-luts-left)
+                                    (error "Illegal state"))]
                                ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                ;                      SYMBOLIC STATE
                                ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
