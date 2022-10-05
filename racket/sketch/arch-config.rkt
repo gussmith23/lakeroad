@@ -215,7 +215,10 @@
   ; (list
   ;   (cons (list 1 2) (list 3 4))
   ;   (cons (list 5 6) (list 7 8)))
-
+  ;
+  ; Each item in the top level list is a (cons A B) where A is the input to the
+  ; least significant LUT in a CCU2C and B is the input to the most significant
+  ; LUT in a CCU2C
   (define (flat-inputs->ccu2c-inputs inputs bits-per-lut num-inputs)
     ; Each ccu2c expects 2 * bits-per-lut inputs (bits-per-lut for each of the
     ; two luts).
