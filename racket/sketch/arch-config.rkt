@@ -213,7 +213,6 @@
   ; time, so we make inputs into a list of (cons .. ..). We add a default value
   ; at the end if needed of size bits-per-lut
   (define (inputs->pairs inputs bits-per-lut)
-    (printf "\033[34mInputs:~a\n" inputs)
     (match inputs
       ['() '()]
       [(list x) (list (cons x (make-list bits-per-lut (bv 1 1))))]
@@ -332,12 +331,9 @@
           ;
           [proc (lambda (phys-inputs acc) '()
                   (match-let* ([(cons actuals-a actuals-b) phys-inputs]
-                               [_ (printf "\033[34m 0\033[0m\n")]
                                ; First, destructure the accumulator value
                                [(list sum-bits cin) acc]
-                               [_ (printf "\033[34m 1\033[0m\n")]
                                [num-luts-left (- num-luts (length sum-bits))]
-                               [_ (printf "\033[34m 2\033[0m\n")]
                                [_ (when (>= 0 num-luts-left) (error "Illegal state"))]
                                ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                ;                      SYMBOLIC STATE
@@ -352,7 +348,6 @@
                                 (list (cons 'INIT0 (cdr (assoc 'INIT sum-lut-state)))
                                       (cons 'INJECT1_0 (cdr (assoc 'INJECT1 sum-lut-state))))]
                                ;                        LUT-b
-                               [_ (printf "\033[34m 3\033[0m\n")]
                                ; LUT-b uses a sum-lut-state whenever num-luts-left is
                                ; greater than 1. Otherwise it uses extra-lut-state
                                [sym-state-b
@@ -364,10 +359,8 @@
                                ; combine these into a single ccu2c params assoc list. It
                                ; should have four entries: INIT0 INJECT1_0 INIT1 INJECT1_1
                                [ccu2c-params (append sym-state-b sym-state-a)]
-                               [_ (printf "\033[34m 7\033[0m\n")]
                                [ccu2c (make-ccu2c actuals-a actuals-b cin ccu2c-params)]
                                ; Now, let's get the sum bits and carry-out bits from the ccu2c
-                               [_ (printf "\033[34m 8\033[0m\n")]
                                [s0 (lr:list-ref ccu2c 0)]
                                [s1 (lr:list-ref ccu2c 1)]
                                [cout (lr:list-ref ccu2c 2)]

@@ -299,6 +299,7 @@
   ;;                         TEST CCU2C IMPLEMENTATIONS                       ;;
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (test-begin
+   ; the lut-with-carry-interface is defined in `primitive-interface.rkt`
    (define carry4-2-interface (make-lut-with-carry-interface 2 2 (list 1 2 3 4 5)))
    (pretty-print carry4-2-interface)
    (define carry4-2-impl (get-interface-impl ecp5:config carry4-2-interface))
