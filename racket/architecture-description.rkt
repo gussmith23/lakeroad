@@ -536,3 +536,26 @@
                                                            (module-instance-port "Z" "O" 'output 1))
                                                      (list))
                                     (hash))))))
+
+(module+ test
+  (test-begin "Construct a LUT2 on Lattice from a LUT4."
+              (match-let* ([(list expr internal-data)
+                            (construct-interface (lattice-ecp5-architecture-description)
+                                                 (interface-identifier "LUT" (hash "num_inputs" 2))
+                                                 (list (cons "I0" (bv 0 1)) (cons "I1" (bv 0 1))))])
+                (check-true (match internal-data
+                              [(list (cons "INIT" v))
+                               (check-true ((bitvector 16) v))
+                               #t]
+                              [else #f]))
+                (check-true (match expr
+                              [(lr:hw-module-instance "LUT4"
+                                                      (list (module-instance-port "A" v0 'input 1)
+                                                            (module-instance-port "B" v0 'input 1)
+                                                            (module-instance-port "C" v1 'input 1)
+                                                            (module-instance-port "D" v1 'input 1))
+                                                      (list (module-instance-parameter "INIT" s0)))
+                               (check-equal? v0 (bv 0 1))
+                               (check-equal? v1 (bv 1 1))
+                               #t]
+                              [else #f])))))
