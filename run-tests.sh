@@ -5,7 +5,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 LAKEROAD_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 declare -rx LAKEROAD_DIR
 
-if [ -z ${LLVM_CONFIG+x}]; then
+if [ -z ${LLVM_CONFIG+x} ]; then
     echo "LLVM_CONFIG is unset"
     exit 1
 fi
