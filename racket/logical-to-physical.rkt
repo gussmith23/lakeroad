@@ -392,6 +392,10 @@
    (lambda ()
      (interpret-logical-to-physical-mapping identity '(bitwise) (list (bv #b01 2) (bv #b1 1))))))
 
+
+(struct bitwise () #:transparent)
+(struct bitwise-reverse () #:transparent)
+
 ;;; Interprets physical-to-logical mappings.
 ;;; Expects a list of logical outputs in least significant->most significant order.
 ;;; For example, in a Xilinx UltraScale+ CLB, this list would be (LUTA out, LUTB out, ...).
@@ -401,27 +405,29 @@
    ;;; We have to use nested for/alls here because Rosette will merge (union '(bitwise)
    ;;; '(bitwise-reverse)) into ((union 'bitwise 'bitwise-reverse)).
    (match-define `(,fn-name ,args ...) f)
-   (for/all
-    ([fn-name fn-name])
-    (match `(,fn-name ,@args)
-      ;;; Defines the bitwise physical-to-logical mapping for mapping physical outputs to logical
-      ;;; outputs.
-      ;;;
-      ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
-      ['(bitwise) (transpose (interpreter logical-outputs))]
-      ;;;
-      ;;; Same as bitwise, but reverse.
-      ['(bitwise-reverse) (transpose (reverse (interpreter logical-outputs)))]
-      ;;; Variant which uses a Rosette uninterpreted function.
-      [`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group (interpreter logical-outputs))]
-      ;;;
-      ;;; Choose one of the bits to be the output.
-      [`(choose-one ,idx)
-       (let* ([logical-outputs (apply concat (interpreter logical-outputs))])
-         (list (bit 0
-                    (bvlshr
-                     logical-outputs
-                     (zero-extend idx (bitvector (length (bitvector->bits logical-outputs))))))))]))))
+    (destruct )
+  ;;;  (for/all
+  ;;;   ([fn-name fn-name])
+    ;;;(match `(,fn-name ,@args)
+      ;;;;;; Defines the bitwise physical-to-logical mapping for mapping physical outputs to logical
+      ;;;;;; outputs.
+      ;;;;;;
+      ;;;;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
+      ;;;['(bitwise) (transpose (interpreter logical-outputs))]
+      ;;;;;;
+      ;;;;;; Same as bitwise, but reverse.
+      ;;;['(bitwise-reverse) (transpose (reverse (interpreter logical-outputs)))]
+      ;;;;;; Variant which uses a Rosette uninterpreted function.
+      ;;;[`(uf ,uf ,bw ,bits-per-group) (helper uf bw bits-per-group (interpreter logical-outputs))]
+      ;;;;;;
+      ;;;;;; Choose one of the bits to be the output.
+      ;;;[`(choose-one ,idx)
+       ;;;(let* ([logical-outputs (apply concat (interpreter logical-outputs))])
+         ;;;(list (bit 0
+                    ;;;(bvlshr
+                     ;;;logical-outputs
+                     ;;;(zero-extend idx (bitvector (length (bitvector->bits logical-outputs))))))))])
+                     )))
 
 (module+ test
   (require rackunit)
