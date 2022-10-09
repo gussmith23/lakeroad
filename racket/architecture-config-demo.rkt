@@ -4,12 +4,6 @@
          yaml
          "../utils.rkt")
 
-;;; Parse an architecture description from a file.
-(define (parse-architecture-description-file filepath)
-  (define yaml (read-yaml (open-input-file filepath)))
-
-  yaml)
-
 ;;; Part 1: defining an interface.
 
 ;;; Interface identifier.
@@ -56,21 +50,21 @@
 ;;;
 ;;; TODO(@gussmith23): module-instance is a bad name for this. Too similar to lr:hw-module-instance,
 ;;; which is completely different.
-(struct module-instance (module-name ports params))
+(struct module-instance (module-name ports params) #:transparent)
 
 ;;; - module-instance: Module, representing how this interface is implemented. For now, we only
 ;;;   support a single module, but we should figure out how to support multiple. We can likely just
 ;;;   make this an association list of string module names to module instances.
 ;;; - internal-data: List of internal state variable defintions. Each internal state variable
-;;;   definition is a pair, mapping a string variable name to an integer representing the bitwidth of
-;;;   that variable.
-(struct interface-implementation (identifier module-instance internal-data))
+;;;   definition is a immutable hash, mapping a string variable name to an integer representing the
+;;;   bitwidth of that variable.
+(struct interface-implementation (identifier module-instance internal-data) #:transparent)
 
 ;;; Architecture description.
 ;;;
 ;;; - interface-implementations: association list mapping string interface names to interface
 ;;;   implementations.
-(struct architecture-description (interface-implementations))
+(struct architecture-description (interface-implementations) #:transparent)
 
 (define lattice-ecp5-architecture-description
   (architecture-description
@@ -82,7 +76,7 @@
                                                           (list "D" "I3" 'input)
                                                           (list "Z" "O" 'output))
                                                     (list (cons "INIT" "lutmem")))
-                                   (list (cons "lutmem" 16)))
+                                   (hash "lutmem" 16))
          ;;; I'm not sure if this module actually exists in Lattice, but assume it does.
          (interface-implementation (interface-identifier "MUX" (hash "num_inputs" 2))
                                    (module-instance "MUX2"
@@ -91,12 +85,12 @@
                                                           (list "S" "S" 'input)
                                                           (list "O" "O" 'output))
                                                     (list))
-                                   (list)))))
+                                   (hash)))))
 
 ;;; Part 3: constructing things using the architecture description.
 
 ;;; Lakeroad construct for a hardware module instance.
-(struct lr:hw-module-instance (name ports params))
+(struct lr:hw-module-instance (name ports params) #:transparent)
 
 (define (find-interface-implementation architecture-description id)
   (findf (lambda (impl) (equal? (interface-implementation-identifier impl) id))
@@ -118,25 +112,15 @@
   (map (lambda (internal-data-definition-pair)
          (define-symbolic* v (bitvector (cdr internal-data-definition-pair)))
          (cons (car internal-data-definition-pair) v))
-       internal-data-definition))
+       (hash->list internal-data-definition)))
 
 ;;; Get interface definition from list of interfaces.
-;;;
-;;; - name: Name of the interface, e.g. "LUT".
-;;; - parameters: Immutable hash of parameter names to values. e.g. (hash "num_inputs" 4).
-;;;
+;;
 ;;; Returns interface definition or #f.
 (define (find-interface-definition identifier)
-  (define interface-definition
-    (findf (lambda (interface-definition)
-             (and (equal? (interface-identifier-name
-                           (interface-definition-identifier interface-definition))
-                          (interface-identifier-name identifier))
-                  (equal? (interface-identifier-parameters
-                           (interface-definition-identifier interface-definition))
-                          (interface-identifier-parameters identifier))))
-           interfaces))
-  interface-definition)
+  (findf (lambda (interface-definition)
+           (equal? (interface-definition-identifier interface-definition) identifier))
+         interfaces))
 
 (module+ test
   (require rackunit)
@@ -332,13 +316,119 @@
                                       (list "S" selector-expr 'input))
                                 (list))
          #t]
-        [else #f]))))
+        [else #f])))))
 
-  ;;; Test YAML parsing.
-  (test-case "Parse Xilinx UltraScale+ YAML"
-             (begin
-               (define arch-description
-                 (parse-architecture-description-file (build-path (get-lakeroad-directory)
-                                                                  "architecture_descriptions"
-                                                                  "xilinx_ultrascale_plus.yml")))
-               (pretty-display arch-description))))
+;;; Parse an architecture description from a file.
+(define (parse-architecture-description-file filepath)
+  (define yaml (read-yaml (open-input-file filepath)))
+
+  ;;; Converts any hash to an immutable hash.
+  ;;;
+  ;;; Annoyingly, the YAML library parses dictionaries into mutable hashes, and we have no power to
+  ;;; control that. Thus, we must convert them to immutable hashes on our side. Forgetting to convert
+  ;;; to immutable can lead to hard-to-find bugs, especially because mutable and immutable hashes look
+  ;;; the same when displayed.
+  (define (convert-to-immutable h)
+    (make-immutable-hash (hash->list h)))
+
+  (define impls-yaml
+    (or (hash-ref yaml "implementations")
+        (error "No interface implementations found in architecture description.")))
+
+  (define (parse-interface-identifier y)
+    (define name (hash-ref y "name"))
+    (define parameters (convert-to-immutable (hash-ref y "parameters")))
+    (interface-identifier name parameters))
+
+  ;;; Parse a module instance, which has three fields:
+  ;;;
+  ;;; - module_name: name of the Verilog module.
+  ;;; - ports: port map, mapping actual port names to interface port names. Optional; if not
+  ;;;     specified, then the port names are assumed to be the same as the interface port names.
+  ;;; - parameters: parameter map, mapping any module parameter names to internal data names.
+  ;;;     Optional.
+  (define (parse-module-instance module-instance-yaml interface-definition)
+    (define module-name (hash-ref module-instance-yaml "module_name"))
+    (define port-map
+      (convert-to-immutable
+       (or
+        (hash-ref module-instance-yaml "ports" #f)
+        ;;; If it's not there, we assume that the port names are the same as the interface port names.
+        (make-immutable-hash (for/list ([port (interface-definition-ports interface-definition)])
+                               (cons (port-definition-name port) (port-definition-name port)))))))
+    (define parameter-map
+      (convert-to-immutable (or (hash-ref module-instance-yaml "parameters" #f) (hash))))
+
+    (module-instance module-name port-map parameter-map))
+
+  ;;; Parse list of modules.
+  (define (parse-modules modules-yaml interface-definition)
+    (for/list ([module-yaml modules-yaml])
+      (parse-module-instance module-yaml interface-definition)))
+
+  ;;; Parse internal data.
+
+  ;;; Parse an implementation.
+  (define (parse-impl impl-yaml)
+    (define interface-identifier
+      (parse-interface-identifier (or (hash-ref impl-yaml "interface" #f)
+                                      (error "interface field not found"))))
+
+    (define interface-definition
+      (or (find-interface-definition interface-identifier)
+          (error "Interface definition not found for" interface-identifier)))
+
+    (define modules
+      (parse-modules (or (hash-ref impl-yaml "modules" #f) (error "modules not found"))
+                     interface-definition))
+
+    (when (not (equal? (length modules) 1))
+      (error "Only one implementing module is currently supported."))
+
+    (interface-implementation
+     interface-identifier
+     (first modules)
+     (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))))
+
+  (define implementations
+    (for/list ([impl-yaml impls-yaml])
+      (parse-impl impl-yaml)))
+
+  (architecture-description implementations))
+
+(module+ test
+  (test-equal?
+   "Parse Xilinx UltraScale+ YAML"
+   (parse-architecture-description-file
+    (build-path (get-lakeroad-directory) "architecture_descriptions" "xilinx_ultrascale_plus.yml"))
+   (architecture-description
+    (list
+     (interface-implementation
+      (interface-identifier "LUT" (hash "num_inputs" 4))
+      (module-instance
+       "LUT4"
+       (make-immutable-hash
+        (list (cons "I0" "I0") (cons "I1" "I1") (cons "I2" "I2") (cons "I3" "I3") (cons "O" "O")))
+       (make-immutable-hash (list (cons "INIT" "INIT"))))
+      (hash "INIT" 16)))))
+
+  (test-equal?
+   "Parse Lattice ECP5 YAML"
+   (parse-architecture-description-file
+    (build-path (get-lakeroad-directory) "architecture_descriptions" "lattice_ecp5.yml"))
+   (architecture-description
+    (list (interface-implementation
+           (interface-identifier "LUT" (hash "num_inputs" 4))
+           (module-instance
+            "LUT4"
+            (make-immutable-hash
+             (list (cons "A" "I0") (cons "B" "I1") (cons "C" "I2") (cons "D" "I3") (cons "Z" "O")))
+            (make-immutable-hash (list (cons "INIT" "INIT"))))
+           (hash "INIT" 16))
+          (interface-implementation
+           (interface-identifier "MUX" (hash "num_inputs" 2))
+           (module-instance "L6MUX21"
+                            (make-immutable-hash
+                             (list (cons "D0" "I0") (cons "D1" "I1") (cons "SD" "S") (cons "Z" "O")))
+                            (hash))
+           (hash))))))

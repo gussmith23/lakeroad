@@ -1,0 +1,12 @@
+implementations:
+  - interface:
+      name: LUT
+      parameters:
+        num_inputs: 4
+    modules:
+      - module_name: LUT4
+        # Ports list omitted because it's the same as the interface.
+        parameters:
+          INIT: INIT
+    internal_data:
+      INIT: 16
