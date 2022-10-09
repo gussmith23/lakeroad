@@ -1,3 +1,10 @@
+;;; Architecture description utilities.
+;;;
+;;; This file contains all necessary tools for handling architecture descriptions, including:
+;;; - Definitions of all necessary structs.
+;;; - Definitions of Lakeroad's supported interfaces.
+;;; - Functions for parsing architecture descriptions from files.
+;;; - Functions for instantiating instances of interfaces, given an architecture description.
 #lang errortrace racket/base
 
 (require rosette
