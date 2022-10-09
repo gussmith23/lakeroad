@@ -2,7 +2,7 @@
 
 (require rosette
          yaml
-         "../utils.rkt")
+         "utils.rkt")
 
 ;;; Part 1: defining an interface.
 
