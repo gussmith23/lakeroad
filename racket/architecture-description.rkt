@@ -7,6 +7,8 @@
 ;;; - Functions for instantiating instances of interfaces, given an architecture description.
 #lang errortrace racket/base
 
+(provide construct-interface)
+
 (require rosette
          yaml
          "utils.rkt")
@@ -144,12 +146,15 @@
               (find-interface-definition
                (interface-identifier "NotARealInterface" (hash "num_inputs" 4)))))
 
+;;; Internal implementation of construct-interface, which fails if the interface is not found.
+;;; External users should use construct-interface.
+;;;
 ;;; - port-map: Maps string port identifiers to expressions.
 ;;; - internal-data: Internal state constructed using construct-internal-data.
-(define (construct-interface architecture-description
-                             interface-id
-                             port-map
-                             #:internal-data [internal-data #f])
+(define (construct-interface-internal architecture-description
+                                      interface-id
+                                      port-map
+                                      #:internal-data [internal-data #f])
   (let* ([internal-data (if (not internal-data)
                             (construct-internal-data architecture-description interface-id)
                             internal-data)]
@@ -182,12 +187,12 @@
   (require rackunit)
   (test-begin
    "Construct Lattice LUT4"
-   (let* ([out (construct-interface lattice-ecp5-architecture-description
-                                    (interface-identifier "LUT" (hash "num_inputs" 4))
-                                    (list (cons "I0" (bv 0 1))
-                                          (cons "I1" (bv 0 1))
-                                          (cons "I2" (bv 0 1))
-                                          (cons "I3" (bv 0 1))))]
+   (let* ([out (construct-interface-internal lattice-ecp5-architecture-description
+                                             (interface-identifier "LUT" (hash "num_inputs" 4))
+                                             (list (cons "I0" (bv 0 1))
+                                                   (cons "I1" (bv 0 1))
+                                                   (cons "I2" (bv 0 1))
+                                                   (cons "I3" (bv 0 1))))]
           [expr (first out)]
           [internal-data (second out)])
      (check-true (match internal-data
@@ -205,24 +210,24 @@
          #t]
         [else #f])))))
 
-;;; Part 4: A smarter implementation of construct-interface, which handles some cases where some
+;;; Part 4: A smarter implementation of construct-interface-internal, which handles some cases where some
 ;;; interfaces are not implemented.
 
 ;(construct-lut5-from-lut4 architecture-description ports)
 
-;;; This is a more user-friendly wrapper over construct-interface, which is smart enough to handle
-;;; cases where certain interfaces aren't implemented.
-(define (construct-interface-smarter architecture-description
-                                     interface-id
-                                     port-map
-                                     #:internal-data [internal-data #f])
+;;; This is a more user-friendly wrapper over construct-interface-internal, which is smart enough to
+;;; handle cases where certain interfaces aren't implemented.
+(define (construct-interface architecture-description
+                             interface-id
+                             port-map
+                             #:internal-data [internal-data #f])
   (cond
     ;;; If the interface is implemented, then we just construct it.
     [(find-interface-implementation architecture-description interface-id)
-     (construct-interface architecture-description
-                          interface-id
-                          port-map
-                          #:internal-data internal-data)]
+     (construct-interface-internal architecture-description
+                                   interface-id
+                                   port-map
+                                   #:internal-data internal-data)]
 
     ;;; Case: they're asking for a LUT bigger than what we have (but we do have a LUT).
     ;;;
@@ -267,17 +272,17 @@
           [mux-selector (list-ref port-map (sub1 (length port-map)))]
 
           [(list lut-expr0 lut-0-internal-data)
-           (construct-interface-smarter architecture-description
-                                        smaller-lut-interface-identifier
-                                        smaller-lut-ports
-                                        #:internal-data lut-0-internal-data)]
+           (construct-interface architecture-description
+                                smaller-lut-interface-identifier
+                                smaller-lut-ports
+                                #:internal-data lut-0-internal-data)]
           [(list lut-expr1 lut-1-internal-data)
-           (construct-interface-smarter architecture-description
-                                        smaller-lut-interface-identifier
-                                        smaller-lut-ports
-                                        #:internal-data lut-1-internal-data)]
+           (construct-interface architecture-description
+                                smaller-lut-interface-identifier
+                                smaller-lut-ports
+                                #:internal-data lut-1-internal-data)]
           [(list mux-expr mux-internal-data)
-           (construct-interface-smarter
+           (construct-interface
             architecture-description
             (interface-identifier "MUX" (hash "num_inputs" 2))
             (list (cons "I0" lut-expr0) (cons "I1" lut-expr1) (cons "S" mux-selector))
@@ -285,25 +290,24 @@
        (list mux-expr (list lut-0-internal-data lut-1-internal-data mux-internal-data)))]))
 
 (module+ test
-  (test-begin
-   "Construct a LUT5 on Lattice from LUT4s and a MUX2."
-   (match-let* ([(list expr internal-data) (construct-interface-smarter
-                                            lattice-ecp5-architecture-description
-                                            (interface-identifier "LUT" (hash "num_inputs" 5))
-                                            (list (cons "I0" (bv 0 1))
-                                                  (cons "I1" (bv 0 1))
-                                                  (cons "I2" (bv 0 1))
-                                                  (cons "I3" (bv 0 1))
-                                                  (cons "I4" (bv 0 1))))])
-     (check-true (match internal-data
-                   [(list (list (cons "lutmem" v0)) (list (cons "lutmem" v1)) (list))
-                    (check-true ((bitvector 16) v0))
-                    (check-true ((bitvector 16) v1))
-                    #t]
-                   [else #f]))
-     (check-true
-      (match expr
-        [(lr:hw-module-instance "MUX2"
+  (test-begin "Construct a LUT5 on Lattice from LUT4s and a MUX2."
+              (match-let* ([(list expr internal-data)
+                            (construct-interface lattice-ecp5-architecture-description
+                                                 (interface-identifier "LUT" (hash "num_inputs" 5))
+                                                 (list (cons "I0" (bv 0 1))
+                                                       (cons "I1" (bv 0 1))
+                                                       (cons "I2" (bv 0 1))
+                                                       (cons "I3" (bv 0 1))
+                                                       (cons "I4" (bv 0 1))))])
+                (check-true (match internal-data
+                              [(list (list (cons "lutmem" v0)) (list (cons "lutmem" v1)) (list))
+                               (check-true ((bitvector 16) v0))
+                               (check-true ((bitvector 16) v1))
+                               #t]
+                              [else #f]))
+                (check-true (match expr
+                              [(lr:hw-module-instance
+                                "MUX2"
                                 (list (list "I0"
                                             (lr:hw-module-instance "LUT4"
                                                                    (list (list "A" v 'input)
@@ -322,8 +326,8 @@
                                             'input)
                                       (list "S" selector-expr 'input))
                                 (list))
-         #t]
-        [else #f])))))
+                               #t]
+                              [else #f])))))
 
 ;;; Parse an architecture description from a file.
 (define (parse-architecture-description-file filepath)
