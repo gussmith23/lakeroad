@@ -1,12 +1,15 @@
 implementations:
-  - interface:
-      name: LUT
-      parameters:
-        num_inputs: 4
+  - interface: { name: LUT, parameters: { num_inputs: 4 } }
     modules:
       - module_name: LUT4
         # Ports list omitted because it's the same as the interface.
-        parameters:
-          INIT: INIT
-    internal_data:
-      INIT: 16
+        parameters: [{ name: INIT, value: INIT }]
+        ports:
+          [
+            { name: I0, direction: input, bitwidth: 1, value: I0 },
+            { name: I1, direction: input, bitwidth: 1, value: I1 },
+            { name: I2, direction: input, bitwidth: 1, value: I2 },
+            { name: I3, direction: input, bitwidth: 1, value: I3 },
+            { name: O, direction: output, bitwidth: 1, value: O },
+          ]
+    internal_data: { INIT: 16 }

@@ -1,28 +1,25 @@
 implementations:
-  - interface:
-      name: LUT
-      parameters:
-        num_inputs: 4
+  - interface: { name: LUT, parameters: { num_inputs: 4 } }
+    internal_data: { INIT: 16 }
     modules:
       - module_name: LUT4
         ports:
-          A: I0
-          B: I1
-          C: I2
-          D: I3
-          Z: O
-        parameters:
-          INIT: INIT
-    internal_data:
-      INIT: 16
-  - interface:
-      name: MUX
-      parameters:
-        num_inputs: 2
+          [
+            { name: A, direction: input, bitwidth: 1, value: I0 },
+            { name: B, direction: input, bitwidth: 1, value: I1 },
+            { name: C, direction: input, bitwidth: 1, value: I2 },
+            { name: D, direction: input, bitwidth: 1, value: I3 },
+            { name: Z, direction: output, bitwidth: 1, value: O },
+          ]
+        parameters: [{ name: INIT, value: INIT }]
+  - interface: { name: MUX, parameters: { num_inputs: 2 } }
     modules:
+      # TODO(@gussmith23): This MUX is not actually intended to be general-purpose. Replace this with a LUT2 implementation.
       - module_name: L6MUX21
         ports:
-          D0: I0
-          D1: I1
-          SD: S
-          Z: O
+          [
+            { name: D0, direction: input, bitwidth: 1, value: I0 },
+            { name: D1, direction: input, bitwidth: 1, value: I1 },
+            { name: SD, direction: input, bitwidth: 1, value: S },
+            { name: Z, direction: output, bitwidth: 1, value: O },
+          ]
