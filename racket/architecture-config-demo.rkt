@@ -1,34 +1,53 @@
 #lang errortrace racket/base
 
-(require rosette)
+(require rosette
+         yaml
+         "../utils.rkt")
+
+;;; Parse an architecture description from a file.
+(define (parse-architecture-description-file filepath)
+  (define yaml (read-yaml (open-input-file filepath)))
+
+  yaml)
 
 ;;; Part 1: defining an interface.
 
+;;; Interface identifier.
+;;;
+;;; Uniquely identifies a parameterized interface, using a name (e.g. "LUT")
+;;; and parameters (e.g. (hash "num_inputs" 4)).
+(struct interface-identifier (name parameters) #:transparent)
+
+;;; Interface definition.
+;;; Represents a valid Lakeroad interface.
+;;;
 ;;; - ports: List of port definitions.
-(struct interface-definition (ports))
+(struct interface-definition (identifier ports) #:transparent)
 
 ;;; - name: String name of the port.
 ;;; - direction: 'input or 'output.
 ;;; - bitwidth: integer bitwidth of the port.
-(struct port-definition (name direction bitwidth))
+(struct port-definition (name direction bitwidth) #:transparent)
 
 (define interfaces
-  (list (cons "LUT4"
-              (interface-definition (list (port-definition "I0" 'input 1)
-                                          (port-definition "I1" 'input 1)
-                                          (port-definition "I2" 'input 1)
-                                          (port-definition "I3" 'input 1)
-                                          (port-definition "O" 'output 1))))
-        (cons "MUX2"
-              (interface-definition (list (port-definition "I0" 'input 1)
-                                          (port-definition "I1" 'input 1)
-                                          (port-definition "S" 'input 1)
-                                          (port-definition "O" 'output 1))))))
+  ;;; LUT4 definition.
+  (list (interface-definition (interface-identifier "LUT" (hash "num_inputs" 4))
+                              (list (port-definition "I0" 'input 1)
+                                    (port-definition "I1" 'input 1)
+                                    (port-definition "I2" 'input 1)
+                                    (port-definition "I3" 'input 1)
+                                    (port-definition "O" 'output 1)))
+        ;;; MUX2 definition.
+        (interface-definition (interface-identifier "MUX" (hash "num_inputs" 2))
+                              (list (port-definition "I0" 'input 1)
+                                    (port-definition "I1" 'input 1)
+                                    (port-definition "S" 'input 1)
+                                    (port-definition "O" 'output 1)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 
 ;;; - module-name: String name of the Verilog module.
-;;; - ports: List of port definitions, where each port definition is a list of (string port identifer,
+;;; - ports: List of port definitions, where each port definition is a list of (string port identifier,
 ;;;   string port value, direction ('input or 'output)). The port value can either be the name of an
 ;;;   interface port or the name of a piece of internal state.
 ;;; - params: List of parameter defintions, where each parameter definition is a pair, mapping a
@@ -42,74 +61,117 @@
 ;;; - module-instance: Module, representing how this interface is implemented. For now, we only
 ;;;   support a single module, but we should figure out how to support multiple. We can likely just
 ;;;   make this an association list of string module names to module instances.
-;;; - internal-state: List of internal state variable defintions. Each internal state variable
+;;; - internal-data: List of internal state variable defintions. Each internal state variable
 ;;;   definition is a pair, mapping a string variable name to an integer representing the bitwidth of
 ;;;   that variable.
-(struct interface-implementation (module-instance internal-state))
+(struct interface-implementation (identifier module-instance internal-data))
 
+;;; Architecture description.
+;;;
 ;;; - interface-implementations: association list mapping string interface names to interface
 ;;;   implementations.
-(struct architecture-configuration (interface-implementations))
+(struct architecture-description (interface-implementations))
 
-(define lattice-ecp5-architecture-config
-  (architecture-configuration
-   (list (cons "LUT4"
-               (interface-implementation (module-instance "LUT4"
-                                                          (list (list "A" "I0" 'input)
-                                                                (list "B" "I1" 'input)
-                                                                (list "C" "I2" 'input)
-                                                                (list "D" "I3" 'input)
-                                                                (list "Z" "O" 'output))
-                                                          (list (cons "INIT" "lutmem")))
-                                         (list (cons "lutmem" 16))))
-         (cons "MUX2"
-               ;;; I'm not sure if this module actually exists in Lattice, but assume it does.
-               (interface-implementation (module-instance "MUX2"
-                                                          (list (list "I0" "I0" 'input)
-                                                                (list "I1" "I1" 'input)
-                                                                (list "S" "S" 'input)
-                                                                (list "O" "O" 'output))
-                                                          (list))
-                                         (list))))))
+(define lattice-ecp5-architecture-description
+  (architecture-description
+   (list (interface-implementation (interface-identifier "LUT" (hash "num_inputs" 4))
+                                   (module-instance "LUT4"
+                                                    (list (list "A" "I0" 'input)
+                                                          (list "B" "I1" 'input)
+                                                          (list "C" "I2" 'input)
+                                                          (list "D" "I3" 'input)
+                                                          (list "Z" "O" 'output))
+                                                    (list (cons "INIT" "lutmem")))
+                                   (list (cons "lutmem" 16)))
+         ;;; I'm not sure if this module actually exists in Lattice, but assume it does.
+         (interface-implementation (interface-identifier "MUX" (hash "num_inputs" 2))
+                                   (module-instance "MUX2"
+                                                    (list (list "I0" "I0" 'input)
+                                                          (list "I1" "I1" 'input)
+                                                          (list "S" "S" 'input)
+                                                          (list "O" "O" 'output))
+                                                    (list))
+                                   (list)))))
 
-;;; Part 3: constructing things using the architecture configuration.
+;;; Part 3: constructing things using the architecture description.
 
 ;;; Lakeroad construct for a hardware module instance.
 (struct lr:hw-module-instance (name ports params))
 
-(define (find-interface-implementation architecture-configuration interface-name)
-  (assoc interface-name
-         (architecture-configuration-interface-implementations architecture-configuration)))
+(define (find-interface-implementation architecture-description id)
+  (findf (lambda (impl) (equal? (interface-implementation-identifier impl) id))
+         (architecture-description-interface-implementations architecture-description)))
 
 ;;; Construct a fresh instance of the internal state for a given interface on a given architecture.
-(define (construct-internal-state architecture-configuration interface-name)
+(define (construct-internal-data architecture-description interface-name)
   (define interface-implementation
-    (cdr (find-interface-implementation architecture-configuration interface-name)))
-  (define internal-state-definition
-    (interface-implementation-internal-state interface-implementation))
+    (or (find-interface-implementation architecture-description interface-name)
+        (error "No implementation for interface "
+               interface-name
+               " on architecture "
+               architecture-description)))
+  (define internal-data-definition (interface-implementation-internal-data interface-implementation))
 
   ;;; We loop over each pair and construct a fresh variable for it.
-  ;;; - internal-state-definition-pair: pair of internal state variable name (string) and bitwidth
+  ;;; - internal-data-definition-pair: pair of internal state variable name (string) and bitwidth
   ;;;   (integer).
-  (map (lambda (internal-state-definition-pair)
-         (define-symbolic* v (bitvector (cdr internal-state-definition-pair)))
-         (cons (car internal-state-definition-pair) v))
-       internal-state-definition))
+  (map (lambda (internal-data-definition-pair)
+         (define-symbolic* v (bitvector (cdr internal-data-definition-pair)))
+         (cons (car internal-data-definition-pair) v))
+       internal-data-definition))
+
+;;; Get interface definition from list of interfaces.
+;;;
+;;; - name: Name of the interface, e.g. "LUT".
+;;; - parameters: Immutable hash of parameter names to values. e.g. (hash "num_inputs" 4).
+;;;
+;;; Returns interface definition or #f.
+(define (find-interface-definition identifier)
+  (define interface-definition
+    (findf (lambda (interface-definition)
+             (and (equal? (interface-identifier-name
+                           (interface-definition-identifier interface-definition))
+                          (interface-identifier-name identifier))
+                  (equal? (interface-identifier-parameters
+                           (interface-definition-identifier interface-definition))
+                          (interface-identifier-parameters identifier))))
+           interfaces))
+  interface-definition)
+
+(module+ test
+  (require rackunit)
+  (test-equal? "find-interface-definition finds LUT4"
+               (find-interface-definition (interface-identifier "LUT" (hash "num_inputs" 4)))
+               (interface-definition (interface-identifier "LUT" (hash "num_inputs" 4))
+                                     (list (port-definition "I0" 'input 1)
+                                           (port-definition "I1" 'input 1)
+                                           (port-definition "I2" 'input 1)
+                                           (port-definition "I3" 'input 1)
+                                           (port-definition "O" 'output 1))))
+
+  (test-false "find-interface-definition returns #f"
+              (find-interface-definition
+               (interface-identifier "NotARealInterface" (hash "num_inputs" 4)))))
 
 ;;; - port-map: Maps string port identifiers to expressions.
-;;; - internal-state: Internal state constructed using construct-internal-state.
-(define (construct-interface architecture-configuration
-                             interface-name
+;;; - internal-data: Internal state constructed using construct-internal-data.
+(define (construct-interface architecture-description
+                             interface-id
                              port-map
-                             #:internal-state [internal-state #f])
-  (let* ([internal-state (if (not internal-state)
-                             (construct-internal-state architecture-configuration interface-name)
-                             internal-state)]
+                             #:internal-data [internal-data #f])
+  (let* ([internal-data (if (not internal-data)
+                            (construct-internal-data architecture-description interface-id)
+                            internal-data)]
          [interface-implementation
-          (cdr (find-interface-implementation architecture-configuration interface-name))]
+          (or (find-interface-implementation architecture-description interface-id)
+              (error "No implementation for interface "
+                     interface-id
+                     " on architecture "
+                     architecture-description))]
          [module-instance (interface-implementation-module-instance interface-implementation)]
          [name (module-instance-module-name module-instance)]
-         [interface-definition (cdr (assoc interface-name interfaces))]
+         [interface-definition (or (find-interface-definition interface-id)
+                                   (error "Interface definition not found"))]
          ;;; Construct the list of ports, by mapping in the values provided in the port-map.
          ;;; - port-pair: pair of actual port name (string) to interface port name (string).
          [ports (map (lambda (port)
@@ -121,23 +183,23 @@
          ;;; - param-pair: pair of actual param name (string) to name given in internal state definition
          ;;;   (string).
          [parameters
-          (map (lambda (param-pair) (cons (car param-pair) (assoc (cdr param-pair) internal-state)))
+          (map (lambda (param-pair) (cons (car param-pair) (assoc (cdr param-pair) internal-data)))
                (module-instance-params module-instance))])
-    (list (lr:hw-module-instance name ports parameters) internal-state)))
+    (list (lr:hw-module-instance name ports parameters) internal-data)))
 
 (module+ test
   (require rackunit)
   (test-begin
    "Construct Lattice LUT4"
-   (let* ([out (construct-interface lattice-ecp5-architecture-config
-                                    "LUT4"
+   (let* ([out (construct-interface lattice-ecp5-architecture-description
+                                    (interface-identifier "LUT" (hash "num_inputs" 4))
                                     (list (cons "I0" (bv 0 1))
                                           (cons "I1" (bv 0 1))
                                           (cons "I2" (bv 0 1))
                                           (cons "I3" (bv 0 1))))]
           [expr (first out)]
-          [internal-state (second out)])
-     (check-true (match internal-state
+          [internal-data (second out)])
+     (check-true (match internal-data
                    [(list (cons "lutmem" v))
                     (check-true ((bitvector 16) v))
                     #t]
@@ -155,51 +217,57 @@
 ;;; Part 4: A smarter implementation of construct-interface, which handles some cases where some
 ;;; interfaces are not implemented.
 
-;(construct-lut5-from-lut4 architecture-configuration ports)
+;(construct-lut5-from-lut4 architecture-description ports)
 
 ;;; This is a more user-friendly wrapper over construct-interface, which is smart enough to handle
 ;;; cases where certain interfaces aren't implemented.
-(define (construct-interface-smarter architecture-configuration
-                                     interface-name
+(define (construct-interface-smarter architecture-description
+                                     interface-id
                                      port-map
-                                     #:internal-state [internal-state #f])
+                                     #:internal-data [internal-data #f])
   (cond
     ;;; If the interface is implemented, then we just construct it.
-    [(find-interface-implementation architecture-configuration interface-name)
-     (construct-interface architecture-configuration
-                          interface-name
+    [(find-interface-implementation architecture-description interface-id)
+     (construct-interface architecture-description
+                          interface-id
                           port-map
-                          #:internal-state internal-state)]
+                          #:internal-data internal-data)]
 
     ;;; Case: they're asking for a LUT bigger than what we have (but we do have a LUT).
     ;;;
     ;;; In this case, we can construct the bigger LUT out of smaller LUTs by recursive calls to this
     ;;; function.
     [;;; Check: They're asking for a LUT.
-     (and (regexp-match? #rx"LUT.*" interface-name)
-          ;;; Check: The architecture configuration implements a smaller LUT.
-          (findf (lambda (interface-impl)
-                   (and (regexp-match #rx"LUT.*" (car interface-impl))
-                        (< (string->number (substring (car interface-impl) 3))
-                           (string->number (substring interface-name 3)))))
-                 (architecture-configuration-interface-implementations architecture-configuration))
-          ;;; TODO: Check that the arch config implements MUX2.
+     (and (equal? "LUT" (interface-identifier-name interface-id))
+          ;;; Check: The architecture description implements a smaller LUT.
+          (findf
+           (lambda (impl)
+             (and (equal? "LUT"
+                          (interface-identifier-name (interface-implementation-identifier impl)))
+                  (< (hash-ref (interface-identifier-parameters
+                                (interface-implementation-identifier impl))
+                               "num_inputs")
+                     (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
+           (architecture-description-interface-implementations architecture-description))
+          ;;; TODO: Check that the architecture description implements MUX2.
           )
 
      ;;; In this case, we recursively construct a LUT out of 2 LUTs of a smaller size, and mux them
-     ;;; together. Note that we should probably also check that the arch configuration implements
+     ;;; together. Note that we should probably also check that the arch description implements
      ;;; MUXes. For now we just assume it.
      (match-let*
          (;;; First, destruct the internal state. We know exactly what the internal state should look
           ;;; like at this point.
-          [lut-0-internal-state (if internal-state (first internal-state) #f)]
-          [lut-1-internal-state (if internal-state (second internal-state) #f)]
-          [mux-internal-state (if internal-state (third internal-state) #f)]
+          [lut-0-internal-data (if internal-data (first internal-data) #f)]
+          [lut-1-internal-data (if internal-data (second internal-data) #f)]
+          [mux-internal-data (if internal-data (third internal-data) #f)]
 
           ;;; The name of the LUT which is 1 smaller than the one we're trying to construct.
-          [smaller-lut-name
-           (string-append "LUT"
-                          (number->string (sub1 (string->number (substring interface-name 3)))))]
+          [smaller-lut-interface-identifier
+           (interface-identifier
+            "LUT"
+            (hash "num_inputs"
+                  (sub1 (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))]
 
           ;;; The ports that should be passed to the smaller LUTs. This is easy to figure out: we just
           ;;; drop one of the inputs to the larger LUT! Then, we'll use that dropped input as the
@@ -207,43 +275,44 @@
           [smaller-lut-ports (take port-map (sub1 (length port-map)))]
           [mux-selector (list-ref port-map (sub1 (length port-map)))]
 
-          [(list lut-expr0 lut-0-internal-state)
-           (construct-interface-smarter architecture-configuration
-                                        smaller-lut-name
+          [(list lut-expr0 lut-0-internal-data)
+           (construct-interface-smarter architecture-description
+                                        smaller-lut-interface-identifier
                                         smaller-lut-ports
-                                        #:internal-state lut-0-internal-state)]
-          [(list lut-expr1 lut-1-internal-state)
-           (construct-interface-smarter architecture-configuration
-                                        smaller-lut-name
+                                        #:internal-data lut-0-internal-data)]
+          [(list lut-expr1 lut-1-internal-data)
+           (construct-interface-smarter architecture-description
+                                        smaller-lut-interface-identifier
                                         smaller-lut-ports
-                                        #:internal-state lut-1-internal-state)]
-          [(list mux-expr mux-internal-state)
+                                        #:internal-data lut-1-internal-data)]
+          [(list mux-expr mux-internal-data)
            (construct-interface-smarter
-            architecture-configuration
-            "MUX2"
+            architecture-description
+            (interface-identifier "MUX" (hash "num_inputs" 2))
             (list (cons "I0" lut-expr0) (cons "I1" lut-expr1) (cons "S" mux-selector))
-            #:internal-state mux-internal-state)])
-       (list mux-expr (list lut-0-internal-state lut-1-internal-state mux-internal-state)))]))
+            #:internal-data mux-internal-data)])
+       (list mux-expr (list lut-0-internal-data lut-1-internal-data mux-internal-data)))]))
 
 (module+ test
-  (test-begin "Construct a LUT5 on Lattice from LUT4s and a MUX2."
-              (match-let* ([(list expr internal-state) (construct-interface-smarter
-                                                        lattice-ecp5-architecture-config
-                                                        "LUT5"
-                                                        (list (cons "I0" (bv 0 1))
-                                                              (cons "I1" (bv 0 1))
-                                                              (cons "I2" (bv 0 1))
-                                                              (cons "I3" (bv 0 1))
-                                                              (cons "I4" (bv 0 1))))])
-                (check-true (match internal-state
-                              [(list (list (cons "lutmem" v0)) (list (cons "lutmem" v1)) (list))
-                               (check-true ((bitvector 16) v0))
-                               (check-true ((bitvector 16) v1))
-                               #t]
-                              [else #f]))
-                (check-true (match expr
-                              [(lr:hw-module-instance
-                                "MUX2"
+  (test-begin
+   "Construct a LUT5 on Lattice from LUT4s and a MUX2."
+   (match-let* ([(list expr internal-data) (construct-interface-smarter
+                                            lattice-ecp5-architecture-description
+                                            (interface-identifier "LUT" (hash "num_inputs" 5))
+                                            (list (cons "I0" (bv 0 1))
+                                                  (cons "I1" (bv 0 1))
+                                                  (cons "I2" (bv 0 1))
+                                                  (cons "I3" (bv 0 1))
+                                                  (cons "I4" (bv 0 1))))])
+     (check-true (match internal-data
+                   [(list (list (cons "lutmem" v0)) (list (cons "lutmem" v1)) (list))
+                    (check-true ((bitvector 16) v0))
+                    (check-true ((bitvector 16) v1))
+                    #t]
+                   [else #f]))
+     (check-true
+      (match expr
+        [(lr:hw-module-instance "MUX2"
                                 (list (list "I0"
                                             (lr:hw-module-instance "LUT4"
                                                                    (list (list "A" v 'input)
@@ -262,5 +331,14 @@
                                             'input)
                                       (list "S" selector-expr 'input))
                                 (list))
-                               #t]
-                              [else #f])))))
+         #t]
+        [else #f]))))
+
+  ;;; Test YAML parsing.
+  (test-case "Parse Xilinx UltraScale+ YAML"
+             (begin
+               (define arch-description
+                 (parse-architecture-description-file (build-path (get-lakeroad-directory)
+                                                                  "architecture_descriptions"
+                                                                  "xilinx_ultrascale_plus.yml")))
+               (pretty-display arch-description))))
