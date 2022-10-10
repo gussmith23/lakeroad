@@ -10,10 +10,14 @@
 (require rosette)
 (require racket/hash)
 (define lattice-ecp5-lut2
-  (λ (#:A (A (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 1))))
-      #:B (B (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 1))))
-      #:INIT (INIT (bv->signal (constant (list 'INIT 'symbolic-constant) (bitvector 4)))))
-    (let* ([merged-input-state-hash (hash)]
+  (λ (inputs)
+    (let* ([A (or (cdr (assoc 'A inputs))
+                  (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 1))))]
+           [B (or (cdr (assoc 'B inputs))
+                  (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 1))))]
+           [INIT (or (cdr (assoc 'INIT inputs))
+                     (bv->signal (constant (list 'INIT 'symbolic-constant) (bitvector 4))))]
+           [merged-input-state-hash (hash)]
            [init-hash (hash)]
            [btor1 (bitvector 1)]
            [btor2 A]

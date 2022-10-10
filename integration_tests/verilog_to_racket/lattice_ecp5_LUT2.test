@@ -7,18 +7,23 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide lattice-ecp5-lut2)
 CHECK: (require (file "
-
 CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define lattice-ecp5-lut2
-CHECK:   (λ (#:A
-CHECK:       (A (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 1))))
-CHECK:       #:B
-CHECK:       (B (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 1))))
-CHECK:       #:INIT
-CHECK:       (INIT
-CHECK:        (bv->signal (constant (list 'INIT 'symbolic-constant) (bitvector 4)))))
-CHECK:     (let* ((merged-input-state-hash (hash))
+CHECK:   (λ (inputs)
+CHECK:     (let* ((A
+CHECK:             (or (cdr (assoc 'A inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'A 'symbolic-constant) (bitvector 1)))))
+CHECK:            (B
+CHECK:             (or (cdr (assoc 'B inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'B 'symbolic-constant) (bitvector 1)))))
+CHECK:            (INIT
+CHECK:             (or (cdr (assoc 'INIT inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'INIT 'symbolic-constant) (bitvector 4)))))
+CHECK:            (merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 1))
 CHECK:            (btor2 A)
