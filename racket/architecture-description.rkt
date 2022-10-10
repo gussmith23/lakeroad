@@ -563,7 +563,8 @@
                                         (list (module-instance-parameter "INIT" "INIT"))
                                         "../verilator_xilinx/LUT4.v"
                                         "../modules_for_importing/xilinx_ultrascale_plus/LUT4.v")
-                       (hash "INIT" 16)))))
+                       (hash "INIT" 16)
+                       "O"))))
 
   (test-equal?
    "Parse Lattice ECP5 YAML"
@@ -579,7 +580,8 @@
                                                      (list (module-instance-parameter "INIT" "INIT"))
                                                      "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
                                                      "../modules_for_importing/lattice_ecp5/LUT4.v")
-                                    (hash "INIT" 16))
+                                    (hash "INIT" 16)
+                                    "Z")
           (interface-implementation
            (interface-identifier "MUX" (hash "num_inputs" 2))
            (module-instance "L6MUX21"
