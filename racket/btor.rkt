@@ -1985,13 +1985,22 @@ here-string-delimiter
                 (match-define (list lrO5 lrO6)
                   (interpret
                    (ultrascale-plus-lut6-2
-                    INIT
+                    (lr:bv INIT)
                     (lr:concat
-                     (list I5
-                           (lr:concat
-                            (list I4
-                                  (lr:concat
-                                   (list I3 (lr:concat (list I2 (lr:concat (list I1 I0)))))))))))))
+                     (lr:list
+                      (list (lr:bv I5)
+                            (lr:concat
+                             (lr:list
+                              (list (lr:bv I4)
+                                    (lr:concat
+                                     (lr:list
+                                      (list (lr:bv I3)
+                                            (lr:concat
+                                             (lr:list
+                                              (list (lr:bv I2)
+                                                    (lr:concat
+                                                     (lr:list (list (lr:bv I1)
+                                                                    (lr:bv I0)))))))))))))))))))
                 (assert (bveq O5 lrO5))
                 (assert (bveq O6 lrO6))))
       (unsat)))))
