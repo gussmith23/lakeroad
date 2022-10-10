@@ -314,22 +314,22 @@
                               INJECT1_7
                               CIN
                               inputs)
-     (interpret-ecp5-ripple-pfu-impl INIT0
-                                     INIT1
-                                     INIT2
-                                     INIT3
-                                     INIT4
-                                     INIT5
-                                     INIT6
-                                     INIT7
-                                     INJECT1_0
-                                     INJECT1_1
-                                     INJECT1_2
-                                     INJECT1_3
-                                     INJECT1_4
-                                     INJECT1_5
-                                     INJECT1_6
-                                     INJECT1_7
+     (interpret-ecp5-ripple-pfu-impl (interpreter INIT0)
+                                     (interpreter INIT1)
+                                     (interpreter INIT2)
+                                     (interpreter INIT3)
+                                     (interpreter INIT4)
+                                     (interpreter INIT5)
+                                     (interpreter INIT6)
+                                     (interpreter INIT7)
+                                     (interpreter INJECT1_0)
+                                     (interpreter INJECT1_1)
+                                     (interpreter INJECT1_2)
+                                     (interpreter INJECT1_3)
+                                     (interpreter INJECT1_4)
+                                     (interpreter INJECT1_5)
+                                     (interpreter INJECT1_6)
+                                     (interpreter INJECT1_7)
                                      (interpreter CIN)
                                      (interpreter inputs))]
 
