@@ -15,158 +15,225 @@
 (require rosette)
 (require racket/hash)
 (define xilinx-ultrascale-plus-dsp48e2
-  (λ (#:A (A (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 30))))
-      #:ACASCREG (ACASCREG (bv->signal (constant (list 'ACASCREG 'symbolic-constant) (bitvector 32))))
-      #:ACIN (ACIN (bv->signal (constant (list 'ACIN 'symbolic-constant) (bitvector 30))))
-      #:ADREG (ADREG (bv->signal (constant (list 'ADREG 'symbolic-constant) (bitvector 32))))
-      #:ALUMODE (ALUMODE (bv->signal (constant (list 'ALUMODE 'symbolic-constant) (bitvector 4))))
-      #:ALUMODEREG (ALUMODEREG (bv->signal (constant (list 'ALUMODEREG 'symbolic-constant)
-                                                     (bitvector 32))))
-      #:AMULTSEL (AMULTSEL (bv->signal (constant (list 'AMULTSEL 'symbolic-constant) (bitvector 5))))
-      #:AREG (AREG (bv->signal (constant (list 'AREG 'symbolic-constant) (bitvector 32))))
-      #:AUTORESET_PATDET
-      (AUTORESET_PATDET (bv->signal (constant (list 'AUTORESET_PATDET 'symbolic-constant)
-                                              (bitvector 5))))
-      #:AUTORESET_PRIORITY
-      (AUTORESET_PRIORITY
-       (bv->signal (constant (list 'AUTORESET_PRIORITY 'symbolic-constant) (bitvector 5))))
-      #:A_INPUT (A_INPUT (bv->signal (constant (list 'A_INPUT 'symbolic-constant) (bitvector 5))))
-      #:B (B (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 18))))
-      #:BCASCREG (BCASCREG (bv->signal (constant (list 'BCASCREG 'symbolic-constant) (bitvector 32))))
-      #:BCIN (BCIN (bv->signal (constant (list 'BCIN 'symbolic-constant) (bitvector 18))))
-      #:BMULTSEL (BMULTSEL (bv->signal (constant (list 'BMULTSEL 'symbolic-constant) (bitvector 5))))
-      #:BREG (BREG (bv->signal (constant (list 'BREG 'symbolic-constant) (bitvector 32))))
-      #:B_INPUT (B_INPUT (bv->signal (constant (list 'B_INPUT 'symbolic-constant) (bitvector 5))))
-      #:C (C (bv->signal (constant (list 'C 'symbolic-constant) (bitvector 48))))
-      #:CARRYCASCIN (CARRYCASCIN (bv->signal (constant (list 'CARRYCASCIN 'symbolic-constant)
-                                                       (bitvector 1))))
-      #:CARRYIN (CARRYIN (bv->signal (constant (list 'CARRYIN 'symbolic-constant) (bitvector 1))))
-      #:CARRYINREG (CARRYINREG (bv->signal (constant (list 'CARRYINREG 'symbolic-constant)
-                                                     (bitvector 32))))
-      #:CARRYINSEL (CARRYINSEL (bv->signal (constant (list 'CARRYINSEL 'symbolic-constant)
-                                                     (bitvector 3))))
-      #:CARRYINSELREG (CARRYINSELREG (bv->signal (constant (list 'CARRYINSELREG 'symbolic-constant)
-                                                           (bitvector 32))))
-      #:CEA1 (CEA1 (bv->signal (constant (list 'CEA1 'symbolic-constant) (bitvector 1))))
-      #:CEA2 (CEA2 (bv->signal (constant (list 'CEA2 'symbolic-constant) (bitvector 1))))
-      #:CEAD (CEAD (bv->signal (constant (list 'CEAD 'symbolic-constant) (bitvector 1))))
-      #:CEALUMODE (CEALUMODE (bv->signal (constant (list 'CEALUMODE 'symbolic-constant)
-                                                   (bitvector 1))))
-      #:CEB1 (CEB1 (bv->signal (constant (list 'CEB1 'symbolic-constant) (bitvector 1))))
-      #:CEB2 (CEB2 (bv->signal (constant (list 'CEB2 'symbolic-constant) (bitvector 1))))
-      #:CEC (CEC (bv->signal (constant (list 'CEC 'symbolic-constant) (bitvector 1))))
-      #:CECARRYIN (CECARRYIN (bv->signal (constant (list 'CECARRYIN 'symbolic-constant)
-                                                   (bitvector 1))))
-      #:CECTRL (CECTRL (bv->signal (constant (list 'CECTRL 'symbolic-constant) (bitvector 1))))
-      #:CED (CED (bv->signal (constant (list 'CED 'symbolic-constant) (bitvector 1))))
-      #:CEINMODE (CEINMODE (bv->signal (constant (list 'CEINMODE 'symbolic-constant) (bitvector 1))))
-      #:CEM (CEM (bv->signal (constant (list 'CEM 'symbolic-constant) (bitvector 1))))
-      #:CEP (CEP (bv->signal (constant (list 'CEP 'symbolic-constant) (bitvector 1))))
-      #:CLK (CLK (bv->signal (constant (list 'CLK 'symbolic-constant) (bitvector 1))))
-      #:CREG (CREG (bv->signal (constant (list 'CREG 'symbolic-constant) (bitvector 32))))
-      #:D (D (bv->signal (constant (list 'D 'symbolic-constant) (bitvector 27))))
-      #:DREG (DREG (bv->signal (constant (list 'DREG 'symbolic-constant) (bitvector 32))))
-      #:INMODE (INMODE (bv->signal (constant (list 'INMODE 'symbolic-constant) (bitvector 5))))
-      #:INMODEREG (INMODEREG (bv->signal (constant (list 'INMODEREG 'symbolic-constant)
-                                                   (bitvector 32))))
-      #:IS_ALUMODE_INVERTED
-      (IS_ALUMODE_INVERTED
-       (bv->signal (constant (list 'IS_ALUMODE_INVERTED 'symbolic-constant) (bitvector 4))))
-      #:IS_CARRYIN_INVERTED
-      (IS_CARRYIN_INVERTED
-       (bv->signal (constant (list 'IS_CARRYIN_INVERTED 'symbolic-constant) (bitvector 1))))
-      #:IS_CLK_INVERTED
-      (IS_CLK_INVERTED (bv->signal (constant (list 'IS_CLK_INVERTED 'symbolic-constant)
-                                             (bitvector 1))))
-      #:IS_INMODE_INVERTED
-      (IS_INMODE_INVERTED
-       (bv->signal (constant (list 'IS_INMODE_INVERTED 'symbolic-constant) (bitvector 5))))
-      #:IS_OPMODE_INVERTED
-      (IS_OPMODE_INVERTED
-       (bv->signal (constant (list 'IS_OPMODE_INVERTED 'symbolic-constant) (bitvector 9))))
-      #:IS_RSTALLCARRYIN_INVERTED
-      (IS_RSTALLCARRYIN_INVERTED
-       (bv->signal (constant (list 'IS_RSTALLCARRYIN_INVERTED 'symbolic-constant) (bitvector 1))))
-      #:IS_RSTALUMODE_INVERTED
-      (IS_RSTALUMODE_INVERTED
-       (bv->signal (constant (list 'IS_RSTALUMODE_INVERTED 'symbolic-constant) (bitvector 1))))
-      #:IS_RSTA_INVERTED
-      (IS_RSTA_INVERTED (bv->signal (constant (list 'IS_RSTA_INVERTED 'symbolic-constant)
-                                              (bitvector 1))))
-      #:IS_RSTB_INVERTED
-      (IS_RSTB_INVERTED (bv->signal (constant (list 'IS_RSTB_INVERTED 'symbolic-constant)
-                                              (bitvector 1))))
-      #:IS_RSTCTRL_INVERTED
-      (IS_RSTCTRL_INVERTED
-       (bv->signal (constant (list 'IS_RSTCTRL_INVERTED 'symbolic-constant) (bitvector 1))))
-      #:IS_RSTC_INVERTED
-      (IS_RSTC_INVERTED (bv->signal (constant (list 'IS_RSTC_INVERTED 'symbolic-constant)
-                                              (bitvector 1))))
-      #:IS_RSTD_INVERTED
-      (IS_RSTD_INVERTED (bv->signal (constant (list 'IS_RSTD_INVERTED 'symbolic-constant)
-                                              (bitvector 1))))
-      #:IS_RSTINMODE_INVERTED
-      (IS_RSTINMODE_INVERTED
-       (bv->signal (constant (list 'IS_RSTINMODE_INVERTED 'symbolic-constant) (bitvector 1))))
-      #:IS_RSTM_INVERTED
-      (IS_RSTM_INVERTED (bv->signal (constant (list 'IS_RSTM_INVERTED 'symbolic-constant)
-                                              (bitvector 1))))
-      #:IS_RSTP_INVERTED
-      (IS_RSTP_INVERTED (bv->signal (constant (list 'IS_RSTP_INVERTED 'symbolic-constant)
-                                              (bitvector 1))))
-      #:MASK (MASK (bv->signal (constant (list 'MASK 'symbolic-constant) (bitvector 48))))
-      #:MREG (MREG (bv->signal (constant (list 'MREG 'symbolic-constant) (bitvector 32))))
-      #:MULTSIGNIN (MULTSIGNIN (bv->signal (constant (list 'MULTSIGNIN 'symbolic-constant)
-                                                     (bitvector 1))))
-      #:OPMODE (OPMODE (bv->signal (constant (list 'OPMODE 'symbolic-constant) (bitvector 9))))
-      #:OPMODEREG (OPMODEREG (bv->signal (constant (list 'OPMODEREG 'symbolic-constant)
-                                                   (bitvector 32))))
-      #:PATTERN (PATTERN (bv->signal (constant (list 'PATTERN 'symbolic-constant) (bitvector 48))))
-      #:PCIN (PCIN (bv->signal (constant (list 'PCIN 'symbolic-constant) (bitvector 48))))
-      #:PREADDINSEL (PREADDINSEL (bv->signal (constant (list 'PREADDINSEL 'symbolic-constant)
-                                                       (bitvector 5))))
-      #:PREG (PREG (bv->signal (constant (list 'PREG 'symbolic-constant) (bitvector 32))))
-      #:RND (RND (bv->signal (constant (list 'RND 'symbolic-constant) (bitvector 48))))
-      #:RSTA (RSTA (bv->signal (constant (list 'RSTA 'symbolic-constant) (bitvector 1))))
-      #:RSTALLCARRYIN (RSTALLCARRYIN (bv->signal (constant (list 'RSTALLCARRYIN 'symbolic-constant)
-                                                           (bitvector 1))))
-      #:RSTALUMODE (RSTALUMODE (bv->signal (constant (list 'RSTALUMODE 'symbolic-constant)
-                                                     (bitvector 1))))
-      #:RSTB (RSTB (bv->signal (constant (list 'RSTB 'symbolic-constant) (bitvector 1))))
-      #:RSTC (RSTC (bv->signal (constant (list 'RSTC 'symbolic-constant) (bitvector 1))))
-      #:RSTCTRL (RSTCTRL (bv->signal (constant (list 'RSTCTRL 'symbolic-constant) (bitvector 1))))
-      #:RSTD (RSTD (bv->signal (constant (list 'RSTD 'symbolic-constant) (bitvector 1))))
-      #:RSTINMODE (RSTINMODE (bv->signal (constant (list 'RSTINMODE 'symbolic-constant)
-                                                   (bitvector 1))))
-      #:RSTM (RSTM (bv->signal (constant (list 'RSTM 'symbolic-constant) (bitvector 1))))
-      #:RSTP (RSTP (bv->signal (constant (list 'RSTP 'symbolic-constant) (bitvector 1))))
-      #:SEL_MASK (SEL_MASK (bv->signal (constant (list 'SEL_MASK 'symbolic-constant) (bitvector 5))))
-      #:SEL_PATTERN (SEL_PATTERN (bv->signal (constant (list 'SEL_PATTERN 'symbolic-constant)
-                                                       (bitvector 5))))
-      #:USE_MULT (USE_MULT (bv->signal (constant (list 'USE_MULT 'symbolic-constant) (bitvector 5))))
-      #:USE_PATTERN_DETECT
-      (USE_PATTERN_DETECT
-       (bv->signal (constant (list 'USE_PATTERN_DETECT 'symbolic-constant) (bitvector 5))))
-      #:USE_SIMD (USE_SIMD (bv->signal (constant (list 'USE_SIMD 'symbolic-constant) (bitvector 5))))
-      #:USE_WIDEXOR (USE_WIDEXOR (bv->signal (constant (list 'USE_WIDEXOR 'symbolic-constant)
-                                                       (bitvector 5))))
-      #:XORSIMD (XORSIMD (bv->signal (constant (list 'XORSIMD 'symbolic-constant) (bitvector 5))))
-      #:unnamed-input-331
-      (unnamed-input-331 (bv->signal (constant (list 'unnamed-input-331 'symbolic-constant)
-                                               (bitvector 48))))
-      #:unnamed-input-488
-      (unnamed-input-488 (bv->signal (constant (list 'unnamed-input-488 'symbolic-constant)
-                                               (bitvector 48))))
-      #:unnamed-input-750
-      (unnamed-input-750 (bv->signal (constant (list 'unnamed-input-750 'symbolic-constant)
-                                               (bitvector 48))))
-      #:unnamed-input-806
-      (unnamed-input-806 (bv->signal (constant (list 'unnamed-input-806 'symbolic-constant)
-                                               (bitvector 48))))
-      #:unnamed-input-850
-      (unnamed-input-850 (bv->signal (constant (list 'unnamed-input-850 'symbolic-constant)
-                                               (bitvector 1)))))
-    (let* ([merged-input-state-hash (hash)]
+  (λ (inputs)
+    (let* ([A (or (cdr (assoc 'A inputs))
+                  (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 30))))]
+           [ACASCREG (or (cdr (assoc 'ACASCREG inputs))
+                         (bv->signal (constant (list 'ACASCREG 'symbolic-constant) (bitvector 32))))]
+           [ACIN (or (cdr (assoc 'ACIN inputs))
+                     (bv->signal (constant (list 'ACIN 'symbolic-constant) (bitvector 30))))]
+           [ADREG (or (cdr (assoc 'ADREG inputs))
+                      (bv->signal (constant (list 'ADREG 'symbolic-constant) (bitvector 32))))]
+           [ALUMODE (or (cdr (assoc 'ALUMODE inputs))
+                        (bv->signal (constant (list 'ALUMODE 'symbolic-constant) (bitvector 4))))]
+           [ALUMODEREG (or (cdr (assoc 'ALUMODEREG inputs))
+                           (bv->signal (constant (list 'ALUMODEREG 'symbolic-constant)
+                                                 (bitvector 32))))]
+           [AMULTSEL (or (cdr (assoc 'AMULTSEL inputs))
+                         (bv->signal (constant (list 'AMULTSEL 'symbolic-constant) (bitvector 5))))]
+           [AREG (or (cdr (assoc 'AREG inputs))
+                     (bv->signal (constant (list 'AREG 'symbolic-constant) (bitvector 32))))]
+           [AUTORESET_PATDET (or (cdr (assoc 'AUTORESET_PATDET inputs))
+                                 (bv->signal (constant (list 'AUTORESET_PATDET 'symbolic-constant)
+                                                       (bitvector 5))))]
+           [AUTORESET_PRIORITY
+            (or (cdr (assoc 'AUTORESET_PRIORITY inputs))
+                (bv->signal (constant (list 'AUTORESET_PRIORITY 'symbolic-constant) (bitvector 5))))]
+           [A_INPUT (or (cdr (assoc 'A_INPUT inputs))
+                        (bv->signal (constant (list 'A_INPUT 'symbolic-constant) (bitvector 5))))]
+           [B (or (cdr (assoc 'B inputs))
+                  (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 18))))]
+           [BCASCREG (or (cdr (assoc 'BCASCREG inputs))
+                         (bv->signal (constant (list 'BCASCREG 'symbolic-constant) (bitvector 32))))]
+           [BCIN (or (cdr (assoc 'BCIN inputs))
+                     (bv->signal (constant (list 'BCIN 'symbolic-constant) (bitvector 18))))]
+           [BMULTSEL (or (cdr (assoc 'BMULTSEL inputs))
+                         (bv->signal (constant (list 'BMULTSEL 'symbolic-constant) (bitvector 5))))]
+           [BREG (or (cdr (assoc 'BREG inputs))
+                     (bv->signal (constant (list 'BREG 'symbolic-constant) (bitvector 32))))]
+           [B_INPUT (or (cdr (assoc 'B_INPUT inputs))
+                        (bv->signal (constant (list 'B_INPUT 'symbolic-constant) (bitvector 5))))]
+           [C (or (cdr (assoc 'C inputs))
+                  (bv->signal (constant (list 'C 'symbolic-constant) (bitvector 48))))]
+           [CARRYCASCIN (or (cdr (assoc 'CARRYCASCIN inputs))
+                            (bv->signal (constant (list 'CARRYCASCIN 'symbolic-constant)
+                                                  (bitvector 1))))]
+           [CARRYIN (or (cdr (assoc 'CARRYIN inputs))
+                        (bv->signal (constant (list 'CARRYIN 'symbolic-constant) (bitvector 1))))]
+           [CARRYINREG (or (cdr (assoc 'CARRYINREG inputs))
+                           (bv->signal (constant (list 'CARRYINREG 'symbolic-constant)
+                                                 (bitvector 32))))]
+           [CARRYINSEL (or (cdr (assoc 'CARRYINSEL inputs))
+                           (bv->signal (constant (list 'CARRYINSEL 'symbolic-constant)
+                                                 (bitvector 3))))]
+           [CARRYINSELREG (or (cdr (assoc 'CARRYINSELREG inputs))
+                              (bv->signal (constant (list 'CARRYINSELREG 'symbolic-constant)
+                                                    (bitvector 32))))]
+           [CEA1 (or (cdr (assoc 'CEA1 inputs))
+                     (bv->signal (constant (list 'CEA1 'symbolic-constant) (bitvector 1))))]
+           [CEA2 (or (cdr (assoc 'CEA2 inputs))
+                     (bv->signal (constant (list 'CEA2 'symbolic-constant) (bitvector 1))))]
+           [CEAD (or (cdr (assoc 'CEAD inputs))
+                     (bv->signal (constant (list 'CEAD 'symbolic-constant) (bitvector 1))))]
+           [CEALUMODE (or (cdr (assoc 'CEALUMODE inputs))
+                          (bv->signal (constant (list 'CEALUMODE 'symbolic-constant) (bitvector 1))))]
+           [CEB1 (or (cdr (assoc 'CEB1 inputs))
+                     (bv->signal (constant (list 'CEB1 'symbolic-constant) (bitvector 1))))]
+           [CEB2 (or (cdr (assoc 'CEB2 inputs))
+                     (bv->signal (constant (list 'CEB2 'symbolic-constant) (bitvector 1))))]
+           [CEC (or (cdr (assoc 'CEC inputs))
+                    (bv->signal (constant (list 'CEC 'symbolic-constant) (bitvector 1))))]
+           [CECARRYIN (or (cdr (assoc 'CECARRYIN inputs))
+                          (bv->signal (constant (list 'CECARRYIN 'symbolic-constant) (bitvector 1))))]
+           [CECTRL (or (cdr (assoc 'CECTRL inputs))
+                       (bv->signal (constant (list 'CECTRL 'symbolic-constant) (bitvector 1))))]
+           [CED (or (cdr (assoc 'CED inputs))
+                    (bv->signal (constant (list 'CED 'symbolic-constant) (bitvector 1))))]
+           [CEINMODE (or (cdr (assoc 'CEINMODE inputs))
+                         (bv->signal (constant (list 'CEINMODE 'symbolic-constant) (bitvector 1))))]
+           [CEM (or (cdr (assoc 'CEM inputs))
+                    (bv->signal (constant (list 'CEM 'symbolic-constant) (bitvector 1))))]
+           [CEP (or (cdr (assoc 'CEP inputs))
+                    (bv->signal (constant (list 'CEP 'symbolic-constant) (bitvector 1))))]
+           [CLK (or (cdr (assoc 'CLK inputs))
+                    (bv->signal (constant (list 'CLK 'symbolic-constant) (bitvector 1))))]
+           [CREG (or (cdr (assoc 'CREG inputs))
+                     (bv->signal (constant (list 'CREG 'symbolic-constant) (bitvector 32))))]
+           [D (or (cdr (assoc 'D inputs))
+                  (bv->signal (constant (list 'D 'symbolic-constant) (bitvector 27))))]
+           [DREG (or (cdr (assoc 'DREG inputs))
+                     (bv->signal (constant (list 'DREG 'symbolic-constant) (bitvector 32))))]
+           [INMODE (or (cdr (assoc 'INMODE inputs))
+                       (bv->signal (constant (list 'INMODE 'symbolic-constant) (bitvector 5))))]
+           [INMODEREG (or (cdr (assoc 'INMODEREG inputs))
+                          (bv->signal (constant (list 'INMODEREG 'symbolic-constant)
+                                                (bitvector 32))))]
+           [IS_ALUMODE_INVERTED
+            (or (cdr (assoc 'IS_ALUMODE_INVERTED inputs))
+                (bv->signal (constant (list 'IS_ALUMODE_INVERTED 'symbolic-constant) (bitvector 4))))]
+           [IS_CARRYIN_INVERTED
+            (or (cdr (assoc 'IS_CARRYIN_INVERTED inputs))
+                (bv->signal (constant (list 'IS_CARRYIN_INVERTED 'symbolic-constant) (bitvector 1))))]
+           [IS_CLK_INVERTED (or (cdr (assoc 'IS_CLK_INVERTED inputs))
+                                (bv->signal (constant (list 'IS_CLK_INVERTED 'symbolic-constant)
+                                                      (bitvector 1))))]
+           [IS_INMODE_INVERTED
+            (or (cdr (assoc 'IS_INMODE_INVERTED inputs))
+                (bv->signal (constant (list 'IS_INMODE_INVERTED 'symbolic-constant) (bitvector 5))))]
+           [IS_OPMODE_INVERTED
+            (or (cdr (assoc 'IS_OPMODE_INVERTED inputs))
+                (bv->signal (constant (list 'IS_OPMODE_INVERTED 'symbolic-constant) (bitvector 9))))]
+           [IS_RSTALLCARRYIN_INVERTED
+            (or (cdr (assoc 'IS_RSTALLCARRYIN_INVERTED inputs))
+                (bv->signal (constant (list 'IS_RSTALLCARRYIN_INVERTED 'symbolic-constant)
+                                      (bitvector 1))))]
+           [IS_RSTALUMODE_INVERTED
+            (or (cdr (assoc 'IS_RSTALUMODE_INVERTED inputs))
+                (bv->signal (constant (list 'IS_RSTALUMODE_INVERTED 'symbolic-constant)
+                                      (bitvector 1))))]
+           [IS_RSTA_INVERTED (or (cdr (assoc 'IS_RSTA_INVERTED inputs))
+                                 (bv->signal (constant (list 'IS_RSTA_INVERTED 'symbolic-constant)
+                                                       (bitvector 1))))]
+           [IS_RSTB_INVERTED (or (cdr (assoc 'IS_RSTB_INVERTED inputs))
+                                 (bv->signal (constant (list 'IS_RSTB_INVERTED 'symbolic-constant)
+                                                       (bitvector 1))))]
+           [IS_RSTCTRL_INVERTED
+            (or (cdr (assoc 'IS_RSTCTRL_INVERTED inputs))
+                (bv->signal (constant (list 'IS_RSTCTRL_INVERTED 'symbolic-constant) (bitvector 1))))]
+           [IS_RSTC_INVERTED (or (cdr (assoc 'IS_RSTC_INVERTED inputs))
+                                 (bv->signal (constant (list 'IS_RSTC_INVERTED 'symbolic-constant)
+                                                       (bitvector 1))))]
+           [IS_RSTD_INVERTED (or (cdr (assoc 'IS_RSTD_INVERTED inputs))
+                                 (bv->signal (constant (list 'IS_RSTD_INVERTED 'symbolic-constant)
+                                                       (bitvector 1))))]
+           [IS_RSTINMODE_INVERTED
+            (or (cdr (assoc 'IS_RSTINMODE_INVERTED inputs))
+                (bv->signal (constant (list 'IS_RSTINMODE_INVERTED 'symbolic-constant)
+                                      (bitvector 1))))]
+           [IS_RSTM_INVERTED (or (cdr (assoc 'IS_RSTM_INVERTED inputs))
+                                 (bv->signal (constant (list 'IS_RSTM_INVERTED 'symbolic-constant)
+                                                       (bitvector 1))))]
+           [IS_RSTP_INVERTED (or (cdr (assoc 'IS_RSTP_INVERTED inputs))
+                                 (bv->signal (constant (list 'IS_RSTP_INVERTED 'symbolic-constant)
+                                                       (bitvector 1))))]
+           [MASK (or (cdr (assoc 'MASK inputs))
+                     (bv->signal (constant (list 'MASK 'symbolic-constant) (bitvector 48))))]
+           [MREG (or (cdr (assoc 'MREG inputs))
+                     (bv->signal (constant (list 'MREG 'symbolic-constant) (bitvector 32))))]
+           [MULTSIGNIN (or (cdr (assoc 'MULTSIGNIN inputs))
+                           (bv->signal (constant (list 'MULTSIGNIN 'symbolic-constant)
+                                                 (bitvector 1))))]
+           [OPMODE (or (cdr (assoc 'OPMODE inputs))
+                       (bv->signal (constant (list 'OPMODE 'symbolic-constant) (bitvector 9))))]
+           [OPMODEREG (or (cdr (assoc 'OPMODEREG inputs))
+                          (bv->signal (constant (list 'OPMODEREG 'symbolic-constant)
+                                                (bitvector 32))))]
+           [PATTERN (or (cdr (assoc 'PATTERN inputs))
+                        (bv->signal (constant (list 'PATTERN 'symbolic-constant) (bitvector 48))))]
+           [PCIN (or (cdr (assoc 'PCIN inputs))
+                     (bv->signal (constant (list 'PCIN 'symbolic-constant) (bitvector 48))))]
+           [PREADDINSEL (or (cdr (assoc 'PREADDINSEL inputs))
+                            (bv->signal (constant (list 'PREADDINSEL 'symbolic-constant)
+                                                  (bitvector 5))))]
+           [PREG (or (cdr (assoc 'PREG inputs))
+                     (bv->signal (constant (list 'PREG 'symbolic-constant) (bitvector 32))))]
+           [RND (or (cdr (assoc 'RND inputs))
+                    (bv->signal (constant (list 'RND 'symbolic-constant) (bitvector 48))))]
+           [RSTA (or (cdr (assoc 'RSTA inputs))
+                     (bv->signal (constant (list 'RSTA 'symbolic-constant) (bitvector 1))))]
+           [RSTALLCARRYIN (or (cdr (assoc 'RSTALLCARRYIN inputs))
+                              (bv->signal (constant (list 'RSTALLCARRYIN 'symbolic-constant)
+                                                    (bitvector 1))))]
+           [RSTALUMODE (or (cdr (assoc 'RSTALUMODE inputs))
+                           (bv->signal (constant (list 'RSTALUMODE 'symbolic-constant)
+                                                 (bitvector 1))))]
+           [RSTB (or (cdr (assoc 'RSTB inputs))
+                     (bv->signal (constant (list 'RSTB 'symbolic-constant) (bitvector 1))))]
+           [RSTC (or (cdr (assoc 'RSTC inputs))
+                     (bv->signal (constant (list 'RSTC 'symbolic-constant) (bitvector 1))))]
+           [RSTCTRL (or (cdr (assoc 'RSTCTRL inputs))
+                        (bv->signal (constant (list 'RSTCTRL 'symbolic-constant) (bitvector 1))))]
+           [RSTD (or (cdr (assoc 'RSTD inputs))
+                     (bv->signal (constant (list 'RSTD 'symbolic-constant) (bitvector 1))))]
+           [RSTINMODE (or (cdr (assoc 'RSTINMODE inputs))
+                          (bv->signal (constant (list 'RSTINMODE 'symbolic-constant) (bitvector 1))))]
+           [RSTM (or (cdr (assoc 'RSTM inputs))
+                     (bv->signal (constant (list 'RSTM 'symbolic-constant) (bitvector 1))))]
+           [RSTP (or (cdr (assoc 'RSTP inputs))
+                     (bv->signal (constant (list 'RSTP 'symbolic-constant) (bitvector 1))))]
+           [SEL_MASK (or (cdr (assoc 'SEL_MASK inputs))
+                         (bv->signal (constant (list 'SEL_MASK 'symbolic-constant) (bitvector 5))))]
+           [SEL_PATTERN (or (cdr (assoc 'SEL_PATTERN inputs))
+                            (bv->signal (constant (list 'SEL_PATTERN 'symbolic-constant)
+                                                  (bitvector 5))))]
+           [USE_MULT (or (cdr (assoc 'USE_MULT inputs))
+                         (bv->signal (constant (list 'USE_MULT 'symbolic-constant) (bitvector 5))))]
+           [USE_PATTERN_DETECT
+            (or (cdr (assoc 'USE_PATTERN_DETECT inputs))
+                (bv->signal (constant (list 'USE_PATTERN_DETECT 'symbolic-constant) (bitvector 5))))]
+           [USE_SIMD (or (cdr (assoc 'USE_SIMD inputs))
+                         (bv->signal (constant (list 'USE_SIMD 'symbolic-constant) (bitvector 5))))]
+           [USE_WIDEXOR (or (cdr (assoc 'USE_WIDEXOR inputs))
+                            (bv->signal (constant (list 'USE_WIDEXOR 'symbolic-constant)
+                                                  (bitvector 5))))]
+           [XORSIMD (or (cdr (assoc 'XORSIMD inputs))
+                        (bv->signal (constant (list 'XORSIMD 'symbolic-constant) (bitvector 5))))]
+           [unnamed-input-331 (or (cdr (assoc 'unnamed-input-331 inputs))
+                                  (bv->signal (constant (list 'unnamed-input-331 'symbolic-constant)
+                                                        (bitvector 48))))]
+           [unnamed-input-488 (or (cdr (assoc 'unnamed-input-488 inputs))
+                                  (bv->signal (constant (list 'unnamed-input-488 'symbolic-constant)
+                                                        (bitvector 48))))]
+           [unnamed-input-750 (or (cdr (assoc 'unnamed-input-750 inputs))
+                                  (bv->signal (constant (list 'unnamed-input-750 'symbolic-constant)
+                                                        (bitvector 48))))]
+           [unnamed-input-806 (or (cdr (assoc 'unnamed-input-806 inputs))
+                                  (bv->signal (constant (list 'unnamed-input-806 'symbolic-constant)
+                                                        (bitvector 48))))]
+           [unnamed-input-850 (or (cdr (assoc 'unnamed-input-850 inputs))
+                                  (bv->signal (constant (list 'unnamed-input-850 'symbolic-constant)
+                                                        (bitvector 1))))]
+           [merged-input-state-hash (hash)]
            [init-hash
             (hash-set
              (hash-set
