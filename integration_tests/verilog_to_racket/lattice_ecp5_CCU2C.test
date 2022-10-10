@@ -7,44 +7,67 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide lattice-ecp5-ccu2c)
 CHECK: (require (file "
-
 CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define lattice-ecp5-ccu2c
-CHECK:   (λ (#:A0
-CHECK:       (A0 (bv->signal (constant (list 'A0 'symbolic-constant) (bitvector 1))))
-CHECK:       #:A1
-CHECK:       (A1 (bv->signal (constant (list 'A1 'symbolic-constant) (bitvector 1))))
-CHECK:       #:B0
-CHECK:       (B0 (bv->signal (constant (list 'B0 'symbolic-constant) (bitvector 1))))
-CHECK:       #:B1
-CHECK:       (B1 (bv->signal (constant (list 'B1 'symbolic-constant) (bitvector 1))))
-CHECK:       #:C0
-CHECK:       (C0 (bv->signal (constant (list 'C0 'symbolic-constant) (bitvector 1))))
-CHECK:       #:C1
-CHECK:       (C1 (bv->signal (constant (list 'C1 'symbolic-constant) (bitvector 1))))
-CHECK:       #:CIN
-CHECK:       (CIN
-CHECK:        (bv->signal (constant (list 'CIN 'symbolic-constant) (bitvector 1))))
-CHECK:       #:D0
-CHECK:       (D0 (bv->signal (constant (list 'D0 'symbolic-constant) (bitvector 1))))
-CHECK:       #:D1
-CHECK:       (D1 (bv->signal (constant (list 'D1 'symbolic-constant) (bitvector 1))))
-CHECK:       #:INIT0
-CHECK:       (INIT0
-CHECK:        (bv->signal (constant (list 'INIT0 'symbolic-constant) (bitvector 16))))
-CHECK:       #:INIT1
-CHECK:       (INIT1
-CHECK:        (bv->signal (constant (list 'INIT1 'symbolic-constant) (bitvector 16))))
-CHECK:       #:INJECT1_0
-CHECK:       (INJECT1_0
-CHECK:        (bv->signal
-CHECK:         (constant (list 'INJECT1_0 'symbolic-constant) (bitvector 1))))
-CHECK:       #:INJECT1_1
-CHECK:       (INJECT1_1
-CHECK:        (bv->signal
-CHECK:         (constant (list 'INJECT1_1 'symbolic-constant) (bitvector 1)))))
-CHECK:     (let* ((merged-input-state-hash (hash))
+CHECK:   (λ (inputs)
+CHECK:     (let* ((A0
+CHECK:             (or (cdr (assoc 'A0 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'A0 'symbolic-constant) (bitvector 1)))))
+CHECK:            (A1
+CHECK:             (or (cdr (assoc 'A1 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'A1 'symbolic-constant) (bitvector 1)))))
+CHECK:            (B0
+CHECK:             (or (cdr (assoc 'B0 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'B0 'symbolic-constant) (bitvector 1)))))
+CHECK:            (B1
+CHECK:             (or (cdr (assoc 'B1 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'B1 'symbolic-constant) (bitvector 1)))))
+CHECK:            (C0
+CHECK:             (or (cdr (assoc 'C0 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'C0 'symbolic-constant) (bitvector 1)))))
+CHECK:            (C1
+CHECK:             (or (cdr (assoc 'C1 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'C1 'symbolic-constant) (bitvector 1)))))
+CHECK:            (CIN
+CHECK:             (or (cdr (assoc 'CIN inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'CIN 'symbolic-constant) (bitvector 1)))))
+CHECK:            (D0
+CHECK:             (or (cdr (assoc 'D0 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'D0 'symbolic-constant) (bitvector 1)))))
+CHECK:            (D1
+CHECK:             (or (cdr (assoc 'D1 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'D1 'symbolic-constant) (bitvector 1)))))
+CHECK:            (INIT0
+CHECK:             (or (cdr (assoc 'INIT0 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'INIT0 'symbolic-constant) (bitvector 16)))))
+CHECK:            (INIT1
+CHECK:             (or (cdr (assoc 'INIT1 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'INIT1 'symbolic-constant) (bitvector 16)))))
+CHECK:            (INJECT1_0
+CHECK:             (or (cdr (assoc 'INJECT1_0 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant
+CHECK:                   (list 'INJECT1_0 'symbolic-constant)
+CHECK:                   (bitvector 1)))))
+CHECK:            (INJECT1_1
+CHECK:             (or (cdr (assoc 'INJECT1_1 inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant
+CHECK:                   (list 'INJECT1_1 'symbolic-constant)
+CHECK:                   (bitvector 1)))))
+CHECK:            (merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 1))
 CHECK:            (btor2 A0)

@@ -10,22 +10,34 @@
 (require rosette)
 (require racket/hash)
 (define lattice-ecp5-ccu2c
-  (λ (#:A0 (A0 (bv->signal (constant (list 'A0 'symbolic-constant) (bitvector 1))))
-      #:A1 (A1 (bv->signal (constant (list 'A1 'symbolic-constant) (bitvector 1))))
-      #:B0 (B0 (bv->signal (constant (list 'B0 'symbolic-constant) (bitvector 1))))
-      #:B1 (B1 (bv->signal (constant (list 'B1 'symbolic-constant) (bitvector 1))))
-      #:C0 (C0 (bv->signal (constant (list 'C0 'symbolic-constant) (bitvector 1))))
-      #:C1 (C1 (bv->signal (constant (list 'C1 'symbolic-constant) (bitvector 1))))
-      #:CIN (CIN (bv->signal (constant (list 'CIN 'symbolic-constant) (bitvector 1))))
-      #:D0 (D0 (bv->signal (constant (list 'D0 'symbolic-constant) (bitvector 1))))
-      #:D1 (D1 (bv->signal (constant (list 'D1 'symbolic-constant) (bitvector 1))))
-      #:INIT0 (INIT0 (bv->signal (constant (list 'INIT0 'symbolic-constant) (bitvector 16))))
-      #:INIT1 (INIT1 (bv->signal (constant (list 'INIT1 'symbolic-constant) (bitvector 16))))
-      #:INJECT1_0 (INJECT1_0 (bv->signal (constant (list 'INJECT1_0 'symbolic-constant)
-                                                   (bitvector 1))))
-      #:INJECT1_1 (INJECT1_1 (bv->signal (constant (list 'INJECT1_1 'symbolic-constant)
-                                                   (bitvector 1)))))
-    (let* ([merged-input-state-hash (hash)]
+  (λ (inputs)
+    (let* ([A0 (or (cdr (assoc 'A0 inputs))
+                   (bv->signal (constant (list 'A0 'symbolic-constant) (bitvector 1))))]
+           [A1 (or (cdr (assoc 'A1 inputs))
+                   (bv->signal (constant (list 'A1 'symbolic-constant) (bitvector 1))))]
+           [B0 (or (cdr (assoc 'B0 inputs))
+                   (bv->signal (constant (list 'B0 'symbolic-constant) (bitvector 1))))]
+           [B1 (or (cdr (assoc 'B1 inputs))
+                   (bv->signal (constant (list 'B1 'symbolic-constant) (bitvector 1))))]
+           [C0 (or (cdr (assoc 'C0 inputs))
+                   (bv->signal (constant (list 'C0 'symbolic-constant) (bitvector 1))))]
+           [C1 (or (cdr (assoc 'C1 inputs))
+                   (bv->signal (constant (list 'C1 'symbolic-constant) (bitvector 1))))]
+           [CIN (or (cdr (assoc 'CIN inputs))
+                    (bv->signal (constant (list 'CIN 'symbolic-constant) (bitvector 1))))]
+           [D0 (or (cdr (assoc 'D0 inputs))
+                   (bv->signal (constant (list 'D0 'symbolic-constant) (bitvector 1))))]
+           [D1 (or (cdr (assoc 'D1 inputs))
+                   (bv->signal (constant (list 'D1 'symbolic-constant) (bitvector 1))))]
+           [INIT0 (or (cdr (assoc 'INIT0 inputs))
+                      (bv->signal (constant (list 'INIT0 'symbolic-constant) (bitvector 16))))]
+           [INIT1 (or (cdr (assoc 'INIT1 inputs))
+                      (bv->signal (constant (list 'INIT1 'symbolic-constant) (bitvector 16))))]
+           [INJECT1_0 (or (cdr (assoc 'INJECT1_0 inputs))
+                          (bv->signal (constant (list 'INJECT1_0 'symbolic-constant) (bitvector 1))))]
+           [INJECT1_1 (or (cdr (assoc 'INJECT1_1 inputs))
+                          (bv->signal (constant (list 'INJECT1_1 'symbolic-constant) (bitvector 1))))]
+           [merged-input-state-hash (hash)]
            [init-hash (hash)]
            [btor1 (bitvector 1)]
            [btor2 A0]

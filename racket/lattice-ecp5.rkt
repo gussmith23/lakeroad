@@ -377,19 +377,20 @@
             [INIT1 (interpreter INIT1)]
             [INJECT1_0 (interpreter INJECT1_0)]
             [INJECT1_1 (interpreter INJECT1_1)]
-            [out (interpret-lattice-ecp5-ccu2c #:CIN (bv->signal CIN)
-                                               #:A0 (bv->signal A0)
-                                               #:A1 (bv->signal A1)
-                                               #:B0 (bv->signal B0)
-                                               #:B1 (bv->signal B1)
-                                               #:C0 (bv->signal C0)
-                                               #:C1 (bv->signal C1)
-                                               #:D0 (bv->signal D0)
-                                               #:D1 (bv->signal D1)
-                                               #:INIT0 (bv->signal (interpreter INIT0))
-                                               #:INIT1 (bv->signal (interpreter INIT1))
-                                               #:INJECT1_0 (bv->signal (interpreter INJECT1_0))
-                                               #:INJECT1_1 (bv->signal (interpreter INJECT1_1)))])
+            [out (interpret-lattice-ecp5-ccu2c
+                  (list (cons 'CIN (bv->signal CIN))
+                        (cons 'A0 (bv->signal A0))
+                        (cons 'A1 (bv->signal A1))
+                        (cons 'B0 (bv->signal B0))
+                        (cons 'B1 (bv->signal B1))
+                        (cons 'C0 (bv->signal C0))
+                        (cons 'C1 (bv->signal C1))
+                        (cons 'D0 (bv->signal D0))
+                        (cons 'D1 (bv->signal D1))
+                        (cons 'INIT0 (bv->signal (interpreter INIT0)))
+                        (cons 'INIT1 (bv->signal (interpreter INIT1)))
+                        (cons 'INJECT1_0 (bv->signal (interpreter INJECT1_0)))
+                        (cons 'INJECT1_1 (bv->signal (interpreter INJECT1_1)))))])
        (list (signal-value (hash-ref out 'S0))
              (signal-value (hash-ref out 'S1))
              (signal-value (hash-ref out 'COUT))))]
