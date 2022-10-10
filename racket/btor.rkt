@@ -294,22 +294,23 @@ here-string-delimiter
        ins)
 
      (check-equal?
-      (unsat)
       (verify (begin
 
                 (assume (bvzero? INJECT1_0))
                 (assume (bvzero? INJECT1_1))
 
                 (match-define (list iS0 iS1 iCOUT)
-                  (interpret (lattice-ecp5-ccu2c INIT0
-                                                 INIT1
-                                                 (bv 0 1)
-                                                 (bv 0 1)
-                                                 CIN
-                                                 (list (concat D0 C0 B0 A0) (concat D1 C1 B1 A1)))))
+                  (interpret (lattice-ecp5-ccu2c (lr:bv INIT0)
+                                                 (lr:bv INIT1)
+                                                 (lr:bv (bv 0 1))
+                                                 (lr:bv (bv 0 1))
+                                                 (lr:bv CIN)
+                                                 (lr:list (list (lr:bv (concat D0 C0 B0 A0))
+                                                                (lr:bv (concat D1 C1 B1 A1)))))))
                 (assert (bveq S0 iS0))
                 (assert (bveq S1 iS1))
-                (assert (bveq COUT iCOUT)))))))
+                (assert (bveq COUT iCOUT))))
+      (unsat))))
 
   (test-case
    "Parse a Xilinx LUT4 and verify its implementation against our lut function."
