@@ -14,7 +14,8 @@
          zero-extend
          dup-extend
          bv
-         list integer)
+         list
+         integer)
 
 ;;; Functions from Racket/Rosette.
 (struct list-ref (lst pos) #:transparent)
