@@ -72,10 +72,14 @@
 ;;; - ports: List of module-instance-ports.
 ;;; - params: Immutable map of a string parameter identifier to a string parameter value. The
 ;;;   parameter value must be the name of a piece of internal state.
+;;; - filepath: Filepath of the original Verilog file (this is the file that will be used during
+;;;   Verilog simulation.)
+;;; - racket-import-filepath: Filepath of the Verilog file modified for Racket importing. Ideally, the
+;;;   Racket importer would be good enough to not need this, but there are still untested edge cases.
 ;;;
 ;;; TODO(@gussmith23): module-instance is a bad name for this. Too similar to lr:hw-module-instance,
 ;;; which is completely different.
-(struct module-instance (module-name ports params) #:transparent)
+(struct module-instance (module-name ports params filepath racket-import-filepath) #:transparent)
 
 ;;; - module-instance: Module, representing how this interface is implemented. For now, we only
 ;;;   support a single module, but we should figure out how to support multiple. We can likely just
@@ -96,7 +100,8 @@
 ;;; Lakeroad construct for a hardware module instance.
 ;;;
 ;;; - ports: list of module-instance-ports.
-(struct lr:hw-module-instance (name ports params) #:transparent)
+;;; - filepath: Used to identify the module at interpretation time. We can use some other identifier.
+(struct lr:hw-module-instance (name ports params filepath) #:transparent)
 
 ;;; Find interface implementation in architecture description.
 ;;;
@@ -187,8 +192,9 @@
                             (module-instance-parameter
                              (module-instance-parameter-name parameter)
                              (cdr (assoc (module-instance-parameter-value parameter) internal-data))))
-                          (module-instance-params module-instance))])
-    (list (lr:hw-module-instance name ports parameters) internal-data)))
+                          (module-instance-params module-instance))]
+         [filepath (module-instance-filepath module-instance)])
+    (list (lr:hw-module-instance name ports parameters filepath) internal-data)))
 
 (module+ test
   (require rackunit)
@@ -213,7 +219,8 @@
                                                  (module-instance-port "B" v 'input 1)
                                                  (module-instance-port "C" v 'input 1)
                                                  (module-instance-port "D" v 'input 1))
-                                           (list (module-instance-parameter "INIT" s)))
+                                           (list (module-instance-parameter "INIT" s))
+                                           filepath-unchecked)
                     (check-equal? v (bv 0 1))
                     #t]
                    [else #f])))))
@@ -387,7 +394,8 @@
                                                               (module-instance-port "B" v 'input 1)
                                                               (module-instance-port "C" v 'input 1)
                                                               (module-instance-port "D" v 'input 1))
-                                                        (list (module-instance-parameter "INIT" s0)))
+                                                        (list (module-instance-parameter "INIT" s0))
+                                                        lut4-filepath)
                                  'input
                                  1)
            (module-instance-port "D1"
@@ -396,11 +404,13 @@
                                                               (module-instance-port "B" v 'input 1)
                                                               (module-instance-port "C" v 'input 1)
                                                               (module-instance-port "D" v 'input 1))
-                                                        (list (module-instance-parameter "INIT" s1)))
+                                                        (list (module-instance-parameter "INIT" s1))
+                                                        lut4-filepath)
                                  'input
                                  1)
            (module-instance-port "SD" selector-expr 'input 1))
-          (list))
+          (list)
+          mux-filepath)
          #t]
         [else #f])))))
 
@@ -453,7 +463,11 @@
     (define ports (map parse-port (hash-ref module-instance-yaml "ports")))
     ;;; Parameters list is optional.
     (define parameters (map parse-parameter (hash-ref module-instance-yaml "parameters" (list))))
-    (module-instance module-name ports parameters))
+    (define filepath (hash-ref module-instance-yaml "filepath"))
+    ;;; racket-import-filepath is optional, defaults to filepath if not specified.
+    (define racket-import-filepath
+      (or (hash-ref module-instance-yaml "racket_import_filepath" #f) filepath))
+    (module-instance module-name ports parameters filepath racket-import-filepath))
 
   ;;; Parse list of modules.
   (define (parse-modules modules-yaml interface-definition)
@@ -512,7 +526,9 @@
                                               (module-instance-port "I2" "I2" 'input 1)
                                               (module-instance-port "I3" "I3" 'input 1)
                                               (module-instance-port "O" "O" 'output 1))
-                                        (list (module-instance-parameter "INIT" "INIT")))
+                                        (list (module-instance-parameter "INIT" "INIT"))
+                                        "../verilator_xilinx/LUT4.v"
+                                        "../modules_for_importing/xilinx_ultrascale_plus/LUT4.v")
                        (hash "INIT" 16)))))
 
   (test-equal?
@@ -526,16 +542,21 @@
                                                            (module-instance-port "C" "I2" 'input 1)
                                                            (module-instance-port "D" "I3" 'input 1)
                                                            (module-instance-port "Z" "O" 'output 1))
-                                                     (list (module-instance-parameter "INIT" "INIT")))
+                                                     (list (module-instance-parameter "INIT" "INIT"))
+                                                     "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
+                                                     "../modules_for_importing/lattice_ecp5/LUT4.v")
                                     (hash "INIT" 16))
-          (interface-implementation (interface-identifier "MUX" (hash "num_inputs" 2))
-                                    (module-instance "L6MUX21"
-                                                     (list (module-instance-port "D0" "I0" 'input 1)
-                                                           (module-instance-port "D1" "I1" 'input 1)
-                                                           (module-instance-port "SD" "S" 'input 1)
-                                                           (module-instance-port "Z" "O" 'output 1))
-                                                     (list))
-                                    (hash))))))
+          (interface-implementation
+           (interface-identifier "MUX" (hash "num_inputs" 2))
+           (module-instance "L6MUX21"
+                            (list (module-instance-port "D0" "I0" 'input 1)
+                                  (module-instance-port "D1" "I1" 'input 1)
+                                  (module-instance-port "SD" "S" 'input 1)
+                                  (module-instance-port "Z" "O" 'output 1))
+                            (list)
+                            "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
+                            "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
+           (hash))))))
 
 (module+ test
   (test-begin "Construct a LUT2 on Lattice from a LUT4."
@@ -554,7 +575,8 @@
                                                             (module-instance-port "B" v0 'input 1)
                                                             (module-instance-port "C" v1 'input 1)
                                                             (module-instance-port "D" v1 'input 1))
-                                                      (list (module-instance-parameter "INIT" s0)))
+                                                      (list (module-instance-parameter "INIT" s0))
+                                                      filepath-unchecked)
                                (check-equal? v0 (bv 0 1))
                                (check-equal? v1 (bv 1 1))
                                #t]

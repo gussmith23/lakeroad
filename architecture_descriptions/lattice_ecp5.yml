@@ -3,6 +3,8 @@ implementations:
     internal_data: { INIT: 16 }
     modules:
       - module_name: LUT4
+        filepath: ../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v
+        racket_import_filepath: ../modules_for_importing/lattice_ecp5/LUT4.v
         ports:
           [
             { name: A, direction: input, bitwidth: 1, value: I0 },
@@ -16,6 +18,7 @@ implementations:
     modules:
       # TODO(@gussmith23): This MUX is not actually intended to be general-purpose. Replace this with a LUT2 implementation.
       - module_name: L6MUX21
+        filepath: ../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v
         ports:
           [
             { name: D0, direction: input, bitwidth: 1, value: I0 },
