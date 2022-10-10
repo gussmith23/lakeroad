@@ -93,7 +93,9 @@
 ;;; - internal-data: List of internal state variable defintions. Each internal state variable
 ;;;   definition is a immutable hash, mapping a string variable name to an integer representing the
 ;;;   bitwidth of that variable.
-(struct interface-implementation (identifier module-instance internal-data) #:transparent)
+;;; - output-expr: an expression representing the output. Currently, this should just be the names of
+;;;   one of the output ports of module-instance.
+(struct interface-implementation (identifier module-instance internal-data output-expr) #:transparent)
 
 ;;; Architecture description.
 ;;;
@@ -499,10 +501,13 @@
     (when (not (equal? (length modules) 1))
       (error "Only one implementing module is currently supported."))
 
+    (define output-expr (or (hash-ref impl-yaml "output" #f) (error "output not found")))
+
     (interface-implementation
      interface-identifier
      (first modules)
-     (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))))
+     (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))
+     output-expr))
 
   (define implementations
     (for/list ([impl-yaml impls-yaml])
