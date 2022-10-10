@@ -39,7 +39,7 @@
          ;;; just trying to get the internal data.
          (for/list ([i num-logical-inputs])
            (cons (format "I~a" i) (bv 0 1))))]
-       [physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse))
+       [physical-inputs (logical-to-physical-mapping (choose* (ltop-bitwise) (ltop-bitwise-reverse))
                                                      logical-inputs)]
        [physical-outputs
         (for/list ([i bitwidth])
@@ -50,7 +50,7 @@
                                  (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
                                  port-map
                                  #:internal-data internal-data)))]
-       [logical-outputs (physical-to-logical-mapping (choose* '(bitwise) '(bitwise-reverse))
+       [logical-outputs (physical-to-logical-mapping (choose* (ptol-bitwise) (ptol-bitwise-reverse))
                                                      physical-outputs)]
        [out-expr (lr:list-ref logical-outputs 0)])
     out-expr))
@@ -63,7 +63,7 @@
              (begin
                (define sketch
                  (bitwise-sketch-generator (xilinx-ultrascale-plus-architecture-description)
-                                           (list (bv 0 2) (bv 1 2))
+                                           (lr:list (list (lr:bv (bv 0 2)) (lr:bv (bv 1 2))))
                                            2
                                            2))
                (interpret sketch))))
