@@ -160,11 +160,23 @@
               (find-interface-definition
                (interface-identifier "NotARealInterface" (hash "num_inputs" 4)))))
 
+;;; TODO(@gussmith23): This is a temporary solution.
+;;;
+;;; This language construct takes the result of a module instantiation, gets the requested signal, and
+;;; then unwraps it from the `signal` struct that it's in.
+;;;
+;;; We should have a cleaner solution to this in the future. Currently, `signal`s are not fully
+;;; supported and integrated, so we have to work around them.
+(struct lr:get-hw-module-instance-output (hw-module-instance-expr signal-name) #:transparent)
+
 ;;; Internal implementation of construct-interface, which fails if the interface is not found.
 ;;; External users should use construct-interface.
 ;;;
 ;;; - port-map: Maps string port identifiers to expressions.
 ;;; - internal-data: Internal state constructed using construct-internal-data.
+;;;
+;;; Returns a Lakeroad expression representing the result of the interface, and the internal data
+;;; constructed while generating the interface.
 (define (construct-interface-internal architecture-description
                                       interface-id
                                       port-map
@@ -202,7 +214,10 @@
                              (cdr (assoc (module-instance-parameter-value parameter) internal-data))))
                           (module-instance-params module-instance))]
          [filepath (module-instance-filepath module-instance)])
-    (list (lr:hw-module-instance name ports parameters filepath) internal-data)))
+    (list (lr:get-hw-module-instance-output
+           (lr:hw-module-instance name ports parameters filepath)
+           (interface-implementation-output-expr interface-implementation))
+          internal-data)))
 
 (module+ test
   (require rackunit)
@@ -217,18 +232,20 @@
           [expr (first out)]
           [internal-data (second out)])
      (check-true (match internal-data
-                   [(list (cons "INIT" v))
+                   [(list (cons "INIT" (lr:bv v)))
                     (check-true ((bitvector 16) v))
                     #t]
                    [else #f]))
      (check-true (match expr
-                   [(lr:hw-module-instance "LUT4"
-                                           (list (module-instance-port "A" v 'input 1)
-                                                 (module-instance-port "B" v 'input 1)
-                                                 (module-instance-port "C" v 'input 1)
-                                                 (module-instance-port "D" v 'input 1))
-                                           (list (module-instance-parameter "INIT" s))
-                                           filepath-unchecked)
+                   [(lr:get-hw-module-instance-output
+                     (lr:hw-module-instance "LUT4"
+                                            (list (module-instance-port "A" v 'input 1)
+                                                  (module-instance-port "B" v 'input 1)
+                                                  (module-instance-port "C" v 'input 1)
+                                                  (module-instance-port "D" v 'input 1))
+                                            (list (module-instance-parameter "INIT" s))
+                                            filepath-unchecked)
+                     "Z")
                     (check-equal? v (bv 0 1))
                     #t]
                    [else #f])))))
@@ -386,39 +403,45 @@
                                             (cons "I3" (bv 0 1))
                                             (cons "I4" (bv 0 1))))])
      (check-true (match internal-data
-                   [(list (list (cons "INIT" v0)) (list (cons "INIT" v1)) (list))
+                   [(list (list (cons "INIT" (lr:bv v0))) (list (cons "INIT" (lr:bv v1))) (list))
                     (check-true ((bitvector 16) v0))
                     (check-true ((bitvector 16) v1))
                     #t]
                    [else #f]))
      (check-true
       (match expr
-        [(lr:hw-module-instance
-          "L6MUX21"
-          (list
-           (module-instance-port "D0"
-                                 (lr:hw-module-instance "LUT4"
-                                                        (list (module-instance-port "A" v 'input 1)
-                                                              (module-instance-port "B" v 'input 1)
-                                                              (module-instance-port "C" v 'input 1)
-                                                              (module-instance-port "D" v 'input 1))
-                                                        (list (module-instance-parameter "INIT" s0))
-                                                        lut4-filepath)
-                                 'input
-                                 1)
-           (module-instance-port "D1"
-                                 (lr:hw-module-instance "LUT4"
-                                                        (list (module-instance-port "A" v 'input 1)
-                                                              (module-instance-port "B" v 'input 1)
-                                                              (module-instance-port "C" v 'input 1)
-                                                              (module-instance-port "D" v 'input 1))
-                                                        (list (module-instance-parameter "INIT" s1))
-                                                        lut4-filepath)
-                                 'input
-                                 1)
-           (module-instance-port "SD" selector-expr 'input 1))
-          (list)
-          mux-filepath)
+        [(lr:get-hw-module-instance-output
+          (lr:hw-module-instance
+           "L6MUX21"
+           (list
+            (module-instance-port "D0"
+                                  (lr:get-hw-module-instance-output
+                                   (lr:hw-module-instance "LUT4"
+                                                          (list (module-instance-port "A" v 'input 1)
+                                                                (module-instance-port "B" v 'input 1)
+                                                                (module-instance-port "C" v 'input 1)
+                                                                (module-instance-port "D" v 'input 1))
+                                                          (list (module-instance-parameter "INIT" s0))
+                                                          lut4-filepath)
+                                   "Z")
+                                  'input
+                                  1)
+            (module-instance-port "D1"
+                                  (lr:get-hw-module-instance-output
+                                   (lr:hw-module-instance "LUT4"
+                                                          (list (module-instance-port "A" v 'input 1)
+                                                                (module-instance-port "B" v 'input 1)
+                                                                (module-instance-port "C" v 'input 1)
+                                                                (module-instance-port "D" v 'input 1))
+                                                          (list (module-instance-parameter "INIT" s1))
+                                                          lut4-filepath)
+                                   "Z")
+                                  'input
+                                  1)
+            (module-instance-port "SD" selector-expr 'input 1))
+           (list)
+           mux-filepath)
+          "Z")
          #t]
         [else #f])))))
 
@@ -567,28 +590,33 @@
                             (list)
                             "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
                             "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
-           (hash))))))
+           (hash)
+           "Z")))))
 
 (module+ test
-  (test-begin "Construct a LUT2 on Lattice from a LUT4."
-              (match-let* ([(list expr internal-data)
-                            (construct-interface (lattice-ecp5-architecture-description)
-                                                 (interface-identifier "LUT" (hash "num_inputs" 2))
-                                                 (list (cons "I0" (bv 0 1)) (cons "I1" (bv 0 1))))])
-                (check-true (match internal-data
-                              [(list (cons "INIT" v))
-                               (check-true ((bitvector 16) v))
-                               #t]
-                              [else #f]))
-                (check-true (match expr
-                              [(lr:hw-module-instance "LUT4"
-                                                      (list (module-instance-port "A" v0 'input 1)
-                                                            (module-instance-port "B" v0 'input 1)
-                                                            (module-instance-port "C" v1 'input 1)
-                                                            (module-instance-port "D" v1 'input 1))
-                                                      (list (module-instance-parameter "INIT" s0))
-                                                      filepath-unchecked)
-                               (check-equal? v0 (bv 0 1))
-                               (check-equal? v1 (bv 1 1))
-                               #t]
-                              [else #f])))))
+  (test-begin
+   "Construct a LUT2 on Lattice from a LUT4."
+   (match-let* ([(list expr internal-data)
+                 (construct-interface
+                  (lattice-ecp5-architecture-description)
+                  (interface-identifier "LUT" (hash "num_inputs" 2))
+                  (list (cons "I0" (lr:bv (bv 0 1))) (cons "I1" (lr:bv (bv 0 1)))))])
+     (check-true (match internal-data
+                   [(list (cons "INIT" (lr:bv v)))
+                    (check-true ((bitvector 16) v))
+                    #t]
+                   [else #f]))
+     (check-true (match expr
+                   [(lr:get-hw-module-instance-output
+                     (lr:hw-module-instance "LUT4"
+                                            (list (module-instance-port "A" (lr:bv v0) 'input 1)
+                                                  (module-instance-port "B" (lr:bv v0) 'input 1)
+                                                  (module-instance-port "C" (lr:bv v1) 'input 1)
+                                                  (module-instance-port "D" (lr:bv v1) 'input 1))
+                                            (list (module-instance-parameter "INIT" (lr:bv s0)))
+                                            filepath-unchecked)
+                     "Z")
+                    (check-equal? v0 (bv 0 1))
+                    (check-equal? v1 (bv 1 1))
+                    #t]
+                   [else #f])))))
