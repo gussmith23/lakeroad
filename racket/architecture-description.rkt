@@ -133,8 +133,8 @@
   ;;; - internal-data-definition-pair: pair of internal state variable name (string) and bitwidth
   ;;;   (integer).
   (map (lambda (internal-data-definition-pair)
-         (define-symbolic* v (bitvector (cdr internal-data-definition-pair)))
-         (cons (car internal-data-definition-pair) v))
+         (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
+         (cons (car internal-data-definition-pair) (lr:bv internal-data)))
        (hash->list internal-data-definition)))
 
 ;;; Get interface definition from list of interfaces.
