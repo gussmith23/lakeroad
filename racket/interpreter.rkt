@@ -13,7 +13,9 @@
          "lut.rkt"
          rosette
          rosette/lib/destruct
-         (prefix-in lr: "language.rkt"))
+         (prefix-in lr: "language.rkt")
+         "architecture-description.rkt"
+         "stateful-design-experiment.rkt")
 
 (define interp-memoization-hits 0)
 (define interp-memoization-misses 0)
@@ -23,7 +25,13 @@
           interp-memoization-misses
           (/ (exact->inexact interp-memoization-hits) interp-memoization-misses)))
 
-(define (interpret expr)
+;;; module-semantics: association list of functions mapping (cons module-name filepath) to a function
+;;; implementing the semantics for that module.
+;;;
+;;; TODO(@gussmith23): This might be better as an argument to interpret, but I'm implementing this
+;;; during crunch time, so this is easier.
+;;;(define module-semantics (make-parameter '()))
+(define (interpret expr #:module-semantics [module-semantics '()])
   (set! interp-memoization-hits 0)
   (set! interp-memoization-misses 0)
   (define interpreter-memo-hash (make-hasheq))
@@ -37,6 +45,38 @@
           (define out
             (destruct
              expr
+             [(lr:get-hw-module-instance-output hw-module-instance-expr output)
+              (let* ([hw-module-instance (interpret-helper hw-module-instance-expr)]
+                     [output-signal (hash-ref hw-module-instance (string->symbol output))]
+                     [output-value (signal-value output-signal)])
+                output-value)]
+             [(lr:hw-module-instance name ports params filepath)
+              (let* ([module-semantics-fn (or (cdr (assoc (cons name filepath) module-semantics))
+                                              (error "No semantics for module: " filepath))]
+                     ;;; Generate keyword arguments.
+                     [port-names (map module-instance-port-name ports)]
+                     [param-names (map module-instance-parameter-name params)]
+                     [all-names (append port-names param-names)]
+                     [all-names-as-keywords (map string->keyword all-names)]
+
+                     ;;; Generate values to be paired with the arguments.
+                     [port-values (map module-instance-port-value ports)]
+                     [param-values (map module-instance-parameter-value params)]
+                     [all-values (append port-values param-values)]
+                     ;;; Interpret values.
+                     [all-values (map interpret-helper all-values)]
+                     ;;; Wrap in signal.
+                     [all-values (map bv->signal all-values)]
+
+                     ;;; Pair them.
+                     [pairs (map cons all-names-as-keywords all-values)]
+
+                     ;;; Sort them by keyword<.
+                     [pairs (sort pairs keyword<? #:key car)]
+
+                     ;;; Call the function.
+                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())])
+                out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
               (interpret-logical-to-physical-mapping interpret-helper f inputs)]
