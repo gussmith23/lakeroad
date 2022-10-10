@@ -9,11 +9,17 @@
 
 (provide construct-interface
          (struct-out interface-identifier)
-         xilinx-ultrascale-plus-architecture-description)
+         xilinx-ultrascale-plus-architecture-description
+         lattice-ecp5-architecture-description
+         (struct-out lr:hw-module-instance)
+         (struct-out module-instance-port)
+         (struct-out module-instance-parameter)
+         (struct-out lr:get-hw-module-instance-output))
 
 (require rosette
          yaml
-         "utils.rkt")
+         "utils.rkt"
+         (prefix-in lr: "language.rkt"))
 
 ;;; Part 1: defining an interface.
 
