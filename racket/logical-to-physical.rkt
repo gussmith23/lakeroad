@@ -11,7 +11,11 @@
          compile-logical-to-physical-mapping
          compile-physical-to-logical-mapping
          logical-to-physical-mapping
-         physical-to-logical-mapping)
+         physical-to-logical-mapping
+         (struct-out ltop-bitwise)
+         (struct-out ltop-bitwise-reverse)
+         (struct-out ptol-bitwise)
+         (struct-out ptol-bitwise-reverse))
 
 (require rosette
          racket/pretty
