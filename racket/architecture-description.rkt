@@ -377,7 +377,7 @@
           ;;; to set them to 1 on Xilinx. We should perhaps allow this to be configurable.
           [new-port-map (append port-map
                                 (for/list ([i (range requested-lut-size larger-lut-size)])
-                                  (cons (format "I~a" i) (bv 1 1))))]
+                                  (cons (format "I~a" i) (lr:bv (bv 1 1)))))]
           [(list out-lut-expr internal-data)
            (construct-interface-internal architecture-description
                                          larger-lut-interface-identifier
