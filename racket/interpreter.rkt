@@ -249,6 +249,7 @@
              [(lr:concat vs) (apply concat (interpret-helper vs))]
              ;;; Datatypes.
              [(lr:bv v) v]
+             [(lr:bitvector v) v]
              ;;; Why did we have this? Do we need it after switching to destruct?
              ;;; [(? bitvector? v) v]
              [(lr:integer v) v]
