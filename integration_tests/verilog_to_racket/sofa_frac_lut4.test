@@ -16,27 +16,35 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide sofa-frac-lut4)
 CHECK: (require (file "
-
 CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define sofa-frac-lut4
-CHECK:   (λ (#:in
-CHECK:       (in (bv->signal (constant (list 'in 'symbolic-constant) (bitvector 4))))
-CHECK:       #:mode
-CHECK:       (mode
-CHECK:        (bv->signal (constant (list 'mode 'symbolic-constant) (bitvector 1))))
-CHECK:       #:mode_inv
-CHECK:       (mode_inv
-CHECK:        (bv->signal
-CHECK:         (constant (list 'mode_inv 'symbolic-constant) (bitvector 1))))
-CHECK:       #:sram
-CHECK:       (sram
-CHECK:        (bv->signal (constant (list 'sram 'symbolic-constant) (bitvector 16))))
-CHECK:       #:sram_inv
-CHECK:       (sram_inv
-CHECK:        (bv->signal
-CHECK:         (constant (list 'sram_inv 'symbolic-constant) (bitvector 16)))))
-CHECK:     (let* ((merged-input-state-hash (hash))
+CHECK:   (λ (inputs)
+CHECK:     (let* ((in
+CHECK:             (or (cdr (assoc 'in inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'in 'symbolic-constant) (bitvector 4)))))
+CHECK:            (mode
+CHECK:             (or (cdr (assoc 'mode inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'mode 'symbolic-constant) (bitvector 1)))))
+CHECK:            (mode_inv
+CHECK:             (or (cdr (assoc 'mode_inv inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant
+CHECK:                   (list 'mode_inv 'symbolic-constant)
+CHECK:                   (bitvector 1)))))
+CHECK:            (sram
+CHECK:             (or (cdr (assoc 'sram inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'sram 'symbolic-constant) (bitvector 16)))))
+CHECK:            (sram_inv
+CHECK:             (or (cdr (assoc 'sram_inv inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant
+CHECK:                   (list 'sram_inv 'symbolic-constant)
+CHECK:                   (bitvector 16)))))
+CHECK:            (merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 4))
 CHECK:            (btor2 in)
@@ -1885,7 +1893,7 @@ CHECK:            (btor495
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor48) (bitvector 1))
 CHECK:              btor48)))
-CHECK:       (make-immutable-hash 
+CHECK:       (make-immutable-hash
 CHECK:        (list
 CHECK:         (cons 'lut3_out (signal (signal-value btor45) (hash)))
 CHECK:         (cons 'lut4_out (signal (signal-value btor49) (hash)))

@@ -22,13 +22,18 @@
 (require rosette)
 (require racket/hash)
 (define sofa-frac-lut4
-  (λ (#:in (in (bv->signal (constant (list 'in 'symbolic-constant) (bitvector 4))))
-      #:mode (mode (bv->signal (constant (list 'mode 'symbolic-constant) (bitvector 1))))
-      #:mode_inv (mode_inv (bv->signal (constant (list 'mode_inv 'symbolic-constant) (bitvector 1))))
-      #:sram (sram (bv->signal (constant (list 'sram 'symbolic-constant) (bitvector 16))))
-      #:sram_inv (sram_inv (bv->signal (constant (list 'sram_inv 'symbolic-constant)
-                                                 (bitvector 16)))))
-    (let* ([merged-input-state-hash (hash)]
+  (λ (inputs)
+    (let* ([in (or (cdr (assoc 'in inputs))
+                   (bv->signal (constant (list 'in 'symbolic-constant) (bitvector 4))))]
+           [mode (or (cdr (assoc 'mode inputs))
+                     (bv->signal (constant (list 'mode 'symbolic-constant) (bitvector 1))))]
+           [mode_inv (or (cdr (assoc 'mode_inv inputs))
+                         (bv->signal (constant (list 'mode_inv 'symbolic-constant) (bitvector 1))))]
+           [sram (or (cdr (assoc 'sram inputs))
+                     (bv->signal (constant (list 'sram 'symbolic-constant) (bitvector 16))))]
+           [sram_inv (or (cdr (assoc 'sram_inv inputs))
+                         (bv->signal (constant (list 'sram_inv 'symbolic-constant) (bitvector 16))))]
+           [merged-input-state-hash (hash)]
            [init-hash (hash)]
            [btor1 (bitvector 4)]
            [btor2 in]
