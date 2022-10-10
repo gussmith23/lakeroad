@@ -2462,49 +2462,17 @@ here-string-delimiter
                       (string-split str #rx"\n+"))])
     (compile-line line))
 
-  ;;; Makes a function which outputs the given expression.
-  (define/contract
-   (make-function out-symbol)
-   (-> symbol? (list/c any/c any/c))
-   ;;; The contract for our function
-   (define contract
-     `(->* ()
-           ;;; apply append == flatten1 (flatten flattens recursively)
-           (,@(apply append
-                     (for/list ([input ins])
-                       (let* ([type (hash-ref input-types input)])
-                         (list (string->keyword (symbol->string input))
-                               `(struct/c signal ,type (hash/c symbol? bv?)))))))
-           (struct/c signal bv? hash?)))
-   (define function
-     `(λ (,@(apply append
-                   (for/list ([input ins])
-                     (let* ([type (hash-ref input-types input)])
-                       (list (string->keyword (symbol->string input))
-                             `[,input
-                               ,(match default-value
-                                  ['symbolic
-                                   `(bv->signal (constant (list ',input 'symbolic-constant)
-                                                          ,type))])])))))
-        (let* (,@let*-clauses)
-          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
-          ;;; with the updated state.
-          (signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))))
-   (list function contract))
-
-  ;;; Instead of using make-function to make a function for each output, we make a single function
-  ;;; which returns all outputs in a map.
+  ;;; Make a function which returns all outputs in a map.
   (define out-function
-    `(λ (,@(apply append
-                  (for/list ([input ins])
-                    (let* ([type (hash-ref input-types input)])
-                      (list (string->keyword (symbol->string input))
-                            `[,input
-                              ,(match default-value
-                                 ['symbolic
-                                  `(bv->signal (constant (list ',input 'symbolic-constant)
-                                                         ,type))])])))))
-       (let* (,@let*-clauses)
+    `(λ (inputs)
+       (let* (,@(for/list ([input ins])
+                  (let* ([type (hash-ref input-types input)])
+                    `[,input
+                      (or (cdr (assoc ',input inputs))
+                          ,(match default-value
+                             ['symbolic
+                              `(bv->signal (constant (list ',input 'symbolic-constant) ,type))]))]))
+              ,@let*-clauses)
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.
          (make-immutable-hash (list ,@(map (lambda (k v) `(cons ,k ,v))
