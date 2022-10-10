@@ -336,11 +336,11 @@
     ;; Interpret LUT primitives
     [(lattice-ecp5-lut4 INIT inputs)
      (let* ([inputs (interpreter inputs)]
-            [out (interpret-lattice-ecp5-lut4 #:A (bv->signal (bit 0 inputs))
-                                              #:B (bv->signal (bit 1 inputs))
-                                              #:C (bv->signal (bit 2 inputs))
-                                              #:D (bv->signal (bit 3 inputs))
-                                              #:INIT (bv->signal (interpreter INIT)))])
+            [out (interpret-lattice-ecp5-lut4 (list (cons 'A (bv->signal (bit 0 inputs)))
+                                                    (cons 'B (bv->signal (bit 1 inputs)))
+                                                    (cons 'C (bv->signal (bit 2 inputs)))
+                                                    (cons 'D (bv->signal (bit 3 inputs)))
+                                                    (cons 'INIT (bv->signal (interpreter INIT)))))])
        (list (signal-value (hash-ref out 'Z))))]
     [(lattice-ecp5-lut2 INIT inputs)
      (let* ([inputs (interpreter inputs)]
