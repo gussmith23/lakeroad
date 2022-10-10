@@ -199,11 +199,11 @@
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
                                  #:INJECT1_1 [INJECT1_1 #f])
-  (lattice-ecp5-ccu2c (or INIT0 (??* (bitvector 16))) ; INIT0
-                      (or INIT1 (??* (bitvector 16))) ; INIT1
-                      (or INJECT1_0 (??* (bitvector 1))) ; INJECT1_0
-                      (or INJECT1_1 (??* (bitvector 1))) ; INJECT1_1
-                      (or CIN (??* (bitvector 1))) ; CIN
+  (lattice-ecp5-ccu2c (lr:bv (or INIT0 (??* (bitvector 16)))) ; INIT0
+                      (lr:bv (or INIT1 (??* (bitvector 16)))) ; INIT1
+                      (lr:bv (or INJECT1_0 (??* (bitvector 1)))) ; INJECT1_0
+                      (lr:bv (or INJECT1_1 (??* (bitvector 1)))) ; INJECT1_1
+                      (lr:bv (or CIN (??* (bitvector 1)))) ; CIN
                       inputs))
 
 ;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
@@ -253,33 +253,24 @@
                                       #:INJECT1_7 [INJECT1_7 #f]
                                       #:MAPPING [MAPPING '(bitwise)])
 
-  (define fn-name "make-lattice-ripple-pfu-expr")
-  (when (> (length inputs) 4)
-    (error (format "~a: inputs must be length 4 or less: ~a" fn-name inputs)))
-
-  ;(for ([input inputs])
-  ;  (when (not ((bitvector out-bw) input))
-  ;    (error (format "~a: all inputs must satisfy (bitvector ~a): ~a" fn-name out-bw input))))
-
-  (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv -1 out-bw)))])
-    (lattice-ecp5-ripple-pfu (or INIT0 (??* (bitvector 16)))
-                             (or INIT1 (??* (bitvector 16)))
-                             (or INIT2 (??* (bitvector 16)))
-                             (or INIT3 (??* (bitvector 16)))
-                             (or INIT4 (??* (bitvector 16)))
-                             (or INIT5 (??* (bitvector 16)))
-                             (or INIT6 (??* (bitvector 16)))
-                             (or INIT7 (??* (bitvector 16)))
-                             (or INJECT1_0 (??* (bitvector 1)))
-                             (or INJECT1_1 (??* (bitvector 1)))
-                             (or INJECT1_2 (??* (bitvector 1)))
-                             (or INJECT1_3 (??* (bitvector 1)))
-                             (or INJECT1_4 (??* (bitvector 1)))
-                             (or INJECT1_5 (??* (bitvector 1)))
-                             (or INJECT1_6 (??* (bitvector 1)))
-                             (or INJECT1_7 (??* (bitvector 1)))
-                             (or CIN (??* (bitvector 1)))
-                             (logical-to-physical-mapping MAPPING inputs))))
+  (lattice-ecp5-ripple-pfu (or INIT0 (lr:bv (??* (bitvector 16))))
+                           (or INIT1 (lr:bv (??* (bitvector 16))))
+                           (or INIT2 (lr:bv (??* (bitvector 16))))
+                           (or INIT3 (lr:bv (??* (bitvector 16))))
+                           (or INIT4 (lr:bv (??* (bitvector 16))))
+                           (or INIT5 (lr:bv (??* (bitvector 16))))
+                           (or INIT6 (lr:bv (??* (bitvector 16))))
+                           (or INIT7 (lr:bv (??* (bitvector 16))))
+                           (or INJECT1_0 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_1 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_2 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_3 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_4 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_5 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_6 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_7 (lr:bv (??* (bitvector 1))))
+                           (or CIN (lr:bv (??* (bitvector 1))))
+                           (logical-to-physical-mapping MAPPING inputs)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;        INTERPRETING LAKEROAD EXPRESSIONS         ;;;;;;;;;;;;;;;
