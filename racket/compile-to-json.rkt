@@ -64,20 +64,20 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
-                 [(lr:lut 1 1 'xilinx-ultrascale-plus lutmem inputs)
+                 [(lr:lut (lr:integer 1) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut1 lutmem inputs))]
-                 [(lr:lut 2 1 'xilinx-ultrascale-plus lutmem inputs)
+                 [(lr:lut (lr:integer 2) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut2 lutmem inputs))]
-                 [(lr:lut 3 1 'xilinx-ultrascale-plus lutmem inputs)
+                 [(lr:lut (lr:integer 3) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut3 lutmem inputs))]
-                 [(lr:lut 4 1 'xilinx-ultrascale-plus lutmem inputs)
+                 [(lr:lut (lr:integer 4) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut4 lutmem inputs))]
 
                  ;;; Have to reverse the inputs for SOFA. Could also reverse the lutmem.
                  ;;;
                  ;;; TODO(@gussmith23): It's probably not great to have the compiler depend on the
                  ;;; interpreter.
-                 [(lr:lut 4 1 'sofa lutmem inputs)
+                 [(lr:lut (lr:integer 4) (lr:integer 1) 'sofa lutmem inputs)
                   (compile (sofa-lut4 lutmem (apply concat (bitvector->bits (interpret inputs)))))]
 
                  [(ultrascale-plus-dsp48e2 A
@@ -355,9 +355,9 @@
                   (compile-logical-to-physical-mapping compile f inputs)]
 
                  ;;; Racket operators.
-                 [(lr:take l n) (take (compile l) n)]
-                 [(lr:drop l n) (drop (compile l) n)]
-                 [(lr:list-ref l n) (list-ref (compile l) n)]
+                 [(lr:take l n) (take (compile l) (compile n))]
+                 [(lr:drop l n) (drop (compile l) (compile n))]
+                 [(lr:list-ref l n) (list-ref (compile l) (compile n))]
                  [(lr:first lst) (first (compile lst))]
                  [(lr:append lsts) (apply append (compile lsts))]
                  [(lr:map f lsts) (apply map f (compile lsts))]
@@ -377,7 +377,7 @@
                  [(lr:dup-extend v bv-type) (make-list (bitvector-size bv-type) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(? bv? (? symbolic? (? constant? s)))
+                 [(lr:bv (? bv? (? symbolic? (? constant? s))))
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
@@ -392,13 +392,14 @@
                   (hash-ref port-details 'bits)]
 
                  ;;; Concrete bitvectors become constants.
-                 [(? bv? (? concrete? s)) (map ~a (map bitvector->natural (bitvector->bits s)))]
+                 [(lr:bv (? bv? (? concrete? s)))
+                  (map ~a (map bitvector->natural (bitvector->bits s)))]
 
-                 [(? int? v) v]
+                 [(lr:integer v) v]
                  [(? string? v) v]
 
                  ;;; Should go near the bottom -- remember, nearly everything's a list underneath!
-                 [(? list? v) (map compile v)])])
+                 [(lr:list v) (map compile v)])])
 
           (hash-set! memo expr out)
           (hash-ref memo expr))))
@@ -433,44 +434,48 @@
   ;;;             (check-equal? (hash-count (hash-ref module 'ports)) 5))
 
   (test-begin
-   (define out (lakeroad->jsexpr (bv #b000111 6)))
+   (define out (lakeroad->jsexpr (lr:bv (bv #b000111 6))))
    (check-equal?
     (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
 
-  (test-begin
-   (current-solver (boolector))
-   (define-symbolic a b (bitvector 8))
-   (define expr
-     (lr:first (physical-to-logical-mapping
-                '(bitwise)
-                ;;; Take the 8 outputs from the LUTs; drop cout.
-                (lr:take (ultrascale-plus-clb (?? (bitvector 1))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (logical-to-physical-mapping
-                                               '(bitwise)
-                                               (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
-                         8))))
-   (define soln
-     (synthesize #:forall (list a b)
-                 #:guarantee
-                 (begin
-                   ; Assert that the output of the CLB implements the requested function f.
-                   (assert (bveq (bvand a b) (interpret expr))))))
-   (check-true (sat? soln))
-   (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))
+  (test-begin (current-solver (boolector))
+              (define-symbolic a b (bitvector 8))
+              (define expr
+                (lr:first (physical-to-logical-mapping
+                           '(bitwise)
+                           ;;; Take the 8 outputs from the LUTs; drop cout.
+                           (lr:take (ultrascale-plus-clb (lr:bv (?? (bitvector 1)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (logical-to-physical-mapping
+                                                          '(bitwise)
+                                                          (lr:list (list (lr:bv a)
+                                                                         (lr:bv b)
+                                                                         (lr:bv (bv 0 8))
+                                                                         (lr:bv (bv 0 8))
+                                                                         (lr:bv (bv 0 8))
+                                                                         (lr:bv (bv 0 8))))))
+                                    (lr:integer 8)))))
+              (define soln
+                (synthesize #:forall (list a b)
+                            #:guarantee
+                            (begin
+                              ; Assert that the output of the CLB implements the requested function f.
+                              (assert (bveq (bvand a b) (interpret expr))))))
+              (check-true (sat? soln))
+              (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))

@@ -180,79 +180,100 @@
                                   expr)
 
   ; Make module for CLB.
-  (match-let*
-      ([(ultrascale-plus-clb cin
-                             lut-a
-                             lut-b
-                             lut-c
-                             lut-d
-                             lut-e
-                             lut-f
-                             lut-g
-                             lut-h
-                             mux-selector-a
-                             mux-selector-b
-                             mux-selector-c
-                             mux-selector-d
-                             mux-selector-e
-                             mux-selector-f
-                             mux-selector-g
-                             mux-selector-h
-                             inputs) expr]
-       ;;; Compile input expression.
-       [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) (lakeroad->jsexpr inputs)]
-       ;;; Index bitvector at bit id.
-       [bit (lambda (n l) (list-ref l n))]
-       ;;; Nets.
-       [luts_O5 (get-bits 8)]
-       [luts_O6 (get-bits 8)]
-       [o (get-bits 8)]
-       [co (get-bits 8)]
-       [mux-helper
-        (lambda (o5 o6 carry-o carry-co selector)
-          (if (bveq selector (bv 0 2))
-              o5
-              (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
-       [out (map mux-helper
-                 luts_O5
-                 luts_O6
-                 o
-                 co
-                 (list mux-selector-a
-                       mux-selector-b
-                       mux-selector-c
-                       mux-selector-d
-                       mux-selector-e
-                       mux-selector-f
-                       mux-selector-g
-                       mux-selector-h))]
-       ;;; LUTs.
-       [A_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-a)
-                     (append a-ins (list (bit 0 luts_O5) (bit 0 luts_O6))))]
-       [B_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-b)
-                     (append b-ins (list (bit 1 luts_O5) (bit 1 luts_O6))))]
-       [C_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-c)
-                     (append c-ins (list (bit 2 luts_O5) (bit 2 luts_O6))))]
-       [D_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-d)
-                     (append d-ins (list (bit 3 luts_O5) (bit 3 luts_O6))))]
-       [E_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-e)
-                     (append e-ins (list (bit 4 luts_O5) (bit 4 luts_O6))))]
-       [F_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-f)
-                     (append f-ins (list (bit 5 luts_O5) (bit 5 luts_O6))))]
-       [G_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-g)
-                     (append g-ins (list (bit 6 luts_O5) (bit 6 luts_O6))))]
-       [H_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-h)
-                     (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
-       ;;; Carry.
-       [carry (make-ultrascale-plus-carry8 "0" (bit 0 (lakeroad->jsexpr cin)) luts_O5 luts_O6 o co)])
+  (match-let* ([(ultrascale-plus-clb cin
+                                     lut-a
+                                     lut-b
+                                     lut-c
+                                     lut-d
+                                     lut-e
+                                     lut-f
+                                     lut-g
+                                     lut-h
+                                     mux-selector-a
+                                     mux-selector-b
+                                     mux-selector-c
+                                     mux-selector-d
+                                     mux-selector-e
+                                     mux-selector-f
+                                     mux-selector-g
+                                     mux-selector-h
+                                     inputs) expr]
+               ;;; Compile all input expressions.
+               [cin (lakeroad->jsexpr cin)]
+               [inputs (lakeroad->jsexpr inputs)]
+               ;;; Unwrap lut and mux-selector values. This is kind of a hack. We could also compile
+               ;;; them and compare against their values directly.
+               [(lr:bv lut-a) lut-a]
+               [(lr:bv lut-b) lut-b]
+               [(lr:bv lut-c) lut-c]
+               [(lr:bv lut-d) lut-d]
+               [(lr:bv lut-e) lut-e]
+               [(lr:bv lut-f) lut-f]
+               [(lr:bv lut-g) lut-g]
+               [(lr:bv lut-h) lut-h]
+               [(lr:bv mux-selector-a) mux-selector-a]
+               [(lr:bv mux-selector-b) mux-selector-b]
+               [(lr:bv mux-selector-c) mux-selector-c]
+               [(lr:bv mux-selector-d) mux-selector-d]
+               [(lr:bv mux-selector-e) mux-selector-e]
+               [(lr:bv mux-selector-f) mux-selector-f]
+               [(lr:bv mux-selector-g) mux-selector-g]
+               [(lr:bv mux-selector-h) mux-selector-h]
+               ;;; Extract individual inputs.
+               [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) inputs]
+               ;;; Index bitvector at bit id.
+               [bit (lambda (n l) (list-ref l n))]
+               ;;; Nets.
+               [luts_O5 (get-bits 8)]
+               [luts_O6 (get-bits 8)]
+               [o (get-bits 8)]
+               [co (get-bits 8)]
+               [mux-helper (lambda (o5 o6 carry-o carry-co selector)
+                             (if (bveq selector (bv 0 2))
+                                 o5
+                                 (if (bveq selector (bv 1 2))
+                                     o6
+                                     (if (bveq selector (bv 2 2)) carry-o carry-co))))]
+               [out (map mux-helper
+                         luts_O5
+                         luts_O6
+                         o
+                         co
+                         (list mux-selector-a
+                               mux-selector-b
+                               mux-selector-c
+                               mux-selector-d
+                               mux-selector-e
+                               mux-selector-f
+                               mux-selector-g
+                               mux-selector-h))]
+               ;;; LUTs.
+               [A_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-a)
+                             (append a-ins (list (bit 0 luts_O5) (bit 0 luts_O6))))]
+               [B_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-b)
+                             (append b-ins (list (bit 1 luts_O5) (bit 1 luts_O6))))]
+               [C_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-c)
+                             (append c-ins (list (bit 2 luts_O5) (bit 2 luts_O6))))]
+               [D_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-d)
+                             (append d-ins (list (bit 3 luts_O5) (bit 3 luts_O6))))]
+               [E_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-e)
+                             (append e-ins (list (bit 4 luts_O5) (bit 4 luts_O6))))]
+               [F_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-f)
+                             (append f-ins (list (bit 5 luts_O5) (bit 5 luts_O6))))]
+               [G_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-g)
+                             (append g-ins (list (bit 6 luts_O5) (bit 6 luts_O6))))]
+               [H_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-h)
+                             (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
+               ;;; Carry.
+               [carry (make-ultrascale-plus-carry8 "0" (bit 0 cin) luts_O5 luts_O6 o co)])
     (add-cell 'A_LUT A_LUT)
     (add-cell 'B_LUT B_LUT)
     (add-cell 'C_LUT C_LUT)
@@ -369,8 +390,9 @@
 (define (interpret-ultrascale-plus-lut6-2 interpreter expr)
   (match expr
     [(ultrascale-plus-lut6-2 memory inputs)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-lut6-2-state memory)
-                                            (interpreter inputs))]))
+     (interpret-ultrascale-plus-lut6-2-impl
+      (interpreter (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-lut6-2-state memory)))
+      (interpreter inputs))]))
 
 ; LUT6_2 primitive described on page 37 of
 ; https://www.xilinx.com/support/documentation/user_guides/ug574-ultrascale-clb.pdf
@@ -380,8 +402,8 @@
 ; inputs is a 6-bit bitvector, corresponding to I0 (LSB) through I5 (MSB) in figure 3-1.
 ;
 ; Returns the O5 and O6 signals.
-(define (interpret-ultrascale-plus-lut6-2-impl lut6-2 inputs)
-  (let* ([memory (ultrascale-plus-lut6-2-state-memory lut6-2)]
+(define (interpret-ultrascale-plus-lut6-2-impl lut6-2-memory inputs)
+  (let* ([memory lut6-2-memory]
          [lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
          [lut5-1 (lut (extract 31 0 memory) (extract 4 0 inputs))]
          [O6 (if (bitvector->bool (bit 5 inputs)) lut5-0 lut5-1)]
@@ -581,22 +603,22 @@
             [lut-input-g (seventh inputs)]
             [lut-input-h (eighth inputs)])
        (interpret-ultrascale-plus-clb-impl
-        (ultrascale-plus-clb-state (ultrascale-plus-lut6-2-state lut-a)
-                                   (ultrascale-plus-lut6-2-state lut-b)
-                                   (ultrascale-plus-lut6-2-state lut-c)
-                                   (ultrascale-plus-lut6-2-state lut-d)
-                                   (ultrascale-plus-lut6-2-state lut-e)
-                                   (ultrascale-plus-lut6-2-state lut-f)
-                                   (ultrascale-plus-lut6-2-state lut-g)
-                                   (ultrascale-plus-lut6-2-state lut-h)
-                                   mux-selector-a
-                                   mux-selector-b
-                                   mux-selector-c
-                                   mux-selector-d
-                                   mux-selector-e
-                                   mux-selector-f
-                                   mux-selector-g
-                                   mux-selector-h)
+        (ultrascale-plus-clb-state (ultrascale-plus-lut6-2-state (interpreter lut-a))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-b))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-c))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-d))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-e))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-f))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-g))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-h))
+                                   (interpreter mux-selector-a)
+                                   (interpreter mux-selector-b)
+                                   (interpreter mux-selector-c)
+                                   (interpreter mux-selector-d)
+                                   (interpreter mux-selector-e)
+                                   (interpreter mux-selector-f)
+                                   (interpreter mux-selector-g)
+                                   (interpreter mux-selector-h))
         (interpreter cin)
         lut-input-a
         lut-input-b
@@ -645,22 +667,30 @@
                                             lut-input-h)
 
   (match-let*
-      ([(list a-o5 a-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-a clb) lut-input-a)]
-       [(list b-o5 b-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-b clb) lut-input-b)]
-       [(list c-o5 c-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-c clb) lut-input-c)]
-       [(list d-o5 d-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-d clb) lut-input-d)]
-       [(list e-o5 e-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-e clb) lut-input-e)]
-       [(list f-o5 f-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-f clb) lut-input-f)]
-       [(list g-o5 g-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-g clb) lut-input-g)]
-       [(list h-o5 h-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-h clb) lut-input-h)]
+      ([(list a-o5 a-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-a clb))
+                          lut-input-a)]
+       [(list b-o5 b-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-b clb))
+                          lut-input-b)]
+       [(list c-o5 c-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-c clb))
+                          lut-input-c)]
+       [(list d-o5 d-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-d clb))
+                          lut-input-d)]
+       [(list e-o5 e-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-e clb))
+                          lut-input-e)]
+       [(list f-o5 f-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-f clb))
+                          lut-input-f)]
+       [(list g-o5 g-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-g clb))
+                          lut-input-g)]
+       [(list h-o5 h-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-h clb))
+                          lut-input-h)]
        [(list carry-o carry-co) (interpret-ultrascale-plus-carry8
                                  (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
                                  (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
