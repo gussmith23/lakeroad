@@ -12,7 +12,9 @@
          lut
          carry
          zero-extend
-         dup-extend)
+         dup-extend
+         bv
+         list integer)
 
 ;;; Functions from Racket/Rosette.
 (struct list-ref (lst pos) #:transparent)
@@ -27,3 +29,6 @@
 (struct carry (width architecture cin di s) #:transparent)
 (struct zero-extend (v bv) #:transparent)
 (struct dup-extend (v bv) #:transparent)
+(struct bv (v) #:transparent)
+(struct list (v) #:transparent)
+(struct integer (v) #:transparent)
