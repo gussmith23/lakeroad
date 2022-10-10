@@ -42,28 +42,48 @@
        [physical-inputs (logical-to-physical-mapping (choose* (ltop-bitwise) (ltop-bitwise-reverse))
                                                      logical-inputs)]
        [physical-outputs
-        (for/list ([i bitwidth])
-          (let* ([physical-inputs-this-lut (lr:list-ref physical-inputs i)]
-                 [port-map (for/list ([i num-logical-inputs])
-                             (cons (format "I~a" i) (lr:extract i i physical-inputs-this-lut)))])
-            (construct-interface architecture-description
-                                 (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
-                                 port-map
-                                 #:internal-data internal-data)))]
+        (lr:list (for/list ([i bitwidth])
+                   (let* ([physical-inputs-this-lut (lr:list-ref physical-inputs (lr:integer i))]
+                          [port-map (for/list ([i num-logical-inputs])
+                                      (cons (format "I~a" i)
+                                            (lr:extract (lr:integer i)
+                                                        (lr:integer i)
+                                                        physical-inputs-this-lut)))])
+                     (first (construct-interface
+                             architecture-description
+                             (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
+                             port-map
+                             #:internal-data internal-data)))))]
        [logical-outputs (physical-to-logical-mapping (choose* (ptol-bitwise) (ptol-bitwise-reverse))
                                                      physical-outputs)]
-       [out-expr (lr:list-ref logical-outputs 0)])
+       [out-expr (lr:list-ref logical-outputs (lr:integer 0))])
     out-expr))
 
 (module+ test
   (require rackunit
-           "interpreter.rkt")
+           "interpreter.rkt"
+           "lattice-ecp5-lut4.rkt")
 
-  (test-case "bitwise sketch generator"
-             (begin
-               (define sketch
-                 (bitwise-sketch-generator (xilinx-ultrascale-plus-architecture-description)
-                                           (lr:list (list (lr:bv (bv 0 2)) (lr:bv (bv 1 2))))
-                                           2
-                                           2))
-               (interpret sketch))))
+  (test-true
+   "bitwise sketch generator"
+   (normal?
+    (with-vc
+     (with-terms
+      (begin
+        (define-symbolic a b (bitvector 2))
+        (define sketch
+          (bitwise-sketch-generator (lattice-ecp5-architecture-description)
+                                    (lr:list (list (lr:bv a) (lr:bv b)))
+                                    2
+                                    2))
+        (check-true
+         (sat? (synthesize
+                #:forall (list a b)
+                #:guarantee
+                (assert
+                 (bveq (bvand a b)
+                       (interpret
+                        sketch
+                        #:module-semantics
+                        (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                    lattice-ecp5-lut4))))))))))))))
