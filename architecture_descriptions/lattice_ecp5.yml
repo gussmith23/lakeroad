@@ -14,6 +14,7 @@ implementations:
             { name: Z, direction: output, bitwidth: 1, value: O },
           ]
         parameters: [{ name: INIT, value: INIT }]
+    output: Z
   - interface: { name: MUX, parameters: { num_inputs: 2 } }
     modules:
       # TODO(@gussmith23): This MUX is not actually intended to be general-purpose. Replace this with a LUT2 implementation.
@@ -26,3 +27,4 @@ implementations:
             { name: SD, direction: input, bitwidth: 1, value: S },
             { name: Z, direction: output, bitwidth: 1, value: O },
           ]
+    output: Z
