@@ -7,24 +7,33 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide xilinx-ultrascale-plus-carry8)
 CHECK: (require (file "
-
 CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define xilinx-ultrascale-plus-carry8
-CHECK:   (λ (#:CARRY_TYPE
-CHECK:       (CARRY_TYPE
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CARRY_TYPE 'symbolic-constant) (bitvector 1))))
-CHECK:       #:CI
-CHECK:       (CI (bv->signal (constant (list 'CI 'symbolic-constant) (bitvector 1))))
-CHECK:       #:CI_TOP
-CHECK:       (CI_TOP
-CHECK:        (bv->signal (constant (list 'CI_TOP 'symbolic-constant) (bitvector 1))))
-CHECK:       #:DI
-CHECK:       (DI (bv->signal (constant (list 'DI 'symbolic-constant) (bitvector 8))))
-CHECK:       #:S
-CHECK:       (S (bv->signal (constant (list 'S 'symbolic-constant) (bitvector 8)))))
-CHECK:     (let* ((merged-input-state-hash (hash))
+CHECK:   (λ (inputs)
+CHECK:     (let* ((CARRY_TYPE
+CHECK:             (or (cdr (assoc 'CARRY_TYPE inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant
+CHECK:                   (list 'CARRY_TYPE 'symbolic-constant)
+CHECK:                   (bitvector 1)))))
+CHECK:            (CI
+CHECK:             (or (cdr (assoc 'CI inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'CI 'symbolic-constant) (bitvector 1)))))
+CHECK:            (CI_TOP
+CHECK:             (or (cdr (assoc 'CI_TOP inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'CI_TOP 'symbolic-constant) (bitvector 1)))))
+CHECK:            (DI
+CHECK:             (or (cdr (assoc 'DI inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'DI 'symbolic-constant) (bitvector 8)))))
+CHECK:            (S
+CHECK:             (or (cdr (assoc 'S inputs))
+CHECK:                 (bv->signal
+CHECK:                  (constant (list 'S 'symbolic-constant) (bitvector 8)))))
+CHECK:            (merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 1))
 CHECK:            (btor2 CARRY_TYPE)
@@ -190,4 +199,3 @@ CHECK:       (make-immutable-hash
 CHECK:        (list
 CHECK:         (cons 'CO (signal (signal-value btor45) (hash)))
 CHECK:         (cons 'O (signal (signal-value btor54) (hash))))))))
-

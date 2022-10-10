@@ -10,13 +10,19 @@
 (require rosette)
 (require racket/hash)
 (define xilinx-ultrascale-plus-carry8
-  (λ (#:CARRY_TYPE (CARRY_TYPE (bv->signal (constant (list 'CARRY_TYPE 'symbolic-constant)
-                                                     (bitvector 1))))
-      #:CI (CI (bv->signal (constant (list 'CI 'symbolic-constant) (bitvector 1))))
-      #:CI_TOP (CI_TOP (bv->signal (constant (list 'CI_TOP 'symbolic-constant) (bitvector 1))))
-      #:DI (DI (bv->signal (constant (list 'DI 'symbolic-constant) (bitvector 8))))
-      #:S (S (bv->signal (constant (list 'S 'symbolic-constant) (bitvector 8)))))
-    (let* ([merged-input-state-hash (hash)]
+  (λ (inputs)
+    (let* ([CARRY_TYPE (or (cdr (assoc 'CARRY_TYPE inputs))
+                           (bv->signal (constant (list 'CARRY_TYPE 'symbolic-constant)
+                                                 (bitvector 1))))]
+           [CI (or (cdr (assoc 'CI inputs))
+                   (bv->signal (constant (list 'CI 'symbolic-constant) (bitvector 1))))]
+           [CI_TOP (or (cdr (assoc 'CI_TOP inputs))
+                       (bv->signal (constant (list 'CI_TOP 'symbolic-constant) (bitvector 1))))]
+           [DI (or (cdr (assoc 'DI inputs))
+                   (bv->signal (constant (list 'DI 'symbolic-constant) (bitvector 8))))]
+           [S (or (cdr (assoc 'S inputs))
+                  (bv->signal (constant (list 'S 'symbolic-constant) (bitvector 8))))]
+           [merged-input-state-hash (hash)]
            [init-hash (hash)]
            [btor1 (bitvector 1)]
            [btor2 CARRY_TYPE]

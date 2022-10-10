@@ -607,11 +607,12 @@
         lut-input-g
         lut-input-h))]
     [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
-     (let ([out (interpret-xilinx-ultrascale-plus-carry8 #:CARRY_TYPE (bv->signal carry-type)
-                                                         #:CI (bv->signal ci)
-                                                         #:CI_TOP (bv->signal ci-top)
-                                                         #:DI (bv->signal di)
-                                                         #:S (bv->signal s))])
+     (let ([out (interpret-xilinx-ultrascale-plus-carry8
+                 (list (cons 'CARRY_TYPE (bv->signal carry-type))
+                       (cons 'CI (bv->signal ci))
+                       (cons 'CI_TOP (bv->signal ci-top))
+                       (cons 'DI (bv->signal di))
+                       (cons 'S (bv->signal s))))])
        (list (signal-value (hash-ref out 'CO)) (signal-value (hash-ref out 'O))))]
     [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
      (let ([out (interpret-xilinx-ultrascale-plus-lut6 #:I0 (bv->signal i0)
