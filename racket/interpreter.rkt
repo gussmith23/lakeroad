@@ -45,11 +45,14 @@
           (define out
             (destruct
              expr
-             [(lr:get-hw-module-instance-output hw-module-instance-expr output)
-              (let* ([hw-module-instance (interpret-helper hw-module-instance-expr)]
-                     [output-signal (hash-ref hw-module-instance (string->symbol output))]
-                     [output-value (signal-value output-signal)])
-                output-value)]
+             [(lr:hash-remap-keys h-expr ks)
+              (let* ([h (interpret-helper h-expr)]
+                     [new-h (hash-map (λ (p)
+                                        (cons (or (assoc ks (car p))
+                                                  (error "old key not found: " (car p)))
+                                              (cdr p))))])
+                new-h)]
+             [(lr:hash-ref h-expr k) (let* ([h (interpret-helper h-expr)] [out (hash-ref h k)]) out)]
              [(lr:hw-module-instance name ports params filepath)
               (let* ([module-semantics-fn (or (cdr (assoc (cons name filepath) module-semantics))
                                               (error "No semantics for module: " filepath))]
@@ -79,7 +82,12 @@
                      [pairs (sort pairs keyword<? #:key car)]
 
                      ;;; Call the function.
-                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())])
+                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())]
+
+                     ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
+                     ;;; interpreter, we have to unwrap the signal values.
+                     [out (make-immutable-hash
+                           (hash-map (λ (p) (cons (car p) (signal-value (cdr p))))))])
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)

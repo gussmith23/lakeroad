@@ -4,7 +4,6 @@ implementations:
       - module_name: LUT4
         filepath: ../verilator_xilinx/LUT4.v
         racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/LUT4.v
-        # Ports list omitted because it's the same as the interface.
         parameters: [{ name: INIT, value: INIT }]
         ports:
           [
@@ -14,5 +13,17 @@ implementations:
             { name: I3, direction: input, bitwidth: 1, value: I3 },
             { name: O, direction: output, bitwidth: 1, value: O },
           ]
-    output: O
     internal_data: { INIT: 16 }
+  - interface: { name: carry, parameters: { width: 8 }}
+    modules:
+      - module_name: CARRY8
+        filepath: ../verilator_xilinx/CARRY8.v
+        racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v
+        ports:
+          [
+            { name: CI, direction: input, bitwidth: 1, value: CI },
+            { name: DI, direction: input, bitwidth: 8, value: DI },
+            { name: S, direction: input, bitwidth: 8, value: S },
+            { name: CO, direction: output, bitwidth: 1, value: CO },
+            { name: O, direction: output, bitwidth: 8, value: O },
+          ]

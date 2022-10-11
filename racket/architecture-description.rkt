@@ -14,7 +14,8 @@
          (struct-out lr:hw-module-instance)
          (struct-out module-instance-port)
          (struct-out module-instance-parameter)
-         (struct-out lr:get-hw-module-instance-output))
+         (struct-out lr:hash-ref)
+         (struct-out lr:hash-remap-keys))
 
 (require rosette
          yaml
@@ -55,7 +56,14 @@
                               (list (interface-port "I0" 'input 1)
                                     (interface-port "I1" 'input 1)
                                     (interface-port "S" 'input 1)
-                                    (interface-port "O" 'output 1)))))
+                                    (interface-port "O" 'output 1)))
+        ;;; CARRY8 definition.
+        (interface-definition (interface-identifier "carry" (hash "width" 8))
+                              (list (interface-port "CI" 'input 1)
+                                    (interface-port "DI" 'input 8)
+                                    (interface-port "S" 'input 8)
+                                    (interface-port "CO" 'output 1)
+                                    (interface-port "O" 'output 8)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 
@@ -93,9 +101,7 @@
 ;;; - internal-data: List of internal state variable defintions. Each internal state variable
 ;;;   definition is a immutable hash, mapping a string variable name to an integer representing the
 ;;;   bitwidth of that variable.
-;;; - output-expr: an expression representing the output. Currently, this should just be the names of
-;;;   one of the output ports of module-instance.
-(struct interface-implementation (identifier module-instance internal-data output-expr) #:transparent)
+(struct interface-implementation (identifier module-instance internal-data) #:transparent)
 
 ;;; Architecture description.
 ;;;
@@ -160,14 +166,10 @@
               (find-interface-definition
                (interface-identifier "NotARealInterface" (hash "num_inputs" 4)))))
 
-;;; TODO(@gussmith23): This is a temporary solution.
-;;;
-;;; This language construct takes the result of a module instantiation, gets the requested signal, and
-;;; then unwraps it from the `signal` struct that it's in.
-;;;
-;;; We should have a cleaner solution to this in the future. Currently, `signal`s are not fully
-;;; supported and integrated, so we have to work around them.
-(struct lr:get-hw-module-instance-output (hw-module-instance-expr signal-name) #:transparent)
+(struct lr:hash-ref (h k) #:transparent)
+;;; Remap the keys in h (a Lakeroad expression which produces a hashmap) using the association list
+;;; ks, which maps old keys to new keys.
+(struct lr:hash-remap-keys (h ks) #:transparent)
 
 ;;; Internal implementation of construct-interface, which fails if the interface is not found.
 ;;; External users should use construct-interface.
@@ -214,11 +216,36 @@
                              (module-instance-parameter-name parameter)
                              (cdr (assoc (module-instance-parameter-value parameter) internal-data))))
                           (module-instance-params module-instance))]
-         [filepath (module-instance-filepath module-instance)])
-    (list (lr:get-hw-module-instance-output
-           (lr:hw-module-instance name ports parameters filepath)
-           (interface-implementation-output-expr interface-implementation))
-          internal-data)))
+         [filepath (module-instance-filepath module-instance)]
+
+         ;;; Start building the expression. First, we put in an expression representing the hardware
+         ;;; module.
+         [expr (lr:hw-module-instance name ports parameters filepath)]
+         ;;; Next, we remap the keys to the keys expected by the interface.
+         [expr
+          (lr:hash-remap-keys
+           expr
+           ;;; Association list mapping old keys to new keys. We make this by getting all of the
+           ;;; outputs that the interface exposes, finding the ports that implement them on the module
+           ;;; instance, and then mapping the real port names to the interface output port names.
+           (let* ([interface-outputs
+                   (filter (lambda (p) (equal? (interface-port-direction p) 'output))
+                           (interface-definition-ports interface-definition))]
+                  [key-map-assoc-list
+                   (for/list ([interface-output interface-outputs])
+                     (cons (string->symbol
+                            (module-instance-port-name
+                             (or (findf (lambda (port)
+                                          (equal? (interface-port-name interface-output)
+                                                  (module-instance-port-value port)))
+                                        (module-instance-ports module-instance))
+                                 (error "Did not find port for interface output "
+                                        (interface-port-name interface-output)
+                                        " in module instance "
+                                        module-instance))))
+                           (string->symbol (interface-port-name interface-output))))])
+             key-map-assoc-list))])
+    (list expr internal-data)))
 
 (module+ test
   (require rackunit)
@@ -237,19 +264,20 @@
                     (check-true ((bitvector 16) v))
                     #t]
                    [else #f]))
-     (check-true (match expr
-                   [(lr:get-hw-module-instance-output
-                     (lr:hw-module-instance "LUT4"
-                                            (list (module-instance-port "A" v 'input 1)
-                                                  (module-instance-port "B" v 'input 1)
-                                                  (module-instance-port "C" v 'input 1)
-                                                  (module-instance-port "D" v 'input 1))
-                                            (list (module-instance-parameter "INIT" s))
-                                            filepath-unchecked)
-                     "Z")
-                    (check-equal? v (bv 0 1))
-                    #t]
-                   [else #f])))))
+     (check-true
+      (match expr
+        [(lr:hash-remap-keys (lr:hw-module-instance "LUT4"
+                                                    (list (module-instance-port "A" v 'input 1)
+                                                          (module-instance-port "B" v 'input 1)
+                                                          (module-instance-port "C" v 'input 1)
+                                                          (module-instance-port "D" v 'input 1)
+                                                          (module-instance-port "Z" "O" 'output 1))
+                                                    (list (module-instance-parameter "INIT" s))
+                                                    filepath-unchecked)
+                             (list (cons 'Z 'O)))
+         (check-equal? v (bv 0 1))
+         #t]
+        [else #f])))))
 
 ;;; Part 4: A smarter implementation of construct-interface-internal, which handles some cases where some
 ;;; interfaces are not implemented.
@@ -317,16 +345,20 @@
                                 smaller-lut-interface-identifier
                                 smaller-lut-ports
                                 #:internal-data lut-0-internal-data)]
+          [lut-O-expr0 (lr:hash-ref lut-expr0 'O)]
           [(list lut-expr1 lut-1-internal-data)
            (construct-interface architecture-description
                                 smaller-lut-interface-identifier
                                 smaller-lut-ports
                                 #:internal-data lut-1-internal-data)]
+          [lut-O-expr1 (lr:hash-ref lut-expr1 'O)]
+          ;;; TODO(@gussmith23): IT just so happens that the output of the mux and the output of the
+          ;;; LUT are both named O. In the future, we will need to add support for remapping names.
           [(list mux-expr mux-internal-data)
            (construct-interface
             architecture-description
             (interface-identifier "MUX" (hash "num_inputs" 2))
-            (list (cons "I0" lut-expr0) (cons "I1" lut-expr1) (cons "S" mux-selector))
+            (list (cons "I0" lut-O-expr0) (cons "I1" lut-O-expr1) (cons "S" mux-selector))
             #:internal-data mux-internal-data)])
        (list mux-expr (list lut-0-internal-data lut-1-internal-data mux-internal-data)))]
 
@@ -411,38 +443,44 @@
                    [else #f]))
      (check-true
       (match expr
-        [(lr:get-hw-module-instance-output
+        [(lr:hash-remap-keys
           (lr:hw-module-instance
            "L6MUX21"
-           (list
-            (module-instance-port "D0"
-                                  (lr:get-hw-module-instance-output
-                                   (lr:hw-module-instance "LUT4"
-                                                          (list (module-instance-port "A" v 'input 1)
-                                                                (module-instance-port "B" v 'input 1)
-                                                                (module-instance-port "C" v 'input 1)
-                                                                (module-instance-port "D" v 'input 1))
-                                                          (list (module-instance-parameter "INIT" s0))
-                                                          lut4-filepath)
-                                   "Z")
-                                  'input
-                                  1)
-            (module-instance-port "D1"
-                                  (lr:get-hw-module-instance-output
-                                   (lr:hw-module-instance "LUT4"
-                                                          (list (module-instance-port "A" v 'input 1)
-                                                                (module-instance-port "B" v 'input 1)
-                                                                (module-instance-port "C" v 'input 1)
-                                                                (module-instance-port "D" v 'input 1))
-                                                          (list (module-instance-parameter "INIT" s1))
-                                                          lut4-filepath)
-                                   "Z")
-                                  'input
-                                  1)
-            (module-instance-port "SD" selector-expr 'input 1))
+           (list (module-instance-port
+                  "D0"
+                  (lr:hash-ref (lr:hash-remap-keys (lr:hw-module-instance
+                                                    "LUT4"
+                                                    (list (module-instance-port "A" v 'input 1)
+                                                          (module-instance-port "B" v 'input 1)
+                                                          (module-instance-port "C" v 'input 1)
+                                                          (module-instance-port "D" v 'input 1)
+                                                          (module-instance-port "Z" "O" 'output 1))
+                                                    (list (module-instance-parameter "INIT" s0))
+                                                    lut4-filepath)
+                                                   (list (cons 'Z 'O)))
+                               'O)
+                  'input
+                  1)
+                 (module-instance-port
+                  "D1"
+                  (lr:hash-ref (lr:hash-remap-keys (lr:hw-module-instance
+                                                    "LUT4"
+                                                    (list (module-instance-port "A" v 'input 1)
+                                                          (module-instance-port "B" v 'input 1)
+                                                          (module-instance-port "C" v 'input 1)
+                                                          (module-instance-port "D" v 'input 1)
+                                                          (module-instance-port "Z" "O" 'output 1))
+                                                    (list (module-instance-parameter "INIT" s1))
+                                                    lut4-filepath)
+                                                   (list (cons 'Z 'O)))
+                               'O)
+                  'input
+                  1)
+                 (module-instance-port "SD" selector-expr 'input 1)
+                 (module-instance-port "Z" "O" 'output 1))
            (list)
            mux-filepath)
-          "Z")
+          (list (cons 'Z 'O)))
          #t]
         [else #f])))))
 
@@ -525,13 +563,10 @@
     (when (not (equal? (length modules) 1))
       (error "Only one implementing module is currently supported."))
 
-    (define output-expr (or (hash-ref impl-yaml "output" #f) (error "output not found")))
-
     (interface-implementation
      interface-identifier
      (first modules)
-     (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))
-     output-expr))
+     (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))))
 
   (define implementations
     (for/list ([impl-yaml impls-yaml])
@@ -564,8 +599,19 @@
                                         (list (module-instance-parameter "INIT" "INIT"))
                                         "../verilator_xilinx/LUT4.v"
                                         "../modules_for_importing/xilinx_ultrascale_plus/LUT4.v")
-                       (hash "INIT" 16)
-                       "O"))))
+                       (hash "INIT" 16))
+                      (interface-implementation
+                       (interface-identifier "carry" (hash "width" 8))
+                       (module-instance "CARRY8"
+                                        (list (module-instance-port "CI" "CI" 'input 1)
+                                              (module-instance-port "DI" "DI" 'input 8)
+                                              (module-instance-port "S" "S" 'input 8)
+                                              (module-instance-port "CO" "CO" 'output 1)
+                                              (module-instance-port "O" "O" 'output 8))
+                                        (list)
+                                        "../verilator_xilinx/CARRY8.v"
+                                        "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
+                       (hash)))))
 
   (test-equal?
    "Parse Lattice ECP5 YAML"
@@ -581,8 +627,7 @@
                                                      (list (module-instance-parameter "INIT" "INIT"))
                                                      "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
                                                      "../modules_for_importing/lattice_ecp5/LUT4.v")
-                                    (hash "INIT" 16)
-                                    "Z")
+                                    (hash "INIT" 16))
           (interface-implementation
            (interface-identifier "MUX" (hash "num_inputs" 2))
            (module-instance "L6MUX21"
@@ -593,8 +638,7 @@
                             (list)
                             "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
                             "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
-           (hash)
-           "Z")))))
+           (hash))))))
 
 (module+ test
   (test-begin
@@ -610,15 +654,16 @@
                     #t]
                    [else #f]))
      (check-true (match expr
-                   [(lr:get-hw-module-instance-output
-                     (lr:hw-module-instance "LUT4"
-                                            (list (module-instance-port "A" (lr:bv v0) 'input 1)
-                                                  (module-instance-port "B" (lr:bv v0) 'input 1)
-                                                  (module-instance-port "C" (lr:bv v1) 'input 1)
-                                                  (module-instance-port "D" (lr:bv v1) 'input 1))
-                                            (list (module-instance-parameter "INIT" (lr:bv s0)))
-                                            filepath-unchecked)
-                     "Z")
+                   [(lr:hash-remap-keys (lr:hw-module-instance
+                                         "LUT4"
+                                         (list (module-instance-port "A" (lr:bv v0) 'input 1)
+                                               (module-instance-port "B" (lr:bv v0) 'input 1)
+                                               (module-instance-port "C" (lr:bv v1) 'input 1)
+                                               (module-instance-port "D" (lr:bv v1) 'input 1)
+                                               (module-instance-port "Z" "O" 'output 1))
+                                         (list (module-instance-parameter "INIT" (lr:bv s0)))
+                                         filepath-unchecked)
+                                        (list (cons 'Z 'O)))
                     (check-equal? v0 (bv 0 1))
                     (check-equal? v1 (bv 1 1))
                     #t]
