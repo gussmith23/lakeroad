@@ -209,12 +209,16 @@
          ;;; Construct the list of new ports, by mapping in the values provided in the port-map for
          ;;; the inputs and leaving the outputs alone.
          [ports (map (lambda (p)
-                       (module-instance-port (module-instance-port-name p)
-                                             (if (equal? (module-instance-port-direction p) 'input)
-                                                 (cdr (assoc (module-instance-port-value p) port-map))
-                                                 (module-instance-port-value p))
-                                             (module-instance-port-direction p)
-                                             (module-instance-port-bitwidth p)))
+                       (module-instance-port
+                        (module-instance-port-name p)
+                        (if (equal? (module-instance-port-direction p) 'input)
+                            (cdr (or (assoc (module-instance-port-value p) port-map)
+                                     (error (format "No value provided for port ~a in port map ~a."
+                                                    (module-instance-port-value p)
+                                                    port-map))))
+                            (module-instance-port-value p))
+                        (module-instance-port-direction p)
+                        (module-instance-port-bitwidth p)))
                      (module-instance-ports module-instance))]
 
          ;;; Construct the list of parameters, by mapping in the values provided in the internal state.
