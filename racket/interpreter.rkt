@@ -47,11 +47,19 @@
              expr
              [(lr:hash-remap-keys h-expr ks)
               (let* ([h (interpret-helper h-expr)]
-                     [new-h (make-immutable-hash
-                             (hash-map
-                              h
-                              (λ (k v)
-                                (cons (cdr (or (assoc k ks) (error "old key not found: " k))) v))))])
+                     [new-h
+                      (make-immutable-hash
+                       (hash-map
+                        h
+                        (λ (k v)
+                          (cons (cdr (or (assoc k ks)
+                                         (error
+                                          (format
+                                           "old key ~a not found in list: ~a. original hash map: ~a"
+                                           k
+                                           ks
+                                           h))))
+                                v))))])
                 new-h)]
              [(lr:hash-ref h-expr k) (let* ([h (interpret-helper h-expr)] [out (hash-ref h k)]) out)]
              [(lr:hw-module-instance name ports params filepath)
