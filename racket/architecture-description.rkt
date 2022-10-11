@@ -602,17 +602,19 @@
                (xilinx-ultrascale-plus-architecture-description)
                (architecture-description
                 (list (interface-implementation
-                       (interface-identifier "LUT" (hash "num_inputs" 4))
-                       (module-instance "LUT4"
+                       (interface-identifier "LUT" (hash "num_inputs" 6))
+                       (module-instance "LUT6"
                                         (list (module-instance-port "I0" "I0" 'input 1)
                                               (module-instance-port "I1" "I1" 'input 1)
                                               (module-instance-port "I2" "I2" 'input 1)
                                               (module-instance-port "I3" "I3" 'input 1)
+                                              (module-instance-port "I4" "I4" 'input 1)
+                                              (module-instance-port "I5" "I5" 'input 1)
                                               (module-instance-port "O" "O" 'output 1))
                                         (list (module-instance-parameter "INIT" "INIT"))
-                                        "../verilator_xilinx/LUT4.v"
-                                        "../modules_for_importing/xilinx_ultrascale_plus/LUT4.v")
-                       (hash "INIT" 16))
+                                        "../verilator_xilinx/LUT6.v"
+                                        "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v")
+                       (hash "INIT" 64))
                       (interface-implementation
                        (interface-identifier "carry" (hash "width" 8))
                        (module-instance "CARRY8"
