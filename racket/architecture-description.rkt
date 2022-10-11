@@ -51,6 +51,15 @@
                                     (interface-port "I2" 'input 1)
                                     (interface-port "I3" 'input 1)
                                     (interface-port "O" 'output 1)))
+        ;;; LUT6 definition.
+        (interface-definition (interface-identifier "LUT" (hash "num_inputs" 6))
+                              (list (interface-port "I0" 'input 1)
+                                    (interface-port "I1" 'input 1)
+                                    (interface-port "I2" 'input 1)
+                                    (interface-port "I3" 'input 1)
+                                    (interface-port "I4" 'input 1)
+                                    (interface-port "I5" 'input 1)
+                                    (interface-port "O" 'output 1)))
         ;;; MUX2 definition.
         (interface-definition (interface-identifier "MUX" (hash "num_inputs" 2))
                               (list (interface-port "I0" 'input 1)
