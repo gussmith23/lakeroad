@@ -32,28 +32,29 @@
 
 ;;; Compiles physical-to-logical mapping.
 (define (compile-physical-to-logical-mapping compile f physical-expr)
-  (match f
-    ['(bitwise) (apply map list (compile physical-expr))]
-    ;;; Same as bitwise, but reverses each result first.
-    ['(bitwise-reverse) (apply map list (reverse (compile physical-expr)))]
-    ['(identity) (compile physical-expr)]))
+  (destruct f
+            [(ptol-bitwise) (apply map list (compile physical-expr))]
+            ;;; Same as bitwise, but reverses each result first.
+            [(ptol-bitwise-reverse) (apply map list (reverse (compile physical-expr)))]
+            [(ptol-identity) (compile physical-expr)]))
 
 ;;; Compiles logical-to-physical mapping.
 (define (compile-logical-to-physical-mapping compile f logical-expr)
-  (match f
-    ['(bitwise) (apply map list (compile logical-expr))]
-    ['(bitwise-reverse) (apply map list (map reverse (compile logical-expr)))]
-    ['(identity) (compile logical-expr)]
-    [`(shift ,n)
-     (let* ([compiled (apply map list (compile logical-expr))]
-            [num-bits (length compiled)]
-            [shift-amount (min (abs n) num-bits)]
-            [num-pads (max 0 (- num-bits shift-amount))]
-            [shifted (if (> n 0)
-                         (append (make-list shift-amount (list "0")) (take compiled num-pads))
-                         (append (drop compiled shift-amount) (make-list shift-amount (list "0"))))])
-       shifted)]
-    [`(constant ,n) (map list (compile n))]))
+  (destruct
+   f
+   [(ltop-bitwise) (apply map list (compile logical-expr))]
+   [(ltop-bitwise-reverse) (apply map list (map reverse (compile logical-expr)))]
+   [(ltop-identity) (compile logical-expr)]
+   [(ltop-shift n)
+    (let* ([compiled (apply map list (compile logical-expr))]
+           [num-bits (length compiled)]
+           [shift-amount (min (abs n) num-bits)]
+           [num-pads (max 0 (- num-bits shift-amount))]
+           [shifted (if (> n 0)
+                        (append (make-list shift-amount (list "0")) (take compiled num-pads))
+                        (append (drop compiled shift-amount) (make-list shift-amount (list "0"))))])
+      shifted)]
+   [(ltop-constant n) (map list (compile n))]))
 
 (module+ test
   (require rackunit)
@@ -413,6 +414,7 @@
 (struct ptol-bitwise-reverse () #:transparent)
 (struct ptol-uf (uf bw bits-per-group) #:transparent)
 (struct ptol-choose-one (idx) #:transparent)
+(struct ptol-identity () #:transparent)
 (define (interpret-physical-to-logical-mapping interpreter f logical-outputs)
   (destruct
    f

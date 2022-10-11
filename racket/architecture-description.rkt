@@ -195,15 +195,16 @@
          [interface-definition (or (find-interface-definition interface-id)
                                    (error "Interface definition not found"))]
 
-         ;;; Construct the list of ports, by mapping in the values provided in the port-map.
+         ;;; Construct the list of new ports, by mapping in the values provided in the port-map for
+         ;;; the inputs and leaving the outputs alone.
          [ports (map (lambda (p)
                        (module-instance-port (module-instance-port-name p)
-                                             (cdr (assoc (module-instance-port-value p) port-map))
+                                             (if (equal? (module-instance-port-direction p) 'input)
+                                                 (cdr (assoc (module-instance-port-value p) port-map))
+                                                 (module-instance-port-value p))
                                              (module-instance-port-direction p)
                                              (module-instance-port-bitwidth p)))
-                     ;;; Filter down the list of ports to just the inputs.
-                     (filter (lambda (p) (equal? (module-instance-port-direction p) 'input))
-                             (module-instance-ports module-instance)))]
+                     (module-instance-ports module-instance))]
 
          ;;; Construct the list of parameters, by mapping in the values provided in the internal state.
          ;;; - param-pair: pair of actual param name (string) to name given in internal state definition

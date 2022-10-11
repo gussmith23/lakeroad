@@ -53,6 +53,10 @@
              [(lr:hw-module-instance name ports params filepath)
               (let* ([module-semantics-fn (or (cdr (assoc (cons name filepath) module-semantics))
                                               (error "No semantics for module: " filepath))]
+                     ;;; Filter down to just the list of input ports.
+                     [ports (filter (lambda (p) (equal? 'input (module-instance-port-direction p)))
+                                    ports)]
+
                      ;;; Generate keyword arguments.
                      [port-names (map module-instance-port-name ports)]
                      [param-names (map module-instance-parameter-name params)]

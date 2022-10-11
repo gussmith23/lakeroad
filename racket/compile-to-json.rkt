@@ -11,7 +11,8 @@
          "interpreter.rkt"
          racket/pretty
          rosette
-         (prefix-in lr: "language.rkt"))
+         (prefix-in lr: "language.rkt")
+         "architecture-description.rkt")
 
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
 ;;;
@@ -64,6 +65,47 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
+                 [(lr:get-hw-module-instance-output
+                   (lr:hw-module-instance module-name ports params filepath)
+                   signal-name)
+                  (let* ([input-ports
+                          (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
+                         [input-port-symbols
+                          (map string->symbol (map module-instance-port-name input-ports))]
+                         ;;; Pairs of input symbol with compiled expression.
+                         [input-pairs (map (λ (p)
+                                             (cons (string->symbol (module-instance-port-name p))
+                                                   (compile (module-instance-port-value p))))
+                                           input-ports)]
+                         [output-ports
+                          (filter (λ (p) (equal? (module-instance-port-direction p) 'output)) ports)]
+                         [output-port-symbols
+                          (map string->symbol (map module-instance-port-name output-ports))]
+                         ;;; Pairs of output symbol with allocated bit ids.
+                         [output-pairs
+                          (map (λ (p)
+                                 (let ([bits (get-bits (module-instance-port-bitwidth p))])
+                                   (add-netname (string->symbol (module-instance-port-name p))
+                                                (make-net-details bits))
+                                   (cons (string->symbol (module-instance-port-name p)) bits)))
+                               output-ports)]
+
+                         ;;; Pairs of parameter symbol with value.
+                         [param-pairs (map (λ (p)
+                                             (cons (string->symbol (module-instance-parameter-name p))
+                                                   (match (module-instance-parameter-value p)
+                                                     [(lr:bv v) (make-literal-value-from-bv v)])))
+                                           params)]
+                         [cell (make-cell
+                                module-name
+                                (make-cell-port-directions input-port-symbols output-port-symbols)
+                                (make-immutable-hash (append input-pairs output-pairs))
+                                #:params (make-immutable-hash param-pairs))])
+
+                    (add-cell (string->symbol module-name) cell)
+
+                    ;;; Return the requested signal by looking it up in output-pairs.
+                    (cdr (assoc (string->symbol signal-name) output-pairs)))]
                  [(lr:lut (lr:integer 1) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut1 lutmem inputs))]
                  [(lr:lut (lr:integer 2) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
