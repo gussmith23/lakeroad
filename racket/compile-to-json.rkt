@@ -364,7 +364,7 @@
 
                  ;;; Rosette operators.
                  [(or (expression (== extract) high low v) (lr:extract high low v))
-                  (drop (take (compile v) (add1 high)) low)]
+                  (drop (take (compile v) (add1 (compile high))) (compile low))]
                  [(or (expression (== zero-extend) v bv-type) (lr:zero-extend v bv-type))
                   (append (compile v)
                           (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
