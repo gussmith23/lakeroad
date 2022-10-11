@@ -47,15 +47,19 @@
              expr
              [(lr:hash-remap-keys h-expr ks)
               (let* ([h (interpret-helper h-expr)]
-                     [new-h (hash-map (λ (p)
-                                        (cons (or (assoc ks (car p))
-                                                  (error "old key not found: " (car p)))
-                                              (cdr p))))])
+                     [new-h (make-immutable-hash
+                             (hash-map
+                              h
+                              (λ (k v)
+                                (cons (cdr (or (assoc k ks) (error "old key not found: " k))) v))))])
                 new-h)]
              [(lr:hash-ref h-expr k) (let* ([h (interpret-helper h-expr)] [out (hash-ref h k)]) out)]
              [(lr:hw-module-instance name ports params filepath)
-              (let* ([module-semantics-fn (or (cdr (assoc (cons name filepath) module-semantics))
-                                              (error "No semantics for module: " filepath))]
+              (let* ([module-semantics-fn (cdr (or (assoc (cons name filepath) module-semantics)
+                                                   (error "No semantics for module: "
+                                                          (cons name filepath)
+                                                          " in semantics association list "
+                                                          module-semantics)))]
                      ;;; Filter down to just the list of input ports.
                      [ports (filter (lambda (p) (equal? 'input (module-instance-port-direction p)))
                                     ports)]
@@ -86,8 +90,7 @@
 
                      ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
                      ;;; interpreter, we have to unwrap the signal values.
-                     [out (make-immutable-hash
-                           (hash-map (λ (p) (cons (car p) (signal-value (cdr p))))))])
+                     [out (make-immutable-hash (hash-map out (λ (k v) (cons k (signal-value v)))))])
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)

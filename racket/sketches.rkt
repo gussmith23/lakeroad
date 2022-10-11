@@ -44,18 +44,19 @@
        [physical-inputs (logical-to-physical-mapping (choose* (ltop-bitwise) (ltop-bitwise-reverse))
                                                      logical-inputs)]
        [physical-outputs
-        (lr:list (for/list ([i bitwidth])
-                   (let* ([physical-inputs-this-lut (lr:list-ref physical-inputs (lr:integer i))]
-                          [port-map (for/list ([i num-logical-inputs])
-                                      (cons (format "I~a" i)
-                                            (lr:extract (lr:integer i)
-                                                        (lr:integer i)
-                                                        physical-inputs-this-lut)))])
-                     (first (construct-interface
-                             architecture-description
-                             (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
-                             port-map
-                             #:internal-data internal-data)))))]
+        (lr:list
+         (for/list ([i bitwidth])
+           (let* ([physical-inputs-this-lut (lr:list-ref physical-inputs (lr:integer i))]
+                  [port-map
+                   (for/list ([i num-logical-inputs])
+                     (cons (format "I~a" i)
+                           (lr:extract (lr:integer i) (lr:integer i) physical-inputs-this-lut)))])
+             (lr:hash-ref (first (construct-interface
+                                  architecture-description
+                                  (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
+                                  port-map
+                                  #:internal-data internal-data))
+                          'O))))]
        [logical-outputs (physical-to-logical-mapping (choose* (ptol-bitwise) (ptol-bitwise-reverse))
                                                      physical-outputs)]
        [out-expr (lr:list-ref logical-outputs (lr:integer 0))])

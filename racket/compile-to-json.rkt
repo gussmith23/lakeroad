@@ -65,9 +65,17 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
-                 [(lr:get-hw-module-instance-output
-                   (lr:hw-module-instance module-name ports params filepath)
-                   signal-name)
+                 [(lr:hash-remap-keys h-expr ks)
+                  (let* ([h (compile h-expr)]
+                         [new-h (make-immutable-hash
+                                 (hash-map h
+                                           (λ (k v)
+                                             (cons (cdr (or (assoc k ks)
+                                                            (error "old key not found: " k)))
+                                                   v))))])
+                    new-h)]
+                 [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) k)]
+                 [(lr:hw-module-instance module-name ports params filepath)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
                          [input-port-symbols
@@ -104,8 +112,8 @@
 
                     (add-cell (string->symbol module-name) cell)
 
-                    ;;; Return the requested signal by looking it up in output-pairs.
-                    (cdr (assoc (string->symbol signal-name) output-pairs)))]
+                    ;;; Return a hashmap of output port symbols to values.
+                    (make-immutable-hash output-pairs))]
                  [(lr:lut (lr:integer 1) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut1 lutmem inputs))]
                  [(lr:lut (lr:integer 2) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
