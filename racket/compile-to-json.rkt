@@ -504,7 +504,7 @@
               (define-symbolic a b (bitvector 8))
               (define expr
                 (lr:first (physical-to-logical-mapping
-                           '(bitwise)
+                           (ptol-bitwise)
                            ;;; Take the 8 outputs from the LUTs; drop cout.
                            (lr:take (ultrascale-plus-clb (lr:bv (?? (bitvector 1)))
                                                          (lr:bv (?? (bitvector 64)))
@@ -524,7 +524,7 @@
                                                          (lr:bv (?? (bitvector 2)))
                                                          (lr:bv (?? (bitvector 2)))
                                                          (logical-to-physical-mapping
-                                                          '(bitwise)
+                                                          (ltop-bitwise)
                                                           (lr:list (list (lr:bv a)
                                                                          (lr:bv b)
                                                                          (lr:bv (bv 0 8))
