@@ -68,7 +68,7 @@
               ;;; LUT7, rather than LUT0, bit 1 will feed into LUT6, etc. The reason why we use
               ;;; bitwise-reverse is specific to implementing some comparisons (>, <, >=, <=); other
               ;;; comparisons (==, !=) can use bitwise OR bitwise-reverse.
-              [physical-inputs (logical-to-physical-mapping '(bitwise-reverse) padded-inputs)]
+              [physical-inputs (logical-to-physical-mapping (ltop-bitwise-reverse) padded-inputs)]
               ;;; A symbolic value representing a LUT memory. All 8 LUTs will perform the same function,
               ;;; so we can just use a single LUT memory. This significantly speeds up search.
               [ripple-pfu-lutmem (lr:bv (?? (bitvector 16)))]
@@ -137,7 +137,7 @@
                                             (lr:bv (zero-extend b (bitvector 8)))
                                             (lr:bv (bv #xff 8))
                                             (lr:bv (bv #xff 8))))]
-              [physical-inputs (logical-to-physical-mapping '(bitwise-reverse) padded-inputs)]
+              [physical-inputs (logical-to-physical-mapping (ltop-bitwise-reverse) padded-inputs)]
 
               ;;; To implement the more complicated comparisons, we need more than one ripple PFU. We
               ;;; may be able to implement this with two ripple PFUs, but I just use three, as I think
