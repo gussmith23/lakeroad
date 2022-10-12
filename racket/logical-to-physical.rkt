@@ -13,6 +13,9 @@
          logical-to-physical-mapping
          physical-to-logical-mapping
          (struct-out ltop-bitwise)
+         (struct-out ltop-shift)
+         (struct-out ltop-identity)
+         (struct-out ltop-constant)
          (struct-out ltop-bitwise-reverse)
          (struct-out ptol-bitwise)
          (struct-out ptol-bitwise-reverse))
