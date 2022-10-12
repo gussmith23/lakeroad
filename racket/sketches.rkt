@@ -89,6 +89,7 @@
   (require rackunit
            "interpreter.rkt"
            "lattice-ecp5-lut4.rkt"
+           "lattice-ecp5-ccu2c.rkt"
            "xilinx-ultrascale-plus-lut6.rkt"
            "xilinx-ultrascale-plus-carry8.rkt")
 
@@ -182,4 +183,53 @@
                    #:include-dirs (list include-dir)
                    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD"
                    (list (to-simulate lr-expr bv-expr))
-                   (getenv "VERILATOR_INCLUDE_DIR")))))))
+                   (getenv "VERILATOR_INCLUDE_DIR"))))))
+
+  (test-case
+   "bitwise with carry sketch generator on lattice"
+   (with-terms
+    (begin
+
+      (define-symbolic a b (bitvector 2))
+      (define bv-expr (bvadd a b))
+      (define sketch
+        (bitwise-with-carry-sketch-generator (lattice-ecp5-architecture-description)
+                                             (lr:list (list (lr:bv a) (lr:bv b)))
+                                             2
+                                             2))
+
+      (define result
+        (with-vc
+         (with-terms
+          (synthesize
+           #:forall (list a b)
+           #:guarantee
+           (assert
+            (bveq bv-expr
+                  (interpret
+                   sketch
+                   #:module-semantics
+                   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                               lattice-ecp5-lut4)
+                         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v")
+                               lattice-ecp5-ccu2c)))))))))
+
+      (check-true (normal? result))
+      (define soln (result-value result))
+
+      (define lr-expr
+        (evaluate
+         sketch
+         ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+         (complete-solution soln
+                            (set->list (set-subtract (list->set (symbolics sketch))
+                                                     (list->set (symbolics bv-expr)))))))
+
+      (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+        (raise "VERILATOR_INCLUDE_DIR not set"))
+      (define include-dir
+        (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+      (check-true (simulate-with-verilator #:include-dirs (list include-dir)
+                                           #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING"
+                                           (list (to-simulate lr-expr bv-expr))
+                                           (getenv "VERILATOR_INCLUDE_DIR")))))))

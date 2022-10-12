@@ -15,6 +15,8 @@
          (struct-out module-instance-port)
          (struct-out module-instance-parameter)
          (struct-out lr:hash-ref)
+         (struct-out lr:make-immutable-hash)
+         (struct-out lr:cons)
          (struct-out lr:hash-remap-keys))
 
 (require rosette
@@ -66,6 +68,13 @@
                                     (interface-port "I1" 'input 1)
                                     (interface-port "S" 'input 1)
                                     (interface-port "O" 'output 1)))
+        ;;; carry 2 definition.
+        (interface-definition (interface-identifier "carry" (hash "width" 2))
+                              (list (interface-port "CI" 'input 1)
+                                    (interface-port "DI" 'input 2)
+                                    (interface-port "S" 'input 2)
+                                    (interface-port "CO" 'output 1)
+                                    (interface-port "O" 'output 2)))
         ;;; CARRY8 definition.
         (interface-definition (interface-identifier "carry" (hash "width" 8))
                               (list (interface-port "CI" 'input 1)
@@ -110,7 +119,8 @@
 ;;; - internal-data: List of internal state variable defintions. Each internal state variable
 ;;;   definition is a immutable hash, mapping a string variable name to an integer representing the
 ;;;   bitwidth of that variable.
-(struct interface-implementation (identifier module-instance internal-data) #:transparent)
+;;; - output-map: hash map mapping interface outputs to expressions.
+(struct interface-implementation (identifier module-instance internal-data output-map) #:transparent)
 
 ;;; Architecture description.
 ;;;
@@ -206,16 +216,33 @@
          [interface-definition (or (find-interface-definition interface-id)
                                    (error "Interface definition not found"))]
 
+         ;;; Parse an expression in our small DSL.
+         ;;;
+         ;;; - lookup-symbol: a function which takes a symbol and maps it to an expression.
+         [parse-dsl (λ (expr-str lookup-symbol)
+                      (define expr (read (open-input-string expr-str)))
+                      (define (recursive-helper expr)
+                        (match expr
+                          [`(bv ,val ,width) (lr:bv (bv val width))]
+                          [`(bit ,i ,expr)
+                           (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
+                          [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
+                          [(? symbol? s) (lookup-symbol s)]))
+                      (recursive-helper expr))]
+
          ;;; Construct the list of new ports, by mapping in the values provided in the port-map for
          ;;; the inputs and leaving the outputs alone.
          [ports (map (lambda (p)
                        (module-instance-port
                         (module-instance-port-name p)
                         (if (equal? (module-instance-port-direction p) 'input)
-                            (cdr (or (assoc (module-instance-port-value p) port-map)
-                                     (error (format "No value provided for port ~a in port map ~a."
-                                                    (module-instance-port-value p)
-                                                    port-map))))
+                            (parse-dsl
+                             (module-instance-port-value p)
+                             (λ (s)
+                               (cdr (or (assoc (symbol->string s) port-map)
+                                        (error (format "No value provided for port ~a in port map ~a."
+                                                       s
+                                                       port-map))))))
                             (module-instance-port-value p))
                         (module-instance-port-direction p)
                         (module-instance-port-bitwidth p)))
@@ -227,7 +254,12 @@
          [parameters (map (lambda (parameter)
                             (module-instance-parameter
                              (module-instance-parameter-name parameter)
-                             (cdr (assoc (module-instance-parameter-value parameter) internal-data))))
+                             (parse-dsl (module-instance-parameter-value parameter)
+                                        (λ (s)
+                                          (cdr (or (assoc (symbol->string s) internal-data)
+                                                   (error "Did not find parameter ~a in ~a"
+                                                          s
+                                                          internal-data)))))))
                           (module-instance-params module-instance))]
          [filepath (module-instance-filepath module-instance)]
 
@@ -235,29 +267,12 @@
          ;;; module.
          [expr (lr:hw-module-instance name ports parameters filepath)]
          ;;; Next, we remap the keys to the keys expected by the interface.
-         [expr
-          (lr:hash-remap-keys
-           expr
-           ;;; Association list mapping old keys to new keys. We make this by getting all of the
-           ;;; outputs that the interface exposes, finding the ports that implement them on the module
-           ;;; instance, and then mapping the real port names to the interface output port names.
-           (let* ([interface-outputs
-                   (filter (lambda (p) (equal? (interface-port-direction p) 'output))
-                           (interface-definition-ports interface-definition))]
-                  [key-map-assoc-list
-                   (for/list ([interface-output interface-outputs])
-                     (cons (string->symbol
-                            (module-instance-port-name
-                             (or (findf (lambda (port)
-                                          (equal? (interface-port-name interface-output)
-                                                  (module-instance-port-value port)))
-                                        (module-instance-ports module-instance))
-                                 (error "Did not find port for interface output "
-                                        (interface-port-name interface-output)
-                                        " in module instance "
-                                        module-instance))))
-                           (string->symbol (interface-port-name interface-output))))])
-             key-map-assoc-list))])
+         [expr (lr:make-immutable-hash
+                (lr:list (for/list ([p (hash->list (interface-implementation-output-map
+                                                    interface-implementation))])
+
+                           (lr:cons (lr:symbol (string->symbol (car p)))
+                                    (parse-dsl (cdr p) (λ (s) (lr:hash-ref expr s)))))))])
     (list expr internal-data)))
 
 (module+ test
@@ -576,10 +591,13 @@
     (when (not (equal? (length modules) 1))
       (error "Only one implementing module is currently supported."))
 
+    (define output-map (or (hash-ref impl-yaml "outputs" #f) (error "outputs not found")))
+
     (interface-implementation
      interface-identifier
      (first modules)
-     (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))))
+     (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))
+     (convert-to-immutable output-map)))
 
   (define implementations
     (for/list ([impl-yaml impls-yaml])
@@ -683,3 +701,44 @@
                     (check-equal? v1 (bv 1 1))
                     #t]
                    [else #f])))))
+
+(struct lr:make-immutable-hash (list-expr) #:transparent)
+(struct lr:cons (v0-expr v1-expr) #:transparent)
+
+(module+ test
+  (test-begin
+   "Construct a CCU2C on Lattice."
+   (match-define (list expr internal-data)
+     (construct-interface
+      (lattice-ecp5-architecture-description)
+      (interface-identifier "carry" (hash "width" 2))
+      (list (cons "CI" (lr:bv (bv 0 1))) (cons "DI" (lr:bv (bv 0 2))) (cons "S" (lr:bv (bv 0 2))))))
+   (check-true (match internal-data
+                 [(list) #t]
+                 [else #f]))
+   (match-define (lr:make-immutable-hash
+                  (lr:list (list (lr:cons 'O
+                                          (lr:concat (lr:list (list (lr:hash-ref mod-expr 'S1)
+                                                                    (lr:hash-ref mod-expr 'S0)))))
+                                 (lr:cons 'CO (lr:hash-ref mod-expr 'COUT)))))
+     expr)
+   (check-true
+    (match mod-expr
+      [(lr:hw-module-instance
+        "CCU2C"
+        (list
+         (module-instance-port "CIN" (lr:bv v1) 'input 1)
+         (module-instance-port "A0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv v0)) 'input 1)
+         (module-instance-port "A1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
+         (module-instance-port "B0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv v0)) 'input 1)
+         (module-instance-port "B1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
+         (module-instance-port "S0" "unused" 'output 1)
+         (module-instance-port "S1" "unused" 'output 1)
+         (module-instance-port "COUT" "unused" 'output 1))
+        (list)
+        filepath-unchecked)
+       (check-equal? v0 (bv 0 2))
+       (check-equal? v1 (bv 0 1))
+       #t]
+
+      [else #f]))))
