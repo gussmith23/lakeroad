@@ -345,30 +345,32 @@
     [(list i0 i1 i2 i3) (choose i0 i1 i2 i3)])]
  [physical-list
   ;;; We currently drop the cout bit.
-  (lr:take (ultrascale-plus-clb
-            (cin)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (logical-to-physical-mapping (choose '(bitwise) '(bitwise-reverse)) (logical-list)))
+  (lr:take (ultrascale-plus-clb (cin)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (logical-to-physical-mapping
+                                 (choose (ltop-bitwise) (ltop-bitwise-reverse))
+                                 (logical-list)))
            8)]
  [logical-list
   (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
-          (physical-to-logical-mapping (choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-                                       (physical-list)))]
+          (physical-to-logical-mapping
+           (choose (ptol-bitwise) (ptol-choose-one (bv 0 1)) (ptol-bitwise-reverse))
+           (physical-list)))]
  ;;; 8bit logical input
  ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for the sixth
  ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two

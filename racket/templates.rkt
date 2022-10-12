@@ -37,19 +37,20 @@
          [lutmem (match lutmems
                    [(list lm0) (choose* lm0)]
                    [(list lm0 lm1) (choose* lm0 lm1)])]
-         [lakeroad-expr
-          (let* ([physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse))
-                                                               logical-inputs)]
-                 [physical-outputs (for/list ([i max-bw])
-                                     (lr:lut (length logical-inputs)
-                                             1
-                                             architecture
-                                             lutmem
-                                             (lr:list-ref physical-inputs i)))])
-            (lr:extract (sub1 outwidth)
-                        0
-                        (lr:first (physical-to-logical-mapping (choose* '(bitwise) '(bitwise-reverse))
-                                                               physical-outputs))))])
+         [lakeroad-expr (let* ([physical-inputs (logical-to-physical-mapping
+                                                 (choose* (ltop-bitwise) (ltop-bitwise-reverse))
+                                                 logical-inputs)]
+                               [physical-outputs (for/list ([i max-bw])
+                                                   (lr:lut (length logical-inputs)
+                                                           1
+                                                           architecture
+                                                           lutmem
+                                                           (lr:list-ref physical-inputs i)))])
+                          (lr:extract (sub1 outwidth)
+                                      0
+                                      (lr:first (physical-to-logical-mapping
+                                                 (choose* (ptol-bitwise) (ptol-bitwise-reverse))
+                                                 physical-outputs))))])
     (when (not (concrete? max-bw))
       (error "Input bitwidths must be statically known."))
 

@@ -25,7 +25,7 @@
   (define bv-expr (apply f (take (interpret logical-inputs) arity)))
   (define lakeroad-expr
     (lr:list-ref (physical-to-logical-mapping
-                  '(bitwise)
+                  (ptol-bitwise)
                   (match primitive
                     ['pfu (make-lattice-pfu-expr logical-inputs)]
                     ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
@@ -58,10 +58,10 @@
   (define (curry-carry INIT0 INIT1 INJECT1_0 INJECT1_1)
     (lambda (CIN inputs)
       (interpret (lr:list-ref (physical-to-logical-mapping
-                               '(bitwise)
+                               (ptol-bitwise)
                                (make-lattice-ccu2c-expr
                                 #:CIN CIN
-                                #:inputs (logical-to-physical-mapping '(bitwise) inputs)
+                                #:inputs (logical-to-physical-mapping (ltop-bitwise) inputs)
                                 #:INIT0 INIT0
                                 #:INIT1 INIT1
                                 #:INJECT1_0 INJECT1_0

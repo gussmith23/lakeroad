@@ -58,7 +58,7 @@
 
 (module+ test
   (require rackunit)
-  (check-equal? (compile-logical-to-physical-mapping identity '(bitwise) '((1 2 6) (3 4 5)))
+  (check-equal? (compile-logical-to-physical-mapping identity (ptol-bitwise) '((1 2 6) (3 4 5)))
                 '((1 3) (2 4) (6 5))))
 
 ;;; Interprets logical-to-physical-input mapping.

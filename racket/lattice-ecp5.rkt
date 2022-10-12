@@ -187,7 +187,7 @@
                     (??* (bitvector 16))
                     (??* (bitvector 16))
                     (??* (bitvector 16))
-                    (logical-to-physical-mapping '(bitwise) logical-inputs)))
+                    (logical-to-physical-mapping (ltop-bitwise) logical-inputs)))
 
 ;;; Create a Lakeroad expression for a CCU2C. This can be used to specify a
 ;;; 2-bit add, etc
@@ -251,7 +251,7 @@
                                       #:INJECT1_5 [INJECT1_5 #f]
                                       #:INJECT1_6 [INJECT1_6 #f]
                                       #:INJECT1_7 [INJECT1_7 #f]
-                                      #:MAPPING [MAPPING '(bitwise)])
+                                      #:MAPPING [MAPPING (ltop-bitwise)])
 
   (lattice-ecp5-ripple-pfu (or INIT0 (lr:bv (??* (bitvector 16))))
                            (or INIT1 (lr:bv (??* (bitvector 16))))

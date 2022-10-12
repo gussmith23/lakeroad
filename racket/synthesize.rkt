@@ -551,7 +551,7 @@
          (append (symbolics bv-expr)
                  (make-list (- 6 (length (symbolics bv-expr))) (bvnot (bv 0 logical-input-width))))))
 
-  (define physical-inputs (logical-to-physical-mapping '(bitwise) logical-inputs))
+  (define physical-inputs (logical-to-physical-mapping (ltop-bitwise) logical-inputs))
 
   ;;; Split the physical inputs into groups, grouped by LUT.
   (define physical-inputs-per-clb
@@ -599,7 +599,7 @@
   (define lakeroad-expr
     (lr:extract (sub1 out-bw)
                 0
-                (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+                (lr:first (physical-to-logical-mapping (choose (ptol-bitwise) (ptol-bitwise-reverse))
                                                        physical-outputs))))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
@@ -644,7 +644,7 @@
              (match-let* ([(list this-ccu2c-physical-outputs this-cout)
                            (let ([ccu2c-out (make-lattice-ccu2c-expr
                                              #:inputs (logical-to-physical-mapping
-                                                       (choose '(bitwise) '(bitwise-reverse))
+                                                       (choose (ltop-bitwise) (ltop-bitwise-reverse))
                                                        logical-inputs)
                                              #:CIN previous-cout
                                              #:INIT0 lutmem
@@ -692,47 +692,47 @@
 
   (match-define (list phys-0 cout-0)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
-      (foldl (lambda (logical-inputs previous-out)
-               (match-let* ([(list acc-phys-out previous-cout) previous-out]
-                            [(list this-ccu2c-physical-outputs this-cout)
-                             (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                               #:inputs (logical-to-physical-mapping
-                                                         (choose '(bitwise) '(bitwise-reverse))
-                                                         logical-inputs)
-                                               #:CIN previous-cout
-                                               #:INIT0 lutmem
-                                               #:INIT1 lutmem)])
+      (foldl
+       (lambda (logical-inputs previous-out)
+         (match-let* ([(list acc-phys-out previous-cout) previous-out]
+                      [(list this-ccu2c-physical-outputs this-cout)
+                       (let ([ccu2c-out (make-lattice-ccu2c-expr
+                                         #:inputs (logical-to-physical-mapping
+                                                   (choose (ltop-bitwise) (ltop-bitwise-reverse))
+                                                   logical-inputs)
+                                         #:CIN previous-cout
+                                         #:INIT0 lutmem
+                                         #:INIT1 lutmem)])
 
-                               (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
-                            [acc-phys-out (if (equal? acc-phys-out 'first)
-                                              this-ccu2c-physical-outputs
-                                              (lr:append (list acc-phys-out
-                                                               this-ccu2c-physical-outputs)))])
-                 (list acc-phys-out this-cout)))
-             (list 'first cin)
-             logical-inputs-per-ccu2c)))
+                         (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
+                      [acc-phys-out (if (equal? acc-phys-out 'first)
+                                        this-ccu2c-physical-outputs
+                                        (lr:append (list acc-phys-out this-ccu2c-physical-outputs)))])
+           (list acc-phys-out this-cout)))
+       (list 'first cin)
+       logical-inputs-per-ccu2c)))
 
   (match-define (list phys-1 cout-1)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
-      (foldl (lambda (logical-inputs previous-out)
-               (match-let* ([(list acc-phys-out previous-cout) previous-out]
-                            [(list this-ccu2c-physical-outputs this-cout)
-                             (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                               #:inputs (logical-to-physical-mapping
-                                                         (choose '(bitwise) '(bitwise-reverse))
-                                                         logical-inputs)
-                                               #:CIN previous-cout
-                                               #:INIT0 lutmem
-                                               #:INIT1 lutmem)])
+      (foldl
+       (lambda (logical-inputs previous-out)
+         (match-let* ([(list acc-phys-out previous-cout) previous-out]
+                      [(list this-ccu2c-physical-outputs this-cout)
+                       (let ([ccu2c-out (make-lattice-ccu2c-expr
+                                         #:inputs (logical-to-physical-mapping
+                                                   (choose (ltop-bitwise) (ltop-bitwise-reverse))
+                                                   logical-inputs)
+                                         #:CIN previous-cout
+                                         #:INIT0 lutmem
+                                         #:INIT1 lutmem)])
 
-                               (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
-                            [acc-phys-out (if (equal? acc-phys-out 'first)
-                                              this-ccu2c-physical-outputs
-                                              (lr:append (list acc-phys-out
-                                                               this-ccu2c-physical-outputs)))])
-                 (list acc-phys-out this-cout)))
-             (list 'first cin)
-             logical-inputs-per-ccu2c)))
+                         (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
+                      [acc-phys-out (if (equal? acc-phys-out 'first)
+                                        this-ccu2c-physical-outputs
+                                        (lr:append (list acc-phys-out this-ccu2c-physical-outputs)))])
+           (list acc-phys-out this-cout)))
+       (list 'first cin)
+       logical-inputs-per-ccu2c)))
 
   ;;; Our third set of ccu2c modules should be structured as follows:
   ;;; ccu2c-3.0 takes in (1 1 ccu2c-0.0 ccu2c-1.0)
@@ -816,7 +816,7 @@
                                        #:INIT5 lutmem
                                        #:INIT6 lutmem
                                        #:INIT7 lutmem
-                                       #:MAPPING (choose '(bitwise) '(bitwise-reverse)))])
+                                       #:MAPPING (choose (ltop-bitwise) (ltop-bitwise-reverse)))])
 
                          (list (lr:take pfu-out 8) (lr:list-ref pfu-out 8)))]
                       [accumulated-physical-output (if (equal? accumulated-physical-output 'first)
@@ -831,7 +831,7 @@
   (define lakeroad-expr
     (lr:extract (sub1 out-bw)
                 0
-                (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+                (lr:first (physical-to-logical-mapping (choose (ptol-bitwise) (ptol-bitwise-reverse))
                                                        physical-output))))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
@@ -887,7 +887,7 @@
          (match-let* ([accumulated-logical-output previous-out]
                       [this-pfu-logical-outputs
                        (let ([pfu-out (make-lattice-pfu-expr logical-inputs)])
-                         (lr:first (physical-to-logical-mapping '(bitwise) (lr:take pfu-out 8))))]
+                         (lr:first (physical-to-logical-mapping (ptol-bitwise) (lr:take pfu-out 8))))]
                       [accumulated-logical-output
                        (if (equal? accumulated-logical-output 'first-iter)
                            this-pfu-logical-outputs
@@ -929,11 +929,11 @@
 (define (make-wire-lrexpr inputs shift-by bitwidth)
   (define lakeroad-expr
     (lr:first (physical-to-logical-mapping
-               '(bitwise)
-               (logical-to-physical-mapping (choose '(bitwise)
-                                                    '(bitwise-reverse)
-                                                    `(shift ,shift-by)
-                                                    `(constant ,(??* (bitvector bitwidth))))
+               (ptol-bitwise)
+               (logical-to-physical-mapping (choose (ltop-bitwise)
+                                                    (ltop-bitwise-reverse)
+                                                    (ltop-shift shift-by)
+                                                    (ltop-constant (??* (bitvector bitwidth))))
                                             inputs))))
 
   lakeroad-expr)
