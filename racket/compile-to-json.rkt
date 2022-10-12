@@ -107,6 +107,14 @@
                                                    (match (module-instance-parameter-value p)
                                                      [(lr:bv v) (make-literal-value-from-bv v)])))
                                            params)]
+                         ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
+                         ;;; parameters. We will need to figure out a way around this hack especially
+                         ;;; if we want to support other modules that use string parameters e.g. DSP.
+                         [param-pairs (if (equal? module-name "CCU2C")
+                                          (append param-pairs
+                                                  (list (cons 'INJECT1_0 "NO")
+                                                        (cons 'INJECT1_1 "NO")))
+                                          param-pairs)]
                          [cell (make-cell
                                 module-name
                                 (make-cell-port-directions input-port-symbols output-port-symbols)
