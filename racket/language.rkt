@@ -3,6 +3,7 @@
 
 (provide (struct-out list-ref)
          (struct-out first)
+         (struct-out symbol)
          (struct-out extract)
          (struct-out drop)
          (struct-out take)
@@ -35,3 +36,4 @@
 (struct bitvector (v) #:transparent)
 (struct list (v) #:transparent)
 (struct integer (v) #:transparent)
+(struct symbol (v) #:transparent)
