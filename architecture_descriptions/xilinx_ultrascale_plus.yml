@@ -17,7 +17,7 @@ implementations:
           ]
     internal_data: { INIT: 64 }
     outputs: { O: O }
-  - interface: { name: carry, parameters: { width: 8 }}
+  - interface: { name: carry, parameters: { width: 8 } }
     modules:
       - module_name: CARRY8
         filepath: ../verilator_xilinx/CARRY8.v
@@ -30,4 +30,4 @@ implementations:
             { name: CO, direction: output, bitwidth: 1, value: CO },
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
-    outputs: { O: O }
+    outputs: { O: O, CO: CO }
