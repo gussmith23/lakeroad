@@ -45,6 +45,9 @@
           (define out
             (destruct
              expr
+             [(lr:symbol s) s]
+             [(lr:make-immutable-hash list-expr) (make-immutable-hash (interpret-helper list-expr))]
+             [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]
              [(lr:hash-remap-keys h-expr ks)
               (let* ([h (interpret-helper h-expr)]
                      [new-h
