@@ -331,12 +331,12 @@
            rosette)
 
   (check-equal? (interpret (physical-to-logical-mapping
-                            '(bitwise)
+                            (ptol-bitwise)
                             (lr:list (list (lr:bv (bv #b1 1)) (lr:bv (bv #b0 1))))))
                 (list (bv #b01 2)))
 
   (check-equal? (interpret (logical-to-physical-mapping
-                            '(bitwise)
+                            (ltop-bitwise)
                             (lr:list (list (lr:bv (bv 1 1)) (lr:bv (bv 0 1))))))
                 (list (bv #b01 2)))
 
