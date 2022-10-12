@@ -93,9 +93,9 @@
 (define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
   (synthesize-with finish-when (list synthesize-wire (synthesize-using-lut 'sofa 1 4)) bv-expr))
 
-(define-syntax-rule (simple-test f before-call args ...)
-  (module+ test
-    (require rackunit)
+(module+ test
+  (require rackunit)
+  (define-syntax-rule (simple-test f before-call args ...)
     (test-true (format "~a simple test" f)
                (normal? (with-vc (with-terms (begin
                                                before-call
@@ -104,7 +104,8 @@
                                                                       (equal? 'unsynthesizable
                                                                               result))))))))))))
 
-(simple-test synthesize-sofa-impl (define-symbolic a b (bitvector 8)) (bvand a b))
+(module+ test
+  (simple-test synthesize-sofa-impl (define-symbolic a b (bitvector 8)) (bvand a b)))
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
 ;;;
@@ -119,7 +120,10 @@
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
                    bv-expr))
 
-(simple-test synthesize-xilinx-ultrascale-plus-impl (define-symbolic a b (bitvector 8)) (bvand a b))
+(module+ test
+  (simple-test synthesize-xilinx-ultrascale-plus-impl
+               (define-symbolic a b (bitvector 8))
+               (bvand a b)))
 
 (define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed] #:timeout [timeout 5.0])
   (synthesize-with finish-when
@@ -132,10 +136,13 @@
                    bv-expr
                    timeout))
 
-(simple-test synthesize-lattice-ecp5-impl (define-symbolic a b (bitvector 8)) (bvand a b))
-(simple-test synthesize-lattice-ecp5-for-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
-(simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
-(simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvadd a b))
+(module+ test
+  (simple-test synthesize-lattice-ecp5-impl (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-ripple-pfu
+               (define-symbolic a b (bitvector 8))
+               (bvadd a b)))
 
 ;;;;;;
 ;;;
