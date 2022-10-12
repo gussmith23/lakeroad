@@ -99,7 +99,10 @@
     (test-true (format "~a simple test" f)
                (normal? (with-vc (with-terms (begin
                                                before-call
-                                               (check-true (f args ...)))))))))
+                                               (let ([result (f args ...)])
+                                                 (check-true (not (or (equal? #f result)
+                                                                      (equal? 'unsynthesizable
+                                                                              result))))))))))))
 
 (simple-test synthesize-sofa-impl (define-symbolic a b (bitvector 8)) (bvand a b))
 
