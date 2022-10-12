@@ -34,13 +34,16 @@ implementations:
       - module_name: CCU2C
         filepath: ../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v
         racket_import_filepath: ../modules_for_importing/lattice_ecp5/CCU2C.v
-        ports:
-          [
+        ports: [
             { name: CIN, direction: input, bitwidth: 1, value: CI },
             { name: A0, direction: input, bitwidth: 1, value: (bit 0 DI) },
             { name: A1, direction: input, bitwidth: 1, value: (bit 1 DI) },
             { name: B0, direction: input, bitwidth: 1, value: (bit 0 S) },
             { name: B1, direction: input, bitwidth: 1, value: (bit 1 S) },
+            # Set the other inputs to 1 to enable the carry chain. NOTE: It's
+            # very important that we specify ALL inputs. This is due to the fact
+            # that any unspecified inputs will currently be made symbolic, which
+            # isn't good. See #147.
             { name: C0, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: C1, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: D0, direction: input, bitwidth: 1, value: (bv 1 1) },
@@ -49,8 +52,10 @@ implementations:
             { name: S1, direction: output, bitwidth: 1, value: unused },
             { name: COUT, direction: output, bitwidth: 1, value: unused },
           ]
-        parameters:
-          [
+        parameters: [
+            # NOTE: It's very important that we specify ALL parameters. This is
+            # due to the fact that any unspecified parameters will currently be
+            # made symbolic, which isn't good. See #147.
             { name: INIT0, value: INIT0 },
             { name: INIT1, value: INIT1 },
             { name: INJECT1_0, value: (bv 0 1) },
