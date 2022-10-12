@@ -294,15 +294,18 @@
                    [else #f]))
      (check-true
       (match expr
-        [(lr:hash-remap-keys (lr:hw-module-instance "LUT4"
-                                                    (list (module-instance-port "A" v 'input 1)
-                                                          (module-instance-port "B" v 'input 1)
-                                                          (module-instance-port "C" v 'input 1)
-                                                          (module-instance-port "D" v 'input 1)
-                                                          (module-instance-port "Z" "O" 'output 1))
-                                                    (list (module-instance-parameter "INIT" s))
-                                                    filepath-unchecked)
-                             (list (cons 'Z 'O)))
+        [(lr:make-immutable-hash
+          (lr:list (list (lr:cons (lr:symbol 'O)
+                                  (lr:hash-ref (lr:hw-module-instance
+                                                "LUT4"
+                                                (list (module-instance-port "A" v 'input 1)
+                                                      (module-instance-port "B" v 'input 1)
+                                                      (module-instance-port "C" v 'input 1)
+                                                      (module-instance-port "D" v 'input 1)
+                                                      (module-instance-port "Z" "O" 'output 1))
+                                                (list (module-instance-parameter "INIT" s))
+                                                filepath-unchecked)
+                                               'Z)))))
          (check-equal? v (bv 0 1))
          #t]
         [else #f])))))
@@ -471,44 +474,56 @@
                    [else #f]))
      (check-true
       (match expr
-        [(lr:hash-remap-keys
-          (lr:hw-module-instance
-           "L6MUX21"
-           (list (module-instance-port
-                  "D0"
-                  (lr:hash-ref (lr:hash-remap-keys (lr:hw-module-instance
-                                                    "LUT4"
-                                                    (list (module-instance-port "A" v 'input 1)
-                                                          (module-instance-port "B" v 'input 1)
-                                                          (module-instance-port "C" v 'input 1)
-                                                          (module-instance-port "D" v 'input 1)
-                                                          (module-instance-port "Z" "O" 'output 1))
-                                                    (list (module-instance-parameter "INIT" s0))
-                                                    lut4-filepath)
-                                                   (list (cons 'Z 'O)))
-                               'O)
-                  'input
-                  1)
-                 (module-instance-port
-                  "D1"
-                  (lr:hash-ref (lr:hash-remap-keys (lr:hw-module-instance
-                                                    "LUT4"
-                                                    (list (module-instance-port "A" v 'input 1)
-                                                          (module-instance-port "B" v 'input 1)
-                                                          (module-instance-port "C" v 'input 1)
-                                                          (module-instance-port "D" v 'input 1)
-                                                          (module-instance-port "Z" "O" 'output 1))
-                                                    (list (module-instance-parameter "INIT" s1))
-                                                    lut4-filepath)
-                                                   (list (cons 'Z 'O)))
-                               'O)
-                  'input
-                  1)
-                 (module-instance-port "SD" selector-expr 'input 1)
-                 (module-instance-port "Z" "O" 'output 1))
-           (list)
-           mux-filepath)
-          (list (cons 'Z 'O)))
+        [(lr:make-immutable-hash
+          (lr:list
+           (list (lr:cons
+                  (lr:symbol 'O)
+                  (lr:hash-ref
+                   (lr:hw-module-instance
+                    "L6MUX21"
+                    (list (module-instance-port
+                           "D0"
+                           (lr:hash-ref
+                            (lr:make-immutable-hash
+                             (lr:list (list (lr:cons (lr:symbol 'O)
+                                                     (lr:hash-ref
+                                                      (lr:hw-module-instance
+                                                       "LUT4"
+                                                       (list (module-instance-port "A" v 'input 1)
+                                                             (module-instance-port "B" v 'input 1)
+                                                             (module-instance-port "C" v 'input 1)
+                                                             (module-instance-port "D" v 'input 1)
+                                                             (module-instance-port "Z" "O" 'output 1))
+                                                       (list (module-instance-parameter "INIT" s0))
+                                                       lut4-filepath)
+                                                      'Z)))))
+                            'O)
+                           'input
+                           1)
+                          (module-instance-port
+                           "D1"
+                           (lr:hash-ref
+                            (lr:make-immutable-hash
+                             (lr:list (list (lr:cons (lr:symbol 'O)
+                                                     (lr:hash-ref
+                                                      (lr:hw-module-instance
+                                                       "LUT4"
+                                                       (list (module-instance-port "A" v 'input 1)
+                                                             (module-instance-port "B" v 'input 1)
+                                                             (module-instance-port "C" v 'input 1)
+                                                             (module-instance-port "D" v 'input 1)
+                                                             (module-instance-port "Z" "O" 'output 1))
+                                                       (list (module-instance-parameter "INIT" s1))
+                                                       lut4-filepath)
+                                                      'Z)))))
+                            'O)
+                           'input
+                           1)
+                          (module-instance-port "SD" selector-expr 'input 1)
+                          (module-instance-port "Z" "O" 'output 1))
+                    (list)
+                    mux-filepath)
+                   'Z)))))
          #t]
         [else #f])))))
 
@@ -632,7 +647,8 @@
                                         (list (module-instance-parameter "INIT" "INIT"))
                                         "../verilator_xilinx/LUT6.v"
                                         "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v")
-                       (hash "INIT" 64))
+                       (hash "INIT" 64)
+                       (hash "O" "O"))
                       (interface-implementation
                        (interface-identifier "carry" (hash "width" 8))
                        (module-instance "CARRY8"
@@ -644,34 +660,60 @@
                                         (list)
                                         "../verilator_xilinx/CARRY8.v"
                                         "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
-                       (hash)))))
+                       (hash)
+                       (hash "CO" "CO" "O" "O")))))
 
   (test-equal?
    "Parse Lattice ECP5 YAML"
    (lattice-ecp5-architecture-description)
    (architecture-description
-    (list (interface-implementation (interface-identifier "LUT" (hash "num_inputs" 4))
-                                    (module-instance "LUT4"
-                                                     (list (module-instance-port "A" "I0" 'input 1)
-                                                           (module-instance-port "B" "I1" 'input 1)
-                                                           (module-instance-port "C" "I2" 'input 1)
-                                                           (module-instance-port "D" "I3" 'input 1)
-                                                           (module-instance-port "Z" "O" 'output 1))
-                                                     (list (module-instance-parameter "INIT" "INIT"))
-                                                     "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
-                                                     "../modules_for_importing/lattice_ecp5/LUT4.v")
-                                    (hash "INIT" 16))
-          (interface-implementation
-           (interface-identifier "MUX" (hash "num_inputs" 2))
-           (module-instance "L6MUX21"
-                            (list (module-instance-port "D0" "I0" 'input 1)
-                                  (module-instance-port "D1" "I1" 'input 1)
-                                  (module-instance-port "SD" "S" 'input 1)
-                                  (module-instance-port "Z" "O" 'output 1))
-                            (list)
-                            "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
-                            "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
-           (hash))))))
+    (list
+     (interface-implementation (interface-identifier "LUT" (hash "num_inputs" 4))
+                               (module-instance "LUT4"
+                                                (list (module-instance-port "A" "I0" 'input 1)
+                                                      (module-instance-port "B" "I1" 'input 1)
+                                                      (module-instance-port "C" "I2" 'input 1)
+                                                      (module-instance-port "D" "I3" 'input 1)
+                                                      (module-instance-port "Z" "O" 'output 1))
+                                                (list (module-instance-parameter "INIT" "INIT"))
+                                                "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
+                                                "../modules_for_importing/lattice_ecp5/LUT4.v")
+                               (hash "INIT" 16)
+                               (hash "O" "Z"))
+     (interface-implementation (interface-identifier "MUX" (hash "num_inputs" 2))
+                               (module-instance "L6MUX21"
+                                                (list (module-instance-port "D0" "I0" 'input 1)
+                                                      (module-instance-port "D1" "I1" 'input 1)
+                                                      (module-instance-port "SD" "S" 'input 1)
+                                                      (module-instance-port "Z" "O" 'output 1))
+                                                (list)
+                                                "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
+                                                "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
+                               (hash)
+                               (hash "O" "Z"))
+     (interface-implementation
+      (interface-identifier "carry" (hash "width" 2))
+      (module-instance "CCU2C"
+                       (list (module-instance-port "CIN" "CI" 'input 1)
+                             (module-instance-port "A0" "(bit 0 DI)" 'input 1)
+                             (module-instance-port "A1" "(bit 1 DI)" 'input 1)
+                             (module-instance-port "B0" "(bit 0 S)" 'input 1)
+                             (module-instance-port "B1" "(bit 1 S)" 'input 1)
+                             (module-instance-port "C0" "(bv 1 1)" 'input 1)
+                             (module-instance-port "C1" "(bv 1 1)" 'input 1)
+                             (module-instance-port "D0" "(bv 1 1)" 'input 1)
+                             (module-instance-port "D1" "(bv 1 1)" 'input 1)
+                             (module-instance-port "S0" "unused" 'output 1)
+                             (module-instance-port "S1" "unused" 'output 1)
+                             (module-instance-port "COUT" "unused" 'output 1))
+                       (list (module-instance-parameter "INIT0" "INIT0")
+                             (module-instance-parameter "INIT1" "INIT1")
+                             (module-instance-parameter "INJECT1_0" "(bv 0 1)")
+                             (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
+                       "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
+                       "../modules_for_importing/lattice_ecp5/CCU2C.v")
+      (hash "INIT0" 16 "INIT1" 16)
+      (hash "CO" "COUT" "O" "(concat S1 S0)"))))))
 
 (module+ test
   (test-begin
@@ -686,21 +728,24 @@
                     (check-true ((bitvector 16) v))
                     #t]
                    [else #f]))
-     (check-true (match expr
-                   [(lr:hash-remap-keys (lr:hw-module-instance
-                                         "LUT4"
-                                         (list (module-instance-port "A" (lr:bv v0) 'input 1)
-                                               (module-instance-port "B" (lr:bv v0) 'input 1)
-                                               (module-instance-port "C" (lr:bv v1) 'input 1)
-                                               (module-instance-port "D" (lr:bv v1) 'input 1)
-                                               (module-instance-port "Z" "O" 'output 1))
-                                         (list (module-instance-parameter "INIT" (lr:bv s0)))
-                                         filepath-unchecked)
-                                        (list (cons 'Z 'O)))
-                    (check-equal? v0 (bv 0 1))
-                    (check-equal? v1 (bv 1 1))
-                    #t]
-                   [else #f])))))
+     (check-true
+      (match expr
+        [(lr:make-immutable-hash
+          (lr:list (list (lr:cons (lr:symbol 'O)
+                                  (lr:hash-ref (lr:hw-module-instance
+                                                "LUT4"
+                                                (list (module-instance-port "A" (lr:bv v0) 'input 1)
+                                                      (module-instance-port "B" (lr:bv v0) 'input 1)
+                                                      (module-instance-port "C" (lr:bv v1) 'input 1)
+                                                      (module-instance-port "D" (lr:bv v1) 'input 1)
+                                                      (module-instance-port "Z" "O" 'output 1))
+                                                (list (module-instance-parameter "INIT" (lr:bv s0)))
+                                                filepath-unchecked)
+                                               'Z)))))
+         (check-equal? v0 (bv 0 1))
+         (check-equal? v1 (bv 1 1))
+         #t]
+        [else #f])))))
 
 (struct lr:make-immutable-hash (list-expr) #:transparent)
 (struct lr:cons (v0-expr v1-expr) #:transparent)
@@ -714,13 +759,15 @@
       (interface-identifier "carry" (hash "width" 2))
       (list (cons "CI" (lr:bv (bv 0 1))) (cons "DI" (lr:bv (bv 0 2))) (cons "S" (lr:bv (bv 0 2))))))
    (check-true (match internal-data
-                 [(list) #t]
+                 [(list (cons "INIT0" (lr:bv (? (bitvector 16) _)))
+                        (cons "INIT1" (lr:bv (? (bitvector 16) _))))
+                  #t]
                  [else #f]))
    (match-define (lr:make-immutable-hash
-                  (lr:list (list (lr:cons 'O
+                  (lr:list (list (lr:cons (lr:symbol 'O)
                                           (lr:concat (lr:list (list (lr:hash-ref mod-expr 'S1)
                                                                     (lr:hash-ref mod-expr 'S0)))))
-                                 (lr:cons 'CO (lr:hash-ref mod-expr 'COUT)))))
+                                 (lr:cons (lr:symbol 'CO) (lr:hash-ref mod-expr 'COUT)))))
      expr)
    (check-true
     (match mod-expr
@@ -732,10 +779,14 @@
          (module-instance-port "A1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
          (module-instance-port "B0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv v0)) 'input 1)
          (module-instance-port "B1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
+         (module-instance-port "C0" (lr:bv (? bv? _)) 'input 1)
+         (module-instance-port "C1" (lr:bv (? bv? _)) 'input 1)
+         (module-instance-port "D0" (lr:bv (? bv? _)) 'input 1)
+         (module-instance-port "D1" (lr:bv (? bv? _)) 'input 1)
          (module-instance-port "S0" "unused" 'output 1)
          (module-instance-port "S1" "unused" 'output 1)
          (module-instance-port "COUT" "unused" 'output 1))
-        (list)
+        list
         filepath-unchecked)
        (check-equal? v0 (bv 0 2))
        (check-equal? v1 (bv 0 1))
