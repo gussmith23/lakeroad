@@ -65,6 +65,9 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
+                 [(lr:symbol s) s]
+                 [(lr:make-immutable-hash list-expr) (make-immutable-hash (compile list-expr))]
+                 [(lr:cons v0-expr v1-expr) (cons (compile v0-expr) (compile v1-expr))]
                  [(lr:hash-remap-keys h-expr ks)
                   (let* ([h (compile h-expr)]
                          [new-h (make-immutable-hash
