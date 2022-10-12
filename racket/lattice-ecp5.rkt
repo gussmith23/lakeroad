@@ -868,6 +868,10 @@
                [compiled-inputs (compiler inputs)]
                [(list (list A0 B0 C0 D0) (list A1 B1 C1 D1)) compiled-inputs]
                [(list s0 s1 cout) (get-unique-bit-ids 3)]
+               [INIT0 (compile INIT0)]
+               [INIT1 (compile INIT1)]
+               [INJECT1_0 (compile INJECT1_0)]
+               [INJECT1_1 (compile INJECT1_1)]
                [ccu2c (make-lattice-ccu2c-cell
                        (if (bv? INIT0) (make-literal-value-from-bv INIT0) INIT0)
                        (if (bv? INIT1) (make-literal-value-from-bv INIT1) INIT1)
