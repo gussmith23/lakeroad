@@ -16,6 +16,7 @@ implementations:
             { name: O, direction: output, bitwidth: 1, value: O },
           ]
     internal_data: { INIT: 64 }
+    outputs: { O: O }
   - interface: { name: carry, parameters: { width: 8 }}
     modules:
       - module_name: CARRY8
@@ -29,3 +30,4 @@ implementations:
             { name: CO, direction: output, bitwidth: 1, value: CO },
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
+    outputs: { O: O }
