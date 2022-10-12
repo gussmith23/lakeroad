@@ -104,12 +104,14 @@
 
 ;;; Get logical inputs for an expression
 ; TODO: What is the difference between expected-bw and out-bw?
+;;; Returns a list of expressions. Does not return a list expression. TODO(@gussmith23) really need to
+;;; get this cleaned up.
 (define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4] #:expected-bw [expected-bw 8])
   (let ([symbs (symbolics bv-expr)] [out-bw (bvlen bv-expr)])
-    (map
-     (lambda (v)
-       (choose* (lr:zero-extend v (bitvector expected-bw)) (lr:dup-extend v (bitvector expected-bw))))
-     (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
+    (map (lambda (v)
+           (choose* (lr:zero-extend (lr:bv v) (lr:bitvector (bitvector expected-bw)))
+                    (lr:dup-extend (lr:bv v) (lr:bitvector (bitvector expected-bw)))))
+         (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
 
 (define (make-lattice-lut4-expr logical-inputs #:INIT [INIT #f])
   (lattice-ecp5-lut4 (or INIT (??* (bitvector 16))) logical-inputs))
