@@ -73,7 +73,7 @@
                           [(list l0 l1) (choose* l0 l1)])]
 
          [lakeroad-expr-carry
-          (lr:carry nbits architecture (?? (bitvector 1)) logical-input lakeroad-expr-lut)]
+          (lr:carry nbits architecture (lr:bv (?? (bitvector 1))) logical-input lakeroad-expr-lut)]
          [output (choose* (lr:first lakeroad-expr-carry)
                           (lr:list-ref lakeroad-expr-carry (lr:integer 1)))])
     output))
