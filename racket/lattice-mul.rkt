@@ -54,10 +54,14 @@
          ;;
          ;; Thus, element 0 of the resulting list is the input bitvector to the
          ;; least significant adder
-         [lut4-inputs (for/list ([a-bit a] [b-bit b])
-                        (lr:concat (lr:list (list (lr:bv (bv -1 2))
-                                                  (lr:list-ref a-bit (lr:integer 0))
-                                                  (lr:list-ref b-bit (lr:integer 0))))))]
+         [lut4-inputs
+          (for/list ([a-bit a] [b-bit b])
+            (lr:concat
+             (lr:list (list (lr:bv (bv -1 2))
+                            (lr:list-ref (if (list? a-bit) (lr:list (map lr:bv a-bit)) a-bit)
+                                         (lr:integer 0))
+                            (lr:list-ref (if (list? b-bit) (lr:list (map lr:bv b-bit)) b-bit)
+                                         (lr:integer 0))))))]
 
          ;; paired-inputs: We need to combine `inputs` formed in the previous step
          ;; so that hey can be fed into ccu2cs (which have 2 luts each). Thus we
@@ -89,7 +93,7 @@
                    ;; interpreted result
                    [carry-in (match acc
                                ['() (lr:bv (bv 0 1))]
-                               [(list cc rst ...) (lr:list-ref (lr:list cc) (lr:integer 2))])]
+                               [(list cc rst ...) (lr:list-ref cc (lr:integer 2))])]
                    [ccu2c (match input
                             ;; Inputs are in (Least significant, most significant) order
                             [(list i0 i1)
@@ -104,9 +108,10 @@
     (let* (;; ccu2cs holds the CCU2Cs in MSB to LSB order. We now want to fold
            ;; over these and collect the individual bits (below)
            [ccu2cs (foldl ccu2c-foldl-helper '() paired-inputs)]
-           [ccu2c-bit-extractor-helper (lambda (ccu2c acc)
-                                         (cons (list (lr:list-ref ccu2c (lr:integer 0)))
-                                               (cons (list (lr:list-ref ccu2c (lr:integer 1))) acc)))]
+           [ccu2c-bit-extractor-helper
+            (lambda (ccu2c acc)
+              (cons (lr:list (list (lr:list-ref ccu2c (lr:integer 0))))
+                    (cons (lr:list (list (lr:list-ref ccu2c (lr:integer 1)))) acc)))]
 
            ;; bits is a list of list of individual bits in reverse order (LSB to
            ;; MSB). It may be the case that bits has an extra bit (e.g., if we
@@ -129,7 +134,7 @@
   (define (test-for-values a b)
     (define a_ (map list (bitvector->bits a)))
     (define b_ (map list (bitvector->bits b)))
-    (define result (add-two-lists a_ b_ #:INIT0 (bv #x6ffe 16) #:INIT1 (bv #x6ffe 16)))
+    (define result (lr:list (add-two-lists a_ b_ #:INIT0 (bv #x6ffe 16) #:INIT1 (bv #x6ffe 16))))
     (define interpreted (interpret result))
     (cons result interpreted))
 
@@ -178,7 +183,7 @@
     (define rands
       (for/list ([rand operands])
         (map list (bitvector->bits rand))))
-    (interpret (add-all-lists rands #:INIT0 (bv #x6ffe 16) #:INIT1 (bv #x6ffe 16))))
+    (interpret (lr:list (add-all-lists rands #:INIT0 (bv #x6ffe 16) #:INIT1 (bv #x6ffe 16)))))
 
   (test-case "add pairs of 1-bit numbers"
              (begin
@@ -262,8 +267,8 @@
       (let* ([a-idx (- j i)]
              [b-idx i]
              [lut-inputs
-              (lr:concat (lr:list (list (lr:extract (lr:integer a-idx) (lr:integer a-idx) a)
-                                        (lr:extract (lr:integer b-idx) (lr:integer b-idx) b)
+              (lr:concat (lr:list (list (lr:extract (lr:integer a-idx) (lr:integer a-idx) (lr:bv a))
+                                        (lr:extract (lr:integer b-idx) (lr:integer b-idx) (lr:bv b))
                                         (lr:bv (bv 1 1))
                                         (lr:bv (bv 1 1)))))])
         (make-lattice-lut4-expr lut-inputs #:INIT INIT))))
@@ -313,7 +318,7 @@
                        (and-lut-helper a b i j #:INIT and-lut-init)))]
          [output (add-all-lists and-luts #:INIT0 add-lut-init #:INIT1 add-lut-init)]
          [output2 (for/list ([x output])
-                    (lr:list-ref (lr:list x) (lr:integer 0)))])
+                    (lr:list-ref x (lr:integer 0)))])
     (lr:extract (lr:integer (sub1 bitwidth))
                 (lr:integer 0)
                 (lr:list-ref (physical-to-logical-mapping (ptol-bitwise) (lr:list output2))
@@ -328,7 +333,9 @@
   ; Helper function that returns a list
   ;
   ;   (a b bv-expr lakeroad-expr soln complete-soln evaluated runner)
-  (define (mul-test-helper nbits #:AND-LUT-INIT [and-lut-init #f] #:ADD-LUT-INIT [add-lut-init #f])
+  (define (mul-test-helper nbits
+                           #:AND-LUT-INIT [and-lut-init (lr:bv (?? (bitvector 16)))]
+                           #:ADD-LUT-INIT [add-lut-init (?? (bitvector 16))])
     (clear-terms!)
     (clear-vc!)
     (define-symbolic a b (bitvector nbits))
