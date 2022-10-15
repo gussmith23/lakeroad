@@ -140,9 +140,14 @@
   (simple-test synthesize-lattice-ecp5-impl (define-symbolic a b (bitvector 8)) (bvand a b))
   (simple-test synthesize-lattice-ecp5-for-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
   (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
-  (simple-test synthesize-lattice-ecp5-for-ripple-pfu
-               (define-symbolic a b (bitvector 8))
-               (bvadd a b)))
+  (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvadd a b))
+  ;;; It's unclear whether CCU2C template is supposed to work. Assuming it's broken for now. Same with
+  ;;; tri.
+  ;;; (simple-test synthesize-lattice-ecp5-for-ccu2c (define-symbolic a b (bitvector 8)) (bvand a b))
+  ;;; (simple-test synthesize-lattice-ecp5-for-ccu2c (define-symbolic a b (bitvector 8)) (bvadd a b))
+  (simple-test synthesize-lattice-ecp5-multiply-circt
+               (define-symbolic a b (bitvector 2))
+               (bvmul a b)))
 
 ;;;;;;
 ;;;
