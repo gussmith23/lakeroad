@@ -956,11 +956,12 @@
   (define lakeroad-expr
     (lr:first (physical-to-logical-mapping
                (ptol-bitwise)
-               (logical-to-physical-mapping (choose (ltop-bitwise)
-                                                    (ltop-bitwise-reverse)
-                                                    (ltop-shift shift-by)
-                                                    (ltop-constant (??* (bitvector bitwidth))))
-                                            inputs))))
+               (logical-to-physical-mapping
+                (choose (ltop-bitwise)
+                        (ltop-bitwise-reverse)
+                        (ltop-shift shift-by)
+                        (ltop-constant (lr:bv (??* (bitvector bitwidth)))))
+                inputs))))
 
   lakeroad-expr)
 

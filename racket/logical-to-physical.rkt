@@ -149,7 +149,7 @@
                  [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
                  [(< n 0) (append (drop transposed num-pads) pads)]
                  [else transposed])))]
-   [(ltop-constant c) (bitvector->bits c)]
+   [(ltop-constant c) (bitvector->bits (interpreter c))]
    ;;;
    ;;; Same as bitwise, but includes masks on the physical outputs.
    ;;;
