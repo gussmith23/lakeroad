@@ -267,8 +267,12 @@
       (let* ([a-idx (- j i)]
              [b-idx i]
              [lut-inputs
-              (lr:concat (lr:list (list (lr:extract (lr:integer a-idx) (lr:integer a-idx) (lr:bv a))
-                                        (lr:extract (lr:integer b-idx) (lr:integer b-idx) (lr:bv b))
+              (lr:concat (lr:list (list (lr:extract (lr:integer a-idx)
+                                                    (lr:integer a-idx)
+                                                    (if (and (concrete? a) (bv? a)) (lr:bv a) a))
+                                        (lr:extract (lr:integer b-idx)
+                                                    (lr:integer b-idx)
+                                                    (if (and (concrete? b) (bv? b)) (lr:bv b) b))
                                         (lr:bv (bv 1 1))
                                         (lr:bv (bv 1 1)))))])
         (make-lattice-lut4-expr lut-inputs #:INIT INIT))))

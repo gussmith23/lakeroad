@@ -142,7 +142,7 @@
     (for/all ([n n #:exhaustive])
              (let* ([transposed (transpose (interpreter inputs))]
                     [num-cols (length transposed)]
-                    [pad-col (bv #x0 (length inputs))]
+                    [pad-col (bv #x0 (length (interpreter inputs)))]
                     [num-pads (min (abs n) num-cols)]
                     [pads (make-list num-pads pad-col)])
                (cond
