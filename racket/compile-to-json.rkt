@@ -65,6 +65,7 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
+                 [(lr:bitvector v) v]
                  [(lr:symbol s) s]
                  [(lr:make-immutable-hash list-expr) (make-immutable-hash (compile list-expr))]
                  [(lr:cons v0-expr v1-expr) (cons (compile v0-expr) (compile v1-expr))]
@@ -428,14 +429,16 @@
                   (drop (take (compile v) (add1 (compile high))) (compile low))]
                  [(or (expression (== zero-extend) v bv-type) (lr:zero-extend v bv-type))
                   (append (compile v)
-                          (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
+                          (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
+                                     "0"))]
                  [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
                  ;;; TODO(@gussmith23): Compile, then reverse? Or reverse, then compile?
                  [(lr:concat rst) (apply append (reverse (compile rst)))]
 
-                 [(lr:dup-extend v bv-type) (make-list (bitvector-size bv-type) (first (compile v)))]
+                 [(lr:dup-extend v bv-type)
+                  (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
                  [(lr:bv (? bv? (? symbolic? (? constant? s))))
