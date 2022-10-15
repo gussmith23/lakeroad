@@ -93,143 +93,84 @@
            "xilinx-ultrascale-plus-lut6.rkt"
            "xilinx-ultrascale-plus-carry8.rkt")
 
-  (test-case
-   "bitwise sketch generator"
-   (with-terms
-    (begin
+  (define-syntax-rule (sketch-test #:name name
+                                   #:defines defines
+                                   ...
+                                   #:bv-expr bv-expr
+                                   #:architecture-description architecture-description
+                                   #:sketch-generator sketch-generator
+                                   #:module-semantics module-semantics
+                                   #:include-dirs include-dirs
+                                   #:extra-verilator-args extra-verilator-args)
+    (test-case
+     name
+     (with-terms
+      (begin
+        defines ...
 
-      (define-symbolic a b (bitvector 2))
-      (define bv-expr (bvand a b))
-      (define sketch
-        (bitwise-sketch-generator (lattice-ecp5-architecture-description)
-                                  (lr:list (list (lr:bv a) (lr:bv b)))
-                                  2
-                                  2))
+        (define sketch
+          (sketch-generator architecture-description
+                            (lr:list (map lr:bv (symbolics bv-expr)))
+                            (length (symbolics bv-expr))
+                            (bvlen bv-expr)))
 
-      (define result
-        (with-vc
-         (with-terms
-          (synthesize
-           #:forall (list a b)
-           #:guarantee
-           (assert (bveq bv-expr
-                         (interpret
-                          sketch
-                          #:module-semantics
-                          (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-                                      lattice-ecp5-lut4)))))))))
+        (define result
+          (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
+                                           #:guarantee
+                                           (assert (bveq bv-expr
+                                                         (interpret sketch
+                                                                    #:module-semantics
+                                                                    module-semantics)))))))
 
-      (check-true (normal? result))
-      (define soln (result-value result))
+        (check-true (normal? result))
+        (define soln (result-value result))
 
-      (define lr-expr
-        (evaluate
-         sketch
-         ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-         (complete-solution soln
-                            (set->list (set-subtract (list->set (symbolics sketch))
-                                                     (list->set (symbolics bv-expr)))))))
+        (define lr-expr
+          (evaluate
+           sketch
+           ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+           (complete-solution soln
+                              (set->list (set-subtract (list->set (symbolics sketch))
+                                                       (list->set (symbolics bv-expr)))))))
 
-      (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-        (raise "VERILATOR_INCLUDE_DIR not set"))
-      (define include-dir
-        (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-      (check-true (simulate-with-verilator #:include-dirs (list include-dir)
-                                           #:extra-verilator-args "-Wno-UNUSED"
-                                           (list (to-simulate lr-expr bv-expr))
-                                           (getenv "VERILATOR_INCLUDE_DIR"))))))
+        (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+          (raise "VERILATOR_INCLUDE_DIR not set"))
+        (check-true (simulate-with-verilator #:include-dirs include-dirs
+                                             #:extra-verilator-args extra-verilator-args
+                                             (list (to-simulate lr-expr bv-expr))
+                                             (getenv "VERILATOR_INCLUDE_DIR")))))))
 
-  (test-case
-   "bitwise with carry sketch generator"
-   (with-terms
-    (begin
+  (sketch-test
+   #:name "bitwise sketch generator"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvand a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
 
-      (define-symbolic a b (bitvector 8))
-      (define bv-expr (bvadd a b))
-      (define sketch
-        (bitwise-with-carry-sketch-generator (xilinx-ultrascale-plus-architecture-description)
-                                             (lr:list (list (lr:bv a) (lr:bv b)))
-                                             2
-                                             8))
+  (sketch-test
+   #:name "bitwise with carry sketch generator"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
-      (define result
-        (with-vc (with-terms
-                  (synthesize
-                   #:forall (list a b)
-                   #:guarantee
-                   (assert (bveq bv-expr
-                                 (interpret sketch
-                                            #:module-semantics
-                                            (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
-                                                        xilinx-ultrascale-plus-lut6)
-                                                  (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v")
-                                                        xilinx-ultrascale-plus-carry8)))))))))
-
-      (check-true (normal? result))
-      (define soln (result-value result))
-
-      (define lr-expr
-        (evaluate
-         sketch
-         ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-         (complete-solution soln
-                            (set->list (set-subtract (list->set (symbolics sketch))
-                                                     (list->set (symbolics bv-expr)))))))
-
-      (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-        (raise "VERILATOR_INCLUDE_DIR not set"))
-      (define include-dir (build-path (get-lakeroad-directory) "verilator_xilinx"))
-      (check-true (simulate-with-verilator
-                   #:include-dirs (list include-dir)
-                   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD"
-                   (list (to-simulate lr-expr bv-expr))
-                   (getenv "VERILATOR_INCLUDE_DIR"))))))
-
-  (test-case
-   "bitwise with carry sketch generator on lattice"
-   (with-terms
-    (begin
-
-      (define-symbolic a b (bitvector 2))
-      (define bv-expr (bvadd a b))
-      (define sketch
-        (bitwise-with-carry-sketch-generator (lattice-ecp5-architecture-description)
-                                             (lr:list (list (lr:bv a) (lr:bv b)))
-                                             2
-                                             2))
-
-      (define result
-        (with-vc
-         (with-terms
-          (synthesize
-           #:forall (list a b)
-           #:guarantee
-           (assert
-            (bveq bv-expr
-                  (interpret
-                   sketch
-                   #:module-semantics
-                   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-                               lattice-ecp5-lut4)
-                         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v")
-                               lattice-ecp5-ccu2c)))))))))
-
-      (check-true (normal? result))
-      (define soln (result-value result))
-
-      (define lr-expr
-        (evaluate
-         sketch
-         ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-         (complete-solution soln
-                            (set->list (set-subtract (list->set (symbolics sketch))
-                                                     (list->set (symbolics bv-expr)))))))
-
-      (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-        (raise "VERILATOR_INCLUDE_DIR not set"))
-      (define include-dir
-        (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-      (check-true (simulate-with-verilator #:include-dirs (list include-dir)
-                                           #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING"
-                                           (list (to-simulate lr-expr bv-expr))
-                                           (getenv "VERILATOR_INCLUDE_DIR")))))))
+  (sketch-test
+   #:name "bitwise with carry sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING"))
