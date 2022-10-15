@@ -91,7 +91,8 @@
            "lattice-ecp5-lut4.rkt"
            "lattice-ecp5-ccu2c.rkt"
            "xilinx-ultrascale-plus-lut6.rkt"
-           "xilinx-ultrascale-plus-carry8.rkt")
+           "xilinx-ultrascale-plus-carry8.rkt"
+           "sofa-frac-lut4.rkt")
 
   (define-syntax-rule (sketch-test #:name name
                                    #:defines defines
@@ -185,4 +186,23 @@
    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+
+  (sketch-test
+   #:name "bitwise on SOFA"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvand a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator bitwise-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES"))
