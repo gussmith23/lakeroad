@@ -660,14 +660,15 @@
                            (let ([ccu2c-out (make-lattice-ccu2c-expr
                                              #:inputs (logical-to-physical-mapping
                                                        (choose (ltop-bitwise) (ltop-bitwise-reverse))
-                                                       logical-inputs)
+                                                       (lr:list logical-inputs))
                                              #:CIN previous-cout
-                                             #:INIT0 lutmem
-                                             #:INIT1 lutmem)])
+                                             #:INIT0 (lr:bv lutmem)
+                                             #:INIT1 (lr:bv lutmem))])
 
-                             (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))])
+                             (list (lr:take ccu2c-out (lr:integer 2))
+                                   (lr:list-ref ccu2c-out (lr:integer 2))))])
                this-cout))
-           initial-cin
+           (lr:bv initial-cin)
            logical-inputs-per-ccu2c))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
