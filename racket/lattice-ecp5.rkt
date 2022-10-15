@@ -201,11 +201,12 @@
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
                                  #:INJECT1_1 [INJECT1_1 #f])
-  (lattice-ecp5-ccu2c (or (lr:bv INIT0) (lr:bv (??* (bitvector 16)))) ; INIT0
-                      (or (lr:bv INIT1) (lr:bv (??* (bitvector 16)))) ; INIT1
-                      (or INJECT1_0 (lr:bv (??* (bitvector 1)))) ; INJECT1_0
-                      (or INJECT1_1 (lr:bv (??* (bitvector 1)))) ; INJECT1_1
-                      (or CIN (lr:bv (??* (bitvector 1)))) ; CIN
+  (define f (λ (v) (if (bv? v) (lr:bv v) v)))
+  (lattice-ecp5-ccu2c (or (f INIT0) (lr:bv (??* (bitvector 16)))) ; INIT0
+                      (or (f INIT1) (lr:bv (??* (bitvector 16)))) ; INIT1
+                      (or (f INJECT1_0) (lr:bv (??* (bitvector 1)))) ; INJECT1_0
+                      (or (f INJECT1_1) (lr:bv (??* (bitvector 1)))) ; INJECT1_1
+                      (or (f CIN) (lr:bv (??* (bitvector 1)))) ; CIN
                       inputs))
 
 ;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
