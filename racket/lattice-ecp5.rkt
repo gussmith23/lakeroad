@@ -114,7 +114,7 @@
          (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
 
 (define (make-lattice-lut4-expr logical-inputs #:INIT [INIT #f])
-  (lattice-ecp5-lut4 (or INIT (??* (bitvector 16))) logical-inputs))
+  (lattice-ecp5-lut4 (or INIT (lr:bv (??* (bitvector 16)))) logical-inputs))
 
 (define (make-lattice-lut5-expr logical-inputs #:INIT [INIT #f] #:DECOMPOSE [decompose #t])
   (if decompose
@@ -201,11 +201,11 @@
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
                                  #:INJECT1_1 [INJECT1_1 #f])
-  (lattice-ecp5-ccu2c (lr:bv (or INIT0 (??* (bitvector 16)))) ; INIT0
-                      (lr:bv (or INIT1 (??* (bitvector 16)))) ; INIT1
-                      (lr:bv (or INJECT1_0 (??* (bitvector 1)))) ; INJECT1_0
-                      (lr:bv (or INJECT1_1 (??* (bitvector 1)))) ; INJECT1_1
-                      (lr:bv (or CIN (??* (bitvector 1)))) ; CIN
+  (lattice-ecp5-ccu2c (or INIT0 (lr:bv (??* (bitvector 16)))) ; INIT0
+                      (or INIT1 (lr:bv (??* (bitvector 16)))) ; INIT1
+                      (or INJECT1_0 (lr:bv (??* (bitvector 1)))) ; INJECT1_0
+                      (or INJECT1_1 (lr:bv (??* (bitvector 1)))) ; INJECT1_1
+                      (or CIN (lr:bv (??* (bitvector 1)))) ; CIN
                       inputs))
 
 ;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
