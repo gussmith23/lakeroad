@@ -201,8 +201,8 @@
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
                                  #:INJECT1_1 [INJECT1_1 #f])
-  (lattice-ecp5-ccu2c (or INIT0 (lr:bv (??* (bitvector 16)))) ; INIT0
-                      (or INIT1 (lr:bv (??* (bitvector 16)))) ; INIT1
+  (lattice-ecp5-ccu2c (or (lr:bv INIT0) (lr:bv (??* (bitvector 16)))) ; INIT0
+                      (or (lr:bv INIT1) (lr:bv (??* (bitvector 16)))) ; INIT1
                       (or INJECT1_0 (lr:bv (??* (bitvector 1)))) ; INJECT1_0
                       (or INJECT1_1 (lr:bv (??* (bitvector 1)))) ; INJECT1_1
                       (or CIN (lr:bv (??* (bitvector 1)))) ; CIN
