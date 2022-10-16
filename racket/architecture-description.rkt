@@ -481,73 +481,72 @@
      (define di-expr (cdr (or (assoc "DI" port-map) (error "Expected DI"))))
      (define s-expr (cdr (or (assoc "S" port-map) (error "Expected S"))))
 
-     ;;; Carry is implemented recursively. We implement the previous n-1 bits by recursively
-     ;;; constructing a carry interface, and then we implement the nth bit by implementing a simple
-     ;;; mux and XOR circuit.
-     (if (equal? width 0)
-         ;;; Base case of recursion. Construct a carry of length 0: it just passes the carryin
-         ;;; through to carryout!
-         (list (lr:make-immutable-hash (lr:list (list (lr:cons (lr:symbol 'CO) ci-expr))))
-               ;;; Unpack internal data: (list mux-internal-data lut-internal-data).
-               (list (if (equal? #f internal-data) #f (first internal-data))
-                     (if (equal? #f internal-data) #f (second internal-data))))
+     ;;; Carry is implemented recursively. An n-length carry chain can be seen as a 1-length carry
+     ;;; chain connected to an n-1-length carry chain.
+     (if (equal? width 1)
+         ;;; Base case of recursion. Construct a carry of length 1, which is a mux and an XOR.
+         (match-let*
+             ([mux-internal-data (if (equal? #f internal-data) #f (first internal-data))]
+              [lut-internal-data (if (equal? #f internal-data) #f (second internal-data))]
+              ;;; Construct a mux that muxes the 1-bit DI and the carry in, using the 1-bit S (the sum
+              ;;; signal) as the selector signal. Note that the fact that the selector signal is also
+              ;;; named "S" is a coincidence: it's not the same signal as the sum signal.
+              [(list mux-expr mux-internal-data)
+               (construct-interface architecture-description
+                                    (interface-identifier "MUX" (hash "num_inputs" 2))
+                                    (list (cons "I0" di-expr) (cons "I1" ci-expr) (cons "S" s-expr))
+                                    #:internal-data mux-internal-data)]
+
+              ;;; Construct a LUT over the 1-bit S and the carry in, to compute the final sum.
+              [(list lut-expr lut-internal-data)
+               (construct-interface architecture-description
+                                    (interface-identifier "LUT" (hash "num_inputs" 2))
+                                    (list (cons "I0" s-expr) (cons "I1" ci-expr))
+                                    #:internal-data lut-internal-data)]
+
+              [out-expr (lr:make-immutable-hash
+                         (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref mux-expr 'O))
+                                        (lr:cons (lr:symbol 'O) (lr:hash-ref lut-expr 'O)))))])
+
+           (list out-expr (list mux-internal-data lut-internal-data)))
          ;;; Recursive case.
          (match-let*
-             (;;; Construct a carry of length width - 1.
-              ;;; Start by getting the implementation of the previous n-1 bits.
-              [(list previous-carry-impl-expr (list mux-internal-data lut-internal-data))
+             (;;; Construct a carry of length 1.
+              [(list carry-0-expr internal-data)
                (construct-interface
                 architecture-description
-                (interface-identifier "carry" (hash "width" (sub1 width)))
+                (interface-identifier "carry" (hash "width" 1))
                 (list
                  (cons "CI" ci-expr)
                  ;;; We use max to ensure that we don't try to extract at a negative number when width
                  ;;; = 1. When width = 1, we will hit the base case above upon recursion and DI and S
                  ;;; won't be accessed, so their values don't matter.
-                 (cons "DI"
-                       (lr:extract (lr:integer (max 0 (sub1 (sub1 width)))) (lr:integer 0) di-expr))
-                 (cons "S"
-                       (lr:extract (lr:integer (max 0 (sub1 (sub1 width)))) (lr:integer 0) s-expr))))]
-
-              ;;; Construct a mux that muxes the top bit of DI and the carry in, using the top bit of S
-              ;;; (the sum signal) as the selector signal. Note that the fact that the selector signal
-              ;;; is also named "S" is a coincidence: it's not the same signal as the sum signal.
-              [(list mux-expr mux-internal-data)
+                 (cons "DI" (lr:extract (lr:integer 0) (lr:integer 0) di-expr))
+                 (cons "S" (lr:extract (lr:integer 0) (lr:integer 0) s-expr)))
+                #:internal-data internal-data)]
+              ;;; Construct a carry of length n - 1.
+              [(list carry-1-expr internal-data)
                (construct-interface
                 architecture-description
-                (interface-identifier "MUX" (hash "num_inputs" 2))
-                (list
-                 (cons "I0" (lr:extract (lr:integer (sub1 width)) (lr:integer (sub1 width)) di-expr))
-                 (cons "I1" ci-expr)
-                 (cons "S" (lr:extract (lr:integer (sub1 width)) (lr:integer (sub1 width)) s-expr)))
-                #:internal-data mux-internal-data)]
-
-              ;;; Construct a LUT over the top bit of S and the carry in, to compute the final sum.
-              [(list lut-expr lut-internal-data)
-               (construct-interface
-                architecture-description
-                (interface-identifier "LUT" (hash "num_inputs" 2))
-                (list
-                 (cons "I0" (lr:extract (lr:integer (sub1 width)) (lr:integer (sub1 width)) s-expr))
-                 (cons "I1" (lr:hash-ref previous-carry-impl-expr 'CO)))
-                #:internal-data lut-internal-data)]
+                (interface-identifier "carry" (hash "width" (sub1 width)))
+                ;;; Carry in is the carry out of the carry of length 1.
+                (list (cons "CI" (lr:hash-ref carry-0-expr 'CO))
+                      (cons "DI" (lr:extract (lr:integer (sub1 width)) (lr:integer 1) di-expr))
+                      (cons "S" (lr:extract (lr:integer (sub1 width)) (lr:integer 1) s-expr))))]
 
               [out-expr
                (lr:make-immutable-hash
                 ;;; Carry-out is computed by the last mux.
-                (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref mux-expr 'O))
+                (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref carry-1-expr 'CO))
                                ;;; Sum output of the entire carry is all of the output sum bits
                                ;;; concatted together. In the case of width=1, it's just the single
                                ;;; output sum bit computed by the lut.
                                (lr:cons (lr:symbol 'O)
-                                        (if (equal? width 1)
-                                            (lr:hash-ref lut-expr 'O)
-                                            (lr:concat (lr:list (list (lr:hash-ref lut-expr 'O)
-                                                                      (lr:hash-ref
-                                                                       previous-carry-impl-expr
-                                                                       'O)))))))))])
+                                        (lr:concat (lr:list (list (lr:hash-ref carry-1-expr 'O)
+                                                                  (lr:hash-ref carry-0-expr
+                                                                               'O))))))))])
 
-           (list out-expr (list mux-internal-data lut-internal-data))))]
+           (list out-expr internal-data)))]
 
     ;;; Implement a mux2 with a LUT.
     ;;;
