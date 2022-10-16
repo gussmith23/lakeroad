@@ -27,7 +27,7 @@ implementations:
             { name: CI, direction: input, bitwidth: 1, value: CI },
             { name: DI, direction: input, bitwidth: 8, value: DI },
             { name: S, direction: input, bitwidth: 8, value: S },
-            { name: CO, direction: output, bitwidth: 1, value: CO },
+            { name: CO, direction: output, bitwidth: 8, value: CO },
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
-    outputs: { O: O, CO: CO }
+    outputs: { O: O, CO: (bit 7 CO) }
