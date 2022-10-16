@@ -87,6 +87,38 @@
        [out-expr (lr:hash-ref carry-expr 'O)])
     out-expr))
 
+;;; Comparison sketch generator.
+;;;
+;;; Very similar to bitwise with carry, but computes a function on *both* inputs to the carry. Returns
+;;; a single bit. Given this name as it can be used to implement comparisions (especially because it
+;;; just returns a single bit!)
+;;;
+;;; Note that we can adjust these sketches so that they return hashmaps, so both outputs are
+;;; accessible.
+(define (comparison-sketch-generator architecture-description
+                                     logical-inputs
+                                     num-logical-inputs
+                                     bitwidth)
+  (match-let* (;;; Generate a bitwise sketch over the inputs. We use this to generate the S signal.
+               [bitwise-sketch-0 (bitwise-sketch-generator architecture-description
+                                                           logical-inputs
+                                                           num-logical-inputs
+                                                           bitwidth)]
+               [bitwise-sketch-1 (bitwise-sketch-generator architecture-description
+                                                           logical-inputs
+                                                           num-logical-inputs
+                                                           bitwidth)]
+
+               [(list carry-expr _) (construct-interface
+                                     architecture-description
+                                     (interface-identifier "carry" (hash "width" bitwidth))
+                                     (list (cons "CI" (lr:bv (?? (bitvector 1))))
+                                           (cons "DI" bitwise-sketch-0)
+                                           (cons "S" bitwise-sketch-1)))]
+
+               [out-expr (lr:hash-ref carry-expr 'CO)])
+    out-expr))
+
 (module+ test
   (require rackunit
            "interpreter.rkt"
@@ -167,6 +199,18 @@
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
   (sketch-test
+   #:name "comparison sketch generator on ultrascale"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
    #:name "bitwise sketch generator on lattice"
    #:defines (define-symbolic a b (bitvector 8))
    #:bv-expr (bvand a b)
@@ -184,6 +228,18 @@
    #:bv-expr (bvadd a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+
+  (sketch-test
+   #:name "comparison sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator comparison-sketch-generator
    #:module-semantics
    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
@@ -215,6 +271,25 @@
    #:bv-expr (bvadd a b)
    #:architecture-description (sofa-architecture-description)
    #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+
+  (sketch-test
+   #:name "comparison sketch on SOFA"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator comparison-sketch-generator
    #:module-semantics
    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
    #:include-dirs
