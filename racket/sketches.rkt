@@ -56,7 +56,7 @@
                                   architecture-description
                                   (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
                                   port-map
-                                  #:internal-data internal-data))
+                                  #:internal-data lut-internal-data))
                           'O))))]
        [logical-outputs (physical-to-logical-mapping (choose* (ptol-bitwise) (ptol-bitwise-reverse))
                                                      physical-outputs)]
