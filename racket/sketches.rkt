@@ -372,17 +372,29 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
-  ;;; (sketch-test
-  ;;;  #:name "multiplication sketch generator on ultrascale"
-  ;;;  #:defines (define-symbolic a b (bitvector 8))
-  ;;;  #:bv-expr (bvmul a b)
-  ;;;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-  ;;;  #:sketch-generator multiplication-sketch-generator
-  ;;;  #:module-semantics
-  ;;;  (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-  ;;;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-  ;;;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+  (sketch-test
+   #:name "multiplication sketch generator on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "multiplication sketch generator on ultrascale (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
   (sketch-test
    #:name "bitwise sketch generator on lattice"
@@ -457,8 +469,32 @@
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
-   #:name "multiplication sketch generator on lattice"
+   #:name "multiplication sketch generator on lattice (1 bit)"
+   #:defines (define-symbolic a b (bitvector 1))
+   #:bv-expr (bvmul (zero-extend a (bitvector 1)) (zero-extend b (bitvector 1)))
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+
+  (sketch-test
+   #:name "multiplication sketch generator on lattice (2 bit)"
    #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+
+  (sketch-test
+   #:name "multiplication sketch generator on lattice (3 bit)"
+   #:defines (define-symbolic a b (bitvector 3))
    #:bv-expr (bvmul a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator multiplication-sketch-generator
@@ -512,6 +548,82 @@
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (sofa-architecture-description)
    #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+
+  (sketch-test
+   #:name "multiplication sketch on SOFA (1bit)"
+   #:defines (define-symbolic a b (bitvector 1))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+
+  (sketch-test
+   #:name "multiplication sketch on SOFA (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+
+  (sketch-test
+   #:name "multiplication sketch on SOFA (3 bits)"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+
+  (sketch-test
+   #:name "multiplication sketch on SOFA (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
    #:module-semantics
    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
    #:include-dirs
