@@ -532,7 +532,8 @@
                 ;;; Carry in is the carry out of the carry of length 1.
                 (list (cons "CI" (lr:hash-ref carry-0-expr 'CO))
                       (cons "DI" (lr:extract (lr:integer (sub1 width)) (lr:integer 1) di-expr))
-                      (cons "S" (lr:extract (lr:integer (sub1 width)) (lr:integer 1) s-expr))))]
+                      (cons "S" (lr:extract (lr:integer (sub1 width)) (lr:integer 1) s-expr)))
+                #:internal-data internal-data)]
 
               [out-expr
                (lr:make-immutable-hash
