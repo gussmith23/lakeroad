@@ -313,6 +313,7 @@
 
         (check-true (normal? result))
         (define soln (result-value result))
+        (check-true (sat? soln))
 
         (define lr-expr
           (evaluate
