@@ -401,6 +401,42 @@
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
+   #:name "bitwise with carry sketch generator on lattice (3 bit)"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+
+  (sketch-test
+   #:name "bitwise with carry sketch generator on lattice (1 bit)"
+   #:defines (define-symbolic a b (bitvector 1))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+
+  (sketch-test
+   #:name "bitwise with carry sketch generator on lattice (9 bit)"
+   #:defines (define-symbolic a b (bitvector 9))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+
+  (sketch-test
    #:name "comparison sketch generator on lattice"
    #:defines (define-symbolic a b (bitvector 2))
    #:bv-expr (bool->bitvector (bveq a b))

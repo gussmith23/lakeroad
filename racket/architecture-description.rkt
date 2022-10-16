@@ -458,6 +458,115 @@
 
        (list out-lut-expr internal-data))]
 
+    ;;; Implement a larger or smaller carry chain by chaining together an existing carry chain.
+    [;;; Check: They're asking for a carry.
+     (and (equal? "carry" (interface-identifier-name interface-id))
+          ;;; Check: The architecture description implements any carry. Note that we have already
+          ;;; checked whether the architecture description implements the exact carry requested, so we
+          ;;; know this carry is not the correct size.
+          (findf
+           (lambda (impl)
+             (equal? "carry" (interface-identifier-name (interface-implementation-identifier impl))))
+           (architecture-description-interface-implementations architecture-description)))
+
+     (match-let*
+         ([_ 0] ;;; Dummy line to stop formatter from moving my comments.
+
+          [ci-expr (cdr (or (assoc "CI" port-map) (error "Expected CI")))]
+          [di-expr (cdr (or (assoc "DI" port-map) (error "Expected DI")))]
+          [s-expr (cdr (or (assoc "S" port-map) (error "Expected S")))]
+
+          ;;; Unpack internal data.
+          [carry-internal-data (if internal-data (first internal-data) #f)]
+
+          ;;; The width requested by the user.
+          [requested-width (hash-ref (interface-identifier-parameters interface-id) "width")]
+
+          ;;; The carry we actually have implemented.
+          ;;; TODO(@gussmith23) should probably find the largest one that works, or something.
+          [our-carry-impl
+           (findf (lambda (impl)
+                    (equal? "carry"
+                            (interface-identifier-name (interface-implementation-identifier impl))))
+                  (architecture-description-interface-implementations architecture-description))]
+
+          ;;; Our carry's width
+          [our-carry-width (hash-ref (interface-identifier-parameters
+                                      (interface-implementation-identifier our-carry-impl))
+                                     "width")]
+
+          ;;; The number of our carries needed to implement a carry of the requested size.
+          [num-carries-needed (ceiling (/ requested-width our-carry-width))]
+
+          ;;; Instantiate carry internal data to be shared across all of the carries.
+          [(list _ carry-internal-data)
+           (construct-interface-internal
+            architecture-description
+            (interface-implementation-identifier our-carry-impl)
+            (list (cons "CI" 'unused) (cons "DI" 'unused) (cons "S" 'unused))
+            #:internal-data carry-internal-data)]
+
+          ;;; Function for fold call. We need a fold because the carryin/carryout is passed
+          ;;; between each carry.
+          ;;; - carry-i: The index of the carry to create next.
+          ;;; - carry-expr: The carry expression built up so far.
+          ;;; Generates a new carry expression, which takes the old carryout as the new carryin.
+          [fold-fn
+           (lambda (carry-i carry-expr)
+             (match-let*
+                 (;;; This carry's carryin is the previous carry's carryout.
+                  [this-ci (if (equal? 'first carry-expr) ci-expr (lr:hash-ref carry-expr 'CO))]
+                  ;;; This carry's DI/S signals are a portion of the overall DI/S signals provided by
+                  ;;; the user.
+                  ;;;
+                  ;;; This function extracts the correct portion of the larger DI/S signal, and pads
+                  ;;; it if necessary.
+                  [extract-fn
+                   (lambda (expr)
+                     (let* ([h (min (sub1 (* (+ carry-i 1) our-carry-width)) (sub1 requested-width))]
+                            [l (* carry-i our-carry-width)]
+                            [padding (- our-carry-width (add1 (- h l)))]
+                            [extract-expr (lr:extract (lr:integer h) (lr:integer l) expr)])
+                       (if (equal? padding 0)
+                           extract-expr
+                           (lr:concat (lr:list (list (lr:bv (bv 0 padding)) extract-expr))))))]
+                  [this-di (extract-fn di-expr)]
+                  [this-s (extract-fn s-expr)]
+                  [this-carry (first (construct-interface-internal
+                                      architecture-description
+                                      (interface-implementation-identifier our-carry-impl)
+                                      (list (cons "CI" this-ci) (cons "DI" this-di) (cons "S" this-s))
+                                      #:internal-data carry-internal-data))]
+
+                  ;;; The new carry expression concatenates the value of the previous carries' O with
+                  ;;; the O output of this carry. The new carry's carryout is just the carryout of the
+                  ;;; carry we just created.
+                  [new-carry-expr
+                   (lr:make-immutable-hash
+                    (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref this-carry 'CO))
+                                   (lr:cons (lr:symbol 'O)
+                                            ;;; The first time, we don't have a previous carry to
+                                            ;;; concat with.
+                                            (if (equal? 'first carry-expr)
+                                                (lr:hash-ref this-carry 'O)
+                                                (lr:concat (lr:list (list (lr:hash-ref this-carry 'O)
+                                                                          (lr:hash-ref carry-expr
+                                                                                       'O)))))))))])
+               new-carry-expr))]
+
+          ;;; Perform the fold.
+          [out-expr (foldl fold-fn 'first (range num-carries-needed))]
+
+          ;;; Finally, extract just the bits that we need from the O output. Leave CO the same.
+          [out-expr (lr:make-immutable-hash
+                     (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref out-expr 'CO))
+                                    (lr:cons (lr:symbol 'O)
+                                             (lr:extract (lr:integer (sub1 requested-width))
+                                                         (lr:integer 0)
+                                                         (lr:hash-ref out-expr 'O))))))])
+
+       (list out-expr (list carry-internal-data)))]
+
     ;;; Implement a carry chain when one doesn't exist.
     [;;; Check: They're asking for a carry.
      (and (equal? "carry" (interface-identifier-name interface-id))
