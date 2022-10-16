@@ -119,6 +119,73 @@
                [out-expr (lr:hash-ref carry-expr 'CO)])
     out-expr))
 
+;;; Logical inputs should be a lr:list of length 2, where both bitvectors are the same length.
+;;;
+;;; We implement multiplication as (using four bits as an example):
+;;;
+;;;     a3   a2   a1   a0
+;;; x   b3   b2   b1   b0
+;;; ---------------------
+;;;   a3b0 a2b0 a1b0 a0b0
+;;;   a2b1 a1b1 a0b1 1'b0
+;;;   a1b2 a0b2 1'b0 1'b0
+;;; + a0b3 1'b0 1'b0 1'b0
+;;; ---------------------
+;;;              <answer>
+;;;
+(define (multiplication-sketch-generator architecture-description
+                                         logical-inputs
+                                         num-logical-inputs
+                                         bitwidth)
+  (match-let*
+      ([_ 0] ;;; Dummy line to prevent formatter from messing up my comments.
+
+       [a-expr (lr:list-ref logical-inputs (lr:integer 0))]
+       [b-expr (lr:list-ref logical-inputs (lr:integer 1))]
+
+       ;;; Generate internal data to be shared across all AND luts.
+       [(list _ and-lut-internal-data)
+        (construct-interface architecture-description
+                             (interface-identifier "LUT" (hash "num_inputs" 2))
+                             (list (cons "I0" 'unused) (cons "I1" 'unused) (cons "I2" 'unused)))]
+
+       ;;; List of ANDs.
+       ;;;
+       ;;; List of `bitwidth` expressions which have bitwidth `bitwidth`.
+       [to-be-added-exprs
+        (for/list ([j bitwidth])
+          (lr:concat
+           ;;; Note that we reverse the list; we produce ands in the order [a0b0, a1b0, a2b0, ...],
+           ;;; which is LSB-first. So we reverse so that MSB is first when we concat. Note that it
+           ;;; doesn't actually seem to matter---I suspect because bitwise-reverse can do the
+           ;;; reversing during addition. But it's better to have it correct here.
+           (lr:list
+            (reverse
+             (for/list ([i bitwidth])
+               ;;; Only generate ANDs for the correct bits. Refer to our diagram above if you want to
+               ;;; double check the condition on this if statement.
+               (if (< i (- bitwidth j))
+                   (lr:hash-ref
+                    (first (construct-interface
+                            architecture-description
+                            (interface-identifier "LUT" (hash "num_inputs" 2))
+                            (list (cons "I0" (lr:extract (lr:integer i) (lr:integer i) a-expr))
+                                  (cons "I1" (lr:extract (lr:integer j) (lr:integer j) b-expr)))
+                            #:internal-data and-lut-internal-data))
+                    'O)
+                   (lr:bv (bv 0 1))))))))]
+
+       ;;; TODO(@gussmith23): support more than 2 inputs on bitwise/bitwise-with-carry.
+       [fold-fn (lambda (next-to-add-expr acc-expr)
+                  (bitwise-with-carry-sketch-generator architecture-description
+                                                       (lr:list (list next-to-add-expr acc-expr))
+                                                       2
+                                                       bitwidth))]
+
+       [out-expr (foldl fold-fn (lr:bv (bv 0 bitwidth)) to-be-added-exprs)])
+
+    out-expr))
+
 (module+ test
   (require rackunit
            "interpreter.rkt"
@@ -210,6 +277,18 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
+  ;;; (sketch-test
+  ;;;  #:name "multiplication sketch generator on ultrascale"
+  ;;;  #:defines (define-symbolic a b (bitvector 8))
+  ;;;  #:bv-expr (bvmul a b)
+  ;;;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+  ;;;  #:sketch-generator multiplication-sketch-generator
+  ;;;  #:module-semantics
+  ;;;  (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+  ;;;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+  ;;;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
   (sketch-test
    #:name "bitwise sketch generator on lattice"
    #:defines (define-symbolic a b (bitvector 8))
@@ -240,6 +319,18 @@
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+
+  (sketch-test
+   #:name "multiplication sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
    #:module-semantics
    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
