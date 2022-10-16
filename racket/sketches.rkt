@@ -296,9 +296,6 @@
                             (length (symbolics bv-expr))
                             (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr)))))
 
-        (pretty-display name)
-        (pretty-display (set-subtract (list->set (symbolics sketch)) (list->set (symbolics bv-expr))))
-
         (define result
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
                                            #:guarantee
