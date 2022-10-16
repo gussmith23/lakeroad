@@ -277,7 +277,10 @@
            "lattice-ecp5-ccu2c.rkt"
            "xilinx-ultrascale-plus-lut6.rkt"
            "xilinx-ultrascale-plus-carry8.rkt"
-           "sofa-frac-lut4.rkt")
+           "sofa-frac-lut4.rkt"
+           rosette/solver/smt/boolector)
+
+  (current-solver (boolector))
 
   (define-syntax-rule (sketch-test #:name name
                                    #:defines defines
