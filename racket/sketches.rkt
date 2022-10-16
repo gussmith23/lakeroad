@@ -64,6 +64,8 @@
     out-expr))
 
 ;;; Bitwise with carry sketch generator.
+;;;
+;;; Suitable for arithmetic operations like addition and subtraction.
 (define (bitwise-with-carry-sketch-generator architecture-description
                                              logical-inputs
                                              num-logical-inputs
