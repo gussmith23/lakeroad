@@ -458,6 +458,124 @@
 
        (list out-lut-expr internal-data))]
 
+    ;;; Implement a carry chain when one doesn't exist.
+    [;;; Check: They're asking for a carry.
+     (and (equal? "carry" (interface-identifier-name interface-id))
+          ;;; Check: The architecture description implements any LUT. TODO: actually, it needs to
+          ;;; implement a LUT of size 2 or greater...
+          (findf
+           (lambda (impl)
+             (equal? "LUT" (interface-identifier-name (interface-implementation-identifier impl))))
+           (architecture-description-interface-implementations architecture-description))
+          ;;; Check: the architecture doesn't implement a carry (otherwise we'll just implement this
+          ;;; with a carry).
+          (equal?
+           #f
+           (findf (lambda (impl)
+                    (equal? "carry"
+                            (interface-identifier-name (interface-implementation-identifier impl))))
+                  (architecture-description-interface-implementations architecture-description))))
+
+     (define width (hash-ref (interface-identifier-parameters interface-id) "width"))
+     (define ci-expr (cdr (or (assoc "CI" port-map) (error "Expected CI"))))
+     (define di-expr (cdr (or (assoc "DI" port-map) (error "Expected DI"))))
+     (define s-expr (cdr (or (assoc "S" port-map) (error "Expected S"))))
+
+     ;;; Carry is implemented recursively. We implement the previous n-1 bits by recursively
+     ;;; constructing a carry interface, and then we implement the nth bit by implementing a simple
+     ;;; mux and XOR circuit.
+     (if (equal? width 0)
+         ;;; Base case of recursion. Construct a carry of length 0: it just passes the carryin
+         ;;; through to carryout!
+         (list (lr:make-immutable-hash (lr:list (list (lr:cons (lr:symbol 'CO) ci-expr))))
+               ;;; Unpack internal data: (list mux-internal-data lut-internal-data).
+               (list (if (equal? #f internal-data) #f (first internal-data))
+                     (if (equal? #f internal-data) #f (second internal-data))))
+         ;;; Recursive case.
+         (match-let*
+             (;;; Construct a carry of length width - 1.
+              ;;; Start by getting the implementation of the previous n-1 bits.
+              [(list previous-carry-impl-expr (list mux-internal-data lut-internal-data))
+               (construct-interface
+                architecture-description
+                (interface-identifier "carry" (hash "width" (sub1 width)))
+                (list
+                 (cons "CI" ci-expr)
+                 ;;; We use max to ensure that we don't try to extract at a negative number when width
+                 ;;; = 1. When width = 1, we will hit the base case above upon recursion and DI and S
+                 ;;; won't be accessed, so their values don't matter.
+                 (cons "DI"
+                       (lr:extract (lr:integer (max 0 (sub1 (sub1 width)))) (lr:integer 0) di-expr))
+                 (cons "S"
+                       (lr:extract (lr:integer (max 0 (sub1 (sub1 width)))) (lr:integer 0) s-expr))))]
+
+              ;;; Construct a mux that muxes the top bit of DI and the carry in, using the top bit of S
+              ;;; (the sum signal) as the selector signal. Note that the fact that the selector signal
+              ;;; is also named "S" is a coincidence: it's not the same signal as the sum signal.
+              [(list mux-expr mux-internal-data)
+               (construct-interface
+                architecture-description
+                (interface-identifier "MUX" (hash "num_inputs" 2))
+                (list
+                 (cons "I0" (lr:extract (lr:integer (sub1 width)) (lr:integer (sub1 width)) di-expr))
+                 (cons "I1" ci-expr)
+                 (cons "S" (lr:extract (lr:integer (sub1 width)) (lr:integer (sub1 width)) s-expr)))
+                #:internal-data mux-internal-data)]
+
+              ;;; Construct a LUT over the top bit of S and the carry in, to compute the final sum.
+              [(list lut-expr lut-internal-data)
+               (construct-interface
+                architecture-description
+                (interface-identifier "LUT" (hash "num_inputs" 2))
+                (list
+                 (cons "I0" (lr:extract (lr:integer (sub1 width)) (lr:integer (sub1 width)) s-expr))
+                 (cons "I1" (lr:hash-ref previous-carry-impl-expr 'CO)))
+                #:internal-data lut-internal-data)]
+
+              [out-expr
+               (lr:make-immutable-hash
+                ;;; Carry-out is computed by the last mux.
+                (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref mux-expr 'O))
+                               ;;; Sum output of the entire carry is all of the output sum bits
+                               ;;; concatted together. In the case of width=1, it's just the single
+                               ;;; output sum bit computed by the lut.
+                               (lr:cons (lr:symbol 'O)
+                                        (if (equal? width 1)
+                                            (lr:hash-ref lut-expr 'O)
+                                            (lr:concat (lr:list (list (lr:hash-ref lut-expr 'O)
+                                                                      (lr:hash-ref
+                                                                       previous-carry-impl-expr
+                                                                       'O)))))))))])
+
+           (list out-expr (list mux-internal-data lut-internal-data))))]
+
+    ;;; Implement a mux2 with a LUT.
+    ;;;
+    ;;; TODO(@gussmith23): Generalize to multi-input mux.
+    [;;; Check: They're asking for a mux2.
+     (and
+      (equal? "MUX" (interface-identifier-name interface-id))
+      (equal? (hash-ref (interface-identifier-parameters interface-id) "num_inputs") 2)
+      ;;; Check: The architecture description implements any LUT. TODO: actually, it needs to
+      ;;; implement a LUT of size 2 or greater...
+      (findf (lambda (impl)
+               (equal? "LUT" (interface-identifier-name (interface-implementation-identifier impl))))
+             (architecture-description-interface-implementations architecture-description))
+      ;;; Check: the architecture doesn't implement a mux (otherwise we'll just implement this
+      ;;; with a mux).
+      (equal?
+       #f
+       (findf (lambda (impl)
+                (equal? "MUX" (interface-identifier-name (interface-implementation-identifier impl))))
+              (architecture-description-interface-implementations architecture-description))))
+
+     (construct-interface architecture-description
+                          (interface-identifier "LUT" (hash "num_inputs" 3))
+                          (list (cons "I0" (cdr (or (assoc "I0" port-map) (error "Expected I0"))))
+                                (cons "I1" (cdr (or (assoc "I1" port-map) (error "Expected I1"))))
+                                (cons "I2" (cdr (or (assoc "S" port-map) (error "Expected S")))))
+                          #:internal-data internal-data)]
+
     [else
      (error
       "Interface not implemented, and no way to implement it with the interfaces already implemented: "
