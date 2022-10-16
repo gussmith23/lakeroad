@@ -200,6 +200,9 @@
 ;;; ---------------------
 ;;;              <answer>
 ;;;
+;;; Note that this works for signed, two's complement multiplication where the result is the same
+;;; bitwidth as the inputs. I don't think this will work for "correct" multiplication, where the
+;;; result is twice the bitwidth of the inputs.
 (define (multiplication-sketch-generator architecture-description
                                          logical-inputs
                                          num-logical-inputs
@@ -226,7 +229,7 @@
        ;;;
        ;;; List of `bitwidth` expressions which have bitwidth `bitwidth`.
        [to-be-added-exprs
-        (for/list ([j bitwidth])
+        (for/list ([row-i bitwidth])
           (lr:concat
            ;;; Note that we reverse the list; we produce ands in the order [a0b0, a1b0, a2b0, ...],
            ;;; which is LSB-first. So we reverse so that MSB is first when we concat. Note that it
@@ -234,19 +237,23 @@
            ;;; reversing during addition. But it's better to have it correct here.
            (lr:list
             (reverse
-             (for/list ([i bitwidth])
+             (for/list ([col-i bitwidth])
                ;;; Only generate ANDs for the correct bits. Refer to our diagram above if you want to
                ;;; double check the condition on this if statement.
-               (if (< i (- bitwidth j))
+               (if (> row-i col-i)
+                   (lr:bv (bv 0 1))
                    (lr:hash-ref
-                    (first (construct-interface
-                            architecture-description
-                            (interface-identifier "LUT" (hash "num_inputs" 2))
-                            (list (cons "I0" (lr:extract (lr:integer i) (lr:integer i) a-expr))
-                                  (cons "I1" (lr:extract (lr:integer j) (lr:integer j) b-expr)))
-                            #:internal-data and-lut-internal-data))
-                    'O)
-                   (lr:bv (bv 0 1))))))))]
+                    (first
+                     (construct-interface
+                      architecture-description
+                      (interface-identifier "LUT" (hash "num_inputs" 2))
+                      (list (cons "I0"
+                                  (lr:extract (lr:integer (- col-i row-i))
+                                              (lr:integer (- col-i row-i))
+                                              a-expr))
+                            (cons "I1" (lr:extract (lr:integer row-i) (lr:integer row-i) b-expr)))
+                      #:internal-data and-lut-internal-data))
+                    'O)))))))]
 
        ;;; Generate the internal data that will be shared across all of the sketches used to compute
        ;;; the additions.
