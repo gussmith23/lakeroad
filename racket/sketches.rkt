@@ -49,6 +49,8 @@
 
        ;;; Unpack the internal data.
        [lut-internal-data (if internal-data (first internal-data) #f)]
+       [logical-to-physical-chooser (if internal-data (second internal-data) (?? boolean?))]
+       [physical-to-logical-chooser (if internal-data (third internal-data) (?? boolean?))]
 
        ;;; First, we construct a LUT just to get the `internal-data`. We will reuse this internal data
        ;;; to create more LUTs which use the same LUT memory. Note that if lut-internal-data is not #f
@@ -65,8 +67,9 @@
          #:internal-data lut-internal-data)]
 
        ;;; Get physical inputs to luts by performing a logical-to-physical mapping.
-       [physical-inputs (logical-to-physical-mapping (choose* (ltop-bitwise) (ltop-bitwise-reverse))
-                                                     logical-inputs)]
+       [physical-inputs (logical-to-physical-mapping
+                         (if logical-to-physical-chooser (ltop-bitwise) (ltop-bitwise-reverse))
+                         logical-inputs)]
 
        ;;; Construct the LUTs.
        [physical-outputs
@@ -88,11 +91,12 @@
        ;;; first result.
        ;;;
        ;;; TODO(@gussmith23): Could support more results in the future.
-       [logical-outputs (physical-to-logical-mapping (choose* (ptol-bitwise) (ptol-bitwise-reverse))
-                                                     physical-outputs)]
+       [logical-outputs (physical-to-logical-mapping
+                         (if physical-to-logical-chooser (ptol-bitwise) (ptol-bitwise-reverse))
+                         physical-outputs)]
        [out-expr (lr:list-ref logical-outputs (lr:integer 0))])
 
-    (list out-expr (list lut-internal-data))))
+    (list out-expr (list lut-internal-data logical-to-physical-chooser physical-to-logical-chooser))))
 
 ;;; Bitwise with carry sketch generator.
 ;;;
