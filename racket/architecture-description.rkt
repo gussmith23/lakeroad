@@ -265,9 +265,9 @@
                              (parse-dsl (module-instance-parameter-value parameter)
                                         (λ (s)
                                           (cdr (or (assoc (symbol->string s) internal-data)
-                                                   (error "Did not find parameter ~a in ~a"
-                                                          s
-                                                          internal-data)))))))
+                                                   (error (format "Did not find parameter ~a in ~a"
+                                                                  s
+                                                                  internal-data))))))))
                           (module-instance-params module-instance))]
          [filepath (module-instance-filepath module-instance)]
 
