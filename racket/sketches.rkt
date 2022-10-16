@@ -8,6 +8,15 @@
 ;;; architecture description, the sketch generator is able to instantiate common interfaces like LUTs,
 ;;; MUXes, and DSPs, and the architecture description utilities (see architecture-description.rkt)
 ;;; will generate the architecture-specific instantiations of these interfaces.
+;;;
+;;; Sketch generators should return a list of two items:
+;;; - The sketch, which is a Lakeroad expression with holes (i.e. symbolic Rosette values).
+;;; - An opaque "internal data" object. This object is used to share symbolic state between
+;;;   invocations of a sketch generator. If you would like to use a sketch generator multiple times to
+;;;   generate a larger sketch, and you know that the symbolic state (e.g. the LUT memories) between
+;;;   the two sketches should be the same (e.g. they're both performing addition), then you can pass
+;;;   this internal data to the second invocation of the sketch generator.
+
 #lang errortrace racket/base
 
 (require "architecture-description.rkt"
@@ -30,20 +39,36 @@
 ;;; - num-logical-inputs: The number of logical inputs. This is used to determine the size of the LUTs
 ;;;   to be used.
 ;;; - bitwidth: The bitwidth of the inputs, which will also be the bitwidth of the output.
-(define (bitwise-sketch-generator architecture-description logical-inputs num-logical-inputs bitwidth)
-  ;;; First, we construct a LUT just to get the `internal-data`. We will reuse this internal data to
-  ;;; create more LUTs which use the same LUT memory.
+(define (bitwise-sketch-generator architecture-description
+                                  logical-inputs
+                                  num-logical-inputs
+                                  bitwidth
+                                  #:internal-data [internal-data #f])
   (match-let*
-      ([(list _ internal-data)
+      ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+
+       ;;; Unpack the internal data.
+       [lut-internal-data (if internal-data (first internal-data) #f)]
+
+       ;;; First, we construct a LUT just to get the `internal-data`. We will reuse this internal data
+       ;;; to create more LUTs which use the same LUT memory. Note that if lut-internal-data is not #f
+       ;;; above, then this function should simply pass it through and not change it, so it's
+       ;;; effectively a no-op in the case where lut-internal-data isn't #f.
+       [(list _ lut-internal-data)
         (construct-interface
          architecture-description
          (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
          ;;; Note that we don't care what the inputs are hooked up to here, because we are
          ;;; just trying to get the internal data.
          (for/list ([i num-logical-inputs])
-           (cons (format "I~a" i) (bv 0 1))))]
+           (cons (format "I~a" i) (bv 0 1)))
+         #:internal-data lut-internal-data)]
+
+       ;;; Get physical inputs to luts by performing a logical-to-physical mapping.
        [physical-inputs (logical-to-physical-mapping (choose* (ltop-bitwise) (ltop-bitwise-reverse))
                                                      logical-inputs)]
+
+       ;;; Construct the LUTs.
        [physical-outputs
         (lr:list
          (for/list ([i bitwidth])
@@ -58,10 +83,16 @@
                                   port-map
                                   #:internal-data lut-internal-data))
                           'O))))]
+
+       ;;; Construct the output by mapping the physical outputs back to logical space and taking the
+       ;;; first result.
+       ;;;
+       ;;; TODO(@gussmith23): Could support more results in the future.
        [logical-outputs (physical-to-logical-mapping (choose* (ptol-bitwise) (ptol-bitwise-reverse))
                                                      physical-outputs)]
        [out-expr (lr:list-ref logical-outputs (lr:integer 0))])
-    out-expr))
+
+    (list out-expr (list lut-internal-data))))
 
 ;;; Bitwise with carry sketch generator.
 ;;;
@@ -69,23 +100,36 @@
 (define (bitwise-with-carry-sketch-generator architecture-description
                                              logical-inputs
                                              num-logical-inputs
-                                             bitwidth)
+                                             bitwidth
+                                             #:internal-data [internal-data #f])
   (match-let*
-      (;;; Generate a bitwise sketch over the inputs. We use this to generate the S signal.
-       [bitwise-sketch (bitwise-sketch-generator architecture-description
-                                                 logical-inputs
-                                                 num-logical-inputs
-                                                 bitwidth)]
+      ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+
+       ;;; Unpack the internal data.
+       [bitwise-sketch-internal-data (if internal-data (first internal-data) #f)]
+       [carry-internal-data (if internal-data (second internal-data) #f)]
+
+       ;;; Generate a bitwise sketch over the inputs. We use this to generate the S signal.
+       [(list bitwise-sketch bitwise-sketch-internal-data)
+        (bitwise-sketch-generator architecture-description
+                                  logical-inputs
+                                  num-logical-inputs
+                                  bitwidth
+                                  #:internal-data bitwise-sketch-internal-data)]
 
        ;;; Pass the results into a carry. We populate the DI signal with one of the logical inputs.
-       [(list carry-expr _) (construct-interface
-                             architecture-description
+       [(list carry-expr carry-internal-data)
+        (construct-interface architecture-description
                              (interface-identifier "carry" (hash "width" bitwidth))
                              (list (cons "CI" (lr:bv (?? (bitvector 1))))
                                    (cons "DI" (lr:list-ref logical-inputs (lr:integer 0)))
-                                   (cons "S" bitwise-sketch)))]
+                                   (cons "S" bitwise-sketch))
+                             #:internal-data carry-internal-data)]
+
+       ;;; Get the output from the carry.
        [out-expr (lr:hash-ref carry-expr 'O)])
-    out-expr))
+
+    (list out-expr (list bitwise-sketch-internal-data carry-internal-data))))
 
 ;;; Comparison sketch generator.
 ;;;
@@ -98,26 +142,45 @@
 (define (comparison-sketch-generator architecture-description
                                      logical-inputs
                                      num-logical-inputs
-                                     bitwidth)
-  (match-let* (;;; Generate a bitwise sketch over the inputs. We use this to generate the S signal.
-               [bitwise-sketch-0 (bitwise-sketch-generator architecture-description
-                                                           logical-inputs
-                                                           num-logical-inputs
-                                                           bitwidth)]
-               [bitwise-sketch-1 (bitwise-sketch-generator architecture-description
-                                                           logical-inputs
-                                                           num-logical-inputs
-                                                           bitwidth)]
+                                     bitwidth
+                                     #:internal-data [internal-data #f])
+  (match-let*
+      ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
 
-               [(list carry-expr _) (construct-interface
-                                     architecture-description
-                                     (interface-identifier "carry" (hash "width" bitwidth))
-                                     (list (cons "CI" (lr:bv (?? (bitvector 1))))
-                                           (cons "DI" bitwise-sketch-0)
-                                           (cons "S" bitwise-sketch-1)))]
+       ;;; Unpack the internal data.
+       [bitwise-sketch-0-internal-data (if internal-data (first internal-data) #f)]
+       [bitwise-sketch-1-internal-data (if internal-data (second internal-data) #f)]
+       [carry-internal-data (if internal-data (third internal-data) #f)]
 
-               [out-expr (lr:hash-ref carry-expr 'CO)])
-    out-expr))
+       ;;; Generate a bitwise sketch over the inputs. We do this twice, one per carry input (DI and
+       ;;; S). It may be the case that these can share internal data, but I'm not sure.
+       [(list bitwise-sketch-0 bitwise-sketch-0-internal-data)
+        (bitwise-sketch-generator architecture-description
+                                  logical-inputs
+                                  num-logical-inputs
+                                  bitwidth
+                                  #:internal-data bitwise-sketch-0-internal-data)]
+       [(list bitwise-sketch-1 bitwise-sketch-1-internal-data)
+        (bitwise-sketch-generator architecture-description
+                                  logical-inputs
+                                  num-logical-inputs
+                                  bitwidth
+                                  #:internal-data bitwise-sketch-1-internal-data)]
+
+       ;;; Construct a carry, which will effectively do the reduction operation for the comparison.
+       [(list carry-expr carry-internal-data)
+        (construct-interface architecture-description
+                             (interface-identifier "carry" (hash "width" bitwidth))
+                             (list (cons "CI" (lr:bv (?? (bitvector 1))))
+                                   (cons "DI" bitwise-sketch-0)
+                                   (cons "S" bitwise-sketch-1))
+                             #:internal-data carry-internal-data)]
+
+       ;;; Return the carry out signal.
+       [out-expr (lr:hash-ref carry-expr 'CO)])
+
+    (list out-expr
+          (list bitwise-sketch-0-internal-data bitwise-sketch-1-internal-data carry-internal-data))))
 
 ;;; Logical inputs should be a lr:list of length 2, where both bitvectors are the same length.
 ;;;
@@ -126,7 +189,7 @@
 ;;;     a3   a2   a1   a0
 ;;; x   b3   b2   b1   b0
 ;;; ---------------------
-;;;   a3b0 a2b0 a1b0 a0b0
+;;;   a3b0 a2b0 a1b0 a0b0 (anbm represents an AND bm)
 ;;;   a2b1 a1b1 a0b1 1'b0
 ;;;   a1b2 a0b2 1'b0 1'b0
 ;;; + a0b3 1'b0 1'b0 1'b0
@@ -136,9 +199,14 @@
 (define (multiplication-sketch-generator architecture-description
                                          logical-inputs
                                          num-logical-inputs
-                                         bitwidth)
+                                         bitwidth
+                                         #:internal-data [internal-data #f])
   (match-let*
       ([_ 0] ;;; Dummy line to prevent formatter from messing up my comments.
+
+       ;;; Unpack the internal data.
+       [and-lut-internal-data (if internal-data (first internal-data) #f)]
+       [bitwise-with-carry-internal-data (if internal-data (second internal-data) #f)]
 
        [a-expr (lr:list-ref logical-inputs (lr:integer 0))]
        [b-expr (lr:list-ref logical-inputs (lr:integer 1))]
@@ -147,7 +215,8 @@
        [(list _ and-lut-internal-data)
         (construct-interface architecture-description
                              (interface-identifier "LUT" (hash "num_inputs" 2))
-                             (list (cons "I0" 'unused) (cons "I1" 'unused) (cons "I2" 'unused)))]
+                             (list (cons "I0" 'unused) (cons "I1" 'unused) (cons "I2" 'unused))
+                             #:internal-data and-lut-internal-data)]
 
        ;;; List of ANDs.
        ;;;
@@ -175,16 +244,27 @@
                     'O)
                    (lr:bv (bv 0 1))))))))]
 
+       ;;; Generate the internal data that will be shared across all of the sketches used to compute
+       ;;; the additions.
+       [(list _ bitwise-with-carry-internal-data)
+        (bitwise-with-carry-sketch-generator architecture-description
+                                             'unused
+                                             2
+                                             bitwidth
+                                             #:internal-data bitwise-with-carry-internal-data)]
+
        ;;; TODO(@gussmith23): support more than 2 inputs on bitwise/bitwise-with-carry.
        [fold-fn (lambda (next-to-add-expr acc-expr)
-                  (bitwise-with-carry-sketch-generator architecture-description
-                                                       (lr:list (list next-to-add-expr acc-expr))
-                                                       2
-                                                       bitwidth))]
+                  (first (bitwise-with-carry-sketch-generator
+                          architecture-description
+                          (lr:list (list next-to-add-expr acc-expr))
+                          2
+                          bitwidth
+                          #:internal-data bitwise-with-carry-internal-data)))]
 
        [out-expr (foldl fold-fn (lr:bv (bv 0 bitwidth)) to-be-added-exprs)])
 
-    out-expr))
+    (list out-expr (list and-lut-internal-data bitwise-with-carry-internal-data))))
 
 (module+ test
   (require rackunit
@@ -210,11 +290,14 @@
       (begin
         defines ...
 
-        (define sketch
+        (match-define (list sketch _)
           (sketch-generator architecture-description
                             (lr:list (map lr:bv (symbolics bv-expr)))
                             (length (symbolics bv-expr))
                             (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr)))))
+
+        (pretty-display name)
+        (pretty-display (set-subtract (list->set (symbolics sketch)) (list->set (symbolics bv-expr))))
 
         (define result
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
