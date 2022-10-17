@@ -34,9 +34,9 @@
                                            xilinx-ultrascale-plus-lut6)
                                      (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v")
                                            xilinx-ultrascale-plus-carry8))))))
+       (when (failed? with-vc-result)
+         (raise (result-value with-vc-result)))
        (check-false (failed? with-vc-result))
-       ;;; (when (failed? with-vc-result)
-       ;;;   (raise (result-value with-vc-result)))
 
        (define lakeroad-expr (result-value with-vc-result))
 
