@@ -111,13 +111,9 @@
 
 (define architecture-description
   (match (architecture)
-    ["xilinx-ultrascale-plus"
-     (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-           (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-           (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))]
+    ["xilinx-ultrascale-plus" (xilinx-ultrascale-plus-architecture-description)]
     ["lattice-ecp5" (lattice-ecp5-architecture-description)]
-    ["sofa"
-     (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
+    ["sofa" (sofa-architecture-description)]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -126,12 +122,16 @@
 
 (define module-semantics
   (match (architecture)
-    ["xilinx-ultrascale-plus" (xilinx-ultrascale-plus-architecture-description)]
+    ["xilinx-ultrascale-plus"
+     (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+           (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+           (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))]
     ["lattice-ecp5"
      (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
            (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v")
                  lattice-ecp5-ccu2c))]
-    ["sofa" (sofa-architecture-description)]
+    ["sofa"
+     (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
