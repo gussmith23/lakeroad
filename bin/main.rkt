@@ -107,7 +107,7 @@
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
-    [else (error "No template specified.")]))
+    [else (error "Missing or invalid template.")]))
 
 (define architecture-description
   (match (architecture)
