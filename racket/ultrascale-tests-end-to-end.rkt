@@ -8,7 +8,10 @@
            "programs-to-synthesize.rkt"
            "circt-comb-operators.rkt"
            "utils.rkt"
-           "synthesize.rkt")
+           "synthesize.rkt"
+           "architecture-description.rkt"
+           "xilinx-ultrascale-plus-lut6.rkt"
+           "xilinx-ultrascale-plus-carry8.rkt")
 
   (current-solver (boolector))
 
@@ -19,7 +22,15 @@
     (test-case
      test-name
      (begin
-       (define with-vc-result (with-vc (with-terms (synthesize-xilinx-ultrascale-plus-impl bv-expr))))
+       (define with-vc-result
+         (with-vc (with-terms (synthesize-any
+                               (xilinx-ultrascale-plus-architecture-description)
+                               bv-expr
+                               #:module-semantics
+                               (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
+                                           xilinx-ultrascale-plus-lut6)
+                                     (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v")
+                                           xilinx-ultrascale-plus-carry8))))))
        (check-false (failed? with-vc-result))
        ;;; (when (failed? with-vc-result)
        ;;;   (raise (result-value with-vc-result)))
