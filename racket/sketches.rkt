@@ -20,6 +20,7 @@
 #lang errortrace racket/base
 
 (provide generate-sketch
+         all-sketch-generators
          bitwise-sketch-generator
          bitwise-with-carry-sketch-generator
          comparison-sketch-generator
@@ -33,6 +34,13 @@
          rosette/lib/synthax
          "verilator.rkt"
          "utils.rkt")
+
+;;; List of all sketch generators. Ordered roughly in terms of complexity/expected synthesis time.
+(define (all-sketch-generators)
+  (list bitwise-sketch-generator
+        bitwise-with-carry-sketch-generator
+        comparison-sketch-generator
+        multiplication-sketch-generator))
 
 ;;; Simple helper to generate an architecture-specific sketch for the given bitvector expression.
 (define (generate-sketch sketch-generator architecture-description bv-expr)

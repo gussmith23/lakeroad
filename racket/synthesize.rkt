@@ -3,7 +3,10 @@
 ;;;
 ;;; TODO provide a top-level synthesis procedure?
 
-(provide synthesize-with
+(provide synthesize-any
+         synthesize-all
+         synthesize-with-sketch
+         synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-sofa-impl
          synthesize-lattice-ecp5-impl
@@ -24,7 +27,49 @@
          "utils.rkt"
          "logical-to-physical.rkt"
          (prefix-in template: "templates.rkt")
-         (prefix-in lr: "language.rkt"))
+         (prefix-in lr: "language.rkt")
+         "sketches.rkt")
+
+;;; Attempt synthesis, return the first that works.
+(define (synthesize-any architecture-description
+                        bv-expr
+                        #:additional-forall [additional-forall '()]
+                        #:module-semantics [module-semantics '()])
+  (let/ec return
+          (for ([sketch-generator (all-sketch-generators)])
+            (let ([result (synthesize-with-sketch sketch-generator
+                                                  architecture-description
+                                                  bv-expr
+                                                  #:additional-forall additional-forall
+                                                  #:module-semantics module-semantics)])
+              (when result
+                (return result))))
+          #f))
+
+;;; Attempt synthesis with all sketch generators.
+;;; Returns a list of pairs of (sketch-generator-fn . result).
+(define (synthesize-all architecture-description
+                        bv-expr
+                        #:additional-forall [additional-forall '()]
+                        #:module-semantics [module-semantics '()])
+  (for/list ([sketch-generator (all-sketch-generators)])
+    (let ([result (synthesize-with-sketch sketch-generator
+                                          architecture-description
+                                          bv-expr
+                                          #:additional-forall additional-forall
+                                          #:module-semantics module-semantics)])
+      (cons sketch-generator result))))
+
+;;; Attempt synthesis with a single sketch generator.
+(define (synthesize-with-sketch sketch-generator
+                                architecture-description
+                                bv-expr
+                                #:additional-forall [additional-forall '()]
+                                #:module-semantics [module-semantics '()])
+  (rosette-synthesize bv-expr
+                      (generate-sketch sketch-generator architecture-description bv-expr)
+                      (append (symbolics bv-expr) additional-forall)
+                      #:module-semantics module-semantics))
 
 (current-solver (boolector))
 
@@ -859,11 +904,18 @@
                                                        physical-output))))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
-(define (rosette-synthesize bv-expr lakeroad-expr inputs #:multi-cycle [multi-cycle #f])
-  ;; (interpret lakeroad-expr)
+;;; Returns a concrete Lakeroad expression, or #f if synthesis failed.
+(define (rosette-synthesize bv-expr
+                            lakeroad-expr
+                            inputs
+                            #:multi-cycle [multi-cycle #f]
+                            #:module-semantics [module-semantics '()])
 
   (define soln
-    (synthesize #:forall inputs #:guarantee (assert (bveq bv-expr (interpret lakeroad-expr)))))
+    (synthesize
+     #:forall inputs
+     #:guarantee
+     (assert (bveq bv-expr (interpret lakeroad-expr #:module-semantics module-semantics)))))
 
   (if (sat? soln)
       (evaluate
