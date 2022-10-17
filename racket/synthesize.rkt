@@ -276,10 +276,18 @@
      (define in2 (if (>= (length (symbolics bv-expr)) 3) (list-ref (symbolics bv-expr) 2) (bv 0 1)))
      (define in3 (if (>= (length (symbolics bv-expr)) 4) (list-ref (symbolics bv-expr) 3) (bv 0 1)))
 
-     (define A (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 30)))
-     (define B (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 18)))
-     (define C (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 48)))
-     (define D (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 27)))
+     (define A
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)))
+                       (lr:bitvector (bitvector 30))))
+     (define B
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)))
+                       (lr:bitvector (bitvector 18))))
+     (define C
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)))
+                       (lr:bitvector (bitvector 48))))
+     (define D
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)))
+                       (lr:bitvector (bitvector 27))))
 
      (define-symbolic ACASCREG (bitvector 32))
      (define-symbolic ACIN (bitvector 30))
@@ -370,7 +378,7 @@
      (define lakeroad-expr
        (lr:extract (lr:integer (sub1 (bvlen bv-expr)))
                    (lr:integer 0)
-                   (lr:first (ultrascale-plus-dsp48e2 (lr:bv A)
+                   (lr:first (ultrascale-plus-dsp48e2 A
                                                       (lr:bv ACASCREG)
                                                       (lr:bv ACIN)
                                                       (lr:bv ADREG)
@@ -381,13 +389,13 @@
                                                       (lr:bv AUTORESET_PATDET)
                                                       (lr:bv AUTORESET_PRIORITY)
                                                       (lr:bv A_INPUT)
-                                                      (lr:bv B)
+                                                      B
                                                       (lr:bv BCASCREG)
                                                       (lr:bv BCIN)
                                                       (lr:bv BMULTSEL)
                                                       (lr:bv BREG)
                                                       (lr:bv B_INPUT)
-                                                      (lr:bv C)
+                                                      C
                                                       (lr:bv CARRYCASCIN)
                                                       (lr:bv CARRYIN)
                                                       (lr:bv CARRYINREG)
@@ -408,7 +416,7 @@
                                                       (lr:bv CEP)
                                                       (lr:bv CLK)
                                                       (lr:bv CREG)
-                                                      (lr:bv D)
+                                                      D
                                                       (lr:bv DREG)
                                                       (lr:bv INMODE)
                                                       (lr:bv INMODEREG)
@@ -464,8 +472,8 @@
      ;;; bitwidth. I expect it to work for 26x17 (because we do
      ;;; unsigned mult, but DSP is signed, so we can't use all
      ;;; 27/18 bits.) 16x16 seems to be the most I can get.
-     (assume (bvult A (bv (expt 2 16) 30)))
-     (assume (bvult B (bv (expt 2 16) 18)))
+     (assume (bvult (interpret A) (bv (expt 2 16) 30)))
+     (assume (bvult (interpret B) (bv (expt 2 16) 18)))
 
      ;;; Force to DYNAMIC to avoid:
      ;;;
