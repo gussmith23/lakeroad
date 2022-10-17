@@ -631,29 +631,48 @@
         lut-input-g
         lut-input-h))]
     [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
-     (let ([out (interpret-xilinx-ultrascale-plus-carry8 #:CARRY_TYPE (bv->signal carry-type)
-                                                         #:CI (bv->signal ci)
-                                                         #:CI_TOP (bv->signal ci-top)
-                                                         #:DI (bv->signal di)
-                                                         #:S (bv->signal s))])
+     (let* ([carry-type (interpreter carry-type)]
+            [ci (interpreter ci)]
+            [ci-top (interpreter ci-top)]
+            [di (interpreter di)]
+            [s (interpreter s)]
+            [out (interpret-xilinx-ultrascale-plus-carry8 #:CARRY_TYPE (bv->signal carry-type)
+                                                          #:CI (bv->signal ci)
+                                                          #:CI_TOP (bv->signal ci-top)
+                                                          #:DI (bv->signal di)
+                                                          #:S (bv->signal s))])
        (list (signal-value (hash-ref out 'CO)) (signal-value (hash-ref out 'O))))]
     [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
-     (let ([out (interpret-xilinx-ultrascale-plus-lut6 #:I0 (bv->signal i0)
-                                                       #:I1 (bv->signal i1)
-                                                       #:I2 (bv->signal i2)
-                                                       #:I3 (bv->signal i3)
-                                                       #:I4 (bv->signal i4)
-                                                       #:I5 (bv->signal i5)
-                                                       #:INIT (bv->signal init))])
+     (let* ([i0 (interpreter i0)]
+            [i1 (interpreter i1)]
+            [i2 (interpreter i2)]
+            [i3 (interpreter i3)]
+            [i4 (interpreter i4)]
+            [i5 (interpreter i5)]
+            [init (interpreter init)]
+            [out (interpret-xilinx-ultrascale-plus-lut6 #:I0 (bv->signal i0)
+                                                        #:I1 (bv->signal i1)
+                                                        #:I2 (bv->signal i2)
+                                                        #:I3 (bv->signal i3)
+                                                        #:I4 (bv->signal i4)
+                                                        #:I5 (bv->signal i5)
+                                                        #:INIT (bv->signal init))])
        (signal-value (hash-ref out 'O)))]
     [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
-     (let ([out (interpret-xilinx-ultrascale-plus-lut6-2 #:I0 (bv->signal i0)
-                                                         #:I1 (bv->signal i1)
-                                                         #:I2 (bv->signal i2)
-                                                         #:I3 (bv->signal i3)
-                                                         #:I4 (bv->signal i4)
-                                                         #:I5 (bv->signal i5)
-                                                         #:INIT (bv->signal init))])
+     (let* ([i0 (interpreter i0)]
+            [i1 (interpreter i1)]
+            [i2 (interpreter i2)]
+            [i3 (interpreter i3)]
+            [i4 (interpreter i4)]
+            [i5 (interpreter i5)]
+            [init (interpreter init)]
+            [out (interpret-xilinx-ultrascale-plus-lut6-2 #:I0 (bv->signal i0)
+                                                          #:I1 (bv->signal i1)
+                                                          #:I2 (bv->signal i2)
+                                                          #:I3 (bv->signal i3)
+                                                          #:I4 (bv->signal i4)
+                                                          #:I5 (bv->signal i5)
+                                                          #:INIT (bv->signal init))])
        (list (signal-value (hash-ref out 'O5)) (signal-value (hash-ref out 'O6))))]))
 
 ; Returns the physical outputs of the CLB.
@@ -1362,216 +1381,217 @@ here-string-delimiter
                                          unnamed-input-750
                                          unnamed-input-806
                                          unnamed-input-850) expr]
-               [cell (make-cell "DSP48E2"
-                                (make-cell-port-directions (list 'A
-                                                                 'ACIN
-                                                                 'ALUMODE
-                                                                 'B
-                                                                 'BCIN
-                                                                 'C
-                                                                 'CARRYCASCIN
-                                                                 'CARRYIN
-                                                                 'CARRYINSEL
-                                                                 'CEA1
-                                                                 'CEA2
-                                                                 'CEAD
-                                                                 'CEALUMODE
-                                                                 'CEB1
-                                                                 'CEB2
-                                                                 'CEC
-                                                                 'CECARRYIN
-                                                                 'CECTRL
-                                                                 'CED
-                                                                 'CEINMODE
-                                                                 'CEM
-                                                                 'CEP
-                                                                 'CLK
-                                                                 'D
-                                                                 'INMODE
-                                                                 'MULTSIGNIN
-                                                                 'OPMODE
-                                                                 'PCIN
-                                                                 'RSTA
-                                                                 'RSTALLCARRYIN
-                                                                 'RSTALUMODE
-                                                                 'RSTB
-                                                                 'RSTC
-                                                                 'RSTCTRL
-                                                                 'RSTD
-                                                                 'RSTINMODE
-                                                                 'RSTM
-                                                                 'RSTP)
-                                                           (list 'P))
-                                (hash 'P
-                                      P
-                                      'A
-                                      (compile A)
-                                      'ACIN
-                                      (compile ACIN)
-                                      'ALUMODE
-                                      (compile ALUMODE)
-                                      'B
-                                      (compile B)
-                                      'BCIN
-                                      (compile BCIN)
-                                      'C
-                                      (compile C)
-                                      'CARRYCASCIN
-                                      (compile CARRYCASCIN)
-                                      'CARRYIN
-                                      (compile CARRYIN)
-                                      'CARRYINSEL
-                                      (compile CARRYINSEL)
-                                      'CEA1
-                                      (compile CEA1)
-                                      'CEA2
-                                      (compile CEA2)
-                                      'CEAD
-                                      (compile CEAD)
-                                      'CEALUMODE
-                                      (compile CEALUMODE)
-                                      'CEB1
-                                      (compile CEB1)
-                                      'CEB2
-                                      (compile CEB2)
-                                      'CEC
-                                      (compile CEC)
-                                      'CECARRYIN
-                                      (compile CECARRYIN)
-                                      'CECTRL
-                                      (compile CECTRL)
-                                      'CED
-                                      (compile CED)
-                                      'CEINMODE
-                                      (compile CEINMODE)
-                                      'CEM
-                                      (compile CEM)
-                                      'CEP
-                                      (compile CEP)
-                                      'CLK
-                                      (compile CLK)
-                                      'D
-                                      (compile D)
-                                      'INMODE
-                                      (compile INMODE)
-                                      'MULTSIGNIN
-                                      (compile MULTSIGNIN)
-                                      'OPMODE
-                                      (compile OPMODE)
-                                      'PCIN
-                                      (compile PCIN)
-                                      'RSTA
-                                      (compile RSTA)
-                                      'RSTALLCARRYIN
-                                      (compile RSTALLCARRYIN)
-                                      'RSTALUMODE
-                                      (compile RSTALUMODE)
-                                      'RSTB
-                                      (compile RSTB)
-                                      'RSTC
-                                      (compile RSTC)
-                                      'RSTCTRL
-                                      (compile RSTCTRL)
-                                      'RSTD
-                                      (compile RSTD)
-                                      'RSTINMODE
-                                      (compile RSTINMODE)
-                                      'RSTM
-                                      (compile RSTM)
-                                      'RSTP
-                                      (compile RSTP))
-                                #:params (hash 'AMULTSEL
-                                               (dsp48e2-enum-val-to-str AMULTSEL)
-                                               'A_INPUT
-                                               (dsp48e2-enum-val-to-str A_INPUT)
-                                               'BMULTSEL
-                                               (dsp48e2-enum-val-to-str BMULTSEL)
-                                               'B_INPUT
-                                               (dsp48e2-enum-val-to-str B_INPUT)
-                                               'PREADDINSEL
-                                               (dsp48e2-enum-val-to-str PREADDINSEL)
-                                               'RND
-                                               (make-literal-value-from-bv RND)
-                                               'USE_MULT
-                                               (dsp48e2-enum-val-to-str USE_MULT)
-                                               'USE_SIMD
-                                               (dsp48e2-enum-val-to-str USE_SIMD)
-                                               'USE_WIDEXOR
-                                               (dsp48e2-enum-val-to-str USE_WIDEXOR)
-                                               'XORSIMD
-                                               (dsp48e2-enum-val-to-str XORSIMD)
-                                               'AUTORESET_PATDET
-                                               (dsp48e2-enum-val-to-str AUTORESET_PATDET)
-                                               'AUTORESET_PRIORITY
-                                               (dsp48e2-enum-val-to-str AUTORESET_PRIORITY)
-                                               'MASK
-                                               (make-literal-value-from-bv MASK)
-                                               'PATTERN
-                                               (make-literal-value-from-bv PATTERN)
-                                               'SEL_MASK
-                                               (dsp48e2-enum-val-to-str SEL_MASK)
-                                               'SEL_PATTERN
-                                               (dsp48e2-enum-val-to-str SEL_PATTERN)
-                                               'USE_PATTERN_DETECT
-                                               (dsp48e2-enum-val-to-str USE_PATTERN_DETECT)
-                                               'IS_ALUMODE_INVERTED
-                                               (make-literal-value-from-bv IS_ALUMODE_INVERTED)
-                                               'IS_CARRYIN_INVERTED
-                                               (make-literal-value-from-bv IS_CARRYIN_INVERTED)
-                                               'IS_CLK_INVERTED
-                                               (make-literal-value-from-bv IS_CLK_INVERTED)
-                                               'IS_INMODE_INVERTED
-                                               (make-literal-value-from-bv IS_INMODE_INVERTED)
-                                               'IS_OPMODE_INVERTED
-                                               (make-literal-value-from-bv IS_OPMODE_INVERTED)
-                                               'IS_RSTALLCARRYIN_INVERTED
-                                               (make-literal-value-from-bv IS_RSTALLCARRYIN_INVERTED)
-                                               'IS_RSTALUMODE_INVERTED
-                                               (make-literal-value-from-bv IS_RSTALUMODE_INVERTED)
-                                               'IS_RSTA_INVERTED
-                                               (make-literal-value-from-bv IS_RSTA_INVERTED)
-                                               'IS_RSTB_INVERTED
-                                               (make-literal-value-from-bv IS_RSTB_INVERTED)
-                                               'IS_RSTCTRL_INVERTED
-                                               (make-literal-value-from-bv IS_RSTCTRL_INVERTED)
-                                               'IS_RSTC_INVERTED
-                                               (make-literal-value-from-bv IS_RSTC_INVERTED)
-                                               'IS_RSTD_INVERTED
-                                               (make-literal-value-from-bv IS_RSTD_INVERTED)
-                                               'IS_RSTINMODE_INVERTED
-                                               (make-literal-value-from-bv IS_RSTINMODE_INVERTED)
-                                               'IS_RSTM_INVERTED
-                                               (make-literal-value-from-bv IS_RSTM_INVERTED)
-                                               'IS_RSTP_INVERTED
-                                               (make-literal-value-from-bv IS_RSTP_INVERTED)
-                                               'ACASCREG
-                                               (make-literal-value-from-bv ACASCREG)
-                                               'ADREG
-                                               (make-literal-value-from-bv ADREG)
-                                               'ALUMODEREG
-                                               (make-literal-value-from-bv ALUMODEREG)
-                                               'AREG
-                                               (make-literal-value-from-bv AREG)
-                                               'BCASCREG
-                                               (make-literal-value-from-bv BCASCREG)
-                                               'BREG
-                                               (make-literal-value-from-bv BREG)
-                                               'CARRYINREG
-                                               (make-literal-value-from-bv CARRYINREG)
-                                               'CARRYINSELREG
-                                               (make-literal-value-from-bv CARRYINSELREG)
-                                               'CREG
-                                               (make-literal-value-from-bv CREG)
-                                               'DREG
-                                               (make-literal-value-from-bv DREG)
-                                               'INMODEREG
-                                               (make-literal-value-from-bv INMODEREG)
-                                               'MREG
-                                               (make-literal-value-from-bv MREG)
-                                               'OPMODEREG
-                                               (make-literal-value-from-bv OPMODEREG)
-                                               'PREG
-                                               (make-literal-value-from-bv PREG)))])
+               [cell (make-cell
+                      "DSP48E2"
+                      (make-cell-port-directions (list 'A
+                                                       'ACIN
+                                                       'ALUMODE
+                                                       'B
+                                                       'BCIN
+                                                       'C
+                                                       'CARRYCASCIN
+                                                       'CARRYIN
+                                                       'CARRYINSEL
+                                                       'CEA1
+                                                       'CEA2
+                                                       'CEAD
+                                                       'CEALUMODE
+                                                       'CEB1
+                                                       'CEB2
+                                                       'CEC
+                                                       'CECARRYIN
+                                                       'CECTRL
+                                                       'CED
+                                                       'CEINMODE
+                                                       'CEM
+                                                       'CEP
+                                                       'CLK
+                                                       'D
+                                                       'INMODE
+                                                       'MULTSIGNIN
+                                                       'OPMODE
+                                                       'PCIN
+                                                       'RSTA
+                                                       'RSTALLCARRYIN
+                                                       'RSTALUMODE
+                                                       'RSTB
+                                                       'RSTC
+                                                       'RSTCTRL
+                                                       'RSTD
+                                                       'RSTINMODE
+                                                       'RSTM
+                                                       'RSTP)
+                                                 (list 'P))
+                      (hash 'P
+                            P
+                            'A
+                            (compile A)
+                            'ACIN
+                            (compile ACIN)
+                            'ALUMODE
+                            (compile ALUMODE)
+                            'B
+                            (compile B)
+                            'BCIN
+                            (compile BCIN)
+                            'C
+                            (compile C)
+                            'CARRYCASCIN
+                            (compile CARRYCASCIN)
+                            'CARRYIN
+                            (compile CARRYIN)
+                            'CARRYINSEL
+                            (compile CARRYINSEL)
+                            'CEA1
+                            (compile CEA1)
+                            'CEA2
+                            (compile CEA2)
+                            'CEAD
+                            (compile CEAD)
+                            'CEALUMODE
+                            (compile CEALUMODE)
+                            'CEB1
+                            (compile CEB1)
+                            'CEB2
+                            (compile CEB2)
+                            'CEC
+                            (compile CEC)
+                            'CECARRYIN
+                            (compile CECARRYIN)
+                            'CECTRL
+                            (compile CECTRL)
+                            'CED
+                            (compile CED)
+                            'CEINMODE
+                            (compile CEINMODE)
+                            'CEM
+                            (compile CEM)
+                            'CEP
+                            (compile CEP)
+                            'CLK
+                            (compile CLK)
+                            'D
+                            (compile D)
+                            'INMODE
+                            (compile INMODE)
+                            'MULTSIGNIN
+                            (compile MULTSIGNIN)
+                            'OPMODE
+                            (compile OPMODE)
+                            'PCIN
+                            (compile PCIN)
+                            'RSTA
+                            (compile RSTA)
+                            'RSTALLCARRYIN
+                            (compile RSTALLCARRYIN)
+                            'RSTALUMODE
+                            (compile RSTALUMODE)
+                            'RSTB
+                            (compile RSTB)
+                            'RSTC
+                            (compile RSTC)
+                            'RSTCTRL
+                            (compile RSTCTRL)
+                            'RSTD
+                            (compile RSTD)
+                            'RSTINMODE
+                            (compile RSTINMODE)
+                            'RSTM
+                            (compile RSTM)
+                            'RSTP
+                            (compile RSTP))
+                      #:params (hash 'AMULTSEL
+                                     (dsp48e2-enum-val-to-str (lr:bv-v AMULTSEL))
+                                     'A_INPUT
+                                     (dsp48e2-enum-val-to-str (lr:bv-v A_INPUT))
+                                     'BMULTSEL
+                                     (dsp48e2-enum-val-to-str (lr:bv-v BMULTSEL))
+                                     'B_INPUT
+                                     (dsp48e2-enum-val-to-str (lr:bv-v B_INPUT))
+                                     'PREADDINSEL
+                                     (dsp48e2-enum-val-to-str (lr:bv-v PREADDINSEL))
+                                     'RND
+                                     (make-literal-value-from-bv (lr:bv-v RND))
+                                     'USE_MULT
+                                     (dsp48e2-enum-val-to-str (lr:bv-v USE_MULT))
+                                     'USE_SIMD
+                                     (dsp48e2-enum-val-to-str (lr:bv-v USE_SIMD))
+                                     'USE_WIDEXOR
+                                     (dsp48e2-enum-val-to-str (lr:bv-v USE_WIDEXOR))
+                                     'XORSIMD
+                                     (dsp48e2-enum-val-to-str (lr:bv-v XORSIMD))
+                                     'AUTORESET_PATDET
+                                     (dsp48e2-enum-val-to-str (lr:bv-v AUTORESET_PATDET))
+                                     'AUTORESET_PRIORITY
+                                     (dsp48e2-enum-val-to-str (lr:bv-v AUTORESET_PRIORITY))
+                                     'MASK
+                                     (make-literal-value-from-bv (lr:bv-v MASK))
+                                     'PATTERN
+                                     (make-literal-value-from-bv (lr:bv-v PATTERN))
+                                     'SEL_MASK
+                                     (dsp48e2-enum-val-to-str (lr:bv-v SEL_MASK))
+                                     'SEL_PATTERN
+                                     (dsp48e2-enum-val-to-str (lr:bv-v SEL_PATTERN))
+                                     'USE_PATTERN_DETECT
+                                     (dsp48e2-enum-val-to-str (lr:bv-v USE_PATTERN_DETECT))
+                                     'IS_ALUMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_ALUMODE_INVERTED))
+                                     'IS_CARRYIN_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_CARRYIN_INVERTED))
+                                     'IS_CLK_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_CLK_INVERTED))
+                                     'IS_INMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_INMODE_INVERTED))
+                                     'IS_OPMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_OPMODE_INVERTED))
+                                     'IS_RSTALLCARRYIN_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTALLCARRYIN_INVERTED))
+                                     'IS_RSTALUMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTALUMODE_INVERTED))
+                                     'IS_RSTA_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTA_INVERTED))
+                                     'IS_RSTB_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTB_INVERTED))
+                                     'IS_RSTCTRL_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTCTRL_INVERTED))
+                                     'IS_RSTC_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTC_INVERTED))
+                                     'IS_RSTD_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTD_INVERTED))
+                                     'IS_RSTINMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTINMODE_INVERTED))
+                                     'IS_RSTM_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTM_INVERTED))
+                                     'IS_RSTP_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTP_INVERTED))
+                                     'ACASCREG
+                                     (make-literal-value-from-bv (lr:bv-v ACASCREG))
+                                     'ADREG
+                                     (make-literal-value-from-bv (lr:bv-v ADREG))
+                                     'ALUMODEREG
+                                     (make-literal-value-from-bv (lr:bv-v ALUMODEREG))
+                                     'AREG
+                                     (make-literal-value-from-bv (lr:bv-v AREG))
+                                     'BCASCREG
+                                     (make-literal-value-from-bv (lr:bv-v BCASCREG))
+                                     'BREG
+                                     (make-literal-value-from-bv (lr:bv-v BREG))
+                                     'CARRYINREG
+                                     (make-literal-value-from-bv (lr:bv-v CARRYINREG))
+                                     'CARRYINSELREG
+                                     (make-literal-value-from-bv (lr:bv-v CARRYINSELREG))
+                                     'CREG
+                                     (make-literal-value-from-bv (lr:bv-v CREG))
+                                     'DREG
+                                     (make-literal-value-from-bv (lr:bv-v DREG))
+                                     'INMODEREG
+                                     (make-literal-value-from-bv (lr:bv-v INMODEREG))
+                                     'MREG
+                                     (make-literal-value-from-bv (lr:bv-v MREG))
+                                     'OPMODEREG
+                                     (make-literal-value-from-bv (lr:bv-v OPMODEREG))
+                                     'PREG
+                                     (make-literal-value-from-bv (lr:bv-v PREG))))])
     (add-netname 'P (make-net-details P))
     (add-cell 'DSP48E2 cell)
     (list P)))
@@ -1633,7 +1653,7 @@ here-string-delimiter
                               (compile i5)
                               'O
                               o)
-               #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+               #:params (hasheq 'INIT (make-literal-value-from-bv (lr:bv-v init)))))
   (add-cell 'lut6 lut6-cell)
   o)
 
@@ -1667,6 +1687,6 @@ here-string-delimiter
                               o5
                               'O6
                               o6)
-               #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+               #:params (hasheq 'INIT (make-literal-value-from-bv (lr:bv-v init)))))
   (add-cell 'lut6-2 lut6-2-cell)
   (list o5 o6))
