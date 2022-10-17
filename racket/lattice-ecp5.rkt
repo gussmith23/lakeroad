@@ -871,10 +871,10 @@
                [compiled-inputs (compiler inputs)]
                [(list (list A0 B0 C0 D0) (list A1 B1 C1 D1)) compiled-inputs]
                [(list s0 s1 cout) (get-unique-bit-ids 3)]
-               [INIT0 (compiler INIT0)]
-               [INIT1 (compiler INIT1)]
-               [INJECT1_0 (compiler INJECT1_0)]
-               [INJECT1_1 (compiler INJECT1_1)]
+               [(lr:bv INIT0) INIT0]
+               [(lr:bv INIT1) INIT1]
+               [(lr:bv INJECT1_0) INJECT1_0]
+               [(lr:bv INJECT1_1) INJECT1_1]
                [ccu2c (make-lattice-ccu2c-cell
                        (if (bv? INIT0) (make-literal-value-from-bv INIT0) INIT0)
                        (if (bv? INIT1) (make-literal-value-from-bv INIT1) INIT1)
@@ -944,6 +944,7 @@
                               expr)
   (match-let* ([(lattice-ecp5-lut2 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
+               [(lr:bv INIT) INIT]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
@@ -960,6 +961,7 @@
                               expr)
   (match-let* ([(lattice-ecp5-lut4 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
+               [(lr:bv INIT) INIT]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
