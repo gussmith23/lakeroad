@@ -23,7 +23,8 @@
 (require rosette
          yaml
          "utils.rkt"
-         (prefix-in lr: "language.rkt"))
+         (prefix-in lr: "language.rkt")
+         rosette/lib/synthax)
 
 ;;; Part 1: defining an interface.
 
@@ -478,6 +479,9 @@
 
           ;;; Unpack internal data.
           [carry-internal-data (if internal-data (first internal-data) #f)]
+          ;;; Padding values used to fill the potentially empty DI and S ports.
+          [di-padding-val (if internal-data (second internal-data) (?? (bitvector 1)))]
+          [s-padding-val (if internal-data (third internal-data) (?? (bitvector 1)))]
 
           ;;; The width requested by the user.
           [requested-width (hash-ref (interface-identifier-parameters interface-id) "width")]
@@ -522,16 +526,18 @@
                   ;;; This function extracts the correct portion of the larger DI/S signal, and pads
                   ;;; it if necessary.
                   [extract-fn
-                   (lambda (expr)
+                   (lambda (expr pad-val)
                      (let* ([h (min (sub1 (* (+ carry-i 1) our-carry-width)) (sub1 requested-width))]
                             [l (* carry-i our-carry-width)]
                             [padding (- our-carry-width (add1 (- h l)))]
                             [extract-expr (lr:extract (lr:integer h) (lr:integer l) expr)])
                        (if (equal? padding 0)
                            extract-expr
-                           (lr:concat (lr:list (list (lr:bv (bv 0 padding)) extract-expr))))))]
-                  [this-di (extract-fn di-expr)]
-                  [this-s (extract-fn s-expr)]
+                           (lr:concat
+                            (lr:list (list (lr:bv (apply concat (make-list padding pad-val)))
+                                           extract-expr))))))]
+                  [this-di (extract-fn di-expr di-padding-val)]
+                  [this-s (extract-fn s-expr s-padding-val)]
                   [this-carry (first (construct-interface-internal
                                       architecture-description
                                       (interface-implementation-identifier our-carry-impl)
@@ -565,7 +571,7 @@
                                                          (lr:integer 0)
                                                          (lr:hash-ref out-expr 'O))))))])
 
-       (list out-expr (list carry-internal-data)))]
+       (list out-expr (list carry-internal-data di-padding-val s-padding-val)))]
 
     ;;; Implement a carry chain when one doesn't exist.
     [;;; Check: They're asking for a carry.
