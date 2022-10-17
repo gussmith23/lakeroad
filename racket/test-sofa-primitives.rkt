@@ -4,7 +4,6 @@
 (module test racket/base
   (require rosette
            rackunit
-           "interpreter.rkt"
            "sofa.rkt"
            "lut.rkt"
            "verilator.rkt"
@@ -19,13 +18,16 @@
   (define (add-to-simulate v)
     (set! to-simulate-list (cons v to-simulate-list)))
 
-  (verify-lakeroad-expression "sofa frac_lut4"
-                              (begin
-                                (define-symbolic in (bitvector 4))
-                                (define-symbolic sram (bitvector 16)))
-                              (lr:list-ref (sofa-frac-lut4 in (bv 0 1) (bv 0 1) sram (bv 0 16)) 2)
-                              (lut sram (apply concat (bitvector->bits in)))
-                              add-to-simulate)
+  (verify-lakeroad-expression
+   "sofa frac_lut4"
+   (begin
+     (define-symbolic in (bitvector 4))
+     (define-symbolic sram (bitvector 16)))
+   (lr:list-ref
+    (sofa-frac-lut4 (lr:bv in) (lr:bv (bv 0 1)) (lr:bv (bv 0 1)) (lr:bv sram) (lr:bv (bv 0 16)))
+    (lr:integer 2))
+   (lut sram (apply concat (bitvector->bits in)))
+   add-to-simulate)
 
   ;;; Simulate with Verilator.
   (when (not (getenv "LAKEROAD_DIR"))
