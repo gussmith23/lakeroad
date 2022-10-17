@@ -321,6 +321,7 @@
            "interpreter.rkt"
            "lattice-ecp5-lut4.rkt"
            "lattice-ecp5-ccu2c.rkt"
+           "xilinx-ultrascale-plus-lut2.rkt"
            "xilinx-ultrascale-plus-lut6.rkt"
            "xilinx-ultrascale-plus-carry8.rkt"
            "sofa-frac-lut4.rkt"
@@ -402,7 +403,8 @@
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    #:sketch-generator bitwise-with-carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
@@ -414,7 +416,8 @@
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    #:sketch-generator comparison-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
@@ -426,7 +429,8 @@
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    #:sketch-generator comparison-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
@@ -438,7 +442,8 @@
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    #:sketch-generator multiplication-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
@@ -450,7 +455,8 @@
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    #:sketch-generator multiplication-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
