@@ -890,6 +890,17 @@
                (xilinx-ultrascale-plus-architecture-description)
                (architecture-description
                 (list (interface-implementation
+                       (interface-identifier "LUT" (hash "num_inputs" 2))
+                       (module-instance "LUT2"
+                                        (list (module-instance-port "I0" "I0" 'input 1)
+                                              (module-instance-port "I1" "I1" 'input 1)
+                                              (module-instance-port "O" "O" 'output 1))
+                                        (list (module-instance-parameter "INIT" "INIT"))
+                                        "../verilator_xilinx/LUT2.v"
+                                        "../verilator_xilinx/LUT2.v")
+                       (hash "INIT" 4)
+                       (hash "O" "O"))
+                      (interface-implementation
                        (interface-identifier "LUT" (hash "num_inputs" 6))
                        (module-instance "LUT6"
                                         (list (module-instance-port "I0" "I0" 'input 1)
@@ -910,13 +921,13 @@
                                         (list (module-instance-port "CI" "CI" 'input 1)
                                               (module-instance-port "DI" "DI" 'input 8)
                                               (module-instance-port "S" "S" 'input 8)
-                                              (module-instance-port "CO" "CO" 'output 1)
+                                              (module-instance-port "CO" "CO" 'output 8)
                                               (module-instance-port "O" "O" 'output 8))
                                         (list)
                                         "../verilator_xilinx/CARRY8.v"
                                         "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
                        (hash)
-                       (hash "CO" "CO" "O" "O")))))
+                       (hash "CO" "(bit 7 CO)" "O" "O")))))
 
   (test-equal? "Parse Lattice ECP5 YAML"
                (lattice-ecp5-architecture-description)
