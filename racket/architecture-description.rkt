@@ -343,6 +343,67 @@
                                    port-map
                                    #:internal-data internal-data)]
 
+    ;;; Case: They're asking for a smaller LUT, and we have a bigger LUT implemented.
+    ;;;
+    ;;; Research note: Even just the ordering of this cond clause with the below cond clause is a
+    ;;; value judgement. We will first attempt to construct a LUT out of larger LUTs, and then we
+    ;;; will look for smaller LUTs. That's not always going to be the right thing to do.
+    [;;; Check: They're asking for a LUT.
+     (and (equal? "LUT" (interface-identifier-name interface-id))
+          ;;; Check: The architecture description implements a larger LUT.
+          (findf
+           (lambda (impl)
+             (and (equal? "LUT"
+                          (interface-identifier-name (interface-implementation-identifier impl)))
+                  (> (hash-ref (interface-identifier-parameters
+                                (interface-implementation-identifier impl))
+                               "num_inputs")
+                     (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
+           (architecture-description-interface-implementations architecture-description)))
+
+     (match-let*
+         (;;; Note: a very important part of how this code works is that it's deterministic: if we ask
+          ;;; for a LUT2 and it gets implemented on a LUT4, the next time we ask for a LUT2 it must
+          ;;; again be implemented on a LUT4! Otherwise, our method of implementing opaque internal
+          ;;; data will not work.
+
+          ;;; TODO(@gussmith23): We should minimize the size of the LUT that we use to implement the
+          ;;; smaller LUT. Currently, we just take the first thing that works.
+          [larger-lut-interface-identifier
+           (interface-implementation-identifier
+            (or (findf
+                 (lambda (impl)
+                   (and
+                    (equal? "LUT"
+                            (interface-identifier-name (interface-implementation-identifier impl)))
+                    (> (hash-ref (interface-identifier-parameters
+                                  (interface-implementation-identifier impl))
+                                 "num_inputs")
+                       (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
+                 (architecture-description-interface-implementations architecture-description))
+                (error)))]
+          ;;; Size of the LUT requested by the user.
+          [requested-lut-size (hash-ref (interface-identifier-parameters interface-id) "num_inputs")]
+          ;;; Size of the larger LUT that we'll use to satisfy the request.
+          [larger-lut-size
+           (hash-ref (interface-identifier-parameters larger-lut-interface-identifier) "num_inputs")]
+          ;;; The new port map is the old port map, with the extra inputs set to 1'b1. Note: the
+          ;;; decision to set them to high is arbitrary, based on the fact that it's helpful when
+          ;;; to set them to 1 on Xilinx. We should perhaps allow this to be configurable.
+          [new-port-map (append port-map
+                                (for/list ([i (range requested-lut-size larger-lut-size)])
+                                  (cons (format "I~a" i) (lr:bv (bv 1 1)))))]
+          [(list out-lut-expr internal-data)
+           (construct-interface-internal architecture-description
+                                         larger-lut-interface-identifier
+                                         new-port-map
+                                         #:internal-data internal-data)])
+
+       (list out-lut-expr internal-data))]
+
+    ;;; TODO(@gussmith23): This seems to be broken on Xilinx. Constructing a larger LUT out of LUT2s
+    ;;; loops infinitely!
+    ;;;
     ;;; Case: they're asking for a LUT bigger than what we have (but we do have a LUT).
     ;;;
     ;;; In this case, we can construct the bigger LUT out of smaller LUTs by recursive calls to this
@@ -406,63 +467,6 @@
             (list (cons "I0" lut-O-expr0) (cons "I1" lut-O-expr1) (cons "S" mux-selector))
             #:internal-data mux-internal-data)])
        (list mux-expr (list lut-0-internal-data lut-1-internal-data mux-internal-data)))]
-
-    ;;; Case: They're asking for a smaller LUT, and we have a bigger LUT implemented.
-    ;;;
-    ;;; Research note: Even just the ordering of this cond clause with the above cond clause is a
-    ;;; value judgement. We will first attempt to construct a LUT out of smaller LUTs, and then we
-    ;;; will look for a bigger LUT. That's not always going to be the right thing to do.
-    [;;; Check: They're asking for a LUT.
-     (and (equal? "LUT" (interface-identifier-name interface-id))
-          ;;; Check: The architecture description implements a larger LUT.
-          (findf
-           (lambda (impl)
-             (and (equal? "LUT"
-                          (interface-identifier-name (interface-implementation-identifier impl)))
-                  (> (hash-ref (interface-identifier-parameters
-                                (interface-implementation-identifier impl))
-                               "num_inputs")
-                     (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
-           (architecture-description-interface-implementations architecture-description)))
-     (match-let*
-         (;;; Note: a very important part of how this code works is that it's deterministic: if we ask
-          ;;; for a LUT2 and it gets implemented on a LUT4, the next time we ask for a LUT2 it must
-          ;;; again be implemented on a LUT4! Otherwise, our method of implementing opaque internal
-          ;;; data will not work.
-
-          ;;; TODO(@gussmith23): We should minimize the size of the LUT that we use to implement the
-          ;;; smaller LUT. Currently, we just take the first thing that works.
-          [larger-lut-interface-identifier
-           (interface-implementation-identifier
-            (or (findf
-                 (lambda (impl)
-                   (and
-                    (equal? "LUT"
-                            (interface-identifier-name (interface-implementation-identifier impl)))
-                    (> (hash-ref (interface-identifier-parameters
-                                  (interface-implementation-identifier impl))
-                                 "num_inputs")
-                       (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
-                 (architecture-description-interface-implementations architecture-description))
-                (error)))]
-          ;;; Size of the LUT requested by the user.
-          [requested-lut-size (hash-ref (interface-identifier-parameters interface-id) "num_inputs")]
-          ;;; Size of the larger LUT that we'll use to satisfy the request.
-          [larger-lut-size
-           (hash-ref (interface-identifier-parameters larger-lut-interface-identifier) "num_inputs")]
-          ;;; The new port map is the old port map, with the extra inputs set to 1'b1. Note: the
-          ;;; decision to set them to high is arbitrary, based on the fact that it's helpful when
-          ;;; to set them to 1 on Xilinx. We should perhaps allow this to be configurable.
-          [new-port-map (append port-map
-                                (for/list ([i (range requested-lut-size larger-lut-size)])
-                                  (cons (format "I~a" i) (lr:bv (bv 1 1)))))]
-          [(list out-lut-expr internal-data)
-           (construct-interface-internal architecture-description
-                                         larger-lut-interface-identifier
-                                         new-port-map
-                                         #:internal-data internal-data)])
-
-       (list out-lut-expr internal-data))]
 
     ;;; Implement a larger or smaller carry chain by chaining together an existing carry chain.
     [;;; Check: They're asking for a carry.
