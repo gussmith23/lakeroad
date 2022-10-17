@@ -10,6 +10,7 @@
            "utils.rkt"
            "synthesize.rkt"
            "architecture-description.rkt"
+           "xilinx-ultrascale-plus-lut2.rkt"
            "xilinx-ultrascale-plus-lut6.rkt"
            "xilinx-ultrascale-plus-carry8.rkt")
 
@@ -27,7 +28,9 @@
                                (xilinx-ultrascale-plus-architecture-description)
                                bv-expr
                                #:module-semantics
-                               (list (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
+                               (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v")
+                                           xilinx-ultrascale-plus-lut2)
+                                     (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
                                            xilinx-ultrascale-plus-lut6)
                                      (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v")
                                            xilinx-ultrascale-plus-carry8))))))

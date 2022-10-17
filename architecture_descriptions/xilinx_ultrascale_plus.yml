@@ -1,4 +1,17 @@
 implementations:
+  - interface: { name: LUT, parameters: { num_inputs: 2 } }
+    modules:
+      - module_name: LUT2
+        filepath: ../verilator_xilinx/LUT2.v
+        parameters: [{ name: INIT, value: INIT }]
+        ports:
+          [
+            { name: I0, direction: input, bitwidth: 1, value: I0 },
+            { name: I1, direction: input, bitwidth: 1, value: I1 },
+            { name: O, direction: output, bitwidth: 1, value: O },
+          ]
+    internal_data: { INIT: 4 }
+    outputs: { O: O }
   - interface: { name: LUT, parameters: { num_inputs: 6 } }
     modules:
       - module_name: LUT6

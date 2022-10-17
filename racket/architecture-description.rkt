@@ -48,8 +48,13 @@
 (struct interface-port (name direction bitwidth) #:transparent)
 
 (define interfaces
-  ;;; LUT4 definition.
-  (list (interface-definition (interface-identifier "LUT" (hash "num_inputs" 4))
+  ;;; LUT2 definition.
+  (list (interface-definition (interface-identifier "LUT" (hash "num_inputs" 2))
+                              (list (interface-port "I0" 'input 1)
+                                    (interface-port "I1" 'input 1)
+                                    (interface-port "O" 'output 1)))
+        ;;; LUT4 definition.
+        (interface-definition (interface-identifier "LUT" (hash "num_inputs" 4))
                               (list (interface-port "I0" 'input 1)
                                     (interface-port "I1" 'input 1)
                                     (interface-port "I2" 'input 1)
