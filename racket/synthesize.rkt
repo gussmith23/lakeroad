@@ -17,7 +17,6 @@
 (require "interpreter.rkt"
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
-         "lattice-mul.rkt"
          rosette
          rosette/lib/synthax
          rosette/lib/angelic
@@ -86,8 +85,7 @@
          (cons "synthesize_lattice_ecp5_for_pfu" synthesize-lattice-ecp5-for-pfu)
          (cons "synthesize_lattice_ecp5_for_ripple_pfu" synthesize-lattice-ecp5-for-ripple-pfu)
          (cons "synthesize_lattice_ecp5_for_ccu2c" synthesize-lattice-ecp5-for-ccu2c)
-         (cons "synthesize_lattice_ecp5_for_ccu2c_tri" synthesize-lattice-ecp5-for-ccu2c-tri)
-         (cons "synthesize_lattice_ecp5_multiply_circt" synthesize-lattice-ecp5-multiply-circt))))
+         (cons "synthesize_lattice_ecp5_for_ccu2c_tri" synthesize-lattice-ecp5-for-ccu2c-tri))))
 
 (define (synthesize-with-timeout strat input timeout)
   (let ([t (current-thread)] [timeout-time (if (null? timeout) 5.0 timeout)])
@@ -177,8 +175,7 @@
                          synthesize-lattice-ecp5-for-pfu
                          synthesize-lattice-ecp5-for-ripple-pfu
                          synthesize-lattice-ecp5-for-ccu2c
-                         synthesize-lattice-ecp5-for-ccu2c-tri
-                         synthesize-lattice-ecp5-multiply-circt)
+                         synthesize-lattice-ecp5-for-ccu2c-tri)
                    bv-expr
                    timeout))
 
@@ -980,28 +977,28 @@
 
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
-(define (synthesize-lattice-ecp5-multiply-circt bv-expr)
+;;; (define (synthesize-lattice-ecp5-multiply-circt bv-expr)
 
-  (define out-bw (bvlen bv-expr))
-  (define max-input-bw
-    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
-  (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
+;;;   (define out-bw (bvlen bv-expr))
+;;;   (define max-input-bw
+;;;     (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+;;;   (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
 
-  ; Ugly hack to check exit conditions...everythin is indented way too much
-  ;
-  ; TODO: There is a way to use continuations to fix this (let/ec) but this
-  ; isn't the most important thing right now We only handle two inputs for now
-  ; for this form
-  (if (or (not (= (length logical-inputs) 2)) (not (concrete? out-bw)) (not (concrete? max-input-bw)))
-      #f
-      (begin
-        ;;; Max bitwidth of any input.
-        ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+;;;   ; Ugly hack to check exit conditions...everythin is indented way too much
+;;;   ;
+;;;   ; TODO: There is a way to use continuations to fix this (let/ec) but this
+;;;   ; isn't the most important thing right now We only handle two inputs for now
+;;;   ; for this form
+;;;   (if (or (not (= (length logical-inputs) 2)) (not (concrete? out-bw)) (not (concrete? max-input-bw)))
+;;;       #f
+;;;       (begin
+;;;         ;;; Max bitwidth of any input.
+;;;         ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
 
-        (define a (first logical-inputs))
-        (define b (second logical-inputs))
-        (define lakeroad-expr (lattice-mul-with-carry out-bw a b))
-        (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))))
+;;;         (define a (first logical-inputs))
+;;;         (define b (second logical-inputs))
+;;;         (define lakeroad-expr (lattice-mul-with-carry out-bw a b))
+;;;         (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))))
 
 ;;; make-wire-lrexpr: a helper function for `synthesize-wire`. This creates a FULL
 ;;; (input-to-output) wire template that is ready for synthesis.

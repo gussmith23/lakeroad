@@ -1,3 +1,4 @@
+;;; Retired this file now that we have multiplication sketch generation working.
 #lang errortrace racket
 
 (require rosette
