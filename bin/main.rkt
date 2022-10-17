@@ -5,8 +5,19 @@
          "../racket/synthesize.rkt"
          "../racket/compile-to-json.rkt"
          "../racket/circt-comb-operators.rkt"
+         "../racket/sketches.rkt"
+         "../racket/architecture-description.rkt"
          json
-         racket/sandbox)
+         racket/sandbox
+         "../racket/lattice-ecp5-lut4.rkt"
+         "../racket/lattice-ecp5-ccu2c.rkt"
+         "../racket/xilinx-ultrascale-plus-lut2.rkt"
+         "../racket/xilinx-ultrascale-plus-lut6.rkt"
+         "../racket/xilinx-ultrascale-plus-carry8.rkt"
+         "../racket/sofa-frac-lut4.rkt"
+         rosette/solver/smt/boolector)
+
+(current-solver (boolector))
 
 (define architecture
   (make-parameter ""
@@ -90,40 +101,46 @@
 
   (helper expr))
 
-;;; Synthesize a Lakeroad implementation of the given bv-expr.
-;;;
-;;; Returns a Lakeroad expression.
-(define (synthesize bv-expr template architecture #:timeout [timeout #f])
-  (let ([result
-         (with-vc
-          (with-terms
-           (if (template)
-               ;;; If the template is set, use that template explicitly.
-               ;;; If it times out, return false.
-               (with-handlers ([exn:fail:resource? (lambda (_) #f)])
-                 (call-with-limits timeout
-                                   #f
-                                   (lambda () ((hash-ref (template-map) (template)) bv-expr))))
+(define sketch-generator
+  (match (template)
+    ["bitwise" bitwise-sketch-generator]
+    ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
+    ["comparison" comparison-sketch-generator]
+    ["multiplication" multiplication-sketch-generator]
+    [else (error "No template specified.")]))
 
-               ;;; Otherwise, use the helper functions in synthesize.rkt for the specific architecture
-               ;;; to attempt multiple templates.
-               (match architecture
-                 ["xilinx-ultrascale-plus"
-                  (synthesize-xilinx-ultrascale-plus-impl bv-expr 'first-to-succeed)]
-                 ["lattice-ecp5"
-                  (synthesize-lattice-ecp5-impl bv-expr 'first-to-succeed #:timeout timeout)]
-                 ["sofa" (synthesize-sofa-impl bv-expr 'first-to-succeed)]
-                 [other
-                  (error (format
-                          "Invalid architecture given (value: ~a). Did you specify --architecture?"
-                          other))]))))])
-    (when (failed? result)
-      (error "Failed: ~a" result))
-    (result-value result)))
+(define architecture-description
+  (match (architecture)
+    ["xilinx-ultrascale-plus"
+     (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+           (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+           (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))]
+    ["lattice-ecp5" (lattice-ecp5-architecture-description)]
+    ["sofa"
+     (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
+    [other
+     (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
+                    other))]))
 
 (define bv-expr (parse-instruction (read (open-input-string (instruction)))))
 
-(define lakeroad-expr (synthesize bv-expr template (architecture) #:timeout (template-timeout)))
+(define module-semantics
+  (match (architecture)
+    ["xilinx-ultrascale-plus" (xilinx-ultrascale-plus-architecture-description)]
+    ["lattice-ecp5"
+     (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v")
+                 lattice-ecp5-ccu2c))]
+    ["sofa" (sofa-architecture-description)]
+    [other
+     (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
+                    other))]))
+
+(define lakeroad-expr
+  (synthesize-with-sketch sketch-generator
+                          architecture-description
+                          bv-expr
+                          #:module-semantics module-semantics))
 
 (cond
   [(not lakeroad-expr) (error "Synthesis failed.")]
