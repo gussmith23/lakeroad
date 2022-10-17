@@ -66,6 +66,7 @@
                                 bv-expr
                                 #:additional-forall [additional-forall '()]
                                 #:module-semantics [module-semantics '()])
+  (log-info "Attempting synthesis on expression ~a with sketch generator ~a" bv-expr sketch-generator)
   (rosette-synthesize bv-expr
                       (generate-sketch sketch-generator architecture-description bv-expr)
                       (append (symbolics bv-expr) additional-forall)
