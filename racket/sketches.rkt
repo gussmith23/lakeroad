@@ -373,7 +373,7 @@
                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
 
   (sketch-test
-   #:name "bitwise sketch generator on ultrascale"
+   #:name "bitwise sketch generator on lattice"
    #:defines (define-symbolic a b (bitvector 2))
    #:bv-expr (bvand a b)
    #:architecture-description (lattice-ecp5-architecture-description)
@@ -384,7 +384,7 @@
    #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
-   #:name "bitwise sketch generator on ultrascale (2 bit mux)"
+   #:name "bitwise sketch generator on lattice (2 bit mux)"
    #:defines (define-symbolic a b (bitvector 2))
    (define-symbolic sel (bitvector 1))
    #:bv-expr (if (not (bvzero? sel)) a b)
