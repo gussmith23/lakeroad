@@ -70,7 +70,9 @@
            (synthesize (format "~a bit +" sz) (bvadd l0 l1))
            (synthesize (format "~a bit -" sz) (bvsub l0 l1))
            (synthesize (format "~a bit bithack1" sz) (bithack1 l0 l1))
-           (synthesize (format "~a bit bithack2" sz) (bithack2 l0 l1))
+           ;;; Disabling after big refactor to use sketch generators. We didn't build a sketch
+           ;;; generator that implements this.
+           ;;;(synthesize (format "~a bit bithack2" sz) (bithack2 l0 l1))
            (synthesize (format "~a bit bithack3" sz) (bithack3 l0 l1))
            (synthesize (format "~a bit identity" sz) l0)
            (synthesize (format "~a bit *0" sz) (bvmul l0 (bv 0 sz)))
