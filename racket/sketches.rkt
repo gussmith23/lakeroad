@@ -28,6 +28,13 @@
          "verilator.rkt"
          "utils.rkt")
 
+;;; Simple helper to generate an architecture-specific sketch for the given bitvector expression.
+(define (generate-sketch sketch-generator architecture-description bv-expr)
+  (sketch-generator architecture-description
+                    (lr:list (map lr:bv (symbolics bv-expr)))
+                    (length (symbolics bv-expr))
+                    (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr)))))
+
 ;;; Generates a "bitwise" sketch, for operations like AND and OR.
 ;;;
 ;;; Bitwise operations are very simple: for n-bit inputs i0 and i1, bit 0 of i0 and bit 0 of i1 are
@@ -305,10 +312,7 @@
         defines ...
 
         (match-define (list sketch _)
-          (sketch-generator architecture-description
-                            (lr:list (map lr:bv (symbolics bv-expr)))
-                            (length (symbolics bv-expr))
-                            (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr)))))
+          (generate-sketch sketch-generator architecture-description bv-expr))
 
         (define result
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
