@@ -89,11 +89,12 @@
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
   (define include-dir (build-path (get-lakeroad-directory) "verilator_xilinx"))
-  (test-true "simulate all synthesized designs with Verilator"
-             (simulate-with-verilator
-              #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
-                                   (build-path (get-lakeroad-directory) "verilator-unisims"))
-              #:extra-verilator-args
-              "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING"
-              to-simulate-list
-              (getenv "VERILATOR_INCLUDE_DIR"))))
+  (test-true
+   "simulate all synthesized designs with Verilator"
+   (simulate-with-verilator
+    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
+                         (build-path (get-lakeroad-directory) "verilator-unisims"))
+    #:extra-verilator-args
+    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+    to-simulate-list
+    (getenv "VERILATOR_INCLUDE_DIR"))))
