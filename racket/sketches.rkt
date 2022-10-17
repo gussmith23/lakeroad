@@ -19,6 +19,12 @@
 
 #lang errortrace racket/base
 
+(provide generate-sketch
+         bitwise-sketch-generator
+         bitwise-with-carry-sketch-generator
+         comparison-sketch-generator
+         multiplication-sketch-generator)
+
 (require "architecture-description.rkt"
          "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt")
