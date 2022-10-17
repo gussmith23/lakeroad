@@ -72,6 +72,20 @@
        [lut-internal-data (if internal-data (first internal-data) #f)]
        [logical-to-physical-chooser (if internal-data (second internal-data) (?? boolean?))]
        [physical-to-logical-chooser (if internal-data (third internal-data) (?? boolean?))]
+       [logical-input-extension-choosers
+        (if internal-data
+            (fourth internal-data)
+            (for/list ([i num-logical-inputs])
+              (define-symbolic* logical-input-extension-chooser boolean?)
+              logical-input-extension-chooser))]
+
+       [logical-inputs
+        (lr:list (for/list ([i num-logical-inputs] [chooser logical-input-extension-choosers])
+                   (if chooser
+                       (lr:zero-extend (lr:list-ref logical-inputs (lr:integer i))
+                                       (lr:bitvector (bitvector bitwidth)))
+                       (lr:dup-extend (lr:list-ref logical-inputs (lr:integer i))
+                                      (lr:bitvector (bitvector bitwidth))))))]
 
        ;;; First, we construct a LUT just to get the `internal-data`. We will reuse this internal data
        ;;; to create more LUTs which use the same LUT memory. Note that if lut-internal-data is not #f
@@ -117,7 +131,11 @@
                          physical-outputs)]
        [out-expr (lr:list-ref logical-outputs (lr:integer 0))])
 
-    (list out-expr (list lut-internal-data logical-to-physical-chooser physical-to-logical-chooser))))
+    (list out-expr
+          (list lut-internal-data
+                logical-to-physical-chooser
+                physical-to-logical-chooser
+                logical-input-extension-choosers))))
 
 ;;; Bitwise with carry sketch generator.
 ;;;
@@ -358,6 +376,18 @@
    #:name "bitwise sketch generator on ultrascale"
    #:defines (define-symbolic a b (bitvector 2))
    #:bv-expr (bvand a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "bitwise sketch generator on ultrascale (2 bit mux)"
+   #:defines (define-symbolic a b (bitvector 2))
+   (define-symbolic sel (bitvector 1))
+   #:bv-expr (if (not (bvzero? sel)) a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-sketch-generator
    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
