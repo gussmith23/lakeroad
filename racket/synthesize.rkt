@@ -8,7 +8,6 @@
          synthesize-with-sketch
          synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
-         synthesize-sofa-impl
          synthesize-lattice-ecp5-impl
          synthesize-wire
          synthesize-xilinx-ultrascale-plus-dsp
@@ -25,7 +24,6 @@
          rosette/solver/smt/boolector
          "utils.rkt"
          "logical-to-physical.rkt"
-         (prefix-in template: "templates.rkt")
          (prefix-in lr: "language.rkt")
          "sketches.rkt")
 
@@ -76,10 +74,7 @@
 (define (template-map)
   (make-immutable-hash
    (list (cons "synthesize_wire" synthesize-wire)
-         (cons "synthesize_sofa_bitwise" (synthesize-using-lut 'sofa 1 4))
          (cons "synthesize_xilinx_ultrascale_plus_dsp" synthesize-xilinx-ultrascale-plus-dsp)
-         (cons "synthesize_xilinx_ultrascale_plus_bitwise"
-               (synthesize-using-lut 'xilinx-ultrascale-plus 1))
          (cons "synthesize_xilinx_ultrascale_plus_kitchen_sink"
                synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
          (cons "synthesize_lattice_ecp5_for_pfu" synthesize-lattice-ecp5-for-pfu)
@@ -134,8 +129,8 @@
             (synthesize-with-timeout s bv-expr timeout-time))
           templates)]))
 
-(define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
-  (synthesize-with finish-when (list synthesize-wire (synthesize-using-lut 'sofa 1 4)) bv-expr))
+;;; (define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
+;;; (synthesize-with finish-when (list synthesize-wire (synthesize-using-lut 'sofa 1 4)) bv-expr))
 
 (module+ test
   (require rackunit)
@@ -148,8 +143,8 @@
                                                                       (equal? 'unsynthesizable
                                                                               result))))))))))))
 
-(module+ test
-  (simple-test synthesize-sofa-impl (define-symbolic a b (bitvector 8)) (bvand a b)))
+;;; (module+ test
+;;;   (simple-test synthesize-sofa-impl (define-symbolic a b (bitvector 8)) (bvand a b)))
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
 ;;;
@@ -160,7 +155,6 @@
   (synthesize-with finish-when
                    (list synthesize-wire
                          synthesize-xilinx-ultrascale-plus-dsp
-                         (synthesize-using-lut 'xilinx-ultrascale-plus 1)
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
                    bv-expr))
 
@@ -210,52 +204,52 @@
 ;;; A function which, when given an architecture, a target number of lutmems,
 ;;; whether to use a carry, and how many arguments to pad the inputs to, if any,
 ;;; returns a synthesis strategy which uses the lut template.
-(define (synthesize-using-lut arch num-lutmems [pad #f] [carry? #f])
-  (lambda (bv-expr)
-    (when (> (length (symbolics bv-expr)) 6)
-      (error "Only 6 inputs supported"))
+;;; (define (synthesize-using-lut arch num-lutmems [pad #f] [carry? #f])
+;;;   (lambda (bv-expr)
+;;;     (when (> (length (symbolics bv-expr)) 6)
+;;;       (error "Only 6 inputs supported"))
 
-    ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
-    (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
+;;;     ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
+;;;     (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
 
-    (define inputs
-      (if pad
-          (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
-          (symbolics bv-expr)))
+;;;     (define inputs
+;;;       (if pad
+;;;           (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
+;;;           (symbolics bv-expr)))
 
-    (define lutmems
-      (for/list ([i num-lutmems])
-        (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
-        lutmem))
+;;;     (define lutmems
+;;;       (for/list ([i num-lutmems])
+;;;         (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
+;;;         lutmem))
 
-    (define lakeroad-expr
-      ((if carry? template:lut-with-carry template:lut) nbits arch inputs lutmems (bvlen bv-expr)))
+;;;     (define lakeroad-expr
+;;;       ((if carry? template:lut-with-carry template:lut) nbits arch inputs lutmems (bvlen bv-expr)))
 
-    (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
+;;;     (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
 
 ;;; A function which, when given an architecture, a target number of lutmems,
 ;;; and a number of arguments to pad the inputs to,
 ;;; returns a synthesis strategy which uses the comparison template.
-(define (synthesize-using-comparison arch num-lutmems [pad #f])
-  (lambda (bv-expr)
-    (when (> (length (symbolics bv-expr)) 4)
-      (error "Only 4 inputs supported"))
+;;; (define (synthesize-using-comparison arch num-lutmems [pad #f])
+;;;   (lambda (bv-expr)
+;;;     (when (> (length (symbolics bv-expr)) 4)
+;;;       (error "Only 4 inputs supported"))
 
-    ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
-    (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
+;;;     ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
+;;;     (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
 
-    (define inputs
-      (if pad
-          (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
-          (symbolics bv-expr)))
+;;;     (define inputs
+;;;       (if pad
+;;;           (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
+;;;           (symbolics bv-expr)))
 
-    (define lutmems
-      (for/list ([i num-lutmems])
-        (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
-        lutmem))
+;;;     (define lutmems
+;;;       (for/list ([i num-lutmems])
+;;;         (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
+;;;         lutmem))
 
-    (define lakeroad-expr (template:comparison nbits arch inputs lutmems))
-    (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
+;;;     (define lakeroad-expr (template:comparison nbits arch inputs lutmems))
+;;;     (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
 
 ;;;;;;
 ;;;
@@ -570,15 +564,6 @@
 
 (module+ test
   (simple-test synthesize-xilinx-ultrascale-plus-dsp (define-symbolic a b (bitvector 8)) (bvmul a b)))
-
-(module+ test
-  (require rackunit
-           rosette)
-  (test-begin
-   (define-symbolic a b (bitvector 8))
-   (define synthesize-xilinx-ultrascale-plus-impl-smaller-luts
-     (synthesize-using-lut 'xilinx-ultrascale-plus 1))
-   (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-impl-smaller-luts (bvand a b)))))
 
 ;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
 ;;; This is our original synthesis implementation, and remains our fallback.
