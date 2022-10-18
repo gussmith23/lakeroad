@@ -18,7 +18,8 @@
          (struct-out ltop-constant)
          (struct-out ltop-bitwise-reverse)
          (struct-out ptol-bitwise)
-         (struct-out ptol-bitwise-reverse))
+         (struct-out ptol-bitwise-reverse)
+         (struct-out ptol-choose-one))
 
 (require rosette
          racket/pretty
