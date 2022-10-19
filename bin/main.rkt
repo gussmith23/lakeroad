@@ -101,12 +101,23 @@
 
   (helper expr))
 
+(define bv-expr (parse-instruction (read (open-input-string (instruction)))))
+
 (define sketch-generator
   (match (template)
     ["bitwise" bitwise-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
+    ["xilinx-ultrascale-plus-dsp48e2"
+     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
+       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
+
+     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
+     ;;; synthesis function.
+     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+       ;;; Note: wrap in list to mock the return value of sketch generators.
+       (list (synthesize-xilinx-ultrascale-plus-dsp bv-expr)))]
     [else (error "Missing or invalid template.")]))
 
 (define architecture-description
@@ -117,8 +128,6 @@
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
-
-(define bv-expr (parse-instruction (read (open-input-string (instruction)))))
 
 (define module-semantics
   (match (architecture)
