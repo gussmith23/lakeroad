@@ -32,6 +32,8 @@
      (check-equal? (bvlen l2) sz)
      (check-equal? (bvlen l3) sz)
      (end-to-end-test (bvsub l0 l1))
+     ;;; TODO(@gussmith23): This test takes especially long for 8 and 16 bit (256^4 points to
+     ;;; simulate). Could enable an option to forcibly enable random testing.
      (end-to-end-test (bvadd (bvmul (bvadd l0 l1) l2) l3))
      (end-to-end-test (bvadd (bvmul l0 l1) l2))
      (end-to-end-test (bvmul (bvadd l0 l1) l2))
