@@ -35,7 +35,7 @@
 (define instruction (make-parameter #f identity))
 (define module-name (make-parameter #f identity))
 (define json-filepath (make-parameter (make-temporary-file "rkttmp~a.json") identity))
-(define out-filepath (make-parameter #f identity))
+(define output-port (make-parameter (current-output-port) (lambda (v) (open-output-file v))))
 (define template-timeout
   (make-parameter #f (lambda (to) (if (equal? "0" to) #f (string->number to)))))
 (define template (make-parameter #f identity))
@@ -52,7 +52,7 @@
  ["--out-filepath"
   v
   "Output filepath, where the output file is in the format requested."
-  (out-filepath v)]
+  (output-port v)]
  ["--template"
   v
   "Specifies which template to synthesize with. When not set, the synthesis procedure will run"
@@ -67,9 +67,6 @@
   " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)])
-
-(when (not (out-filepath))
-  (error "Must specify --out-filepath."))
 
 ;;; Parse instruction.
 ;;;
@@ -159,10 +156,11 @@
 
    (match (out-format)
      ["verilog"
-      (when (not (with-output-to-string (lambda ()
-                                          (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
-                                                          (json-filepath)
-                                                          (out-filepath))))))
-        (error "Converting JSON to Verilog via Yosys failed."))]
+      (display (with-output-to-string
+                (lambda ()
+                  (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
+                                             (json-filepath))))
+                    (error "Yosys failed."))))
+               (output-port))]
 
      [_ (error "Invalid output format.")])])
