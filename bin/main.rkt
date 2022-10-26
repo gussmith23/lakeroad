@@ -8,7 +8,6 @@
          "../racket/sketches.rkt"
          "../racket/architecture-description.rkt"
          json
-         racket/sandbox
          "../racket/lattice-ecp5-lut4.rkt"
          "../racket/lattice-ecp5-ccu2c.rkt"
          "../racket/xilinx-ultrascale-plus-lut2.rkt"
