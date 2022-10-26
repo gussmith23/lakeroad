@@ -31,25 +31,27 @@
          ;;; Form the list of logical inputs.
          ;;; Zero-extend them so they're all the same size.
          [logical-inputs (map (lambda (v)
-                                (choose* (lr:zero-extend v (bitvector max-bw))
-                                         (lr:dup-extend v (bitvector max-bw))))
+                                (choose* (lr:zero-extend (lr:bv v) (lr:bitvector (bitvector max-bw)))
+                                         (lr:dup-extend (lr:bv v) (lr:bitvector (bitvector max-bw)))))
                               logical-inputs)]
          [lutmem (match lutmems
                    [(list lm0) (choose* lm0)]
                    [(list lm0 lm1) (choose* lm0 lm1)])]
          [lakeroad-expr
-          (let* ([physical-inputs (logical-to-physical-mapping (choose* '(bitwise) '(bitwise-reverse))
-                                                               logical-inputs)]
+          (let* ([physical-inputs (logical-to-physical-mapping
+                                   (choose* (ltop-bitwise) (ltop-bitwise-reverse))
+                                   (lr:list logical-inputs))]
                  [physical-outputs (for/list ([i max-bw])
                                      (lr:lut (length logical-inputs)
                                              1
                                              architecture
-                                             lutmem
-                                             (lr:list-ref physical-inputs i)))])
-            (lr:extract (sub1 outwidth)
-                        0
-                        (lr:first (physical-to-logical-mapping (choose* '(bitwise) '(bitwise-reverse))
-                                                               physical-outputs))))])
+                                             (lr:bv lutmem)
+                                             (lr:list-ref physical-inputs (lr:integer i))))])
+            (lr:extract (lr:integer (sub1 outwidth))
+                        (lr:integer 0)
+                        (lr:first (physical-to-logical-mapping
+                                   (choose* (ptol-bitwise) (ptol-bitwise-reverse))
+                                   (lr:list physical-outputs)))))])
     (when (not (concrete? max-bw))
       (error "Input bitwidths must be statically known."))
 
@@ -63,16 +65,17 @@
          ;;; Then, we add on top of it.
          [max-bw (apply max outwidth (map bvlen logical-inputs))]
          [logical-inputs (map (lambda (v)
-                                (choose* (lr:zero-extend v (bitvector max-bw))
-                                         (lr:dup-extend v (bitvector max-bw))))
+                                (choose* (lr:zero-extend (lr:bv v) (lr:bitvector (bitvector max-bw)))
+                                         (lr:dup-extend (lr:bv v) (lr:bitvector (bitvector max-bw)))))
                               logical-inputs)]
          [logical-input (match logical-inputs
                           [(list l0) (choose* l0)]
                           [(list l0 l1) (choose* l0 l1)])]
 
          [lakeroad-expr-carry
-          (lr:carry nbits architecture (?? (bitvector 1)) logical-input lakeroad-expr-lut)]
-         [output (choose* (lr:first lakeroad-expr-carry) (lr:list-ref lakeroad-expr-carry 1))])
+          (lr:carry nbits architecture (lr:bv (?? (bitvector 1))) logical-input lakeroad-expr-lut)]
+         [output (choose* (lr:first lakeroad-expr-carry)
+                          (lr:list-ref lakeroad-expr-carry (lr:integer 1)))])
     output))
 
 ;;; Comparison template: the general template is two columns of LUTs that feed into the DI and S
@@ -85,7 +88,7 @@
          ;;; Then, we add on top of it.
          [lakeroad-expr-carry
           (lr:carry nbits architecture (?? (bitvector 1)) lakeroad-expr-lut-0 lakeroad-expr-lut-1)]
-         [output (lr:list-ref lakeroad-expr-carry 1)])
+         [output (lr:list-ref lakeroad-expr-carry (lr:integer 1))])
     output))
 
 (module+ test

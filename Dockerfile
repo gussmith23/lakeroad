@@ -102,7 +102,8 @@ RUN pip install -r requirements.txt
 RUN raco setup --doc-index --force-user-docs
 RUN raco pkg install --deps search-auto --batch \
   fmt \
-  rosette
+  rosette \
+  yaml
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y

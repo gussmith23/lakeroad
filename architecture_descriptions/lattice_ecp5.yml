@@ -1,0 +1,64 @@
+implementations:
+  - interface: { name: LUT, parameters: { num_inputs: 4 } }
+    internal_data: { INIT: 16 }
+    modules:
+      - module_name: LUT4
+        filepath: ../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v
+        racket_import_filepath: ../modules_for_importing/lattice_ecp5/LUT4.v
+        ports:
+          [
+            { name: A, direction: input, bitwidth: 1, value: I0 },
+            { name: B, direction: input, bitwidth: 1, value: I1 },
+            { name: C, direction: input, bitwidth: 1, value: I2 },
+            { name: D, direction: input, bitwidth: 1, value: I3 },
+            { name: Z, direction: output, bitwidth: 1, value: O },
+          ]
+        parameters: [{ name: INIT, value: INIT }]
+    outputs: { O: Z }
+  - interface: { name: MUX, parameters: { num_inputs: 2 } }
+    modules:
+      # TODO(@gussmith23): This MUX is not actually intended to be general-purpose. Replace this with a LUT2 implementation.
+      - module_name: L6MUX21
+        filepath: ../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v
+        ports:
+          [
+            { name: D0, direction: input, bitwidth: 1, value: I0 },
+            { name: D1, direction: input, bitwidth: 1, value: I1 },
+            { name: SD, direction: input, bitwidth: 1, value: S },
+            { name: Z, direction: output, bitwidth: 1, value: O },
+          ]
+    outputs: { O: Z }
+  - interface: { name: carry, parameters: { width: 2 } }
+    internal_data: { INIT0: 16, INIT1: 16 }
+    modules:
+      - module_name: CCU2C
+        filepath: ../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v
+        racket_import_filepath: ../modules_for_importing/lattice_ecp5/CCU2C.v
+        ports: [
+            { name: CIN, direction: input, bitwidth: 1, value: CI },
+            { name: A0, direction: input, bitwidth: 1, value: (bit 0 DI) },
+            { name: A1, direction: input, bitwidth: 1, value: (bit 1 DI) },
+            { name: B0, direction: input, bitwidth: 1, value: (bit 0 S) },
+            { name: B1, direction: input, bitwidth: 1, value: (bit 1 S) },
+            # Set the other inputs to 1 to enable the carry chain. NOTE: It's
+            # very important that we specify ALL inputs. This is due to the fact
+            # that any unspecified inputs will currently be made symbolic, which
+            # isn't good. See #147.
+            { name: C0, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: C1, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: D0, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: D1, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: S0, direction: output, bitwidth: 1, value: unused },
+            { name: S1, direction: output, bitwidth: 1, value: unused },
+            { name: COUT, direction: output, bitwidth: 1, value: unused },
+          ]
+        parameters: [
+            # NOTE: It's very important that we specify ALL parameters. This is
+            # due to the fact that any unspecified parameters will currently be
+            # made symbolic, which isn't good. See #147.
+            { name: INIT0, value: INIT0 },
+            { name: INIT1, value: INIT1 },
+            { name: INJECT1_0, value: (bv 0 1) },
+            { name: INJECT1_1, value: (bv 0 1) },
+          ]
+    outputs: { O: (concat S1 S0), CO: COUT }

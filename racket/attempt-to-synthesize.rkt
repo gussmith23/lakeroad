@@ -34,7 +34,7 @@
           logical-input-5))
   (define expr
     (lr:list-ref (physical-to-logical-mapping
-                  '(bitwise)
+                  (ptol-bitwise)
                   (ultrascale-plus-clb (?? (bitvector 1))
                                        (?? (bitvector 64))
                                        (?? (bitvector 64))
@@ -52,7 +52,7 @@
                                        (?? (bitvector 2))
                                        (?? (bitvector 2))
                                        (?? (bitvector 2))
-                                       (logical-to-physical-mapping '(bitwise) logical-inputs)))
+                                       (logical-to-physical-mapping (ltop-bitwise) logical-inputs)))
                  0))
 
   ; Unused logical inputs which we will assume are zero.

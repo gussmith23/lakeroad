@@ -7,7 +7,9 @@
            "synthesize.rkt"
            "circt-comb-operators.rkt"
            "utils.rkt"
-           rosette)
+           rosette
+           "architecture-description.rkt"
+           "sofa-frac-lut4.rkt")
   (current-solver (boolector))
 
   (define to-simulate-list (list))
@@ -18,7 +20,14 @@
      (begin
        (log-info "synthesizing: ~a" bv-expr)
 
-       (define with-vc-result (with-vc (with-terms (synthesize-sofa-impl bv-expr))))
+       (define with-vc-result
+         (with-vc (with-terms (synthesize-any
+                               (sofa-architecture-description)
+                               bv-expr
+                               #:module-semantics
+                               (list (cons (cons "frac_lut4"
+                                                 "../modules_for_importing/SOFA/frac_lut4.v")
+                                           sofa-frac-lut4))))))
        (check-false (failed? with-vc-result))
        ;;; (when (failed? with-vc-result)
        ;;;   (raise (result-value with-vc-result)))

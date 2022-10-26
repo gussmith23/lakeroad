@@ -3,9 +3,11 @@
 ;;;
 ;;; TODO provide a top-level synthesis procedure?
 
-(provide synthesize-with
+(provide synthesize-any
+         synthesize-all
+         synthesize-with-sketch
+         synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
-         synthesize-sofa-impl
          synthesize-lattice-ecp5-impl
          synthesize-wire
          synthesize-xilinx-ultrascale-plus-dsp
@@ -14,7 +16,6 @@
 (require "interpreter.rkt"
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
-         "lattice-mul.rkt"
          rosette
          rosette/lib/synthax
          rosette/lib/angelic
@@ -23,25 +24,63 @@
          rosette/solver/smt/boolector
          "utils.rkt"
          "logical-to-physical.rkt"
-         (prefix-in template: "templates.rkt")
-         (prefix-in lr: "language.rkt"))
+         (prefix-in lr: "language.rkt")
+         "sketches.rkt")
+
+;;; Attempt synthesis, return the first that works.
+(define (synthesize-any architecture-description
+                        bv-expr
+                        #:additional-forall [additional-forall '()]
+                        #:module-semantics [module-semantics '()])
+  (let/ec return
+          (for ([sketch-generator (all-sketch-generators)])
+            (let ([result (synthesize-with-sketch sketch-generator
+                                                  architecture-description
+                                                  bv-expr
+                                                  #:additional-forall additional-forall
+                                                  #:module-semantics module-semantics)])
+              (when result
+                (return result))))
+          #f))
+
+;;; Attempt synthesis with all sketch generators.
+;;; Returns a list of pairs of (sketch-generator-fn . result).
+(define (synthesize-all architecture-description
+                        bv-expr
+                        #:additional-forall [additional-forall '()]
+                        #:module-semantics [module-semantics '()])
+  (for/list ([sketch-generator (all-sketch-generators)])
+    (let ([result (synthesize-with-sketch sketch-generator
+                                          architecture-description
+                                          bv-expr
+                                          #:additional-forall additional-forall
+                                          #:module-semantics module-semantics)])
+      (cons sketch-generator result))))
+
+;;; Attempt synthesis with a single sketch generator.
+(define (synthesize-with-sketch sketch-generator
+                                architecture-description
+                                bv-expr
+                                #:additional-forall [additional-forall '()]
+                                #:module-semantics [module-semantics '()])
+  (log-info "Attempting synthesis on expression ~a with sketch generator ~a" bv-expr sketch-generator)
+  (rosette-synthesize bv-expr
+                      (generate-sketch sketch-generator architecture-description bv-expr)
+                      (append (symbolics bv-expr) additional-forall)
+                      #:module-semantics module-semantics))
 
 (current-solver (boolector))
 
 (define (template-map)
   (make-immutable-hash
    (list (cons "synthesize_wire" synthesize-wire)
-         (cons "synthesize_sofa_bitwise" (synthesize-using-lut 'sofa 1 4))
          (cons "synthesize_xilinx_ultrascale_plus_dsp" synthesize-xilinx-ultrascale-plus-dsp)
-         (cons "synthesize_xilinx_ultrascale_plus_bitwise"
-               (synthesize-using-lut 'xilinx-ultrascale-plus 1))
          (cons "synthesize_xilinx_ultrascale_plus_kitchen_sink"
                synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
          (cons "synthesize_lattice_ecp5_for_pfu" synthesize-lattice-ecp5-for-pfu)
          (cons "synthesize_lattice_ecp5_for_ripple_pfu" synthesize-lattice-ecp5-for-ripple-pfu)
          (cons "synthesize_lattice_ecp5_for_ccu2c" synthesize-lattice-ecp5-for-ccu2c)
-         (cons "synthesize_lattice_ecp5_for_ccu2c_tri" synthesize-lattice-ecp5-for-ccu2c-tri)
-         (cons "synthesize_lattice_ecp5_multiply_circt" synthesize-lattice-ecp5-multiply-circt))))
+         (cons "synthesize_lattice_ecp5_for_ccu2c_tri" synthesize-lattice-ecp5-for-ccu2c-tri))))
 
 (define (synthesize-with-timeout strat input timeout)
   (let ([t (current-thread)] [timeout-time (if (null? timeout) 5.0 timeout)])
@@ -90,8 +129,22 @@
             (synthesize-with-timeout s bv-expr timeout-time))
           templates)]))
 
-(define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
-  (synthesize-with finish-when (list synthesize-wire (synthesize-using-lut 'sofa 1 4)) bv-expr))
+;;; (define (synthesize-sofa-impl bv-expr [finish-when 'first-to-succeed])
+;;; (synthesize-with finish-when (list synthesize-wire (synthesize-using-lut 'sofa 1 4)) bv-expr))
+
+(module+ test
+  (require rackunit)
+  (define-syntax-rule (simple-test f before-call args ...)
+    (test-true (format "~a simple test" f)
+               (normal? (with-vc (with-terms (begin
+                                               before-call
+                                               (let ([result (f args ...)])
+                                                 (check-true (not (or (equal? #f result)
+                                                                      (equal? 'unsynthesizable
+                                                                              result))))))))))))
+
+;;; (module+ test
+;;;   (simple-test synthesize-sofa-impl (define-symbolic a b (bitvector 8)) (bvand a b)))
 
 ;;; Synthesize a Xilinx UltraScale+ Lakeroad expression for the given Rosette bitvector expression.
 ;;;
@@ -102,9 +155,13 @@
   (synthesize-with finish-when
                    (list synthesize-wire
                          synthesize-xilinx-ultrascale-plus-dsp
-                         (synthesize-using-lut 'xilinx-ultrascale-plus 1)
                          synthesize-xilinx-ultrascale-plus-impl-kitchen-sink)
                    bv-expr))
+
+(module+ test
+  (simple-test synthesize-xilinx-ultrascale-plus-impl
+               (define-symbolic a b (bitvector 8))
+               (bvand a b)))
 
 (define (synthesize-lattice-ecp5-impl bv-expr [finish-when 'first-to-succeed] #:timeout [timeout 5.0])
   (synthesize-with finish-when
@@ -112,10 +169,28 @@
                          synthesize-lattice-ecp5-for-pfu
                          synthesize-lattice-ecp5-for-ripple-pfu
                          synthesize-lattice-ecp5-for-ccu2c
-                         synthesize-lattice-ecp5-for-ccu2c-tri
-                         synthesize-lattice-ecp5-multiply-circt)
+                         synthesize-lattice-ecp5-for-ccu2c-tri)
                    bv-expr
                    timeout))
+
+(module+ test
+  (simple-test synthesize-lattice-ecp5-impl (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvadd a b))
+  ;;; It's unclear whether CCU2C template is supposed to work. Assuming it's broken for now. Same with
+  ;;; tri.
+  ;;; (simple-test synthesize-lattice-ecp5-for-ccu2c (define-symbolic a b (bitvector 8)) (bvand a b))
+  ;;; (simple-test synthesize-lattice-ecp5-for-ccu2c (define-symbolic a b (bitvector 8)) (bvadd a b))
+  ;;; I tried hard, but I just couldn't get multiplication fixed. It's okay, because we'll fix it by
+  ;;; reimplementing it as a new template.
+  ;;; (simple-test synthesize-lattice-ecp5-multiply-circt (define-symbolic a b (bitvector 2)) (bvmul a b))
+  ;;; (simple-test synthesize-lattice-ecp5-multiply-circt (define-symbolic a b (bitvector 3)) (bvmul a b))
+  ;;; (simple-test synthesize-lattice-ecp5-multiply-circt (define-symbolic a b (bitvector 4)) (bvmul a b))
+  ;;; (simple-test synthesize-lattice-ecp5-multiply-circt
+  ;;;              (define-symbolic a b (bitvector 8))
+  ;;;              (bvmul a b))
+  )
 
 ;;;;;;
 ;;;
@@ -129,52 +204,52 @@
 ;;; A function which, when given an architecture, a target number of lutmems,
 ;;; whether to use a carry, and how many arguments to pad the inputs to, if any,
 ;;; returns a synthesis strategy which uses the lut template.
-(define (synthesize-using-lut arch num-lutmems [pad #f] [carry? #f])
-  (lambda (bv-expr)
-    (when (> (length (symbolics bv-expr)) 6)
-      (error "Only 6 inputs supported"))
+;;; (define (synthesize-using-lut arch num-lutmems [pad #f] [carry? #f])
+;;;   (lambda (bv-expr)
+;;;     (when (> (length (symbolics bv-expr)) 6)
+;;;       (error "Only 6 inputs supported"))
 
-    ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
-    (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
+;;;     ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
+;;;     (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
 
-    (define inputs
-      (if pad
-          (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
-          (symbolics bv-expr)))
+;;;     (define inputs
+;;;       (if pad
+;;;           (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
+;;;           (symbolics bv-expr)))
 
-    (define lutmems
-      (for/list ([i num-lutmems])
-        (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
-        lutmem))
+;;;     (define lutmems
+;;;       (for/list ([i num-lutmems])
+;;;         (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
+;;;         lutmem))
 
-    (define lakeroad-expr
-      ((if carry? template:lut-with-carry template:lut) nbits arch inputs lutmems (bvlen bv-expr)))
+;;;     (define lakeroad-expr
+;;;       ((if carry? template:lut-with-carry template:lut) nbits arch inputs lutmems (bvlen bv-expr)))
 
-    (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
+;;;     (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
 
 ;;; A function which, when given an architecture, a target number of lutmems,
 ;;; and a number of arguments to pad the inputs to,
 ;;; returns a synthesis strategy which uses the comparison template.
-(define (synthesize-using-comparison arch num-lutmems [pad #f])
-  (lambda (bv-expr)
-    (when (> (length (symbolics bv-expr)) 4)
-      (error "Only 4 inputs supported"))
+;;; (define (synthesize-using-comparison arch num-lutmems [pad #f])
+;;;   (lambda (bv-expr)
+;;;     (when (> (length (symbolics bv-expr)) 4)
+;;;       (error "Only 4 inputs supported"))
 
-    ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
-    (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
+;;;     ;;; Maximum number of input and output bitwidths = the number of bits we need to support.
+;;;     (define nbits (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))
 
-    (define inputs
-      (if pad
-          (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
-          (symbolics bv-expr)))
+;;;     (define inputs
+;;;       (if pad
+;;;           (append (symbolics bv-expr) (make-list (- pad (length (symbolics bv-expr))) (bv 0 1)))
+;;;           (symbolics bv-expr)))
 
-    (define lutmems
-      (for/list ([i num-lutmems])
-        (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
-        lutmem))
+;;;     (define lutmems
+;;;       (for/list ([i num-lutmems])
+;;;         (define-symbolic* lutmem (bitvector (expt 2 (length inputs))))
+;;;         lutmem))
 
-    (define lakeroad-expr (template:comparison nbits arch inputs lutmems))
-    (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
+;;;     (define lakeroad-expr (template:comparison nbits arch inputs lutmems))
+;;;     (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr))))
 
 ;;;;;;
 ;;;
@@ -201,10 +276,18 @@
      (define in2 (if (>= (length (symbolics bv-expr)) 3) (list-ref (symbolics bv-expr) 2) (bv 0 1)))
      (define in3 (if (>= (length (symbolics bv-expr)) 4) (list-ref (symbolics bv-expr) 3) (bv 0 1)))
 
-     (define A (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 30)))
-     (define B (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 18)))
-     (define C (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 48)))
-     (define D (zero-extend (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)) (bitvector 27)))
+     (define A
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)))
+                       (lr:bitvector (bitvector 30))))
+     (define B
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)))
+                       (lr:bitvector (bitvector 18))))
+     (define C
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)))
+                       (lr:bitvector (bitvector 48))))
+     (define D
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 in3 (bv 0 1) (bv 1 1)))
+                       (lr:bitvector (bitvector 27))))
 
      (define-symbolic ACASCREG (bitvector 32))
      (define-symbolic ACIN (bitvector 30))
@@ -293,104 +376,104 @@
      (define-symbolic unnamed-input-850 (bitvector 1))
 
      (define lakeroad-expr
-       (lr:extract (sub1 (bvlen bv-expr))
-                   0
+       (lr:extract (lr:integer (sub1 (bvlen bv-expr)))
+                   (lr:integer 0)
                    (lr:first (ultrascale-plus-dsp48e2 A
-                                                      ACASCREG
-                                                      ACIN
-                                                      ADREG
-                                                      ALUMODE
-                                                      ALUMODEREG
-                                                      AMULTSEL
-                                                      AREG
-                                                      AUTORESET_PATDET
-                                                      AUTORESET_PRIORITY
-                                                      A_INPUT
+                                                      (lr:bv ACASCREG)
+                                                      (lr:bv ACIN)
+                                                      (lr:bv ADREG)
+                                                      (lr:bv ALUMODE)
+                                                      (lr:bv ALUMODEREG)
+                                                      (lr:bv AMULTSEL)
+                                                      (lr:bv AREG)
+                                                      (lr:bv AUTORESET_PATDET)
+                                                      (lr:bv AUTORESET_PRIORITY)
+                                                      (lr:bv A_INPUT)
                                                       B
-                                                      BCASCREG
-                                                      BCIN
-                                                      BMULTSEL
-                                                      BREG
-                                                      B_INPUT
+                                                      (lr:bv BCASCREG)
+                                                      (lr:bv BCIN)
+                                                      (lr:bv BMULTSEL)
+                                                      (lr:bv BREG)
+                                                      (lr:bv B_INPUT)
                                                       C
-                                                      CARRYCASCIN
-                                                      CARRYIN
-                                                      CARRYINREG
-                                                      CARRYINSEL
-                                                      CARRYINSELREG
-                                                      CEA1
-                                                      CEA2
-                                                      CEAD
-                                                      CEALUMODE
-                                                      CEB1
-                                                      CEB2
-                                                      CEC
-                                                      CECARRYIN
-                                                      CECTRL
-                                                      CED
-                                                      CEINMODE
-                                                      CEM
-                                                      CEP
-                                                      CLK
-                                                      CREG
+                                                      (lr:bv CARRYCASCIN)
+                                                      (lr:bv CARRYIN)
+                                                      (lr:bv CARRYINREG)
+                                                      (lr:bv CARRYINSEL)
+                                                      (lr:bv CARRYINSELREG)
+                                                      (lr:bv CEA1)
+                                                      (lr:bv CEA2)
+                                                      (lr:bv CEAD)
+                                                      (lr:bv CEALUMODE)
+                                                      (lr:bv CEB1)
+                                                      (lr:bv CEB2)
+                                                      (lr:bv CEC)
+                                                      (lr:bv CECARRYIN)
+                                                      (lr:bv CECTRL)
+                                                      (lr:bv CED)
+                                                      (lr:bv CEINMODE)
+                                                      (lr:bv CEM)
+                                                      (lr:bv CEP)
+                                                      (lr:bv CLK)
+                                                      (lr:bv CREG)
                                                       D
-                                                      DREG
-                                                      INMODE
-                                                      INMODEREG
-                                                      IS_ALUMODE_INVERTED
-                                                      IS_CARRYIN_INVERTED
-                                                      IS_CLK_INVERTED
-                                                      IS_INMODE_INVERTED
-                                                      IS_OPMODE_INVERTED
-                                                      IS_RSTALLCARRYIN_INVERTED
-                                                      IS_RSTALUMODE_INVERTED
-                                                      IS_RSTA_INVERTED
-                                                      IS_RSTB_INVERTED
-                                                      IS_RSTCTRL_INVERTED
-                                                      IS_RSTC_INVERTED
-                                                      IS_RSTD_INVERTED
-                                                      IS_RSTINMODE_INVERTED
-                                                      IS_RSTM_INVERTED
-                                                      IS_RSTP_INVERTED
-                                                      MASK
-                                                      MREG
-                                                      MULTSIGNIN
-                                                      OPMODE
-                                                      OPMODEREG
-                                                      PATTERN
-                                                      PCIN
-                                                      PREADDINSEL
-                                                      PREG
-                                                      RND
-                                                      RSTA
-                                                      RSTALLCARRYIN
-                                                      RSTALUMODE
-                                                      RSTB
-                                                      RSTC
-                                                      RSTCTRL
-                                                      RSTD
-                                                      RSTINMODE
-                                                      RSTM
-                                                      RSTP
-                                                      SEL_MASK
-                                                      SEL_PATTERN
-                                                      USE_MULT
-                                                      USE_PATTERN_DETECT
-                                                      USE_SIMD
-                                                      USE_WIDEXOR
-                                                      XORSIMD
-                                                      unnamed-input-331
-                                                      unnamed-input-488
-                                                      unnamed-input-750
-                                                      unnamed-input-806
-                                                      unnamed-input-850))))
+                                                      (lr:bv DREG)
+                                                      (lr:bv INMODE)
+                                                      (lr:bv INMODEREG)
+                                                      (lr:bv IS_ALUMODE_INVERTED)
+                                                      (lr:bv IS_CARRYIN_INVERTED)
+                                                      (lr:bv IS_CLK_INVERTED)
+                                                      (lr:bv IS_INMODE_INVERTED)
+                                                      (lr:bv IS_OPMODE_INVERTED)
+                                                      (lr:bv IS_RSTALLCARRYIN_INVERTED)
+                                                      (lr:bv IS_RSTALUMODE_INVERTED)
+                                                      (lr:bv IS_RSTA_INVERTED)
+                                                      (lr:bv IS_RSTB_INVERTED)
+                                                      (lr:bv IS_RSTCTRL_INVERTED)
+                                                      (lr:bv IS_RSTC_INVERTED)
+                                                      (lr:bv IS_RSTD_INVERTED)
+                                                      (lr:bv IS_RSTINMODE_INVERTED)
+                                                      (lr:bv IS_RSTM_INVERTED)
+                                                      (lr:bv IS_RSTP_INVERTED)
+                                                      (lr:bv MASK)
+                                                      (lr:bv MREG)
+                                                      (lr:bv MULTSIGNIN)
+                                                      (lr:bv OPMODE)
+                                                      (lr:bv OPMODEREG)
+                                                      (lr:bv PATTERN)
+                                                      (lr:bv PCIN)
+                                                      (lr:bv PREADDINSEL)
+                                                      (lr:bv PREG)
+                                                      (lr:bv RND)
+                                                      (lr:bv RSTA)
+                                                      (lr:bv RSTALLCARRYIN)
+                                                      (lr:bv RSTALUMODE)
+                                                      (lr:bv RSTB)
+                                                      (lr:bv RSTC)
+                                                      (lr:bv RSTCTRL)
+                                                      (lr:bv RSTD)
+                                                      (lr:bv RSTINMODE)
+                                                      (lr:bv RSTM)
+                                                      (lr:bv RSTP)
+                                                      (lr:bv SEL_MASK)
+                                                      (lr:bv SEL_PATTERN)
+                                                      (lr:bv USE_MULT)
+                                                      (lr:bv USE_PATTERN_DETECT)
+                                                      (lr:bv USE_SIMD)
+                                                      (lr:bv USE_WIDEXOR)
+                                                      (lr:bv XORSIMD)
+                                                      (lr:bv unnamed-input-331)
+                                                      (lr:bv unnamed-input-488)
+                                                      (lr:bv unnamed-input-750)
+                                                      (lr:bv unnamed-input-806)
+                                                      (lr:bv unnamed-input-850)))))
 
      ;;; For some reason I can't get this working for the full
      ;;; bitwidth. I expect it to work for 26x17 (because we do
      ;;; unsigned mult, but DSP is signed, so we can't use all
      ;;; 27/18 bits.) 16x16 seems to be the most I can get.
-     (assume (bvult A (bv (expt 2 16) 30)))
-     (assume (bvult B (bv (expt 2 16) 18)))
+     (assume (bvult (interpret A) (bv (expt 2 16) 30)))
+     (assume (bvult (interpret B) (bv (expt 2 16) 18)))
 
      ;;; Force to DYNAMIC to avoid:
      ;;;
@@ -488,22 +571,7 @@
                                        unnamed-input-850))))))
 
 (module+ test
-  (require rosette/solver/smt/boolector
-           rackunit)
-  (current-solver (boolector))
-  (check-true
-   (normal? (with-vc (begin
-                       (define-symbolic a b (bitvector 8))
-                       (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-dsp (bvmul a b))))))))
-
-(module+ test
-  (require rackunit
-           rosette)
-  (test-begin
-   (define-symbolic a b (bitvector 8))
-   (define synthesize-xilinx-ultrascale-plus-impl-smaller-luts
-     (synthesize-using-lut 'xilinx-ultrascale-plus 1))
-   (check-not-equal? #f (synthesize-xilinx-ultrascale-plus-impl-smaller-luts (bvand a b)))))
+  (simple-test synthesize-xilinx-ultrascale-plus-dsp (define-symbolic a b (bitvector 8)) (bvmul a b)))
 
 ;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
 ;;; This is our original synthesis implementation, and remains our fallback.
@@ -537,7 +605,7 @@
          (append (symbolics bv-expr)
                  (make-list (- 6 (length (symbolics bv-expr))) (bvnot (bv 0 logical-input-width))))))
 
-  (define physical-inputs (logical-to-physical-mapping '(bitwise) logical-inputs))
+  (define physical-inputs (logical-to-physical-mapping (ltop-bitwise) logical-inputs))
 
   ;;; Split the physical inputs into groups, grouped by LUT.
   (define physical-inputs-per-clb
@@ -583,9 +651,9 @@
        physical-inputs-per-clb)))
 
   (define lakeroad-expr
-    (lr:extract (sub1 out-bw)
-                0
-                (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+    (lr:extract (lr:integer (sub1 out-bw))
+                (lr:integer 0)
+                (lr:first (physical-to-logical-mapping (choose (ptol-bitwise) (ptol-bitwise-reverse))
                                                        physical-outputs))))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
@@ -620,7 +688,9 @@
   (define logical-inputs-per-ccu2c
     (for/list ([ccu2c-i (range num-mods)])
       (for/list ([logical-input logical-inputs])
-        (lr:extract (sub1 (* 2 (add1 ccu2c-i))) (* 2 ccu2c-i) logical-input))))
+        (lr:extract (lr:integer (sub1 (* 2 (add1 ccu2c-i))))
+                    (lr:integer (* 2 ccu2c-i))
+                    logical-input))))
 
   (define lutmem (?? (bitvector 16)))
   (define initial-cin (?? (bitvector 1)))
@@ -630,15 +700,16 @@
              (match-let* ([(list this-ccu2c-physical-outputs this-cout)
                            (let ([ccu2c-out (make-lattice-ccu2c-expr
                                              #:inputs (logical-to-physical-mapping
-                                                       (choose '(bitwise) '(bitwise-reverse))
-                                                       logical-inputs)
+                                                       (choose (ltop-bitwise) (ltop-bitwise-reverse))
+                                                       (lr:list logical-inputs))
                                              #:CIN previous-cout
-                                             #:INIT0 lutmem
-                                             #:INIT1 lutmem)])
+                                             #:INIT0 (lr:bv lutmem)
+                                             #:INIT1 (lr:bv lutmem))])
 
-                             (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))])
+                             (list (lr:take ccu2c-out (lr:integer 2))
+                                   (lr:list-ref ccu2c-out (lr:integer 2))))])
                this-cout))
-           initial-cin
+           (lr:bv initial-cin)
            logical-inputs-per-ccu2c))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
@@ -674,51 +745,53 @@
   (define logical-inputs-per-ccu2c
     (for/list ([ccu2c-i (range num-mods)])
       (for/list ([logical-input logical-inputs])
-        (lr:extract (sub1 (* 2 (add1 ccu2c-i))) (* 2 ccu2c-i) logical-input))))
+        (lr:extract (lr:integer (sub1 (* 2 (add1 ccu2c-i))))
+                    (lr:integer (* 2 ccu2c-i))
+                    logical-input))))
 
   (match-define (list phys-0 cout-0)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
-      (foldl (lambda (logical-inputs previous-out)
-               (match-let* ([(list acc-phys-out previous-cout) previous-out]
-                            [(list this-ccu2c-physical-outputs this-cout)
-                             (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                               #:inputs (logical-to-physical-mapping
-                                                         (choose '(bitwise) '(bitwise-reverse))
-                                                         logical-inputs)
-                                               #:CIN previous-cout
-                                               #:INIT0 lutmem
-                                               #:INIT1 lutmem)])
+      (foldl
+       (lambda (logical-inputs previous-out)
+         (match-let* ([(list acc-phys-out previous-cout) previous-out]
+                      [(list this-ccu2c-physical-outputs this-cout)
+                       (let ([ccu2c-out (make-lattice-ccu2c-expr
+                                         #:inputs (logical-to-physical-mapping
+                                                   (choose (ltop-bitwise) (ltop-bitwise-reverse))
+                                                   logical-inputs)
+                                         #:CIN previous-cout
+                                         #:INIT0 lutmem
+                                         #:INIT1 lutmem)])
 
-                               (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
-                            [acc-phys-out (if (equal? acc-phys-out 'first)
-                                              this-ccu2c-physical-outputs
-                                              (lr:append (list acc-phys-out
-                                                               this-ccu2c-physical-outputs)))])
-                 (list acc-phys-out this-cout)))
-             (list 'first cin)
-             logical-inputs-per-ccu2c)))
+                         (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
+                      [acc-phys-out (if (equal? acc-phys-out 'first)
+                                        this-ccu2c-physical-outputs
+                                        (lr:append (list acc-phys-out this-ccu2c-physical-outputs)))])
+           (list acc-phys-out this-cout)))
+       (list 'first cin)
+       logical-inputs-per-ccu2c)))
 
   (match-define (list phys-1 cout-1)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
-      (foldl (lambda (logical-inputs previous-out)
-               (match-let* ([(list acc-phys-out previous-cout) previous-out]
-                            [(list this-ccu2c-physical-outputs this-cout)
-                             (let ([ccu2c-out (make-lattice-ccu2c-expr
-                                               #:inputs (logical-to-physical-mapping
-                                                         (choose '(bitwise) '(bitwise-reverse))
-                                                         logical-inputs)
-                                               #:CIN previous-cout
-                                               #:INIT0 lutmem
-                                               #:INIT1 lutmem)])
+      (foldl
+       (lambda (logical-inputs previous-out)
+         (match-let* ([(list acc-phys-out previous-cout) previous-out]
+                      [(list this-ccu2c-physical-outputs this-cout)
+                       (let ([ccu2c-out (make-lattice-ccu2c-expr
+                                         #:inputs (logical-to-physical-mapping
+                                                   (choose (ltop-bitwise) (ltop-bitwise-reverse))
+                                                   logical-inputs)
+                                         #:CIN previous-cout
+                                         #:INIT0 lutmem
+                                         #:INIT1 lutmem)])
 
-                               (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
-                            [acc-phys-out (if (equal? acc-phys-out 'first)
-                                              this-ccu2c-physical-outputs
-                                              (lr:append (list acc-phys-out
-                                                               this-ccu2c-physical-outputs)))])
-                 (list acc-phys-out this-cout)))
-             (list 'first cin)
-             logical-inputs-per-ccu2c)))
+                         (list (lr:take ccu2c-out 2) (lr:list-ref ccu2c-out 2)))]
+                      [acc-phys-out (if (equal? acc-phys-out 'first)
+                                        this-ccu2c-physical-outputs
+                                        (lr:append (list acc-phys-out this-ccu2c-physical-outputs)))])
+           (list acc-phys-out this-cout)))
+       (list 'first cin)
+       logical-inputs-per-ccu2c)))
 
   ;;; Our third set of ccu2c modules should be structured as follows:
   ;;; ccu2c-3.0 takes in (1 1 ccu2c-0.0 ccu2c-1.0)
@@ -782,50 +855,58 @@
   (define logical-inputs-per-pfu
     (for/list ([pfu-i (range num-pfus)])
       (for/list ([logical-input logical-inputs])
-        (lr:extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
+        (lr:extract (lr:integer (sub1 (* 8 (add1 pfu-i)))) (lr:integer (* 8 pfu-i)) logical-input))))
 
   (match-define (list physical-output cout)
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
-      (foldl
-       (lambda (logical-inputs previous-out)
-         (match-let* ([(list accumulated-physical-output previous-cout) previous-out]
-                      [(list this-pfu-physical-outputs this-cout)
-                       (let ([pfu-out (make-lattice-ripple-pfu-expr
-                                       #:out-bw logical-input-width
-                                       #:inputs logical-inputs
-                                       #:CIN previous-cout
-                                       #:INIT0 lutmem
-                                       #:INIT1 lutmem
-                                       #:INIT2 lutmem
-                                       #:INIT3 lutmem
-                                       #:INIT4 lutmem
-                                       #:INIT5 lutmem
-                                       #:INIT6 lutmem
-                                       #:INIT7 lutmem
-                                       #:MAPPING (choose '(bitwise) '(bitwise-reverse)))])
+      (foldl (lambda (logical-inputs previous-out)
+               (match-let*
+                   ([(list accumulated-physical-output previous-cout) previous-out]
+                    [(list this-pfu-physical-outputs this-cout)
+                     (let ([pfu-out (make-lattice-ripple-pfu-expr
+                                     #:out-bw logical-input-width
+                                     #:inputs (lr:list logical-inputs)
+                                     #:CIN previous-cout
+                                     #:INIT0 (lr:bv lutmem)
+                                     #:INIT1 (lr:bv lutmem)
+                                     #:INIT2 (lr:bv lutmem)
+                                     #:INIT3 (lr:bv lutmem)
+                                     #:INIT4 (lr:bv lutmem)
+                                     #:INIT5 (lr:bv lutmem)
+                                     #:INIT6 (lr:bv lutmem)
+                                     #:INIT7 (lr:bv lutmem)
+                                     #:MAPPING (choose (ltop-bitwise) (ltop-bitwise-reverse)))])
 
-                         (list (lr:take pfu-out 8) (lr:list-ref pfu-out 8)))]
-                      [accumulated-physical-output (if (equal? accumulated-physical-output 'first)
-                                                       this-pfu-physical-outputs
-                                                       (lr:append (list accumulated-physical-output
-                                                                        this-pfu-physical-outputs)))])
-           (list accumulated-physical-output this-cout)))
-       ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
-       (list 'first cin)
-       logical-inputs-per-pfu)))
+                       (list (lr:take pfu-out (lr:integer 8)) (lr:list-ref pfu-out (lr:integer 8))))]
+                    [accumulated-physical-output
+                     (if (equal? accumulated-physical-output 'first)
+                         this-pfu-physical-outputs
+                         (lr:append (lr:list (list accumulated-physical-output
+                                                   this-pfu-physical-outputs))))])
+                 (list accumulated-physical-output this-cout)))
+             ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
+             (list 'first (lr:bv cin))
+             logical-inputs-per-pfu)))
 
   (define lakeroad-expr
-    (lr:extract (sub1 out-bw)
-                0
-                (lr:first (physical-to-logical-mapping (choose '(bitwise) '(bitwise-reverse))
+    (lr:extract (lr:integer (sub1 out-bw))
+                (lr:integer 0)
+                (lr:first (physical-to-logical-mapping (choose (ptol-bitwise) (ptol-bitwise-reverse))
                                                        physical-output))))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
-(define (rosette-synthesize bv-expr lakeroad-expr inputs #:multi-cycle [multi-cycle #f])
-  ;; (interpret lakeroad-expr)
+;;; Returns a concrete Lakeroad expression, or #f if synthesis failed.
+(define (rosette-synthesize bv-expr
+                            lakeroad-expr
+                            inputs
+                            #:multi-cycle [multi-cycle #f]
+                            #:module-semantics [module-semantics '()])
 
   (define soln
-    (synthesize #:forall inputs #:guarantee (assert (bveq bv-expr (interpret lakeroad-expr)))))
+    (synthesize
+     #:forall inputs
+     #:guarantee
+     (assert (bveq bv-expr (interpret lakeroad-expr #:module-semantics module-semantics)))))
 
   (if (sat? soln)
       (evaluate
@@ -864,7 +945,7 @@
   (define logical-inputs-per-pfu
     (for/list ([pfu-i (range num-pfus)])
       (for/list ([logical-input logical-inputs])
-        (lr:extract (sub1 (* 8 (add1 pfu-i))) (* 8 pfu-i) logical-input))))
+        (lr:extract (lr:integer (sub1 (* 8 (add1 pfu-i)))) (lr:integer (* 8 pfu-i)) logical-input))))
 
   (define logical-output
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
@@ -872,55 +953,58 @@
        (lambda (logical-inputs previous-out)
          (match-let* ([accumulated-logical-output previous-out]
                       [this-pfu-logical-outputs
-                       (let ([pfu-out (make-lattice-pfu-expr logical-inputs)])
-                         (lr:first (physical-to-logical-mapping '(bitwise) (lr:take pfu-out 8))))]
+                       (let ([pfu-out (make-lattice-pfu-expr (lr:list logical-inputs))])
+                         (lr:first (physical-to-logical-mapping (ptol-bitwise)
+                                                                (lr:take pfu-out (lr:integer 8)))))]
                       [accumulated-logical-output
                        (if (equal? accumulated-logical-output 'first-iter)
                            this-pfu-logical-outputs
-                           (lr:concat (list this-pfu-logical-outputs accumulated-logical-output)))])
+                           (lr:concat (lr:list (list this-pfu-logical-outputs
+                                                     accumulated-logical-output))))])
            accumulated-logical-output))
        ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
        'first-iter
        logical-inputs-per-pfu)))
 
-  (define lakeroad-expr (lr:extract (sub1 out-bw) 0 logical-output))
+  (define lakeroad-expr (lr:extract (lr:integer (sub1 out-bw)) (lr:integer 0) logical-output))
 
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
-(define (synthesize-lattice-ecp5-multiply-circt bv-expr)
+;;; (define (synthesize-lattice-ecp5-multiply-circt bv-expr)
 
-  (define out-bw (bvlen bv-expr))
-  (define max-input-bw
-    (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
-  (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
+;;;   (define out-bw (bvlen bv-expr))
+;;;   (define max-input-bw
+;;;     (if (empty? (symbolics bv-expr)) out-bw (apply max (map bvlen (symbolics bv-expr)))))
+;;;   (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
 
-  ; Ugly hack to check exit conditions...everythin is indented way too much
-  ;
-  ; TODO: There is a way to use continuations to fix this (let/ec) but this
-  ; isn't the most important thing right now We only handle two inputs for now
-  ; for this form
-  (if (or (not (= (length logical-inputs) 2)) (not (concrete? out-bw)) (not (concrete? max-input-bw)))
-      #f
-      (begin
-        ;;; Max bitwidth of any input.
-        ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
+;;;   ; Ugly hack to check exit conditions...everythin is indented way too much
+;;;   ;
+;;;   ; TODO: There is a way to use continuations to fix this (let/ec) but this
+;;;   ; isn't the most important thing right now We only handle two inputs for now
+;;;   ; for this form
+;;;   (if (or (not (= (length logical-inputs) 2)) (not (concrete? out-bw)) (not (concrete? max-input-bw)))
+;;;       #f
+;;;       (begin
+;;;         ;;; Max bitwidth of any input.
+;;;         ;;; If there are no symbolic vars in the expression, default to the bitwidth of the output.
 
-        (define a (first logical-inputs))
-        (define b (second logical-inputs))
-        (define lakeroad-expr (lattice-mul-with-carry out-bw a b))
-        (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))))
+;;;         (define a (first logical-inputs))
+;;;         (define b (second logical-inputs))
+;;;         (define lakeroad-expr (lattice-mul-with-carry out-bw a b))
+;;;         (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))))
 
 ;;; make-wire-lrexpr: a helper function for `synthesize-wire`. This creates a FULL
 ;;; (input-to-output) wire template that is ready for synthesis.
 (define (make-wire-lrexpr inputs shift-by bitwidth)
   (define lakeroad-expr
     (lr:first (physical-to-logical-mapping
-               '(bitwise)
-               (logical-to-physical-mapping (choose '(bitwise)
-                                                    '(bitwise-reverse)
-                                                    `(shift ,shift-by)
-                                                    `(constant ,(??* (bitvector bitwidth))))
-                                            inputs))))
+               (ptol-bitwise)
+               (logical-to-physical-mapping
+                (choose (ltop-bitwise)
+                        (ltop-bitwise-reverse)
+                        (ltop-shift shift-by)
+                        (ltop-constant (lr:bv (??* (bitvector bitwidth)))))
+                inputs))))
 
   lakeroad-expr)
 
@@ -948,7 +1032,7 @@
   ;       the symbolics of the bv-expr as the logical inputs.
 
   ; (define logical-inputs (get-lattice-logical-inputs bv-expr #:num-inputs 2 #:expected-bw out-bw))
-  (define logical-inputs (symbolics bv-expr))
+  (define logical-inputs (lr:list (map lr:bv (symbolics bv-expr))))
 
   (define shift-by-concrete
     (cond
@@ -971,42 +1055,17 @@
   (with-terms
    (begin
      (define-symbolic a (bitvector 4))
-     (printf "\nChecking lshift 0\n")
      (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking lshift 1\n")
      (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking lshift 2\n")
      (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking lshift 3\n")
      (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking rshift 0\n")
      (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking rshift 1\n")
      (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking rshift 2\n")
      (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking rshift 3\n")
      (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking rshift 4\n")
      (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)]) (check-not-false lrexpr))
-
-     (printf "\nChecking rshift 5\n")
      (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))]) (check-not-false lrexpr))
-
-     (printf "\nChecking constant (bv #xff 8)\n")
      (let ([lrexpr (synthesize-wire (bv #xff 8))]) (check-not-false lrexpr))
-
-     (printf "\nChecking constant (bv #x12 8)\n")
      (let ([lrexpr (synthesize-wire (bv #x12 8))]) (check-not-false lrexpr))
-
-     (printf "\nChecking constant (bv #x123456789abcdef0123456789abcdef0 128)\n")
      (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
        (check-not-false lrexpr)))))

@@ -104,15 +104,17 @@
 
 ;;; Get logical inputs for an expression
 ; TODO: What is the difference between expected-bw and out-bw?
+;;; Returns a list of expressions. Does not return a list expression. TODO(@gussmith23) really need to
+;;; get this cleaned up.
 (define (get-lattice-logical-inputs bv-expr #:num-inputs [num-inputs 4] #:expected-bw [expected-bw 8])
   (let ([symbs (symbolics bv-expr)] [out-bw (bvlen bv-expr)])
-    (map
-     (lambda (v)
-       (choose* (lr:zero-extend v (bitvector expected-bw)) (lr:dup-extend v (bitvector expected-bw))))
-     (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
+    (map (lambda (v)
+           (choose* (lr:zero-extend (lr:bv v) (lr:bitvector (bitvector expected-bw)))
+                    (lr:dup-extend (lr:bv v) (lr:bitvector (bitvector expected-bw)))))
+         (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
 
 (define (make-lattice-lut4-expr logical-inputs #:INIT [INIT #f])
-  (lattice-ecp5-lut4 (or INIT (??* (bitvector 16))) logical-inputs))
+  (lattice-ecp5-lut4 (or INIT (lr:bv (??* (bitvector 16)))) logical-inputs))
 
 (define (make-lattice-lut5-expr logical-inputs #:INIT [INIT #f] #:DECOMPOSE [decompose #t])
   (if decompose
@@ -187,7 +189,7 @@
                     (??* (bitvector 16))
                     (??* (bitvector 16))
                     (??* (bitvector 16))
-                    (logical-to-physical-mapping '(bitwise) logical-inputs)))
+                    (logical-to-physical-mapping (ltop-bitwise) logical-inputs)))
 
 ;;; Create a Lakeroad expression for a CCU2C. This can be used to specify a
 ;;; 2-bit add, etc
@@ -199,11 +201,12 @@
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
                                  #:INJECT1_1 [INJECT1_1 #f])
-  (lattice-ecp5-ccu2c (or INIT0 (??* (bitvector 16))) ; INIT0
-                      (or INIT1 (??* (bitvector 16))) ; INIT1
-                      (or INJECT1_0 (??* (bitvector 1))) ; INJECT1_0
-                      (or INJECT1_1 (??* (bitvector 1))) ; INJECT1_1
-                      (or CIN (??* (bitvector 1))) ; CIN
+  (define f (λ (v) (if (bv? v) (lr:bv v) v)))
+  (lattice-ecp5-ccu2c (or (f INIT0) (lr:bv (??* (bitvector 16)))) ; INIT0
+                      (or (f INIT1) (lr:bv (??* (bitvector 16)))) ; INIT1
+                      (or (f INJECT1_0) (lr:bv (??* (bitvector 1)))) ; INJECT1_0
+                      (or (f INJECT1_1) (lr:bv (??* (bitvector 1)))) ; INJECT1_1
+                      (or (f CIN) (lr:bv (??* (bitvector 1)))) ; CIN
                       inputs))
 
 ;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
@@ -251,35 +254,26 @@
                                       #:INJECT1_5 [INJECT1_5 #f]
                                       #:INJECT1_6 [INJECT1_6 #f]
                                       #:INJECT1_7 [INJECT1_7 #f]
-                                      #:MAPPING [MAPPING '(bitwise)])
+                                      #:MAPPING [MAPPING (ltop-bitwise)])
 
-  (define fn-name "make-lattice-ripple-pfu-expr")
-  (when (> (length inputs) 4)
-    (error (format "~a: inputs must be length 4 or less: ~a" fn-name inputs)))
-
-  ;(for ([input inputs])
-  ;  (when (not ((bitvector out-bw) input))
-  ;    (error (format "~a: all inputs must satisfy (bitvector ~a): ~a" fn-name out-bw input))))
-
-  (let ([inputs (append inputs (make-list (- 4 (length inputs)) (bv -1 out-bw)))])
-    (lattice-ecp5-ripple-pfu (or INIT0 (??* (bitvector 16)))
-                             (or INIT1 (??* (bitvector 16)))
-                             (or INIT2 (??* (bitvector 16)))
-                             (or INIT3 (??* (bitvector 16)))
-                             (or INIT4 (??* (bitvector 16)))
-                             (or INIT5 (??* (bitvector 16)))
-                             (or INIT6 (??* (bitvector 16)))
-                             (or INIT7 (??* (bitvector 16)))
-                             (or INJECT1_0 (??* (bitvector 1)))
-                             (or INJECT1_1 (??* (bitvector 1)))
-                             (or INJECT1_2 (??* (bitvector 1)))
-                             (or INJECT1_3 (??* (bitvector 1)))
-                             (or INJECT1_4 (??* (bitvector 1)))
-                             (or INJECT1_5 (??* (bitvector 1)))
-                             (or INJECT1_6 (??* (bitvector 1)))
-                             (or INJECT1_7 (??* (bitvector 1)))
-                             (or CIN (??* (bitvector 1)))
-                             (logical-to-physical-mapping MAPPING inputs))))
+  (lattice-ecp5-ripple-pfu (or INIT0 (lr:bv (??* (bitvector 16))))
+                           (or INIT1 (lr:bv (??* (bitvector 16))))
+                           (or INIT2 (lr:bv (??* (bitvector 16))))
+                           (or INIT3 (lr:bv (??* (bitvector 16))))
+                           (or INIT4 (lr:bv (??* (bitvector 16))))
+                           (or INIT5 (lr:bv (??* (bitvector 16))))
+                           (or INIT6 (lr:bv (??* (bitvector 16))))
+                           (or INIT7 (lr:bv (??* (bitvector 16))))
+                           (or INJECT1_0 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_1 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_2 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_3 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_4 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_5 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_6 (lr:bv (??* (bitvector 1))))
+                           (or INJECT1_7 (lr:bv (??* (bitvector 1))))
+                           (or CIN (lr:bv (??* (bitvector 1))))
+                           (logical-to-physical-mapping MAPPING inputs)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;        INTERPRETING LAKEROAD EXPRESSIONS         ;;;;;;;;;;;;;;;
@@ -314,22 +308,22 @@
                               INJECT1_7
                               CIN
                               inputs)
-     (interpret-ecp5-ripple-pfu-impl INIT0
-                                     INIT1
-                                     INIT2
-                                     INIT3
-                                     INIT4
-                                     INIT5
-                                     INIT6
-                                     INIT7
-                                     INJECT1_0
-                                     INJECT1_1
-                                     INJECT1_2
-                                     INJECT1_3
-                                     INJECT1_4
-                                     INJECT1_5
-                                     INJECT1_6
-                                     INJECT1_7
+     (interpret-ecp5-ripple-pfu-impl (interpreter INIT0)
+                                     (interpreter INIT1)
+                                     (interpreter INIT2)
+                                     (interpreter INIT3)
+                                     (interpreter INIT4)
+                                     (interpreter INIT5)
+                                     (interpreter INIT6)
+                                     (interpreter INIT7)
+                                     (interpreter INJECT1_0)
+                                     (interpreter INJECT1_1)
+                                     (interpreter INJECT1_2)
+                                     (interpreter INJECT1_3)
+                                     (interpreter INJECT1_4)
+                                     (interpreter INJECT1_5)
+                                     (interpreter INJECT1_6)
+                                     (interpreter INJECT1_7)
                                      (interpreter CIN)
                                      (interpreter inputs))]
 
@@ -386,10 +380,10 @@
                                                #:C1 (bv->signal C1)
                                                #:D0 (bv->signal D0)
                                                #:D1 (bv->signal D1)
-                                               #:INIT0 (bv->signal (interpreter INIT0))
-                                               #:INIT1 (bv->signal (interpreter INIT1))
-                                               #:INJECT1_0 (bv->signal (interpreter INJECT1_0))
-                                               #:INJECT1_1 (bv->signal (interpreter INJECT1_1)))])
+                                               #:INIT0 (bv->signal INIT0)
+                                               #:INIT1 (bv->signal INIT1)
+                                               #:INJECT1_0 (bv->signal INJECT1_0)
+                                               #:INJECT1_1 (bv->signal INJECT1_1))])
        (list (signal-value (hash-ref out 'S0))
              (signal-value (hash-ref out 'S1))
              (signal-value (hash-ref out 'COUT))))]
@@ -877,6 +871,10 @@
                [compiled-inputs (compiler inputs)]
                [(list (list A0 B0 C0 D0) (list A1 B1 C1 D1)) compiled-inputs]
                [(list s0 s1 cout) (get-unique-bit-ids 3)]
+               [(lr:bv INIT0) INIT0]
+               [(lr:bv INIT1) INIT1]
+               [(lr:bv INJECT1_0) INJECT1_0]
+               [(lr:bv INJECT1_1) INJECT1_1]
                [ccu2c (make-lattice-ccu2c-cell
                        (if (bv? INIT0) (make-literal-value-from-bv INIT0) INIT0)
                        (if (bv? INIT1) (make-literal-value-from-bv INIT1) INIT1)
@@ -946,6 +944,7 @@
                               expr)
   (match-let* ([(lattice-ecp5-lut2 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
+               [(lr:bv INIT) INIT]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
@@ -962,6 +961,7 @@
                               expr)
   (match-let* ([(lattice-ecp5-lut4 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
+               [(lr:bv INIT) INIT]
                [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
                [(list A B C D) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]

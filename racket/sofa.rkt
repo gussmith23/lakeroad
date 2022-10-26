@@ -1,4 +1,4 @@
-#lang racket
+#lang errortrace racket
 
 ;;; Architecture for the high-density family of SOFA FPGAs, described here:
 ;;; https://skywater-openfpga.readthedocs.io/en/latest/device/hd_fpga/
@@ -88,9 +88,9 @@
                             (compile mode-inv)
                             (compile sram)
                             (compile sram-inv)
-                            (compile lut2-out)
-                            (compile lut3-out)
-                            (compile lut4-out)))
+                            lut2-out
+                            lut3-out
+                            lut4-out))
      (add-cell 'frac-lut4 frac-lut4-cell)
      (list lut2-out lut3-out lut4-out)]))
 

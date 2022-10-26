@@ -1,0 +1,46 @@
+implementations:
+  - interface: { name: LUT, parameters: { num_inputs: 2 } }
+    modules:
+      - module_name: LUT2
+        filepath: ../verilator_xilinx/LUT2.v
+        parameters: [{ name: INIT, value: INIT }]
+        ports:
+          [
+            { name: I0, direction: input, bitwidth: 1, value: I0 },
+            { name: I1, direction: input, bitwidth: 1, value: I1 },
+            { name: O, direction: output, bitwidth: 1, value: O },
+          ]
+    internal_data: { INIT: 4 }
+    outputs: { O: O }
+  - interface: { name: LUT, parameters: { num_inputs: 6 } }
+    modules:
+      - module_name: LUT6
+        filepath: ../verilator_xilinx/LUT6.v
+        racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/LUT6.v
+        parameters: [{ name: INIT, value: INIT }]
+        ports:
+          [
+            { name: I0, direction: input, bitwidth: 1, value: I0 },
+            { name: I1, direction: input, bitwidth: 1, value: I1 },
+            { name: I2, direction: input, bitwidth: 1, value: I2 },
+            { name: I3, direction: input, bitwidth: 1, value: I3 },
+            { name: I4, direction: input, bitwidth: 1, value: I4 },
+            { name: I5, direction: input, bitwidth: 1, value: I5 },
+            { name: O, direction: output, bitwidth: 1, value: O },
+          ]
+    internal_data: { INIT: 64 }
+    outputs: { O: O }
+  - interface: { name: carry, parameters: { width: 8 } }
+    modules:
+      - module_name: CARRY8
+        filepath: ../verilator_xilinx/CARRY8.v
+        racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v
+        ports:
+          [
+            { name: CI, direction: input, bitwidth: 1, value: CI },
+            { name: DI, direction: input, bitwidth: 8, value: DI },
+            { name: S, direction: input, bitwidth: 8, value: S },
+            { name: CO, direction: output, bitwidth: 8, value: CO },
+            { name: O, direction: output, bitwidth: 8, value: O },
+          ]
+    outputs: { O: O, CO: (bit 7 CO) }
