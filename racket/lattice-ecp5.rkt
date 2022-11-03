@@ -677,13 +677,13 @@
   (make-cell "LUT2"
              (make-cell-port-directions (list 'A 'B) (list 'Z))
              (make-cell-connections 'A A 'B B 'Z Z)
-             #:params (hasheq 'INIT init-mem)))
+             #:params (hasheq 'init init-mem)))
 
 (define (make-lattice-lut4-cell init-mem A B C D Z #:attrs [attrs (hasheq)])
   (make-cell "LUT4"
              (make-cell-port-directions (list 'A 'B 'C 'D) (list 'Z))
              (make-cell-connections 'A A 'B B 'C C 'D D 'Z Z)
-             #:params (hasheq 'INIT init-mem)))
+             #:params (hasheq 'init init-mem)))
 
 (define (make-lattice-lut5-cell init-mem A B C D E Z #:attrs [attrs (hasheq)])
   (make-cell "LUT5"
