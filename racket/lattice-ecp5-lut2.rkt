@@ -12,7 +12,7 @@
 (define lattice-ecp5-lut2
   (λ (#:A (A (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 1))))
       #:B (B (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 1))))
-      #:INIT (INIT (bv->signal (constant (list 'INIT 'symbolic-constant) (bitvector 4)))))
+      #:init (init (bv->signal (constant (list 'init 'symbolic-constant) (bitvector 4)))))
     (let* ([merged-input-state-hash (hash)]
            [init-hash (hash)]
            [btor1 (bitvector 1)]
@@ -21,8 +21,8 @@
            [btor3 B]
            [merged-input-state-hash (hash-union merged-input-state-hash (signal-state B))]
            [btor4 (bitvector 4)]
-           [btor5 INIT]
-           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state INIT))]
+           [btor5 init]
+           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state init))]
            [btor6 (bitvector 2)]
            [btor7 (signal (extract 1 0 (signal-value btor5)) (signal-state btor5))]
            [btor8 (signal (extract 3 2 (signal-value btor5)) (signal-state btor5))]
