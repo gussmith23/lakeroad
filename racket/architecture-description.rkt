@@ -302,7 +302,7 @@
           [expr (first out)]
           [internal-data (second out)])
      (check-true (match internal-data
-                   [(list (cons "INIT" (lr:bv v)))
+                   [(list (cons "init" (lr:bv v)))
                     (check-true ((bitvector 16) v))
                     #t]
                    [else #f]))
@@ -317,7 +317,7 @@
                                                       (module-instance-port "C" v 'input 1)
                                                       (module-instance-port "D" v 'input 1)
                                                       (module-instance-port "Z" "O" 'output 1))
-                                                (list (module-instance-parameter "INIT" s))
+                                                (list (module-instance-parameter "init" s))
                                                 filepath-unchecked)
                                                'Z)))))
          (check-equal? v (bv 0 1))
@@ -717,7 +717,7 @@
                                             (cons "I3" (bv 0 1))
                                             (cons "I4" (bv 0 1))))])
      (check-true (match internal-data
-                   [(list (list (cons "INIT" (lr:bv v0))) (list (cons "INIT" (lr:bv v1))) (list))
+                   [(list (list (cons "init" (lr:bv v0))) (list (cons "init" (lr:bv v1))) (list))
                     (check-true ((bitvector 16) v0))
                     (check-true ((bitvector 16) v1))
                     #t]
@@ -744,7 +744,7 @@
                                                              (module-instance-port "C" v 'input 1)
                                                              (module-instance-port "D" v 'input 1)
                                                              (module-instance-port "Z" "O" 'output 1))
-                                                       (list (module-instance-parameter "INIT" s0))
+                                                       (list (module-instance-parameter "init" s0))
                                                        lut4-filepath)
                                                       'Z)))))
                             'O)
@@ -763,7 +763,7 @@
                                                              (module-instance-port "C" v 'input 1)
                                                              (module-instance-port "D" v 'input 1)
                                                              (module-instance-port "Z" "O" 'output 1))
-                                                       (list (module-instance-parameter "INIT" s1))
+                                                       (list (module-instance-parameter "init" s1))
                                                        lut4-filepath)
                                                       'Z)))))
                             'O)
@@ -940,10 +940,10 @@
                                               (module-instance-port "C" "I2" 'input 1)
                                               (module-instance-port "D" "I3" 'input 1)
                                               (module-instance-port "Z" "O" 'output 1))
-                                        (list (module-instance-parameter "INIT" "INIT"))
+                                        (list (module-instance-parameter "init" "init"))
                                         "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
                                         "../modules_for_importing/lattice_ecp5/LUT4.v")
-                       (hash "INIT" 16)
+                       (hash "init" 16)
                        (hash "O" "Z"))
                       (interface-implementation
                        (interface-identifier "MUX" (hash "num_inputs" 2))
@@ -992,7 +992,7 @@
                   (interface-identifier "LUT" (hash "num_inputs" 2))
                   (list (cons "I0" (lr:bv (bv 0 1))) (cons "I1" (lr:bv (bv 0 1)))))])
      (check-true (match internal-data
-                   [(list (cons "INIT" (lr:bv v)))
+                   [(list (cons "init" (lr:bv v)))
                     (check-true ((bitvector 16) v))
                     #t]
                    [else #f]))
@@ -1007,7 +1007,7 @@
                                                       (module-instance-port "C" (lr:bv v1) 'input 1)
                                                       (module-instance-port "D" (lr:bv v1) 'input 1)
                                                       (module-instance-port "Z" "O" 'output 1))
-                                                (list (module-instance-parameter "INIT" (lr:bv s0)))
+                                                (list (module-instance-parameter "init" (lr:bv s0)))
                                                 filepath-unchecked)
                                                'Z)))))
          (check-equal? v0 (bv 0 1))
