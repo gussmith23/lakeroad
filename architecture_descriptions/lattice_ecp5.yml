@@ -1,6 +1,6 @@
 implementations:
   - interface: { name: LUT, parameters: { num_inputs: 4 } }
-    internal_data: { INIT: 16 }
+    internal_data: { init: 16 }
     modules:
       - module_name: LUT4
         filepath: ../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v
@@ -13,7 +13,7 @@ implementations:
             { name: D, direction: input, bitwidth: 1, value: I3 },
             { name: Z, direction: output, bitwidth: 1, value: O },
           ]
-        parameters: [{ name: INIT, value: INIT }]
+        parameters: [{ name: init, value: init }]
     outputs: { O: Z }
   - interface: { name: MUX, parameters: { num_inputs: 2 } }
     modules:

@@ -34,13 +34,13 @@ module CCU2C (
       .C(C0),
       .D(D0),
       .Z(LUT4_0),
-      .INIT(INIT0)
+      .init(INIT0)
   );
   LUT2 lut2_0 (
       .A(A0),
       .B(B0),
       .Z(LUT2_0),
-      .INIT(INIT0[3:0])
+      .init(INIT0[3:0])
   );
 
   wire gated_cin_0 = (INJECT1_0 == 1'b1) ? 1'b0 : CIN;
@@ -57,13 +57,13 @@ module CCU2C (
       .C(C1),
       .D(D1),
       .Z(LUT4_1),
-      .INIT(INIT1)
+      .init(INIT1)
   );
   LUT2 lut2_1 (
       .A(A1),
       .B(B1),
       .Z(LUT2_1),
-      .INIT(INIT1[3:0])
+      .init(INIT1[3:0])
   );
 
   wire gated_cin_1 = (INJECT1_1 == 1'b1) ? 1'b0 : cout_0;
