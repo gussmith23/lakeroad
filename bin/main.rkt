@@ -14,7 +14,12 @@
          "../racket/xilinx-ultrascale-plus-lut6.rkt"
          "../racket/xilinx-ultrascale-plus-carry8.rkt"
          "../racket/sofa-frac-lut4.rkt"
-         rosette/solver/smt/boolector)
+         rosette/solver/smt/boolector
+         "../racket/stateful-design-experiment.rkt"
+         racket/hash
+         "../racket/btor.rkt")
+
+(define-namespace-anchor anc)
 
 (current-solver (boolector))
 
@@ -39,6 +44,9 @@
 (define template-timeout
   (make-parameter #f (lambda (to) (if (equal? "0" to) #f (string->number to)))))
 (define template (make-parameter #f identity))
+(define verilog-module-filepath (make-parameter #f))
+(define top-module-name (make-parameter #f))
+(define verilog-module-out-signal (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -59,6 +67,20 @@
   " through all relevant templates for the architecture until one works."
   (template v)]
  ["--timeout" timeout "Timeout in seconds for each template" (template-timeout timeout)]
+ ["--verilog-module-filepath"
+  v
+  "File containing the Verilog module to synthesize against."
+  " Can be specified as an alternative to --instruction. If this is specified, you must also"
+  " provide the flags --top-module-name and --verilog-module-out-signal."
+  (verilog-module-filepath v)]
+ ["--top-module-name"
+  v
+  "Top module name if --verilog-module-filepath is specified."
+  (top-module-name v)]
+ ["--verilog-module-out-signal"
+  v
+  "Name of the output signal of the module."
+  (verilog-module-out-signal v)]
  #:once-any
  #:multi
  [("--instruction")
@@ -97,7 +119,27 @@
 
   (helper expr))
 
-(define bv-expr (parse-instruction (read (open-input-string (instruction)))))
+;;; The bitvector expression we're trying to synthesize.
+(define bv-expr
+  (cond
+    [(instruction) (parse-instruction (read (open-input-string (instruction))))]
+    [(verilog-module-filepath)
+     (when (not (verilog-module-out-signal))
+       (error "Must set --verilog-module-out-signal."))
+     (when (not (top-module-name))
+       (error "Must set --top-module-name."))
+     (define btor
+       (with-output-to-string
+        (thunk
+         (system
+          (format
+           "yosys -q -p 'read_verilog ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+           (verilog-module-filepath)
+           (top-module-name))))))
+
+     (define ns (namespace-anchor->namespace anc))
+     (define f (eval (first (btor->racket btor)) ns))
+     (signal-value (hash-ref (f) (string->symbol (verilog-module-out-signal))))]))
 
 (define sketch-generator
   (match (template)
