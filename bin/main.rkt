@@ -40,7 +40,8 @@
 (define instruction (make-parameter #f identity))
 (define module-name (make-parameter #f identity))
 (define json-filepath (make-parameter (make-temporary-file "rkttmp~a.json") identity))
-(define output-port (make-parameter (current-output-port) (lambda (v) (open-output-file v))))
+(define output-port
+  (make-parameter (current-output-port) (lambda (v) (open-output-file v #:exists 'replace))))
 (define template-timeout
   (make-parameter #f (lambda (to) (if (equal? "0" to) #f (string->number to)))))
 (define template (make-parameter #f identity))
