@@ -2493,9 +2493,7 @@ here-string-delimiter
                        (list (string->keyword (symbol->string input))
                              `[,input
                                ,(match default-value
-                                  ['symbolic
-                                   `(bv->signal (constant (list ',input 'symbolic-constant)
-                                                          ,type))])])))))
+                                  ['symbolic `(bv->signal (constant ',input ,type))])])))))
         (let* (,@let*-clauses)
           ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
           ;;; with the updated state.
@@ -2511,9 +2509,7 @@ here-string-delimiter
                       (list (string->keyword (symbol->string input))
                             `[,input
                               ,(match default-value
-                                 ['symbolic
-                                  `(bv->signal (constant (list ',input 'symbolic-constant)
-                                                         ,type))])])))))
+                                 ['symbolic `(bv->signal (constant ',input ,type))])])))))
        (let* (,@let*-clauses)
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.
