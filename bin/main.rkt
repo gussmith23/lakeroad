@@ -194,7 +194,10 @@
   [(not lakeroad-expr) (error "Synthesis failed.")]
 
   [else
-   (define json-source (lakeroad->jsexpr lakeroad-expr #:module-name (module-name)))
+   (define json-source
+     (lakeroad->jsexpr lakeroad-expr
+                       #:module-name (module-name)
+                       #:output-signal-name (verilog-module-out-signal)))
    (display-to-file (jsexpr->string json-source) (json-filepath) #:exists 'replace)
 
    (match (out-format)
