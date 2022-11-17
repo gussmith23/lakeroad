@@ -394,9 +394,7 @@
                                                           (make-mux-fn bit-i)))))])
             out-expr))]
 
-       [out-expr (foldl fold-fn a-expr (range num-stages))]
-       [_ (displayln "out:")]
-       [_ (pretty-display out-expr)])
+       [out-expr (foldl fold-fn a-expr (range num-stages))])
     (list out-expr (list))))
 
 (module+ test
