@@ -353,30 +353,40 @@
                             (lr:extract (lr:integer i0-bit) (lr:integer i0-bit) previous-stage-expr)]
 
                            ;;; The bit to select for the i1 input of this mux.
-                           ;;; TODO(@gussmith23): Support left/right shifts here.
-                           [i1-bit (+ bit-i (expt 2 stage-i))]
-                           [i1-expr (if (or (< i1-bit 0) (>= i1-bit bitwidth))
-                                        ;;; Either shift in 0s or the sign bit.
-                                        (if logical-or-arithmetic-chooser
-                                            (lr:bv (bv 0 1))
-                                            (lr:extract (lr:integer (sub1 bitwidth))
-                                                        (lr:integer (sub1 bitwidth))
-                                                        a-expr))
-                                        (lr:extract (lr:integer i1-bit)
-                                                    (lr:integer i1-bit)
-                                                    previous-stage-expr))]
-                           [_ (displayln (format "bit ~a" bit-i))]
-                           [_ (displayln (format "i0: ~a" i0-expr))]
-                           [_ (displayln (format "i1: ~a" i1-expr))]
-                           [_ (displayln (format "s: ~a" s-expr))]
-                           [mux-expr
-                            (first (construct-interface
-                                    architecture-description
-                                    (interface-identifier "MUX" (hash "num_inputs" 2))
-                                    (list (cons "I0" i0-expr) (cons "I1" i1-expr) (cons "S" s-expr))
-                                    #:internal-data mux2-internal-data))]
+                           [i1-bit-right (+ bit-i (expt 2 stage-i))]
+                           [i1-bit-left (- bit-i (expt 2 stage-i))]
+                           [i1-value-right (if (>= i1-bit-right bitwidth)
+                                               ;;; Either shift in 0s or the sign bit.
+                                               (if logical-or-arithmetic-chooser
+                                                   (lr:bv (bv 0 1))
+                                                   (lr:extract (lr:integer (sub1 bitwidth))
+                                                               (lr:integer (sub1 bitwidth))
+                                                               a-expr))
+                                               (lr:extract (lr:integer i1-bit-right)
+                                                           (lr:integer i1-bit-right)
+                                                           previous-stage-expr))]
+                           [i1-value-left (if (< i1-bit-left 0)
+                                              (lr:bv (bv 0 1))
+                                              (lr:extract (lr:integer i1-bit-left)
+                                                          (lr:integer i1-bit-left)
+                                                          previous-stage-expr))]
+                           [i1-expr (if left-or-right-chooser i1-value-right i1-value-left)]
+                           [mux-expr-right
+                            (first
+                             (construct-interface
+                              architecture-description
+                              (interface-identifier "MUX" (hash "num_inputs" 2))
+                              (list (cons "I0" i0-expr) (cons "I1" i1-value-right) (cons "S" s-expr))
+                              #:internal-data mux2-internal-data))]
+                           [mux-expr-left
+                            (first
+                             (construct-interface
+                              architecture-description
+                              (interface-identifier "MUX" (hash "num_inputs" 2))
+                              (list (cons "I0" i0-expr) (cons "I1" i1-value-left) (cons "S" s-expr))
+                              #:internal-data mux2-internal-data))]
 
-                           [out-expr (lr:hash-ref mux-expr 'O)])
+                           [out-expr (lr:hash-ref (choose mux-expr-right mux-expr-left) 'O)])
 
                       out-expr))]
 
