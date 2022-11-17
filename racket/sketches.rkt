@@ -455,6 +455,39 @@
                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
 
   (sketch-test
+   #:name "shift sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvlshr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "shift sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvashr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "shift sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvshl a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
    #:name "bitwise sketch generator on lattice"
    #:defines (define-symbolic a b (bitvector 2))
    #:bv-expr (bvand a b)
