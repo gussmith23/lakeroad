@@ -514,39 +514,39 @@
    #:extra-verilator-args "-Wno-UNUSED")
 
   ;;; TODO(@gussmith23): we have a bug in bvexpr->cexpr that's causing this to fail. (I think.)
-  ;  (sketch-test
-  ;   #:name "logical right shift on lattice"
-  ;   #:defines (define-symbolic a b (bitvector 16))
-  ;   #:bv-expr (bvlshr a b)
-  ;   #:architecture-description (lattice-ecp5-architecture-description)
-  ;   #:sketch-generator shift-sketch-generator
-  ;   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;                                  lattice-ecp5-lut4))
-  ;   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;   #:extra-verilator-args "-Wno-UNUSED")
-  ;
-  ;  (sketch-test
-  ;   #:name "arithmetic right shift on lattice"
-  ;   #:defines (define-symbolic a b (bitvector 16))
-  ;   #:bv-expr (bvashr a b)
-  ;   #:architecture-description (lattice-ecp5-architecture-description)
-  ;   #:sketch-generator shift-sketch-generator
-  ;   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;                                  lattice-ecp5-lut4))
-  ;   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;   #:extra-verilator-args "-Wno-UNUSED")
-  ;
-  ;  (sketch-test
-  ;   #:name "left shift on lattice"
-  ;   #:defines (define-symbolic a b (bitvector 16))
-  ;   #:bv-expr (bvshl a b)
-  ;   #:architecture-description (lattice-ecp5-architecture-description)
-  ;   #:sketch-generator shift-sketch-generator
-  ;   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;                                  lattice-ecp5-lut4))
-  ;   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;   #:extra-verilator-args "-Wno-UNUSED")
-  ;
+    (sketch-test
+     #:name "logical right shift on lattice"
+     #:defines (define-symbolic a b (bitvector 16))
+     #:bv-expr (bvlshr a b)
+     #:architecture-description (lattice-ecp5-architecture-description)
+     #:sketch-generator shift-sketch-generator
+     #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                    lattice-ecp5-lut4))
+     #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+     #:extra-verilator-args "-Wno-UNUSED")
+  
+    (sketch-test
+     #:name "arithmetic right shift on lattice"
+     #:defines (define-symbolic a b (bitvector 16))
+     #:bv-expr (bvashr a b)
+     #:architecture-description (lattice-ecp5-architecture-description)
+     #:sketch-generator shift-sketch-generator
+     #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                    lattice-ecp5-lut4))
+     #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+     #:extra-verilator-args "-Wno-UNUSED")
+  
+    (sketch-test
+     #:name "left shift on lattice"
+     #:defines (define-symbolic a b (bitvector 16))
+     #:bv-expr (bvshl a b)
+     #:architecture-description (lattice-ecp5-architecture-description)
+     #:sketch-generator shift-sketch-generator
+     #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                    lattice-ecp5-lut4))
+     #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+     #:extra-verilator-args "-Wno-UNUSED")
+  
   (sketch-test
    #:name "bitwise sketch generator on lattice"
    #:defines (define-symbolic a b (bitvector 2))
