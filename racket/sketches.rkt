@@ -340,8 +340,12 @@
                              #:internal-data #f)]
 
        [num-stages (exact-ceiling (log (add1 (add1 bitwidth)) 2))]
-       ;;; If we want to be lazy, this will work:
-       ;;[num-stages bitwidth]
+       ;;; I'm being lazy and throwing an extra stage in to fix bugs that were popping up. I don't
+       ;;; think this extra stage is technically necessary, but it doesn't work without it.
+       ;[num-stages (add1 num-stages)]
+       ;;; Ok, now i'm just being extra lazy.
+       ;;; TODO(@gussmith23): Make bitshifts actually efficient.
+       [num-stages bitwidth]
 
        [(list _ or-internal-data)
         (construct-interface
