@@ -706,77 +706,80 @@
       interface-id)]))
 
 (module+ test
-  ; (test-begin
-  ;  "Construct a LUT5 on Lattice from LUT4s and a MUX2."
-  ;  (match-let* ([(list expr internal-data)
-  ;                (construct-interface (lattice-ecp5-architecture-description)
-  ;                                     (interface-identifier "LUT" (hash "num_inputs" 5))
-  ;                                     (list (cons "I0" (bv 0 1))
-  ;                                           (cons "I1" (bv 0 1))
-  ;                                           (cons "I2" (bv 0 1))
-  ;                                           (cons "I3" (bv 0 1))
-  ;                                           (cons "I4" (bv 0 1))))])
-  ;    (check-true (match internal-data
-  ;                  [(list (list (cons "init" (lr:bv v0))) (list (cons "init" (lr:bv v1))) (list))
-  ;                   (check-true ((bitvector 16) v0))
-  ;                   (check-true ((bitvector 16) v1))
-  ;                   #t]
-  ;                  [else #f]))
-  ;    (check-true
-  ;     (match expr
-  ;       [(lr:make-immutable-hash
-  ;         (lr:list
-  ;          (list (lr:cons
-  ;                 (lr:symbol 'O)
-  ;                 (lr:hash-ref
-  ;                  (lr:hw-module-instance
-  ;                   "L6MUX21"
-  ;                   (list (module-instance-port
-  ;                          "D0"
-  ;                          (lr:hash-ref
-  ;                           (lr:make-immutable-hash
-  ;                            (lr:list (list (lr:cons (lr:symbol 'O)
-  ;                                                    (lr:hash-ref
-  ;                                                     (lr:hw-module-instance
-  ;                                                      "LUT4"
-  ;                                                      (list (module-instance-port "A" v 'input 1)
-  ;                                                            (module-instance-port "B" v 'input 1)
-  ;                                                            (module-instance-port "C" v 'input 1)
-  ;                                                            (module-instance-port "D" v 'input 1)
-  ;                                                            (module-instance-port "Z" "O" 'output 1))
-  ;                                                      (list (module-instance-parameter "init" s0))
-  ;                                                      lut4-filepath)
-  ;                                                     'Z)))))
-  ;                           'O)
-  ;                          'input
-  ;                          1)
-  ;                         (module-instance-port
-  ;                          "D1"
-  ;                          (lr:hash-ref
-  ;                           (lr:make-immutable-hash
-  ;                            (lr:list (list (lr:cons (lr:symbol 'O)
-  ;                                                    (lr:hash-ref
-  ;                                                     (lr:hw-module-instance
-  ;                                                      "LUT4"
-  ;                                                      (list (module-instance-port "A" v 'input 1)
-  ;                                                            (module-instance-port "B" v 'input 1)
-  ;                                                            (module-instance-port "C" v 'input 1)
-  ;                                                            (module-instance-port "D" v 'input 1)
-  ;                                                            (module-instance-port "Z" "O" 'output 1))
-  ;                                                      (list (module-instance-parameter "init" s1))
-  ;                                                      lut4-filepath)
-  ;                                                     'Z)))))
-  ;                           'O)
-  ;                          'input
-  ;                          1)
-  ;                         (module-instance-port "SD" selector-expr 'input 1)
-  ;                         (module-instance-port "Z" "O" 'output 1))
-  ;                   (list)
-  ;                   mux-filepath)
-  ;                  'Z)))))
-  ;        #t]
-  ;       [else #f]))))
-  )
+  (test-begin
+   "Construct a LUT5 on Lattice from LUT4s and a MUX2."
+   (match-let* ([(list expr internal-data)
+                 (construct-interface (lattice-ecp5-architecture-description)
+                                      (interface-identifier "LUT" (hash "num_inputs" 5))
+                                      (list (cons "I0" (bv 0 1))
+                                            (cons "I1" (bv 0 1))
+                                            (cons "I2" (bv 0 1))
+                                            (cons "I3" (bv 0 1))
+                                            (cons "I4" (bv 0 1))))])
+     (check-true (match internal-data
+                   [(list (list (cons "init" (lr:bv v0)))
+                          (list (cons "init" (lr:bv v1)))
+                          (list (cons "init" (lr:bv v2))))
+                    (check-true ((bitvector 16) v0))
+                    (check-true ((bitvector 16) v1))
+                    (check-true ((bitvector 16) v2))
+                    #t]
+                   [else #f]))
+     (check-true
+      (match expr
+        [(lr:make-immutable-hash
+          (lr:list
+           (list (lr:cons
+                  (lr:symbol 'O)
+                  (lr:hash-ref
+                   (lr:hw-module-instance
+                    "LUT4"
+                    (list (module-instance-port
+                           "A"
+                           (lr:hash-ref
+                            (lr:make-immutable-hash
+                             (lr:list (list (lr:cons (lr:symbol 'O)
+                                                     (lr:hash-ref
+                                                      (lr:hw-module-instance
+                                                       "LUT4"
+                                                       (list (module-instance-port "A" v 'input 1)
+                                                             (module-instance-port "B" v 'input 1)
+                                                             (module-instance-port "C" v 'input 1)
+                                                             (module-instance-port "D" v 'input 1)
+                                                             (module-instance-port "Z" "O" 'output 1))
+                                                       (list (module-instance-parameter "init" s0))
+                                                       lut4-filepath)
+                                                      'Z)))))
+                            'O)
+                           'input
+                           1)
+                          (module-instance-port
+                           "B"
+                           (lr:hash-ref
+                            (lr:make-immutable-hash
+                             (lr:list (list (lr:cons (lr:symbol 'O)
+                                                     (lr:hash-ref
+                                                      (lr:hw-module-instance
+                                                       "LUT4"
+                                                       (list (module-instance-port "A" v 'input 1)
+                                                             (module-instance-port "B" v 'input 1)
+                                                             (module-instance-port "C" v 'input 1)
+                                                             (module-instance-port "D" v 'input 1)
+                                                             (module-instance-port "Z" "O" 'output 1))
+                                                       (list (module-instance-parameter "init" s1))
+                                                       lut4-filepath)
+                                                      'Z)))))
+                            'O)
+                           'input
+                           1)
+                          (module-instance-port "C" selector-expr 'input 1)
+                          (module-instance-port "D" unchecked-expr 'input 1)
+                          (module-instance-port "Z" "O" 'output 1))
+                    (list (module-instance-parameter "init" s2))
+                    lut4-filepath)
+                   'Z)))))
+         #t]
+        [else #f])))))
 
 ;;; Parse an architecture description from a file.
 (define (parse-architecture-description-file filepath)
