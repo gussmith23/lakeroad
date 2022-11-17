@@ -340,11 +340,35 @@
                              #:internal-data #f)]
 
        [num-stages (exact-ceiling (log (add1 (add1 bitwidth)) 2))]
+       ;;; If we want to be lazy, this will work:
+       ;;[num-stages bitwidth]
+
+       [(list _ or-internal-data)
+        (construct-interface
+         architecture-description
+         (interface-identifier "LUT" (hash "num_inputs" (add1 (- bitwidth num-stages))))
+         (for/list ([i (add1 (- bitwidth num-stages))])
+           (cons (format "I~a" i) 'unused))
+         #:internal-data #f)]
 
        [fold-fn
         (lambda (stage-i previous-stage-expr)
           (let* (;;; The selector bit for all the muxes in this row.
-                 [s-expr (lr:extract (lr:integer stage-i) (lr:integer stage-i) b-expr)]
+                 [s-expr (if (not (equal? stage-i (sub1 num-stages)))
+                             (lr:extract (lr:integer stage-i) (lr:integer stage-i) b-expr)
+                             ;;; for the last stage, the selector ORs all the remaining bits.
+                             (lr:hash-ref (first (construct-interface
+                                                  architecture-description
+                                                  (interface-identifier
+                                                   "LUT"
+                                                   (hash "num_inputs" (add1 (- bitwidth num-stages))))
+                                                  (for/list ([i (add1 (- bitwidth num-stages))])
+                                                    (cons (format "I~a" i)
+                                                          (lr:extract (lr:integer (+ stage-i i))
+                                                                      (lr:integer (+ stage-i i))
+                                                                      b-expr)))
+                                                  #:internal-data or-internal-data))
+                                          'O))]
                  [make-mux-fn
                   (lambda (bit-i)
                     (let* (;;; The bit to select for the i0 input of this mux.
