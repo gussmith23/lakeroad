@@ -341,8 +341,6 @@
 
        [num-stages (exact-ceiling (log (add1 (add1 bitwidth)) 2))]
 
-       [_ (displayln (format "~a stages" num-stages))]
-
        [fold-fn
         (lambda (stage-i previous-stage-expr)
           (let* (;;; The selector bit for all the muxes in this row.
