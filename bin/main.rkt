@@ -80,7 +80,9 @@
   (top-module-name v)]
  ["--verilog-module-out-signal"
   v
-  "Name of the output signal of the module."
+  "Name of the output signal of the module written out by Lakeroad. This argument also indicates"
+  " the output signal name of the Verilog module specified by --verilog-module-filepath."
+  " TODO(@gussmith23): There should be two separate arguments for this."
   (verilog-module-out-signal v)]
  #:once-any
  #:multi
@@ -90,6 +92,8 @@
   " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)])
+
+(when (not (verilog-module-out-signal)) (error "Please specify --verilog-module-out-signal."))
 
 ;;; Parse instruction.
 ;;;
