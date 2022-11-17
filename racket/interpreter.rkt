@@ -311,7 +311,11 @@
              ;;; (dup-extend (interpret-helper v) bv)]
              [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
              [(lr:extract h l v)
-              (extract (interpret-helper h) (interpret-helper l) (interpret-helper v))]
+              ;;; We need these for/alls to decompose h and l in weird situations where the indices
+              ;;; are concrete but there are multiple possible values.
+              (for/all ([h (interpret-helper h) #:exhaustive])
+                       (for/all ([l (interpret-helper l) #:exhaustive])
+                                (extract h l (interpret-helper v))))]
              [(lr:concat vs) (apply concat (interpret-helper vs))]
              ;;; Datatypes.
              [(lr:bv v) v]
