@@ -370,7 +370,6 @@
                                               (lr:extract (lr:integer i1-bit-left)
                                                           (lr:integer i1-bit-left)
                                                           previous-stage-expr))]
-                           [i1-expr (if left-or-right-chooser i1-value-right i1-value-left)]
                            [mux-expr-right
                             (first
                              (construct-interface
