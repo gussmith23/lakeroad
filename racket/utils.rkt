@@ -61,6 +61,16 @@
      (format "((~a >> ~a) & ((1<<(~a - ~a + 1)) - 1))" (bvexpr->cexpr v) l h l)]
     [(expression (== bvlshr) a b)
      (format "(((uint64_t)~a) >> ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvashr) a b)
+     ;;; TODO(@gussmith23): Signedness is really messed up. Do we need to convert back to unsigned
+     ;;; here?
+     (format
+      "((uint64_t)(((int64_t) ( ~a | ((~a & (1<<~a)) ? (0xFFFFFFFFFFFFFFFF&(~~((uint64_t)~a))) : 0)  )) >> ~a))"
+      (bvexpr->cexpr a)
+      (bvexpr->cexpr a)
+      (sub1 (bvlen a))
+      (string-append "0b" (make-string (bvlen a) #\1))
+      (bvexpr->cexpr b))]
     [(expression (== zero-extend) a b) (bvexpr->cexpr a)]
     [(expression (== bvult) a b)
      (when (> (bvlen a) 64)
