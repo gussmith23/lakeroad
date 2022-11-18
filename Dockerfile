@@ -128,5 +128,8 @@ RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
 WORKDIR /root/lakeroad
 ADD --keep-git-dir=false . .
 
+# Build Racket bytecode; makes Lakeroad much faster.
+RUN raco make /root/lakeroad/bin/main.rkt
+
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
