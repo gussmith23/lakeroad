@@ -11,38 +11,31 @@ CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define lattice-ecp5-ccu2c
 CHECK:   (λ (#:A0
-CHECK:       (A0 (bv->signal (constant (list 'A0 'symbolic-constant) (bitvector 1))))
+CHECK:       (A0 (bv->signal (constant 'A0 (bitvector 1))))
 CHECK:       #:A1
-CHECK:       (A1 (bv->signal (constant (list 'A1 'symbolic-constant) (bitvector 1))))
+CHECK:       (A1 (bv->signal (constant 'A1 (bitvector 1))))
 CHECK:       #:B0
-CHECK:       (B0 (bv->signal (constant (list 'B0 'symbolic-constant) (bitvector 1))))
+CHECK:       (B0 (bv->signal (constant 'B0 (bitvector 1))))
 CHECK:       #:B1
-CHECK:       (B1 (bv->signal (constant (list 'B1 'symbolic-constant) (bitvector 1))))
+CHECK:       (B1 (bv->signal (constant 'B1 (bitvector 1))))
 CHECK:       #:C0
-CHECK:       (C0 (bv->signal (constant (list 'C0 'symbolic-constant) (bitvector 1))))
+CHECK:       (C0 (bv->signal (constant 'C0 (bitvector 1))))
 CHECK:       #:C1
-CHECK:       (C1 (bv->signal (constant (list 'C1 'symbolic-constant) (bitvector 1))))
+CHECK:       (C1 (bv->signal (constant 'C1 (bitvector 1))))
 CHECK:       #:CIN
-CHECK:       (CIN
-CHECK:        (bv->signal (constant (list 'CIN 'symbolic-constant) (bitvector 1))))
+CHECK:       (CIN (bv->signal (constant 'CIN (bitvector 1))))
 CHECK:       #:D0
-CHECK:       (D0 (bv->signal (constant (list 'D0 'symbolic-constant) (bitvector 1))))
+CHECK:       (D0 (bv->signal (constant 'D0 (bitvector 1))))
 CHECK:       #:D1
-CHECK:       (D1 (bv->signal (constant (list 'D1 'symbolic-constant) (bitvector 1))))
+CHECK:       (D1 (bv->signal (constant 'D1 (bitvector 1))))
 CHECK:       #:INIT0
-CHECK:       (INIT0
-CHECK:        (bv->signal (constant (list 'INIT0 'symbolic-constant) (bitvector 16))))
+CHECK:       (INIT0 (bv->signal (constant 'INIT0 (bitvector 16))))
 CHECK:       #:INIT1
-CHECK:       (INIT1
-CHECK:        (bv->signal (constant (list 'INIT1 'symbolic-constant) (bitvector 16))))
+CHECK:       (INIT1 (bv->signal (constant 'INIT1 (bitvector 16))))
 CHECK:       #:INJECT1_0
-CHECK:       (INJECT1_0
-CHECK:        (bv->signal
-CHECK:         (constant (list 'INJECT1_0 'symbolic-constant) (bitvector 1))))
+CHECK:       (INJECT1_0 (bv->signal (constant 'INJECT1_0 (bitvector 1))))
 CHECK:       #:INJECT1_1
-CHECK:       (INJECT1_1
-CHECK:        (bv->signal
-CHECK:         (constant (list 'INJECT1_1 'symbolic-constant) (bitvector 1)))))
+CHECK:       (INJECT1_1 (bv->signal (constant 'INJECT1_1 (bitvector 1)))))
 CHECK:     (let* ((merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 1))

@@ -21,21 +21,15 @@ CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define sofa-frac-lut4
 CHECK:   (λ (#:in
-CHECK:       (in (bv->signal (constant (list 'in 'symbolic-constant) (bitvector 4))))
+CHECK:       (in (bv->signal (constant 'in (bitvector 4))))
 CHECK:       #:mode
-CHECK:       (mode
-CHECK:        (bv->signal (constant (list 'mode 'symbolic-constant) (bitvector 1))))
+CHECK:       (mode (bv->signal (constant 'mode (bitvector 1))))
 CHECK:       #:mode_inv
-CHECK:       (mode_inv
-CHECK:        (bv->signal
-CHECK:         (constant (list 'mode_inv 'symbolic-constant) (bitvector 1))))
+CHECK:       (mode_inv (bv->signal (constant 'mode_inv (bitvector 1))))
 CHECK:       #:sram
-CHECK:       (sram
-CHECK:        (bv->signal (constant (list 'sram 'symbolic-constant) (bitvector 16))))
+CHECK:       (sram (bv->signal (constant 'sram (bitvector 16))))
 CHECK:       #:sram_inv
-CHECK:       (sram_inv
-CHECK:        (bv->signal
-CHECK:         (constant (list 'sram_inv 'symbolic-constant) (bitvector 16)))))
+CHECK:       (sram_inv (bv->signal (constant 'sram_inv (bitvector 16)))))
 CHECK:     (let* ((merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 4))
@@ -1885,7 +1879,7 @@ CHECK:            (btor495
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor48) (bitvector 1))
 CHECK:              btor48)))
-CHECK:       (make-immutable-hash 
+CHECK:       (make-immutable-hash
 CHECK:        (list
 CHECK:         (cons 'lut3_out (signal (signal-value btor45) (hash)))
 CHECK:         (cons 'lut4_out (signal (signal-value btor49) (hash)))
