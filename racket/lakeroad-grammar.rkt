@@ -119,16 +119,4 @@
    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-   #:extra-verilator-args "-Wno-UNUSED")
-
-  (grammar-test
-   #:name "signed comparison"
-   #:defines (define-symbolic a b (bitvector 8))
-   #:bv-expr (bvneg (bv))
-   #:depth 2
-   #:architecture-description (lattice-ecp5-architecture-description)
-   #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
    #:extra-verilator-args "-Wno-UNUSED"))
