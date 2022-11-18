@@ -299,7 +299,8 @@
              [(lr:append lsts) (apply append (interpret-helper lsts))]
              [(lr:take l n) (take (interpret-helper l) (interpret-helper n))]
              [(lr:drop l n) (drop (interpret-helper l) (interpret-helper n))]
-             [(lr:list-ref l n) (list-ref (interpret-helper l) (interpret-helper n))]
+             [(lr:list-ref l n)
+              (for/all ([n (interpret-helper n) #:exhaustive]) (list-ref (interpret-helper l) n))]
              [(lr:map f lsts) (apply map f (interpret-helper lsts))]
              ;;; Rosette functions lifted to our language.
              [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
@@ -311,7 +312,11 @@
              ;;; (dup-extend (interpret-helper v) bv)]
              [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
              [(lr:extract h l v)
-              (extract (interpret-helper h) (interpret-helper l) (interpret-helper v))]
+              ;;; We need these for/alls to decompose h and l in weird situations where the indices
+              ;;; are concrete but there are multiple possible values.
+              (for/all ([h (interpret-helper h) #:exhaustive])
+                       (for/all ([l (interpret-helper l) #:exhaustive])
+                                (extract h l (interpret-helper v))))]
              [(lr:concat vs) (apply concat (interpret-helper vs))]
              ;;; Datatypes.
              [(lr:bv v) v]

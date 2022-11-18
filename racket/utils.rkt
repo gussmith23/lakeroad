@@ -60,7 +60,27 @@
        (error "Only supporting concrete h and l for now."))
      (format "((~a >> ~a) & ((1<<(~a - ~a + 1)) - 1))" (bvexpr->cexpr v) l h l)]
     [(expression (== bvlshr) a b)
-     (format "(((uint64_t)~a) >> ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+     ;;; Shifting by more than the length of the bitvector is undefined in C.
+     (format "((~a > ~a) ? 0 : (((uint64_t)~a) >> ~a))"
+             (bvexpr->cexpr b)
+             (bvlen a)
+             (bvexpr->cexpr a)
+             (bvexpr->cexpr b))]
+    [(expression (== bvashr) a b)
+     ;;; TODO(@gussmith23): Signedness is really messed up. Do we need to convert back to unsigned
+     ;;; here?
+     (format
+      "((~a > ~a) ? ((~a & (1<<~a)) ? ((uint64_t)~a) : 0) : ((uint64_t)(((int64_t) ( ~a | ((~a & (1<<~a)) ? (0xFFFFFFFFFFFFFFFF&(~~((uint64_t)~a))) : 0)  )) >> ~a)))"
+      (bvexpr->cexpr b)
+      (bvlen a)
+      (bvexpr->cexpr a)
+      (sub1 (bvlen a))
+      (string-append "0b" (make-string (bvlen a) #\1))
+      (bvexpr->cexpr a)
+      (bvexpr->cexpr a)
+      (sub1 (bvlen a))
+      (string-append "0b" (make-string (bvlen a) #\1))
+      (bvexpr->cexpr b))]
     [(expression (== zero-extend) a b) (bvexpr->cexpr a)]
     [(expression (== bvult) a b)
      (when (> (bvlen a) 64)
@@ -96,7 +116,12 @@
     [(expression (== bvadd) a b) (format "(~a + ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(expression (== bvnot) a) (format "(~~~a)" (bvexpr->cexpr a))]
     [(expression (== bvneg) a) (format "(-~a)" (bvexpr->cexpr a))]
-    [(expression (== bvshl) a b) (format "(~a << ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+    [(expression (== bvshl) a b)
+     (format "((~a > ~a) ? 0 : (~a << ~a))"
+             (bvexpr->cexpr b)
+             (bvlen a)
+             (bvexpr->cexpr a)
+             (bvexpr->cexpr b))]
     [(expression (== bvmul) a b) (format "(~a * ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
     [(? concrete? (? (bitvector 1) a)) (format "((bool) ~a)" (bitvector->natural a))]
     [(? concrete? (? (bitvector 2) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]

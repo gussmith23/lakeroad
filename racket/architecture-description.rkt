@@ -717,9 +717,12 @@
                                             (cons "I3" (bv 0 1))
                                             (cons "I4" (bv 0 1))))])
      (check-true (match internal-data
-                   [(list (list (cons "init" (lr:bv v0))) (list (cons "init" (lr:bv v1))) (list))
+                   [(list (list (cons "init" (lr:bv v0)))
+                          (list (cons "init" (lr:bv v1)))
+                          (list (cons "init" (lr:bv v2))))
                     (check-true ((bitvector 16) v0))
                     (check-true ((bitvector 16) v1))
+                    (check-true ((bitvector 16) v2))
                     #t]
                    [else #f]))
      (check-true
@@ -730,9 +733,9 @@
                   (lr:symbol 'O)
                   (lr:hash-ref
                    (lr:hw-module-instance
-                    "L6MUX21"
+                    "LUT4"
                     (list (module-instance-port
-                           "D0"
+                           "A"
                            (lr:hash-ref
                             (lr:make-immutable-hash
                              (lr:list (list (lr:cons (lr:symbol 'O)
@@ -751,7 +754,7 @@
                            'input
                            1)
                           (module-instance-port
-                           "D1"
+                           "B"
                            (lr:hash-ref
                             (lr:make-immutable-hash
                              (lr:list (list (lr:cons (lr:symbol 'O)
@@ -769,10 +772,11 @@
                             'O)
                            'input
                            1)
-                          (module-instance-port "SD" selector-expr 'input 1)
+                          (module-instance-port "C" selector-expr 'input 1)
+                          (module-instance-port "D" unchecked-expr 'input 1)
                           (module-instance-port "Z" "O" 'output 1))
-                    (list)
-                    mux-filepath)
+                    (list (module-instance-parameter "init" s2))
+                    lut4-filepath)
                    'Z)))))
          #t]
         [else #f])))))
@@ -945,18 +949,18 @@
                                         "../modules_for_importing/lattice_ecp5/LUT4.v")
                        (hash "init" 16)
                        (hash "O" "Z"))
-                      (interface-implementation
-                       (interface-identifier "MUX" (hash "num_inputs" 2))
-                       (module-instance "L6MUX21"
-                                        (list (module-instance-port "D0" "I0" 'input 1)
-                                              (module-instance-port "D1" "I1" 'input 1)
-                                              (module-instance-port "SD" "S" 'input 1)
-                                              (module-instance-port "Z" "O" 'output 1))
-                                        (list)
-                                        "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
-                                        "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
-                       (hash)
-                       (hash "O" "Z"))
+                      ;;; (interface-implementation
+                      ;;;  (interface-identifier "MUX" (hash "num_inputs" 2))
+                      ;;;  (module-instance "L6MUX21"
+                      ;;;                   (list (module-instance-port "D0" "I0" 'input 1)
+                      ;;;                         (module-instance-port "D1" "I1" 'input 1)
+                      ;;;                         (module-instance-port "SD" "S" 'input 1)
+                      ;;;                         (module-instance-port "Z" "O" 'output 1))
+                      ;;;                   (list)
+                      ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
+                      ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
+                      ;;;  (hash)
+                      ;;;  (hash "O" "Z"))
                       (interface-implementation
                        (interface-identifier "carry" (hash "width" 2))
                        (module-instance "CCU2C"

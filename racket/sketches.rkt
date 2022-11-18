@@ -316,6 +316,114 @@
 
     (list out-expr (list and-lut-internal-data bitwise-with-carry-internal-data))))
 
+(define (shift-sketch-generator architecture-description
+                                logical-inputs
+                                num-logical-inputs
+                                bitwidth
+                                #:internal-data [internal-data #f])
+  (when (not (equal? num-logical-inputs 2))
+    (error "Shift sketch should take 2 inputs."))
+  (match-let*
+      ([_ 0] ;;; Dummy line to prevent formatter from messing up my comments.
+
+       ;;; a is the value we're shifting, b is the value we're shifting it by.
+       [a-expr (lr:list-ref logical-inputs (lr:integer 0))]
+       [b-expr (lr:list-ref logical-inputs (lr:integer 1))]
+
+       [logical-or-arithmetic-chooser (?? boolean?)]
+
+       ;;; Generate the internal data for a mux2, so we can share it.
+       [(list _ mux2-internal-data)
+        (construct-interface architecture-description
+                             (interface-identifier "MUX" (hash "num_inputs" 2))
+                             (list (cons "I0" 'unused) (cons "I1" 'unused) (cons "S" 'unused))
+                             #:internal-data #f)]
+
+       [num-stages (exact-ceiling (log (add1 (add1 bitwidth)) 2))]
+       ;;; I'm being lazy and throwing an extra stage in to fix bugs that were popping up. I don't
+       ;;; think this extra stage is technically necessary, but it doesn't work without it.
+       ;[num-stages (add1 num-stages)]
+       ;;; Ok, now i'm just being extra lazy.
+       ;;; TODO(@gussmith23): Make bitshifts actually efficient.
+       [num-stages bitwidth]
+
+       [(list _ or-internal-data)
+        (construct-interface
+         architecture-description
+         (interface-identifier "LUT" (hash "num_inputs" (add1 (- bitwidth num-stages))))
+         (for/list ([i (add1 (- bitwidth num-stages))])
+           (cons (format "I~a" i) 'unused))
+         #:internal-data #f)]
+
+       [fold-fn
+        (lambda (stage-i previous-stage-expr)
+          (let* (;;; The selector bit for all the muxes in this row.
+                 [s-expr (if (not (equal? stage-i (sub1 num-stages)))
+                             (lr:extract (lr:integer stage-i) (lr:integer stage-i) b-expr)
+                             ;;; for the last stage, the selector ORs all the remaining bits.
+                             (lr:hash-ref (first (construct-interface
+                                                  architecture-description
+                                                  (interface-identifier
+                                                   "LUT"
+                                                   (hash "num_inputs" (add1 (- bitwidth num-stages))))
+                                                  (for/list ([i (add1 (- bitwidth num-stages))])
+                                                    (cons (format "I~a" i)
+                                                          (lr:extract (lr:integer (+ stage-i i))
+                                                                      (lr:integer (+ stage-i i))
+                                                                      b-expr)))
+                                                  #:internal-data or-internal-data))
+                                          'O))]
+                 [make-mux-fn
+                  (lambda (bit-i)
+                    (let* (;;; The bit to select for the i0 input of this mux.
+                           [i0-bit bit-i]
+                           [i0-expr
+                            (lr:extract (lr:integer i0-bit) (lr:integer i0-bit) previous-stage-expr)]
+
+                           ;;; The bit to select for the i1 input of this mux.
+                           [i1-bit-right (+ bit-i (expt 2 stage-i))]
+                           [i1-bit-left (- bit-i (expt 2 stage-i))]
+                           [i1-value-right (if (>= i1-bit-right bitwidth)
+                                               ;;; Either shift in 0s or the sign bit.
+                                               (if logical-or-arithmetic-chooser
+                                                   (lr:bv (bv 0 1))
+                                                   (lr:extract (lr:integer (sub1 bitwidth))
+                                                               (lr:integer (sub1 bitwidth))
+                                                               a-expr))
+                                               (lr:extract (lr:integer i1-bit-right)
+                                                           (lr:integer i1-bit-right)
+                                                           previous-stage-expr))]
+                           [i1-value-left (if (< i1-bit-left 0)
+                                              (lr:bv (bv 0 1))
+                                              (lr:extract (lr:integer i1-bit-left)
+                                                          (lr:integer i1-bit-left)
+                                                          previous-stage-expr))]
+                           [mux-expr-right
+                            (first
+                             (construct-interface
+                              architecture-description
+                              (interface-identifier "MUX" (hash "num_inputs" 2))
+                              (list (cons "I0" i0-expr) (cons "I1" i1-value-right) (cons "S" s-expr))
+                              #:internal-data mux2-internal-data))]
+                           [mux-expr-left
+                            (first
+                             (construct-interface
+                              architecture-description
+                              (interface-identifier "MUX" (hash "num_inputs" 2))
+                              (list (cons "I0" i0-expr) (cons "I1" i1-value-left) (cons "S" s-expr))
+                              #:internal-data mux2-internal-data))]
+
+                           [out-expr (lr:hash-ref (choose mux-expr-right mux-expr-left) 'O)])
+
+                      out-expr))]
+
+                 [out-expr (lr:concat (lr:list (reverse (for/list ([bit-i bitwidth])
+                                                          (make-mux-fn bit-i)))))])
+            out-expr))]
+
+       [out-expr (foldl fold-fn a-expr (range num-stages))])
+    (list out-expr (list))))
+
 (module+ test
   (require rackunit
            "interpreter.rkt"
@@ -372,6 +480,72 @@
                                              #:extra-verilator-args extra-verilator-args
                                              (list (to-simulate lr-expr bv-expr))
                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
+  (sketch-test
+   #:name "logical right shift on lattice"
+   #:defines (define-symbolic a b (bitvector 5))
+   #:bv-expr (bvlshr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "arithmetic right shift on lattice"
+   #:defines (define-symbolic a b (bitvector 5))
+   #:bv-expr (bvashr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "left shift on lattice"
+   #:defines (define-symbolic a b (bitvector 5))
+   #:bv-expr (bvshl a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  ;;; TODO(@gussmith23): we have a bug in bvexpr->cexpr that's causing this to fail. (I think.)
+  (sketch-test
+   #:name "logical right shift on lattice"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bvlshr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "arithmetic right shift on lattice"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bvashr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "left shift on lattice"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bvshl a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
    #:name "bitwise sketch generator on lattice"

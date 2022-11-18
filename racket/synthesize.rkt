@@ -11,6 +11,7 @@
          synthesize-lattice-ecp5-impl
          synthesize-wire
          synthesize-xilinx-ultrascale-plus-dsp
+         rosette-synthesize
          template-map)
 
 (require "interpreter.rkt"
