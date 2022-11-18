@@ -8,7 +8,6 @@
          "compile-to-json.rkt"
          rosette
          "utils.rkt"
-         "interpreter.rkt"
          (prefix-in lr: "language.rkt")
          racket/future)
 
@@ -30,13 +29,17 @@
                           #:include-dirs [include-dirs '()]
                           #:extra-verilator-args [extra-verilator-args ""]
                           #:extra-cc-args [extra-cc-args ""]
-                          #:num-make-jobs [num-make-jobs (processor-count)])
+                          #:num-make-jobs [num-make-jobs (processor-count)]
+                          #:max-loop-bound [max-loop-bound 256]
+                          #:force-random-values [force-random-values #f])
  (->* ((listof to-simulate?) path-string?)
       (#:additional-files-to-build (listof path-string?)
        #:include-dirs (listof path-string?)
        #:extra-verilator-args string?
        #:extra-cc-args string?
-       #:num-make-jobs integer?)
+       #:num-make-jobs integer?
+       #:max-loop-bound integer?
+       #:force-random-values boolean?)
       boolean?)
  (begin
    (define working-directory (make-temporary-file "rkttmp~a" 'directory))
@@ -92,11 +95,11 @@
           ;;; the input will be generated randomly.
           (define idx-variable-name (idx-var var))
 
-          ;;; The max value that the index variable should run to (exclusive). We only do exhaustive
-          ;;; testing for up to 8 bits, so we max out at 256. Thus, for anything higher than 8 bits,
-          ;;; we will do random testing with 256 randomly-selected values of var. We can make this
-          ;;; more configurable if we want.
-          (define limit (min 256 (expt 2 (bvlen var))))
+          ;;; The max value that the index variable should run to (exclusive). This, in combination
+          ;;; with the randomness flag, controls whether exhaustive testing occurs. E.g. if randomness
+          ;;; isn't forced and the max bound is 256, then every variable up to 8 bits wide will be
+          ;;; exhaustively tested.
+          (define limit (min max-loop-bound (expt 2 (bvlen var))))
 
           ;;; Open the for loop that iterates over this variable.
           (format "for (uint64_t ~a = 0; ~a < ~a; ++~a) {"
@@ -110,13 +113,14 @@
       ;;; We do this by setting the input value to the index variable for this variable. The index
       ;;; variable counts from 0 to the max value; e.g. to 1 for a 1 bit number, or 255 for an 8 bit
       ;;; number. This gives us exhaustive testing on this input. In the case where the variable is
-      ;;; greater than 8 bits wide, we use randomly generated values for the input.
+      ;;; greater than 8 bits wide, we use randomly generated values for the input. Randomness can
+      ;;; also be forced by using force-random-values.
       (define value-definitions
         (for/list ([var (symbolics bv-expr)])
           (format
            "uint64_t ~a = ~a;"
            (val-var var)
-           (if (> (bvlen var) 8)
+           (if (|| force-random-values (> (bvlen var) 8))
                "(((uint64_t)std::rand() & 0xff) << 56) | (((uint64_t)std::rand() & 0xff) << 48) | (((uint64_t)std::rand() & 0xff) << 40)| (((uint64_t)std::rand() & 0xff) << 32) | (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff)"
                (idx-var var)))))
 

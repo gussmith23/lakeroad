@@ -56,6 +56,8 @@
   (test-true
    "simulate all synthesized designs with Verilator"
    (simulate-with-verilator
+    #:max-loop-bound 128
+    #:force-random-values #t
     #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
                          (build-path (get-lakeroad-directory) "verilator-unisims"))
     #:extra-verilator-args
