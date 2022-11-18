@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 ;;; In this file, I experiment with representing circuit state. I do so using the "signal" struct,
 ;;; which can be thought of as a wrapper over a Rosette bitvector, which carries along with it some
 ;;; hidden state. I think this may be a monad-ish idea...?

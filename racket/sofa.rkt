@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 ;;; Architecture for the high-density family of SOFA FPGAs, described here:
 ;;; https://skywater-openfpga.readthedocs.io/en/latest/device/hd_fpga/

@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 ;;; Synthesis routines for the various architectures.
 ;;;
 ;;; TODO provide a top-level synthesis procedure?

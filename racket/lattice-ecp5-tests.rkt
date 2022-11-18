@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (require rosette
          rosette/solver/smt/boolector

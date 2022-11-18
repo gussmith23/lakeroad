@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (provide simulate-expr
          to-simulate

@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 ;;; Utilities for .btor files.
 
 (provide parse-btor
