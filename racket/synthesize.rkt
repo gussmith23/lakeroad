@@ -485,6 +485,14 @@
      ;;; requirement. Instance TOP.top.DSP48E2_0
      (assert (bveq USE_MULT (bv 18 5)))
 
+     ;;; ERROR: [DRC DSPS-2] Invalid PCIN Connection for OPMODE value: DSP48E2 cell DSP48E2_0 has
+     ;;; OPMODE[5:4] set to 01 which uses the input of the PCIN bus for its computation, however the
+     ;;; PCIN input is not properly connected to another DSP48E2 Block.  Please either correct the
+     ;;; connectivity or OPMODE value to allow for proper implementation.
+     ;;;
+     ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
+     (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+
      (assert (bvzero? CARRYIN))
      (assert (bvzero? CARRYCASCIN))
 
