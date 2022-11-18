@@ -299,7 +299,8 @@
              [(lr:append lsts) (apply append (interpret-helper lsts))]
              [(lr:take l n) (take (interpret-helper l) (interpret-helper n))]
              [(lr:drop l n) (drop (interpret-helper l) (interpret-helper n))]
-             [(lr:list-ref l n) (list-ref (interpret-helper l) (interpret-helper n))]
+             [(lr:list-ref l n)
+              (for/all ([n (interpret-helper n) #:exhaustive]) (list-ref (interpret-helper l) n))]
              [(lr:map f lsts) (apply map f (interpret-helper lsts))]
              ;;; Rosette functions lifted to our language.
              [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
