@@ -24,7 +24,8 @@
          bitwise-sketch-generator
          bitwise-with-carry-sketch-generator
          comparison-sketch-generator
-         multiplication-sketch-generator)
+         multiplication-sketch-generator
+         shift-sketch-generator)
 
 (require "architecture-description.rkt"
          "logical-to-physical.rkt"

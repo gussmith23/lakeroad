@@ -105,6 +105,9 @@
 
   (define (helper expr)
     (match expr
+      [`(bvlshr ,a ,b) (bvlshr (helper a) (helper b))]
+      [`(bvashr ,a ,b) (bvashr (helper a) (helper b))]
+      [`(bvshl ,a ,b) (bvshl (helper a) (helper b))]
       [`(bvuge ,a ,b) (bvuge (helper a) (helper b))]
       [`(bvule ,a ,b) (bvule (helper a) (helper b))]
       [`(bvult ,a ,b) (bvult (helper a) (helper b))]
@@ -152,6 +155,7 @@
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
+    ["shift" shift-sketch-generator]
     ["xilinx-ultrascale-plus-dsp48e2"
      (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
        (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
