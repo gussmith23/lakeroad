@@ -15,7 +15,7 @@
          "../racket/xilinx-ultrascale-plus-carry8.rkt"
          "../racket/sofa-frac-lut4.rkt"
          "../racket/lattice-ecp5-mult18x18d.rkt"
-         "lattice-ecp5-alu24b.rkt"
+         "../racket/lattice-ecp5-alu24b.rkt"
          rosette/solver/smt/boolector
          "../racket/stateful-design-experiment.rkt"
          racket/hash
