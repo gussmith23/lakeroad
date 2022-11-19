@@ -14,6 +14,7 @@
          "../racket/xilinx-ultrascale-plus-lut6.rkt"
          "../racket/xilinx-ultrascale-plus-carry8.rkt"
          "../racket/sofa-frac-lut4.rkt"
+         "../racket/lattice-ecp5-mult18x18d.rkt"
          rosette/solver/smt/boolector
          "../racket/stateful-design-experiment.rkt"
          racket/hash
@@ -166,6 +167,15 @@
      (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
        ;;; Note: wrap in list to mock the return value of sketch generators.
        (list (synthesize-xilinx-ultrascale-plus-dsp bv-expr)))]
+    ["lattice-ecp5-dsp"
+     (when (not (equal? "lattice-ecp5" (architecture)))
+       (error "lattice-ecp5-dsp template only supported for lattice-ecp5 architecture."))
+
+     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
+     ;;; synthesis function.
+     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+       ;;; Note: wrap in list to mock the return value of sketch generators.
+       (list (synthesize-lattice-ecp5-dsp bv-expr)))]
     [else (error "Missing or invalid template.")]))
 
 (define architecture-description
@@ -185,8 +195,8 @@
            (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))]
     ["lattice-ecp5"
      (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v")
-                 lattice-ecp5-ccu2c))]
+           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
+           (cons (cons "MULT18X18D" "") MULT18X18D))]
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     [other
