@@ -1726,4 +1726,38 @@
                                                            (check-not-equal?
                                                             #f
                                                             (synthesize-lattice-ecp5-dsp
-                                                             (bvsub c (bvmul a b))))))))))))
+                                                             (bvsub c (bvmul a b)))))))))))
+                                                             
+  (test-case "lattice dsp add 16"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 18))
+                                                (check-not-equal? #f
+                                                                  (synthesize-lattice-ecp5-dsp
+                                                                   (bvadd a b))))))))))
+  (test-case "lattice dsp mul 16"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 18))
+                                                (check-not-equal? #f
+                                                                  (synthesize-lattice-ecp5-dsp
+                                                                   (bvmul a b))))))))))
+  (test-case "lattice dsp mul-add 16"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b c (bitvector 18))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-lattice-ecp5-dsp
+                                                             (bvadd c (bvmul a b)))))))))))
+  (test-case "lattice dsp mul-sub 16"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b c (bitvector 18))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-lattice-ecp5-dsp
+                                                             (bvsub c (bvmul a b)))))))))))
+                                                             )
