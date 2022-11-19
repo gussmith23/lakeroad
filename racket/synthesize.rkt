@@ -9,6 +9,7 @@
          synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-lattice-ecp5-impl
+         synthesize-lattice-ecp5-dsp
          synthesize-wire
          synthesize-xilinx-ultrascale-plus-dsp
          rosette-synthesize
@@ -20,13 +21,14 @@
          rosette
          rosette/lib/synthax
          rosette/lib/angelic
-         racket/pretty
          racket/sandbox
          rosette/solver/smt/boolector
          "utils.rkt"
          "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt")
-         "sketches.rkt")
+         "sketches.rkt"
+         "architecture-description.rkt"
+         "lattice-ecp5-mult18x18d.rkt")
 
 ;;; Attempt synthesis, return the first that works.
 (define (synthesize-any architecture-description
@@ -257,6 +259,399 @@
 ;;; ARCH-DEPENDENT SYNTHESIS STRATEGIES
 ;;; -----------------------------------
 ;;; Finally, we have architecture-dependent synthesis strategies!
+
+(define (synthesize-lattice-ecp5-dsp bv-expr)
+  (let/ec
+   return
+   (begin
+
+     ;;; Only supporting 3 inputs, a, b, c.
+     (when (> (length (symbolics bv-expr)) 3)
+       (return #f))
+
+     ;;; Only supporting max bws of 18 on DSPs for now.
+     (when (> (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 18)
+       (return #f))
+
+     (define in0 (if (>= (length (symbolics bv-expr)) 1) (list-ref (symbolics bv-expr) 0) (bv 0 1)))
+     (define in1 (if (>= (length (symbolics bv-expr)) 2) (list-ref (symbolics bv-expr) 1) (bv 0 1)))
+     (define in2 (if (>= (length (symbolics bv-expr)) 3) (list-ref (symbolics bv-expr) 2) (bv 0 1)))
+
+     ;;; Main input ports.
+     (define A
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 (bv 0 1) (bv 1 1))) (lr:bitvector (bitvector 18))))
+     (define B
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 (bv 0 1) (bv 1 1))) (lr:bitvector (bitvector 18))))
+     (define C
+       (lr:zero-extend (lr:bv (choose in0 in1 in2 (bv 0 1) (bv 1 1))) (lr:bitvector (bitvector 18))))
+
+     ;;; Input ports.
+     (define-symbolic SIGNEDA (bitvector 1))
+     (define-symbolic SIGNEDB (bitvector 1))
+     (define-symbolic SOURCEA (bitvector 1))
+     (define-symbolic SOURCEB (bitvector 1))
+     (define-symbolic CE (bitvector 4))
+     (define-symbolic CLK (bitvector 4))
+     (define-symbolic RST (bitvector 4))
+     (define-symbolic SRIA (bitvector 18))
+     (define-symbolic SRIB (bitvector 18))
+
+     ;;; Parameters.
+     (define-symbolic REG_INPUTA_CLK (bitvector 5))
+     (define-symbolic REG_INPUTA_CE (bitvector 5))
+     (define-symbolic REG_INPUTA_RST (bitvector 5))
+     (define-symbolic REG_INPUTB_CLK (bitvector 5))
+     (define-symbolic REG_INPUTB_CE (bitvector 5))
+     (define-symbolic REG_INPUTB_RST (bitvector 5))
+     (define-symbolic REG_INPUTC_CLK (bitvector 5))
+     (define-symbolic REG_INPUTC_CE (bitvector 5))
+     (define-symbolic REG_INPUTC_RST (bitvector 5))
+     (define-symbolic REG_PIPELINE_CLK (bitvector 5))
+     (define-symbolic REG_PIPELINE_CE (bitvector 5))
+     (define-symbolic REG_PIPELINE_RST (bitvector 5))
+     (define-symbolic REG_OUTPUT_CLK (bitvector 5))
+     (define-symbolic REG_OUTPUT_CE (bitvector 5))
+     (define-symbolic REG_OUTPUT_RST (bitvector 5))
+     (define-symbolic CLK0_DIV (bitvector 5))
+     (define-symbolic CLK1_DIV (bitvector 5))
+     (define-symbolic CLK2_DIV (bitvector 5))
+     (define-symbolic CLK3_DIV (bitvector 5))
+     (define-symbolic HIGHSPEED_CLK (bitvector 5))
+     (define-symbolic GSR (bitvector 5))
+     (define-symbolic CAS_MATCH_REG (bitvector 5))
+     (define-symbolic SOURCEB_MODE (bitvector 5))
+     (define-symbolic MULT_BYPASS (bitvector 5))
+     (define-symbolic RESETMODE (bitvector 5))
+
+     ;;; Constraints.
+     (assert (bvzero? SIGNEDA))
+     (assert (bvzero? SIGNEDB))
+     (assert (bvzero? SOURCEA))
+     (assert (bvzero? SOURCEB))
+     (assert (bvzero? CE))
+     (assert (bvzero? CLK))
+     (assert (bvzero? SRIA))
+     (assert (bvzero? SRIB))
+     (assert (bveq REG_INPUTA_CLK (bv 0 5)))
+     (assert (bveq REG_INPUTA_CE (bv 1 5)))
+     (assert (bveq REG_INPUTA_RST (bv 2 5)))
+     (assert (bveq REG_INPUTB_CLK (bv 0 5)))
+     (assert (bveq REG_INPUTB_CE (bv 1 5)))
+     (assert (bveq REG_INPUTB_RST (bv 2 5)))
+     (assert (bveq REG_INPUTC_CLK (bv 0 5)))
+     (assert (bveq REG_INPUTC_CE (bv 1 5)))
+     (assert (bveq REG_INPUTC_RST (bv 2 5)))
+     (assert (bveq REG_PIPELINE_CLK (bv 0 5)))
+     (assert (bveq REG_PIPELINE_CE (bv 1 5)))
+     (assert (bveq REG_PIPELINE_RST (bv 2 5)))
+     (assert (bveq REG_OUTPUT_CLK (bv 0 5)))
+     (assert (bveq REG_OUTPUT_CE (bv 1 5)))
+     (assert (bveq REG_OUTPUT_RST (bv 2 5)))
+     (assert (bveq CLK0_DIV (bv 5 5)))
+     (assert (bveq CLK1_DIV (bv 5 5)))
+     (assert (bveq CLK2_DIV (bv 5 5)))
+     (assert (bveq CLK3_DIV (bv 5 5)))
+     (assert (bveq HIGHSPEED_CLK (bv 0 5)))
+     (assert (bveq GSR (bv 5 5)))
+     (assert (bveq CAS_MATCH_REG (bv 4 5)))
+     (assert (bveq SOURCEB_MODE (bv 7 5)))
+     (assert (bveq MULT_BYPASS (bv 5 5)))
+     (assert (bveq RESETMODE (bv 6 5)))
+
+     (define-symbolic unnamed-input-624 (bitvector 1))
+
+     (define module-expr
+       (lr:hw-module-instance
+        "MULT18X18D"
+        (list
+         (module-instance-port "A0" (lr:extract (lr:integer 0) (lr:integer 0) A) 'input 1)
+         (module-instance-port "A1" (lr:extract (lr:integer 1) (lr:integer 1) A) 'input 1)
+         (module-instance-port "A2" (lr:extract (lr:integer 2) (lr:integer 2) A) 'input 1)
+         (module-instance-port "A3" (lr:extract (lr:integer 3) (lr:integer 3) A) 'input 1)
+         (module-instance-port "A4" (lr:extract (lr:integer 4) (lr:integer 4) A) 'input 1)
+         (module-instance-port "A5" (lr:extract (lr:integer 5) (lr:integer 5) A) 'input 1)
+         (module-instance-port "A6" (lr:extract (lr:integer 6) (lr:integer 6) A) 'input 1)
+         (module-instance-port "A7" (lr:extract (lr:integer 7) (lr:integer 7) A) 'input 1)
+         (module-instance-port "A8" (lr:extract (lr:integer 8) (lr:integer 8) A) 'input 1)
+         (module-instance-port "A9" (lr:extract (lr:integer 9) (lr:integer 9) A) 'input 1)
+         (module-instance-port "A10" (lr:extract (lr:integer 10) (lr:integer 10) A) 'input 1)
+         (module-instance-port "A11" (lr:extract (lr:integer 11) (lr:integer 11) A) 'input 1)
+         (module-instance-port "A12" (lr:extract (lr:integer 12) (lr:integer 12) A) 'input 1)
+         (module-instance-port "A13" (lr:extract (lr:integer 13) (lr:integer 13) A) 'input 1)
+         (module-instance-port "A14" (lr:extract (lr:integer 14) (lr:integer 14) A) 'input 1)
+         (module-instance-port "A15" (lr:extract (lr:integer 15) (lr:integer 15) A) 'input 1)
+         (module-instance-port "A16" (lr:extract (lr:integer 16) (lr:integer 16) A) 'input 1)
+         (module-instance-port "A17" (lr:extract (lr:integer 17) (lr:integer 17) A) 'input 1)
+         (module-instance-port "B0" (lr:extract (lr:integer 0) (lr:integer 0) B) 'input 1)
+         (module-instance-port "B1" (lr:extract (lr:integer 1) (lr:integer 1) B) 'input 1)
+         (module-instance-port "B2" (lr:extract (lr:integer 2) (lr:integer 2) B) 'input 1)
+         (module-instance-port "B3" (lr:extract (lr:integer 3) (lr:integer 3) B) 'input 1)
+         (module-instance-port "B4" (lr:extract (lr:integer 4) (lr:integer 4) B) 'input 1)
+         (module-instance-port "B5" (lr:extract (lr:integer 5) (lr:integer 5) B) 'input 1)
+         (module-instance-port "B6" (lr:extract (lr:integer 6) (lr:integer 6) B) 'input 1)
+         (module-instance-port "B7" (lr:extract (lr:integer 7) (lr:integer 7) B) 'input 1)
+         (module-instance-port "B8" (lr:extract (lr:integer 8) (lr:integer 8) B) 'input 1)
+         (module-instance-port "B9" (lr:extract (lr:integer 9) (lr:integer 9) B) 'input 1)
+         (module-instance-port "B10" (lr:extract (lr:integer 10) (lr:integer 10) B) 'input 1)
+         (module-instance-port "B11" (lr:extract (lr:integer 11) (lr:integer 11) B) 'input 1)
+         (module-instance-port "B12" (lr:extract (lr:integer 12) (lr:integer 12) B) 'input 1)
+         (module-instance-port "B13" (lr:extract (lr:integer 13) (lr:integer 13) B) 'input 1)
+         (module-instance-port "B14" (lr:extract (lr:integer 14) (lr:integer 14) B) 'input 1)
+         (module-instance-port "B15" (lr:extract (lr:integer 15) (lr:integer 15) B) 'input 1)
+         (module-instance-port "B16" (lr:extract (lr:integer 16) (lr:integer 16) B) 'input 1)
+         (module-instance-port "B17" (lr:extract (lr:integer 17) (lr:integer 17) B) 'input 1)
+         (module-instance-port "C0" (lr:extract (lr:integer 0) (lr:integer 0) C) 'input 1)
+         (module-instance-port "C1" (lr:extract (lr:integer 1) (lr:integer 1) C) 'input 1)
+         (module-instance-port "C2" (lr:extract (lr:integer 2) (lr:integer 2) C) 'input 1)
+         (module-instance-port "C3" (lr:extract (lr:integer 3) (lr:integer 3) C) 'input 1)
+         (module-instance-port "C4" (lr:extract (lr:integer 4) (lr:integer 4) C) 'input 1)
+         (module-instance-port "C5" (lr:extract (lr:integer 5) (lr:integer 5) C) 'input 1)
+         (module-instance-port "C6" (lr:extract (lr:integer 6) (lr:integer 6) C) 'input 1)
+         (module-instance-port "C7" (lr:extract (lr:integer 7) (lr:integer 7) C) 'input 1)
+         (module-instance-port "C8" (lr:extract (lr:integer 8) (lr:integer 8) C) 'input 1)
+         (module-instance-port "C9" (lr:extract (lr:integer 9) (lr:integer 9) C) 'input 1)
+         (module-instance-port "C10" (lr:extract (lr:integer 10) (lr:integer 10) C) 'input 1)
+         (module-instance-port "C11" (lr:extract (lr:integer 11) (lr:integer 11) C) 'input 1)
+         (module-instance-port "C12" (lr:extract (lr:integer 12) (lr:integer 12) C) 'input 1)
+         (module-instance-port "C13" (lr:extract (lr:integer 13) (lr:integer 13) C) 'input 1)
+         (module-instance-port "C14" (lr:extract (lr:integer 14) (lr:integer 14) C) 'input 1)
+         (module-instance-port "C15" (lr:extract (lr:integer 15) (lr:integer 15) C) 'input 1)
+         (module-instance-port "C16" (lr:extract (lr:integer 16) (lr:integer 16) C) 'input 1)
+         (module-instance-port "C17" (lr:extract (lr:integer 17) (lr:integer 17) C) 'input 1)
+         (module-instance-port "SIGNEDA" (lr:bv SIGNEDA) 'input 1)
+         (module-instance-port "SIGNEDB" (lr:bv SIGNEDB) 'input 1)
+         (module-instance-port "SOURCEA" (lr:bv SOURCEA) 'input 1)
+         (module-instance-port "SOURCEB" (lr:bv SOURCEB) 'input 1)
+         (module-instance-port "CE0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv CE)) 'input 1)
+         (module-instance-port "CE1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv CE)) 'input 1)
+         (module-instance-port "CE2" (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv CE)) 'input 1)
+         (module-instance-port "CE3" (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv CE)) 'input 1)
+         (module-instance-port "CLK0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv CLK)) 'input 1)
+         (module-instance-port "CLK1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv CLK)) 'input 1)
+         (module-instance-port "CLK2" (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv CLK)) 'input 1)
+         (module-instance-port "CLK3" (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv CLK)) 'input 1)
+         (module-instance-port "RST0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv RST)) 'input 1)
+         (module-instance-port "RST1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv RST)) 'input 1)
+         (module-instance-port "RST2" (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv RST)) 'input 1)
+         (module-instance-port "RST3" (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv RST)) 'input 1)
+         (module-instance-port "SRIA0"
+                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA1"
+                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA2"
+                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA3"
+                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA4"
+                               (lr:extract (lr:integer 4) (lr:integer 4) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA5"
+                               (lr:extract (lr:integer 5) (lr:integer 5) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA6"
+                               (lr:extract (lr:integer 6) (lr:integer 6) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA7"
+                               (lr:extract (lr:integer 7) (lr:integer 7) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA8"
+                               (lr:extract (lr:integer 8) (lr:integer 8) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA9"
+                               (lr:extract (lr:integer 9) (lr:integer 9) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA10"
+                               (lr:extract (lr:integer 10) (lr:integer 10) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA11"
+                               (lr:extract (lr:integer 11) (lr:integer 11) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA12"
+                               (lr:extract (lr:integer 12) (lr:integer 12) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA13"
+                               (lr:extract (lr:integer 13) (lr:integer 13) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA14"
+                               (lr:extract (lr:integer 14) (lr:integer 14) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA15"
+                               (lr:extract (lr:integer 15) (lr:integer 15) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA16"
+                               (lr:extract (lr:integer 16) (lr:integer 16) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIA17"
+                               (lr:extract (lr:integer 17) (lr:integer 17) (lr:bv SRIA))
+                               'input
+                               1)
+         (module-instance-port "SRIB0"
+                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB1"
+                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB2"
+                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB3"
+                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB4"
+                               (lr:extract (lr:integer 4) (lr:integer 4) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB5"
+                               (lr:extract (lr:integer 5) (lr:integer 5) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB6"
+                               (lr:extract (lr:integer 6) (lr:integer 6) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB7"
+                               (lr:extract (lr:integer 7) (lr:integer 7) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB8"
+                               (lr:extract (lr:integer 8) (lr:integer 8) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB9"
+                               (lr:extract (lr:integer 9) (lr:integer 9) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB10"
+                               (lr:extract (lr:integer 10) (lr:integer 10) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB11"
+                               (lr:extract (lr:integer 11) (lr:integer 11) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB12"
+                               (lr:extract (lr:integer 12) (lr:integer 12) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB13"
+                               (lr:extract (lr:integer 13) (lr:integer 13) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB14"
+                               (lr:extract (lr:integer 14) (lr:integer 14) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB15"
+                               (lr:extract (lr:integer 15) (lr:integer 15) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB16"
+                               (lr:extract (lr:integer 16) (lr:integer 16) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "SRIB17"
+                               (lr:extract (lr:integer 17) (lr:integer 17) (lr:bv SRIB))
+                               'input
+                               1)
+         (module-instance-port "unnamed-input-624" (lr:bv unnamed-input-624) 'input 1))
+        (list (module-instance-parameter "REG_INPUTA_CLK" (lr:bv REG_INPUTA_CLK))
+              (module-instance-parameter "REG_INPUTA_CE" (lr:bv REG_INPUTA_CE))
+              (module-instance-parameter "REG_INPUTA_RST" (lr:bv REG_INPUTA_RST))
+              (module-instance-parameter "REG_INPUTB_CLK" (lr:bv REG_INPUTB_CLK))
+              (module-instance-parameter "REG_INPUTB_CE" (lr:bv REG_INPUTB_CE))
+              (module-instance-parameter "REG_INPUTB_RST" (lr:bv REG_INPUTB_RST))
+              (module-instance-parameter "REG_INPUTC_CLK" (lr:bv REG_INPUTC_CLK))
+              (module-instance-parameter "REG_INPUTC_CE" (lr:bv REG_INPUTC_CE))
+              (module-instance-parameter "REG_INPUTC_RST" (lr:bv REG_INPUTC_RST))
+              (module-instance-parameter "REG_PIPELINE_CLK" (lr:bv REG_PIPELINE_CLK))
+              (module-instance-parameter "REG_PIPELINE_CE" (lr:bv REG_PIPELINE_CE))
+              (module-instance-parameter "REG_PIPELINE_RST" (lr:bv REG_PIPELINE_RST))
+              (module-instance-parameter "REG_OUTPUT_CLK" (lr:bv REG_OUTPUT_CLK))
+              (module-instance-parameter "REG_OUTPUT_CE" (lr:bv REG_OUTPUT_CE))
+              (module-instance-parameter "REG_OUTPUT_RST" (lr:bv REG_OUTPUT_RST))
+              (module-instance-parameter "CLK0_DIV" (lr:bv CLK0_DIV))
+              (module-instance-parameter "CLK1_DIV" (lr:bv CLK1_DIV))
+              (module-instance-parameter "CLK2_DIV" (lr:bv CLK2_DIV))
+              (module-instance-parameter "CLK3_DIV" (lr:bv CLK3_DIV))
+              (module-instance-parameter "HIGHSPEED_CLK" (lr:bv HIGHSPEED_CLK))
+              (module-instance-parameter "GSR" (lr:bv GSR))
+              (module-instance-parameter "CAS_MATCH_REG" (lr:bv CAS_MATCH_REG))
+              (module-instance-parameter "SOURCEB_MODE" (lr:bv SOURCEB_MODE))
+              (module-instance-parameter "MULT_BYPASS" (lr:bv MULT_BYPASS))
+              (module-instance-parameter "RESETMODE" (lr:bv RESETMODE)))
+        ""))
+
+     (define P-expr
+       (lr:concat (lr:list (list (lr:hash-ref module-expr 'P35)
+                                 (lr:hash-ref module-expr 'P34)
+                                 (lr:hash-ref module-expr 'P33)
+                                 (lr:hash-ref module-expr 'P32)
+                                 (lr:hash-ref module-expr 'P31)
+                                 (lr:hash-ref module-expr 'P30)
+                                 (lr:hash-ref module-expr 'P29)
+                                 (lr:hash-ref module-expr 'P28)
+                                 (lr:hash-ref module-expr 'P27)
+                                 (lr:hash-ref module-expr 'P26)
+                                 (lr:hash-ref module-expr 'P25)
+                                 (lr:hash-ref module-expr 'P24)
+                                 (lr:hash-ref module-expr 'P23)
+                                 (lr:hash-ref module-expr 'P22)
+                                 (lr:hash-ref module-expr 'P21)
+                                 (lr:hash-ref module-expr 'P20)
+                                 (lr:hash-ref module-expr 'P19)
+                                 (lr:hash-ref module-expr 'P18)
+                                 (lr:hash-ref module-expr 'P17)
+                                 (lr:hash-ref module-expr 'P16)
+                                 (lr:hash-ref module-expr 'P15)
+                                 (lr:hash-ref module-expr 'P14)
+                                 (lr:hash-ref module-expr 'P13)
+                                 (lr:hash-ref module-expr 'P12)
+                                 (lr:hash-ref module-expr 'P11)
+                                 (lr:hash-ref module-expr 'P10)
+                                 (lr:hash-ref module-expr 'P9)
+                                 (lr:hash-ref module-expr 'P8)
+                                 (lr:hash-ref module-expr 'P7)
+                                 (lr:hash-ref module-expr 'P6)
+                                 (lr:hash-ref module-expr 'P5)
+                                 (lr:hash-ref module-expr 'P4)
+                                 (lr:hash-ref module-expr 'P3)
+                                 (lr:hash-ref module-expr 'P2)
+                                 (lr:hash-ref module-expr 'P1)
+                                 (lr:hash-ref module-expr 'P0)))))
+
+     (define lakeroad-expr (lr:extract (lr:integer (sub1 (bvlen bv-expr))) (lr:integer 0) P-expr))
+
+     (interpret lakeroad-expr #:module-semantics (list (cons (cons "MULT18X18D" "") MULT18X18D)))
+
+     (rosette-synthesize bv-expr
+                         lakeroad-expr
+                         (append (symbolics bv-expr) (list unnamed-input-624))
+                         #:module-semantics (list (cons (cons "MULT18X18D" "") MULT18X18D))))))
 
 ;;; Attempt to synthesize expression using a DSP.
 (define (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
@@ -1078,3 +1473,14 @@
      (let ([lrexpr (synthesize-wire (bv #x12 8))]) (check-not-false lrexpr))
      (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
        (check-not-false lrexpr)))))
+
+(module+ test
+  (require rackunit)
+  (test-case "lattice dsp"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b (bitvector 18))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-lattice-ecp5-dsp
+                                                             (bvmul a b)))))))))))
