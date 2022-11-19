@@ -14,6 +14,8 @@
          "../racket/xilinx-ultrascale-plus-lut6.rkt"
          "../racket/xilinx-ultrascale-plus-carry8.rkt"
          "../racket/sofa-frac-lut4.rkt"
+         "../racket/lattice-ecp5-mult18x18d.rkt"
+         "../racket/lattice-ecp5-alu24b.rkt"
          rosette/solver/smt/boolector
          "../racket/stateful-design-experiment.rkt"
          racket/hash
@@ -93,7 +95,8 @@
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)])
 
-(when (not (verilog-module-out-signal)) (error "Please specify --verilog-module-out-signal."))
+(when (not (verilog-module-out-signal))
+  (error "Please specify --verilog-module-out-signal."))
 
 ;;; Parse instruction.
 ;;;
@@ -165,6 +168,15 @@
      (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
        ;;; Note: wrap in list to mock the return value of sketch generators.
        (list (synthesize-xilinx-ultrascale-plus-dsp bv-expr)))]
+    ["lattice-ecp5-dsp"
+     (when (not (equal? "lattice-ecp5" (architecture)))
+       (error "lattice-ecp5-dsp template only supported for lattice-ecp5 architecture."))
+
+     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
+     ;;; synthesis function.
+     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+       ;;; Note: wrap in list to mock the return value of sketch generators.
+       (list (synthesize-lattice-ecp5-dsp bv-expr)))]
     [else (error "Missing or invalid template.")]))
 
 (define architecture-description
@@ -184,8 +196,9 @@
            (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))]
     ["lattice-ecp5"
      (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v")
-                 lattice-ecp5-ccu2c))]
+           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
+           (cons (cons "MULT18X18D" "") MULT18X18D)
+           (cons (cons "ALU24B" "") lattice-ecp5-alu24b))]
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     [other
