@@ -1727,7 +1727,7 @@
                                                             #f
                                                             (synthesize-lattice-ecp5-dsp
                                                              (bvsub c (bvmul a b)))))))))))
-                                                             
+
   (test-case "lattice dsp add 16"
              (begin
                (check-true
@@ -1759,5 +1759,4 @@
                                                            (check-not-equal?
                                                             #f
                                                             (synthesize-lattice-ecp5-dsp
-                                                             (bvsub c (bvmul a b)))))))))))
-                                                             )
+                                                             (bvsub c (bvmul a b))))))))))))
