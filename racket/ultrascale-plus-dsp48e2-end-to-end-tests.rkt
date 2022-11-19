@@ -41,9 +41,12 @@
      ;(test-true (format "~a-bit sub-mul" sz) (end-to-end-test (bvmul (bvsub l0 l1) l2)))
      (end-to-end-test (bvmul (bvadd l0 l1) (bvadd l0 l1)))
      ;(test-true (format "~a-bit sub squared" sz) (end-to-end-test (bvmul (bvsub l0 l1) (bvsub l0 l1))))
-     (end-to-end-test (bvmul l0 l0))
      (end-to-end-test (bvadd l0 l1))
      (end-to-end-test (bvmul l0 l1))
+     (end-to-end-test (bvneg (bvmul l0 l1)))
+     (end-to-end-test (bvmul (bvsub l0 l1) l2))
+     (end-to-end-test (bvmul (bvsub l0 l1) (bvsub l0 l1)))
+     (end-to-end-test (bvmul (bvsub l0 l1) l2))
      (end-to-end-test l0)
      (begin
        (clear-vc!)
