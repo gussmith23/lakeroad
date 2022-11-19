@@ -93,7 +93,8 @@
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)])
 
-(when (not (verilog-module-out-signal)) (error "Please specify --verilog-module-out-signal."))
+(when (not (verilog-module-out-signal))
+  (error "Please specify --verilog-module-out-signal."))
 
 ;;; Parse instruction.
 ;;;
