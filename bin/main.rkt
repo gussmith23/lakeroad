@@ -15,6 +15,7 @@
          "../racket/xilinx-ultrascale-plus-carry8.rkt"
          "../racket/sofa-frac-lut4.rkt"
          "../racket/lattice-ecp5-mult18x18d.rkt"
+         "lattice-ecp5-alu24b.rkt"
          rosette/solver/smt/boolector
          "../racket/stateful-design-experiment.rkt"
          racket/hash
@@ -196,7 +197,8 @@
     ["lattice-ecp5"
      (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
            (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
-           (cons (cons "MULT18X18D" "") MULT18X18D))]
+           (cons (cons "MULT18X18D" "") MULT18X18D)
+           (cons (cons "ALU24B" "") lattice-ecp5-alu24b))]
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     [other
