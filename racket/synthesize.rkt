@@ -28,7 +28,8 @@
          (prefix-in lr: "language.rkt")
          "sketches.rkt"
          "architecture-description.rkt"
-         "lattice-ecp5-mult18x18d.rkt")
+         "lattice-ecp5-mult18x18d.rkt"
+         "lattice-ecp5-alu24b.rkt")
 
 ;;; Attempt synthesis, return the first that works.
 (define (synthesize-any architecture-description
@@ -681,14 +682,195 @@
                                  (lr:hash-ref module-expr 'P1)
                                  (lr:hash-ref module-expr 'P0)))))
 
-     (define lakeroad-expr (lr:extract (lr:integer (sub1 (bvlen bv-expr))) (lr:integer 0) P-expr))
+     ;;; First 18 bits of the multiplier output.
+     (define mult-out (lr:extract (lr:integer 17) (lr:integer 0) P-expr))
 
-     (interpret lakeroad-expr #:module-semantics (list (cons (cons "MULT18X18D" "") MULT18X18D)))
+     ;;; Choosing the ALU inputs.
+     (define alu-A
+       (lr:zero-extend
+        (choose (lr:bv in0) (lr:bv in1) (lr:bv in2) mult-out (lr:bv (bv 0 1)) (lr:bv (bv 1 1)))
+        (lr:bitvector (bitvector 18))))
+     (define alu-B
+       (lr:zero-extend
+        (choose (lr:bv in0) (lr:bv in1) (lr:bv in2) mult-out (lr:bv (bv 0 1)) (lr:bv (bv 1 1)))
+        (lr:bitvector (bitvector 18))))
 
+     (define-symbolic OPADDNSUB (bitvector 1))
+
+     (define alu24b-module-expr
+       (lr:hw-module-instance
+        "ALU24B"
+        (list
+         (module-instance-port "OPADDNSUB" (lr:bv OPADDNSUB) 'input 1)
+         (module-instance-port "OPCINSEL" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "SIGNEDIA" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "SIGNEDIB" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CE0" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CE1" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CE2" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CE3" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CLK0" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CLK1" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CLK2" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CLK3" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "RST0" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "RST1" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "RST2" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "RST3" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB0" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB1" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB2" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB3" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB4" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB5" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB6" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB7" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB8" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB9" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB10" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB11" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB12" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB13" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB14" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB15" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB16" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB17" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB18" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB19" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB20" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB21" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB22" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CFB23" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN0" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN1" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN2" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN3" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN4" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN5" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN6" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN7" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN8" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN9" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN10" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN11" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN12" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN13" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN14" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN15" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN16" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN17" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN18" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN19" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN20" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN21" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN22" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "CIN23" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "MA0" (lr:extract (lr:integer 0) (lr:integer 0) alu-A) 'input 1)
+         (module-instance-port "MA1" (lr:extract (lr:integer 1) (lr:integer 1) alu-A) 'input 1)
+         (module-instance-port "MA2" (lr:extract (lr:integer 2) (lr:integer 2) alu-A) 'input 1)
+         (module-instance-port "MA3" (lr:extract (lr:integer 3) (lr:integer 3) alu-A) 'input 1)
+         (module-instance-port "MA4" (lr:extract (lr:integer 4) (lr:integer 4) alu-A) 'input 1)
+         (module-instance-port "MA5" (lr:extract (lr:integer 5) (lr:integer 5) alu-A) 'input 1)
+         (module-instance-port "MA6" (lr:extract (lr:integer 6) (lr:integer 6) alu-A) 'input 1)
+         (module-instance-port "MA7" (lr:extract (lr:integer 7) (lr:integer 7) alu-A) 'input 1)
+         (module-instance-port "MA8" (lr:extract (lr:integer 8) (lr:integer 8) alu-A) 'input 1)
+         (module-instance-port "MA9" (lr:extract (lr:integer 9) (lr:integer 9) alu-A) 'input 1)
+         (module-instance-port "MA10" (lr:extract (lr:integer 10) (lr:integer 10) alu-A) 'input 1)
+         (module-instance-port "MA11" (lr:extract (lr:integer 11) (lr:integer 11) alu-A) 'input 1)
+         (module-instance-port "MA12" (lr:extract (lr:integer 12) (lr:integer 12) alu-A) 'input 1)
+         (module-instance-port "MA13" (lr:extract (lr:integer 13) (lr:integer 13) alu-A) 'input 1)
+         (module-instance-port "MA14" (lr:extract (lr:integer 14) (lr:integer 14) alu-A) 'input 1)
+         (module-instance-port "MA15" (lr:extract (lr:integer 15) (lr:integer 15) alu-A) 'input 1)
+         (module-instance-port "MA16" (lr:extract (lr:integer 16) (lr:integer 16) alu-A) 'input 1)
+         (module-instance-port "MA17" (lr:extract (lr:integer 17) (lr:integer 17) alu-A) 'input 1)
+         (module-instance-port "MB0" (lr:extract (lr:integer 0) (lr:integer 0) alu-B) 'input 1)
+         (module-instance-port "MB1" (lr:extract (lr:integer 1) (lr:integer 1) alu-B) 'input 1)
+         (module-instance-port "MB2" (lr:extract (lr:integer 2) (lr:integer 2) alu-B) 'input 1)
+         (module-instance-port "MB3" (lr:extract (lr:integer 3) (lr:integer 3) alu-B) 'input 1)
+         (module-instance-port "MB4" (lr:extract (lr:integer 4) (lr:integer 4) alu-B) 'input 1)
+         (module-instance-port "MB5" (lr:extract (lr:integer 5) (lr:integer 5) alu-B) 'input 1)
+         (module-instance-port "MB6" (lr:extract (lr:integer 6) (lr:integer 6) alu-B) 'input 1)
+         (module-instance-port "MB7" (lr:extract (lr:integer 7) (lr:integer 7) alu-B) 'input 1)
+         (module-instance-port "MB8" (lr:extract (lr:integer 8) (lr:integer 8) alu-B) 'input 1)
+         (module-instance-port "MB9" (lr:extract (lr:integer 9) (lr:integer 9) alu-B) 'input 1)
+         (module-instance-port "MB10" (lr:extract (lr:integer 10) (lr:integer 10) alu-B) 'input 1)
+         (module-instance-port "MB11" (lr:extract (lr:integer 11) (lr:integer 11) alu-B) 'input 1)
+         (module-instance-port "MB12" (lr:extract (lr:integer 12) (lr:integer 12) alu-B) 'input 1)
+         (module-instance-port "MB13" (lr:extract (lr:integer 13) (lr:integer 13) alu-B) 'input 1)
+         (module-instance-port "MB14" (lr:extract (lr:integer 14) (lr:integer 14) alu-B) 'input 1)
+         (module-instance-port "MB15" (lr:extract (lr:integer 15) (lr:integer 15) alu-B) 'input 1)
+         (module-instance-port "MB16" (lr:extract (lr:integer 16) (lr:integer 16) alu-B) 'input 1)
+         (module-instance-port "MB17" (lr:extract (lr:integer 17) (lr:integer 17) alu-B) 'input 1)
+         (module-instance-port "R0" 'unused 'output 1)
+         (module-instance-port "R1" 'unused 'output 1)
+         (module-instance-port "R2" 'unused 'output 1)
+         (module-instance-port "R3" 'unused 'output 1)
+         (module-instance-port "R4" 'unused 'output 1)
+         (module-instance-port "R5" 'unused 'output 1)
+         (module-instance-port "R6" 'unused 'output 1)
+         (module-instance-port "R7" 'unused 'output 1)
+         (module-instance-port "R8" 'unused 'output 1)
+         (module-instance-port "R9" 'unused 'output 1)
+         (module-instance-port "R10" 'unused 'output 1)
+         (module-instance-port "R11" 'unused 'output 1)
+         (module-instance-port "R12" 'unused 'output 1)
+         (module-instance-port "R13" 'unused 'output 1)
+         (module-instance-port "R14" 'unused 'output 1)
+         (module-instance-port "R15" 'unused 'output 1)
+         (module-instance-port "R16" 'unused 'output 1)
+         (module-instance-port "R17" 'unused 'output 1))
+        (list (module-instance-parameter "REG_OUTPUT_CLK" (lr:bv (bv 0 5)))
+              (module-instance-parameter "REG_OUTPUT_CE" (lr:bv (bv 1 5)))
+              (module-instance-parameter "REG_OUTPUT_RST" (lr:bv (bv 2 5)))
+              (module-instance-parameter "REG_OPCODE_0_CLK" (lr:bv (bv 0 5)))
+              (module-instance-parameter "REG_OPCODE_0_CE" (lr:bv (bv 1 5)))
+              (module-instance-parameter "REG_OPCODE_0_RST" (lr:bv (bv 2 5)))
+              (module-instance-parameter "REG_OPCODE_1_CLK" (lr:bv (bv 0 5)))
+              (module-instance-parameter "REG_OPCODE_1_CE" (lr:bv (bv 1 5)))
+              (module-instance-parameter "REG_OPCODE_1_RST" (lr:bv (bv 2 5)))
+              (module-instance-parameter "REG_INPUTCFB_CLK" (lr:bv (bv 0 5)))
+              (module-instance-parameter "REG_INPUTCFB_CE" (lr:bv (bv 1 5)))
+              (module-instance-parameter "REG_INPUTCFB_RST" (lr:bv (bv 2 5)))
+              (module-instance-parameter "CLK0_DIV" (lr:bv (bv 5 5)))
+              (module-instance-parameter "CLK1_DIV" (lr:bv (bv 5 5)))
+              (module-instance-parameter "CLK2_DIV" (lr:bv (bv 5 5)))
+              (module-instance-parameter "CLK3_DIV" (lr:bv (bv 5 5)))
+              (module-instance-parameter "GSR" (lr:bv (bv 3 5)))
+              (module-instance-parameter "RESETMODE" (lr:bv (bv 6 5))))
+        ""))
+
+     (define R-expr
+       (lr:concat (lr:list (list (lr:hash-ref alu24b-module-expr 'R17)
+                                 (lr:hash-ref alu24b-module-expr 'R16)
+                                 (lr:hash-ref alu24b-module-expr 'R15)
+                                 (lr:hash-ref alu24b-module-expr 'R14)
+                                 (lr:hash-ref alu24b-module-expr 'R13)
+                                 (lr:hash-ref alu24b-module-expr 'R12)
+                                 (lr:hash-ref alu24b-module-expr 'R11)
+                                 (lr:hash-ref alu24b-module-expr 'R10)
+                                 (lr:hash-ref alu24b-module-expr 'R9)
+                                 (lr:hash-ref alu24b-module-expr 'R8)
+                                 (lr:hash-ref alu24b-module-expr 'R7)
+                                 (lr:hash-ref alu24b-module-expr 'R6)
+                                 (lr:hash-ref alu24b-module-expr 'R5)
+                                 (lr:hash-ref alu24b-module-expr 'R4)
+                                 (lr:hash-ref alu24b-module-expr 'R3)
+                                 (lr:hash-ref alu24b-module-expr 'R2)
+                                 (lr:hash-ref alu24b-module-expr 'R1)
+                                 (lr:hash-ref alu24b-module-expr 'R0)))))
+
+     (define lakeroad-expr (lr:extract (lr:integer (sub1 (bvlen bv-expr))) (lr:integer 0) R-expr))
+
+     (interpret lakeroad-expr
+                #:module-semantics (list (cons (cons "MULT18X18D" "") MULT18X18D)
+                                         (cons (cons "ALU24B" "") lattice-ecp5-alu24b)))
+
+     (define-symbolic unnamed-input-218 (bitvector 24))
      (rosette-synthesize bv-expr
                          lakeroad-expr
                          (append (symbolics bv-expr) (list unnamed-input-624))
-                         #:module-semantics (list (cons (cons "MULT18X18D" "") MULT18X18D))))))
+                         #:module-semantics (list (cons (cons "MULT18X18D" "") MULT18X18D)
+                                                  (cons (cons "ALU24B" "") lattice-ecp5-alu24b))))))
 
 ;;; Attempt to synthesize expression using a DSP.
 (define (synthesize-xilinx-ultrascale-plus-dsp bv-expr)
@@ -1513,11 +1695,27 @@
 
 (module+ test
   (require rackunit)
-  (test-case "lattice dsp"
+  (test-case "lattice dsp add"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 18))
+                                                (check-not-equal? #f
+                                                                  (synthesize-lattice-ecp5-dsp
+                                                                   (bvadd a b))))))))))
+  (test-case "lattice dsp mul"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 18))
+                                                (check-not-equal? #f
+                                                                  (synthesize-lattice-ecp5-dsp
+                                                                   (bvmul a b))))))))))
+  (test-case "lattice dsp mul-add"
              (begin
                (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 18))
+                                                           (define-symbolic a b c (bitvector 18))
                                                            (check-not-equal?
                                                             #f
                                                             (synthesize-lattice-ecp5-dsp
-                                                             (bvmul a b)))))))))))
+                                                             (bvadd c (bvmul a b))))))))))))
