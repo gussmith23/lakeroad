@@ -1718,4 +1718,12 @@
                                                            (check-not-equal?
                                                             #f
                                                             (synthesize-lattice-ecp5-dsp
-                                                             (bvadd c (bvmul a b))))))))))))
+                                                             (bvadd c (bvmul a b)))))))))))
+  (test-case "lattice dsp mul-sub"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b c (bitvector 18))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-lattice-ecp5-dsp
+                                                             (bvsub c (bvmul a b))))))))))))
