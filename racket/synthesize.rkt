@@ -1759,4 +1759,14 @@
                                                            (check-not-equal?
                                                             #f
                                                             (synthesize-lattice-ecp5-dsp
-                                                             (bvsub c (bvmul a b))))))))))))
+                                                             (bvsub c (bvmul a b)))))))))))
+
+  (for ([i (list 1 2 3 4 5 6 7 8 16)])
+    (test-case (format "lattice dsp mul~a" i)
+               (begin
+                 (check-true (normal? (with-vc (with-terms (begin
+                                                             (define-symbolic a b (bitvector i))
+                                                             (check-not-equal?
+                                                              #f
+                                                              (synthesize-lattice-ecp5-dsp
+                                                               (bvmul a b))))))))))))
