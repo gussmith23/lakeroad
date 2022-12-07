@@ -138,6 +138,91 @@
     ;;; We suffix the mask with ULL to be safe.
     [(? constant? a) (format "(~a & ~aULL)" a (- (expt 2 (bvlen a)) 1))]))
 
+(module+ test
+  ;;; Semantic tests.
+  ;;;
+  ;;; 1. Build a test bvexpr.
+  ;;; 2. Generate its C code with bvexpr->cexpr.
+  ;;; 3. Compile the C code.
+  ;;; 4. Evaluate bvexpr with some inputs; evaluate compiled C code with same inputs; compare results.
+
+  (define-syntax-rule (semantic-test #:name name
+                                     #:defines defines
+                                     ...
+                                     #:bv-expr bv-expr
+                                     #:c-expr c-expr
+                                     #:a-val a-val
+                                     #:b-val b-val
+                                     #:result result)
+    (test-case name
+               (begin
+                 defines
+                 ...
+
+                 ;;;      (define-symbolic a b (bitvector 8))
+                 (define cexpr (bvexpr->cexpr bv-expr))
+
+                 ;;; Syntactic test.
+                 (check-equal? cexpr c-expr)
+
+                 ;;; Save C code to file
+                 (define cfile-filename (make-temporary-file "~a.c"))
+                 (define cfile (open-output-file cfile-filename #:exists 'replace))
+                 (displayln "#include <stdint.h>" cfile)
+                 (displayln "#include <stdio.h>" cfile)
+                 (displayln "#include <stdlib.h>" cfile)
+                 (displayln "int main(int argc, char* argv[]) {" cfile)
+                 (displayln "uint8_t a = atoi(argv[1]); uint8_t b = atoi(argv[2]);" cfile)
+                 (displayln (format "printf(\"%llu\", ~a);" cexpr) cfile)
+                 (displayln "return 0;" cfile)
+                 (displayln "}" cfile)
+
+                 (close-output-port cfile)
+                 (define executable-filename (make-temporary-file "~a.out"))
+                 (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
+
+                 (check-true (system (format "~a ~a ~a" executable-filename a-val b-val)))
+
+                 (displayln (string->number (with-output-to-string
+                                              (thunk (system (format "~a ~a ~a" executable-filename a-val b-val))))))
+
+                 ;;; bvlen (in utils.rkt) (bvlen <expr>) -> bitwidth
+                 ;;; (bvlen a) -> 8 (if a is a bitvector of length 8)
+                 ;;; (bvlen (bvadd a b)) -> 8
+
+                 ;;; 1. Run the C code and get the output for the current a and b vals.
+                 ;;; 2. Get the "ground truth" (???)
+                 ;;; 3. Compare the two.
+                 ;;; Do this for all possible values of a and b.
+
+                 ;;; To get the ground truth, "run" the bvexpr. (evaluate bvexpr (sat (hash a (bv 0 8) b (bv 1 8))))
+
+                 ;;; TODO: here, let's iterate over all possible values of a n-bit number (using bvlen)
+                 ;;; TODO: handle expressions w/ arbitrary # of inputs
+                 (check-equal? (string->number (with-output-to-string
+                                                 (thunk (system (format "~a ~a ~a" executable-filename a-val b-val)))))
+                               result))))
+
+
+  (semantic-test
+   #:name "semantics of bvadd"
+   #:defines (define-symbolic a b (bitvector 8)) ;; can we make this anonymous?
+   #:bv-expr (bvadd a b)
+   #:c-expr "((a & 255ULL) + (b & 255ULL))"
+   #:a-val 1
+   #:b-val 2
+   #:result 3)
+
+  (semantic-test
+   #:name "semantics of bveq"
+   #:defines (define-symbolic a b (bitvector 8)) ;; can we make this anonymous?
+   #:bv-expr (bveq a b)
+   #:c-expr "((uint8_t)((a & 255ULL) == (b & 255ULL)))"
+   #:a-val 1
+   #:b-val 1
+   #:result 1))
+
+
 (define (json->verilog json verilog #:logfile [logfile "/dev/null"])
   (let ([command
          (format "yosys -p \"read_json ~a ; write_verilog ~a\" > ~a 2>&1" json verilog logfile)])
