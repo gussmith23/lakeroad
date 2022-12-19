@@ -8,7 +8,6 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide xilinx-ultrascale-plus-dsp48e2)
 CHECK: (require (file "
-
 CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define xilinx-ultrascale-plus-dsp48e2
@@ -593,13 +592,12 @@ CHECK:                       (bv->signal (hash-ref merged-input-state-hash 'stat
 CHECK:                      ((hash-has-key? init-hash 'state95)
 CHECK:                       (bv->signal (hash-ref init-hash 'state95)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state95)
-CHECK:                       (bv->signal (bv 0 (bitvector 30)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 30))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor96
 CHECK:             (let* ((state-value
@@ -609,13 +607,12 @@ CHECK:                       (bv->signal (hash-ref merged-input-state-hash 'stat
 CHECK:                      ((hash-has-key? init-hash 'state96)
 CHECK:                       (bv->signal (hash-ref init-hash 'state96)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state96)
-CHECK:                       (bv->signal (bv 0 (bitvector 30)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 30))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor97 (bv->signal (bv 1 (bitvector 1))))
 CHECK:            (btor98
@@ -626,13 +623,12 @@ CHECK:                       (bv->signal (hash-ref merged-input-state-hash 'stat
 CHECK:                      ((hash-has-key? init-hash 'state98)
 CHECK:                       (bv->signal (hash-ref init-hash 'state98)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state98)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor100
 CHECK:             (signal
@@ -686,13 +682,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state116)))
 CHECK:                      ((hash-has-key? init-hash 'state116)
 CHECK:                       (bv->signal (hash-ref init-hash 'state116)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state116)
-CHECK:                       (bv->signal (bv 0 (bitvector 30)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 30))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor117
 CHECK:             (let* ((state-value
@@ -703,13 +698,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state117)))
 CHECK:                      ((hash-has-key? init-hash 'state117)
 CHECK:                       (bv->signal (hash-ref init-hash 'state117)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state117)
-CHECK:                       (bv->signal (bv 0 (bitvector 30)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 30))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor118
 CHECK:             (let* ((state-value
@@ -720,13 +714,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state118)))
 CHECK:                      ((hash-has-key? init-hash 'state118)
 CHECK:                       (bv->signal (hash-ref init-hash 'state118)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state118)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor120
 CHECK:             (signal
@@ -765,13 +758,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state130)))
 CHECK:                      ((hash-has-key? init-hash 'state130)
 CHECK:                       (bv->signal (hash-ref init-hash 'state130)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state130)
-CHECK:                       (bv->signal (bv 0 (bitvector 18)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 18))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor131
 CHECK:             (let* ((state-value
@@ -782,13 +774,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state131)))
 CHECK:                      ((hash-has-key? init-hash 'state131)
 CHECK:                       (bv->signal (hash-ref init-hash 'state131)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state131)
-CHECK:                       (bv->signal (bv 0 (bitvector 18)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 18))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor132
 CHECK:             (let* ((state-value
@@ -799,13 +790,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state132)))
 CHECK:                      ((hash-has-key? init-hash 'state132)
 CHECK:                       (bv->signal (hash-ref init-hash 'state132)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state132)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor134
 CHECK:             (signal
@@ -851,13 +841,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state144)))
 CHECK:                      ((hash-has-key? init-hash 'state144)
 CHECK:                       (bv->signal (hash-ref init-hash 'state144)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state144)
-CHECK:                       (bv->signal (bv 0 (bitvector 18)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 18))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor145
 CHECK:             (let* ((state-value
@@ -868,13 +857,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state145)))
 CHECK:                      ((hash-has-key? init-hash 'state145)
 CHECK:                       (bv->signal (hash-ref init-hash 'state145)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state145)
-CHECK:                       (bv->signal (bv 0 (bitvector 18)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 18))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor146
 CHECK:             (let* ((state-value
@@ -885,13 +873,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state146)))
 CHECK:                      ((hash-has-key? init-hash 'state146)
 CHECK:                       (bv->signal (hash-ref init-hash 'state146)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state146)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor148
 CHECK:             (signal
@@ -974,13 +961,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state173)))
 CHECK:                      ((hash-has-key? init-hash 'state173)
 CHECK:                       (bv->signal (hash-ref init-hash 'state173)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state173)
-CHECK:                       (bv->signal (bv 0 (bitvector 4)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 4))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor174
 CHECK:             (let* ((state-value
@@ -991,13 +977,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state174)))
 CHECK:                      ((hash-has-key? init-hash 'state174)
 CHECK:                       (bv->signal (hash-ref init-hash 'state174)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state174)
-CHECK:                       (bv->signal (bv 0 (bitvector 4)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 4))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor175
 CHECK:             (let* ((state-value
@@ -1008,13 +993,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state175)))
 CHECK:                      ((hash-has-key? init-hash 'state175)
 CHECK:                       (bv->signal (hash-ref init-hash 'state175)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state175)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor177
 CHECK:             (signal
@@ -1511,13 +1495,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state332)))
 CHECK:                      ((hash-has-key? init-hash 'state332)
 CHECK:                       (bv->signal (hash-ref init-hash 'state332)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state332)
-CHECK:                       (bv->signal (bv 0 (bitvector 48)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 48))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor333
 CHECK:             (let* ((state-value
@@ -1528,13 +1511,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state333)))
 CHECK:                      ((hash-has-key? init-hash 'state333)
 CHECK:                       (bv->signal (hash-ref init-hash 'state333)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state333)
-CHECK:                       (bv->signal (bv 0 (bitvector 48)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 48))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor334
 CHECK:             (let* ((state-value
@@ -1545,13 +1527,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state334)))
 CHECK:                      ((hash-has-key? init-hash 'state334)
 CHECK:                       (bv->signal (hash-ref init-hash 'state334)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state334)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor336
 CHECK:             (signal
@@ -1817,13 +1798,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state409)))
 CHECK:                      ((hash-has-key? init-hash 'state409)
 CHECK:                       (bv->signal (hash-ref init-hash 'state409)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state409)
-CHECK:                       (bv->signal (bv 0 (bitvector 9)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 9))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor410
 CHECK:             (let* ((state-value
@@ -1834,13 +1814,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state410)))
 CHECK:                      ((hash-has-key? init-hash 'state410)
 CHECK:                       (bv->signal (hash-ref init-hash 'state410)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state410)
-CHECK:                       (bv->signal (bv 0 (bitvector 9)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 9))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor411
 CHECK:             (let* ((state-value
@@ -1851,13 +1830,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state411)))
 CHECK:                      ((hash-has-key? init-hash 'state411)
 CHECK:                       (bv->signal (hash-ref init-hash 'state411)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state411)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor413
 CHECK:             (signal
@@ -2072,13 +2050,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state468)))
 CHECK:                      ((hash-has-key? init-hash 'state468)
 CHECK:                       (bv->signal (hash-ref init-hash 'state468)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state468)
-CHECK:                       (bv->signal (bv 0 (bitvector 48)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 48))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor469
 CHECK:             (let* ((state-value
@@ -2089,13 +2066,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state469)))
 CHECK:                      ((hash-has-key? init-hash 'state469)
 CHECK:                       (bv->signal (hash-ref init-hash 'state469)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state469)
-CHECK:                       (bv->signal (bv 0 (bitvector 48)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 48))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor470
 CHECK:             (let* ((state-value
@@ -2106,13 +2082,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state470)))
 CHECK:                      ((hash-has-key? init-hash 'state470)
 CHECK:                       (bv->signal (hash-ref init-hash 'state470)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state470)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor472
 CHECK:             (signal
@@ -2263,13 +2238,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state517)))
 CHECK:                      ((hash-has-key? init-hash 'state517)
 CHECK:                       (bv->signal (hash-ref init-hash 'state517)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state517)
-CHECK:                       (bv->signal (bv 0 (bitvector 5)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 5))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor518
 CHECK:             (let* ((state-value
@@ -2280,13 +2254,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state518)))
 CHECK:                      ((hash-has-key? init-hash 'state518)
 CHECK:                       (bv->signal (hash-ref init-hash 'state518)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state518)
-CHECK:                       (bv->signal (bv 0 (bitvector 5)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 5))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor519
 CHECK:             (let* ((state-value
@@ -2297,13 +2270,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state519)))
 CHECK:                      ((hash-has-key? init-hash 'state519)
 CHECK:                       (bv->signal (hash-ref init-hash 'state519)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state519)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor521
 CHECK:             (signal
@@ -2376,13 +2348,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state541)))
 CHECK:                      ((hash-has-key? init-hash 'state541)
 CHECK:                       (bv->signal (hash-ref init-hash 'state541)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state541)
-CHECK:                       (bv->signal (bv 0 (bitvector 27)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 27))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor542
 CHECK:             (let* ((state-value
@@ -2393,13 +2364,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state542)))
 CHECK:                      ((hash-has-key? init-hash 'state542)
 CHECK:                       (bv->signal (hash-ref init-hash 'state542)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state542)
-CHECK:                       (bv->signal (bv 0 (bitvector 27)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 27))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor543
 CHECK:             (let* ((state-value
@@ -2410,13 +2380,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state543)))
 CHECK:                      ((hash-has-key? init-hash 'state543)
 CHECK:                       (bv->signal (hash-ref init-hash 'state543)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state543)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor545
 CHECK:             (signal
@@ -2648,13 +2617,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state610)))
 CHECK:                      ((hash-has-key? init-hash 'state610)
 CHECK:                       (bv->signal (hash-ref init-hash 'state610)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state610)
-CHECK:                       (bv->signal (bv 0 (bitvector 27)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 27))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor611
 CHECK:             (let* ((state-value
@@ -2665,13 +2633,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state611)))
 CHECK:                      ((hash-has-key? init-hash 'state611)
 CHECK:                       (bv->signal (hash-ref init-hash 'state611)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state611)
-CHECK:                       (bv->signal (bv 0 (bitvector 27)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 27))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor612
 CHECK:             (let* ((state-value
@@ -2682,13 +2649,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state612)))
 CHECK:                      ((hash-has-key? init-hash 'state612)
 CHECK:                       (bv->signal (hash-ref init-hash 'state612)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state612)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor614
 CHECK:             (signal
@@ -3108,13 +3074,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state721)))
 CHECK:                      ((hash-has-key? init-hash 'state721)
 CHECK:                       (bv->signal (hash-ref init-hash 'state721)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state721)
-CHECK:                       (bv->signal (bv 0 (bitvector 45)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 45))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor722
 CHECK:             (let* ((state-value
@@ -3125,13 +3090,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state722)))
 CHECK:                      ((hash-has-key? init-hash 'state722)
 CHECK:                       (bv->signal (hash-ref init-hash 'state722)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state722)
-CHECK:                       (bv->signal (bv 0 (bitvector 45)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 45))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor723
 CHECK:             (let* ((state-value
@@ -3142,13 +3106,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state723)))
 CHECK:                      ((hash-has-key? init-hash 'state723)
 CHECK:                       (bv->signal (hash-ref init-hash 'state723)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state723)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor725
 CHECK:             (signal
@@ -3281,13 +3244,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state762)))
 CHECK:                      ((hash-has-key? init-hash 'state762)
 CHECK:                       (bv->signal (hash-ref init-hash 'state762)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state762)
-CHECK:                       (bv->signal (bv 0 (bitvector 45)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 45))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor763
 CHECK:             (let* ((state-value
@@ -3298,13 +3260,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state763)))
 CHECK:                      ((hash-has-key? init-hash 'state763)
 CHECK:                       (bv->signal (hash-ref init-hash 'state763)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state763)
-CHECK:                       (bv->signal (bv 0 (bitvector 45)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 45))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor764
 CHECK:             (let* ((state-value
@@ -3315,13 +3276,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state764)))
 CHECK:                      ((hash-has-key? init-hash 'state764)
 CHECK:                       (bv->signal (hash-ref init-hash 'state764)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state764)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor766
 CHECK:             (signal
@@ -3657,13 +3617,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state853)))
 CHECK:                      ((hash-has-key? init-hash 'state853)
 CHECK:                       (bv->signal (hash-ref init-hash 'state853)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state853)
-CHECK:                       (bv->signal (bv 0 (bitvector 3)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 3))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor854
 CHECK:             (let* ((state-value
@@ -3674,13 +3633,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state854)))
 CHECK:                      ((hash-has-key? init-hash 'state854)
 CHECK:                       (bv->signal (hash-ref init-hash 'state854)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state854)
-CHECK:                       (bv->signal (bv 0 (bitvector 3)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 3))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor855
 CHECK:             (let* ((state-value
@@ -3691,13 +3649,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state855)))
 CHECK:                      ((hash-has-key? init-hash 'state855)
 CHECK:                       (bv->signal (hash-ref init-hash 'state855)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state855)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor857
 CHECK:             (signal
@@ -3746,13 +3703,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state868)))
 CHECK:                      ((hash-has-key? init-hash 'state868)
 CHECK:                       (bv->signal (hash-ref init-hash 'state868)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state868)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor869
 CHECK:             (let* ((state-value
@@ -3763,13 +3719,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state869)))
 CHECK:                      ((hash-has-key? init-hash 'state869)
 CHECK:                       (bv->signal (hash-ref init-hash 'state869)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state869)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor870
 CHECK:             (let* ((state-value
@@ -3780,13 +3735,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state870)))
 CHECK:                      ((hash-has-key? init-hash 'state870)
 CHECK:                       (bv->signal (hash-ref init-hash 'state870)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state870)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor872
 CHECK:             (signal
@@ -3829,13 +3783,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state882)))
 CHECK:                      ((hash-has-key? init-hash 'state882)
 CHECK:                       (bv->signal (hash-ref init-hash 'state882)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state882)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor883
 CHECK:             (let* ((state-value
@@ -3846,13 +3799,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state883)))
 CHECK:                      ((hash-has-key? init-hash 'state883)
 CHECK:                       (bv->signal (hash-ref init-hash 'state883)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state883)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor884
 CHECK:             (let* ((state-value
@@ -3863,13 +3815,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state884)))
 CHECK:                      ((hash-has-key? init-hash 'state884)
 CHECK:                       (bv->signal (hash-ref init-hash 'state884)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state884)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor886
 CHECK:             (signal
@@ -3891,13 +3842,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state889)))
 CHECK:                      ((hash-has-key? init-hash 'state889)
 CHECK:                       (bv->signal (hash-ref init-hash 'state889)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state889)
-CHECK:                       (bv->signal (bv 0 (bitvector 4)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 4))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor890
 CHECK:             (let* ((state-value
@@ -3908,13 +3858,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state890)))
 CHECK:                      ((hash-has-key? init-hash 'state890)
 CHECK:                       (bv->signal (hash-ref init-hash 'state890)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state890)
-CHECK:                       (bv->signal (bv 0 (bitvector 4)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 4))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor891
 CHECK:             (let* ((state-value
@@ -3925,13 +3874,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state891)))
 CHECK:                      ((hash-has-key? init-hash 'state891)
 CHECK:                       (bv->signal (hash-ref init-hash 'state891)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state891)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor893
 CHECK:             (signal
@@ -4019,13 +3967,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state914)))
 CHECK:                      ((hash-has-key? init-hash 'state914)
 CHECK:                       (bv->signal (hash-ref init-hash 'state914)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state914)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor915
 CHECK:             (let* ((state-value
@@ -4036,13 +3983,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state915)))
 CHECK:                      ((hash-has-key? init-hash 'state915)
 CHECK:                       (bv->signal (hash-ref init-hash 'state915)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state915)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor916
 CHECK:             (let* ((state-value
@@ -4053,13 +3999,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state916)))
 CHECK:                      ((hash-has-key? init-hash 'state916)
 CHECK:                       (bv->signal (hash-ref init-hash 'state916)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state916)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor918
 CHECK:             (signal
@@ -4301,13 +4246,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state984)))
 CHECK:                      ((hash-has-key? init-hash 'state984)
 CHECK:                       (bv->signal (hash-ref init-hash 'state984)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state984)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor985
 CHECK:             (let* ((state-value
@@ -4318,13 +4262,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state985)))
 CHECK:                      ((hash-has-key? init-hash 'state985)
 CHECK:                       (bv->signal (hash-ref init-hash 'state985)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state985)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor986
 CHECK:             (let* ((state-value
@@ -4335,13 +4278,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state986)))
 CHECK:                      ((hash-has-key? init-hash 'state986)
 CHECK:                       (bv->signal (hash-ref init-hash 'state986)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state986)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor988
 CHECK:             (signal
@@ -4921,13 +4863,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1141)))
 CHECK:                      ((hash-has-key? init-hash 'state1141)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1141)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1141)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1142
 CHECK:             (let* ((state-value
@@ -4938,13 +4879,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1142)))
 CHECK:                      ((hash-has-key? init-hash 'state1142)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1142)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1142)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1143
 CHECK:             (let* ((state-value
@@ -4955,13 +4895,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1143)))
 CHECK:                      ((hash-has-key? init-hash 'state1143)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1143)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1143)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1145
 CHECK:             (signal
@@ -4997,13 +4936,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1152)))
 CHECK:                      ((hash-has-key? init-hash 'state1152)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1152)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1152)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1153
 CHECK:             (let* ((state-value
@@ -5014,13 +4952,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1153)))
 CHECK:                      ((hash-has-key? init-hash 'state1153)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1153)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1153)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1154
 CHECK:             (let* ((state-value
@@ -5031,13 +4968,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1154)))
 CHECK:                      ((hash-has-key? init-hash 'state1154)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1154)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1154)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1156
 CHECK:             (signal
@@ -5069,13 +5005,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1162)))
 CHECK:                      ((hash-has-key? init-hash 'state1162)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1162)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1162)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1163
 CHECK:             (let* ((state-value
@@ -5086,13 +5021,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1163)))
 CHECK:                      ((hash-has-key? init-hash 'state1163)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1163)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1163)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1164
 CHECK:             (let* ((state-value
@@ -5103,13 +5037,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1164)))
 CHECK:                      ((hash-has-key? init-hash 'state1164)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1164)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1164)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1166
 CHECK:             (signal
@@ -5141,13 +5074,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1178)))
 CHECK:                      ((hash-has-key? init-hash 'state1178)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1178)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1178)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1179
 CHECK:             (let* ((state-value
@@ -5158,13 +5090,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1179)))
 CHECK:                      ((hash-has-key? init-hash 'state1179)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1179)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1179)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1180
 CHECK:             (let* ((state-value
@@ -5175,13 +5106,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1180)))
 CHECK:                      ((hash-has-key? init-hash 'state1180)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1180)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1180)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1182
 CHECK:             (signal
@@ -5401,13 +5331,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1248)))
 CHECK:                      ((hash-has-key? init-hash 'state1248)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1248)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1248)
-CHECK:                       (bv->signal (bv 0 (bitvector 8)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 8))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1249
 CHECK:             (let* ((state-value
@@ -5418,13 +5347,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1249)))
 CHECK:                      ((hash-has-key? init-hash 'state1249)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1249)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1249)
-CHECK:                       (bv->signal (bv 0 (bitvector 8)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 8))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1250
 CHECK:             (let* ((state-value
@@ -5435,13 +5363,12 @@ CHECK:                        (hash-ref merged-input-state-hash 'state1250)))
 CHECK:                      ((hash-has-key? init-hash 'state1250)
 CHECK:                       (bv->signal (hash-ref init-hash 'state1250)))
 CHECK:                      (else
-CHECK:                       (log-warning
-CHECK:                        "state ~a with no initial value, init to 0, this may not be correct in the long term"
-CHECK:                        'state1250)
-CHECK:                       (bv->signal (bv 0 (bitvector 1)))))))
+CHECK:                       (bv->signal
+CHECK:                        ((lambda ()
+CHECK:                           (log-warning
+CHECK:                            "Getting default value of 0 for bitvector, this may be a bad idea!")
+CHECK:                           (bv 0 1))))))))
 CHECK:               (when (not (signal? state-value)) (error "Expected signal"))
-CHECK:               (when (not (bv? (signal-value state-value)))
-CHECK:                 (error "Signal value invalid"))
 CHECK:               state-value))
 CHECK:            (btor1252
 CHECK:             (signal
