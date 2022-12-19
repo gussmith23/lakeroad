@@ -7,43 +7,35 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide lattice-ecp5-ccu2c)
 CHECK: (require (file "
-
 CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define lattice-ecp5-ccu2c
 CHECK:   (λ (#:A0
-CHECK:       (A0 (bv->signal (constant (list 'A0 'symbolic-constant) (bitvector 1))))
+CHECK:       (A0 (bv->signal (constant 'A0 (bitvector 1))))
 CHECK:       #:A1
-CHECK:       (A1 (bv->signal (constant (list 'A1 'symbolic-constant) (bitvector 1))))
+CHECK:       (A1 (bv->signal (constant 'A1 (bitvector 1))))
 CHECK:       #:B0
-CHECK:       (B0 (bv->signal (constant (list 'B0 'symbolic-constant) (bitvector 1))))
+CHECK:       (B0 (bv->signal (constant 'B0 (bitvector 1))))
 CHECK:       #:B1
-CHECK:       (B1 (bv->signal (constant (list 'B1 'symbolic-constant) (bitvector 1))))
+CHECK:       (B1 (bv->signal (constant 'B1 (bitvector 1))))
 CHECK:       #:C0
-CHECK:       (C0 (bv->signal (constant (list 'C0 'symbolic-constant) (bitvector 1))))
+CHECK:       (C0 (bv->signal (constant 'C0 (bitvector 1))))
 CHECK:       #:C1
-CHECK:       (C1 (bv->signal (constant (list 'C1 'symbolic-constant) (bitvector 1))))
+CHECK:       (C1 (bv->signal (constant 'C1 (bitvector 1))))
 CHECK:       #:CIN
-CHECK:       (CIN
-CHECK:        (bv->signal (constant (list 'CIN 'symbolic-constant) (bitvector 1))))
+CHECK:       (CIN (bv->signal (constant 'CIN (bitvector 1))))
 CHECK:       #:D0
-CHECK:       (D0 (bv->signal (constant (list 'D0 'symbolic-constant) (bitvector 1))))
+CHECK:       (D0 (bv->signal (constant 'D0 (bitvector 1))))
 CHECK:       #:D1
-CHECK:       (D1 (bv->signal (constant (list 'D1 'symbolic-constant) (bitvector 1))))
+CHECK:       (D1 (bv->signal (constant 'D1 (bitvector 1))))
 CHECK:       #:INIT0
-CHECK:       (INIT0
-CHECK:        (bv->signal (constant (list 'INIT0 'symbolic-constant) (bitvector 16))))
+CHECK:       (INIT0 (bv->signal (constant 'INIT0 (bitvector 16))))
 CHECK:       #:INIT1
-CHECK:       (INIT1
-CHECK:        (bv->signal (constant (list 'INIT1 'symbolic-constant) (bitvector 16))))
+CHECK:       (INIT1 (bv->signal (constant 'INIT1 (bitvector 16))))
 CHECK:       #:INJECT1_0
-CHECK:       (INJECT1_0
-CHECK:        (bv->signal
-CHECK:         (constant (list 'INJECT1_0 'symbolic-constant) (bitvector 1))))
+CHECK:       (INJECT1_0 (bv->signal (constant 'INJECT1_0 (bitvector 1))))
 CHECK:       #:INJECT1_1
-CHECK:       (INJECT1_1
-CHECK:        (bv->signal
-CHECK:         (constant (list 'INJECT1_1 'symbolic-constant) (bitvector 1)))))
+CHECK:       (INJECT1_1 (bv->signal (constant 'INJECT1_1 (bitvector 1)))))
 CHECK:     (let* ((merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 1))
@@ -200,15 +192,15 @@ CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor56) (bitvector 2))
 CHECK:              btor56))
 CHECK:            (btor74
+CHECK:             (signal (extract 3 0 (signal-value btor12)) (signal-state btor12)))
+CHECK:            (btor75
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor74) (bitvector 4))
+CHECK:              btor74))
+CHECK:            (btor76
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor59) (bitvector 1))
 CHECK:              btor59))
-CHECK:            (btor75
-CHECK:             (signal (extract 3 0 (signal-value btor12)) (signal-state btor12)))
-CHECK:            (btor76
-CHECK:             (bv->signal
-CHECK:              (zero-extend (signal-value btor75) (bitvector 4))
-CHECK:              btor75))
 CHECK:            (btor77
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor4) (bitvector 1))
@@ -222,15 +214,15 @@ CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 2))
 CHECK:              btor34))
 CHECK:            (btor80
+CHECK:             (signal (extract 3 0 (signal-value btor13)) (signal-state btor13)))
+CHECK:            (btor81
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor80) (bitvector 4))
+CHECK:              btor80))
+CHECK:            (btor82
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor37) (bitvector 1))
 CHECK:              btor37))
-CHECK:            (btor81
-CHECK:             (signal (extract 3 0 (signal-value btor13)) (signal-state btor13)))
-CHECK:            (btor82
-CHECK:             (bv->signal
-CHECK:              (zero-extend (signal-value btor81) (bitvector 4))
-CHECK:              btor81))
 CHECK:            (btor83
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor5) (bitvector 1))
@@ -253,12 +245,12 @@ CHECK:              (zero-extend (signal-value btor49) (bitvector 2))
 CHECK:              btor49))
 CHECK:            (btor88
 CHECK:             (bv->signal
-CHECK:              (zero-extend (signal-value btor52) (bitvector 1))
-CHECK:              btor52))
-CHECK:            (btor89
-CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor12) (bitvector 16))
 CHECK:              btor12))
+CHECK:            (btor89
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor52) (bitvector 1))
+CHECK:              btor52))
 CHECK:            (btor90
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor9) (bitvector 1))
@@ -289,12 +281,12 @@ CHECK:              (zero-extend (signal-value btor27) (bitvector 2))
 CHECK:              btor27))
 CHECK:            (btor97
 CHECK:             (bv->signal
-CHECK:              (zero-extend (signal-value btor30) (bitvector 1))
-CHECK:              btor30))
-CHECK:            (btor98
-CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor13) (bitvector 16))
 CHECK:              btor13))
+CHECK:            (btor98
+CHECK:             (bv->signal
+CHECK:              (zero-extend (signal-value btor30) (bitvector 1))
+CHECK:              btor30))
 CHECK:            (btor99
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor10) (bitvector 1))

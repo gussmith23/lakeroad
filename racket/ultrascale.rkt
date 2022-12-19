@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (provide interpret-ultrascale-plus
          ultrascale-plus-clb
@@ -180,79 +180,100 @@
                                   expr)
 
   ; Make module for CLB.
-  (match-let*
-      ([(ultrascale-plus-clb cin
-                             lut-a
-                             lut-b
-                             lut-c
-                             lut-d
-                             lut-e
-                             lut-f
-                             lut-g
-                             lut-h
-                             mux-selector-a
-                             mux-selector-b
-                             mux-selector-c
-                             mux-selector-d
-                             mux-selector-e
-                             mux-selector-f
-                             mux-selector-g
-                             mux-selector-h
-                             inputs) expr]
-       ;;; Compile input expression.
-       [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) (lakeroad->jsexpr inputs)]
-       ;;; Index bitvector at bit id.
-       [bit (lambda (n l) (list-ref l n))]
-       ;;; Nets.
-       [luts_O5 (get-bits 8)]
-       [luts_O6 (get-bits 8)]
-       [o (get-bits 8)]
-       [co (get-bits 8)]
-       [mux-helper
-        (lambda (o5 o6 carry-o carry-co selector)
-          (if (bveq selector (bv 0 2))
-              o5
-              (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
-       [out (map mux-helper
-                 luts_O5
-                 luts_O6
-                 o
-                 co
-                 (list mux-selector-a
-                       mux-selector-b
-                       mux-selector-c
-                       mux-selector-d
-                       mux-selector-e
-                       mux-selector-f
-                       mux-selector-g
-                       mux-selector-h))]
-       ;;; LUTs.
-       [A_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-a)
-                     (append a-ins (list (bit 0 luts_O5) (bit 0 luts_O6))))]
-       [B_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-b)
-                     (append b-ins (list (bit 1 luts_O5) (bit 1 luts_O6))))]
-       [C_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-c)
-                     (append c-ins (list (bit 2 luts_O5) (bit 2 luts_O6))))]
-       [D_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-d)
-                     (append d-ins (list (bit 3 luts_O5) (bit 3 luts_O6))))]
-       [E_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-e)
-                     (append e-ins (list (bit 4 luts_O5) (bit 4 luts_O6))))]
-       [F_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-f)
-                     (append f-ins (list (bit 5 luts_O5) (bit 5 luts_O6))))]
-       [G_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-g)
-                     (append g-ins (list (bit 6 luts_O5) (bit 6 luts_O6))))]
-       [H_LUT (apply make-ultrascale-plus-lut6-2
-                     (make-literal-value-from-bv lut-h)
-                     (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
-       ;;; Carry.
-       [carry (make-ultrascale-plus-carry8 "0" (bit 0 (lakeroad->jsexpr cin)) luts_O5 luts_O6 o co)])
+  (match-let* ([(ultrascale-plus-clb cin
+                                     lut-a
+                                     lut-b
+                                     lut-c
+                                     lut-d
+                                     lut-e
+                                     lut-f
+                                     lut-g
+                                     lut-h
+                                     mux-selector-a
+                                     mux-selector-b
+                                     mux-selector-c
+                                     mux-selector-d
+                                     mux-selector-e
+                                     mux-selector-f
+                                     mux-selector-g
+                                     mux-selector-h
+                                     inputs) expr]
+               ;;; Compile all input expressions.
+               [cin (lakeroad->jsexpr cin)]
+               [inputs (lakeroad->jsexpr inputs)]
+               ;;; Unwrap lut and mux-selector values. This is kind of a hack. We could also compile
+               ;;; them and compare against their values directly.
+               [(lr:bv lut-a) lut-a]
+               [(lr:bv lut-b) lut-b]
+               [(lr:bv lut-c) lut-c]
+               [(lr:bv lut-d) lut-d]
+               [(lr:bv lut-e) lut-e]
+               [(lr:bv lut-f) lut-f]
+               [(lr:bv lut-g) lut-g]
+               [(lr:bv lut-h) lut-h]
+               [(lr:bv mux-selector-a) mux-selector-a]
+               [(lr:bv mux-selector-b) mux-selector-b]
+               [(lr:bv mux-selector-c) mux-selector-c]
+               [(lr:bv mux-selector-d) mux-selector-d]
+               [(lr:bv mux-selector-e) mux-selector-e]
+               [(lr:bv mux-selector-f) mux-selector-f]
+               [(lr:bv mux-selector-g) mux-selector-g]
+               [(lr:bv mux-selector-h) mux-selector-h]
+               ;;; Extract individual inputs.
+               [(list a-ins b-ins c-ins d-ins e-ins f-ins g-ins h-ins) inputs]
+               ;;; Index bitvector at bit id.
+               [bit (lambda (n l) (list-ref l n))]
+               ;;; Nets.
+               [luts_O5 (get-bits 8)]
+               [luts_O6 (get-bits 8)]
+               [o (get-bits 8)]
+               [co (get-bits 8)]
+               [mux-helper (lambda (o5 o6 carry-o carry-co selector)
+                             (if (bveq selector (bv 0 2))
+                                 o5
+                                 (if (bveq selector (bv 1 2))
+                                     o6
+                                     (if (bveq selector (bv 2 2)) carry-o carry-co))))]
+               [out (map mux-helper
+                         luts_O5
+                         luts_O6
+                         o
+                         co
+                         (list mux-selector-a
+                               mux-selector-b
+                               mux-selector-c
+                               mux-selector-d
+                               mux-selector-e
+                               mux-selector-f
+                               mux-selector-g
+                               mux-selector-h))]
+               ;;; LUTs.
+               [A_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-a)
+                             (append a-ins (list (bit 0 luts_O5) (bit 0 luts_O6))))]
+               [B_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-b)
+                             (append b-ins (list (bit 1 luts_O5) (bit 1 luts_O6))))]
+               [C_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-c)
+                             (append c-ins (list (bit 2 luts_O5) (bit 2 luts_O6))))]
+               [D_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-d)
+                             (append d-ins (list (bit 3 luts_O5) (bit 3 luts_O6))))]
+               [E_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-e)
+                             (append e-ins (list (bit 4 luts_O5) (bit 4 luts_O6))))]
+               [F_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-f)
+                             (append f-ins (list (bit 5 luts_O5) (bit 5 luts_O6))))]
+               [G_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-g)
+                             (append g-ins (list (bit 6 luts_O5) (bit 6 luts_O6))))]
+               [H_LUT (apply make-ultrascale-plus-lut6-2
+                             (make-literal-value-from-bv lut-h)
+                             (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
+               ;;; Carry.
+               [carry (make-ultrascale-plus-carry8 "0" (bit 0 cin) luts_O5 luts_O6 o co)])
     (add-cell 'A_LUT A_LUT)
     (add-cell 'B_LUT B_LUT)
     (add-cell 'C_LUT C_LUT)
@@ -324,30 +345,32 @@
     [(list i0 i1 i2 i3) (choose i0 i1 i2 i3)])]
  [physical-list
   ;;; We currently drop the cout bit.
-  (lr:take (ultrascale-plus-clb
-            (cin)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (lutmem)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (mux)
-            (logical-to-physical-mapping (choose '(bitwise) '(bitwise-reverse)) (logical-list)))
+  (lr:take (ultrascale-plus-clb (cin)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (lutmem)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (mux)
+                                (logical-to-physical-mapping
+                                 (choose (ltop-bitwise) (ltop-bitwise-reverse))
+                                 (logical-list)))
            8)]
  [logical-list
   (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
-          (physical-to-logical-mapping (choose '(bitwise) `(choose-one ,(bv 0 1)) '(bitwise-reverse))
-                                       (physical-list)))]
+          (physical-to-logical-mapping
+           (choose (ptol-bitwise) (ptol-choose-one (bv 0 1)) (ptol-bitwise-reverse))
+           (physical-list)))]
  ;;; 8bit logical input
  ;;; Note: it's important that all unused inputs get set to HIGH. This is most important for the sixth
  ;;; input, as on Xilinx UltraScale+, the sixth input to each LUT must be held high to enable two
@@ -369,8 +392,9 @@
 (define (interpret-ultrascale-plus-lut6-2 interpreter expr)
   (match expr
     [(ultrascale-plus-lut6-2 memory inputs)
-     (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-lut6-2-state memory)
-                                            (interpreter inputs))]))
+     (interpret-ultrascale-plus-lut6-2-impl
+      (interpreter (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-lut6-2-state memory)))
+      (interpreter inputs))]))
 
 ; LUT6_2 primitive described on page 37 of
 ; https://www.xilinx.com/support/documentation/user_guides/ug574-ultrascale-clb.pdf
@@ -380,8 +404,8 @@
 ; inputs is a 6-bit bitvector, corresponding to I0 (LSB) through I5 (MSB) in figure 3-1.
 ;
 ; Returns the O5 and O6 signals.
-(define (interpret-ultrascale-plus-lut6-2-impl lut6-2 inputs)
-  (let* ([memory (ultrascale-plus-lut6-2-state-memory lut6-2)]
+(define (interpret-ultrascale-plus-lut6-2-impl lut6-2-memory inputs)
+  (let* ([memory lut6-2-memory]
          [lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
          [lut5-1 (lut (extract 31 0 memory) (extract 4 0 inputs))]
          [O6 (if (bitvector->bool (bit 5 inputs)) lut5-0 lut5-1)]
@@ -581,22 +605,22 @@
             [lut-input-g (seventh inputs)]
             [lut-input-h (eighth inputs)])
        (interpret-ultrascale-plus-clb-impl
-        (ultrascale-plus-clb-state (ultrascale-plus-lut6-2-state lut-a)
-                                   (ultrascale-plus-lut6-2-state lut-b)
-                                   (ultrascale-plus-lut6-2-state lut-c)
-                                   (ultrascale-plus-lut6-2-state lut-d)
-                                   (ultrascale-plus-lut6-2-state lut-e)
-                                   (ultrascale-plus-lut6-2-state lut-f)
-                                   (ultrascale-plus-lut6-2-state lut-g)
-                                   (ultrascale-plus-lut6-2-state lut-h)
-                                   mux-selector-a
-                                   mux-selector-b
-                                   mux-selector-c
-                                   mux-selector-d
-                                   mux-selector-e
-                                   mux-selector-f
-                                   mux-selector-g
-                                   mux-selector-h)
+        (ultrascale-plus-clb-state (ultrascale-plus-lut6-2-state (interpreter lut-a))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-b))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-c))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-d))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-e))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-f))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-g))
+                                   (ultrascale-plus-lut6-2-state (interpreter lut-h))
+                                   (interpreter mux-selector-a)
+                                   (interpreter mux-selector-b)
+                                   (interpreter mux-selector-c)
+                                   (interpreter mux-selector-d)
+                                   (interpreter mux-selector-e)
+                                   (interpreter mux-selector-f)
+                                   (interpreter mux-selector-g)
+                                   (interpreter mux-selector-h))
         (interpreter cin)
         lut-input-a
         lut-input-b
@@ -607,29 +631,48 @@
         lut-input-g
         lut-input-h))]
     [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
-     (let ([out (interpret-xilinx-ultrascale-plus-carry8 #:CARRY_TYPE (bv->signal carry-type)
-                                                         #:CI (bv->signal ci)
-                                                         #:CI_TOP (bv->signal ci-top)
-                                                         #:DI (bv->signal di)
-                                                         #:S (bv->signal s))])
+     (let* ([carry-type (interpreter carry-type)]
+            [ci (interpreter ci)]
+            [ci-top (interpreter ci-top)]
+            [di (interpreter di)]
+            [s (interpreter s)]
+            [out (interpret-xilinx-ultrascale-plus-carry8 #:CARRY_TYPE (bv->signal carry-type)
+                                                          #:CI (bv->signal ci)
+                                                          #:CI_TOP (bv->signal ci-top)
+                                                          #:DI (bv->signal di)
+                                                          #:S (bv->signal s))])
        (list (signal-value (hash-ref out 'CO)) (signal-value (hash-ref out 'O))))]
     [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
-     (let ([out (interpret-xilinx-ultrascale-plus-lut6 #:I0 (bv->signal i0)
-                                                       #:I1 (bv->signal i1)
-                                                       #:I2 (bv->signal i2)
-                                                       #:I3 (bv->signal i3)
-                                                       #:I4 (bv->signal i4)
-                                                       #:I5 (bv->signal i5)
-                                                       #:INIT (bv->signal init))])
+     (let* ([i0 (interpreter i0)]
+            [i1 (interpreter i1)]
+            [i2 (interpreter i2)]
+            [i3 (interpreter i3)]
+            [i4 (interpreter i4)]
+            [i5 (interpreter i5)]
+            [init (interpreter init)]
+            [out (interpret-xilinx-ultrascale-plus-lut6 #:I0 (bv->signal i0)
+                                                        #:I1 (bv->signal i1)
+                                                        #:I2 (bv->signal i2)
+                                                        #:I3 (bv->signal i3)
+                                                        #:I4 (bv->signal i4)
+                                                        #:I5 (bv->signal i5)
+                                                        #:INIT (bv->signal init))])
        (signal-value (hash-ref out 'O)))]
     [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
-     (let ([out (interpret-xilinx-ultrascale-plus-lut6-2 #:I0 (bv->signal i0)
-                                                         #:I1 (bv->signal i1)
-                                                         #:I2 (bv->signal i2)
-                                                         #:I3 (bv->signal i3)
-                                                         #:I4 (bv->signal i4)
-                                                         #:I5 (bv->signal i5)
-                                                         #:INIT (bv->signal init))])
+     (let* ([i0 (interpreter i0)]
+            [i1 (interpreter i1)]
+            [i2 (interpreter i2)]
+            [i3 (interpreter i3)]
+            [i4 (interpreter i4)]
+            [i5 (interpreter i5)]
+            [init (interpreter init)]
+            [out (interpret-xilinx-ultrascale-plus-lut6-2 #:I0 (bv->signal i0)
+                                                          #:I1 (bv->signal i1)
+                                                          #:I2 (bv->signal i2)
+                                                          #:I3 (bv->signal i3)
+                                                          #:I4 (bv->signal i4)
+                                                          #:I5 (bv->signal i5)
+                                                          #:INIT (bv->signal init))])
        (list (signal-value (hash-ref out 'O5)) (signal-value (hash-ref out 'O6))))]))
 
 ; Returns the physical outputs of the CLB.
@@ -645,22 +688,30 @@
                                             lut-input-h)
 
   (match-let*
-      ([(list a-o5 a-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-a clb) lut-input-a)]
-       [(list b-o5 b-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-b clb) lut-input-b)]
-       [(list c-o5 c-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-c clb) lut-input-c)]
-       [(list d-o5 d-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-d clb) lut-input-d)]
-       [(list e-o5 e-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-e clb) lut-input-e)]
-       [(list f-o5 f-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-f clb) lut-input-f)]
-       [(list g-o5 g-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-g clb) lut-input-g)]
-       [(list h-o5 h-o6)
-        (interpret-ultrascale-plus-lut6-2-impl (ultrascale-plus-clb-state-lut-h clb) lut-input-h)]
+      ([(list a-o5 a-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-a clb))
+                          lut-input-a)]
+       [(list b-o5 b-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-b clb))
+                          lut-input-b)]
+       [(list c-o5 c-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-c clb))
+                          lut-input-c)]
+       [(list d-o5 d-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-d clb))
+                          lut-input-d)]
+       [(list e-o5 e-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-e clb))
+                          lut-input-e)]
+       [(list f-o5 f-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-f clb))
+                          lut-input-f)]
+       [(list g-o5 g-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-g clb))
+                          lut-input-g)]
+       [(list h-o5 h-o6) (interpret-ultrascale-plus-lut6-2-impl
+                          (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-h clb))
+                          lut-input-h)]
        [(list carry-o carry-co) (interpret-ultrascale-plus-carry8
                                  (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
                                  (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
@@ -721,7 +772,7 @@
     out))
 
 (define (interpret-ultrascale-plus-dsp48e2-new interpreter expr)
-  (match-define (ultrascale-plus-dsp48e2 A
+  (match-let* ([(ultrascale-plus-dsp48e2 A
                                          ACASCREG
                                          ACIN
                                          ADREG
@@ -809,184 +860,250 @@
                                          unnamed-input-488
                                          unnamed-input-750
                                          unnamed-input-806
-                                         unnamed-input-850)
-    expr)
-
-  ;;; Constrain the inputs based on the information in the DSP48E2 user manual. (see spec-sheets/.)
-
-  ;;; Constrain #registers (usually to 0, 1, or 2).
-  (assert (|| (bveq ACASCREG (bv 0 32)) (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32))))
-  (assert (|| (bveq ADREG (bv 0 32)) (bveq ADREG (bv 1 32))))
-  (assert (|| (bveq ALUMODEREG (bv 0 32)) (bveq ALUMODEREG (bv 1 32))))
-  (assert (|| (bveq AREG (bv 0 32)) (bveq AREG (bv 1 32)) (bveq AREG (bv 2 32))))
-  (assert (|| (bveq BCASCREG (bv 0 32)) (bveq BCASCREG (bv 1 32)) (bveq BCASCREG (bv 2 32))))
-  (assert (|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32)) (bveq BREG (bv 2 32))))
-  (assert (|| (bveq CARRYINREG (bv 0 32)) (bveq CARRYINREG (bv 1 32))))
-  (assert (|| (bveq CARRYINSELREG (bv 0 32)) (bveq CARRYINSELREG (bv 1 32))))
-  (assert (|| (bveq CREG (bv 0 32)) (bveq CREG (bv 1 32))))
-  (assert (|| (bveq DREG (bv 0 32)) (bveq DREG (bv 1 32))))
-  (assert (|| (bveq INMODEREG (bv 0 32)) (bveq INMODEREG (bv 1 32))))
-  (assert (|| (bveq MREG (bv 0 32)) (bveq MREG (bv 1 32))))
-  (assert (|| (bveq OPMODEREG (bv 0 32)) (bveq OPMODEREG (bv 1 32))))
-  (assert (|| (bveq PREG (bv 0 32)) (bveq PREG (bv 1 32))))
-
-  ;;; We converted the strings to enum values of bitwidth 5. See the enum defined at the top of
-  ;;; utils/tests/convert-module-to-btor/DSP48E2.v for the mapping of string to number value.
-
-  ;;; DIRECT or CASCADE.
-  (assert (|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5))))
-  (assert (|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5))))
-
-  ;;; A or B.
-  (assert (|| (bveq PREADDINSEL (bv 0 5)) (bveq PREADDINSEL (bv 1 5))))
-
-  ;;; A or AD.
-  (assert (|| (bveq AMULTSEL (bv 0 5)) (bveq AMULTSEL (bv 2 5))))
-
-  ;;; B or AD.
-  (assert (|| (bveq BMULTSEL (bv 1 5)) (bveq BMULTSEL (bv 2 5))))
-
-  ;;; NONE, MULTIPLY, or DYNAMIC.
-  (assert (|| (bveq USE_MULT (bv 20 5)) (bveq USE_MULT (bv 10 5)) (bveq USE_MULT (bv 18 5))))
-
-  ;;; ONE48, TWO24, FOUR12.
-  (assert (|| (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 25 5)) (bveq USE_SIMD (bv 19 5))))
-
-  ;;; TRUE, FALSE.
-  (assert (|| (bveq USE_WIDEXOR (bv 24 5)) (bveq USE_WIDEXOR (bv 13 5))))
-
-  ;;; XOR12, XOR24_48_96
-  (assert (|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5))))
-
-  ;;; NO_RESET, RESET_MATCH, RESET_NOT_MATCH.
-  (assert (|| (bveq AUTORESET_PATDET (bv 3 5))
-              (bveq AUTORESET_PATDET (bv 4 5))
-              (bveq AUTORESET_PATDET (bv 5 5))))
-
-  ;;; RESET, CEP.
-  (assert (|| (bveq AUTORESET_PRIORITY (bv 6 5)) (bveq AUTORESET_PRIORITY (bv 16 5))))
-
-  ;;; MASK, C, ROUNDING_MODE1, ROUNDING_MODE2
-  (assert (|| (bveq SEL_MASK (bv 8 5))
-              (bveq SEL_MASK (bv 17 5))
-              (bveq SEL_MASK (bv 22 5))
-              (bveq SEL_MASK (bv 23 5))))
-
-  ;;; PATTERN, C.
-  (assert (|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5))))
-
-  ;;; NO_PATDET, PATDET.
-  (assert (|| (bveq USE_PATTERN_DETECT (bv 11 5)) (bveq USE_PATTERN_DETECT (bv 21 5))))
-
-  ;;; Table 2-4 of DSP manual.
-  (assert (=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
-              (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2))))
-
-  ;;; Table 2-6 of DSP manual.
-  (assert (not (bveq (bvxor (extract 6 4 OPMODE) (extract 6 4 IS_OPMODE_INVERTED)) (bv #b111 3))))
-
-  ;;; Warning from DSP model:
-  ;;;
-  ;;; DRC warning : [Unisim DSP48E2-11] CARRYINSEL is set to 010 with OPMODEREG set to 0. This causes
-  ;;; unknown values after reset occurs. It is suggested to use OPMODEREG = 1 when cascading large
-  ;;; adders.
-  (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
-
-  (define P
-    (signal-value
-     (hash-ref (interpret-xilinx-ultrascale-plus-dsp48e2
-                #:A (bv->signal (interpreter A))
-                #:ACASCREG (bv->signal (interpreter ACASCREG))
-                #:ACIN (bv->signal (interpreter ACIN))
-                #:ADREG (bv->signal (interpreter ADREG))
-                #:ALUMODE (bv->signal (interpreter ALUMODE))
-                #:ALUMODEREG (bv->signal (interpreter ALUMODEREG))
-                #:AMULTSEL (bv->signal (interpreter AMULTSEL))
-                #:AREG (bv->signal (interpreter AREG))
-                #:AUTORESET_PATDET (bv->signal (interpreter AUTORESET_PATDET))
-                #:AUTORESET_PRIORITY (bv->signal (interpreter AUTORESET_PRIORITY))
-                #:A_INPUT (bv->signal (interpreter A_INPUT))
-                #:B (bv->signal (interpreter B))
-                #:BCASCREG (bv->signal (interpreter BCASCREG))
-                #:BCIN (bv->signal (interpreter BCIN))
-                #:BMULTSEL (bv->signal (interpreter BMULTSEL))
-                #:BREG (bv->signal (interpreter BREG))
-                #:B_INPUT (bv->signal (interpreter B_INPUT))
-                #:C (bv->signal (interpreter C))
-                #:CARRYCASCIN (bv->signal (interpreter CARRYCASCIN))
-                #:CARRYIN (bv->signal (interpreter CARRYIN))
-                #:CARRYINREG (bv->signal (interpreter CARRYINREG))
-                #:CARRYINSEL (bv->signal (interpreter CARRYINSEL))
-                #:CARRYINSELREG (bv->signal (interpreter CARRYINSELREG))
-                #:CEA1 (bv->signal (interpreter CEA1))
-                #:CEA2 (bv->signal (interpreter CEA2))
-                #:CEAD (bv->signal (interpreter CEAD))
-                #:CEALUMODE (bv->signal (interpreter CEALUMODE))
-                #:CEB1 (bv->signal (interpreter CEB1))
-                #:CEB2 (bv->signal (interpreter CEB2))
-                #:CEC (bv->signal (interpreter CEC))
-                #:CECARRYIN (bv->signal (interpreter CECARRYIN))
-                #:CECTRL (bv->signal (interpreter CECTRL))
-                #:CED (bv->signal (interpreter CED))
-                #:CEINMODE (bv->signal (interpreter CEINMODE))
-                #:CEM (bv->signal (interpreter CEM))
-                #:CEP (bv->signal (interpreter CEP))
-                #:CLK (bv->signal (interpreter CLK))
-                #:CREG (bv->signal (interpreter CREG))
-                #:D (bv->signal (interpreter D))
-                #:DREG (bv->signal (interpreter DREG))
-                #:INMODE (bv->signal (interpreter INMODE))
-                #:INMODEREG (bv->signal (interpreter INMODEREG))
-                #:IS_ALUMODE_INVERTED (bv->signal (interpreter IS_ALUMODE_INVERTED))
-                #:IS_CARRYIN_INVERTED (bv->signal (interpreter IS_CARRYIN_INVERTED))
-                #:IS_CLK_INVERTED (bv->signal (interpreter IS_CLK_INVERTED))
-                #:IS_INMODE_INVERTED (bv->signal (interpreter IS_INMODE_INVERTED))
-                #:IS_OPMODE_INVERTED (bv->signal (interpreter IS_OPMODE_INVERTED))
-                #:IS_RSTALLCARRYIN_INVERTED (bv->signal (interpreter IS_RSTALLCARRYIN_INVERTED))
-                #:IS_RSTALUMODE_INVERTED (bv->signal (interpreter IS_RSTALUMODE_INVERTED))
-                #:IS_RSTA_INVERTED (bv->signal (interpreter IS_RSTA_INVERTED))
-                #:IS_RSTB_INVERTED (bv->signal (interpreter IS_RSTB_INVERTED))
-                #:IS_RSTCTRL_INVERTED (bv->signal (interpreter IS_RSTCTRL_INVERTED))
-                #:IS_RSTC_INVERTED (bv->signal (interpreter IS_RSTC_INVERTED))
-                #:IS_RSTD_INVERTED (bv->signal (interpreter IS_RSTD_INVERTED))
-                #:IS_RSTINMODE_INVERTED (bv->signal (interpreter IS_RSTINMODE_INVERTED))
-                #:IS_RSTM_INVERTED (bv->signal (interpreter IS_RSTM_INVERTED))
-                #:IS_RSTP_INVERTED (bv->signal (interpreter IS_RSTP_INVERTED))
-                #:MASK (bv->signal (interpreter MASK))
-                #:MREG (bv->signal (interpreter MREG))
-                #:MULTSIGNIN (bv->signal (interpreter MULTSIGNIN))
-                #:OPMODE (bv->signal (interpreter OPMODE))
-                #:OPMODEREG (bv->signal (interpreter OPMODEREG))
-                #:PATTERN (bv->signal (interpreter PATTERN))
-                #:PCIN (bv->signal (interpreter PCIN))
-                #:PREADDINSEL (bv->signal (interpreter PREADDINSEL))
-                #:PREG (bv->signal (interpreter PREG))
-                #:RND (bv->signal (interpreter RND))
-                #:RSTA (bv->signal (interpreter RSTA))
-                #:RSTALLCARRYIN (bv->signal (interpreter RSTALLCARRYIN))
-                #:RSTALUMODE (bv->signal (interpreter RSTALUMODE))
-                #:RSTB (bv->signal (interpreter RSTB))
-                #:RSTC (bv->signal (interpreter RSTC))
-                #:RSTCTRL (bv->signal (interpreter RSTCTRL))
-                #:RSTD (bv->signal (interpreter RSTD))
-                #:RSTINMODE (bv->signal (interpreter RSTINMODE))
-                #:RSTM (bv->signal (interpreter RSTM))
-                #:RSTP (bv->signal (interpreter RSTP))
-                #:SEL_MASK (bv->signal (interpreter SEL_MASK))
-                #:SEL_PATTERN (bv->signal (interpreter SEL_PATTERN))
-                #:USE_MULT (bv->signal (interpreter USE_MULT))
-                #:USE_PATTERN_DETECT (bv->signal (interpreter USE_PATTERN_DETECT))
-                #:USE_SIMD (bv->signal (interpreter USE_SIMD))
-                #:USE_WIDEXOR (bv->signal (interpreter USE_WIDEXOR))
-                #:XORSIMD (bv->signal (interpreter XORSIMD))
-                #:unnamed-input-331 (bv->signal (interpreter unnamed-input-331))
-                #:unnamed-input-488 (bv->signal (interpreter unnamed-input-488))
-                #:unnamed-input-750 (bv->signal (interpreter unnamed-input-750))
-                #:unnamed-input-806 (bv->signal (interpreter unnamed-input-806))
-                #:unnamed-input-850 (bv->signal (interpreter unnamed-input-850)))
-               'P)))
-
-  (list P))
+                                         unnamed-input-850) expr]
+               [A (interpreter A)]
+               [ACASCREG (interpreter ACASCREG)]
+               [ACIN (interpreter ACIN)]
+               [ADREG (interpreter ADREG)]
+               [ALUMODE (interpreter ALUMODE)]
+               [ALUMODEREG (interpreter ALUMODEREG)]
+               [AMULTSEL (interpreter AMULTSEL)]
+               [AREG (interpreter AREG)]
+               [AUTORESET_PATDET (interpreter AUTORESET_PATDET)]
+               [AUTORESET_PRIORITY (interpreter AUTORESET_PRIORITY)]
+               [A_INPUT (interpreter A_INPUT)]
+               [B (interpreter B)]
+               [BCASCREG (interpreter BCASCREG)]
+               [BCIN (interpreter BCIN)]
+               [BMULTSEL (interpreter BMULTSEL)]
+               [BREG (interpreter BREG)]
+               [B_INPUT (interpreter B_INPUT)]
+               [C (interpreter C)]
+               [CARRYCASCIN (interpreter CARRYCASCIN)]
+               [CARRYIN (interpreter CARRYIN)]
+               [CARRYINREG (interpreter CARRYINREG)]
+               [CARRYINSEL (interpreter CARRYINSEL)]
+               [CARRYINSELREG (interpreter CARRYINSELREG)]
+               [CEA1 (interpreter CEA1)]
+               [CEA2 (interpreter CEA2)]
+               [CEAD (interpreter CEAD)]
+               [CEALUMODE (interpreter CEALUMODE)]
+               [CEB1 (interpreter CEB1)]
+               [CEB2 (interpreter CEB2)]
+               [CEC (interpreter CEC)]
+               [CECARRYIN (interpreter CECARRYIN)]
+               [CECTRL (interpreter CECTRL)]
+               [CED (interpreter CED)]
+               [CEINMODE (interpreter CEINMODE)]
+               [CEM (interpreter CEM)]
+               [CEP (interpreter CEP)]
+               [CLK (interpreter CLK)]
+               [CREG (interpreter CREG)]
+               [D (interpreter D)]
+               [DREG (interpreter DREG)]
+               [INMODE (interpreter INMODE)]
+               [INMODEREG (interpreter INMODEREG)]
+               [IS_ALUMODE_INVERTED (interpreter IS_ALUMODE_INVERTED)]
+               [IS_CARRYIN_INVERTED (interpreter IS_CARRYIN_INVERTED)]
+               [IS_CLK_INVERTED (interpreter IS_CLK_INVERTED)]
+               [IS_INMODE_INVERTED (interpreter IS_INMODE_INVERTED)]
+               [IS_OPMODE_INVERTED (interpreter IS_OPMODE_INVERTED)]
+               [IS_RSTALLCARRYIN_INVERTED (interpreter IS_RSTALLCARRYIN_INVERTED)]
+               [IS_RSTALUMODE_INVERTED (interpreter IS_RSTALUMODE_INVERTED)]
+               [IS_RSTA_INVERTED (interpreter IS_RSTA_INVERTED)]
+               [IS_RSTB_INVERTED (interpreter IS_RSTB_INVERTED)]
+               [IS_RSTCTRL_INVERTED (interpreter IS_RSTCTRL_INVERTED)]
+               [IS_RSTC_INVERTED (interpreter IS_RSTC_INVERTED)]
+               [IS_RSTD_INVERTED (interpreter IS_RSTD_INVERTED)]
+               [IS_RSTINMODE_INVERTED (interpreter IS_RSTINMODE_INVERTED)]
+               [IS_RSTM_INVERTED (interpreter IS_RSTM_INVERTED)]
+               [IS_RSTP_INVERTED (interpreter IS_RSTP_INVERTED)]
+               [MASK (interpreter MASK)]
+               [MREG (interpreter MREG)]
+               [MULTSIGNIN (interpreter MULTSIGNIN)]
+               [OPMODE (interpreter OPMODE)]
+               [OPMODEREG (interpreter OPMODEREG)]
+               [PATTERN (interpreter PATTERN)]
+               [PCIN (interpreter PCIN)]
+               [PREADDINSEL (interpreter PREADDINSEL)]
+               [PREG (interpreter PREG)]
+               [RND (interpreter RND)]
+               [RSTA (interpreter RSTA)]
+               [RSTALLCARRYIN (interpreter RSTALLCARRYIN)]
+               [RSTALUMODE (interpreter RSTALUMODE)]
+               [RSTB (interpreter RSTB)]
+               [RSTC (interpreter RSTC)]
+               [RSTCTRL (interpreter RSTCTRL)]
+               [RSTD (interpreter RSTD)]
+               [RSTINMODE (interpreter RSTINMODE)]
+               [RSTM (interpreter RSTM)]
+               [RSTP (interpreter RSTP)]
+               [SEL_MASK (interpreter SEL_MASK)]
+               [SEL_PATTERN (interpreter SEL_PATTERN)]
+               [USE_MULT (interpreter USE_MULT)]
+               [USE_PATTERN_DETECT (interpreter USE_PATTERN_DETECT)]
+               [USE_SIMD (interpreter USE_SIMD)]
+               [USE_WIDEXOR (interpreter USE_WIDEXOR)]
+               [XORSIMD (interpreter XORSIMD)]
+               [unnamed-input-331 (interpreter unnamed-input-331)]
+               [unnamed-input-488 (interpreter unnamed-input-488)]
+               [unnamed-input-750 (interpreter unnamed-input-750)]
+               [unnamed-input-806 (interpreter unnamed-input-806)]
+               [unnamed-input-850 (interpreter unnamed-input-850)])
+    ;;; Constrain the inputs based on the information in the DSP48E2 user manual. (see spec-sheets/.)
+    ;;; Constrain #registers (usually to 0, 1, or 2).
+    (assert (|| (bveq ACASCREG (bv 0 32)) (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32))))
+    (assert (|| (bveq ADREG (bv 0 32)) (bveq ADREG (bv 1 32))))
+    (assert (|| (bveq ALUMODEREG (bv 0 32)) (bveq ALUMODEREG (bv 1 32))))
+    (assert (|| (bveq AREG (bv 0 32)) (bveq AREG (bv 1 32)) (bveq AREG (bv 2 32))))
+    (assert (|| (bveq BCASCREG (bv 0 32)) (bveq BCASCREG (bv 1 32)) (bveq BCASCREG (bv 2 32))))
+    (assert (|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32)) (bveq BREG (bv 2 32))))
+    (assert (|| (bveq CARRYINREG (bv 0 32)) (bveq CARRYINREG (bv 1 32))))
+    (assert (|| (bveq CARRYINSELREG (bv 0 32)) (bveq CARRYINSELREG (bv 1 32))))
+    (assert (|| (bveq CREG (bv 0 32)) (bveq CREG (bv 1 32))))
+    (assert (|| (bveq DREG (bv 0 32)) (bveq DREG (bv 1 32))))
+    (assert (|| (bveq INMODEREG (bv 0 32)) (bveq INMODEREG (bv 1 32))))
+    (assert (|| (bveq MREG (bv 0 32)) (bveq MREG (bv 1 32))))
+    (assert (|| (bveq OPMODEREG (bv 0 32)) (bveq OPMODEREG (bv 1 32))))
+    (assert (|| (bveq PREG (bv 0 32)) (bveq PREG (bv 1 32))))
+    ;;; We converted the strings to enum values of bitwidth 5. See the enum defined at the top of
+    ;;; utils/tests/convert-module-to-btor/DSP48E2.v for the mapping of string to number value.
+    ;;; DIRECT or CASCADE.
+    (assert (|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5))))
+    (assert (|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5))))
+    ;;; A or B.
+    (assert (|| (bveq PREADDINSEL (bv 0 5)) (bveq PREADDINSEL (bv 1 5))))
+    ;;; A or AD.
+    (assert (|| (bveq AMULTSEL (bv 0 5)) (bveq AMULTSEL (bv 2 5))))
+    ;;; B or AD.
+    (assert (|| (bveq BMULTSEL (bv 1 5)) (bveq BMULTSEL (bv 2 5))))
+    ;;; NONE, MULTIPLY, or DYNAMIC.
+    (assert (|| (bveq USE_MULT (bv 20 5)) (bveq USE_MULT (bv 10 5)) (bveq USE_MULT (bv 18 5))))
+    ;;; ONE48, TWO24, FOUR12.
+    (assert (|| (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 25 5)) (bveq USE_SIMD (bv 19 5))))
+    ;;; TRUE, FALSE.
+    (assert (|| (bveq USE_WIDEXOR (bv 24 5)) (bveq USE_WIDEXOR (bv 13 5))))
+    ;;; XOR12, XOR24_48_96
+    (assert (|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5))))
+    ;;; NO_RESET, RESET_MATCH, RESET_NOT_MATCH.
+    (assert (|| (bveq AUTORESET_PATDET (bv 3 5))
+                (bveq AUTORESET_PATDET (bv 4 5))
+                (bveq AUTORESET_PATDET (bv 5 5))))
+    ;;; RESET, CEP.
+    (assert (|| (bveq AUTORESET_PRIORITY (bv 6 5)) (bveq AUTORESET_PRIORITY (bv 16 5))))
+    ;;; MASK, C, ROUNDING_MODE1, ROUNDING_MODE2
+    (assert (|| (bveq SEL_MASK (bv 8 5))
+                (bveq SEL_MASK (bv 17 5))
+                (bveq SEL_MASK (bv 22 5))
+                (bveq SEL_MASK (bv 23 5))))
+    ;;; PATTERN, C.
+    (assert (|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5))))
+    ;;; NO_PATDET, PATDET.
+    (assert (|| (bveq USE_PATTERN_DETECT (bv 11 5)) (bveq USE_PATTERN_DETECT (bv 21 5))))
+    ;;; Table 2-4 of DSP manual.
+    (assert (=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
+                (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2))))
+    ;;; Table 2-6 of DSP manual.
+    (assert (not (bveq (bvxor (extract 6 4 OPMODE) (extract 6 4 IS_OPMODE_INVERTED)) (bv #b111 3))))
+    ;;; Warning from DSP model:
+    ;;;
+    ;;; DRC warning : [Unisim DSP48E2-11] CARRYINSEL is set to 010 with OPMODEREG set to 0. This causes
+    ;;; unknown values after reset occurs. It is suggested to use OPMODEREG = 1 when cascading large
+    ;;; adders.
+    (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
+    (define P
+      (signal-value (hash-ref (interpret-xilinx-ultrascale-plus-dsp48e2
+                               #:A (bv->signal A)
+                               #:ACASCREG (bv->signal ACASCREG)
+                               #:ACIN (bv->signal ACIN)
+                               #:ADREG (bv->signal ADREG)
+                               #:ALUMODE (bv->signal ALUMODE)
+                               #:ALUMODEREG (bv->signal ALUMODEREG)
+                               #:AMULTSEL (bv->signal AMULTSEL)
+                               #:AREG (bv->signal AREG)
+                               #:AUTORESET_PATDET (bv->signal AUTORESET_PATDET)
+                               #:AUTORESET_PRIORITY (bv->signal AUTORESET_PRIORITY)
+                               #:A_INPUT (bv->signal A_INPUT)
+                               #:B (bv->signal B)
+                               #:BCASCREG (bv->signal BCASCREG)
+                               #:BCIN (bv->signal BCIN)
+                               #:BMULTSEL (bv->signal BMULTSEL)
+                               #:BREG (bv->signal BREG)
+                               #:B_INPUT (bv->signal B_INPUT)
+                               #:C (bv->signal C)
+                               #:CARRYCASCIN (bv->signal CARRYCASCIN)
+                               #:CARRYIN (bv->signal CARRYIN)
+                               #:CARRYINREG (bv->signal CARRYINREG)
+                               #:CARRYINSEL (bv->signal CARRYINSEL)
+                               #:CARRYINSELREG (bv->signal CARRYINSELREG)
+                               #:CEA1 (bv->signal CEA1)
+                               #:CEA2 (bv->signal CEA2)
+                               #:CEAD (bv->signal CEAD)
+                               #:CEALUMODE (bv->signal CEALUMODE)
+                               #:CEB1 (bv->signal CEB1)
+                               #:CEB2 (bv->signal CEB2)
+                               #:CEC (bv->signal CEC)
+                               #:CECARRYIN (bv->signal CECARRYIN)
+                               #:CECTRL (bv->signal CECTRL)
+                               #:CED (bv->signal CED)
+                               #:CEINMODE (bv->signal CEINMODE)
+                               #:CEM (bv->signal CEM)
+                               #:CEP (bv->signal CEP)
+                               #:CLK (bv->signal CLK)
+                               #:CREG (bv->signal CREG)
+                               #:D (bv->signal D)
+                               #:DREG (bv->signal DREG)
+                               #:INMODE (bv->signal INMODE)
+                               #:INMODEREG (bv->signal INMODEREG)
+                               #:IS_ALUMODE_INVERTED (bv->signal IS_ALUMODE_INVERTED)
+                               #:IS_CARRYIN_INVERTED (bv->signal IS_CARRYIN_INVERTED)
+                               #:IS_CLK_INVERTED (bv->signal IS_CLK_INVERTED)
+                               #:IS_INMODE_INVERTED (bv->signal IS_INMODE_INVERTED)
+                               #:IS_OPMODE_INVERTED (bv->signal IS_OPMODE_INVERTED)
+                               #:IS_RSTALLCARRYIN_INVERTED (bv->signal IS_RSTALLCARRYIN_INVERTED)
+                               #:IS_RSTALUMODE_INVERTED (bv->signal IS_RSTALUMODE_INVERTED)
+                               #:IS_RSTA_INVERTED (bv->signal IS_RSTA_INVERTED)
+                               #:IS_RSTB_INVERTED (bv->signal IS_RSTB_INVERTED)
+                               #:IS_RSTCTRL_INVERTED (bv->signal IS_RSTCTRL_INVERTED)
+                               #:IS_RSTC_INVERTED (bv->signal IS_RSTC_INVERTED)
+                               #:IS_RSTD_INVERTED (bv->signal IS_RSTD_INVERTED)
+                               #:IS_RSTINMODE_INVERTED (bv->signal IS_RSTINMODE_INVERTED)
+                               #:IS_RSTM_INVERTED (bv->signal IS_RSTM_INVERTED)
+                               #:IS_RSTP_INVERTED (bv->signal IS_RSTP_INVERTED)
+                               #:MASK (bv->signal MASK)
+                               #:MREG (bv->signal MREG)
+                               #:MULTSIGNIN (bv->signal MULTSIGNIN)
+                               #:OPMODE (bv->signal OPMODE)
+                               #:OPMODEREG (bv->signal OPMODEREG)
+                               #:PATTERN (bv->signal PATTERN)
+                               #:PCIN (bv->signal PCIN)
+                               #:PREADDINSEL (bv->signal PREADDINSEL)
+                               #:PREG (bv->signal PREG)
+                               #:RND (bv->signal RND)
+                               #:RSTA (bv->signal RSTA)
+                               #:RSTALLCARRYIN (bv->signal RSTALLCARRYIN)
+                               #:RSTALUMODE (bv->signal RSTALUMODE)
+                               #:RSTB (bv->signal RSTB)
+                               #:RSTC (bv->signal RSTC)
+                               #:RSTCTRL (bv->signal RSTCTRL)
+                               #:RSTD (bv->signal RSTD)
+                               #:RSTINMODE (bv->signal RSTINMODE)
+                               #:RSTM (bv->signal RSTM)
+                               #:RSTP (bv->signal RSTP)
+                               #:SEL_MASK (bv->signal SEL_MASK)
+                               #:SEL_PATTERN (bv->signal SEL_PATTERN)
+                               #:USE_MULT (bv->signal USE_MULT)
+                               #:USE_PATTERN_DETECT (bv->signal USE_PATTERN_DETECT)
+                               #:USE_SIMD (bv->signal USE_SIMD)
+                               #:USE_WIDEXOR (bv->signal USE_WIDEXOR)
+                               #:XORSIMD (bv->signal XORSIMD)
+                               #:unnamed-input-331 (bv->signal unnamed-input-331)
+                               #:unnamed-input-488 (bv->signal unnamed-input-488)
+                               #:unnamed-input-750 (bv->signal unnamed-input-750)
+                               #:unnamed-input-806 (bv->signal unnamed-input-806)
+                               #:unnamed-input-850 (bv->signal unnamed-input-850))
+                              'P)))
+    (list P)))
 
 (define (compile-ultrascale-plus-dsp48e2 dsp p-name clk-name a-name b-name c-name ce-name reset-name)
   (format
@@ -1264,216 +1381,217 @@ here-string-delimiter
                                          unnamed-input-750
                                          unnamed-input-806
                                          unnamed-input-850) expr]
-               [cell (make-cell "DSP48E2"
-                                (make-cell-port-directions (list 'A
-                                                                 'ACIN
-                                                                 'ALUMODE
-                                                                 'B
-                                                                 'BCIN
-                                                                 'C
-                                                                 'CARRYCASCIN
-                                                                 'CARRYIN
-                                                                 'CARRYINSEL
-                                                                 'CEA1
-                                                                 'CEA2
-                                                                 'CEAD
-                                                                 'CEALUMODE
-                                                                 'CEB1
-                                                                 'CEB2
-                                                                 'CEC
-                                                                 'CECARRYIN
-                                                                 'CECTRL
-                                                                 'CED
-                                                                 'CEINMODE
-                                                                 'CEM
-                                                                 'CEP
-                                                                 'CLK
-                                                                 'D
-                                                                 'INMODE
-                                                                 'MULTSIGNIN
-                                                                 'OPMODE
-                                                                 'PCIN
-                                                                 'RSTA
-                                                                 'RSTALLCARRYIN
-                                                                 'RSTALUMODE
-                                                                 'RSTB
-                                                                 'RSTC
-                                                                 'RSTCTRL
-                                                                 'RSTD
-                                                                 'RSTINMODE
-                                                                 'RSTM
-                                                                 'RSTP)
-                                                           (list 'P))
-                                (hash 'P
-                                      P
-                                      'A
-                                      (compile A)
-                                      'ACIN
-                                      (compile ACIN)
-                                      'ALUMODE
-                                      (compile ALUMODE)
-                                      'B
-                                      (compile B)
-                                      'BCIN
-                                      (compile BCIN)
-                                      'C
-                                      (compile C)
-                                      'CARRYCASCIN
-                                      (compile CARRYCASCIN)
-                                      'CARRYIN
-                                      (compile CARRYIN)
-                                      'CARRYINSEL
-                                      (compile CARRYINSEL)
-                                      'CEA1
-                                      (compile CEA1)
-                                      'CEA2
-                                      (compile CEA2)
-                                      'CEAD
-                                      (compile CEAD)
-                                      'CEALUMODE
-                                      (compile CEALUMODE)
-                                      'CEB1
-                                      (compile CEB1)
-                                      'CEB2
-                                      (compile CEB2)
-                                      'CEC
-                                      (compile CEC)
-                                      'CECARRYIN
-                                      (compile CECARRYIN)
-                                      'CECTRL
-                                      (compile CECTRL)
-                                      'CED
-                                      (compile CED)
-                                      'CEINMODE
-                                      (compile CEINMODE)
-                                      'CEM
-                                      (compile CEM)
-                                      'CEP
-                                      (compile CEP)
-                                      'CLK
-                                      (compile CLK)
-                                      'D
-                                      (compile D)
-                                      'INMODE
-                                      (compile INMODE)
-                                      'MULTSIGNIN
-                                      (compile MULTSIGNIN)
-                                      'OPMODE
-                                      (compile OPMODE)
-                                      'PCIN
-                                      (compile PCIN)
-                                      'RSTA
-                                      (compile RSTA)
-                                      'RSTALLCARRYIN
-                                      (compile RSTALLCARRYIN)
-                                      'RSTALUMODE
-                                      (compile RSTALUMODE)
-                                      'RSTB
-                                      (compile RSTB)
-                                      'RSTC
-                                      (compile RSTC)
-                                      'RSTCTRL
-                                      (compile RSTCTRL)
-                                      'RSTD
-                                      (compile RSTD)
-                                      'RSTINMODE
-                                      (compile RSTINMODE)
-                                      'RSTM
-                                      (compile RSTM)
-                                      'RSTP
-                                      (compile RSTP))
-                                #:params (hash 'AMULTSEL
-                                               (dsp48e2-enum-val-to-str AMULTSEL)
-                                               'A_INPUT
-                                               (dsp48e2-enum-val-to-str A_INPUT)
-                                               'BMULTSEL
-                                               (dsp48e2-enum-val-to-str BMULTSEL)
-                                               'B_INPUT
-                                               (dsp48e2-enum-val-to-str B_INPUT)
-                                               'PREADDINSEL
-                                               (dsp48e2-enum-val-to-str PREADDINSEL)
-                                               'RND
-                                               (make-literal-value-from-bv RND)
-                                               'USE_MULT
-                                               (dsp48e2-enum-val-to-str USE_MULT)
-                                               'USE_SIMD
-                                               (dsp48e2-enum-val-to-str USE_SIMD)
-                                               'USE_WIDEXOR
-                                               (dsp48e2-enum-val-to-str USE_WIDEXOR)
-                                               'XORSIMD
-                                               (dsp48e2-enum-val-to-str XORSIMD)
-                                               'AUTORESET_PATDET
-                                               (dsp48e2-enum-val-to-str AUTORESET_PATDET)
-                                               'AUTORESET_PRIORITY
-                                               (dsp48e2-enum-val-to-str AUTORESET_PRIORITY)
-                                               'MASK
-                                               (make-literal-value-from-bv MASK)
-                                               'PATTERN
-                                               (make-literal-value-from-bv PATTERN)
-                                               'SEL_MASK
-                                               (dsp48e2-enum-val-to-str SEL_MASK)
-                                               'SEL_PATTERN
-                                               (dsp48e2-enum-val-to-str SEL_PATTERN)
-                                               'USE_PATTERN_DETECT
-                                               (dsp48e2-enum-val-to-str USE_PATTERN_DETECT)
-                                               'IS_ALUMODE_INVERTED
-                                               (make-literal-value-from-bv IS_ALUMODE_INVERTED)
-                                               'IS_CARRYIN_INVERTED
-                                               (make-literal-value-from-bv IS_CARRYIN_INVERTED)
-                                               'IS_CLK_INVERTED
-                                               (make-literal-value-from-bv IS_CLK_INVERTED)
-                                               'IS_INMODE_INVERTED
-                                               (make-literal-value-from-bv IS_INMODE_INVERTED)
-                                               'IS_OPMODE_INVERTED
-                                               (make-literal-value-from-bv IS_OPMODE_INVERTED)
-                                               'IS_RSTALLCARRYIN_INVERTED
-                                               (make-literal-value-from-bv IS_RSTALLCARRYIN_INVERTED)
-                                               'IS_RSTALUMODE_INVERTED
-                                               (make-literal-value-from-bv IS_RSTALUMODE_INVERTED)
-                                               'IS_RSTA_INVERTED
-                                               (make-literal-value-from-bv IS_RSTA_INVERTED)
-                                               'IS_RSTB_INVERTED
-                                               (make-literal-value-from-bv IS_RSTB_INVERTED)
-                                               'IS_RSTCTRL_INVERTED
-                                               (make-literal-value-from-bv IS_RSTCTRL_INVERTED)
-                                               'IS_RSTC_INVERTED
-                                               (make-literal-value-from-bv IS_RSTC_INVERTED)
-                                               'IS_RSTD_INVERTED
-                                               (make-literal-value-from-bv IS_RSTD_INVERTED)
-                                               'IS_RSTINMODE_INVERTED
-                                               (make-literal-value-from-bv IS_RSTINMODE_INVERTED)
-                                               'IS_RSTM_INVERTED
-                                               (make-literal-value-from-bv IS_RSTM_INVERTED)
-                                               'IS_RSTP_INVERTED
-                                               (make-literal-value-from-bv IS_RSTP_INVERTED)
-                                               'ACASCREG
-                                               (make-literal-value-from-bv ACASCREG)
-                                               'ADREG
-                                               (make-literal-value-from-bv ADREG)
-                                               'ALUMODEREG
-                                               (make-literal-value-from-bv ALUMODEREG)
-                                               'AREG
-                                               (make-literal-value-from-bv AREG)
-                                               'BCASCREG
-                                               (make-literal-value-from-bv BCASCREG)
-                                               'BREG
-                                               (make-literal-value-from-bv BREG)
-                                               'CARRYINREG
-                                               (make-literal-value-from-bv CARRYINREG)
-                                               'CARRYINSELREG
-                                               (make-literal-value-from-bv CARRYINSELREG)
-                                               'CREG
-                                               (make-literal-value-from-bv CREG)
-                                               'DREG
-                                               (make-literal-value-from-bv DREG)
-                                               'INMODEREG
-                                               (make-literal-value-from-bv INMODEREG)
-                                               'MREG
-                                               (make-literal-value-from-bv MREG)
-                                               'OPMODEREG
-                                               (make-literal-value-from-bv OPMODEREG)
-                                               'PREG
-                                               (make-literal-value-from-bv PREG)))])
+               [cell (make-cell
+                      "DSP48E2"
+                      (make-cell-port-directions (list 'A
+                                                       'ACIN
+                                                       'ALUMODE
+                                                       'B
+                                                       'BCIN
+                                                       'C
+                                                       'CARRYCASCIN
+                                                       'CARRYIN
+                                                       'CARRYINSEL
+                                                       'CEA1
+                                                       'CEA2
+                                                       'CEAD
+                                                       'CEALUMODE
+                                                       'CEB1
+                                                       'CEB2
+                                                       'CEC
+                                                       'CECARRYIN
+                                                       'CECTRL
+                                                       'CED
+                                                       'CEINMODE
+                                                       'CEM
+                                                       'CEP
+                                                       'CLK
+                                                       'D
+                                                       'INMODE
+                                                       'MULTSIGNIN
+                                                       'OPMODE
+                                                       'PCIN
+                                                       'RSTA
+                                                       'RSTALLCARRYIN
+                                                       'RSTALUMODE
+                                                       'RSTB
+                                                       'RSTC
+                                                       'RSTCTRL
+                                                       'RSTD
+                                                       'RSTINMODE
+                                                       'RSTM
+                                                       'RSTP)
+                                                 (list 'P))
+                      (hash 'P
+                            P
+                            'A
+                            (compile A)
+                            'ACIN
+                            (compile ACIN)
+                            'ALUMODE
+                            (compile ALUMODE)
+                            'B
+                            (compile B)
+                            'BCIN
+                            (compile BCIN)
+                            'C
+                            (compile C)
+                            'CARRYCASCIN
+                            (compile CARRYCASCIN)
+                            'CARRYIN
+                            (compile CARRYIN)
+                            'CARRYINSEL
+                            (compile CARRYINSEL)
+                            'CEA1
+                            (compile CEA1)
+                            'CEA2
+                            (compile CEA2)
+                            'CEAD
+                            (compile CEAD)
+                            'CEALUMODE
+                            (compile CEALUMODE)
+                            'CEB1
+                            (compile CEB1)
+                            'CEB2
+                            (compile CEB2)
+                            'CEC
+                            (compile CEC)
+                            'CECARRYIN
+                            (compile CECARRYIN)
+                            'CECTRL
+                            (compile CECTRL)
+                            'CED
+                            (compile CED)
+                            'CEINMODE
+                            (compile CEINMODE)
+                            'CEM
+                            (compile CEM)
+                            'CEP
+                            (compile CEP)
+                            'CLK
+                            (compile CLK)
+                            'D
+                            (compile D)
+                            'INMODE
+                            (compile INMODE)
+                            'MULTSIGNIN
+                            (compile MULTSIGNIN)
+                            'OPMODE
+                            (compile OPMODE)
+                            'PCIN
+                            (compile PCIN)
+                            'RSTA
+                            (compile RSTA)
+                            'RSTALLCARRYIN
+                            (compile RSTALLCARRYIN)
+                            'RSTALUMODE
+                            (compile RSTALUMODE)
+                            'RSTB
+                            (compile RSTB)
+                            'RSTC
+                            (compile RSTC)
+                            'RSTCTRL
+                            (compile RSTCTRL)
+                            'RSTD
+                            (compile RSTD)
+                            'RSTINMODE
+                            (compile RSTINMODE)
+                            'RSTM
+                            (compile RSTM)
+                            'RSTP
+                            (compile RSTP))
+                      #:params (hash 'AMULTSEL
+                                     (dsp48e2-enum-val-to-str (lr:bv-v AMULTSEL))
+                                     'A_INPUT
+                                     (dsp48e2-enum-val-to-str (lr:bv-v A_INPUT))
+                                     'BMULTSEL
+                                     (dsp48e2-enum-val-to-str (lr:bv-v BMULTSEL))
+                                     'B_INPUT
+                                     (dsp48e2-enum-val-to-str (lr:bv-v B_INPUT))
+                                     'PREADDINSEL
+                                     (dsp48e2-enum-val-to-str (lr:bv-v PREADDINSEL))
+                                     'RND
+                                     (make-literal-value-from-bv (lr:bv-v RND))
+                                     'USE_MULT
+                                     (dsp48e2-enum-val-to-str (lr:bv-v USE_MULT))
+                                     'USE_SIMD
+                                     (dsp48e2-enum-val-to-str (lr:bv-v USE_SIMD))
+                                     'USE_WIDEXOR
+                                     (dsp48e2-enum-val-to-str (lr:bv-v USE_WIDEXOR))
+                                     'XORSIMD
+                                     (dsp48e2-enum-val-to-str (lr:bv-v XORSIMD))
+                                     'AUTORESET_PATDET
+                                     (dsp48e2-enum-val-to-str (lr:bv-v AUTORESET_PATDET))
+                                     'AUTORESET_PRIORITY
+                                     (dsp48e2-enum-val-to-str (lr:bv-v AUTORESET_PRIORITY))
+                                     'MASK
+                                     (make-literal-value-from-bv (lr:bv-v MASK))
+                                     'PATTERN
+                                     (make-literal-value-from-bv (lr:bv-v PATTERN))
+                                     'SEL_MASK
+                                     (dsp48e2-enum-val-to-str (lr:bv-v SEL_MASK))
+                                     'SEL_PATTERN
+                                     (dsp48e2-enum-val-to-str (lr:bv-v SEL_PATTERN))
+                                     'USE_PATTERN_DETECT
+                                     (dsp48e2-enum-val-to-str (lr:bv-v USE_PATTERN_DETECT))
+                                     'IS_ALUMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_ALUMODE_INVERTED))
+                                     'IS_CARRYIN_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_CARRYIN_INVERTED))
+                                     'IS_CLK_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_CLK_INVERTED))
+                                     'IS_INMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_INMODE_INVERTED))
+                                     'IS_OPMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_OPMODE_INVERTED))
+                                     'IS_RSTALLCARRYIN_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTALLCARRYIN_INVERTED))
+                                     'IS_RSTALUMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTALUMODE_INVERTED))
+                                     'IS_RSTA_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTA_INVERTED))
+                                     'IS_RSTB_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTB_INVERTED))
+                                     'IS_RSTCTRL_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTCTRL_INVERTED))
+                                     'IS_RSTC_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTC_INVERTED))
+                                     'IS_RSTD_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTD_INVERTED))
+                                     'IS_RSTINMODE_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTINMODE_INVERTED))
+                                     'IS_RSTM_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTM_INVERTED))
+                                     'IS_RSTP_INVERTED
+                                     (make-literal-value-from-bv (lr:bv-v IS_RSTP_INVERTED))
+                                     'ACASCREG
+                                     (make-literal-value-from-bv (lr:bv-v ACASCREG))
+                                     'ADREG
+                                     (make-literal-value-from-bv (lr:bv-v ADREG))
+                                     'ALUMODEREG
+                                     (make-literal-value-from-bv (lr:bv-v ALUMODEREG))
+                                     'AREG
+                                     (make-literal-value-from-bv (lr:bv-v AREG))
+                                     'BCASCREG
+                                     (make-literal-value-from-bv (lr:bv-v BCASCREG))
+                                     'BREG
+                                     (make-literal-value-from-bv (lr:bv-v BREG))
+                                     'CARRYINREG
+                                     (make-literal-value-from-bv (lr:bv-v CARRYINREG))
+                                     'CARRYINSELREG
+                                     (make-literal-value-from-bv (lr:bv-v CARRYINSELREG))
+                                     'CREG
+                                     (make-literal-value-from-bv (lr:bv-v CREG))
+                                     'DREG
+                                     (make-literal-value-from-bv (lr:bv-v DREG))
+                                     'INMODEREG
+                                     (make-literal-value-from-bv (lr:bv-v INMODEREG))
+                                     'MREG
+                                     (make-literal-value-from-bv (lr:bv-v MREG))
+                                     'OPMODEREG
+                                     (make-literal-value-from-bv (lr:bv-v OPMODEREG))
+                                     'PREG
+                                     (make-literal-value-from-bv (lr:bv-v PREG))))])
     (add-netname 'P (make-net-details P))
     (add-cell 'DSP48E2 cell)
     (list P)))
@@ -1535,7 +1653,7 @@ here-string-delimiter
                               (compile i5)
                               'O
                               o)
-               #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+               #:params (hasheq 'INIT (make-literal-value-from-bv (lr:bv-v init)))))
   (add-cell 'lut6 lut6-cell)
   o)
 
@@ -1569,6 +1687,6 @@ here-string-delimiter
                               o5
                               'O6
                               o6)
-               #:params (hasheq 'INIT (make-literal-value-from-bv init))))
+               #:params (hasheq 'INIT (make-literal-value-from-bv (lr:bv-v init)))))
   (add-cell 'lut6-2 lut6-2-cell)
   (list o5 o6))

@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (provide lakeroad->jsexpr)
 
@@ -11,12 +11,15 @@
          "interpreter.rkt"
          racket/pretty
          rosette
-         (prefix-in lr: "language.rkt"))
+         (prefix-in lr: "language.rkt")
+         "architecture-description.rkt")
 
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
 ;;;
 ;;; TODO Write helper function to convert Yosys JSON to Verilog.
-(define (lakeroad->jsexpr expr #:module-name [module-name "top"])
+(define (lakeroad->jsexpr expr
+                          #:module-name [module-name "top"]
+                          #:output-signal-name [output-signal-name "out0"])
 
   ;;; The next available bit id. Starts at 2, as Yosys reserves 0 and 1 for the literals 0 and 1.
   (define next-bit-id 2)
@@ -64,20 +67,81 @@
         (hash-ref memo expr)
         (let ([out
                (match expr
-                 [(lr:lut 1 1 'xilinx-ultrascale-plus lutmem inputs)
+                 [(lr:bitvector v) v]
+                 [(lr:symbol s) s]
+                 [(lr:make-immutable-hash list-expr) (make-immutable-hash (compile list-expr))]
+                 [(lr:cons v0-expr v1-expr) (cons (compile v0-expr) (compile v1-expr))]
+                 [(lr:hash-remap-keys h-expr ks)
+                  (let* ([h (compile h-expr)]
+                         [new-h (make-immutable-hash
+                                 (hash-map h
+                                           (λ (k v)
+                                             (cons (cdr (or (assoc k ks)
+                                                            (error "old key not found: " k)))
+                                                   v))))])
+                    new-h)]
+                 [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) k)]
+                 [(lr:hw-module-instance module-name ports params filepath)
+                  (let* ([input-ports
+                          (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
+                         [input-port-symbols
+                          (map string->symbol (map module-instance-port-name input-ports))]
+                         ;;; Pairs of input symbol with compiled expression.
+                         [input-pairs (map (λ (p)
+                                             (cons (string->symbol (module-instance-port-name p))
+                                                   (compile (module-instance-port-value p))))
+                                           input-ports)]
+                         [output-ports
+                          (filter (λ (p) (equal? (module-instance-port-direction p) 'output)) ports)]
+                         [output-port-symbols
+                          (map string->symbol (map module-instance-port-name output-ports))]
+                         ;;; Pairs of output symbol with allocated bit ids.
+                         [output-pairs
+                          (map (λ (p)
+                                 (let ([bits (get-bits (module-instance-port-bitwidth p))])
+                                   (add-netname (string->symbol (module-instance-port-name p))
+                                                (make-net-details bits))
+                                   (cons (string->symbol (module-instance-port-name p)) bits)))
+                               output-ports)]
+
+                         ;;; Pairs of parameter symbol with value.
+                         [param-pairs (map (λ (p)
+                                             (cons (string->symbol (module-instance-parameter-name p))
+                                                   (match (module-instance-parameter-value p)
+                                                     [(lr:bv v) (make-literal-value-from-bv v)])))
+                                           params)]
+                         ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
+                         ;;; parameters. We will need to figure out a way around this hack especially
+                         ;;; if we want to support other modules that use string parameters e.g. DSP.
+                         [param-pairs (if (equal? module-name "CCU2C")
+                                          (append param-pairs
+                                                  (list (cons 'INJECT1_0 "NO")
+                                                        (cons 'INJECT1_1 "NO")))
+                                          param-pairs)]
+                         [cell (make-cell
+                                module-name
+                                (make-cell-port-directions input-port-symbols output-port-symbols)
+                                (make-immutable-hash (append input-pairs output-pairs))
+                                #:params (make-immutable-hash param-pairs))])
+
+                    (add-cell (string->symbol module-name) cell)
+
+                    ;;; Return a hashmap of output port symbols to values.
+                    (make-immutable-hash output-pairs))]
+                 [(lr:lut (lr:integer 1) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut1 lutmem inputs))]
-                 [(lr:lut 2 1 'xilinx-ultrascale-plus lutmem inputs)
+                 [(lr:lut (lr:integer 2) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut2 lutmem inputs))]
-                 [(lr:lut 3 1 'xilinx-ultrascale-plus lutmem inputs)
+                 [(lr:lut (lr:integer 3) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut3 lutmem inputs))]
-                 [(lr:lut 4 1 'xilinx-ultrascale-plus lutmem inputs)
+                 [(lr:lut (lr:integer 4) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
                   (compile (ultrascale-plus-lut4 lutmem inputs))]
 
                  ;;; Have to reverse the inputs for SOFA. Could also reverse the lutmem.
                  ;;;
                  ;;; TODO(@gussmith23): It's probably not great to have the compiler depend on the
                  ;;; interpreter.
-                 [(lr:lut 4 1 'sofa lutmem inputs)
+                 [(lr:lut (lr:integer 4) (lr:integer 1) 'sofa lutmem inputs)
                   (compile (sofa-lut4 lutmem (apply concat (bitvector->bits (interpret inputs)))))]
 
                  [(ultrascale-plus-dsp48e2 A
@@ -355,29 +419,31 @@
                   (compile-logical-to-physical-mapping compile f inputs)]
 
                  ;;; Racket operators.
-                 [(lr:take l n) (take (compile l) n)]
-                 [(lr:drop l n) (drop (compile l) n)]
-                 [(lr:list-ref l n) (list-ref (compile l) n)]
+                 [(lr:take l n) (take (compile l) (compile n))]
+                 [(lr:drop l n) (drop (compile l) (compile n))]
+                 [(lr:list-ref l n) (list-ref (compile l) (compile n))]
                  [(lr:first lst) (first (compile lst))]
                  [(lr:append lsts) (apply append (compile lsts))]
                  [(lr:map f lsts) (apply map f (compile lsts))]
 
                  ;;; Rosette operators.
                  [(or (expression (== extract) high low v) (lr:extract high low v))
-                  (drop (take (compile v) (add1 high)) low)]
+                  (drop (take (compile v) (add1 (compile high))) (compile low))]
                  [(or (expression (== zero-extend) v bv-type) (lr:zero-extend v bv-type))
                   (append (compile v)
-                          (make-list (- (bitvector-size bv-type) (bitvector-size (type-of v))) "0"))]
+                          (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
+                                     "0"))]
                  [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
                  ;;; TODO(@gussmith23): Compile, then reverse? Or reverse, then compile?
                  [(lr:concat rst) (apply append (reverse (compile rst)))]
 
-                 [(lr:dup-extend v bv-type) (make-list (bitvector-size bv-type) (first (compile v)))]
+                 [(lr:dup-extend v bv-type)
+                  (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(? bv? (? symbolic? (? constant? s)))
+                 [(lr:bv (? bv? (? symbolic? (? constant? s))))
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
@@ -392,21 +458,21 @@
                   (hash-ref port-details 'bits)]
 
                  ;;; Concrete bitvectors become constants.
-                 [(? bv? (? concrete? s)) (map ~a (map bitvector->natural (bitvector->bits s)))]
+                 [(lr:bv (? bv? (? concrete? s)))
+                  (map ~a (map bitvector->natural (bitvector->bits s)))]
 
-                 [(? int? v) v]
+                 [(lr:integer v) v]
                  [(? string? v) v]
 
                  ;;; Should go near the bottom -- remember, nearly everything's a list underneath!
-                 [(? list? v) (map compile v)])])
+                 [(lr:list v) (map compile v)])])
 
           (hash-set! memo expr out)
           (hash-ref memo expr))))
 
-  (define outputs (list (compile expr)))
+  (define outputs (compile expr))
 
-  (for ([output-bits outputs] [i (range (length outputs))])
-    (add-port (string->symbol (format "out~a" i)) (make-port-details "output" output-bits)))
+  (add-port (string->symbol output-signal-name) (make-port-details "output" outputs))
 
   (define doc (make-lakeroad-json-doc))
   (add-module-to-doc
@@ -433,44 +499,48 @@
   ;;;             (check-equal? (hash-count (hash-ref module 'ports)) 5))
 
   (test-begin
-   (define out (lakeroad->jsexpr (bv #b000111 6)))
+   (define out (lakeroad->jsexpr (lr:bv (bv #b000111 6))))
    (check-equal?
     (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
 
-  (test-begin
-   (current-solver (boolector))
-   (define-symbolic a b (bitvector 8))
-   (define expr
-     (lr:first (physical-to-logical-mapping
-                '(bitwise)
-                ;;; Take the 8 outputs from the LUTs; drop cout.
-                (lr:take (ultrascale-plus-clb (?? (bitvector 1))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 64))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (?? (bitvector 2))
-                                              (logical-to-physical-mapping
-                                               '(bitwise)
-                                               (list a b (bv 0 8) (bv 0 8) (bv 0 8) (bv 0 8))))
-                         8))))
-   (define soln
-     (synthesize #:forall (list a b)
-                 #:guarantee
-                 (begin
-                   ; Assert that the output of the CLB implements the requested function f.
-                   (assert (bveq (bvand a b) (interpret expr))))))
-   (check-true (sat? soln))
-   (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))
+  (test-begin (current-solver (boolector))
+              (define-symbolic a b (bitvector 8))
+              (define expr
+                (lr:first (physical-to-logical-mapping
+                           (ptol-bitwise)
+                           ;;; Take the 8 outputs from the LUTs; drop cout.
+                           (lr:take (ultrascale-plus-clb (lr:bv (?? (bitvector 1)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 64)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (lr:bv (?? (bitvector 2)))
+                                                         (logical-to-physical-mapping
+                                                          (ltop-bitwise)
+                                                          (lr:list (list (lr:bv a)
+                                                                         (lr:bv b)
+                                                                         (lr:bv (bv 0 8))
+                                                                         (lr:bv (bv 0 8))
+                                                                         (lr:bv (bv 0 8))
+                                                                         (lr:bv (bv 0 8))))))
+                                    (lr:integer 8)))))
+              (define soln
+                (synthesize #:forall (list a b)
+                            #:guarantee
+                            (begin
+                              ; Assert that the output of the CLB implements the requested function f.
+                              (assert (bveq (bvand a b) (interpret expr))))))
+              (check-true (sat? soln))
+              (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))

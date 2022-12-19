@@ -5,8 +5,25 @@
          "../racket/synthesize.rkt"
          "../racket/compile-to-json.rkt"
          "../racket/circt-comb-operators.rkt"
+         "../racket/sketches.rkt"
+         "../racket/architecture-description.rkt"
          json
-         racket/sandbox)
+         "../racket/lattice-ecp5-lut4.rkt"
+         "../racket/lattice-ecp5-ccu2c.rkt"
+         "../racket/xilinx-ultrascale-plus-lut2.rkt"
+         "../racket/xilinx-ultrascale-plus-lut6.rkt"
+         "../racket/xilinx-ultrascale-plus-carry8.rkt"
+         "../racket/sofa-frac-lut4.rkt"
+         "../racket/lattice-ecp5-mult18x18d.rkt"
+         "../racket/lattice-ecp5-alu24b.rkt"
+         rosette/solver/smt/boolector
+         "../racket/stateful-design-experiment.rkt"
+         racket/hash
+         "../racket/btor.rkt")
+
+(define-namespace-anchor anc)
+
+(current-solver (boolector))
 
 (define architecture
   (make-parameter ""
@@ -25,10 +42,14 @@
 (define instruction (make-parameter #f identity))
 (define module-name (make-parameter #f identity))
 (define json-filepath (make-parameter (make-temporary-file "rkttmp~a.json") identity))
-(define out-filepath (make-parameter #f identity))
+(define output-port
+  (make-parameter (current-output-port) (lambda (v) (open-output-file v #:exists 'replace))))
 (define template-timeout
   (make-parameter #f (lambda (to) (if (equal? "0" to) #f (string->number to)))))
 (define template (make-parameter #f identity))
+(define verilog-module-filepath (make-parameter #f))
+(define top-module-name (make-parameter #f))
+(define verilog-module-out-signal (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -42,13 +63,29 @@
  ["--out-filepath"
   v
   "Output filepath, where the output file is in the format requested."
-  (out-filepath v)]
+  (output-port v)]
  ["--template"
   v
   "Specifies which template to synthesize with. When not set, the synthesis procedure will run"
   " through all relevant templates for the architecture until one works."
   (template v)]
  ["--timeout" timeout "Timeout in seconds for each template" (template-timeout timeout)]
+ ["--verilog-module-filepath"
+  v
+  "File containing the Verilog module to synthesize against."
+  " Can be specified as an alternative to --instruction. If this is specified, you must also"
+  " provide the flags --top-module-name and --verilog-module-out-signal."
+  (verilog-module-filepath v)]
+ ["--top-module-name"
+  v
+  "Top module name if --verilog-module-filepath is specified."
+  (top-module-name v)]
+ ["--verilog-module-out-signal"
+  v
+  "Name of the output signal of the module written out by Lakeroad. This argument also indicates"
+  " the output signal name of the Verilog module specified by --verilog-module-filepath."
+  " TODO(@gussmith23): There should be two separate arguments for this."
+  (verilog-module-out-signal v)]
  #:once-any
  #:multi
  [("--instruction")
@@ -58,8 +95,8 @@
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)])
 
-(when (not (out-filepath))
-  (error "Must specify --out-filepath."))
+(when (not (verilog-module-out-signal))
+  (error "Please specify --verilog-module-out-signal."))
 
 ;;; Parse instruction.
 ;;;
@@ -71,6 +108,9 @@
 
   (define (helper expr)
     (match expr
+      [`(bvlshr ,a ,b) (bvlshr (helper a) (helper b))]
+      [`(bvashr ,a ,b) (bvashr (helper a) (helper b))]
+      [`(bvshl ,a ,b) (bvshl (helper a) (helper b))]
       [`(bvuge ,a ,b) (bvuge (helper a) (helper b))]
       [`(bvule ,a ,b) (bvule (helper a) (helper b))]
       [`(bvult ,a ,b) (bvult (helper a) (helper b))]
@@ -90,54 +130,104 @@
 
   (helper expr))
 
-;;; Synthesize a Lakeroad implementation of the given bv-expr.
-;;;
-;;; Returns a Lakeroad expression.
-(define (synthesize bv-expr template architecture #:timeout [timeout #f])
-  (let ([result
-         (with-vc
-          (with-terms
-           (if (template)
-               ;;; If the template is set, use that template explicitly.
-               ;;; If it times out, return false.
-               (with-handlers ([exn:fail:resource? (lambda (_) #f)])
-                 (call-with-limits timeout
-                                   #f
-                                   (lambda () ((hash-ref (template-map) (template)) bv-expr))))
+;;; The bitvector expression we're trying to synthesize.
+(define bv-expr
+  (cond
+    [(instruction) (parse-instruction (read (open-input-string (instruction))))]
+    [(verilog-module-filepath)
+     (when (not (verilog-module-out-signal))
+       (error "Must set --verilog-module-out-signal."))
+     (when (not (top-module-name))
+       (error "Must set --top-module-name."))
+     (define btor
+       (with-output-to-string
+        (thunk
+         (system
+          (format
+           "yosys -q -p 'read_verilog ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+           (verilog-module-filepath)
+           (top-module-name))))))
 
-               ;;; Otherwise, use the helper functions in synthesize.rkt for the specific architecture
-               ;;; to attempt multiple templates.
-               (match architecture
-                 ["xilinx-ultrascale-plus"
-                  (synthesize-xilinx-ultrascale-plus-impl bv-expr 'first-to-succeed)]
-                 ["lattice-ecp5"
-                  (synthesize-lattice-ecp5-impl bv-expr 'first-to-succeed #:timeout timeout)]
-                 ["sofa" (synthesize-sofa-impl bv-expr 'first-to-succeed)]
-                 [other
-                  (error (format
-                          "Invalid architecture given (value: ~a). Did you specify --architecture?"
-                          other))]))))])
-    (when (failed? result)
-      (error "Failed: ~a" result))
-    (result-value result)))
+     (define ns (namespace-anchor->namespace anc))
+     (define f (eval (first (btor->racket btor)) ns))
+     (signal-value (hash-ref (f) (string->symbol (verilog-module-out-signal))))]))
 
-(define bv-expr (parse-instruction (read (open-input-string (instruction)))))
+(define sketch-generator
+  (match (template)
+    ["bitwise" bitwise-sketch-generator]
+    ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
+    ["comparison" comparison-sketch-generator]
+    ["multiplication" multiplication-sketch-generator]
+    ["shift" shift-sketch-generator]
+    ["xilinx-ultrascale-plus-dsp48e2"
+     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
+       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
 
-(define lakeroad-expr (synthesize bv-expr template (architecture) #:timeout (template-timeout)))
+     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
+     ;;; synthesis function.
+     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+       ;;; Note: wrap in list to mock the return value of sketch generators.
+       (list (synthesize-xilinx-ultrascale-plus-dsp bv-expr)))]
+    ["lattice-ecp5-dsp"
+     (when (not (equal? "lattice-ecp5" (architecture)))
+       (error "lattice-ecp5-dsp template only supported for lattice-ecp5 architecture."))
+
+     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
+     ;;; synthesis function.
+     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+       ;;; Note: wrap in list to mock the return value of sketch generators.
+       (list (synthesize-lattice-ecp5-dsp bv-expr)))]
+    [else (error "Missing or invalid template.")]))
+
+(define architecture-description
+  (match (architecture)
+    ["xilinx-ultrascale-plus" (xilinx-ultrascale-plus-architecture-description)]
+    ["lattice-ecp5" (lattice-ecp5-architecture-description)]
+    ["sofa" (sofa-architecture-description)]
+    [other
+     (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
+                    other))]))
+
+(define module-semantics
+  (match (architecture)
+    ["xilinx-ultrascale-plus"
+     (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+           (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+           (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))]
+    ["lattice-ecp5"
+     (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
+           (cons (cons "MULT18X18D" "") MULT18X18D)
+           (cons (cons "ALU24B" "") lattice-ecp5-alu24b))]
+    ["sofa"
+     (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
+    [other
+     (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
+                    other))]))
+
+(define lakeroad-expr
+  (synthesize-with-sketch sketch-generator
+                          architecture-description
+                          bv-expr
+                          #:module-semantics module-semantics))
 
 (cond
   [(not lakeroad-expr) (error "Synthesis failed.")]
 
   [else
-   (define json-source (lakeroad->jsexpr lakeroad-expr #:module-name (module-name)))
+   (define json-source
+     (lakeroad->jsexpr lakeroad-expr
+                       #:module-name (module-name)
+                       #:output-signal-name (verilog-module-out-signal)))
    (display-to-file (jsexpr->string json-source) (json-filepath) #:exists 'replace)
 
    (match (out-format)
      ["verilog"
-      (when (not (with-output-to-string (lambda ()
-                                          (system (format "yosys -p 'read_json ~a; write_verilog ~a'"
-                                                          (json-filepath)
-                                                          (out-filepath))))))
-        (error "Converting JSON to Verilog via Yosys failed."))]
+      (display (with-output-to-string
+                (lambda ()
+                  (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
+                                             (json-filepath))))
+                    (error "Yosys failed."))))
+               (output-port))]
 
      [_ (error "Invalid output format.")])])

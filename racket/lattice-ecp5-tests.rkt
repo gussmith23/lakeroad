@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (require rosette
          rosette/solver/smt/boolector
@@ -18,17 +18,19 @@
 
 (define (helper f arity #:bitwidth [bitwidth 8] #:primitive [primitive 'pfu])
   (define logical-inputs
-    (append (make-n-symbolics arity (bitvector bitwidth)) (make-list (- 4 arity) (bv -1 bitwidth))))
+    (lr:list (map lr:bv
+                  (append (make-n-symbolics arity (bitvector bitwidth))
+                          (make-list (- 4 arity) (bv -1 bitwidth))))))
 
-  (define bv-expr (apply f (take logical-inputs arity)))
+  (define bv-expr (apply f (take (interpret logical-inputs) arity)))
   (define lakeroad-expr
     (lr:list-ref (physical-to-logical-mapping
-                  '(bitwise)
+                  (ptol-bitwise)
                   (match primitive
                     ['pfu (make-lattice-pfu-expr logical-inputs)]
                     ['ccu2c (make-lattice-ccu2c-expr #:inputs logical-inputs)]
                     ['ripple-pfu (make-lattice-ripple-pfu-expr #:inputs logical-inputs)]))
-                 0))
+                 (lr:integer 0)))
   (define interpretted (interpret lakeroad-expr))
   ; Carries will return an extra leading bit, so we need to extract the sum
   ; signal and discard the carry
@@ -56,15 +58,15 @@
   (define (curry-carry INIT0 INIT1 INJECT1_0 INJECT1_1)
     (lambda (CIN inputs)
       (interpret (lr:list-ref (physical-to-logical-mapping
-                               '(bitwise)
+                               (ptol-bitwise)
                                (make-lattice-ccu2c-expr
                                 #:CIN CIN
-                                #:inputs (logical-to-physical-mapping '(bitwise) inputs)
+                                #:inputs (logical-to-physical-mapping (ltop-bitwise) inputs)
                                 #:INIT0 INIT0
                                 #:INIT1 INIT1
                                 #:INJECT1_0 INJECT1_0
                                 #:INJECT1_1 INJECT1_1))
-                              0))))
+                              (lr:integer 0)))))
   ;; Test an adder above, on inputs `inputs` against
   ;; outputs ; #:S0 #:S1 and cout #:COUT. Optionally specify a carry in with #:CIN
   ;; (defaults to 0)
@@ -81,7 +83,7 @@
                       #:INJECT1_0 [INJECT1_0 (bv 0 1)]
                       #:INJECT1_1 [INJECT1_1 (bv 0 1)])
     (let* ([carry (curry-carry INIT0 INIT1 INJECT1_0 INJECT1_1)]
-           [inputs (list A B C D)]
+           [inputs (lr:list (list (lr:bv A) (lr:bv B) (lr:bv C) (lr:bv D)))]
            [result (carry cin inputs)]
            [bits (bitvector->bits result)]
            [S0 (first bits)]

@@ -13,352 +13,205 @@ CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define xilinx-ultrascale-plus-dsp48e2
 CHECK:   (λ (#:A
-CHECK:       (A (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 30))))
+CHECK:       (A (bv->signal (constant 'A (bitvector 30))))
 CHECK:       #:ACASCREG
-CHECK:       (ACASCREG
-CHECK:        (bv->signal
-CHECK:         (constant (list 'ACASCREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (ACASCREG (bv->signal (constant 'ACASCREG (bitvector 32))))
 CHECK:       #:ACIN
-CHECK:       (ACIN
-CHECK:        (bv->signal (constant (list 'ACIN 'symbolic-constant) (bitvector 30))))
+CHECK:       (ACIN (bv->signal (constant 'ACIN (bitvector 30))))
 CHECK:       #:ADREG
-CHECK:       (ADREG
-CHECK:        (bv->signal (constant (list 'ADREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (ADREG (bv->signal (constant 'ADREG (bitvector 32))))
 CHECK:       #:ALUMODE
-CHECK:       (ALUMODE
-CHECK:        (bv->signal
-CHECK:         (constant (list 'ALUMODE 'symbolic-constant) (bitvector 4))))
+CHECK:       (ALUMODE (bv->signal (constant 'ALUMODE (bitvector 4))))
 CHECK:       #:ALUMODEREG
-CHECK:       (ALUMODEREG
-CHECK:        (bv->signal
-CHECK:         (constant (list 'ALUMODEREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (ALUMODEREG (bv->signal (constant 'ALUMODEREG (bitvector 32))))
 CHECK:       #:AMULTSEL
-CHECK:       (AMULTSEL
-CHECK:        (bv->signal
-CHECK:         (constant (list 'AMULTSEL 'symbolic-constant) (bitvector 5))))
+CHECK:       (AMULTSEL (bv->signal (constant 'AMULTSEL (bitvector 5))))
 CHECK:       #:AREG
-CHECK:       (AREG
-CHECK:        (bv->signal (constant (list 'AREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (AREG (bv->signal (constant 'AREG (bitvector 32))))
 CHECK:       #:AUTORESET_PATDET
 CHECK:       (AUTORESET_PATDET
-CHECK:        (bv->signal
-CHECK:         (constant (list 'AUTORESET_PATDET 'symbolic-constant) (bitvector 5))))
+CHECK:        (bv->signal (constant 'AUTORESET_PATDET (bitvector 5))))
 CHECK:       #:AUTORESET_PRIORITY
 CHECK:       (AUTORESET_PRIORITY
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'AUTORESET_PRIORITY 'symbolic-constant)
-CHECK:          (bitvector 5))))
+CHECK:        (bv->signal (constant 'AUTORESET_PRIORITY (bitvector 5))))
 CHECK:       #:A_INPUT
-CHECK:       (A_INPUT
-CHECK:        (bv->signal
-CHECK:         (constant (list 'A_INPUT 'symbolic-constant) (bitvector 5))))
+CHECK:       (A_INPUT (bv->signal (constant 'A_INPUT (bitvector 5))))
 CHECK:       #:B
-CHECK:       (B (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 18))))
+CHECK:       (B (bv->signal (constant 'B (bitvector 18))))
 CHECK:       #:BCASCREG
-CHECK:       (BCASCREG
-CHECK:        (bv->signal
-CHECK:         (constant (list 'BCASCREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (BCASCREG (bv->signal (constant 'BCASCREG (bitvector 32))))
 CHECK:       #:BCIN
-CHECK:       (BCIN
-CHECK:        (bv->signal (constant (list 'BCIN 'symbolic-constant) (bitvector 18))))
+CHECK:       (BCIN (bv->signal (constant 'BCIN (bitvector 18))))
 CHECK:       #:BMULTSEL
-CHECK:       (BMULTSEL
-CHECK:        (bv->signal
-CHECK:         (constant (list 'BMULTSEL 'symbolic-constant) (bitvector 5))))
+CHECK:       (BMULTSEL (bv->signal (constant 'BMULTSEL (bitvector 5))))
 CHECK:       #:BREG
-CHECK:       (BREG
-CHECK:        (bv->signal (constant (list 'BREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (BREG (bv->signal (constant 'BREG (bitvector 32))))
 CHECK:       #:B_INPUT
-CHECK:       (B_INPUT
-CHECK:        (bv->signal
-CHECK:         (constant (list 'B_INPUT 'symbolic-constant) (bitvector 5))))
+CHECK:       (B_INPUT (bv->signal (constant 'B_INPUT (bitvector 5))))
 CHECK:       #:C
-CHECK:       (C (bv->signal (constant (list 'C 'symbolic-constant) (bitvector 48))))
+CHECK:       (C (bv->signal (constant 'C (bitvector 48))))
 CHECK:       #:CARRYCASCIN
-CHECK:       (CARRYCASCIN
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CARRYCASCIN 'symbolic-constant) (bitvector 1))))
+CHECK:       (CARRYCASCIN (bv->signal (constant 'CARRYCASCIN (bitvector 1))))
 CHECK:       #:CARRYIN
-CHECK:       (CARRYIN
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CARRYIN 'symbolic-constant) (bitvector 1))))
+CHECK:       (CARRYIN (bv->signal (constant 'CARRYIN (bitvector 1))))
 CHECK:       #:CARRYINREG
-CHECK:       (CARRYINREG
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CARRYINREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (CARRYINREG (bv->signal (constant 'CARRYINREG (bitvector 32))))
 CHECK:       #:CARRYINSEL
-CHECK:       (CARRYINSEL
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CARRYINSEL 'symbolic-constant) (bitvector 3))))
+CHECK:       (CARRYINSEL (bv->signal (constant 'CARRYINSEL (bitvector 3))))
 CHECK:       #:CARRYINSELREG
-CHECK:       (CARRYINSELREG
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CARRYINSELREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (CARRYINSELREG (bv->signal (constant 'CARRYINSELREG (bitvector 32))))
 CHECK:       #:CEA1
-CHECK:       (CEA1
-CHECK:        (bv->signal (constant (list 'CEA1 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEA1 (bv->signal (constant 'CEA1 (bitvector 1))))
 CHECK:       #:CEA2
-CHECK:       (CEA2
-CHECK:        (bv->signal (constant (list 'CEA2 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEA2 (bv->signal (constant 'CEA2 (bitvector 1))))
 CHECK:       #:CEAD
-CHECK:       (CEAD
-CHECK:        (bv->signal (constant (list 'CEAD 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEAD (bv->signal (constant 'CEAD (bitvector 1))))
 CHECK:       #:CEALUMODE
-CHECK:       (CEALUMODE
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CEALUMODE 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEALUMODE (bv->signal (constant 'CEALUMODE (bitvector 1))))
 CHECK:       #:CEB1
-CHECK:       (CEB1
-CHECK:        (bv->signal (constant (list 'CEB1 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEB1 (bv->signal (constant 'CEB1 (bitvector 1))))
 CHECK:       #:CEB2
-CHECK:       (CEB2
-CHECK:        (bv->signal (constant (list 'CEB2 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEB2 (bv->signal (constant 'CEB2 (bitvector 1))))
 CHECK:       #:CEC
-CHECK:       (CEC
-CHECK:        (bv->signal (constant (list 'CEC 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEC (bv->signal (constant 'CEC (bitvector 1))))
 CHECK:       #:CECARRYIN
-CHECK:       (CECARRYIN
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CECARRYIN 'symbolic-constant) (bitvector 1))))
+CHECK:       (CECARRYIN (bv->signal (constant 'CECARRYIN (bitvector 1))))
 CHECK:       #:CECTRL
-CHECK:       (CECTRL
-CHECK:        (bv->signal (constant (list 'CECTRL 'symbolic-constant) (bitvector 1))))
+CHECK:       (CECTRL (bv->signal (constant 'CECTRL (bitvector 1))))
 CHECK:       #:CED
-CHECK:       (CED
-CHECK:        (bv->signal (constant (list 'CED 'symbolic-constant) (bitvector 1))))
+CHECK:       (CED (bv->signal (constant 'CED (bitvector 1))))
 CHECK:       #:CEINMODE
-CHECK:       (CEINMODE
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CEINMODE 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEINMODE (bv->signal (constant 'CEINMODE (bitvector 1))))
 CHECK:       #:CEM
-CHECK:       (CEM
-CHECK:        (bv->signal (constant (list 'CEM 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEM (bv->signal (constant 'CEM (bitvector 1))))
 CHECK:       #:CEP
-CHECK:       (CEP
-CHECK:        (bv->signal (constant (list 'CEP 'symbolic-constant) (bitvector 1))))
+CHECK:       (CEP (bv->signal (constant 'CEP (bitvector 1))))
 CHECK:       #:CLK
-CHECK:       (CLK
-CHECK:        (bv->signal (constant (list 'CLK 'symbolic-constant) (bitvector 1))))
+CHECK:       (CLK (bv->signal (constant 'CLK (bitvector 1))))
 CHECK:       #:CREG
-CHECK:       (CREG
-CHECK:        (bv->signal (constant (list 'CREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (CREG (bv->signal (constant 'CREG (bitvector 32))))
 CHECK:       #:D
-CHECK:       (D (bv->signal (constant (list 'D 'symbolic-constant) (bitvector 27))))
+CHECK:       (D (bv->signal (constant 'D (bitvector 27))))
 CHECK:       #:DREG
-CHECK:       (DREG
-CHECK:        (bv->signal (constant (list 'DREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (DREG (bv->signal (constant 'DREG (bitvector 32))))
 CHECK:       #:INMODE
-CHECK:       (INMODE
-CHECK:        (bv->signal (constant (list 'INMODE 'symbolic-constant) (bitvector 5))))
+CHECK:       (INMODE (bv->signal (constant 'INMODE (bitvector 5))))
 CHECK:       #:INMODEREG
-CHECK:       (INMODEREG
-CHECK:        (bv->signal
-CHECK:         (constant (list 'INMODEREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (INMODEREG (bv->signal (constant 'INMODEREG (bitvector 32))))
 CHECK:       #:IS_ALUMODE_INVERTED
 CHECK:       (IS_ALUMODE_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'IS_ALUMODE_INVERTED 'symbolic-constant)
-CHECK:          (bitvector 4))))
+CHECK:        (bv->signal (constant 'IS_ALUMODE_INVERTED (bitvector 4))))
 CHECK:       #:IS_CARRYIN_INVERTED
 CHECK:       (IS_CARRYIN_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'IS_CARRYIN_INVERTED 'symbolic-constant)
-CHECK:          (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_CARRYIN_INVERTED (bitvector 1))))
 CHECK:       #:IS_CLK_INVERTED
-CHECK:       (IS_CLK_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant (list 'IS_CLK_INVERTED 'symbolic-constant) (bitvector 1))))
+CHECK:       (IS_CLK_INVERTED (bv->signal (constant 'IS_CLK_INVERTED (bitvector 1))))
 CHECK:       #:IS_INMODE_INVERTED
 CHECK:       (IS_INMODE_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'IS_INMODE_INVERTED 'symbolic-constant)
-CHECK:          (bitvector 5))))
+CHECK:        (bv->signal (constant 'IS_INMODE_INVERTED (bitvector 5))))
 CHECK:       #:IS_OPMODE_INVERTED
 CHECK:       (IS_OPMODE_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'IS_OPMODE_INVERTED 'symbolic-constant)
-CHECK:          (bitvector 9))))
+CHECK:        (bv->signal (constant 'IS_OPMODE_INVERTED (bitvector 9))))
 CHECK:       #:IS_RSTALLCARRYIN_INVERTED
 CHECK:       (IS_RSTALLCARRYIN_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'IS_RSTALLCARRYIN_INVERTED 'symbolic-constant)
-CHECK:          (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTALLCARRYIN_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTALUMODE_INVERTED
 CHECK:       (IS_RSTALUMODE_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'IS_RSTALUMODE_INVERTED 'symbolic-constant)
-CHECK:          (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTALUMODE_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTA_INVERTED
 CHECK:       (IS_RSTA_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant (list 'IS_RSTA_INVERTED 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTA_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTB_INVERTED
 CHECK:       (IS_RSTB_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant (list 'IS_RSTB_INVERTED 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTB_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTCTRL_INVERTED
 CHECK:       (IS_RSTCTRL_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'IS_RSTCTRL_INVERTED 'symbolic-constant)
-CHECK:          (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTCTRL_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTC_INVERTED
 CHECK:       (IS_RSTC_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant (list 'IS_RSTC_INVERTED 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTC_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTD_INVERTED
 CHECK:       (IS_RSTD_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant (list 'IS_RSTD_INVERTED 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTD_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTINMODE_INVERTED
 CHECK:       (IS_RSTINMODE_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'IS_RSTINMODE_INVERTED 'symbolic-constant)
-CHECK:          (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTINMODE_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTM_INVERTED
 CHECK:       (IS_RSTM_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant (list 'IS_RSTM_INVERTED 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTM_INVERTED (bitvector 1))))
 CHECK:       #:IS_RSTP_INVERTED
 CHECK:       (IS_RSTP_INVERTED
-CHECK:        (bv->signal
-CHECK:         (constant (list 'IS_RSTP_INVERTED 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'IS_RSTP_INVERTED (bitvector 1))))
 CHECK:       #:MASK
-CHECK:       (MASK
-CHECK:        (bv->signal (constant (list 'MASK 'symbolic-constant) (bitvector 48))))
+CHECK:       (MASK (bv->signal (constant 'MASK (bitvector 48))))
 CHECK:       #:MREG
-CHECK:       (MREG
-CHECK:        (bv->signal (constant (list 'MREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (MREG (bv->signal (constant 'MREG (bitvector 32))))
 CHECK:       #:MULTSIGNIN
-CHECK:       (MULTSIGNIN
-CHECK:        (bv->signal
-CHECK:         (constant (list 'MULTSIGNIN 'symbolic-constant) (bitvector 1))))
+CHECK:       (MULTSIGNIN (bv->signal (constant 'MULTSIGNIN (bitvector 1))))
 CHECK:       #:OPMODE
-CHECK:       (OPMODE
-CHECK:        (bv->signal (constant (list 'OPMODE 'symbolic-constant) (bitvector 9))))
+CHECK:       (OPMODE (bv->signal (constant 'OPMODE (bitvector 9))))
 CHECK:       #:OPMODEREG
-CHECK:       (OPMODEREG
-CHECK:        (bv->signal
-CHECK:         (constant (list 'OPMODEREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (OPMODEREG (bv->signal (constant 'OPMODEREG (bitvector 32))))
 CHECK:       #:PATTERN
-CHECK:       (PATTERN
-CHECK:        (bv->signal
-CHECK:         (constant (list 'PATTERN 'symbolic-constant) (bitvector 48))))
+CHECK:       (PATTERN (bv->signal (constant 'PATTERN (bitvector 48))))
 CHECK:       #:PCIN
-CHECK:       (PCIN
-CHECK:        (bv->signal (constant (list 'PCIN 'symbolic-constant) (bitvector 48))))
+CHECK:       (PCIN (bv->signal (constant 'PCIN (bitvector 48))))
 CHECK:       #:PREADDINSEL
-CHECK:       (PREADDINSEL
-CHECK:        (bv->signal
-CHECK:         (constant (list 'PREADDINSEL 'symbolic-constant) (bitvector 5))))
+CHECK:       (PREADDINSEL (bv->signal (constant 'PREADDINSEL (bitvector 5))))
 CHECK:       #:PREG
-CHECK:       (PREG
-CHECK:        (bv->signal (constant (list 'PREG 'symbolic-constant) (bitvector 32))))
+CHECK:       (PREG (bv->signal (constant 'PREG (bitvector 32))))
 CHECK:       #:RND
-CHECK:       (RND
-CHECK:        (bv->signal (constant (list 'RND 'symbolic-constant) (bitvector 48))))
+CHECK:       (RND (bv->signal (constant 'RND (bitvector 48))))
 CHECK:       #:RSTA
-CHECK:       (RSTA
-CHECK:        (bv->signal (constant (list 'RSTA 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTA (bv->signal (constant 'RSTA (bitvector 1))))
 CHECK:       #:RSTALLCARRYIN
-CHECK:       (RSTALLCARRYIN
-CHECK:        (bv->signal
-CHECK:         (constant (list 'RSTALLCARRYIN 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTALLCARRYIN (bv->signal (constant 'RSTALLCARRYIN (bitvector 1))))
 CHECK:       #:RSTALUMODE
-CHECK:       (RSTALUMODE
-CHECK:        (bv->signal
-CHECK:         (constant (list 'RSTALUMODE 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTALUMODE (bv->signal (constant 'RSTALUMODE (bitvector 1))))
 CHECK:       #:RSTB
-CHECK:       (RSTB
-CHECK:        (bv->signal (constant (list 'RSTB 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTB (bv->signal (constant 'RSTB (bitvector 1))))
 CHECK:       #:RSTC
-CHECK:       (RSTC
-CHECK:        (bv->signal (constant (list 'RSTC 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTC (bv->signal (constant 'RSTC (bitvector 1))))
 CHECK:       #:RSTCTRL
-CHECK:       (RSTCTRL
-CHECK:        (bv->signal
-CHECK:         (constant (list 'RSTCTRL 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTCTRL (bv->signal (constant 'RSTCTRL (bitvector 1))))
 CHECK:       #:RSTD
-CHECK:       (RSTD
-CHECK:        (bv->signal (constant (list 'RSTD 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTD (bv->signal (constant 'RSTD (bitvector 1))))
 CHECK:       #:RSTINMODE
-CHECK:       (RSTINMODE
-CHECK:        (bv->signal
-CHECK:         (constant (list 'RSTINMODE 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTINMODE (bv->signal (constant 'RSTINMODE (bitvector 1))))
 CHECK:       #:RSTM
-CHECK:       (RSTM
-CHECK:        (bv->signal (constant (list 'RSTM 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTM (bv->signal (constant 'RSTM (bitvector 1))))
 CHECK:       #:RSTP
-CHECK:       (RSTP
-CHECK:        (bv->signal (constant (list 'RSTP 'symbolic-constant) (bitvector 1))))
+CHECK:       (RSTP (bv->signal (constant 'RSTP (bitvector 1))))
 CHECK:       #:SEL_MASK
-CHECK:       (SEL_MASK
-CHECK:        (bv->signal
-CHECK:         (constant (list 'SEL_MASK 'symbolic-constant) (bitvector 5))))
+CHECK:       (SEL_MASK (bv->signal (constant 'SEL_MASK (bitvector 5))))
 CHECK:       #:SEL_PATTERN
-CHECK:       (SEL_PATTERN
-CHECK:        (bv->signal
-CHECK:         (constant (list 'SEL_PATTERN 'symbolic-constant) (bitvector 5))))
+CHECK:       (SEL_PATTERN (bv->signal (constant 'SEL_PATTERN (bitvector 5))))
 CHECK:       #:USE_MULT
-CHECK:       (USE_MULT
-CHECK:        (bv->signal
-CHECK:         (constant (list 'USE_MULT 'symbolic-constant) (bitvector 5))))
+CHECK:       (USE_MULT (bv->signal (constant 'USE_MULT (bitvector 5))))
 CHECK:       #:USE_PATTERN_DETECT
 CHECK:       (USE_PATTERN_DETECT
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'USE_PATTERN_DETECT 'symbolic-constant)
-CHECK:          (bitvector 5))))
+CHECK:        (bv->signal (constant 'USE_PATTERN_DETECT (bitvector 5))))
 CHECK:       #:USE_SIMD
-CHECK:       (USE_SIMD
-CHECK:        (bv->signal
-CHECK:         (constant (list 'USE_SIMD 'symbolic-constant) (bitvector 5))))
+CHECK:       (USE_SIMD (bv->signal (constant 'USE_SIMD (bitvector 5))))
 CHECK:       #:USE_WIDEXOR
-CHECK:       (USE_WIDEXOR
-CHECK:        (bv->signal
-CHECK:         (constant (list 'USE_WIDEXOR 'symbolic-constant) (bitvector 5))))
+CHECK:       (USE_WIDEXOR (bv->signal (constant 'USE_WIDEXOR (bitvector 5))))
 CHECK:       #:XORSIMD
-CHECK:       (XORSIMD
-CHECK:        (bv->signal
-CHECK:         (constant (list 'XORSIMD 'symbolic-constant) (bitvector 5))))
+CHECK:       (XORSIMD (bv->signal (constant 'XORSIMD (bitvector 5))))
 CHECK:       #:unnamed-input-331
 CHECK:       (unnamed-input-331
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-331 'symbolic-constant)
-CHECK:          (bitvector 48))))
+CHECK:        (bv->signal (constant 'unnamed-input-331 (bitvector 48))))
 CHECK:       #:unnamed-input-488
 CHECK:       (unnamed-input-488
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-488 'symbolic-constant)
-CHECK:          (bitvector 48))))
+CHECK:        (bv->signal (constant 'unnamed-input-488 (bitvector 48))))
 CHECK:       #:unnamed-input-750
 CHECK:       (unnamed-input-750
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-750 'symbolic-constant)
-CHECK:          (bitvector 48))))
+CHECK:        (bv->signal (constant 'unnamed-input-750 (bitvector 48))))
 CHECK:       #:unnamed-input-806
 CHECK:       (unnamed-input-806
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-806 'symbolic-constant)
-CHECK:          (bitvector 48))))
+CHECK:        (bv->signal (constant 'unnamed-input-806 (bitvector 48))))
 CHECK:       #:unnamed-input-850
 CHECK:       (unnamed-input-850
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-850 'symbolic-constant)
-CHECK:          (bitvector 1)))))
+CHECK:        (bv->signal (constant 'unnamed-input-850 (bitvector 1)))))
 CHECK:     (let* ((merged-input-state-hash (hash))
 CHECK:            (init-hash
 CHECK:             (hash-set

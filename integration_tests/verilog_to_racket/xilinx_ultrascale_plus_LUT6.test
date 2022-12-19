@@ -12,228 +12,148 @@ CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define xilinx-ultrascale-plus-lut6
 CHECK:   (λ (#:I0
-CHECK:       (I0 (bv->signal (constant (list 'I0 'symbolic-constant) (bitvector 1))))
+CHECK:       (I0 (bv->signal (constant 'I0 (bitvector 1))))
 CHECK:       #:I1
-CHECK:       (I1 (bv->signal (constant (list 'I1 'symbolic-constant) (bitvector 1))))
+CHECK:       (I1 (bv->signal (constant 'I1 (bitvector 1))))
 CHECK:       #:I2
-CHECK:       (I2 (bv->signal (constant (list 'I2 'symbolic-constant) (bitvector 1))))
+CHECK:       (I2 (bv->signal (constant 'I2 (bitvector 1))))
 CHECK:       #:I3
-CHECK:       (I3 (bv->signal (constant (list 'I3 'symbolic-constant) (bitvector 1))))
+CHECK:       (I3 (bv->signal (constant 'I3 (bitvector 1))))
 CHECK:       #:I4
-CHECK:       (I4 (bv->signal (constant (list 'I4 'symbolic-constant) (bitvector 1))))
+CHECK:       (I4 (bv->signal (constant 'I4 (bitvector 1))))
 CHECK:       #:I5
-CHECK:       (I5 (bv->signal (constant (list 'I5 'symbolic-constant) (bitvector 1))))
+CHECK:       (I5 (bv->signal (constant 'I5 (bitvector 1))))
 CHECK:       #:INIT
-CHECK:       (INIT
-CHECK:        (bv->signal (constant (list 'INIT 'symbolic-constant) (bitvector 64))))
+CHECK:       (INIT (bv->signal (constant 'INIT (bitvector 64))))
 CHECK:       #:unnamed-input-10
 CHECK:       (unnamed-input-10
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-10 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-10 (bitvector 1))))
 CHECK:       #:unnamed-input-12
 CHECK:       (unnamed-input-12
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-12 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-12 (bitvector 1))))
 CHECK:       #:unnamed-input-167
 CHECK:       (unnamed-input-167
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-167 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-167 (bitvector 1))))
 CHECK:       #:unnamed-input-173
 CHECK:       (unnamed-input-173
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-173 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-173 (bitvector 1))))
 CHECK:       #:unnamed-input-182
 CHECK:       (unnamed-input-182
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-182 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-182 (bitvector 1))))
 CHECK:       #:unnamed-input-278
 CHECK:       (unnamed-input-278
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-278 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-278 (bitvector 1))))
 CHECK:       #:unnamed-input-280
 CHECK:       (unnamed-input-280
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-280 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-280 (bitvector 1))))
 CHECK:       #:unnamed-input-282
 CHECK:       (unnamed-input-282
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-282 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-282 (bitvector 1))))
 CHECK:       #:unnamed-input-378
 CHECK:       (unnamed-input-378
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-378 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-378 (bitvector 1))))
 CHECK:       #:unnamed-input-380
 CHECK:       (unnamed-input-380
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-380 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-380 (bitvector 1))))
 CHECK:       #:unnamed-input-382
 CHECK:       (unnamed-input-382
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-382 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-382 (bitvector 1))))
 CHECK:       #:unnamed-input-478
 CHECK:       (unnamed-input-478
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-478 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-478 (bitvector 1))))
 CHECK:       #:unnamed-input-480
 CHECK:       (unnamed-input-480
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-480 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-480 (bitvector 1))))
 CHECK:       #:unnamed-input-482
 CHECK:       (unnamed-input-482
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-482 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-482 (bitvector 1))))
 CHECK:       #:unnamed-input-578
 CHECK:       (unnamed-input-578
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-578 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-578 (bitvector 1))))
 CHECK:       #:unnamed-input-580
 CHECK:       (unnamed-input-580
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-580 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-580 (bitvector 1))))
 CHECK:       #:unnamed-input-582
 CHECK:       (unnamed-input-582
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-582 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-582 (bitvector 1))))
 CHECK:       #:unnamed-input-678
 CHECK:       (unnamed-input-678
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-678 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-678 (bitvector 1))))
 CHECK:       #:unnamed-input-680
 CHECK:       (unnamed-input-680
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-680 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-680 (bitvector 1))))
 CHECK:       #:unnamed-input-682
 CHECK:       (unnamed-input-682
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-682 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-682 (bitvector 1))))
 CHECK:       #:unnamed-input-778
 CHECK:       (unnamed-input-778
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-778 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-778 (bitvector 1))))
 CHECK:       #:unnamed-input-780
 CHECK:       (unnamed-input-780
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-780 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-780 (bitvector 1))))
 CHECK:       #:unnamed-input-782
 CHECK:       (unnamed-input-782
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-782 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-782 (bitvector 1))))
 CHECK:       #:unnamed-input-878
 CHECK:       (unnamed-input-878
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-878 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-878 (bitvector 1))))
 CHECK:       #:unnamed-input-880
 CHECK:       (unnamed-input-880
-CHECK:        (bv->signal
-CHECK:         (constant (list 'unnamed-input-880 'symbolic-constant) (bitvector 1))))
+CHECK:        (bv->signal (constant 'unnamed-input-880 (bitvector 1))))
 CHECK:       #:unnamed-input-1050
 CHECK:       (unnamed-input-1050
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1050 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1050 (bitvector 8))))
 CHECK:       #:unnamed-input-1052
 CHECK:       (unnamed-input-1052
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1052 'symbolic-constant)
-CHECK:          (bitvector 3))))
+CHECK:        (bv->signal (constant 'unnamed-input-1052 (bitvector 3))))
 CHECK:       #:unnamed-input-1054
 CHECK:       (unnamed-input-1054
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1054 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1054 (bitvector 8))))
 CHECK:       #:unnamed-input-1056
 CHECK:       (unnamed-input-1056
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1056 'symbolic-constant)
-CHECK:          (bitvector 3))))
+CHECK:        (bv->signal (constant 'unnamed-input-1056 (bitvector 3))))
 CHECK:       #:unnamed-input-1058
 CHECK:       (unnamed-input-1058
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1058 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1058 (bitvector 8))))
 CHECK:       #:unnamed-input-1060
 CHECK:       (unnamed-input-1060
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1060 'symbolic-constant)
-CHECK:          (bitvector 3))))
+CHECK:        (bv->signal (constant 'unnamed-input-1060 (bitvector 3))))
 CHECK:       #:unnamed-input-1062
 CHECK:       (unnamed-input-1062
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1062 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1062 (bitvector 8))))
 CHECK:       #:unnamed-input-1064
 CHECK:       (unnamed-input-1064
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1064 'symbolic-constant)
-CHECK:          (bitvector 3))))
+CHECK:        (bv->signal (constant 'unnamed-input-1064 (bitvector 3))))
 CHECK:       #:unnamed-input-1066
 CHECK:       (unnamed-input-1066
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1066 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1066 (bitvector 8))))
 CHECK:       #:unnamed-input-1068
 CHECK:       (unnamed-input-1068
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1068 'symbolic-constant)
-CHECK:          (bitvector 3))))
+CHECK:        (bv->signal (constant 'unnamed-input-1068 (bitvector 3))))
 CHECK:       #:unnamed-input-1070
 CHECK:       (unnamed-input-1070
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1070 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1070 (bitvector 8))))
 CHECK:       #:unnamed-input-1072
 CHECK:       (unnamed-input-1072
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1072 'symbolic-constant)
-CHECK:          (bitvector 3))))
+CHECK:        (bv->signal (constant 'unnamed-input-1072 (bitvector 3))))
 CHECK:       #:unnamed-input-1074
 CHECK:       (unnamed-input-1074
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1074 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1074 (bitvector 8))))
 CHECK:       #:unnamed-input-1076
 CHECK:       (unnamed-input-1076
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1076 'symbolic-constant)
-CHECK:          (bitvector 3))))
+CHECK:        (bv->signal (constant 'unnamed-input-1076 (bitvector 3))))
 CHECK:       #:unnamed-input-1078
 CHECK:       (unnamed-input-1078
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1078 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1078 (bitvector 8))))
 CHECK:       #:unnamed-input-1080
 CHECK:       (unnamed-input-1080
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1080 'symbolic-constant)
-CHECK:          (bitvector 3))))
+CHECK:        (bv->signal (constant 'unnamed-input-1080 (bitvector 3))))
 CHECK:       #:unnamed-input-1082
 CHECK:       (unnamed-input-1082
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1082 'symbolic-constant)
-CHECK:          (bitvector 8))))
+CHECK:        (bv->signal (constant 'unnamed-input-1082 (bitvector 8))))
 CHECK:       #:unnamed-input-1084
 CHECK:       (unnamed-input-1084
-CHECK:        (bv->signal
-CHECK:         (constant
-CHECK:          (list 'unnamed-input-1084 'symbolic-constant)
-CHECK:          (bitvector 3)))))
+CHECK:        (bv->signal (constant 'unnamed-input-1084 (bitvector 3)))))
 CHECK:     (let* ((merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 1))

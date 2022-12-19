@@ -102,7 +102,8 @@ RUN pip install -r requirements.txt
 RUN raco setup --doc-index --force-user-docs
 RUN raco pkg install --deps search-auto --batch \
   fmt \
-  rosette
+  rosette \
+  yaml
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -126,6 +127,9 @@ RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
 # down further if we wanted, but I think this is a clean approach for now.
 WORKDIR /root/lakeroad
 ADD --keep-git-dir=false . .
+
+# Build Racket bytecode; makes Lakeroad much faster.
+RUN raco make /root/lakeroad/bin/main.rkt
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]

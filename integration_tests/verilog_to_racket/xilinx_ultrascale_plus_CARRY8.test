@@ -12,18 +12,15 @@ CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define xilinx-ultrascale-plus-carry8
 CHECK:   (λ (#:CARRY_TYPE
-CHECK:       (CARRY_TYPE
-CHECK:        (bv->signal
-CHECK:         (constant (list 'CARRY_TYPE 'symbolic-constant) (bitvector 1))))
+CHECK:       (CARRY_TYPE (bv->signal (constant 'CARRY_TYPE (bitvector 1))))
 CHECK:       #:CI
-CHECK:       (CI (bv->signal (constant (list 'CI 'symbolic-constant) (bitvector 1))))
+CHECK:       (CI (bv->signal (constant 'CI (bitvector 1))))
 CHECK:       #:CI_TOP
-CHECK:       (CI_TOP
-CHECK:        (bv->signal (constant (list 'CI_TOP 'symbolic-constant) (bitvector 1))))
+CHECK:       (CI_TOP (bv->signal (constant 'CI_TOP (bitvector 1))))
 CHECK:       #:DI
-CHECK:       (DI (bv->signal (constant (list 'DI 'symbolic-constant) (bitvector 8))))
+CHECK:       (DI (bv->signal (constant 'DI (bitvector 8))))
 CHECK:       #:S
-CHECK:       (S (bv->signal (constant (list 'S 'symbolic-constant) (bitvector 8)))))
+CHECK:       (S (bv->signal (constant 'S (bitvector 8)))))
 CHECK:     (let* ((merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 1))

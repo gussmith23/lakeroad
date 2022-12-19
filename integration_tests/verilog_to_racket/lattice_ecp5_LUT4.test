@@ -7,21 +7,19 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide lattice-ecp5-lut4)
 CHECK: (require (file "
-
 CHECK: (require rosette)
 CHECK: (require racket/hash)
 CHECK: (define lattice-ecp5-lut4
 CHECK:   (λ (#:A
-CHECK:       (A (bv->signal (constant (list 'A 'symbolic-constant) (bitvector 1))))
+CHECK:       (A (bv->signal (constant 'A (bitvector 1))))
 CHECK:       #:B
-CHECK:       (B (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 1))))
+CHECK:       (B (bv->signal (constant 'B (bitvector 1))))
 CHECK:       #:C
-CHECK:       (C (bv->signal (constant (list 'C 'symbolic-constant) (bitvector 1))))
+CHECK:       (C (bv->signal (constant 'C (bitvector 1))))
 CHECK:       #:D
-CHECK:       (D (bv->signal (constant (list 'D 'symbolic-constant) (bitvector 1))))
-CHECK:       #:INIT
-CHECK:       (INIT
-CHECK:        (bv->signal (constant (list 'INIT 'symbolic-constant) (bitvector 16)))))
+CHECK:       (D (bv->signal (constant 'D (bitvector 1))))
+CHECK:       #:init
+CHECK:       (init (bv->signal (constant 'init (bitvector 16)))))
 CHECK:     (let* ((merged-input-state-hash (hash))
 CHECK:            (init-hash (hash))
 CHECK:            (btor1 (bitvector 1))
@@ -38,9 +36,9 @@ CHECK:            (btor5 D)
 CHECK:            (merged-input-state-hash
 CHECK:             (hash-union merged-input-state-hash (signal-state D)))
 CHECK:            (btor6 (bitvector 16))
-CHECK:            (btor7 INIT)
+CHECK:            (btor7 init)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state INIT)))
+CHECK:             (hash-union merged-input-state-hash (signal-state init)))
 CHECK:            (btor8 (bitvector 8))
 CHECK:            (btor9
 CHECK:             (signal (extract 7 0 (signal-value btor7)) (signal-state btor7)))

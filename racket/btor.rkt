@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 ;;; Utilities for .btor files.
 
 (provide parse-btor
@@ -294,22 +294,23 @@ here-string-delimiter
        ins)
 
      (check-equal?
-      (unsat)
       (verify (begin
 
                 (assume (bvzero? INJECT1_0))
                 (assume (bvzero? INJECT1_1))
 
                 (match-define (list iS0 iS1 iCOUT)
-                  (interpret (lattice-ecp5-ccu2c INIT0
-                                                 INIT1
-                                                 (bv 0 1)
-                                                 (bv 0 1)
-                                                 CIN
-                                                 (list (concat D0 C0 B0 A0) (concat D1 C1 B1 A1)))))
+                  (interpret (lattice-ecp5-ccu2c (lr:bv INIT0)
+                                                 (lr:bv INIT1)
+                                                 (lr:bv (bv 0 1))
+                                                 (lr:bv (bv 0 1))
+                                                 (lr:bv CIN)
+                                                 (lr:list (list (lr:bv (concat D0 C0 B0 A0))
+                                                                (lr:bv (concat D1 C1 B1 A1)))))))
                 (assert (bveq S0 iS0))
                 (assert (bveq S1 iS1))
-                (assert (bveq COUT iCOUT)))))))
+                (assert (bveq COUT iCOUT))))
+      (unsat))))
 
   (test-case
    "Parse a Xilinx LUT4 and verify its implementation against our lut function."
@@ -1984,13 +1985,22 @@ here-string-delimiter
                 (match-define (list lrO5 lrO6)
                   (interpret
                    (ultrascale-plus-lut6-2
-                    INIT
+                    (lr:bv INIT)
                     (lr:concat
-                     (list I5
-                           (lr:concat
-                            (list I4
-                                  (lr:concat
-                                   (list I3 (lr:concat (list I2 (lr:concat (list I1 I0)))))))))))))
+                     (lr:list
+                      (list (lr:bv I5)
+                            (lr:concat
+                             (lr:list
+                              (list (lr:bv I4)
+                                    (lr:concat
+                                     (lr:list
+                                      (list (lr:bv I3)
+                                            (lr:concat
+                                             (lr:list
+                                              (list (lr:bv I2)
+                                                    (lr:concat
+                                                     (lr:list (list (lr:bv I1)
+                                                                    (lr:bv I0)))))))))))))))))))
                 (assert (bveq O5 lrO5))
                 (assert (bveq O6 lrO6))))
       (unsat)))))
@@ -2545,9 +2555,7 @@ here-string-delimiter
                        (list (string->keyword (symbol->string input))
                              `[,input
                                ,(match default-value
-                                  ['symbolic
-                                   `(bv->signal (constant (list ',input 'symbolic-constant)
-                                                          ,type))])])))))
+                                  ['symbolic `(bv->signal (constant ',input ,type))])])))))
         (let* (,@let*-clauses)
           ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
           ;;; with the updated state.
@@ -2563,9 +2571,7 @@ here-string-delimiter
                       (list (string->keyword (symbol->string input))
                             `[,input
                               ,(match default-value
-                                 ['symbolic
-                                  `(bv->signal (constant (list ',input 'symbolic-constant)
-                                                         ,type))])])))))
+                                 ['symbolic `(bv->signal (constant ',input ,type))])])))))
        (let* (,@let*-clauses)
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.

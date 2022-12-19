@@ -46,13 +46,15 @@
      (define-symbolic B1 (bitvector 1))
      (define-symbolic C1 (bitvector 1))
      (define-symbolic D1 (bitvector 1)))
-   (lr:concat (lattice-ecp5-ccu2c INIT0
-                                  INIT1
-                                  (bv 0 1)
-                                  (bv 0 1)
-                                  CIN
-                                  (list (lr:concat (list D0 C0 B0 A0))
-                                        (lr:concat (list D1 C1 B1 A1)))))
+   (lr:concat
+    (lattice-ecp5-ccu2c
+     (lr:bv INIT0)
+     (lr:bv INIT1)
+     (lr:bv (bv 0 1))
+     (lr:bv (bv 0 1))
+     (lr:bv CIN)
+     (lr:list (list (lr:concat (lr:list (list (lr:bv D0) (lr:bv C0) (lr:bv B0) (lr:bv A0))))
+                    (lr:concat (lr:list (list (lr:bv D1) (lr:bv C1) (lr:bv B1) (lr:bv A1))))))))
    (apply concat (ccu2c-semantics INIT0 INIT1 CIN A0 B0 C0 D0 A1 B1 C1 D1))
    ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
    ;;; compiliation to Verilog through Yosys requires parameters to be concrete. Thus, we simulate
@@ -67,36 +69,44 @@
   (test-true
    "normal return"
    (normal?
-    (with-vc (with-terms
-              (begin
-                (define-symbolic CIN (bitvector 1))
-                (define-symbolic A0 (bitvector 1))
-                (define-symbolic B0 (bitvector 1))
-                (define-symbolic C0 (bitvector 1))
-                (define-symbolic D0 (bitvector 1))
-                (define-symbolic A1 (bitvector 1))
-                (define-symbolic B1 (bitvector 1))
-                (define-symbolic C1 (bitvector 1))
-                (define-symbolic D1 (bitvector 1))
-                (define lut-init-0 (bv #xdead 16))
-                (define lut-init-1 (bv #xbeef 16))
-                (define lut-init-2 (bv #x2324 16))
+    (with-vc
+     (with-terms
+      (begin
+        (define-symbolic CIN (bitvector 1))
+        (define-symbolic A0 (bitvector 1))
+        (define-symbolic B0 (bitvector 1))
+        (define-symbolic C0 (bitvector 1))
+        (define-symbolic D0 (bitvector 1))
+        (define-symbolic A1 (bitvector 1))
+        (define-symbolic B1 (bitvector 1))
+        (define-symbolic C1 (bitvector 1))
+        (define-symbolic D1 (bitvector 1))
+        (define lut-init-0 (bv #xdead 16))
+        (define lut-init-1 (bv #xbeef 16))
+        (define lut-init-2 (bv #x2324 16))
+        (define lut-init-3 (bv #x1cf6 16))
+        (define lut-init-4 (bv #x201c 16))
 
-                (define (add-test init0 init1)
-                  (add-to-simulate
-                   (to-simulate
-                    (lr:concat (lattice-ecp5-ccu2c init0
-                                                   init1
-                                                   (bv 0 1)
-                                                   (bv 0 1)
-                                                   CIN
-                                                   (list (lr:concat (list D0 C0 B0 A0))
-                                                         (lr:concat (list D1 C1 B1 A1)))))
-                    (apply concat (ccu2c-semantics init0 init1 CIN A0 B0 C0 D0 A1 B1 C1 D1)))))
+        (define (add-test init0 init1)
+          (add-to-simulate
+           (to-simulate
+            (lr:concat
+             (lattice-ecp5-ccu2c
+              (lr:bv init0)
+              (lr:bv init1)
+              (lr:bv (bv 0 1))
+              (lr:bv (bv 0 1))
+              (lr:bv CIN)
+              (lr:list
+               (list (lr:concat (lr:list (list (lr:bv D0) (lr:bv C0) (lr:bv B0) (lr:bv A0))))
+                     (lr:concat (lr:list (list (lr:bv D1) (lr:bv C1) (lr:bv B1) (lr:bv A1))))))))
+            (apply concat (ccu2c-semantics init0 init1 CIN A0 B0 C0 D0 A1 B1 C1 D1)))))
 
-                (add-test lut-init-0 lut-init-1)
-                (add-test lut-init-1 lut-init-2)
-                (add-test lut-init-2 lut-init-0))))))
+        (add-test lut-init-0 lut-init-1)
+        (add-test lut-init-1 lut-init-2)
+        (add-test lut-init-2 lut-init-0)
+        (add-test lut-init-3 lut-init-4)
+        (add-test lut-init-4 lut-init-3))))))
 
   (verify-lakeroad-expression
    "Lattice ECP5 LUT2"
@@ -104,7 +114,8 @@
      (define-symbolic INIT (bitvector 4))
      (define-symbolic A (bitvector 1))
      (define-symbolic B (bitvector 1)))
-   (lr:list-ref (lattice-ecp5-lut2 INIT (concat B A)) 0)
+   (lr:list-ref (lattice-ecp5-lut2 (lr:bv INIT) (lr:concat (lr:list (list (lr:bv B) (lr:bv A)))))
+                (lr:integer 0))
    (lut INIT (concat B A))
    ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
    ;;; compiliation to Verilog through Yosys requires parameters to be concrete. Thus, we simulate
@@ -128,11 +139,20 @@
         (define lut-init-1 (bv #xe 4))
         (define lut-init-2 (bv #x2 4))
 
-        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut2 lut-init-0 (concat B A)) 0)
+        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut2
+                                                    (lr:bv lut-init-0)
+                                                    (lr:concat (lr:list (list (lr:bv B) (lr:bv A)))))
+                                                   (lr:integer 0))
                                       (lut lut-init-0 (concat B A))))
-        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut2 lut-init-1 (concat B A)) 0)
+        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut2
+                                                    (lr:bv lut-init-1)
+                                                    (lr:concat (lr:list (list (lr:bv B) (lr:bv A)))))
+                                                   (lr:integer 0))
                                       (lut lut-init-1 (concat B A))))
-        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut2 lut-init-2 (concat B A)) 0)
+        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut2
+                                                    (lr:bv lut-init-2)
+                                                    (lr:concat (lr:list (list (lr:bv B) (lr:bv A)))))
+                                                   (lr:integer 0))
                                       (lut lut-init-2 (concat B A)))))))))
 
   (verify-lakeroad-expression
@@ -143,7 +163,10 @@
      (define-symbolic B (bitvector 1))
      (define-symbolic C (bitvector 1))
      (define-symbolic D (bitvector 1)))
-   (lr:list-ref (lattice-ecp5-lut4 INIT (concat D C B A)) 0)
+   (lr:list-ref (lattice-ecp5-lut4
+                 (lr:bv INIT)
+                 (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
+                (lr:integer 0))
    (lut INIT (concat D C B A))
    ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
    ;;; compiliation to Verilog through Yosys requires parameters to be concrete. Thus, we simulate
@@ -158,23 +181,37 @@
   (test-true
    "normal return"
    (normal?
-    (with-vc
-     (with-terms
-      (begin
-        (define-symbolic A (bitvector 1))
-        (define-symbolic B (bitvector 1))
-        (define-symbolic C (bitvector 1))
-        (define-symbolic D (bitvector 1))
-        (define lut-init-0 (bv #xdead 16))
-        (define lut-init-1 (bv #xbeef 16))
-        (define lut-init-2 (bv #x2323 16))
+    (with-vc (with-terms
+              (begin
+                (define-symbolic A (bitvector 1))
+                (define-symbolic B (bitvector 1))
+                (define-symbolic C (bitvector 1))
+                (define-symbolic D (bitvector 1))
+                (define lut-init-0 (bv #xdead 16))
+                (define lut-init-1 (bv #xbeef 16))
+                (define lut-init-2 (bv #x2323 16))
 
-        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut4 lut-init-0 (concat D C B A)) 0)
-                                      (lut lut-init-0 (concat D C B A))))
-        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut4 lut-init-1 (concat D C B A)) 0)
-                                      (lut lut-init-1 (concat D C B A))))
-        (add-to-simulate (to-simulate (lr:list-ref (lattice-ecp5-lut4 lut-init-2 (concat D C B A)) 0)
-                                      (lut lut-init-2 (concat D C B A)))))))))
+                (add-to-simulate
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut4
+                                (lr:bv lut-init-0)
+                                (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
+                               (lr:integer 0))
+                  (lut lut-init-0 (concat D C B A))))
+                (add-to-simulate
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut4
+                                (lr:bv lut-init-1)
+                                (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
+                               (lr:integer 0))
+                  (lut lut-init-1 (concat D C B A))))
+                (add-to-simulate
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut4
+                                (lr:bv lut-init-2)
+                                (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
+                               (lr:integer 0))
+                  (lut lut-init-2 (concat D C B A)))))))))
 
   ;;; Simulate with Verilator.
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))

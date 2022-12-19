@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (provide simulate-expr
          to-simulate
@@ -8,7 +8,7 @@
          "compile-to-json.rkt"
          rosette
          "utils.rkt"
-         "interpreter.rkt"
+         (prefix-in lr: "language.rkt")
          racket/future)
 
 ;;; Lakeroad expression to test.
@@ -29,13 +29,17 @@
                           #:include-dirs [include-dirs '()]
                           #:extra-verilator-args [extra-verilator-args ""]
                           #:extra-cc-args [extra-cc-args ""]
-                          #:num-make-jobs [num-make-jobs (processor-count)])
+                          #:num-make-jobs [num-make-jobs (processor-count)]
+                          #:max-loop-bound [max-loop-bound 256]
+                          #:force-random-values [force-random-values #f])
  (->* ((listof to-simulate?) path-string?)
       (#:additional-files-to-build (listof path-string?)
        #:include-dirs (listof path-string?)
        #:extra-verilator-args string?
        #:extra-cc-args string?
-       #:num-make-jobs integer?)
+       #:num-make-jobs integer?
+       #:max-loop-bound integer?
+       #:force-random-values boolean?)
       boolean?)
  (begin
    (define working-directory (make-temporary-file "rkttmp~a" 'directory))
@@ -91,11 +95,11 @@
           ;;; the input will be generated randomly.
           (define idx-variable-name (idx-var var))
 
-          ;;; The max value that the index variable should run to (exclusive). We only do exhaustive
-          ;;; testing for up to 8 bits, so we max out at 256. Thus, for anything higher than 8 bits,
-          ;;; we will do random testing with 256 randomly-selected values of var. We can make this
-          ;;; more configurable if we want.
-          (define limit (min 256 (expt 2 (bvlen var))))
+          ;;; The max value that the index variable should run to (exclusive). This, in combination
+          ;;; with the randomness flag, controls whether exhaustive testing occurs. E.g. if randomness
+          ;;; isn't forced and the max bound is 256, then every variable up to 8 bits wide will be
+          ;;; exhaustively tested.
+          (define limit (min max-loop-bound (expt 2 (bvlen var))))
 
           ;;; Open the for loop that iterates over this variable.
           (format "for (uint64_t ~a = 0; ~a < ~a; ++~a) {"
@@ -109,13 +113,14 @@
       ;;; We do this by setting the input value to the index variable for this variable. The index
       ;;; variable counts from 0 to the max value; e.g. to 1 for a 1 bit number, or 255 for an 8 bit
       ;;; number. This gives us exhaustive testing on this input. In the case where the variable is
-      ;;; greater than 8 bits wide, we use randomly generated values for the input.
+      ;;; greater than 8 bits wide, we use randomly generated values for the input. Randomness can
+      ;;; also be forced by using force-random-values.
       (define value-definitions
         (for/list ([var (symbolics bv-expr)])
           (format
            "uint64_t ~a = ~a;"
            (val-var var)
-           (if (> (bvlen var) 8)
+           (if (|| force-random-values (> (bvlen var) 8))
                "(((uint64_t)std::rand() & 0xff) << 56) | (((uint64_t)std::rand() & 0xff) << 48) | (((uint64_t)std::rand() & 0xff) << 40)| (((uint64_t)std::rand() & 0xff) << 32) | (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff)"
                (idx-var var)))))
 
@@ -164,7 +169,6 @@ here-string-delimiter
    (define results
      (for/list ([to-simulate-value to-simulate-values])
        (generate-code-for-lakeroad-expression to-simulate-value)))
-   (define tests (string-join (map first results) "\n"))
    (define verilated-type-names (map second results))
    (define verilog-files (map third results))
    (define includes
@@ -176,7 +180,8 @@ here-string-delimiter
                  (format "V~a.h" (path-replace-extension (file-name-from-path verilog-file) "")))))
       "\n"))
 
-   (define testbench-source
+   ;;; Make the contents of a testbench file.
+   (define (make-testbench-source includes test-code)
      (format
       #<<here-string-delimiter
 #include <cstdlib>
@@ -198,11 +203,14 @@ int main(int argc, char **argv)
 here-string-delimiter
       ;
       includes
-      tests))
+      test-code))
 
-   (define testbench-file (make-temporary-file "rkttmp_testbench_~a.cc" #f working-directory))
-   (display-to-file testbench-source testbench-file #:exists 'update)
-   (log-info "testbench file: ~a" testbench-file)
+   (define testbench-files
+     (for/list ([test-code (map first results)])
+       (define f (make-temporary-file "rkttmp_testbench_~a.cc" #f working-directory))
+       (log-info "testbench file: ~a" f)
+       (display-to-file (make-testbench-source includes test-code) f #:exists 'update)
+       f))
 
    (define include-dirs-string
      (string-join (for/list ([include-dir include-dirs])
@@ -214,7 +222,7 @@ here-string-delimiter
 # Builds Verilog .v files into a Verilated testbench.
 # Environment variable arguments:
 # - VERILOG_FILES: The Verilog files to Verilate. These contain the modules to test.
-# - TESTBENCH: The testbench file to build.
+# - TESTBENCHES: The testbench files to build.
 # - VFLAGS: Flags for Verilator.
 # - CXXFLAGS: Flags for C++ compiler.
 # - VERILATOR_INCLUDE_DIR: Path to Verilator's include directory.
@@ -222,7 +230,8 @@ here-string-delimiter
 VERILATOR = verilator
 VERILATOR_INCLUDE_DIR = ~a
 VERILOG_FILES = ~a
-TESTBENCH = ~a
+TESTBENCHES = ~a
+TESTBENCH_EXECUTABLES = $(TESTBENCHES:.cc=.out)
 VFLAGS = ~a ~a ~a
 
 ifndef VERILATOR_INCLUDE_DIR
@@ -233,14 +242,19 @@ ifndef VERILOG_FILES
 $(error VERILOG_FILES is not set)
 endif
 
-ifndef TESTBENCH
-$(error TESTBENCH is not set)
+ifndef TESTBENCHES
+$(error TESTBENCHES is not set)
 endif
 
-out: $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(TESTBENCH) $(VERILOG_FILES:.v=.vo)
+.PHONY: run_all
+
+run_all: $(TESTBENCH_EXECUTABLES)
+
+%.out: %.cc $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(VERILOG_FILES:.v=.vo)
   # -lstdc++ fixes build problems on Mac.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
 	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -faligned-new -lstdc++ -std=c++11 -Wall -Wextra -Werror $^ -o $@
+	$@ || (echo "Test failed: $@"; exit 1)
 
 %.vo: %.v
   # The CFLAGS values fix issues with timing functions not being found.
@@ -253,7 +267,7 @@ here-string-delimiter
       ;
       verilator-include-dir
       (string-join (map path->string verilog-files) " ")
-      testbench-file
+      (string-join (map path->string testbench-files) " ")
       include-dirs-string
       extra-verilator-args
       (string-join (map path->string additional-files-to-build) " ")))
@@ -261,7 +275,7 @@ here-string-delimiter
    (display-to-file makefile-source (build-path working-directory "Makefile") #:exists 'error)
 
    (define make-invocation
-     (format "make --no-builtin-rules -j ~a -C ~a out" num-make-jobs working-directory))
+     (format "make --no-builtin-rules -j ~a -C ~a run_all" num-make-jobs working-directory))
 
    (log-info "invoking make:\n~a" make-invocation)
    ;;; It seems like using (process) might be slow? Am I using it wrong?
@@ -277,12 +291,8 @@ here-string-delimiter
    ;;;    (close-output-port stdin))
    ;;;
    ;;; Throw away stdout, keep stderr. If anything is printed on stderr, we should likely be failing anyway.
-   (parameterize ([current-output-port (open-output-bytes)])
-     (when (not (system make-invocation))
-       (error "make invocation failed")))
 
-   (log-info "running testbench")
-   (system* (build-path working-directory "out"))))
+   (parameterize ([current-output-port (open-output-bytes)]) (system make-invocation))))
 
 (module+ test
 
@@ -296,7 +306,8 @@ here-string-delimiter
               (normal? (with-vc (with-terms (begin
                                               (define-symbolic a b (bitvector 8))
                                               (check-true (simulate-with-verilator
-                                                           (list (to-simulate a a) (to-simulate b b))
+                                                           (list (to-simulate (lr:bv a) a)
+                                                                 (to-simulate (lr:bv b) b))
                                                            (getenv "VERILATOR_INCLUDE_DIR")))))))))
 
   ;;; TODO(@gussmith23): Capture the output of this so that we don't print an assertion failure during
@@ -306,10 +317,10 @@ here-string-delimiter
               (normal? (with-vc (with-terms (begin
                                               (define-symbolic a b (bitvector 8))
                                               (displayln "Note: expecting an assertion failure:")
-                                              (check-false
-                                               (simulate-with-verilator
-                                                (list (to-simulate a a) (to-simulate b (bvnot b)))
-                                                (getenv "VERILATOR_INCLUDE_DIR"))))))))))
+                                              (check-false (simulate-with-verilator
+                                                            (list (to-simulate (lr:bv a) a)
+                                                                  (to-simulate (lr:bv b) (bvnot b)))
+                                                            (getenv "VERILATOR_INCLUDE_DIR"))))))))))
 
 ;;; Test a Lakeroad expression using a simple testbench.
 ;;;

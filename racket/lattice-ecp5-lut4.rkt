@@ -14,7 +14,7 @@
       #:B (B (bv->signal (constant (list 'B 'symbolic-constant) (bitvector 1))))
       #:C (C (bv->signal (constant (list 'C 'symbolic-constant) (bitvector 1))))
       #:D (D (bv->signal (constant (list 'D 'symbolic-constant) (bitvector 1))))
-      #:INIT (INIT (bv->signal (constant (list 'INIT 'symbolic-constant) (bitvector 16)))))
+      #:init (init (bv->signal (constant (list 'init 'symbolic-constant) (bitvector 16)))))
     (let* ([merged-input-state-hash (hash)]
            [init-hash (hash)]
            [btor1 (bitvector 1)]
@@ -27,8 +27,8 @@
            [btor5 D]
            [merged-input-state-hash (hash-union merged-input-state-hash (signal-state D))]
            [btor6 (bitvector 16)]
-           [btor7 INIT]
-           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state INIT))]
+           [btor7 init]
+           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state init))]
            [btor8 (bitvector 8)]
            [btor9 (signal (extract 7 0 (signal-value btor7)) (signal-state btor7))]
            [btor10 (signal (extract 15 8 (signal-value btor7)) (signal-state btor7))]
