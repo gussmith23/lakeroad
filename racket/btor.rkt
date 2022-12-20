@@ -2275,6 +2275,11 @@ here-string-delimiter
   ;;; The expression for the output state hash.
   (define output-state-hash '(hash))
 
+  ;;; When a state is not in the state hash, we use these functions to get an initial value.
+  ;;;
+  ;;; Maps id (integer) of a sort expression to a function that returns a default value for that sort.
+  (define get-default-value-fn-hash (make-hash))
+
   ;;; Annoyingly, initial state values are defined at the end of btor files, but we need the init
   ;;; values at the beginning. So we do a first pass to compile the init values.
 
@@ -2328,7 +2333,34 @@ here-string-delimiter
                  [(cons id-str tokens) (string-split line)]
                  [id (string->number id-str)])
       (match tokens
-        [`("next" ,sort-id-str ,state-id-str ,next-val-id-str)
+        [`("read" ,sort-id-str ,array-id-str ,index-id-str)
+         (let ([array (get-expr-id-str array-id-str)] [index (get-expr-id-str index-id-str)])
+           (add-expr-id-str id-str
+                            `(signal (vector-ref-bv (signal-value ,array) (signal-value ,index))
+                                     (merge-state (list ,array ,index)))))]
+        [`("write" ,sort-id-str ,array-id-str ,index-id-str ,value-id-str)
+         (let ([array (get-expr-id-str array-id-str)]
+               [index (get-expr-id-str index-id-str)]
+               [value (get-expr-id-str value-id-str)])
+           (add-expr-id-str
+            id-str
+            `(begin
+               (vector-set!-bv (signal-value ,array) (signal-value ,index) (signal-value ,value))
+               (signal (signal-value ,array) (merge-state (list ,array ,index ,value))))))]
+        ;;; `next` can optionally have a name associated with it.
+        [`("next" ,sort-id-str ,state-id-str ,next-val-id-str ,maybe-name-str ...)
+         ;;; Check that there's at most one name.
+         (when (> (length maybe-name-str) 1)
+           (error "expected three or four arguments to 'next', but got ~a" tokens))
+
+         ;;; If the name is set, make sure it matches the name we originally gave the state.
+         (when (and (equal? (length maybe-name-str) 1)
+                    (not (equal? (string->symbol (first maybe-name-str))
+                                 (hash-ref state-symbols (string->number state-id-str)))))
+           (error "setting state with name ~a but reassigning with new name ~a"
+                  (first maybe-name-str)
+                  (hash-ref state-symbols (string->number state-id-str))))
+
          ;;; A next statement determines the value of the state var that we return out.
          ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
          ;;; the output value for the state.
@@ -2338,7 +2370,12 @@ here-string-delimiter
                           (signal-value ,(get-expr-id-str next-val-id-str))))]
         ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
         [`("init" ,sort-id-str ,state-id-str ,val-id-str) (void)]
-        [`("state" ,sort-id-str)
+        ;;; `name` is optional. We approximate optional using `...`, which will match whatever's left.
+        ;;; Then we can check whether `name` has length 0 or 1.
+        [`("state" ,sort-id-str ,name ...)
+         (when (not (or (equal? (length name) 0) (equal? (length name) 1)))
+           (error "expected 1 or 2 arguments to 'state', but go ~a" tokens))
+
          ;;; It should draw from the incoming state. But how? The problem is that, with our current
          ;;; setup, i think you have to get the state value from a "nearby" signal that's also in
          ;;; context. Does there need to be some kind of top level wrapper that holds state? state can
@@ -2363,7 +2400,11 @@ here-string-delimiter
          ;;; to the module, and then that's the dictionary we'd use here. So if there's no inputs,
          ;;; there's no state. Does that make sense? State without input is a constant? I guess so. it
          ;;; would always be the init value, or if there's no init value...well idk.
-         (let* ([state-symbol (string->symbol (format "state~a" id))])
+         ;;;
+         ;;; The symbol for this state is given a default name unless the name is provided.
+         (let* ([state-symbol (if (equal? (length name) 1)
+                                  (string->symbol (first name))
+                                  (string->symbol (format "state~a" id)))])
            (hash-set! state-symbols (string->number id-str) state-symbol)
            (hash-set! state-types state-symbol (hash-ref sorts (string->number sort-id-str)))
            ;;; From the merged state formed by merging the state of all the inputs, find the state
@@ -2376,19 +2417,40 @@ here-string-delimiter
                         (bv->signal (hash-ref ,merged-input-state-hash-symbol ',state-symbol))]
                        [(hash-has-key? ,init-hash-symbol ',state-symbol)
                         (bv->signal (hash-ref ,init-hash-symbol ',state-symbol))]
+                       ;;;  [else
+                       ;;;   (log-warning
+                       ;;;    "state ~a with no initial value, init to 0, this may not be correct in the long term"
+                       ;;;    ',state-symbol)
+                       ;;;   (bv->signal (bv 0 ,(hash-ref sorts (string->number sort-id-str))))]
                        [else
-                        (log-warning
-                         "state ~a with no initial value, init to 0, this may not be correct in the long term"
-                         ',state-symbol)
-                        (bv->signal (bv 0 ,(hash-ref sorts (string->number sort-id-str))))])])
+                        (bv->signal (,(hash-ref get-default-value-fn-hash
+                                                (string->number sort-id-str))))])])
                (when (not (signal? state-value))
                  (error "Expected signal"))
-               (when (not (bv? (signal-value state-value)))
-                 (error "Signal value invalid"))
+               ;;; TODO(@gussmith23): Signals don't just have to contain bvs, now that we've enabled
+               ;;; arrays.
+               ;;;  (when (not (bv? (signal-value state-value)))
+               ;;;    (error "Signal value invalid"))
                state-value)))]
         [`("sort" "bitvec" ,width-str)
          (hash-set! sorts (string->number id-str) (bitvector (string->number width-str)))
-         (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))]
+         (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))
+         (hash-set! get-default-value-fn-hash
+                    (string->number id-str)
+                    `(lambda ()
+                       (log-warning
+                        "Getting default value of 0 for bitvector, this may be a bad idea!")
+                       (bv 0 ,(string->number width-str))))]
+        [`("sort" "array" ,index-sort-id-str ,element-sort-id-str)
+         (hash-set! sorts (string->number id-str) vector?)
+         (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))
+         (hash-set!
+          get-default-value-fn-hash
+          (string->number id-str)
+          `(lambda ()
+             (log-warning "Getting default value array of 0s for array, this may be a bad idea!")
+             (make-vector (expt 2 (bitvector-size ,(id-str-to-btor-id index-sort-id-str)))
+                          (bv 0 (bitvector-size ,(id-str-to-btor-id element-sort-id-str))))))]
         ;;; Sometimes the .btor files contain inputs without names. I'm pretty sure these correspond
         ;;; either to Z or X values, or both.
         [`("input" ,type-id-str)
@@ -2721,3 +2783,83 @@ here-string-delimiter
 
   ;;; TODO need to make the test more robust, i.e. check it against the DSP file.
   (test-case "Parse DSP48E2" (check-not-exn (thunk (parse-btor-new (file->string dsp-btor-file))))))
+
+(module+ test
+  (define-namespace-anchor a)
+  (test-case
+   "Zach Sisco's TOGA test"
+   (begin
+     (match-define (list function-syntax contract-syntax)
+       (btor->racket
+        #<<here-string-delimiter
+; BTOR description generated by Yosys 0.21+10 (git sha1 558018522, clang 14.0.0 -fPIC -Os) for module toga.
+1 sort bitvec 1
+2 input 1 clk ; toga.v:1.19-1.22
+3 input 1 reset ; toga.v:1.30-1.35
+4 sort bitvec 4
+5 state 4
+6 state 4
+7 const 1 1
+8 state 1
+9 init 1 8 7
+10 sort bitvec 2
+11 concat 10 2 8
+12 const 10 10
+13 eq 1 11 12
+14 ite 4 13 6 5
+15 output 14 pc ; toga.v:1.50-1.52
+16 sort bitvec 8
+17 sort array 4 16
+18 state 17 pm
+19 read 16 18 14
+20 slice 4 19 3 0
+21 uext 4 20 0 a_addr ; toga.v:25.11-25.17
+22 sort array 4 1
+23 state 22 dm
+24 state 4
+25 state 1
+26 const 1 0
+27 state 1
+28 state 1
+29 init 1 28 7
+30 concat 10 2 28
+31 eq 1 30 12
+32 ite 1 31 27 26
+33 read 1 23 24
+34 not 1 32
+35 and 1 33 34
+36 and 1 25 32
+37 or 1 36 35
+38 write 22 23 24 37
+39 redor 1 32
+40 ite 22 39 38 23
+41 read 1 40 20
+42 next 22 23 40
+43 not 1 41
+44 uext 1 43 0 a_toggle ; toga.v:27.6-27.14
+45 slice 4 19 7 4
+46 uext 4 45 0 b_addr ; toga.v:26.11-26.17
+47 uext 16 19 0 instruction ; toga.v:24.11-24.22
+48 next 4 5 14
+49 uext 4 7 3
+50 add 4 14 49
+51 ite 4 41 50 45
+52 const 4 0000
+53 ite 4 3 52 51
+54 next 4 6 53
+55 next 1 8 2
+56 next 4 24 20
+57 next 1 25 43
+58 next 1 27 7
+59 next 1 28 2
+60 next 17 18 18 pm ; toga.v:20.10-20.12
+; end of yosys output
+here-string-delimiter
+        ;
+        ))
+
+     (define ns (namespace-anchor->namespace a))
+     (define toga-f (eval function-syntax ns))
+     ;;;(pretty-write function-syntax)
+
+     (test-not-exn "toga runs without exception" (lambda () (toga-f))))))
