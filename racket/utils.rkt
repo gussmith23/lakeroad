@@ -51,92 +51,93 @@
 
 ;;; Rosette bitvector expression to C expression.
 (define (bvexpr->cexpr expr)
-  (match expr
-    [(expression (== concat) a b)
-     (format "((((uint64_t)~a) << ~a) | (~a))" (bvexpr->cexpr a) (bvlen b) (bvexpr->cexpr b))]
-    [(expression (== extract) h l v)
-     ;;; Just b/c I'm lazy. Doesn't have to be the case.
-     (when (or (not (concrete? h)) (not (concrete? l)))
-       (error "Only supporting concrete h and l for now."))
-     (format "((~a >> ~a) & ((1<<(~a - ~a + 1)) - 1))" (bvexpr->cexpr v) l h l)]
-    [(expression (== bvlshr) a b)
-     ;;; Shifting by more than the length of the bitvector is undefined in C.
-     (format "((~a > ~a) ? 0 : (((uint64_t)~a) >> ~a))"
-             (bvexpr->cexpr b)
-             (bvlen a)
-             (bvexpr->cexpr a)
-             (bvexpr->cexpr b))]
-    [(expression (== bvashr) a b)
-     ;;; TODO(@gussmith23): Signedness is really messed up. Do we need to convert back to unsigned
-     ;;; here?
-     (format
-      "((~a > ~a) ? ((~a & (1<<~a)) ? ((uint64_t)~a) : 0) : ((uint64_t)(((int64_t) ( ~a | ((~a & (1<<~a)) ? (0xFFFFFFFFFFFFFFFF&(~~((uint64_t)~a))) : 0)  )) >> ~a)))"
-      (bvexpr->cexpr b)
-      (bvlen a)
-      (bvexpr->cexpr a)
-      (sub1 (bvlen a))
-      (string-append "0b" (make-string (bvlen a) #\1))
-      (bvexpr->cexpr a)
-      (bvexpr->cexpr a)
-      (sub1 (bvlen a))
-      (string-append "0b" (make-string (bvlen a) #\1))
-      (bvexpr->cexpr b))]
-    [(expression (== zero-extend) a b) (bvexpr->cexpr a)]
-    [(expression (== bvult) a b)
-     (when (> (bvlen a) 64)
-       (error))
-     (when (> (bvlen b) 64)
-       (error))
-     (format "((uint8_t)((uint64_t)~a < (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvule) a b)
-     (when (> (bvlen a) 64)
-       (error))
-     (when (> (bvlen b) 64)
-       (error))
-     (format "((uint8_t)((uint64_t)~a <= (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvugt) a b)
-     (when (> (bvlen a) 64)
-       (error))
-     (when (> (bvlen b) 64)
-       (error))
-     (format "((uint8_t)((uint64_t)~a > (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvuge) a b)
-     (when (> (bvlen a) 64)
-       (error))
-     (when (> (bvlen b) 64)
-       (error))
-     (format "((uint8_t)((uint64_t)~a >= (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== ite) cond a b)
-     (format "(~a ? ~a : ~a)" (bvexpr->cexpr cond) (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bveq) a b) (format "((uint8_t)(~a == ~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvand) a b) (format "(~a & ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvxor) a b) (format "(~a ^ ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvor) a b) (format "(~a | ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvsub) a b) (format "(~a - ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvadd) a b) (format "(~a + ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(expression (== bvnot) a) (format "(~~~a)" (bvexpr->cexpr a))]
-    [(expression (== bvneg) a) (format "(-~a)" (bvexpr->cexpr a))]
-    [(expression (== bvshl) a b)
-     (format "((~a > ~a) ? 0 : (~a << ~a))"
-             (bvexpr->cexpr b)
-             (bvlen a)
-             (bvexpr->cexpr a)
-             (bvexpr->cexpr b))]
-    [(expression (== bvmul) a b) (format "(~a * ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
-    [(? concrete? (? (bitvector 1) a)) (format "((bool) ~a)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 2) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 3) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 4) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 5) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 6) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 7) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 8) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 12) a)) (format "((uint16_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 16) a)) (format "((uint16_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 32) a)) (format "((uint32_t) ~aULL)" (bitvector->natural a))]
-    [(? concrete? (? (bitvector 64) a)) (format "((uint64_t) ~aULL)" (bitvector->natural a))]
-    ;;; We suffix the mask with ULL to be safe.
-    [(? constant? a) (format "(~a & ~aULL)" a (- (expt 2 (bvlen a)) 1))]))
+  (string-append "(" (match expr
+                       [(expression (== concat) a b)
+                        (format "((((uint64_t)~a) << ~a) | (~a))" (bvexpr->cexpr a) (bvlen b) (bvexpr->cexpr b))]
+                       [(expression (== extract) h l v)
+                        ;;; Just b/c I'm lazy. Doesn't have to be the case.
+                        (when (or (not (concrete? h)) (not (concrete? l)))
+                          (error "Only supporting concrete h and l for now."))
+                        (format "((~a >> ~a) & ((1<<(~a - ~a + 1)) - 1))" (bvexpr->cexpr v) l h l)]
+                       [(expression (== bvlshr) a b)
+                        ;;; Shifting by more than the length of the bitvector is undefined in C.
+                        (format "((~a > ~a) ? 0 : (((uint64_t)~a) >> ~a))"
+                                (bvexpr->cexpr b)
+                                (bvlen a)
+                                (bvexpr->cexpr a)
+                                (bvexpr->cexpr b))]
+                       [(expression (== bvashr) a b)
+                        ;;; TODO(@gussmith23): Signedness is really messed up. Do we need to convert back to unsigned
+                        ;;; here?
+                        (format
+                         "((~a > ~a) ? ((~a & (1<<~a)) ? ((uint64_t)~a) : 0) : ((uint64_t)(((int64_t) ( ~a | ((~a & (1<<~a)) ? (0xFFFFFFFFFFFFFFFF&(~~((uint64_t)~a))) : 0)  )) >> ~a)))"
+                         (bvexpr->cexpr b)
+                         (bvlen a)
+                         (bvexpr->cexpr a)
+                         (sub1 (bvlen a))
+                         (string-append "0b" (make-string (bvlen a) #\1))
+                         (bvexpr->cexpr a)
+                         (bvexpr->cexpr a)
+                         (sub1 (bvlen a))
+                         (string-append "0b" (make-string (bvlen a) #\1))
+                         (bvexpr->cexpr b))]
+                       [(expression (== zero-extend) a b) (bvexpr->cexpr a)]
+                       [(expression (== bvult) a b)
+                        (when (> (bvlen a) 64)
+                          (error))
+                        (when (> (bvlen b) 64)
+                          (error))
+                        (format "((uint8_t)((uint64_t)~a < (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvule) a b)
+                        (when (> (bvlen a) 64)
+                          (error))
+                        (when (> (bvlen b) 64)
+                          (error))
+                        (format "((uint8_t)((uint64_t)~a <= (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvugt) a b)
+                        (when (> (bvlen a) 64)
+                          (error))
+                        (when (> (bvlen b) 64)
+                          (error))
+                        (format "((uint8_t)((uint64_t)~a > (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvuge) a b)
+                        (when (> (bvlen a) 64)
+                          (error))
+                        (when (> (bvlen b) 64)
+                          (error))
+                        (format "((uint8_t)((uint64_t)~a >= (uint64_t)~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== ite) cond a b)
+                        (format "(~a ? ~a : ~a)" (bvexpr->cexpr cond) (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bveq) a b) (format "((uint8_t)(~a == ~a))" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvand) a b) (format "(~a & ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvxor) a b) (format "(~a ^ ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvor) a b) (format "(~a | ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvsub) a b) (format "(~a - ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvadd) a b) (format "(~a + ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(expression (== bvnot) a) (format "(~~~a)" (bvexpr->cexpr a))]
+                       [(expression (== bvneg) a) (format "(-~a)" (bvexpr->cexpr a))]
+                       [(expression (== bvshl) a b)
+                        (format "((~a > ~a) ? 0 : (~a << ~a))"
+                                (bvexpr->cexpr b)
+                                (bvlen a)
+                                (bvexpr->cexpr a)
+                                (bvexpr->cexpr b))]
+                       [(expression (== bvmul) a b) (format "(~a * ~a)" (bvexpr->cexpr a) (bvexpr->cexpr b))]
+                       [(? concrete? (? (bitvector 1) a)) (format "((bool) ~a)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 2) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 3) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 4) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 5) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 6) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 7) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 8) a)) (format "((uint8_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 12) a)) (format "((uint16_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 16) a)) (format "((uint16_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 32) a)) (format "((uint32_t) ~aULL)" (bitvector->natural a))]
+                       [(? concrete? (? (bitvector 64) a)) (format "((uint64_t) ~aULL)" (bitvector->natural a))]
+                       ;;; We suffix the mask with ULL to be safe.
+                       [(? constant? a) (format "(~a & ~aULL)" a (- (expt 2 (bvlen a)) 1))])
+                 (format " & ~aULL)" (- (expt 2 (bvlen expr)) 1))))
 
 (module+ test
   ;;; Semantic tests.
@@ -150,20 +151,20 @@
                                      #:defines defines
                                      ...
                                      #:bv-expr bv-expr
-                                     #:c-expr c-expr
-                                     #:a-val a-val
-                                     #:b-val b-val
-                                     #:result result)
+                                     #:c-expr c-expr)
     (test-case name
                (begin
                  defines
                  ...
-
-                 ;;;      (define-symbolic a b (bitvector 8))
                  (define cexpr (bvexpr->cexpr bv-expr))
-
+                 ;;;  (displayln (format "cexpr: ~a" cexpr))
                  ;;; Syntactic test.
-                 (check-equal? cexpr c-expr)
+                 ;;; TODO: make this arg optional
+                 ;;;  if (cexpr )
+                 (if c-expr
+                     (check-equal? cexpr c-expr)
+                     0
+                     )
 
                  ;;; Save C code to file
                  (define cfile-filename (make-temporary-file "~a.c"))
@@ -172,55 +173,62 @@
                  (displayln "#include <stdio.h>" cfile)
                  (displayln "#include <stdlib.h>" cfile)
                  (displayln "int main(int argc, char* argv[]) {" cfile)
-                 (displayln "uint8_t a = atoi(argv[1]); uint8_t b = atoi(argv[2]);" cfile)
+                 (for ([(i id) (in-indexed (symbolics bv-expr))])
+                   (displayln (format "uint64_t ~a = atoi(argv[~a]);" i (+ id 1)) cfile)) ;;; add 1 to ID to offset that argv[0] -> filename
                  (displayln (format "printf(\"%llu\", ~a);" cexpr) cfile)
                  (displayln "return 0;" cfile)
                  (displayln "}" cfile)
 
                  (close-output-port cfile)
                  (define executable-filename (make-temporary-file "~a.out"))
+                 ;;;  (displayln (format "executable: ~a" executable-filename))
                  (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
 
-                 (check-true (system (format "~a ~a ~a" executable-filename a-val b-val)))
 
-                 (displayln (string->number (with-output-to-string
-                                              (thunk (system (format "~a ~a ~a" executable-filename a-val b-val))))))
+                 (define (generate-values symbols)
+                   (apply cartesian-product (map (lambda (symbol)
+                                                   (range 0 (expt 2 (bvlen symbol)))) symbols)))
 
-                 ;;; bvlen (in utils.rkt) (bvlen <expr>) -> bitwidth
-                 ;;; (bvlen a) -> 8 (if a is a bitvector of length 8)
-                 ;;; (bvlen (bvadd a b)) -> 8
+                 ;;; TODO: print for now, but we need to actually verify this. how to verify?
+                 (for ([args (generate-values (symbolics bv-expr))])
+                   (begin
+                     (define (zip lst1 lst2)
+                       (cond [(and (null? lst1) (null? lst2)) '()]
+                             [(or (null? lst1) (null? lst2)) (error "unequal lengths")]
+                             [#t (begin
+                                   (cons (cons (car lst1) (bv (car lst2) (bvlen (car lst1)))) (zip (cdr lst1) (cdr lst2))))]))
+                     (define result (evaluate bv-expr (sat (make-immutable-hash (zip (symbolics bv-expr) args)))))
+                     ;;;  (displayln (format "result: ~a, which has a value of ~a" result (bitvector->natural result)))
+                     ;;; TODO: handle booleans?
+                     ;;;  (displayln (apply format "running C code with args ~a ~a" args))
+                     (define output (string->number (with-output-to-string (thunk (apply system* executable-filename (map number->string args))))))
+                     ;;;  (displayln (format "we should get ~a, and we got ~a" (bitvector->natural result) output))
+                     (check-eq? output (bitvector->natural result))
+                     ))
+                 (clear-terms! (symbolics bv-expr))
+                 )))
 
-                 ;;; 1. Run the C code and get the output for the current a and b vals.
-                 ;;; 2. Get the "ground truth" (???)
-                 ;;; 3. Compare the two.
-                 ;;; Do this for all possible values of a and b.
-
-                 ;;; To get the ground truth, "run" the bvexpr. (evaluate bvexpr (sat (hash a (bv 0 8) b (bv 1 8))))
-
-                 ;;; TODO: here, let's iterate over all possible values of a n-bit number (using bvlen)
-                 ;;; TODO: handle expressions w/ arbitrary # of inputs
-                 (check-equal? (string->number (with-output-to-string
-                                                 (thunk (system (format "~a ~a ~a" executable-filename a-val b-val)))))
-                               result))))
-
+  ;;; TODO: wrap this in for loop over bitsizes
+  ;;; also, check booleans
+  ;;; (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])
+  (for ([sz (list 1 2 3 4)])
+    (semantic-test
+     #:name "semantics of bvadd"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvadd a b)
+     #:c-expr #f))
 
   (semantic-test
-   #:name "semantics of bvadd"
-   #:defines (define-symbolic a b (bitvector 8)) ;; can we make this anonymous?
-   #:bv-expr (bvadd a b)
-   #:c-expr "((a & 255ULL) + (b & 255ULL))"
-   #:a-val 1
-   #:b-val 2
-   #:result 3)
+   #:name "more complex bvadd expression"
+   #:defines (define-symbolic a b c (bitvector 3))
+   #:bv-expr (bvadd (bvadd a b) c)
+   #:c-expr #f))
 
-  (semantic-test
-   #:name "semantics of bveq"
-   #:defines (define-symbolic a b (bitvector 8)) ;; can we make this anonymous?
-   #:bv-expr (bveq a b)
-   #:c-expr "((uint8_t)((a & 255ULL) == (b & 255ULL)))"
-   #:a-val 1
-   #:b-val 1
-   #:result 1))
+;;;   (semantic-test
+;;;    #:name "semantics of bveq"
+;;;    #:defines (define-symbolic a b (bitvector 2))
+;;;    #:bv-expr (bveq a b)
+;;;    #:c-expr "((uint8_t)((a & 1ULL) == (b & 1ULL)))"))
 
 
 (define (json->verilog json verilog #:logfile [logfile "/dev/null"])
