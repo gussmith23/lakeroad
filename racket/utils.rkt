@@ -1,4 +1,4 @@
-#lang racket
+#lang errortrace racket
 
 (provide bvlen
          bvtype
@@ -14,7 +14,8 @@
 
 (require rosette
          rosette/base/core/polymorphic
-         racket/runtime-path)
+         racket/runtime-path
+         racket/random)
 
 ;;; Length of bitvector.
 (define (bvlen v)
@@ -137,16 +138,10 @@
                        [(? concrete? (? (bitvector 64) a)) (format "((uint64_t) ~aULL)" (bitvector->natural a))]
                        ;;; We suffix the mask with ULL to be safe.
                        [(? constant? a) (format "(~a & ~aULL)" a (- (expt 2 (bvlen a)) 1))])
-                 (format " & ~aULL)" (- (expt 2 (bvlen expr)) 1))))
+                 ;;; Treat booleans differently - (bvlen (bveq a b)) throws an error.
+                 (format " & ~aULL)" (if (boolean? expr) 1 (- (expt 2 (bvlen expr)) 1)))))
 
 (module+ test
-  ;;; Semantic tests.
-  ;;;
-  ;;; 1. Build a test bvexpr.
-  ;;; 2. Generate its C code with bvexpr->cexpr.
-  ;;; 3. Compile the C code.
-  ;;; 4. Evaluate bvexpr with some inputs; evaluate compiled C code with same inputs; compare results.
-
   (define-syntax-rule (semantic-test #:name name
                                      #:defines defines
                                      ...
@@ -157,14 +152,11 @@
                  defines
                  ...
                  (define cexpr (bvexpr->cexpr bv-expr))
-                 ;;;  (displayln (format "cexpr: ~a" cexpr))
-                 ;;; Syntactic test.
-                 ;;; TODO: make this arg optional
-                 ;;;  if (cexpr )
+
+                 ;;; Optional syntactic test.
                  (if c-expr
                      (check-equal? cexpr c-expr)
-                     0
-                     )
+                     0)
 
                  ;;; Save C code to file
                  (define cfile-filename (make-temporary-file "~a.c"))
@@ -174,61 +166,183 @@
                  (displayln "#include <stdlib.h>" cfile)
                  (displayln "int main(int argc, char* argv[]) {" cfile)
                  (for ([(i id) (in-indexed (symbolics bv-expr))])
-                   (displayln (format "uint64_t ~a = atoi(argv[~a]);" i (+ id 1)) cfile)) ;;; add 1 to ID to offset that argv[0] -> filename
+                   (displayln (format "uint64_t ~a = atoll(argv[~a]);" i (+ id 1)) cfile)) ;;; add 1 to ID to offset that argv[0] -> filename
                  (displayln (format "printf(\"%llu\", ~a);" cexpr) cfile)
                  (displayln "return 0;" cfile)
                  (displayln "}" cfile)
 
                  (close-output-port cfile)
                  (define executable-filename (make-temporary-file "~a.out"))
-                 ;;;  (displayln (format "executable: ~a" executable-filename))
                  (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
 
-
                  (define (generate-values symbols)
-                   (apply cartesian-product (map (lambda (symbol)
-                                                   (range 0 (expt 2 (bvlen symbol)))) symbols)))
+                   (let* ([bitwidth (bvlen (car symbols))])
+                     ;;; If the bitwidth is sufficiently small, then generate exhaustive testing arguments over every possible combination of values.
+                     (if (< bitwidth 5)
+                         (apply cartesian-product (map (lambda (symbol)
+                                                         (range 0 (- (expt 2 (bvlen symbol)) 1))) symbols))
+                         ;;; otherwise, randomly select 15 tuples of values, each value ranging from 1 to min(2^bvlen, max_random_int)
+                         (build-list 15 (lambda (i)
+                                          (build-list (length symbols) (lambda (j) (min (- (expt 2 (bvlen (car symbols))) 1) (random 4294967087))
+                                                                         )))))))
 
-                 ;;; TODO: print for now, but we need to actually verify this. how to verify?
                  (for ([args (generate-values (symbolics bv-expr))])
                    (begin
+                     ;;; We use zip to give `evaluate` a hash from each symbolic constant to a given value in an element of `args`.
                      (define (zip lst1 lst2)
                        (cond [(and (null? lst1) (null? lst2)) '()]
                              [(or (null? lst1) (null? lst2)) (error "unequal lengths")]
                              [#t (begin
                                    (cons (cons (car lst1) (bv (car lst2) (bvlen (car lst1)))) (zip (cdr lst1) (cdr lst2))))]))
                      (define result (evaluate bv-expr (sat (make-immutable-hash (zip (symbolics bv-expr) args)))))
-                     ;;;  (displayln (format "result: ~a, which has a value of ~a" result (bitvector->natural result)))
-                     ;;; TODO: handle booleans?
-                     ;;;  (displayln (apply format "running C code with args ~a ~a" args))
                      (define output (string->number (with-output-to-string (thunk (apply system* executable-filename (map number->string args))))))
-                     ;;;  (displayln (format "we should get ~a, and we got ~a" (bitvector->natural result) output))
-                     (check-eq? output (bitvector->natural result))
-                     ))
-                 (clear-terms! (symbolics bv-expr))
-                 )))
+                     ;;; note: for larger(?) integers (check-eq? num (string->number "num")) fails. switched to check-equal?
+                     (check-equal? output (if (boolean? result) (bitvector->natural (bool->bitvector result)) (bitvector->natural result)))))
+                 (clear-terms! (symbolics bv-expr)))))
 
-  ;;; TODO: wrap this in for loop over bitsizes
-  ;;; also, check booleans
-  ;;; (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])
-  (for ([sz (list 1 2 3 4)])
+
+  ;;; Basic test cases that work well with bitvector sizes up to 64.
+  (for ([sz (list 1 2 3 16 32 64)])
     (semantic-test
-     #:name "semantics of bvadd"
+     #:name "basic bveq"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bveq a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvadd"
      #:defines (define-symbolic a b (bitvector sz))
      #:bv-expr (bvadd a b)
-     #:c-expr #f))
+     #:c-expr #f)
 
-  (semantic-test
-   #:name "more complex bvadd expression"
-   #:defines (define-symbolic a b c (bitvector 3))
-   #:bv-expr (bvadd (bvadd a b) c)
-   #:c-expr #f))
+    (semantic-test
+     #:name "basic bvand"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvand a b)
+     #:c-expr #f)
 
-;;;   (semantic-test
-;;;    #:name "semantics of bveq"
-;;;    #:defines (define-symbolic a b (bitvector 2))
-;;;    #:bv-expr (bveq a b)
-;;;    #:c-expr "((uint8_t)((a & 1ULL) == (b & 1ULL)))"))
+    (semantic-test
+     #:name "basic bvxor"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvxor a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvor"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvor a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvsub"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvsub a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvnot"
+     #:defines (define-symbolic a (bitvector sz))
+     #:bv-expr (bvnot a)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "complex bvnot expression"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvnot (bvxor a b))
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "complex bvnot expression"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvnot (bvxor a b))
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvneg"
+     #:defines (define-symbolic a (bitvector sz))
+     #:bv-expr (bvneg a)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvshl"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvshl a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvult"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvult a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvle"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvule a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvgt"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvugt a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvmul"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (bvmul a b)
+     #:c-expr #f)
+    )
+
+  ;;; Basic cases that do not work.
+  (for ([sz (list 64)])
+    ;;; Here, concatenating two bv64s throws a compile error. The integeral literal in the bitmask
+    ;;; required to represent all 128 bits isn't possible to write out.
+    (semantic-test
+     #:name "basic concat"
+     #:defines (define-symbolic a b (bitvector sz))
+     #:bv-expr (concat a b)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvlshr"
+     #:defines (define-symbolic a (bitvector sz))
+     #:bv-expr (bvlshr a (bv (random (max 1 (- sz 2))) sz))
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "basic bvashr"
+     #:defines (define-symbolic a (bitvector sz))
+     #:bv-expr (bvashr a (bv (random (max 1 (- sz 2))) sz))
+     #:c-expr #f)
+
+    (let* ([j (random sz)]
+           [i (+ j (random (- sz j 1)))])
+      (semantic-test
+       #:name "basic extract"
+       #:defines (define-symbolic a (bitvector 8))
+       #:bv-expr (extract i j a)
+       #:c-expr #f)
+      )
+    )
+
+
+  ;;; More complex cases that string together many operators.
+  (for ([sz (list 64)])
+    (semantic-test
+     #:name "complex bvadd expression"
+     #:defines (define-symbolic a b c (bitvector sz))
+     #:bv-expr (bvadd (bvadd a b) c)
+     #:c-expr #f)
+
+    (semantic-test
+     #:name "complex expression with lots of arithmetic operators"
+     #:defines (define-symbolic a b c (bitvector sz))
+     #:bv-expr (bvsub (bvadd (bvmul b (bvxor (bvadd a c) (bvsub a c))))
+                      (bvnot (bvneg (bvadd (bvmul b c) b))))
+     #:c-expr #f)
+    )
+  )
 
 
 (define (json->verilog json verilog #:logfile [logfile "/dev/null"])
