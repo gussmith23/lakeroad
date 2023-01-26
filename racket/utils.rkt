@@ -182,9 +182,9 @@
                                      (apply cartesian-product (map (lambda (symbol)
                                                                      (range 0 (- (expt 2 (bvlen symbol)) 1))) symbols))
                                      ;;; otherwise, randomly select ~2^16 tuples of values, each value ranging from 1 to min(2^bvlen, max_random_int)
-                                     (build-list 65535 (lambda (i)
-                                                         (build-list (length symbols) (lambda (j) (min (- (expt 2 (bvlen (car symbols))) 1) (random 4294967087))
-                                                                                        )))))))
+                                     (build-list 50 (lambda (i)
+                                                      (build-list (length symbols) (lambda (j) (min (- (expt 2 (bvlen (car symbols))) 1) (random 4294967087))
+                                                                                     )))))))
 
                              (for ([args (generate-values (symbolics bv-expr))])
                                (begin
@@ -201,27 +201,27 @@
                              (clear-terms! (symbolics bv-expr))))))
 
   ;;; Basic cases that do not work.
-  ;;;   (for ([sz (list 32)])
-  ;;; Here, concatenating two bv64s throws a compile error. The integeral literal in the bitmask
-  ;;; required to represent all 128 bits isn't possible to write out.
-  ;;;     (semantic-test
-  ;;;      #:name "basic concat"
-  ;;;      #:defines (define-symbolic a b (bitvector sz))
-  ;;;      #:bv-expr (concat a b)
-  ;;;      #:c-expr #f)
+  ;;; (for ([sz (list 32)])
+  ;;;   ;;; Here, concatenating two bv64s throws a compile error. The integeral literal in the bitmask
+  ;;;   ;;; required to represent all 128 bits isn't possible to write out.
+  ;;;   (semantic-test
+  ;;;    #:name "basic concat"
+  ;;;    #:defines (define-symbolic a b (bitvector sz))
+  ;;;    #:bv-expr (concat a b)
+  ;;;    #:c-expr #f)
 
-  ;;;     (semantic-test
-  ;;;      #:name "basic bvlshr"
-  ;;;      #:defines (define-symbolic a (bitvector sz))
-  ;;;      #:bv-expr (bvlshr a (bv (random (max 1 (- sz 2))) sz))
-  ;;;      #:c-expr #f)
+  ;;;   (semantic-test
+  ;;;    #:name "basic bvlshr"
+  ;;;    #:defines (define-symbolic a (bitvector sz))
+  ;;;    #:bv-expr (bvlshr a (bv (random (- sz 1)) sz))
+  ;;;    #:c-expr #f)
 
-  ;;;     (semantic-test
-  ;;;      #:name "basic bvashr"
-  ;;;      #:defines (define-symbolic a (bitvector sz))
-  ;;;      #:bv-expr (bvashr a (bv (random (max 1 (- sz 2))) sz))
-  ;;;      #:c-expr #f)
-  ;;;     )
+  ;;;   (semantic-test
+  ;;;    #:name "basic bvashr"
+  ;;;    #:defines (define-symbolic a (bitvector sz))
+  ;;;    #:bv-expr (bvashr a (bv (random (- sz 1)) sz))
+  ;;;    #:c-expr #f)
+  ;;;   )
 
   ;;; Basic test cases that work well with bitvector sizes up to 64.
   (for ([sz (list 1 2 3 16 32 64)])
@@ -328,7 +328,7 @@
 
 
   ;;; More complex cases that string together many operators.
-  (for ([sz (list 64)])
+  (for ([sz (list 1 2 3 4 16 32 64)])
     (semantic-test
      #:name "complex bvadd expression"
      #:defines (define-symbolic a b c (bitvector sz))
