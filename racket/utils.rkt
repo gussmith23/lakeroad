@@ -182,9 +182,9 @@
                                      (apply cartesian-product (map (lambda (symbol)
                                                                      (range 0 (- (expt 2 (bvlen symbol)) 1))) symbols))
                                      ;;; otherwise, randomly select ~2^16 tuples of values, each value ranging from 1 to min(2^bvlen, max_random_int)
-                                     (build-list 50 (lambda (i)
-                                                      (build-list (length symbols) (lambda (j) (min (- (expt 2 (bvlen (car symbols))) 1) (random 4294967087))
-                                                                                     )))))))
+                                     (build-list 65535 (lambda (i)
+                                                         (build-list (length symbols) (lambda (j) (min (- (expt 2 (bvlen (car symbols))) 1) (random 4294967087))
+                                                                                        )))))))
 
                              (for ([args (generate-values (symbolics bv-expr))])
                                (begin
