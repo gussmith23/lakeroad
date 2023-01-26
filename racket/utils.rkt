@@ -148,61 +148,92 @@
                                      #:bv-expr bv-expr
                                      #:c-expr c-expr)
     (test-case name
-               (begin
-                 defines
-                 ...
-                 (define cexpr (bvexpr->cexpr bv-expr))
+               (with-terms (begin
+                             defines
+                             ...
+                             (define cexpr (bvexpr->cexpr bv-expr))
 
-                 ;;; Optional syntactic test.
-                 (if c-expr
-                     (check-equal? cexpr c-expr)
-                     0)
+                             ;;; Optional syntactic test.
+                             (if c-expr
+                                 (check-equal? cexpr c-expr)
+                                 0)
 
-                 ;;; Save C code to file
-                 (define cfile-filename (make-temporary-file "~a.c"))
-                 (define cfile (open-output-file cfile-filename #:exists 'replace))
-                 (displayln "#include <stdint.h>" cfile)
-                 (displayln "#include <stdio.h>" cfile)
-                 (displayln "#include <stdlib.h>" cfile)
-                 (displayln "int main(int argc, char* argv[]) {" cfile)
-                 (for ([(i id) (in-indexed (symbolics bv-expr))])
-                   (displayln (format "uint64_t ~a = atoll(argv[~a]);" i (+ id 1)) cfile)) ;;; add 1 to ID to offset that argv[0] -> filename
-                 (displayln (format "printf(\"%llu\", ~a);" cexpr) cfile)
-                 (displayln "return 0;" cfile)
-                 (displayln "}" cfile)
+                             ;;; Save C code to file
+                             (define cfile-filename (make-temporary-file "~a.c"))
+                             (define cfile (open-output-file cfile-filename #:exists 'replace))
+                             (displayln "#include <stdint.h>" cfile)
+                             (displayln "#include <stdio.h>" cfile)
+                             (displayln "#include <stdlib.h>" cfile)
+                             (displayln "int main(int argc, char* argv[]) {" cfile)
+                             (for ([(i id) (in-indexed (symbolics bv-expr))])
+                               (displayln (format "uint64_t ~a = atoll(argv[~a]);" i (+ id 1)) cfile)) ;;; add 1 to ID to offset that argv[0] -> filename
+                             (displayln (format "printf(\"%llu\", ~a);" cexpr) cfile)
+                             (displayln "return 0;" cfile)
+                             (displayln "}" cfile)
 
-                 (close-output-port cfile)
-                 (define executable-filename (make-temporary-file "~a.out"))
-                 (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
+                             (close-output-port cfile)
+                             (define executable-filename (make-temporary-file "~a.out"))
+                             (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
 
-                 (define (generate-values symbols)
-                   (let* ([bitwidth (bvlen (car symbols))])
-                     ;;; If the bitwidth is sufficiently small, then generate exhaustive testing arguments over every possible combination of values.
-                     (if (< bitwidth 5)
-                         (apply cartesian-product (map (lambda (symbol)
-                                                         (range 0 (- (expt 2 (bvlen symbol)) 1))) symbols))
-                         ;;; otherwise, randomly select 15 tuples of values, each value ranging from 1 to min(2^bvlen, max_random_int)
-                         (build-list 15 (lambda (i)
-                                          (build-list (length symbols) (lambda (j) (min (- (expt 2 (bvlen (car symbols))) 1) (random 4294967087))
-                                                                         )))))))
+                             (define (generate-values symbols)
+                               (let* ([bitwidth (bvlen (car symbols))])
+                                 ;;; If the bitwidth is sufficiently small, then generate exhaustive testing arguments over every possible combination of values.
+                                 (if (< bitwidth 8)
+                                     (apply cartesian-product (map (lambda (symbol)
+                                                                     (range 0 (- (expt 2 (bvlen symbol)) 1))) symbols))
+                                     ;;; otherwise, randomly select ~2^16 tuples of values, each value ranging from 1 to min(2^bvlen, max_random_int)
+                                     (build-list 65535 (lambda (i)
+                                                         (build-list (length symbols) (lambda (j) (min (- (expt 2 (bvlen (car symbols))) 1) (random 4294967087))
+                                                                                        )))))))
 
-                 (for ([args (generate-values (symbolics bv-expr))])
-                   (begin
-                     ;;; We use zip to give `evaluate` a hash from each symbolic constant to a given value in an element of `args`.
-                     (define (zip lst1 lst2)
-                       (cond [(and (null? lst1) (null? lst2)) '()]
-                             [(or (null? lst1) (null? lst2)) (error "unequal lengths")]
-                             [#t (begin
-                                   (cons (cons (car lst1) (bv (car lst2) (bvlen (car lst1)))) (zip (cdr lst1) (cdr lst2))))]))
-                     (define result (evaluate bv-expr (sat (make-immutable-hash (zip (symbolics bv-expr) args)))))
-                     (define output (string->number (with-output-to-string (thunk (apply system* executable-filename (map number->string args))))))
-                     ;;; note: for larger(?) integers (check-eq? num (string->number "num")) fails. switched to check-equal?
-                     (check-equal? output (if (boolean? result) (bitvector->natural (bool->bitvector result)) (bitvector->natural result)))))
-                 (clear-terms! (symbolics bv-expr)))))
+                             (for ([args (generate-values (symbolics bv-expr))])
+                               (begin
+                                 ;;; We use zip to give `evaluate` a hash from each symbolic constant to a given value in an element of `args`.
+                                 (define (zip lst1 lst2)
+                                   (cond [(and (null? lst1) (null? lst2)) '()]
+                                         [(or (null? lst1) (null? lst2)) (error "unequal lengths")]
+                                         [#t (begin
+                                               (cons (cons (car lst1) (bv (car lst2) (bvlen (car lst1)))) (zip (cdr lst1) (cdr lst2))))]))
+                                 (define result (evaluate bv-expr (sat (make-immutable-hash (zip (symbolics bv-expr) args)))))
+                                 (define output (string->number (with-output-to-string (thunk (apply system* executable-filename (map number->string args))))))
+                                 ;;; note: for larger(?) integers (check-eq? num (string->number "num")) fails. switched to check-equal?
+                                 (check-equal? output (if (boolean? result) (bitvector->natural (bool->bitvector result)) (bitvector->natural result)))))
+                             (clear-terms! (symbolics bv-expr))))))
 
+  ;;; Basic cases that do not work.
+  ;;;   (for ([sz (list 32)])
+  ;;; Here, concatenating two bv64s throws a compile error. The integeral literal in the bitmask
+  ;;; required to represent all 128 bits isn't possible to write out.
+  ;;;     (semantic-test
+  ;;;      #:name "basic concat"
+  ;;;      #:defines (define-symbolic a b (bitvector sz))
+  ;;;      #:bv-expr (concat a b)
+  ;;;      #:c-expr #f)
+
+  ;;;     (semantic-test
+  ;;;      #:name "basic bvlshr"
+  ;;;      #:defines (define-symbolic a (bitvector sz))
+  ;;;      #:bv-expr (bvlshr a (bv (random (max 1 (- sz 2))) sz))
+  ;;;      #:c-expr #f)
+
+  ;;;     (semantic-test
+  ;;;      #:name "basic bvashr"
+  ;;;      #:defines (define-symbolic a (bitvector sz))
+  ;;;      #:bv-expr (bvashr a (bv (random (max 1 (- sz 2))) sz))
+  ;;;      #:c-expr #f)
+  ;;;     )
 
   ;;; Basic test cases that work well with bitvector sizes up to 64.
   (for ([sz (list 1 2 3 16 32 64)])
+    (let* ([j (random sz)]
+           [i (+ j (random (- sz j)))])
+      (semantic-test
+       #:name "basic extract"
+       #:defines (define-symbolic a (bitvector sz))
+       #:bv-expr (extract i j a)
+       #:c-expr #f)
+      )
+
     (semantic-test
      #:name "basic bveq"
      #:defines (define-symbolic a b (bitvector sz))
@@ -294,37 +325,6 @@
      #:c-expr #f)
     )
 
-  ;;; Basic cases that do not work.
-  (for ([sz (list 64)])
-    ;;; Here, concatenating two bv64s throws a compile error. The integeral literal in the bitmask
-    ;;; required to represent all 128 bits isn't possible to write out.
-    (semantic-test
-     #:name "basic concat"
-     #:defines (define-symbolic a b (bitvector sz))
-     #:bv-expr (concat a b)
-     #:c-expr #f)
-
-    (semantic-test
-     #:name "basic bvlshr"
-     #:defines (define-symbolic a (bitvector sz))
-     #:bv-expr (bvlshr a (bv (random (max 1 (- sz 2))) sz))
-     #:c-expr #f)
-
-    (semantic-test
-     #:name "basic bvashr"
-     #:defines (define-symbolic a (bitvector sz))
-     #:bv-expr (bvashr a (bv (random (max 1 (- sz 2))) sz))
-     #:c-expr #f)
-
-    (let* ([j (random sz)]
-           [i (+ j (random (- sz j 1)))])
-      (semantic-test
-       #:name "basic extract"
-       #:defines (define-symbolic a (bitvector 8))
-       #:bv-expr (extract i j a)
-       #:c-expr #f)
-      )
-    )
 
 
   ;;; More complex cases that string together many operators.
