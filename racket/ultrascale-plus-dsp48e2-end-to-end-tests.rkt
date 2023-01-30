@@ -35,18 +35,20 @@
      ;;; TODO(@gussmith23): This test takes especially long for 8 and 16 bit (256^4 points to
      ;;; simulate). Could enable an option to forcibly enable random testing.
      (end-to-end-test (bvadd (bvmul (bvadd l0 l1) l2) l3))
-     (end-to-end-test (bvadd (bvmul l0 l1) l2))
+     ;;; TODO(@gussmith23): Re-enable this test on all inputs once Rosette bug (#174) fixed.
+     (when (not (equal? sz 16)) (end-to-end-test (bvadd (bvmul l0 l1) l2)))
      (end-to-end-test (bvmul (bvadd l0 l1) l2))
      ; Sub on pre-adder doesn't seem to be working.
      ;(test-true (format "~a-bit sub-mul" sz) (end-to-end-test (bvmul (bvsub l0 l1) l2)))
      (end-to-end-test (bvmul (bvadd l0 l1) (bvadd l0 l1)))
      ;(test-true (format "~a-bit sub squared" sz) (end-to-end-test (bvmul (bvsub l0 l1) (bvsub l0 l1))))
      (end-to-end-test (bvadd l0 l1))
-     (end-to-end-test (bvmul l0 l1))
+     ;;; TODO(@gussmith23): Re-enable this test on all inputs once Rosette bug (#174) fixed.
+     (when (not (equal? sz 16)) (end-to-end-test (bvmul l0 l1)))
      (end-to-end-test (bvneg (bvmul l0 l1)))
-     (end-to-end-test (bvmul (bvsub l0 l1) l2))
+     ;;; TODO(@gussmith23): Re-enable this test on all inputs once Rosette bug (#174) fixed.
+     (when (not (equal? sz 16)) (end-to-end-test (bvmul (bvsub l0 l1) l2)))
      (end-to-end-test (bvmul (bvsub l0 l1) (bvsub l0 l1)))
-     (end-to-end-test (bvmul (bvsub l0 l1) l2))
      (end-to-end-test l0)
      (begin
        (clear-vc!)
