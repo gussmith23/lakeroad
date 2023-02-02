@@ -444,7 +444,7 @@
           ;;; drop one of the inputs to the larger LUT! Then, we'll use that dropped input as the
           ;;; selector of the MUX2.
           [smaller-lut-ports (take port-map (sub1 (length port-map)))]
-          [mux-selector (list-ref port-map (sub1 (length port-map)))]
+          [mux-selector (cdr (list-ref port-map (sub1 (length port-map))))]
 
           [(list lut-expr0 lut-0-internal-data)
            (construct-interface architecture-description
@@ -772,7 +772,7 @@
                             'O)
                            'input
                            1)
-                          (module-instance-port "C" selector-expr 'input 1)
+                          (module-instance-port "C" (? (λ (v) (bveq v (bv 0 1)))) 'input 1)
                           (module-instance-port "D" unchecked-expr 'input 1)
                           (module-instance-port "Z" "O" 'output 1))
                     (list (module-instance-parameter "init" s2))
