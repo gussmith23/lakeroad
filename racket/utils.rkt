@@ -158,29 +158,9 @@
         (define bv-symbolics (symbolics bv-expr))
         (define fuzzing-space-size 256)
 
-        ;;; Optional syntactic test.
-        (if c-expr (check-equal? cexpr c-expr) 0)
-
-        ;;; Save C code to file
-        (define cfile-filename (make-temporary-file "~a.c"))
-        (define cfile (open-output-file cfile-filename #:exists 'replace))
-        (displayln "#include <stdint.h>" cfile)
-        (displayln "#include <stdio.h>" cfile)
-        (displayln "#include <stdlib.h>" cfile)
-        (displayln "int main(int argc, char* argv[]) {" cfile)
-        (for ([(i id) (in-indexed (symbolics bv-expr))])
-          (displayln (format "\tuint64_t ~a = atoll(argv[~a]);" i (+ id 1))
-                     cfile)) ;;; add 1 to ID to offset that argv[0] -> filename
-        (displayln (format "\tprintf(\"%llu\", ~a);" cexpr) cfile)
-        (displayln "\treturn 0;" cfile)
-        (displayln "}" cfile)
-
-        (close-output-port cfile)
-        (define executable-filename (make-temporary-file "~a.out"))
-        (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
-
-        ;;; With the list of n symbols, generate a list of n-tuples. The ith value in the tuple
-        ;;; is a bitvector corresponding to the value of the ith symbolic constant.
+        ;;; Helper function for generating testing input.
+        ;;; Given a list of n symbols, generate a list of n-tuples. The ith value in the tuple
+        ;;; is a bitvector that the ith symbolic constant will be set to.
         (define (generate-values symbols)
           (let* ([iteration-space-size (expt 2 (apply + (map bvlen symbols)))])
             ;;; We choose to exhaustively test by looking at the iteration space of bv-expr's symbolics.
@@ -189,18 +169,81 @@
             (if (<= iteration-space-size fuzzing-space-size)
                 (apply cartesian-product
                        (for/list ([symbol bv-symbolics])
-                         (for/list ([i (range 0 (- (expt 2 (bvlen symbol)) 1))])
+                         (for/list ([i (range 0 (expt 2 (bvlen symbol)))])
                            (bv i (bvlen symbol)))))
                 ;;; randomly select tuples of values, each value ranging from
                 ;;; 1 to min(2^bvlen - 1, max_random_int)
-                (build-list
-                 fuzzing-space-size
-                 (lambda (i)
-                   (let ([random-max-int 4294967087])
-                     (map (lambda (curr-bv)
-                            (bv (random (min (- (expt 2 (bvlen curr-bv)) 1) random-max-int))
-                                (bvlen curr-bv)))
-                          bv-symbolics)))))))
+                (build-list fuzzing-space-size
+                            (lambda (i)
+                              (let ([random-max-int 4294967087])
+                                (map (lambda (curr-bv)
+                                       (bv (random (min (expt 2 (bvlen curr-bv)) random-max-int))
+                                           (bvlen curr-bv)))
+                                     bv-symbolics)))))))
+
+        ;;; Optional syntactic test.
+        (if c-expr (check-equal? cexpr c-expr) 0)
+
+        ;;; Generate values to test over.
+        (define bv-tuples (generate-values bv-symbolics))
+
+        ;;; Save arguments to file.
+        (define args-filename (make-temporary-file "~a.txt"))
+        (define args-file (open-output-file args-filename #:exists 'replace))
+        (for ([bv-tuple bv-tuples])
+          (let* ([number-tuple (map bitvector->natural bv-tuple)])
+            (displayln number-tuple args-file)))
+
+        ;;; Save C code to file
+        (define cfile-filename (make-temporary-file "~a.c"))
+        (define cfile (open-output-file cfile-filename #:exists 'replace))
+        ;;; (displayln "#include <stdint.h>" cfile)
+        ;;; (displayln "#include <stdio.h>" cfile)
+        ;;; (displayln "#include <stdlib.h>" cfile)
+        ;;; (displayln "int main(int argc, char* argv[]) {" cfile)
+        ;;; (displayln (format "FILE *fp = fopen(~a, \"r\");" args-filename) cfile)
+        ;;; (displayln "if (!fp) { return 1; }" cfile)
+        ;;; (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)) cfile)
+        ;;; (displayln (format "uint64_t values[~a];" (length bv-symbolics)) cfile)
+        ;;; (displayln "if (getchar() != '(') { return 1; }" cfile)
+        ;;; (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))) cfile)
+        ;;; (displayln "scanf(fp, \"%lld\", &values[j]);" cfile)
+        ;;; (for ([(i id) (in-indexed (symbolics bv-expr))])
+        ;;;   (displayln (format "uint64_t ~a = values[~a];" i id) cfile)
+        ;;;   cfile)
+        ;;; ;;; idea: print out each result on its own line
+        ;;; (displayln (format "printf(\"%llu\\n\", ~a);" cexpr) cfile)
+        ;;; (displayln "}" cfile)
+        ;;; (displayln "}" cfile)
+        ;;; (displayln "return 0;" cfile)
+        ;;; (displayln "}" cfile)
+
+        (displayln "#include <stdint.h>")
+        (displayln "#include <stdio.h>")
+        (displayln "#include <stdlib.h>")
+        (displayln "int main(int argc, char* argv[]) {")
+        (displayln (format "FILE *fp = fopen(\"~a\", \"r\");" args-filename))
+        (displayln "if (!fp) { return 1; }")
+        (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)))
+        (displayln (format "uint64_t values[~a];" (length bv-symbolics)))
+        (displayln "if (fgetc(fp) != '(') { return 1; }")
+        (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))))
+        (displayln "fscanf(fp, \"%lld\", &values[j]);") ;;; worry about space b/w nums?
+        (displayln "}")
+        (displayln "if (fgetc(fp) != ')') { return 1; }") ;;; TODO: take care of newline
+
+        (for ([(i id) (in-indexed (symbolics bv-expr))])
+          (displayln (format "uint64_t ~a = values[~a];" i id)))
+        ;;; idea: print out each result on its own line
+        (displayln (format "printf(\"%llu\\n\", ~a);" cexpr))
+        (displayln "}")
+        (displayln "return 0;")
+        (displayln "}")
+        (exit 1)
+
+        (close-output-port cfile)
+        (define executable-filename (make-temporary-file "~a.out"))
+        (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
 
         (for ([args (generate-values bv-symbolics)])
           (begin
