@@ -147,16 +147,15 @@
                                 num-logical-inputs
                                 bitwidth
                                 #:internal-data [internal-data #f])
-  (match-let* 
-      ([_ 1]  ;;; Dummy line to prevent formatter from messing up comment structure
-       [(list carry-expr internal-data)
-        (construct-interface architecture-description 
-                             (interface-identifier "carry" (hash "width" bitwidth))
-                             (list (cons "CI" (lr:bv (?? (bitvector 1))))
-                                   (cons "DI" (lr:list-ref logical-inputs (lr:integer 0)))
-                                   (cons "S" (lr:list-ref logical-inputs (lr:integer 1))))
-         #:internal-data internal-data)]
-       [out-expr (lr:hash-ref carry-expr 'O)])
+  (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+               [(list carry-expr internal-data)
+                (construct-interface architecture-description
+                                     (interface-identifier "carry" (hash "width" bitwidth))
+                                     (list (cons "CI" (lr:bv (?? (bitvector 1))))
+                                           (cons "DI" (lr:list-ref logical-inputs (lr:integer 0)))
+                                           (cons "S" (lr:list-ref logical-inputs (lr:integer 1))))
+                                     #:internal-data internal-data)]
+               [out-expr (lr:hash-ref carry-expr 'O)])
     (list out-expr internal-data)))
 
 ;;; Bitwise with carry sketch generator.
