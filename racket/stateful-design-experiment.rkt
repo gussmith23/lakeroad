@@ -8,7 +8,10 @@
          bv->signal
          signal-value
          signal-state
-         merge-state)
+         merge-state
+         assoc-has-key?
+         assoc-ref
+         )
 
 (require rosette
          racket/hash)

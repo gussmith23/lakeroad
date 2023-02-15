@@ -2262,18 +2262,18 @@ here-string-delimiter
     (id-str-to-btor-id id-str))
 
   ;;; The expression representing the initial state values hash.
-  (define init-hash '(hash))
+  (define init-hash '(list))
   ;;; The symbol to which the above init hash expression will be bound via a let clause.
   (define init-hash-symbol 'init-hash)
 
   ;;; The expression representing the merged state
-  (define merged-input-state-hash '(hash))
+  (define merged-input-state-hash '(list))
   (define merged-input-state-hash-symbol 'merged-input-state-hash)
   ;;; Add initial (empty) input state hash.
   (add-expr merged-input-state-hash-symbol merged-input-state-hash)
 
   ;;; The expression for the output state hash.
-  (define output-state-hash '(hash))
+  (define output-state-hash '(list))
 
   ;;; When a state is not in the state hash, we use these functions to get an initial value.
   ;;;
@@ -2319,9 +2319,9 @@ here-string-delimiter
       (match tokens
         [`("init" ,sort-id-str ,state-id-str ,next-val-id-str)
          (set! init-hash
-               `(hash-set ,init-hash
-                          ',(string->symbol (format "state~a" state-id-str))
-                          ,(simple-compile next-val-id-str)))]
+               `(append (list (cons ',(string->symbol (format "state~a" state-id-str))
+                                    ,(simple-compile next-val-id-str)))
+                        ,init-hash))]
         [_ (void)])))
 
   ;;; Make let clause defining init-hash-symbol.
@@ -2365,9 +2365,9 @@ here-string-delimiter
          ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
          ;;; the output value for the state.
          (set! output-state-hash
-               `(hash-set ,output-state-hash
-                          ',(hash-ref state-symbols (string->number state-id-str))
-                          (signal-value ,(get-expr-id-str next-val-id-str))))]
+               `(append (list (cons ',(hash-ref state-symbols (string->number state-id-str))
+                                    (signal-value ,(get-expr-id-str next-val-id-str))))
+                        ,output-state-hash))]
         ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
         [`("init" ,sort-id-str ,state-id-str ,val-id-str) (void)]
         ;;; `name` is optional. We approximate optional using `...`, which will match whatever's left.
@@ -2413,10 +2413,10 @@ here-string-delimiter
             id-str
             `(let* ([state-value
                      (cond
-                       [(hash-has-key? ,merged-input-state-hash-symbol ',state-symbol)
-                        (bv->signal (hash-ref ,merged-input-state-hash-symbol ',state-symbol))]
-                       [(hash-has-key? ,init-hash-symbol ',state-symbol)
-                        (bv->signal (hash-ref ,init-hash-symbol ',state-symbol))]
+                       [(assoc-has-key? ,merged-input-state-hash-symbol ',state-symbol)
+                        (bv->signal (assoc-ref ,merged-input-state-hash-symbol ',state-symbol))]
+                       [(assoc-has-key? ,init-hash-symbol ',state-symbol)
+                        (bv->signal (assoc-ref ,init-hash-symbol ',state-symbol))]
                        ;;;  [else
                        ;;;   (log-warning
                        ;;;    "state ~a with no initial value, init to 0, this may not be correct in the long term"
@@ -2465,8 +2465,7 @@ here-string-delimiter
          (hash-set! input-types (string->symbol name) (hash-ref sorts (string->number type-id-str)))
          (add-expr-id-str id-str (string->symbol name))
          (add-expr merged-input-state-hash-symbol
-                   `(hash-union ,merged-input-state-hash-symbol
-                                (signal-state ,(string->symbol name))))]
+                   `(append ,merged-input-state-hash-symbol (signal-state ,(string->symbol name))))]
         [`("const" ,type-id-str ,value-str)
          (let* ([type (hash-ref sorts (string->number type-id-str))]
                 [value (string->number value-str 2)])
@@ -2575,17 +2574,15 @@ here-string-delimiter
        (let* (,@let*-clauses)
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.
-         (make-immutable-hash (list ,@(map (lambda (k v) `(cons ,k ,v))
-                                           (map (λ (s) `(quote ,s)) (hash-keys outs))
-                                           (map (lambda (out-symbol)
-                                                  `(signal (signal-value ,(hash-ref outs out-symbol))
-                                                           ,output-state-hash))
-                                                (hash-keys outs))))))))
+         (list ,@(map (lambda (k v) `(cons ,k ,v))
+                      (map (λ (s) `(quote ,s)) (hash-keys outs))
+                      (map (lambda (out-symbol)
+                             `(signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))
+                           (hash-keys outs)))))))
 
   (define requires
     (list (format "(require (file \"~a\"))" stateful-design-experiment-runtime-path)
-          "(require rosette)"
-          "(require racket/hash)"))
+          "(require rosette)"))
 
   (list out-function requires))
 
