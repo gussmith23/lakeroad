@@ -257,6 +257,7 @@
                                     (list (cons 'state98 (bv 1 (bitvector 1))))
                                     (list))))))))))))))))))))))))))
            (btor1 (bitvector 30))
+           [_ (displayln "here0")]
            (btor2 A)
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state A)))
@@ -331,6 +332,7 @@
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state CARRYINSEL)))
            (btor31 CARRYINSELREG)
+           [_ (displayln "here1")]
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state CARRYINSELREG)))
            (btor32 CEA1)
@@ -373,6 +375,7 @@
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state CEP)))
            (btor45 CLK)
+          [_ (displayln "here2")]
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state CLK)))
            (btor46 CREG)
@@ -498,6 +501,7 @@
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state RSTCTRL)))
            (btor84 RSTD)
+          [_ (displayln "here3")]
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state RSTD)))
            (btor85 RSTINMODE)
@@ -622,6 +626,7 @@
            (btor114
             (if (bitvector->bool (signal-value btor113)) btor106 btor110))
            (btor115 (if (bitvector->bool (signal-value btor114)) btor5 btor2))
+          [_ (displayln "here4")]
            (btor116
             (let* ((state-value
                     (cond
@@ -1726,6 +1731,7 @@
             (signal
              (concat (signal-value btor391) (signal-value btor404))
              (merge-state (list btor391 btor404))))
+             [_ (displayln "here9")]
            (btor406
             (signal
              (concat (signal-value btor394) (signal-value btor405))
@@ -1975,6 +1981,7 @@
             (bv->signal
              (zero-extend (signal-value btor103) (bitvector 3))
              btor103))
+              [_ (displayln "here11")]
            (btor464
             (signal
              (bool->bitvector
@@ -2304,6 +2311,7 @@
                           (bv 0 27))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
+              [_ (displayln "here10")]
            (btor542
             (let* ((state-value
                     (cond
@@ -2509,6 +2517,8 @@
             (signal
              (concat (signal-value btor595) (signal-value btor594))
              (merge-state (list btor595 btor594))))
+             ;;; TODO debugging to find infinite loop
+             [_ (displayln "here12")]
            (btor597
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2798,6 +2808,7 @@
             (signal
              (concat (signal-value btor663) (signal-value btor662))
              (merge-state (list btor663 btor662))))
+              [_ (displayln "here14")]
            (btor665
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2914,6 +2925,7 @@
             (signal
              (extract 17 17 (signal-value btor658))
              (signal-state btor658)))
+            [_ (displayln "here16")]
            (btor694
             (signal
              (concat (signal-value btor693) (signal-value btor692))
@@ -3014,6 +3026,7 @@
             (signal
              (concat (signal-value btor97) (signal-value btor719))
              (merge-state (list btor97 btor719))))
+            [_ (displayln "here15")]
            (btor721
             (let* ((state-value
                     (cond
@@ -3030,6 +3043,7 @@
                           (bv 0 45))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
+            [_ (displayln "here17")]
            (btor722
             (let* ((state-value
                     (cond
@@ -3046,6 +3060,7 @@
                           (bv 0 45))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
+            [_ (displayln "here18")]
            (btor723
             (let* ((state-value
                     (cond
@@ -3062,6 +3077,7 @@
                           (bv 0 1))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
+            [_ (displayln "here19")]
            (btor725
             (signal
              (concat (signal-value btor100) (signal-value btor723))
@@ -3073,6 +3089,7 @@
              (merge-state (list btor725 btor103))))
            (btor727
             (if (bitvector->bool (signal-value btor726)) btor722 btor721))
+            [_ (displayln "here22")]
            (btor728
             (signal (extract 0 0 (signal-value btor69)) (signal-state btor69)))
            (btor729
@@ -3087,22 +3104,33 @@
              (merge-state (list btor730))))
            (btor732
             (if (bitvector->bool (signal-value btor731)) btor729 btor495))
+            [_ (displayln "here21")]
            (btor733
             (signal
              (extract 44 44 (signal-value btor732))
              (signal-state btor732)))
+            [_ (displayln "here32")]
            (btor734
+           (begin
+            (displayln (concat (signal-value btor733) (signal-value btor732))) 
+            ;; maybe these are too long?
+            (displayln (length btor733 btor732))
+            (displayln (merge-state (list btor733 btor732))) 
             (signal
              (concat (signal-value btor733) (signal-value btor732))
-             (merge-state (list btor733 btor732))))
+             (merge-state (list btor733 btor732)))
+             ))
+            [_ (displayln "here31")]
            (btor735
             (signal
              (extract 44 44 (signal-value btor732))
              (signal-state btor732)))
+            [_ (displayln "here30")]
            (btor736
             (signal
              (concat (signal-value btor735) (signal-value btor734))
              (merge-state (list btor735 btor734))))
+            [_ (displayln "here23")]
            (btor737
             (signal
              (extract 44 44 (signal-value btor732))
@@ -3115,6 +3143,8 @@
             (bv->signal
              (zero-extend (signal-value btor97) (bitvector 2))
              btor97))
+
+            [_ (displayln "here20")]
            (btor740
             (signal
              (bool->bitvector
@@ -3172,6 +3202,7 @@
             (signal
              (bvand (signal-value btor716) (signal-value btor757))
              (merge-state (list btor716 btor757))))
+             [_ (displayln "here8")]
            (btor759
             (signal
              (extract 44 44 (signal-value btor715))
@@ -5979,6 +6010,7 @@
             (signal
              (bvxor (signal-value btor82) (signal-value btor63))
              (merge-state (list btor82 btor63))))
+             [_ (displayln "here7")]
            (btor1426
             (bv->signal
              (zero-extend (signal-value btor1425) (bitvector 1))
@@ -6730,7 +6762,10 @@
             (if (bitvector->bool (signal-value btor1621)) btor1247 btor1254))
            (btor1722 (bv->signal (bv 0 (bitvector 8))))
            (btor1723
-            (if (bitvector->bool (signal-value btor1623)) btor1722 btor1721)))
+            (if (bitvector->bool (signal-value btor1623)) btor1722 btor1721))
+            
+          [_ (displayln "here6")]
+            )
       (list
        (cons
         'XOROUT

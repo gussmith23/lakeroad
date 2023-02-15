@@ -333,6 +333,8 @@
                                 #:unnamed-input-806 (bv->signal unnamed-input-806)
                                 #:unnamed-input-850 (bv->signal unnamed-input-850))
                                'P)]
+                               [_ (displayln "hi0")]
+                               [_ (displayln out0)]
               [out1 (assoc-ref (xilinx-ultrascale-plus-dsp48e2
                                 #:A (bv->signal dsp-a out0)
                                 #:ACASCREG (bv->signal ACASCREG)
@@ -423,9 +425,12 @@
                                 #:unnamed-input-750 (bv->signal unnamed-input-750)
                                 #:unnamed-input-806 (bv->signal unnamed-input-806)
                                 #:unnamed-input-850 (bv->signal unnamed-input-850))
-                               'P)])
+                               'P)]
+                               [_ (displayln "hi1")]
+                               )
+
          (run-dsp (bvsub1 n) out1))))
 
   ; causing infinite loop?
-  ;(run-dsp (bv 1 2) (signal (bv 0 48) (list)))
+  (run-dsp (bv 1 2) (signal (bv 0 48) (list)))
   )
