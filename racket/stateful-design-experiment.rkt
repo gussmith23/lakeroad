@@ -1,4 +1,4 @@
-#lang racket
+#lang errortrace racket
 ;;; In this file, I experiment with representing circuit state. I do so using the "signal" struct,
 ;;; which can be thought of as a wrapper over a Rosette bitvector, which carries along with it some
 ;;; hidden state. I think this may be a monad-ish idea...?
@@ -13,40 +13,48 @@
 (require rosette
          racket/hash)
 
+(define (assoc-has-key? l k)
+  (not (equal? #f (assoc k l))))
+(define (assoc-ref l k)
+  (cdr (or (assoc k l) (cons 'unread #f))))
+
 ;;; value: (bv?). Represents the outwardly visible value tied to this signal.
-;;;
-;;; state: hash map of identifiers (strings? symbols?) to (bv?). Represents the internal
-;;; state tied to this signal.
-;;;
-;;; TODO(@gussmith): We rely heavily on hash tables for this implementation. Hash tables are not
-;;; lifted in Rosette, and thus we have to be very careful with them. In general, I think these are
-;;; the rules to obey when using hash tables in Rosette:
-;;; - Only use immutable hash tables.
-;;; - Keys should never be symbolic. They should always be concrete.
+;;; state: association list of keys to bvs.
 (struct signal (value state) #:transparent)
 
 ;;; Lift bitvector into signal, optionally taking the state from an existing signal.
-(define (bv->signal bv [with-state-from (signal '() (hash))])
+(define (bv->signal bv [with-state-from (signal '() (list))])
   (signal bv (signal-state with-state-from)))
 
 ;;; Gets state from a signal.
 (define (signal-state-value signal k)
-  (hash-ref (signal-state signal) k))
+  (cdr (assoc k (signal-state signal))))
+
+(define-syntax-rule (make-assoc-list vs ...)
+  (let* ([l (list vs ...)] [l-len (length l)])
+    (when (not (equal? 0 (modulo l-len 2)))
+      (error "need even number of keys+vals"))
+    (map cons
+         (for/list ([i (/ l-len 2)])
+           (list-ref l (* 2 i)))
+         (for/list ([i (/ l-len 2)])
+           (list-ref l (+ 1 (* 2 i)))))))
 
 (module+ test
   (require rackunit
            rosette)
-  (check-not-exn (λ () (signal (bv 0 1) (hash 'state0 (bv 5 8) 'state1 (bv 8 8)))))
+  (check-not-exn (λ () (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8)))))
   (check-equal? (bv->signal (bv 0 1)) (bv->signal (bv 0 1)))
   (check-equal?
-   (signal-state-value (signal (bv 0 1) (hash 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state0)
+   (signal-state-value (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state0)
    (bv 5 8))
   (check-equal?
-   (signal-state-value (signal (bv 0 1) (hash 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state1)
+   (signal-state-value (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state1)
    (bv 8 8))
   (check-true
-   (normal? (with-vc (check-exn #rx"given: state1"
-                                (λ () (signal-state-value 'state1 (signal (bv 0 1) (hash)))))))))
+   (normal? (with-vc (check-exn
+                      #rx"given: state1"
+                      (λ () (signal-state-value 'state1 (signal (bv 0 1) (make-assoc-list)))))))))
 
 ;;; New interpreter definition over signals.
 (define (experimental-interpreter expr)
@@ -75,16 +83,10 @@
     (parameterize ([fuel (sub1 (fuel))])
       body ...)))
 
-;;; Merge the state from each signal in a list of signals. Errors if signals conflict.
+;;; Merge the state from each signal in a list of signals. Simply appends the association lists. Does
+;;; not handle any conflicting keys.
 (define (merge-state signals)
-  (keyword-apply
-   hash-union
-   '(#:combine/key)
-   (list (λ (k a b)
-           (if (not (equal? a b))
-               (error (format "Key ~a is mapped to two different values in the states!" k))
-               a)))
-   (map (λ (signal) (signal-state signal)) signals)))
+  (apply append (map signal-state signals)))
 
 (module+ test
   (require rosette/solver/smt/boolector)
@@ -98,7 +100,7 @@
     (let* (;
            ;;; TODO(@gussmith23): How to handle default state? (see below)
            [old-clk
-            (if (hash-has-key? (signal-state clk) 'clk) (signal-state-value clk 'clk) (bv 0 1))]
+            (if (assoc-has-key? (signal-state clk) 'clk) (signal-state-value clk 'clk) (bv 0 1))]
            [current-clk (signal-value clk)]
            ;;; Clock "ticks" when we have a rising edge (0->1) on the clock.
            [clock-ticked (rising-edge old-clk current-clk)]
@@ -109,7 +111,7 @@
            ;;; TODO(@gussmith23): How to handle default/init values? These are explicitly specified
            ;;; in Verilog, so we should probably have a norm for handling them here.
            [old-counter
-            (if (hash-has-key? (signal-state clk) 'counter)
+            (if (assoc-has-key? (signal-state clk) 'counter)
                 (signal-state-value clk 'counter)
                 ;;; Defaulting to an 8-bit counter. Ideally bitwidth would be parameterizable.
                 (bv 0 8))]
@@ -122,7 +124,7 @@
            ;;; the necessary state. However, in that case, the state just won't exist, which is an
            ;;; easy error to catch and fix. It's better than accidentally passing out the wrong
            ;;; state (e.g. passing old-clk or old-counter here, which seems unlikely.)
-           [out (signal new-counter (hash 'clk current-clk 'counter new-counter))])
+           [out (signal new-counter (make-assoc-list 'clk current-clk 'counter new-counter))])
       out))
 
   (test-case
@@ -142,16 +144,16 @@
             [out8 (experimental-interpreter (counter (bv->signal (bv 0 1) out7)))]
             [out9 (experimental-interpreter (counter (bv->signal (bv 1 1) out8)))])
 
-       (check-equal? out0 (signal (bv 0 8) (hash 'clk (bv 0 1) 'counter (bv 0 8))))
-       (check-equal? out1 (signal (bv 0 8) (hash 'clk (bv 0 1) 'counter (bv 0 8))))
-       (check-equal? out2 (signal (bv 0 8) (hash 'clk (bv 0 1) 'counter (bv 0 8))))
-       (check-equal? out3 (signal (bv 1 8) (hash 'clk (bv 1 1) 'counter (bv 1 8))))
-       (check-equal? out4 (signal (bv 1 8) (hash 'clk (bv 1 1) 'counter (bv 1 8))))
-       (check-equal? out5 (signal (bv 1 8) (hash 'clk (bv 1 1) 'counter (bv 1 8))))
-       (check-equal? out6 (signal (bv 1 8) (hash 'clk (bv 0 1) 'counter (bv 1 8))))
-       (check-equal? out7 (signal (bv 2 8) (hash 'clk (bv 1 1) 'counter (bv 2 8))))
-       (check-equal? out8 (signal (bv 2 8) (hash 'clk (bv 0 1) 'counter (bv 2 8))))
-       (check-equal? out9 (signal (bv 3 8) (hash 'clk (bv 1 1) 'counter (bv 3 8)))))))
+       (check-equal? out0 (signal (bv 0 8) (make-assoc-list 'clk (bv 0 1) 'counter (bv 0 8))))
+       (check-equal? out1 (signal (bv 0 8) (make-assoc-list 'clk (bv 0 1) 'counter (bv 0 8))))
+       (check-equal? out2 (signal (bv 0 8) (make-assoc-list 'clk (bv 0 1) 'counter (bv 0 8))))
+       (check-equal? out3 (signal (bv 1 8) (make-assoc-list 'clk (bv 1 1) 'counter (bv 1 8))))
+       (check-equal? out4 (signal (bv 1 8) (make-assoc-list 'clk (bv 1 1) 'counter (bv 1 8))))
+       (check-equal? out5 (signal (bv 1 8) (make-assoc-list 'clk (bv 1 1) 'counter (bv 1 8))))
+       (check-equal? out6 (signal (bv 1 8) (make-assoc-list 'clk (bv 0 1) 'counter (bv 1 8))))
+       (check-equal? out7 (signal (bv 2 8) (make-assoc-list 'clk (bv 1 1) 'counter (bv 2 8))))
+       (check-equal? out8 (signal (bv 2 8) (make-assoc-list 'clk (bv 0 1) 'counter (bv 2 8))))
+       (check-equal? out9 (signal (bv 3 8) (make-assoc-list 'clk (bv 1 1) 'counter (bv 3 8)))))))
 
   (test-case
    "Simple synthesis: how many cycles to get the expected output?"
@@ -200,31 +202,31 @@
   (define (pipelined-multiplier clk a b)
     (let* (;
            [merged-state (merge-state (list clk a b))]
-           [old-clk (if (hash-has-key? merged-state 'clk) (hash-ref merged-state 'clk) (bv 0 1))]
+           [old-clk (if (assoc-has-key? merged-state 'clk) (assoc-ref merged-state 'clk) (bv 0 1))]
            [current-clk (signal-value clk)]
            [clock-ticked (rising-edge old-clk current-clk)]
-           [old-pipeline-register-0 (if (hash-has-key? merged-state 'pipeline-register-0)
-                                        (hash-ref merged-state 'pipeline-register-0)
+           [old-pipeline-register-0 (if (assoc-has-key? merged-state 'pipeline-register-0)
+                                        (assoc-ref merged-state 'pipeline-register-0)
                                         (bv 0 8))]
-           [old-pipeline-register-1 (if (hash-has-key? merged-state 'pipeline-register-1)
-                                        (hash-ref merged-state 'pipeline-register-1)
+           [old-pipeline-register-1 (if (assoc-has-key? merged-state 'pipeline-register-1)
+                                        (assoc-ref merged-state 'pipeline-register-1)
                                         (bv 0 8))]
-           [old-pipeline-register-2 (if (hash-has-key? merged-state 'pipeline-register-0)
-                                        (hash-ref merged-state 'pipeline-register-2)
+           [old-pipeline-register-2 (if (assoc-has-key? merged-state 'pipeline-register-0)
+                                        (assoc-ref merged-state 'pipeline-register-2)
                                         (bv 0 8))]
            [new-pipeline-register-0
             (if clock-ticked (bvmul (signal-value a) (signal-value b)) old-pipeline-register-0)]
            [new-pipeline-register-1 (if clock-ticked old-pipeline-register-0 old-pipeline-register-1)]
            [new-pipeline-register-2 (if clock-ticked old-pipeline-register-1 old-pipeline-register-2)]
            [out (signal new-pipeline-register-2
-                        (hash 'clk
-                              current-clk
-                              'pipeline-register-0
-                              new-pipeline-register-0
-                              'pipeline-register-1
-                              new-pipeline-register-1
-                              'pipeline-register-2
-                              new-pipeline-register-2))])
+                        (make-assoc-list 'clk
+                                         current-clk
+                                         'pipeline-register-0
+                                         new-pipeline-register-0
+                                         'pipeline-register-1
+                                         new-pipeline-register-1
+                                         'pipeline-register-2
+                                         new-pipeline-register-2))])
       out))
 
   (test-case
@@ -289,14 +291,14 @@
   (define (bit-serial-adder clk a b)
     (let* (;
            [merged-state (merge-state (list clk a b))]
-           [old-clk (if (hash-has-key? merged-state 'clk) (hash-ref merged-state 'clk) (bv 0 1))]
+           [old-clk (if (assoc-has-key? merged-state 'clk) (assoc-ref merged-state 'clk) (bv 0 1))]
            [current-clk (signal-value clk)]
            [clock-ticked (rising-edge old-clk current-clk)]
            [current-a (signal-value a)]
            [current-b (signal-value b)]
-           [rst-reg (if (hash-has-key? merged-state 'rst) (hash-ref merged-state 'rst) (bv 0 1))]
+           [rst-reg (if (assoc-has-key? merged-state 'rst) (assoc-ref merged-state 'rst) (bv 0 1))]
            [carry-reg
-            (if (hash-has-key? merged-state 'carry) (hash-ref merged-state 'carry) (bv 0 1))]
+            (if (assoc-has-key? merged-state 'carry) (assoc-ref merged-state 'carry) (bv 0 1))]
            [new-rst-reg
             (if clock-ticked (concat (bvxor carry-reg current-a current-b) rst-reg) rst-reg)]
            [new-carry-reg (if clock-ticked
@@ -304,7 +306,8 @@
                                     (bvand carry-reg current-a)
                                     (bvand carry-reg current-b))
                               carry-reg)]
-           [out (signal new-rst-reg (hash 'clk current-clk 'rst new-rst-reg 'carry new-carry-reg))])
+           [out (signal new-rst-reg
+                        (make-assoc-list 'clk current-clk 'rst new-rst-reg 'carry new-carry-reg))])
       out))
 
   (test-case
