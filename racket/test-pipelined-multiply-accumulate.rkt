@@ -1,14 +1,12 @@
 ;;; Manually testing mapping a pipelined multiply-accumulate to Xilinx UltraScale+ DSPs.
-#lang errortrace racket/base
+#lang racket/base
 
 (module+ test
-  (require racket/hash
-           rosette
+  (require rosette
            "btor.rkt"
            "stateful-design-experiment.rkt"
            rackunit
            rosette/lib/synthax
-           rosette/lib/angelic
            ;;; TODO(@gussmith23): Using a hacked version of the imported DSP.
            "xilinx-ultrascale-plus-dsp48e2-hash-union-hack.rkt")
 
