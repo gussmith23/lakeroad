@@ -10,7 +10,9 @@
          make-n-symbolics
          rdisplayln
          rprintf
-         run-lakeroad)
+         run-lakeroad
+         interleave
+         window)
 
 (require rosette
          rosette/base/core/polymorphic
@@ -184,3 +186,12 @@
 (define-runtime-path LAKEROAD_DIR "..")
 (define (get-lakeroad-directory)
   LAKEROAD_DIR)
+
+(define (interleave a b)
+  (flatten (map list a b)))
+
+(define (window xs size)
+  (cond
+    [(= (length xs) 0) (list)]
+    [(<= (length xs) size) (list xs)]
+    [else (cons (take xs size) (window (xs xs size) size))]))

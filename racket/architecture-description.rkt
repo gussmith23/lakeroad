@@ -12,6 +12,7 @@
          xilinx-ultrascale-plus-architecture-description
          lattice-ecp5-architecture-description
          sofa-architecture-description
+         find-biggest-lut
          (struct-out lr:hw-module-instance)
          (struct-out module-instance-port)
          (struct-out module-instance-parameter)
@@ -120,6 +121,7 @@
 ;;; which is completely different.
 (struct module-instance (module-name ports params filepath racket-import-filepath) #:transparent)
 
+;;; - identifier: an interface-identifier, e.g., (interface-identifier "LUT" (hash "num_inputs" 2))
 ;;; - module-instance: Module, representing how this interface is implemented. For now, we only
 ;;;   support a single module, but we should figure out how to support multiple. We can likely just
 ;;;   make this an association list of string module names to module instances.
@@ -134,6 +136,61 @@
 ;;; - interface-implementations: association list mapping string interface names to interface
 ;;;   implementations.
 (struct architecture-description (interface-implementations) #:transparent)
+
+;;; Return the size of the largest lut that is supported by this architecture
+;;; description
+(define (find-biggest-lut-size architecture-description)
+  (apply max
+         (map (lambda (impl)
+                (let ([id (interface-implementation-identifier impl)])
+                  (if (equal? (interface-identifier-name id) "LUT")
+                      (hash-ref (interface-identifier-parameters id) "num_inputs")
+                      0)))
+              (architecture-description-interface-implementations architecture-description))))
+
+;;; This densely packs logical inputs into LUTs. By this we mean that
+;;; if logical-inputs = (list a b), then a_i and b_i are always passed to the same
+;;; LUT, and as many bits as possible are passed into a LUT before allocating
+;;; another LUT.
+;;;
+;;; Example: suppose an architecture's largest LUT is a LUT4, and suppose we are
+;;; passed a logical-inputs (list a b) where a and b both have 8 bits. Rather
+;;; than using 8 LUT4s, one per each a_i, we can use 4 LUT4s, where the first
+;;; takes a0, b0, a1, b1, the second takes a2, b2, a3, b3, etc.
+(define (densely-pack-inputs-into-luts architecture-description
+                                       logical-inputs
+                                       bitwidth
+                                       num-logical-inputs
+                                       #:internal-data [internal-data #f])
+  (when (not (= num-logical-inputs 2))
+    (error "Can only densely pack 2 logical inputs"))
+
+  (match-let*
+      ([biggest-lut-size (find-biggest-lut-size architecture-description)]
+       [biggest-lut-size (if (odd? biggest-lut-size) (sub1 biggest-lut-size) biggest-lut-size)]
+       [logical-input-bits (for/list ([input-index num-logical-inputs])
+                             (let ([input (lr:list-ref logical-inputs (lr:integer input-index))])
+                               (for/list ([i bitwidth])
+                                 (lr:extract (lr:integer i) (lr:integer i) input))))]
+       [inputs (window (interleave logical-inputs) biggest-lut-size)]
+       [(list _ lut-internal-data)
+        (construct-interface
+         architecture-description
+         (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
+         ;;; Note that we don't care what the inputs are hooked up to here, because we are
+         ;;; just trying to get the internal data.
+         (for/list ([i num-logical-inputs])
+           (cons (format "I~a" i) (bv 0 1)))
+         #:internal-data internal-data)])
+    (for/list ([lut-input inputs])
+      (let ([port-map (for/list ([i (length lut-input)] [input lut-input])
+                        (cons (format "I~a" i) input))])
+        (lr:hash-ref
+         (first (construct-interface architecture-description
+                                     (interface-identifier "LUT" (hash "num_inputs" biggest-lut-size))
+                                     port-map
+                                     #:internal-data lut-internal-data))
+         'O)))))
 
 ;;; Part 3: constructing things using the architecture description.
 
