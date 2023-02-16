@@ -155,6 +155,7 @@
 (define sketch-generator
   (match (template)
     ["bitwise" bitwise-sketch-generator]
+    ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
