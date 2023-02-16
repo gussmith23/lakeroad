@@ -2239,7 +2239,13 @@ here-string-delimiter
   ;;; computes the op, and then converts back to signal.
   (define (op-call-builder op . signal-exprs)
     (let ([signal-vals (map (λ (signal-expr) `(signal-value ,signal-expr)) signal-exprs)])
-      `(signal (,op ,@signal-vals) (merge-state (list ,@signal-exprs)))))
+      `(signal (,op ,@signal-vals) 
+      ;;; TODO(@gussmith23): I'm disabling state on these internal variables, because I actually think
+      ;;; it's entirely unnecessary here.
+      ;
+      ;(merge-state (list ,@signal-exprs))
+      (list)
+      )))
 
   ;;; Reduction op builder helper.
   (define (redop-call-builder op signal-expr)
@@ -2248,7 +2254,15 @@ here-string-delimiter
   ;;; Comparison op builder helper.
   (define (compop-call-builder op . signal-exprs)
     (let ([signal-vals (map (λ (signal-expr) `(signal-value ,signal-expr)) signal-exprs)])
-      `(signal (bool->bitvector (,op ,@signal-vals)) (merge-state (list ,@signal-exprs)))))
+      `(signal (bool->bitvector (,op ,@signal-vals)) 
+      
+      ;;; TODO(@gussmith23): I'm disabling state on these internal variables, because I actually think
+      ;;; it's entirely unnecessary here.
+      ;
+      ;(merge-state (list ,@signal-exprs))
+      (list)
+      
+      )))
 
   (define (id-str-to-btor-id id-str)
     (string->symbol (format "btor~a" id-str)))

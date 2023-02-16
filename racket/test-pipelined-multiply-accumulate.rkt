@@ -8,29 +8,15 @@
            rackunit
            rosette/lib/synthax
            ;;; TODO(@gussmith23): Using a hacked version of the imported DSP.
-           "xilinx-ultrascale-plus-dsp48e2-hash-union-hack.rkt")
+           "xilinx-ultrascale-plus-dsp48e2-less-merging.rkt"
+           rosette/solver/smt/boolector)
 
   (define-namespace-anchor anc)
 
+  (current-solver (boolector))
+
   (when (not (getenv "LAKEROAD_DIR"))
     (raise "LAKEROAD_DIR not set"))
-
-  (define btor
-    (with-output-to-string
-     (thunk
-      (system
-       (format
-        "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
-        (build-path (getenv "LAKEROAD_DIR")
-                    "integration_tests"
-                    "lakeroad"
-                    "pipelined_multiply_accumulate.sv")
-        "pipelined_multiply_accumulate")))))
-
-  (define ns (namespace-anchor->namespace anc))
-  (define f (eval (first (btor->racket btor)) ns))
-
-  (define-symbolic a b acc (bitvector 16))
 
   ;;; The define-bounded syntax rule helps us "finitize" in Rosette, described in here:
   ;;; https://docs.racket-lang.org/rosette-guide/ch_essentials.html
@@ -43,6 +29,20 @@
       (parameterize ([fuel (sub1 (fuel))])
         body ...)))
 
+  (define btor
+    (with-output-to-string
+     (thunk
+      (system
+       (format
+        "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+        (build-path (getenv "LAKEROAD_DIR")
+                    "integration_tests"
+                    "lakeroad"
+                    "pipelined_multiply_accumulate.sv")
+        "pipelined_multiply_accumulate")))))
+  (define ns (namespace-anchor->namespace anc))
+  (define f (eval (first (btor->racket btor)) ns))
+  (define-symbolic a b acc (bitvector 16))
   ;;; Tick the counter n times. previous-value is the previous return value of the counter, which
   ;;; defaults to the initial result of a counter.
   (define-bounded (run-design n previous-value)
@@ -61,10 +61,8 @@
                                                  #:clk (bv->signal (bv 1 1)))
                                               'out)])
                         (run-design (bvsub1 n) out1))))
-
   (define bw 8)
   (define-symbolic clock-ticks (bitvector bw))
-
   ;;; To get the module to implement (a*b)+acc, we need to tick the clock twice.
   (check-equal?
    (evaluate
@@ -78,10 +76,33 @@
                               (signal-value (run-design clock-ticks (signal (bv 0 16) (list))))))))
    (bv 2 bw))
 
-  (define dsp-a (zero-extend (choose a b acc (bv 0 1)) (bitvector 30)))
-  (define dsp-b (zero-extend (choose a b acc (bv 0 1)) (bitvector 18)))
-  (define dsp-c (zero-extend (choose a b acc (bv 0 1)) (bitvector 48)))
-  (define dsp-d (zero-extend (choose a b acc (bv 0 1)) (bitvector 27)))
+  (clear-terms!)
+  (clear-vc!)
+
+  (define-symbolic a2 b2 acc2 (bitvector 16))
+
+  ;;; represents the Verilog design to be compiled.
+  (define-bounded (run-design-to-compile n previous-value)
+                  (if (bvzero? n)
+                      ;;; If we've run all requested ticks, return the previous value.
+                      previous-value
+                      ;;; Else, recurse.
+                      (let* ([out0 (assoc-ref (f #:a (bv->signal a2 previous-value)
+                                                 #:b (bv->signal b2)
+                                                 #:acc (bv->signal acc2)
+                                                 #:clk (bv->signal (bv 0 1)))
+                                              'out)]
+                             [out1 (assoc-ref (f #:a (bv->signal a2 out0)
+                                                 #:b (bv->signal b2)
+                                                 #:acc (bv->signal acc2)
+                                                 #:clk (bv->signal (bv 1 1)))
+                                              'out)])
+                        (run-design (bvsub1 n) out1))))
+
+  (define dsp-a (zero-extend (choose a2 b2 acc2 (bv 0 1)) (bitvector 30)))
+  (define dsp-b (zero-extend (choose a2 b2 acc2 (bv 0 1)) (bitvector 18)))
+  (define dsp-c (zero-extend (choose a2 b2 acc2 (bv 0 1)) (bitvector 48)))
+  (define dsp-d (zero-extend (choose a2 b2 acc2 (bv 0 1)) (bitvector 27)))
   ;;; (define-symbolic A (bitvector 30))
   (define-symbolic ACASCREG (bitvector 32))
   (define-symbolic ACIN (bitvector 30))
@@ -235,6 +256,109 @@
   ;;; adders.
   (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
 
+  ;;; Assumptions we make to speed synthesis.
+
+  ;;; For some reason I can't get this working for the full
+  ;;; bitwidth. I expect it to work for 26x17 (because we do
+  ;;; unsigned mult, but DSP is signed, so we can't use all
+  ;;; 27/18 bits.) 16x16 seems to be the most I can get.
+  (assume (bvult dsp-a (bv (expt 2 16) 30)))
+  (assume (bvult dsp-b (bv (expt 2 16) 18)))
+
+  ;;; Force to DYNAMIC to avoid:
+  ;;;
+  ;;; OPMODE Input Warning : [Unisim DSP48E2-8] The OPMODE[1:0] (11) is
+  ;;; invalid when using attributes USE_MULT = MULTIPLY and (A, B and
+  ;;; M) or (A, B and P) or (M and P) are not REGISTERED at time 0.000
+  ;;; ns. Please set USE_MULT to either NONE or DYNAMIC or REGISTER one
+  ;;; of each group. (A or B) and (M or P) will satisfy the
+  ;;; requirement. Instance TOP.top.DSP48E2_0
+  (assert (bveq USE_MULT (bv 18 5)))
+
+  ;;; ERROR: [DRC DSPS-2] Invalid PCIN Connection for OPMODE value: DSP48E2 cell DSP48E2_0 has
+  ;;; OPMODE[5:4] set to 01 which uses the input of the PCIN bus for its computation, however the
+  ;;; PCIN input is not properly connected to another DSP48E2 Block.  Please either correct the
+  ;;; connectivity or OPMODE value to allow for proper implementation.
+  ;;;
+  ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
+  (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+
+  (assert (bvzero? CARRYIN))
+  (assert (bvzero? CARRYCASCIN))
+
+  (assert (bvzero? CLK))
+
+  (assert (bvzero? PCIN))
+  (assert (bvzero? ACIN))
+  (assert (bvzero? BCIN))
+  ;;;(assert (bvzero? MASK))
+  ;;;(assert (bvzero? PATTERN))
+  ;;;(assert (bvzero? RND))
+  (assert (bvzero? RSTA))
+  (assert (bvzero? RSTALLCARRYIN))
+  (assert (bvzero? RSTALUMODE))
+  (assert (bvzero? RSTB))
+  (assert (bvzero? RSTC))
+  (assert (bvzero? RSTCTRL))
+  (assert (bvzero? RSTD))
+  (assert (bvzero? RSTINMODE))
+  (assert (bvzero? RSTM))
+  (assert (bvzero? RSTP))
+  ;;;  (assert (bvzero? AREG))
+  ;;;  (assert (bvzero? ADREG))
+  ;;;  (assert (bvzero? ACASCREG))
+  ;;;  (assert (bvzero? BREG))
+  ;;;  (assert (bvzero? BCASCREG))
+  ;;;  (assert (bvzero? CREG))
+  ;;;  (assert (bvzero? DREG))
+  ;;;  (assert (bvzero? PREG))
+  ;;;  (assert (bvzero? MREG))
+  ;;;  (assert (bvzero? INMODEREG))
+  ;;;  (assert (bvzero? OPMODEREG))
+  ;;;  (assert (bvzero? ALUMODEREG))
+  ;;;  (assert (bvzero? CARRYINREG))
+  ;;;  (assert (bvzero? CARRYINSELREG))
+  (assert (bvzero? CARRYINSEL))
+  (assert (bvzero? MULTSIGNIN))
+
+  (assert (bvzero? IS_ALUMODE_INVERTED))
+  (assert (bvzero? IS_CARRYIN_INVERTED))
+  (assert (bvzero? IS_CLK_INVERTED))
+  (assert (bvzero? IS_INMODE_INVERTED))
+  (assert (bvzero? IS_OPMODE_INVERTED))
+  (assert (bvzero? IS_RSTALLCARRYIN_INVERTED))
+  (assert (bvzero? IS_RSTALUMODE_INVERTED))
+  (assert (bvzero? IS_RSTA_INVERTED))
+  (assert (bvzero? IS_RSTB_INVERTED))
+  (assert (bvzero? IS_RSTCTRL_INVERTED))
+  (assert (bvzero? IS_RSTC_INVERTED))
+  (assert (bvzero? IS_RSTD_INVERTED))
+  (assert (bvzero? IS_RSTINMODE_INVERTED))
+  (assert (bvzero? IS_RSTM_INVERTED))
+  (assert (bvzero? IS_RSTP_INVERTED))
+
+  (assert (not (bvzero? CEA1)))
+  (assert (not (bvzero? CEA2)))
+  (assert (not (bvzero? CEAD)))
+  (assert (not (bvzero? CEALUMODE)))
+  (assert (not (bvzero? CEB1)))
+  (assert (not (bvzero? CEB2)))
+  (assert (not (bvzero? CEC)))
+  (assert (not (bvzero? CECARRYIN)))
+  (assert (not (bvzero? CECTRL)))
+  (assert (not (bvzero? CED)))
+  (assert (not (bvzero? CEINMODE)))
+  (assert (not (bvzero? CEM)))
+  (assert (not (bvzero? CEP)))
+
+  ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
+  ;;; assumes.
+  (assume (bvzero? unnamed-input-331))
+  (assume (bvzero? unnamed-input-488))
+  (assume (bvzero? unnamed-input-750))
+  (assume (bvzero? unnamed-input-806))
+  (assume (bvzero? unnamed-input-850))
+
   ;;; Run the DSP n times.
   (define-bounded
    (run-dsp n previous-value)
@@ -333,8 +457,6 @@
                                 #:unnamed-input-806 (bv->signal unnamed-input-806)
                                 #:unnamed-input-850 (bv->signal unnamed-input-850))
                                'P)]
-                               [_ (displayln "hi0")]
-                               [_ (displayln out0)]
               [out1 (assoc-ref (xilinx-ultrascale-plus-dsp48e2
                                 #:A (bv->signal dsp-a out0)
                                 #:ACASCREG (bv->signal ACASCREG)
@@ -425,12 +547,24 @@
                                 #:unnamed-input-750 (bv->signal unnamed-input-750)
                                 #:unnamed-input-806 (bv->signal unnamed-input-806)
                                 #:unnamed-input-850 (bv->signal unnamed-input-850))
-                               'P)]
-                               [_ (displayln "hi1")]
-                               )
+                               'P)])
 
          (run-dsp (bvsub1 n) out1))))
 
-  ; causing infinite loop?
-  (run-dsp (bv 1 2) (signal (bv 0 48) (list)))
-  )
+  (define-symbolic dsp-clock-ticks (bitvector 3))
+  ;(run-dsp dsp-clock-ticks (signal (bv 0 48) (list)))
+
+  ;;; we ask Rosette: Can you synthesize an instance of a DSP so that it behaves the same as our input
+  ;;; design?
+  (check-true
+   ;;; This synthesis query basically asks Rosette: how many clock ticks do I need to implement
+   ;;; (a*b)+acc?
+   (sat?
+    (synthesize
+     #:forall (list a2 b2 acc2)
+     #:guarantee
+     (assert
+      ;;; We give a dummy value for the initial value of `previous-value`.
+      (bveq (signal-value (run-design-to-compile (bv 2 2) (signal (bv 0 16) (list))))
+            ;;; We give a dummy value for the initial value of `previous-value`.
+            (extract 15 0 (signal-value (run-dsp dsp-clock-ticks (signal (bv 0 48) (list)))))))))))

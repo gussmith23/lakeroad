@@ -1,5 +1,3 @@
-;;; This isn't even "hacked" to not use hash-union anymore. This is now imported using the
-;;; btor->racket rewritten to use association lists instead of hashmaps.
 #lang racket/base
 (provide xilinx-ultrascale-plus-dsp48e2)
 (require (file "/Users/gus/lakeroad/racket/stateful-design-experiment.rkt"))
@@ -257,7 +255,6 @@
                                     (list (cons 'state98 (bv 1 (bitvector 1))))
                                     (list))))))))))))))))))))))))))
            (btor1 (bitvector 30))
-           [_ (displayln "here0")]
            (btor2 A)
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state A)))
@@ -332,7 +329,6 @@
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state CARRYINSEL)))
            (btor31 CARRYINSELREG)
-           [_ (displayln "here1")]
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state CARRYINSELREG)))
            (btor32 CEA1)
@@ -375,7 +371,6 @@
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state CEP)))
            (btor45 CLK)
-          [_ (displayln "here2")]
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state CLK)))
            (btor46 CREG)
@@ -501,7 +496,6 @@
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state RSTCTRL)))
            (btor84 RSTD)
-          [_ (displayln "here3")]
            (merged-input-state-hash
             (append merged-input-state-hash (signal-state RSTD)))
            (btor85 RSTINMODE)
@@ -586,18 +580,18 @@
            (btor100
             (signal
              (bvxor (signal-value btor45) (signal-value btor54))
-             (merge-state (list btor45 btor54))))
+             (list)))
            (btor101 (bitvector 2))
            (btor102
             (signal
              (concat (signal-value btor100) (signal-value btor98))
-             (merge-state (list btor100 btor98))))
+             (list)))
            (btor103 (bv->signal (bv 2 (bitvector 2))))
            (btor104
             (signal
              (bool->bitvector
               (bveq (signal-value btor102) (signal-value btor103)))
-             (merge-state (list btor102 btor103))))
+             (list)))
            (btor105
             (if (bitvector->bool (signal-value btor104)) btor96 btor95))
            (btor106 (bv->signal (bv 0 (bitvector 1))))
@@ -610,7 +604,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor15) (signal-value btor108)))
-             (merge-state (list btor15 btor108))))
+             (list)))
            (btor110
             (if (bitvector->bool (signal-value btor109)) btor97 btor106))
            (btor111 (bv->signal (bv 7 (bitvector 3))))
@@ -622,11 +616,10 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor15) (signal-value btor112)))
-             (merge-state (list btor15 btor112))))
+             (list)))
            (btor114
             (if (bitvector->bool (signal-value btor113)) btor106 btor110))
            (btor115 (if (bitvector->bool (signal-value btor114)) btor5 btor2))
-          [_ (displayln "here4")]
            (btor116
             (let* ((state-value
                     (cond
@@ -678,12 +671,12 @@
            (btor120
             (signal
              (concat (signal-value btor100) (signal-value btor118))
-             (merge-state (list btor100 btor118))))
+             (list)))
            (btor121
             (signal
              (bool->bitvector
               (bveq (signal-value btor120) (signal-value btor103)))
-             (merge-state (list btor120 btor103))))
+             (list)))
            (btor122
             (if (bitvector->bool (signal-value btor121)) btor117 btor116))
            (btor123
@@ -700,7 +693,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor126) (signal-value btor123)))
-             (merge-state (list btor126 btor123))))
+             (list)))
            (btor128
             (if (bitvector->bool (signal-value btor127)) btor125 btor105))
            (btor130
@@ -754,12 +747,12 @@
            (btor134
             (signal
              (concat (signal-value btor100) (signal-value btor132))
-             (merge-state (list btor100 btor132))))
+             (list)))
            (btor135
             (signal
              (bool->bitvector
               (bveq (signal-value btor134) (signal-value btor103)))
-             (merge-state (list btor134 btor103))))
+             (list)))
            (btor136
             (if (bitvector->bool (signal-value btor135)) btor131 btor130))
            (btor137
@@ -770,7 +763,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor22) (signal-value btor137)))
-             (merge-state (list btor22 btor137))))
+             (list)))
            (btor139
             (if (bitvector->bool (signal-value btor138)) btor97 btor106))
            (btor140
@@ -781,7 +774,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor22) (signal-value btor140)))
-             (merge-state (list btor22 btor140))))
+             (list)))
            (btor142
             (if (bitvector->bool (signal-value btor141)) btor106 btor139))
            (btor143
@@ -837,12 +830,12 @@
            (btor148
             (signal
              (concat (signal-value btor100) (signal-value btor146))
-             (merge-state (list btor100 btor146))))
+             (list)))
            (btor149
             (signal
              (bool->bitvector
               (bveq (signal-value btor148) (signal-value btor103)))
-             (merge-state (list btor148 btor103))))
+             (list)))
            (btor150
             (if (bitvector->bool (signal-value btor149)) btor145 btor144))
            (btor151
@@ -859,7 +852,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor154) (signal-value btor151)))
-             (merge-state (list btor154 btor151))))
+             (list)))
            (btor156
             (if (bitvector->bool (signal-value btor155)) btor153 btor136))
            (btor158
@@ -869,7 +862,7 @@
            (btor160
             (signal
              (bvxor (signal-value btor158) (signal-value btor159))
-             (merge-state (list btor158 btor159))))
+             (list)))
            (btor161
             (signal (extract 1 1 (signal-value btor8)) (signal-state btor8)))
            (btor162
@@ -877,7 +870,7 @@
            (btor163
             (signal
              (bvxor (signal-value btor161) (signal-value btor162))
-             (merge-state (list btor161 btor162))))
+             (list)))
            (btor164
             (signal (extract 2 2 (signal-value btor8)) (signal-state btor8)))
            (btor165
@@ -885,7 +878,7 @@
            (btor166
             (signal
              (bvxor (signal-value btor164) (signal-value btor165))
-             (merge-state (list btor164 btor165))))
+             (list)))
            (btor167
             (signal (extract 3 3 (signal-value btor8)) (signal-state btor8)))
            (btor168
@@ -893,19 +886,19 @@
            (btor169
             (signal
              (bvxor (signal-value btor167) (signal-value btor168))
-             (merge-state (list btor167 btor168))))
+             (list)))
            (btor170
             (signal
              (concat (signal-value btor163) (signal-value btor160))
-             (merge-state (list btor163 btor160))))
+             (list)))
            (btor171
             (signal
              (concat (signal-value btor166) (signal-value btor170))
-             (merge-state (list btor166 btor170))))
+             (list)))
            (btor172
             (signal
              (concat (signal-value btor169) (signal-value btor171))
-             (merge-state (list btor169 btor171))))
+             (list)))
            (btor173
             (let* ((state-value
                     (cond
@@ -957,12 +950,12 @@
            (btor177
             (signal
              (concat (signal-value btor100) (signal-value btor175))
-             (merge-state (list btor100 btor175))))
+             (list)))
            (btor178
             (signal
              (bool->bitvector
               (bveq (signal-value btor177) (signal-value btor103)))
-             (merge-state (list btor177 btor103))))
+             (list)))
            (btor179
             (if (bitvector->bool (signal-value btor178)) btor174 btor173))
            (btor180
@@ -980,7 +973,7 @@
            (btor184
             (signal
              (bvand (signal-value btor182) (signal-value btor183))
-             (merge-state (list btor182 btor183))))
+             (list)))
            (btor185 (bitvector 14))
            (btor186 (bv->signal (bv 0 (bitvector 2))))
            (btor187 (bv->signal (bv 25 (bitvector 5))))
@@ -988,7 +981,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor92) (signal-value btor187)))
-             (merge-state (list btor92 btor187))))
+             (list)))
            (btor189
             (if (bitvector->bool (signal-value btor188)) btor103 btor186))
            (btor190 (bv->signal (bv 1 (bitvector 2))))
@@ -997,7 +990,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor92) (signal-value btor191)))
-             (merge-state (list btor92 btor191))))
+             (list)))
            (btor193
             (if (bitvector->bool (signal-value btor192)) btor190 btor189))
            (btor194 (bv->signal (bv 12 (bitvector 4))))
@@ -1009,7 +1002,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor92) (signal-value btor195)))
-             (merge-state (list btor92 btor195))))
+             (list)))
            (btor197
             (if (bitvector->bool (signal-value btor196)) btor186 btor193))
            (btor198
@@ -1022,7 +1015,7 @@
               ((compose1 not bveq)
                (signal-value btor197)
                (signal-value btor198)))
-             (merge-state (list btor197 btor198))))
+             (list)))
            (btor200
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1034,7 +1027,7 @@
            (btor202
             (signal
              (concat (signal-value btor201) (signal-value btor200))
-             (merge-state (list btor201 btor200))))
+             (list)))
            (btor203
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1042,7 +1035,7 @@
            (btor204
             (signal
              (concat (signal-value btor203) (signal-value btor202))
-             (merge-state (list btor203 btor202))))
+             (list)))
            (btor205
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1050,7 +1043,7 @@
            (btor206
             (signal
              (concat (signal-value btor205) (signal-value btor204))
-             (merge-state (list btor205 btor204))))
+             (list)))
            (btor207
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1058,7 +1051,7 @@
            (btor208
             (signal
              (concat (signal-value btor207) (signal-value btor206))
-             (merge-state (list btor207 btor206))))
+             (list)))
            (btor209
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1067,7 +1060,7 @@
            (btor211
             (signal
              (concat (signal-value btor209) (signal-value btor208))
-             (merge-state (list btor209 btor208))))
+             (list)))
            (btor212
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1076,7 +1069,7 @@
            (btor214
             (signal
              (concat (signal-value btor212) (signal-value btor211))
-             (merge-state (list btor212 btor211))))
+             (list)))
            (btor215
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1085,7 +1078,7 @@
            (btor217
             (signal
              (concat (signal-value btor215) (signal-value btor214))
-             (merge-state (list btor215 btor214))))
+             (list)))
            (btor218
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1093,7 +1086,7 @@
            (btor219
             (signal
              (concat (signal-value btor218) (signal-value btor217))
-             (merge-state (list btor218 btor217))))
+             (list)))
            (btor220
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1102,7 +1095,7 @@
            (btor222
             (signal
              (concat (signal-value btor220) (signal-value btor219))
-             (merge-state (list btor220 btor219))))
+             (list)))
            (btor223
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1111,7 +1104,7 @@
            (btor225
             (signal
              (concat (signal-value btor223) (signal-value btor222))
-             (merge-state (list btor223 btor222))))
+             (list)))
            (btor226
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1120,7 +1113,7 @@
            (btor228
             (signal
              (concat (signal-value btor226) (signal-value btor225))
-             (merge-state (list btor226 btor225))))
+             (list)))
            (btor229
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1129,7 +1122,7 @@
            (btor231
             (signal
              (concat (signal-value btor229) (signal-value btor228))
-             (merge-state (list btor229 btor228))))
+             (list)))
            (btor232
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1137,7 +1130,7 @@
            (btor233
             (signal
              (concat (signal-value btor232) (signal-value btor231))
-             (merge-state (list btor232 btor231))))
+             (list)))
            (btor234
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1146,7 +1139,7 @@
            (btor236
             (signal
              (concat (signal-value btor234) (signal-value btor233))
-             (merge-state (list btor234 btor233))))
+             (list)))
            (btor237
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1155,7 +1148,7 @@
            (btor239
             (signal
              (concat (signal-value btor237) (signal-value btor236))
-             (merge-state (list btor237 btor236))))
+             (list)))
            (btor240
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1164,7 +1157,7 @@
            (btor242
             (signal
              (concat (signal-value btor240) (signal-value btor239))
-             (merge-state (list btor240 btor239))))
+             (list)))
            (btor243
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1172,7 +1165,7 @@
            (btor244
             (signal
              (concat (signal-value btor243) (signal-value btor242))
-             (merge-state (list btor243 btor242))))
+             (list)))
            (btor245
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1181,7 +1174,7 @@
            (btor247
             (signal
              (concat (signal-value btor245) (signal-value btor244))
-             (merge-state (list btor245 btor244))))
+             (list)))
            (btor248
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1190,7 +1183,7 @@
            (btor250
             (signal
              (concat (signal-value btor248) (signal-value btor247))
-             (merge-state (list btor248 btor247))))
+             (list)))
            (btor251
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1199,7 +1192,7 @@
            (btor253
             (signal
              (concat (signal-value btor251) (signal-value btor250))
-             (merge-state (list btor251 btor250))))
+             (list)))
            (btor254
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1208,7 +1201,7 @@
            (btor256
             (signal
              (concat (signal-value btor254) (signal-value btor253))
-             (merge-state (list btor254 btor253))))
+             (list)))
            (btor257
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1217,7 +1210,7 @@
            (btor259
             (signal
              (concat (signal-value btor257) (signal-value btor256))
-             (merge-state (list btor257 btor256))))
+             (list)))
            (btor260
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1226,7 +1219,7 @@
            (btor262
             (signal
              (concat (signal-value btor260) (signal-value btor259))
-             (merge-state (list btor260 btor259))))
+             (list)))
            (btor263
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1235,7 +1228,7 @@
            (btor265
             (signal
              (concat (signal-value btor263) (signal-value btor262))
-             (merge-state (list btor263 btor262))))
+             (list)))
            (btor266
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1244,7 +1237,7 @@
            (btor268
             (signal
              (concat (signal-value btor266) (signal-value btor265))
-             (merge-state (list btor266 btor265))))
+             (list)))
            (btor269
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1252,7 +1245,7 @@
            (btor270
             (signal
              (concat (signal-value btor269) (signal-value btor268))
-             (merge-state (list btor269 btor268))))
+             (list)))
            (btor271
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1261,7 +1254,7 @@
            (btor273
             (signal
              (concat (signal-value btor271) (signal-value btor270))
-             (merge-state (list btor271 btor270))))
+             (list)))
            (btor274
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1270,7 +1263,7 @@
            (btor276
             (signal
              (concat (signal-value btor274) (signal-value btor273))
-             (merge-state (list btor274 btor273))))
+             (list)))
            (btor277
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1278,7 +1271,7 @@
            (btor278
             (signal
              (concat (signal-value btor277) (signal-value btor276))
-             (merge-state (list btor277 btor276))))
+             (list)))
            (btor279
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1287,7 +1280,7 @@
            (btor281
             (signal
              (concat (signal-value btor279) (signal-value btor278))
-             (merge-state (list btor279 btor278))))
+             (list)))
            (btor282
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1295,7 +1288,7 @@
            (btor283
             (signal
              (concat (signal-value btor282) (signal-value btor281))
-             (merge-state (list btor282 btor281))))
+             (list)))
            (btor284
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1304,7 +1297,7 @@
            (btor286
             (signal
              (concat (signal-value btor284) (signal-value btor283))
-             (merge-state (list btor284 btor283))))
+             (list)))
            (btor287
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1313,7 +1306,7 @@
            (btor289
             (signal
              (concat (signal-value btor287) (signal-value btor286))
-             (merge-state (list btor287 btor286))))
+             (list)))
            (btor290
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1322,7 +1315,7 @@
            (btor292
             (signal
              (concat (signal-value btor290) (signal-value btor289))
-             (merge-state (list btor290 btor289))))
+             (list)))
            (btor293
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1331,7 +1324,7 @@
            (btor295
             (signal
              (concat (signal-value btor293) (signal-value btor292))
-             (merge-state (list btor293 btor292))))
+             (list)))
            (btor296
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1340,7 +1333,7 @@
            (btor298
             (signal
              (concat (signal-value btor296) (signal-value btor295))
-             (merge-state (list btor296 btor295))))
+             (list)))
            (btor299
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1349,7 +1342,7 @@
            (btor301
             (signal
              (concat (signal-value btor299) (signal-value btor298))
-             (merge-state (list btor299 btor298))))
+             (list)))
            (btor302
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1358,7 +1351,7 @@
            (btor304
             (signal
              (concat (signal-value btor302) (signal-value btor301))
-             (merge-state (list btor302 btor301))))
+             (list)))
            (btor305
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1367,7 +1360,7 @@
            (btor307
             (signal
              (concat (signal-value btor305) (signal-value btor304))
-             (merge-state (list btor305 btor304))))
+             (list)))
            (btor308
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1376,7 +1369,7 @@
            (btor310
             (signal
              (concat (signal-value btor308) (signal-value btor307))
-             (merge-state (list btor308 btor307))))
+             (list)))
            (btor311
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1385,7 +1378,7 @@
            (btor313
             (signal
              (concat (signal-value btor311) (signal-value btor310))
-             (merge-state (list btor311 btor310))))
+             (list)))
            (btor314
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1394,7 +1387,7 @@
            (btor316
             (signal
              (concat (signal-value btor314) (signal-value btor313))
-             (merge-state (list btor314 btor313))))
+             (list)))
            (btor317
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1403,7 +1396,7 @@
            (btor319
             (signal
              (concat (signal-value btor317) (signal-value btor316))
-             (merge-state (list btor317 btor316))))
+             (list)))
            (btor320
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1412,7 +1405,7 @@
            (btor322
             (signal
              (concat (signal-value btor320) (signal-value btor319))
-             (merge-state (list btor320 btor319))))
+             (list)))
            (btor323
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1421,7 +1414,7 @@
            (btor325
             (signal
              (concat (signal-value btor323) (signal-value btor322))
-             (merge-state (list btor323 btor322))))
+             (list)))
            (btor326
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1430,7 +1423,7 @@
            (btor328
             (signal
              (concat (signal-value btor326) (signal-value btor325))
-             (merge-state (list btor326 btor325))))
+             (list)))
            (btor329
             (signal
              (extract 0 0 (signal-value btor181))
@@ -1438,7 +1431,7 @@
            (btor330
             (signal
              (concat (signal-value btor329) (signal-value btor328))
-             (merge-state (list btor329 btor328))))
+             (list)))
            (btor331 unnamed-input-331)
            (btor332
             (let* ((state-value
@@ -1491,12 +1484,12 @@
            (btor336
             (signal
              (concat (signal-value btor100) (signal-value btor334))
-             (merge-state (list btor100 btor334))))
+             (list)))
            (btor337
             (signal
              (bool->bitvector
               (bveq (signal-value btor336) (signal-value btor103)))
-             (merge-state (list btor336 btor103))))
+             (list)))
            (btor338
             (if (bitvector->bool (signal-value btor337)) btor333 btor332))
            (btor339
@@ -1510,7 +1503,7 @@
            (btor341
             (signal
              (concat (signal-value btor340) (signal-value btor339))
-             (merge-state (list btor340 btor339))))
+             (list)))
            (btor342
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1518,7 +1511,7 @@
            (btor343
             (signal
              (concat (signal-value btor342) (signal-value btor341))
-             (merge-state (list btor342 btor341))))
+             (list)))
            (btor344
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1526,7 +1519,7 @@
            (btor345
             (signal
              (concat (signal-value btor344) (signal-value btor343))
-             (merge-state (list btor344 btor343))))
+             (list)))
            (btor346
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1534,7 +1527,7 @@
            (btor347
             (signal
              (concat (signal-value btor346) (signal-value btor345))
-             (merge-state (list btor346 btor345))))
+             (list)))
            (btor348
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1542,7 +1535,7 @@
            (btor349
             (signal
              (concat (signal-value btor348) (signal-value btor347))
-             (merge-state (list btor348 btor347))))
+             (list)))
            (btor350
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1550,7 +1543,7 @@
            (btor351
             (signal
              (concat (signal-value btor350) (signal-value btor349))
-             (merge-state (list btor350 btor349))))
+             (list)))
            (btor352
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1558,7 +1551,7 @@
            (btor353
             (signal
              (concat (signal-value btor352) (signal-value btor351))
-             (merge-state (list btor352 btor351))))
+             (list)))
            (btor354
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1566,7 +1559,7 @@
            (btor355
             (signal
              (concat (signal-value btor354) (signal-value btor353))
-             (merge-state (list btor354 btor353))))
+             (list)))
            (btor356
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1574,7 +1567,7 @@
            (btor357
             (signal
              (concat (signal-value btor356) (signal-value btor355))
-             (merge-state (list btor356 btor355))))
+             (list)))
            (btor358
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1582,7 +1575,7 @@
            (btor359
             (signal
              (concat (signal-value btor358) (signal-value btor357))
-             (merge-state (list btor358 btor357))))
+             (list)))
            (btor360
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1590,7 +1583,7 @@
            (btor361
             (signal
              (concat (signal-value btor360) (signal-value btor359))
-             (merge-state (list btor360 btor359))))
+             (list)))
            (btor362
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1598,7 +1591,7 @@
            (btor363
             (signal
              (concat (signal-value btor362) (signal-value btor361))
-             (merge-state (list btor362 btor361))))
+             (list)))
            (btor364
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1606,7 +1599,7 @@
            (btor365
             (signal
              (concat (signal-value btor364) (signal-value btor363))
-             (merge-state (list btor364 btor363))))
+             (list)))
            (btor366
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1614,7 +1607,7 @@
            (btor367
             (signal
              (concat (signal-value btor366) (signal-value btor365))
-             (merge-state (list btor366 btor365))))
+             (list)))
            (btor368
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1622,7 +1615,7 @@
            (btor369
             (signal
              (concat (signal-value btor368) (signal-value btor367))
-             (merge-state (list btor368 btor367))))
+             (list)))
            (btor370
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1630,7 +1623,7 @@
            (btor371
             (signal
              (concat (signal-value btor370) (signal-value btor369))
-             (merge-state (list btor370 btor369))))
+             (list)))
            (btor372
             (signal
              (extract 47 47 (signal-value btor338))
@@ -1638,7 +1631,7 @@
            (btor373
             (signal
              (concat (signal-value btor372) (signal-value btor371))
-             (merge-state (list btor372 btor371))))
+             (list)))
            (btor374
             (signal (extract 0 0 (signal-value btor71)) (signal-state btor71)))
            (btor375
@@ -1646,7 +1639,7 @@
            (btor376
             (signal
              (bvxor (signal-value btor374) (signal-value btor375))
-             (merge-state (list btor374 btor375))))
+             (list)))
            (btor377
             (signal (extract 1 1 (signal-value btor71)) (signal-state btor71)))
            (btor378
@@ -1654,7 +1647,7 @@
            (btor379
             (signal
              (bvxor (signal-value btor377) (signal-value btor378))
-             (merge-state (list btor377 btor378))))
+             (list)))
            (btor380
             (signal (extract 2 2 (signal-value btor71)) (signal-state btor71)))
            (btor381
@@ -1662,7 +1655,7 @@
            (btor382
             (signal
              (bvxor (signal-value btor380) (signal-value btor381))
-             (merge-state (list btor380 btor381))))
+             (list)))
            (btor383
             (signal (extract 3 3 (signal-value btor71)) (signal-state btor71)))
            (btor384
@@ -1670,7 +1663,7 @@
            (btor385
             (signal
              (bvxor (signal-value btor383) (signal-value btor384))
-             (merge-state (list btor383 btor384))))
+             (list)))
            (btor386
             (signal (extract 4 4 (signal-value btor71)) (signal-state btor71)))
            (btor387
@@ -1678,7 +1671,7 @@
            (btor388
             (signal
              (bvxor (signal-value btor386) (signal-value btor387))
-             (merge-state (list btor386 btor387))))
+             (list)))
            (btor389
             (signal (extract 5 5 (signal-value btor71)) (signal-state btor71)))
            (btor390
@@ -1686,7 +1679,7 @@
            (btor391
             (signal
              (bvxor (signal-value btor389) (signal-value btor390))
-             (merge-state (list btor389 btor390))))
+             (list)))
            (btor392
             (signal (extract 6 6 (signal-value btor71)) (signal-state btor71)))
            (btor393
@@ -1694,7 +1687,7 @@
            (btor394
             (signal
              (bvxor (signal-value btor392) (signal-value btor393))
-             (merge-state (list btor392 btor393))))
+             (list)))
            (btor395
             (signal (extract 7 7 (signal-value btor71)) (signal-state btor71)))
            (btor396
@@ -1702,7 +1695,7 @@
            (btor397
             (signal
              (bvxor (signal-value btor395) (signal-value btor396))
-             (merge-state (list btor395 btor396))))
+             (list)))
            (btor398
             (signal (extract 8 8 (signal-value btor71)) (signal-state btor71)))
            (btor399
@@ -1710,40 +1703,39 @@
            (btor400
             (signal
              (bvxor (signal-value btor398) (signal-value btor399))
-             (merge-state (list btor398 btor399))))
+             (list)))
            (btor401
             (signal
              (concat (signal-value btor379) (signal-value btor376))
-             (merge-state (list btor379 btor376))))
+             (list)))
            (btor402
             (signal
              (concat (signal-value btor382) (signal-value btor401))
-             (merge-state (list btor382 btor401))))
+             (list)))
            (btor403
             (signal
              (concat (signal-value btor385) (signal-value btor402))
-             (merge-state (list btor385 btor402))))
+             (list)))
            (btor404
             (signal
              (concat (signal-value btor388) (signal-value btor403))
-             (merge-state (list btor388 btor403))))
+             (list)))
            (btor405
             (signal
              (concat (signal-value btor391) (signal-value btor404))
-             (merge-state (list btor391 btor404))))
-             [_ (displayln "here9")]
+             (list)))
            (btor406
             (signal
              (concat (signal-value btor394) (signal-value btor405))
-             (merge-state (list btor394 btor405))))
+             (list)))
            (btor407
             (signal
              (concat (signal-value btor397) (signal-value btor406))
-             (merge-state (list btor397 btor406))))
+             (list)))
            (btor408
             (signal
              (concat (signal-value btor400) (signal-value btor407))
-             (merge-state (list btor400 btor407))))
+             (list)))
            (btor409
             (let* ((state-value
                     (cond
@@ -1795,12 +1787,12 @@
            (btor413
             (signal
              (concat (signal-value btor100) (signal-value btor411))
-             (merge-state (list btor100 btor411))))
+             (list)))
            (btor414
             (signal
              (bool->bitvector
               (bveq (signal-value btor413) (signal-value btor103)))
-             (merge-state (list btor413 btor103))))
+             (list)))
            (btor415
             (if (bitvector->bool (signal-value btor414)) btor410 btor409))
            (btor416
@@ -1816,7 +1808,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor418) (signal-value btor419)))
-             (merge-state (list btor418 btor419))))
+             (list)))
            (btor421
             (if (bitvector->bool (signal-value btor420)) btor373 btor331))
            (btor422
@@ -1830,7 +1822,7 @@
            (btor424
             (signal
              (concat (signal-value btor423) (signal-value btor422))
-             (merge-state (list btor423 btor422))))
+             (list)))
            (btor425
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1838,7 +1830,7 @@
            (btor426
             (signal
              (concat (signal-value btor425) (signal-value btor424))
-             (merge-state (list btor425 btor424))))
+             (list)))
            (btor427
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1846,7 +1838,7 @@
            (btor428
             (signal
              (concat (signal-value btor427) (signal-value btor426))
-             (merge-state (list btor427 btor426))))
+             (list)))
            (btor429
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1854,7 +1846,7 @@
            (btor430
             (signal
              (concat (signal-value btor429) (signal-value btor428))
-             (merge-state (list btor429 btor428))))
+             (list)))
            (btor431
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1862,7 +1854,7 @@
            (btor432
             (signal
              (concat (signal-value btor431) (signal-value btor430))
-             (merge-state (list btor431 btor430))))
+             (list)))
            (btor433
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1870,7 +1862,7 @@
            (btor434
             (signal
              (concat (signal-value btor433) (signal-value btor432))
-             (merge-state (list btor433 btor432))))
+             (list)))
            (btor435
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1878,7 +1870,7 @@
            (btor436
             (signal
              (concat (signal-value btor435) (signal-value btor434))
-             (merge-state (list btor435 btor434))))
+             (list)))
            (btor437
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1886,7 +1878,7 @@
            (btor438
             (signal
              (concat (signal-value btor437) (signal-value btor436))
-             (merge-state (list btor437 btor436))))
+             (list)))
            (btor439
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1894,7 +1886,7 @@
            (btor440
             (signal
              (concat (signal-value btor439) (signal-value btor438))
-             (merge-state (list btor439 btor438))))
+             (list)))
            (btor441
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1902,7 +1894,7 @@
            (btor442
             (signal
              (concat (signal-value btor441) (signal-value btor440))
-             (merge-state (list btor441 btor440))))
+             (list)))
            (btor443
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1910,7 +1902,7 @@
            (btor444
             (signal
              (concat (signal-value btor443) (signal-value btor442))
-             (merge-state (list btor443 btor442))))
+             (list)))
            (btor445
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1918,7 +1910,7 @@
            (btor446
             (signal
              (concat (signal-value btor445) (signal-value btor444))
-             (merge-state (list btor445 btor444))))
+             (list)))
            (btor447
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1926,7 +1918,7 @@
            (btor448
             (signal
              (concat (signal-value btor447) (signal-value btor446))
-             (merge-state (list btor447 btor446))))
+             (list)))
            (btor449
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1934,7 +1926,7 @@
            (btor450
             (signal
              (concat (signal-value btor449) (signal-value btor448))
-             (merge-state (list btor449 btor448))))
+             (list)))
            (btor451
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1942,7 +1934,7 @@
            (btor452
             (signal
              (concat (signal-value btor451) (signal-value btor450))
-             (merge-state (list btor451 btor450))))
+             (list)))
            (btor453
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1950,7 +1942,7 @@
            (btor454
             (signal
              (concat (signal-value btor453) (signal-value btor452))
-             (merge-state (list btor453 btor452))))
+             (list)))
            (btor455
             (signal
              (extract 47 47 (signal-value btor74))
@@ -1958,7 +1950,7 @@
            (btor456
             (signal
              (concat (signal-value btor455) (signal-value btor454))
-             (merge-state (list btor455 btor454))))
+             (list)))
            (btor457
             (signal
              (extract 6 4 (signal-value btor417))
@@ -1968,7 +1960,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor457) (signal-value btor458)))
-             (merge-state (list btor457 btor458))))
+             (list)))
            (btor460
             (if (bitvector->bool (signal-value btor459)) btor456 btor421))
            (btor461 (bv->signal (bv 4 (bitvector 3))))
@@ -1976,21 +1968,20 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor457) (signal-value btor461)))
-             (merge-state (list btor457 btor461))))
+             (list)))
            (btor463
             (bv->signal
              (zero-extend (signal-value btor103) (bitvector 3))
              btor103))
-              [_ (displayln "here11")]
            (btor464
             (signal
              (bool->bitvector
               (bveq (signal-value btor457) (signal-value btor463)))
-             (merge-state (list btor457 btor463))))
+             (list)))
            (btor465
             (signal
              (concat (signal-value btor464) (signal-value btor462))
-             (merge-state (list btor464 btor462))))
+             (list)))
            (btor466
             (signal
              (apply bvor (bitvector->bits (signal-value btor465)))
@@ -2048,12 +2039,12 @@
            (btor472
             (signal
              (concat (signal-value btor100) (signal-value btor470))
-             (merge-state (list btor100 btor470))))
+             (list)))
            (btor473
             (signal
              (bool->bitvector
               (bveq (signal-value btor472) (signal-value btor103)))
-             (merge-state (list btor472 btor103))))
+             (list)))
            (btor474
             (if (bitvector->bool (signal-value btor473)) btor469 btor468))
            (btor475
@@ -2068,7 +2059,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor457) (signal-value btor477)))
-             (merge-state (list btor457 btor477))))
+             (list)))
            (btor479
             (if (bitvector->bool (signal-value btor478)) btor476 btor467))
            (btor480
@@ -2079,7 +2070,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor457) (signal-value btor480)))
-             (merge-state (list btor457 btor480))))
+             (list)))
            (btor482
             (if (bitvector->bool (signal-value btor481)) btor74 btor479))
            (btor483 (bv->signal (bv 0 (bitvector 48))))
@@ -2087,21 +2078,18 @@
             (signal
              (apply bvor (bitvector->bits (signal-value btor457)))
              (signal-state btor457)))
-           (btor485
-            (signal
-             (bvnot (signal-value btor484))
-             (merge-state (list btor484))))
+           (btor485 (signal (bvnot (signal-value btor484)) (list)))
            (btor486
             (if (bitvector->bool (signal-value btor485)) btor483 btor482))
            (btor487
             (signal
              (bvxor (signal-value btor330) (signal-value btor486))
-             (merge-state (list btor330 btor486))))
+             (list)))
            (btor488 unnamed-input-488)
            (btor489
             (signal
              (concat (signal-value btor125) (signal-value btor153))
-             (merge-state (list btor125 btor153))))
+             (list)))
            (btor490
             (signal
              (extract 1 0 (signal-value btor417))
@@ -2110,14 +2098,14 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor490) (signal-value btor419)))
-             (merge-state (list btor490 btor419))))
+             (list)))
            (btor492
             (if (bitvector->bool (signal-value btor491)) btor489 btor488))
            (btor493
             (signal
              (bool->bitvector
               (bveq (signal-value btor490) (signal-value btor103)))
-             (merge-state (list btor490 btor103))))
+             (list)))
            (btor494
             (if (bitvector->bool (signal-value btor493)) btor338 btor492))
            (btor495 (bv->signal (bv 17592186044416 (bitvector 45))))
@@ -2136,7 +2124,7 @@
            (btor500
             (signal
              (bvxor (signal-value btor498) (signal-value btor499))
-             (merge-state (list btor498 btor499))))
+             (list)))
            (btor501
             (signal (extract 1 1 (signal-value btor50)) (signal-state btor50)))
            (btor502
@@ -2144,7 +2132,7 @@
            (btor503
             (signal
              (bvxor (signal-value btor501) (signal-value btor502))
-             (merge-state (list btor501 btor502))))
+             (list)))
            (btor504
             (signal (extract 2 2 (signal-value btor50)) (signal-state btor50)))
            (btor505
@@ -2152,7 +2140,7 @@
            (btor506
             (signal
              (bvxor (signal-value btor504) (signal-value btor505))
-             (merge-state (list btor504 btor505))))
+             (list)))
            (btor507
             (signal (extract 3 3 (signal-value btor50)) (signal-state btor50)))
            (btor508
@@ -2160,7 +2148,7 @@
            (btor509
             (signal
              (bvxor (signal-value btor507) (signal-value btor508))
-             (merge-state (list btor507 btor508))))
+             (list)))
            (btor510
             (signal (extract 4 4 (signal-value btor50)) (signal-state btor50)))
            (btor511
@@ -2168,23 +2156,23 @@
            (btor512
             (signal
              (bvxor (signal-value btor510) (signal-value btor511))
-             (merge-state (list btor510 btor511))))
+             (list)))
            (btor513
             (signal
              (concat (signal-value btor503) (signal-value btor500))
-             (merge-state (list btor503 btor500))))
+             (list)))
            (btor514
             (signal
              (concat (signal-value btor506) (signal-value btor513))
-             (merge-state (list btor506 btor513))))
+             (list)))
            (btor515
             (signal
              (concat (signal-value btor509) (signal-value btor514))
-             (merge-state (list btor509 btor514))))
+             (list)))
            (btor516
             (signal
              (concat (signal-value btor512) (signal-value btor515))
-             (merge-state (list btor512 btor515))))
+             (list)))
            (btor517
             (let* ((state-value
                     (cond
@@ -2236,12 +2224,12 @@
            (btor521
             (signal
              (concat (signal-value btor100) (signal-value btor519))
-             (merge-state (list btor100 btor519))))
+             (list)))
            (btor522
             (signal
              (bool->bitvector
               (bveq (signal-value btor521) (signal-value btor103)))
-             (merge-state (list btor521 btor103))))
+             (list)))
            (btor523
             (if (bitvector->bool (signal-value btor522)) btor518 btor517))
            (btor524
@@ -2263,28 +2251,22 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor75) (signal-value btor529)))
-             (merge-state (list btor75 btor529))))
+             (list)))
            (btor531
             (if (bitvector->bool (signal-value btor530)) btor97 btor106))
            (btor532 (bv->signal (bv 0 (bitvector 3))))
            (btor533
             (signal
              (concat (signal-value btor532) (signal-value btor75))
-             (merge-state (list btor532 btor75))))
+             (list)))
            (btor534
             (signal
              (apply bvor (bitvector->bits (signal-value btor533)))
              (signal-state btor533)))
-           (btor535
-            (signal
-             (bvnot (signal-value btor534))
-             (merge-state (list btor534))))
+           (btor535 (signal (bvnot (signal-value btor534)) (list)))
            (btor536
             (if (bitvector->bool (signal-value btor535)) btor106 btor531))
-           (btor537
-            (signal
-             (bvnot (signal-value btor536))
-             (merge-state (list btor536))))
+           (btor537 (signal (bvnot (signal-value btor536)) (list)))
            (btor538
             (signal
              (extract 1 1 (signal-value btor525))
@@ -2292,7 +2274,7 @@
            (btor539
             (signal
              (bvand (signal-value btor537) (signal-value btor538))
-             (merge-state (list btor537 btor538))))
+             (list)))
            (btor540
             (if (bitvector->bool (signal-value btor539)) btor528 btor527))
            (btor541
@@ -2311,7 +2293,6 @@
                           (bv 0 27))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-              [_ (displayln "here10")]
            (btor542
             (let* ((state-value
                     (cond
@@ -2347,12 +2328,12 @@
            (btor545
             (signal
              (concat (signal-value btor100) (signal-value btor543))
-             (merge-state (list btor100 btor543))))
+             (list)))
            (btor546
             (signal
              (bool->bitvector
               (bveq (signal-value btor545) (signal-value btor103)))
-             (merge-state (list btor545 btor103))))
+             (list)))
            (btor547
             (if (bitvector->bool (signal-value btor546)) btor542 btor541))
            (btor548
@@ -2365,28 +2346,22 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor11) (signal-value btor549)))
-             (merge-state (list btor11 btor549))))
+             (list)))
            (btor551
             (if (bitvector->bool (signal-value btor550)) btor97 btor106))
            (btor552 (bv->signal (bv 0 (bitvector 11))))
            (btor553
             (signal
              (concat (signal-value btor552) (signal-value btor11))
-             (merge-state (list btor552 btor11))))
+             (list)))
            (btor554
             (signal
              (apply bvor (bitvector->bits (signal-value btor553)))
              (signal-state btor553)))
-           (btor555
-            (signal
-             (bvnot (signal-value btor554))
-             (merge-state (list btor554))))
+           (btor555 (signal (bvnot (signal-value btor554)) (list)))
            (btor556
             (if (bitvector->bool (signal-value btor555)) btor106 btor551))
-           (btor557
-            (signal
-             (bvnot (signal-value btor556))
-             (merge-state (list btor556))))
+           (btor557 (signal (bvnot (signal-value btor556)) (list)))
            (btor558
             (bv->signal
              (zero-extend (signal-value btor103) (bitvector 5))
@@ -2395,7 +2370,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor20) (signal-value btor558)))
-             (merge-state (list btor20 btor558))))
+             (list)))
            (btor560
             (if (bitvector->bool (signal-value btor559)) btor97 btor106))
            (btor561
@@ -2406,23 +2381,20 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor20) (signal-value btor561)))
-             (merge-state (list btor20 btor561))))
+             (list)))
            (btor563
             (if (bitvector->bool (signal-value btor562)) btor106 btor560))
-           (btor564
-            (signal
-             (bvnot (signal-value btor563))
-             (merge-state (list btor563))))
+           (btor564 (signal (bvnot (signal-value btor563)) (list)))
            (btor565
             (signal
              (bvand (signal-value btor557) (signal-value btor564))
-             (merge-state (list btor557 btor564))))
+             (list)))
            (btor566 (bv->signal (bv 20 (bitvector 5))))
            (btor567
             (signal
              (bool->bitvector
               (bveq (signal-value btor90) (signal-value btor566)))
-             (merge-state (list btor90 btor566))))
+             (list)))
            (btor568
             (if (bitvector->bool (signal-value btor567)) btor103 btor186))
            (btor569 (bv->signal (bv 18 (bitvector 5))))
@@ -2430,7 +2402,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor90) (signal-value btor569)))
-             (merge-state (list btor90 btor569))))
+             (list)))
            (btor571
             (if (bitvector->bool (signal-value btor570)) btor190 btor568))
            (btor572 (bv->signal (bv 10 (bitvector 4))))
@@ -2442,18 +2414,18 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor90) (signal-value btor573)))
-             (merge-state (list btor90 btor573))))
+             (list)))
            (btor575
             (if (bitvector->bool (signal-value btor574)) btor186 btor571))
            (btor576
             (signal
              (bool->bitvector
               (bveq (signal-value btor575) (signal-value btor103)))
-             (merge-state (list btor575 btor103))))
+             (list)))
            (btor577
             (signal
              (bvor (signal-value btor565) (signal-value btor576))
-             (merge-state (list btor565 btor576))))
+             (list)))
            (btor578
             (if (bitvector->bool (signal-value btor577)) btor106 btor548))
            (btor579
@@ -2474,7 +2446,7 @@
            (btor585
             (signal
              (bvand (signal-value btor536) (signal-value btor538))
-             (merge-state (list btor536 btor538))))
+             (list)))
            (btor586
             (if (bitvector->bool (signal-value btor585)) btor584 btor583))
            (btor587
@@ -2484,7 +2456,7 @@
            (btor588
             (signal
              (concat (signal-value btor587) (signal-value btor586))
-             (merge-state (list btor587 btor586))))
+             (list)))
            (btor589
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2492,7 +2464,7 @@
            (btor590
             (signal
              (concat (signal-value btor589) (signal-value btor588))
-             (merge-state (list btor589 btor588))))
+             (list)))
            (btor591
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2500,7 +2472,7 @@
            (btor592
             (signal
              (concat (signal-value btor591) (signal-value btor590))
-             (merge-state (list btor591 btor590))))
+             (list)))
            (btor593
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2508,7 +2480,7 @@
            (btor594
             (signal
              (concat (signal-value btor593) (signal-value btor592))
-             (merge-state (list btor593 btor592))))
+             (list)))
            (btor595
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2516,9 +2488,7 @@
            (btor596
             (signal
              (concat (signal-value btor595) (signal-value btor594))
-             (merge-state (list btor595 btor594))))
-             ;;; TODO debugging to find infinite loop
-             [_ (displayln "here12")]
+             (list)))
            (btor597
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2526,7 +2496,7 @@
            (btor598
             (signal
              (concat (signal-value btor597) (signal-value btor596))
-             (merge-state (list btor597 btor596))))
+             (list)))
            (btor599
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2534,7 +2504,7 @@
            (btor600
             (signal
              (concat (signal-value btor599) (signal-value btor598))
-             (merge-state (list btor599 btor598))))
+             (list)))
            (btor601
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2542,7 +2512,7 @@
            (btor602
             (signal
              (concat (signal-value btor601) (signal-value btor600))
-             (merge-state (list btor601 btor600))))
+             (list)))
            (btor603
             (signal
              (extract 17 17 (signal-value btor586))
@@ -2550,17 +2520,17 @@
            (btor604
             (signal
              (concat (signal-value btor603) (signal-value btor602))
-             (merge-state (list btor603 btor602))))
+             (list)))
            (btor605
             (if (bitvector->bool (signal-value btor536)) btor604 btor540))
            (btor606
             (signal
              (bvadd (signal-value btor581) (signal-value btor605))
-             (merge-state (list btor581 btor605))))
+             (list)))
            (btor607
             (signal
              (bvsub (signal-value btor581) (signal-value btor605))
-             (merge-state (list btor581 btor605))))
+             (list)))
            (btor608
             (signal
              (extract 3 3 (signal-value btor525))
@@ -2618,12 +2588,12 @@
            (btor614
             (signal
              (concat (signal-value btor100) (signal-value btor612))
-             (merge-state (list btor100 btor612))))
+             (list)))
            (btor615
             (signal
              (bool->bitvector
               (bveq (signal-value btor614) (signal-value btor103)))
-             (merge-state (list btor614 btor103))))
+             (list)))
            (btor616
             (if (bitvector->bool (signal-value btor615)) btor611 btor610))
            (btor617
@@ -2641,7 +2611,7 @@
            (btor622
             (signal
              (concat (signal-value btor621) (signal-value btor620))
-             (merge-state (list btor621 btor620))))
+             (list)))
            (btor623
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2649,7 +2619,7 @@
            (btor624
             (signal
              (concat (signal-value btor623) (signal-value btor622))
-             (merge-state (list btor623 btor622))))
+             (list)))
            (btor625
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2657,7 +2627,7 @@
            (btor626
             (signal
              (concat (signal-value btor625) (signal-value btor624))
-             (merge-state (list btor625 btor624))))
+             (list)))
            (btor627
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2665,7 +2635,7 @@
            (btor628
             (signal
              (concat (signal-value btor627) (signal-value btor626))
-             (merge-state (list btor627 btor626))))
+             (list)))
            (btor629
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2673,7 +2643,7 @@
            (btor630
             (signal
              (concat (signal-value btor629) (signal-value btor628))
-             (merge-state (list btor629 btor628))))
+             (list)))
            (btor631
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2681,7 +2651,7 @@
            (btor632
             (signal
              (concat (signal-value btor631) (signal-value btor630))
-             (merge-state (list btor631 btor630))))
+             (list)))
            (btor633
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2689,7 +2659,7 @@
            (btor634
             (signal
              (concat (signal-value btor633) (signal-value btor632))
-             (merge-state (list btor633 btor632))))
+             (list)))
            (btor635
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2697,7 +2667,7 @@
            (btor636
             (signal
              (concat (signal-value btor635) (signal-value btor634))
-             (merge-state (list btor635 btor634))))
+             (list)))
            (btor637
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2705,7 +2675,7 @@
            (btor638
             (signal
              (concat (signal-value btor637) (signal-value btor636))
-             (merge-state (list btor637 btor636))))
+             (list)))
            (btor639
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2713,7 +2683,7 @@
            (btor640
             (signal
              (concat (signal-value btor639) (signal-value btor638))
-             (merge-state (list btor639 btor638))))
+             (list)))
            (btor641
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2721,7 +2691,7 @@
            (btor642
             (signal
              (concat (signal-value btor641) (signal-value btor640))
-             (merge-state (list btor641 btor640))))
+             (list)))
            (btor643
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2729,7 +2699,7 @@
            (btor644
             (signal
              (concat (signal-value btor643) (signal-value btor642))
-             (merge-state (list btor643 btor642))))
+             (list)))
            (btor645
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2737,7 +2707,7 @@
            (btor646
             (signal
              (concat (signal-value btor645) (signal-value btor644))
-             (merge-state (list btor645 btor644))))
+             (list)))
            (btor647
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2745,7 +2715,7 @@
            (btor648
             (signal
              (concat (signal-value btor647) (signal-value btor646))
-             (merge-state (list btor647 btor646))))
+             (list)))
            (btor649
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2753,7 +2723,7 @@
            (btor650
             (signal
              (concat (signal-value btor649) (signal-value btor648))
-             (merge-state (list btor649 btor648))))
+             (list)))
            (btor651
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2761,7 +2731,7 @@
            (btor652
             (signal
              (concat (signal-value btor651) (signal-value btor650))
-             (merge-state (list btor651 btor650))))
+             (list)))
            (btor653
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2769,7 +2739,7 @@
            (btor654
             (signal
              (concat (signal-value btor653) (signal-value btor652))
-             (merge-state (list btor653 btor652))))
+             (list)))
            (btor655
             (signal
              (extract 26 26 (signal-value btor620))
@@ -2777,7 +2747,7 @@
            (btor656
             (signal
              (concat (signal-value btor655) (signal-value btor654))
-             (merge-state (list btor655 btor654))))
+             (list)))
            (btor657
             (signal
              (extract 17 0 (signal-value btor619))
@@ -2791,7 +2761,7 @@
            (btor660
             (signal
              (concat (signal-value btor659) (signal-value btor658))
-             (merge-state (list btor659 btor658))))
+             (list)))
            (btor661
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2799,7 +2769,7 @@
            (btor662
             (signal
              (concat (signal-value btor661) (signal-value btor660))
-             (merge-state (list btor661 btor660))))
+             (list)))
            (btor663
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2807,8 +2777,7 @@
            (btor664
             (signal
              (concat (signal-value btor663) (signal-value btor662))
-             (merge-state (list btor663 btor662))))
-              [_ (displayln "here14")]
+             (list)))
            (btor665
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2816,7 +2785,7 @@
            (btor666
             (signal
              (concat (signal-value btor665) (signal-value btor664))
-             (merge-state (list btor665 btor664))))
+             (list)))
            (btor667
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2824,7 +2793,7 @@
            (btor668
             (signal
              (concat (signal-value btor667) (signal-value btor666))
-             (merge-state (list btor667 btor666))))
+             (list)))
            (btor669
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2832,7 +2801,7 @@
            (btor670
             (signal
              (concat (signal-value btor669) (signal-value btor668))
-             (merge-state (list btor669 btor668))))
+             (list)))
            (btor671
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2840,7 +2809,7 @@
            (btor672
             (signal
              (concat (signal-value btor671) (signal-value btor670))
-             (merge-state (list btor671 btor670))))
+             (list)))
            (btor673
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2848,7 +2817,7 @@
            (btor674
             (signal
              (concat (signal-value btor673) (signal-value btor672))
-             (merge-state (list btor673 btor672))))
+             (list)))
            (btor675
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2856,7 +2825,7 @@
            (btor676
             (signal
              (concat (signal-value btor675) (signal-value btor674))
-             (merge-state (list btor675 btor674))))
+             (list)))
            (btor677
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2864,7 +2833,7 @@
            (btor678
             (signal
              (concat (signal-value btor677) (signal-value btor676))
-             (merge-state (list btor677 btor676))))
+             (list)))
            (btor679
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2872,7 +2841,7 @@
            (btor680
             (signal
              (concat (signal-value btor679) (signal-value btor678))
-             (merge-state (list btor679 btor678))))
+             (list)))
            (btor681
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2880,7 +2849,7 @@
            (btor682
             (signal
              (concat (signal-value btor681) (signal-value btor680))
-             (merge-state (list btor681 btor680))))
+             (list)))
            (btor683
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2888,7 +2857,7 @@
            (btor684
             (signal
              (concat (signal-value btor683) (signal-value btor682))
-             (merge-state (list btor683 btor682))))
+             (list)))
            (btor685
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2896,7 +2865,7 @@
            (btor686
             (signal
              (concat (signal-value btor685) (signal-value btor684))
-             (merge-state (list btor685 btor684))))
+             (list)))
            (btor687
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2904,7 +2873,7 @@
            (btor688
             (signal
              (concat (signal-value btor687) (signal-value btor686))
-             (merge-state (list btor687 btor686))))
+             (list)))
            (btor689
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2912,7 +2881,7 @@
            (btor690
             (signal
              (concat (signal-value btor689) (signal-value btor688))
-             (merge-state (list btor689 btor688))))
+             (list)))
            (btor691
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2920,16 +2889,15 @@
            (btor692
             (signal
              (concat (signal-value btor691) (signal-value btor690))
-             (merge-state (list btor691 btor690))))
+             (list)))
            (btor693
             (signal
              (extract 17 17 (signal-value btor658))
              (signal-state btor658)))
-            [_ (displayln "here16")]
            (btor694
             (signal
              (concat (signal-value btor693) (signal-value btor692))
-             (merge-state (list btor693 btor692))))
+             (list)))
            (btor695
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2937,7 +2905,7 @@
            (btor696
             (signal
              (concat (signal-value btor695) (signal-value btor694))
-             (merge-state (list btor695 btor694))))
+             (list)))
            (btor697
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2945,7 +2913,7 @@
            (btor698
             (signal
              (concat (signal-value btor697) (signal-value btor696))
-             (merge-state (list btor697 btor696))))
+             (list)))
            (btor699
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2953,7 +2921,7 @@
            (btor700
             (signal
              (concat (signal-value btor699) (signal-value btor698))
-             (merge-state (list btor699 btor698))))
+             (list)))
            (btor701
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2961,7 +2929,7 @@
            (btor702
             (signal
              (concat (signal-value btor701) (signal-value btor700))
-             (merge-state (list btor701 btor700))))
+             (list)))
            (btor703
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2969,7 +2937,7 @@
            (btor704
             (signal
              (concat (signal-value btor703) (signal-value btor702))
-             (merge-state (list btor703 btor702))))
+             (list)))
            (btor705
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2977,7 +2945,7 @@
            (btor706
             (signal
              (concat (signal-value btor705) (signal-value btor704))
-             (merge-state (list btor705 btor704))))
+             (list)))
            (btor707
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2985,7 +2953,7 @@
            (btor708
             (signal
              (concat (signal-value btor707) (signal-value btor706))
-             (merge-state (list btor707 btor706))))
+             (list)))
            (btor709
             (signal
              (extract 17 17 (signal-value btor658))
@@ -2993,7 +2961,7 @@
            (btor710
             (signal
              (concat (signal-value btor709) (signal-value btor708))
-             (merge-state (list btor709 btor708))))
+             (list)))
            (btor711
             (signal
              (extract 17 17 (signal-value btor658))
@@ -3001,11 +2969,11 @@
            (btor712
             (signal
              (concat (signal-value btor711) (signal-value btor710))
-             (merge-state (list btor711 btor710))))
+             (list)))
            (btor713
             (signal
              (bvmul (signal-value btor656) (signal-value btor712))
-             (merge-state (list btor656 btor712))))
+             (list)))
            (btor714 (bv->signal (bv 0 (bitvector 45))))
            (btor715
             (if (bitvector->bool (signal-value btor576)) btor714 btor713))
@@ -3021,12 +2989,11 @@
            (btor719
             (signal
              (bvand (signal-value btor716) (signal-value btor718))
-             (merge-state (list btor716 btor718))))
+             (list)))
            (btor720
             (signal
              (concat (signal-value btor97) (signal-value btor719))
-             (merge-state (list btor97 btor719))))
-            [_ (displayln "here15")]
+             (list)))
            (btor721
             (let* ((state-value
                     (cond
@@ -3043,7 +3010,6 @@
                           (bv 0 45))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-            [_ (displayln "here17")]
            (btor722
             (let* ((state-value
                     (cond
@@ -3060,7 +3026,6 @@
                           (bv 0 45))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-            [_ (displayln "here18")]
            (btor723
             (let* ((state-value
                     (cond
@@ -3077,19 +3042,17 @@
                           (bv 0 1))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-            [_ (displayln "here19")]
            (btor725
             (signal
              (concat (signal-value btor100) (signal-value btor723))
-             (merge-state (list btor100 btor723))))
+             (list)))
            (btor726
             (signal
              (bool->bitvector
               (bveq (signal-value btor725) (signal-value btor103)))
-             (merge-state (list btor725 btor103))))
+             (list)))
            (btor727
             (if (bitvector->bool (signal-value btor726)) btor722 btor721))
-            [_ (displayln "here22")]
            (btor728
             (signal (extract 0 0 (signal-value btor69)) (signal-state btor69)))
            (btor729
@@ -3098,40 +3061,25 @@
             (signal
              (apply bvor (bitvector->bits (signal-value btor197)))
              (signal-state btor197)))
-           (btor731
-            (signal
-             (bvnot (signal-value btor730))
-             (merge-state (list btor730))))
+           (btor731 (signal (bvnot (signal-value btor730)) (list)))
            (btor732
             (if (bitvector->bool (signal-value btor731)) btor729 btor495))
-            [_ (displayln "here21")]
            (btor733
             (signal
              (extract 44 44 (signal-value btor732))
              (signal-state btor732)))
-            [_ (displayln "here32")]
            (btor734
-           (begin
-            (displayln (concat (signal-value btor733) (signal-value btor732))) 
-            ;; maybe these are too long?
-            (displayln (length (signal-state btor732)))
-            (displayln (length (signal-state btor733 )))
-            (displayln (merge-state (list btor733 btor732))) 
             (signal
              (concat (signal-value btor733) (signal-value btor732))
-             (merge-state (list btor733 btor732)))
-             ))
-            [_ (displayln "here31")]
+             (list)))
            (btor735
             (signal
              (extract 44 44 (signal-value btor732))
              (signal-state btor732)))
-            [_ (displayln "here30")]
            (btor736
             (signal
              (concat (signal-value btor735) (signal-value btor734))
-             (merge-state (list btor735 btor734))))
-            [_ (displayln "here23")]
+             (list)))
            (btor737
             (signal
              (extract 44 44 (signal-value btor732))
@@ -3139,45 +3087,40 @@
            (btor738
             (signal
              (concat (signal-value btor737) (signal-value btor736))
-             (merge-state (list btor737 btor736))))
+             (list)))
            (btor739
             (bv->signal
              (zero-extend (signal-value btor97) (bitvector 2))
              btor97))
-
-            [_ (displayln "here20")]
            (btor740
             (signal
              (bool->bitvector
               (bveq (signal-value btor490) (signal-value btor739)))
-             (merge-state (list btor490 btor739))))
+             (list)))
            (btor741
             (if (bitvector->bool (signal-value btor740)) btor738 btor494))
            (btor742
             (signal
              (concat (signal-value btor70) (signal-value btor106))
-             (merge-state (list btor70 btor106))))
+             (list)))
            (btor743
             (if (bitvector->bool (signal-value btor462)) btor742 btor186))
            (btor744 (bv->signal (bv 0 (bitvector 46))))
            (btor745
             (signal
              (concat (signal-value btor744) (signal-value btor743))
-             (merge-state (list btor744 btor743))))
+             (list)))
            (btor746
             (signal
              (apply bvor (bitvector->bits (signal-value btor490)))
              (signal-state btor490)))
-           (btor747
-            (signal
-             (bvnot (signal-value btor746))
-             (merge-state (list btor746))))
+           (btor747 (signal (bvnot (signal-value btor746)) (list)))
            (btor748
             (if (bitvector->bool (signal-value btor747)) btor745 btor741))
            (btor749
             (signal
              (bvxor (signal-value btor487) (signal-value btor748))
-             (merge-state (list btor487 btor748))))
+             (list)))
            (btor750 unnamed-input-750)
            (btor751
             (signal
@@ -3187,7 +3130,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor751) (signal-value btor419)))
-             (merge-state (list btor751 btor419))))
+             (list)))
            (btor753
             (if (bitvector->bool (signal-value btor752)) btor476 btor750))
            (btor754 (bv->signal (bv 281474976710655 (bitvector 48))))
@@ -3195,27 +3138,23 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor751) (signal-value btor103)))
-             (merge-state (list btor751 btor103))))
+             (list)))
            (btor756
             (if (bitvector->bool (signal-value btor755)) btor754 btor753))
            (btor757 (bv->signal (bv 11728124029610 (bitvector 44))))
            (btor758
             (signal
              (bvand (signal-value btor716) (signal-value btor757))
-             (merge-state (list btor716 btor757))))
-             [_ (displayln "here8")]
+             (list)))
            (btor759
             (signal
              (extract 44 44 (signal-value btor715))
              (signal-state btor715)))
-           (btor760
-            (signal
-             (bvnot (signal-value btor759))
-             (merge-state (list btor759))))
+           (btor760 (signal (bvnot (signal-value btor759)) (list)))
            (btor761
             (signal
              (concat (signal-value btor760) (signal-value btor758))
-             (merge-state (list btor760 btor758))))
+             (list)))
            (btor762
             (let* ((state-value
                     (cond
@@ -3267,12 +3206,12 @@
            (btor766
             (signal
              (concat (signal-value btor100) (signal-value btor764))
-             (merge-state (list btor100 btor764))))
+             (list)))
            (btor767
             (signal
              (bool->bitvector
               (bveq (signal-value btor766) (signal-value btor103)))
-             (merge-state (list btor766 btor103))))
+             (list)))
            (btor768
             (if (bitvector->bool (signal-value btor767)) btor763 btor762))
            (btor769
@@ -3282,7 +3221,7 @@
            (btor771
             (signal
              (concat (signal-value btor532) (signal-value btor770))
-             (merge-state (list btor532 btor770))))
+             (list)))
            (btor772
             (bv->signal
              (zero-extend (signal-value btor97) (bitvector 2))
@@ -3291,43 +3230,40 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor751) (signal-value btor772)))
-             (merge-state (list btor751 btor772))))
+             (list)))
            (btor774
             (if (bitvector->bool (signal-value btor773)) btor771 btor756))
            (btor775
             (signal
              (apply bvor (bitvector->bits (signal-value btor751)))
              (signal-state btor751)))
-           (btor776
-            (signal
-             (bvnot (signal-value btor775))
-             (merge-state (list btor775))))
+           (btor776 (signal (bvnot (signal-value btor775)) (list)))
            (btor777
             (if (bitvector->bool (signal-value btor776)) btor483 btor774))
            (btor778
             (signal
              (bvxor (signal-value btor749) (signal-value btor777))
-             (merge-state (list btor749 btor777))))
+             (list)))
            (btor779
             (signal
              (bvand (signal-value btor748) (signal-value btor777))
-             (merge-state (list btor748 btor777))))
+             (list)))
            (btor780
             (signal
              (bvand (signal-value btor487) (signal-value btor777))
-             (merge-state (list btor487 btor777))))
+             (list)))
            (btor781
             (signal
              (bvor (signal-value btor779) (signal-value btor780))
-             (merge-state (list btor779 btor780))))
+             (list)))
            (btor782
             (signal
              (bvand (signal-value btor748) (signal-value btor487))
-             (merge-state (list btor748 btor487))))
+             (list)))
            (btor783
             (signal
              (bvor (signal-value btor781) (signal-value btor782))
-             (merge-state (list btor781 btor782))))
+             (list)))
            (btor784
             (signal
              (extract 3 3 (signal-value btor181))
@@ -3347,7 +3283,7 @@
            (btor789
             (signal
              (bvand (signal-value btor788) (signal-value btor199))
-             (merge-state (list btor788 btor199))))
+             (list)))
            (btor790
             (signal
              (extract 23 23 (signal-value btor787))
@@ -3355,7 +3291,7 @@
            (btor791
             (signal
              (bvand (signal-value btor790) (signal-value btor731))
-             (merge-state (list btor790 btor731))))
+             (list)))
            (btor792
             (signal
              (extract 35 35 (signal-value btor787))
@@ -3363,7 +3299,7 @@
            (btor793
             (signal
              (bvand (signal-value btor792) (signal-value btor199))
-             (merge-state (list btor792 btor199))))
+             (list)))
            (btor794
             (signal
              (extract 10 0 (signal-value btor787))
@@ -3371,11 +3307,11 @@
            (btor795
             (signal
              (concat (signal-value btor794) (signal-value btor106))
-             (merge-state (list btor794 btor106))))
+             (list)))
            (btor796
             (signal
              (concat (signal-value btor789) (signal-value btor795))
-             (merge-state (list btor789 btor795))))
+             (list)))
            (btor797
             (signal
              (extract 22 12 (signal-value btor787))
@@ -3383,11 +3319,11 @@
            (btor798
             (signal
              (concat (signal-value btor797) (signal-value btor796))
-             (merge-state (list btor797 btor796))))
+             (list)))
            (btor799
             (signal
              (concat (signal-value btor791) (signal-value btor798))
-             (merge-state (list btor791 btor798))))
+             (list)))
            (btor800
             (signal
              (extract 34 24 (signal-value btor787))
@@ -3395,11 +3331,11 @@
            (btor801
             (signal
              (concat (signal-value btor800) (signal-value btor799))
-             (merge-state (list btor800 btor799))))
+             (list)))
            (btor802
             (signal
              (concat (signal-value btor793) (signal-value btor801))
-             (merge-state (list btor793 btor801))))
+             (list)))
            (btor803
             (signal
              (extract 46 36 (signal-value btor787))
@@ -3407,11 +3343,11 @@
            (btor804
             (signal
              (concat (signal-value btor803) (signal-value btor802))
-             (merge-state (list btor803 btor802))))
+             (list)))
            (btor805
             (signal
              (bvand (signal-value btor785) (signal-value btor804))
-             (merge-state (list btor785 btor804))))
+             (list)))
            (btor806 unnamed-input-806)
            (btor807
             (signal
@@ -3421,14 +3357,14 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor807) (signal-value btor419)))
-             (merge-state (list btor807 btor419))))
+             (list)))
            (btor809
             (if (bitvector->bool (signal-value btor808)) btor476 btor806))
            (btor810
             (signal
              (bool->bitvector
               (bveq (signal-value btor807) (signal-value btor103)))
-             (merge-state (list btor807 btor103))))
+             (list)))
            (btor811
             (if (bitvector->bool (signal-value btor810)) btor77 btor809))
            (btor812
@@ -3439,35 +3375,32 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor807) (signal-value btor812)))
-             (merge-state (list btor807 btor812))))
+             (list)))
            (btor814
             (if (bitvector->bool (signal-value btor813)) btor338 btor811))
            (btor815
             (signal
              (apply bvor (bitvector->bits (signal-value btor807)))
              (signal-state btor807)))
-           (btor816
-            (signal
-             (bvnot (signal-value btor815))
-             (merge-state (list btor815))))
+           (btor816 (signal (bvnot (signal-value btor815)) (list)))
            (btor817
             (if (bitvector->bool (signal-value btor816)) btor483 btor814))
            (btor818
             (signal
              (bvand (signal-value btor817) (signal-value btor804))
-             (merge-state (list btor817 btor804))))
+             (list)))
            (btor819
             (signal
              (bvor (signal-value btor805) (signal-value btor818))
-             (merge-state (list btor805 btor818))))
+             (list)))
            (btor820
             (signal
              (bvand (signal-value btor785) (signal-value btor817))
-             (merge-state (list btor785 btor817))))
+             (list)))
            (btor821
             (signal
              (bvor (signal-value btor819) (signal-value btor820))
-             (merge-state (list btor819 btor820))))
+             (list)))
            (btor822
             (signal
              (extract 35 35 (signal-value btor821))
@@ -3475,7 +3408,7 @@
            (btor823
             (signal
              (bvand (signal-value btor199) (signal-value btor822))
-             (merge-state (list btor199 btor822))))
+             (list)))
            (btor824
             (signal
              (extract 47 36 (signal-value btor821))
@@ -3483,7 +3416,7 @@
            (btor825
             (signal
              (concat (signal-value btor824) (signal-value btor823))
-             (merge-state (list btor824 btor823))))
+             (list)))
            (btor826
             (bv->signal
              (zero-extend (signal-value btor825) (bitvector 14))
@@ -3491,11 +3424,11 @@
            (btor827
             (signal
              (bvxor (signal-value btor785) (signal-value btor804))
-             (merge-state (list btor785 btor804))))
+             (list)))
            (btor828
             (signal
              (bvxor (signal-value btor827) (signal-value btor817))
-             (merge-state (list btor827 btor817))))
+             (list)))
            (btor829
             (signal
              (extract 47 36 (signal-value btor828))
@@ -3507,7 +3440,7 @@
            (btor831
             (signal
              (concat (signal-value btor830) (signal-value btor829))
-             (merge-state (list btor830 btor829))))
+             (list)))
            (btor832
             (bv->signal
              (zero-extend (signal-value btor831) (bitvector 14))
@@ -3515,7 +3448,7 @@
            (btor833
             (signal
              (bvadd (signal-value btor826) (signal-value btor832))
-             (merge-state (list btor826 btor832))))
+             (list)))
            (btor834
             (signal
              (extract 23 23 (signal-value btor821))
@@ -3523,7 +3456,7 @@
            (btor835
             (signal
              (bvand (signal-value btor731) (signal-value btor834))
-             (merge-state (list btor731 btor834))))
+             (list)))
            (btor836
             (signal
              (extract 34 24 (signal-value btor821))
@@ -3531,7 +3464,7 @@
            (btor837
             (signal
              (concat (signal-value btor836) (signal-value btor835))
-             (merge-state (list btor836 btor835))))
+             (list)))
            (btor838
             (bv->signal
              (zero-extend (signal-value btor837) (bitvector 13))
@@ -3547,7 +3480,7 @@
            (btor841
             (signal
              (bvadd (signal-value btor838) (signal-value btor840))
-             (merge-state (list btor838 btor840))))
+             (list)))
            (btor842
             (signal
              (extract 11 11 (signal-value btor821))
@@ -3555,7 +3488,7 @@
            (btor843
             (signal
              (bvand (signal-value btor199) (signal-value btor842))
-             (merge-state (list btor199 btor842))))
+             (list)))
            (btor844
             (signal
              (extract 22 12 (signal-value btor821))
@@ -3563,7 +3496,7 @@
            (btor845
             (signal
              (concat (signal-value btor844) (signal-value btor843))
-             (merge-state (list btor844 btor843))))
+             (list)))
            (btor846
             (bv->signal
              (zero-extend (signal-value btor845) (bitvector 13))
@@ -3579,16 +3512,13 @@
            (btor849
             (signal
              (bvadd (signal-value btor846) (signal-value btor848))
-             (merge-state (list btor846 btor848))))
+             (list)))
            (btor850 unnamed-input-850)
            (btor851
             (signal
              (extract 47 47 (signal-value btor338))
              (signal-state btor338)))
-           (btor852
-            (signal
-             (bvnot (signal-value btor851))
-             (merge-state (list btor851))))
+           (btor852 (signal (bvnot (signal-value btor851)) (list)))
            (btor853
             (let* ((state-value
                     (cond
@@ -3640,12 +3570,12 @@
            (btor857
             (signal
              (concat (signal-value btor100) (signal-value btor855))
-             (merge-state (list btor100 btor855))))
+             (list)))
            (btor858
             (signal
              (bool->bitvector
               (bveq (signal-value btor857) (signal-value btor103)))
-             (merge-state (list btor857 btor103))))
+             (list)))
            (btor859
             (if (bitvector->bool (signal-value btor858)) btor854 btor853))
            (btor860
@@ -3656,7 +3586,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor861) (signal-value btor111)))
-             (merge-state (list btor861 btor111))))
+             (list)))
            (btor863
             (if (bitvector->bool (signal-value btor862)) btor852 btor850))
            (btor864
@@ -3670,11 +3600,8 @@
            (btor866
             (signal
              (bvxor (signal-value btor864) (signal-value btor865))
-             (merge-state (list btor864 btor865))))
-           (btor867
-            (signal
-             (bvnot (signal-value btor866))
-             (merge-state (list btor866))))
+             (list)))
+           (btor867 (signal (bvnot (signal-value btor866)) (list)))
            (btor868
             (let* ((state-value
                     (cond
@@ -3726,33 +3653,30 @@
            (btor872
             (signal
              (concat (signal-value btor100) (signal-value btor870))
-             (merge-state (list btor100 btor870))))
+             (list)))
            (btor873
             (signal
              (bool->bitvector
               (bveq (signal-value btor872) (signal-value btor103)))
-             (merge-state (list btor872 btor103))))
+             (list)))
            (btor874
             (if (bitvector->bool (signal-value btor873)) btor869 btor868))
            (btor875
             (if (bitvector->bool (signal-value btor728)) btor874 btor867))
-           (btor876
-            (signal
-             (bvnot (signal-value btor875))
-             (merge-state (list btor875))))
+           (btor876 (signal (bvnot (signal-value btor875)) (list)))
            (btor877 (bv->signal (bv 6 (bitvector 3))))
            (btor878
             (signal
              (bool->bitvector
               (bveq (signal-value btor861) (signal-value btor877)))
-             (merge-state (list btor861 btor877))))
+             (list)))
            (btor879
             (if (bitvector->bool (signal-value btor878)) btor876 btor863))
            (btor880
             (signal
              (bool->bitvector
               (bveq (signal-value btor861) (signal-value btor458)))
-             (merge-state (list btor861 btor458))))
+             (list)))
            (btor881
             (if (bitvector->bool (signal-value btor880)) btor851 btor879))
            (btor882
@@ -3806,12 +3730,12 @@
            (btor886
             (signal
              (concat (signal-value btor100) (signal-value btor884))
-             (merge-state (list btor100 btor884))))
+             (list)))
            (btor887
             (signal
              (bool->bitvector
               (bveq (signal-value btor886) (signal-value btor103)))
-             (merge-state (list btor886 btor103))))
+             (list)))
            (btor888
             (if (bitvector->bool (signal-value btor887)) btor883 btor882))
            (btor889
@@ -3865,12 +3789,12 @@
            (btor893
             (signal
              (concat (signal-value btor100) (signal-value btor891))
-             (merge-state (list btor100 btor891))))
+             (list)))
            (btor894
             (signal
              (bool->bitvector
               (bveq (signal-value btor893) (signal-value btor103)))
-             (merge-state (list btor893 btor103))))
+             (list)))
            (btor895
             (if (bitvector->bool (signal-value btor894)) btor890 btor889))
            (btor896
@@ -3880,26 +3804,20 @@
            (btor897
             (signal
              (bvxor (signal-value btor888) (signal-value btor896))
-             (merge-state (list btor888 btor896))))
-           (btor898
-            (signal
-             (bvnot (signal-value btor897))
-             (merge-state (list btor897))))
+             (list)))
+           (btor898 (signal (bvnot (signal-value btor897)) (list)))
            (btor899
             (signal
              (bool->bitvector
               (bveq (signal-value btor861) (signal-value btor461)))
-             (merge-state (list btor861 btor461))))
+             (list)))
            (btor900
             (if (bitvector->bool (signal-value btor899)) btor898 btor881))
            (btor901
             (signal
              (extract 47 47 (signal-value btor74))
              (signal-state btor74)))
-           (btor902
-            (signal
-             (bvnot (signal-value btor901))
-             (merge-state (list btor901))))
+           (btor902 (signal (bvnot (signal-value btor901)) (list)))
            (btor903
             (bv->signal
              (zero-extend (signal-value btor419) (bitvector 3))
@@ -3908,11 +3826,10 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor861) (signal-value btor903)))
-             (merge-state (list btor861 btor903))))
+             (list)))
            (btor905
             (if (bitvector->bool (signal-value btor904)) btor902 btor900))
-           (btor906
-            (signal (bvnot (signal-value btor26)) (merge-state (list btor26))))
+           (btor906 (signal (bvnot (signal-value btor26)) (list)))
            (btor907
             (bv->signal
              (zero-extend (signal-value btor103) (bitvector 3))
@@ -3921,7 +3838,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor861) (signal-value btor907)))
-             (merge-state (list btor861 btor907))))
+             (list)))
            (btor909
             (if (bitvector->bool (signal-value btor908)) btor906 btor905))
            (btor910
@@ -3932,13 +3849,13 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor861) (signal-value btor910)))
-             (merge-state (list btor861 btor910))))
+             (list)))
            (btor912
             (if (bitvector->bool (signal-value btor911)) btor901 btor909))
            (btor913
             (signal
              (bvxor (signal-value btor27) (signal-value btor53))
-             (merge-state (list btor27 btor53))))
+             (list)))
            (btor914
             (let* ((state-value
                     (cond
@@ -3990,40 +3907,31 @@
            (btor918
             (signal
              (concat (signal-value btor100) (signal-value btor916))
-             (merge-state (list btor100 btor916))))
+             (list)))
            (btor919
             (signal
              (bool->bitvector
               (bveq (signal-value btor918) (signal-value btor103)))
-             (merge-state (list btor918 btor103))))
+             (list)))
            (btor920
             (if (bitvector->bool (signal-value btor919)) btor915 btor914))
            (btor921
             (signal (extract 0 0 (signal-value btor28)) (signal-state btor28)))
            (btor922
             (if (bitvector->bool (signal-value btor921)) btor920 btor913))
-           (btor923
-            (signal
-             (bvnot (signal-value btor922))
-             (merge-state (list btor922))))
+           (btor923 (signal (bvnot (signal-value btor922)) (list)))
            (btor924
             (signal
              (apply bvor (bitvector->bits (signal-value btor861)))
              (signal-state btor861)))
-           (btor925
-            (signal
-             (bvnot (signal-value btor924))
-             (merge-state (list btor924))))
+           (btor925 (signal (bvnot (signal-value btor924)) (list)))
            (btor926
             (if (bitvector->bool (signal-value btor925)) btor923 btor912))
-           (btor927
-            (signal
-             (bvnot (signal-value btor926))
-             (merge-state (list btor926))))
+           (btor927 (signal (bvnot (signal-value btor926)) (list)))
            (btor928
             (signal
              (bvor (signal-value btor784) (signal-value btor786))
-             (merge-state (list btor784 btor786))))
+             (list)))
            (btor929
             (if (bitvector->bool (signal-value btor928)) btor106 btor927))
            (btor930
@@ -4033,7 +3941,7 @@
            (btor931
             (signal
              (concat (signal-value btor930) (signal-value btor929))
-             (merge-state (list btor930 btor929))))
+             (list)))
            (btor932
             (bv->signal
              (zero-extend (signal-value btor931) (bitvector 13))
@@ -4049,7 +3957,7 @@
            (btor935
             (signal
              (bvadd (signal-value btor932) (signal-value btor934))
-             (merge-state (list btor932 btor934))))
+             (list)))
            (btor936
             (signal
              (extract 12 12 (signal-value btor935))
@@ -4057,7 +3965,7 @@
            (btor937
             (signal
              (bvand (signal-value btor199) (signal-value btor936))
-             (merge-state (list btor199 btor936))))
+             (list)))
            (btor938
             (bv->signal
              (zero-extend (signal-value btor937) (bitvector 13))
@@ -4065,7 +3973,7 @@
            (btor939
             (signal
              (bvadd (signal-value btor849) (signal-value btor938))
-             (merge-state (list btor849 btor938))))
+             (list)))
            (btor940
             (signal
              (extract 12 12 (signal-value btor939))
@@ -4073,7 +3981,7 @@
            (btor941
             (signal
              (bvand (signal-value btor731) (signal-value btor940))
-             (merge-state (list btor731 btor940))))
+             (list)))
            (btor942
             (bv->signal
              (zero-extend (signal-value btor941) (bitvector 13))
@@ -4081,7 +3989,7 @@
            (btor943
             (signal
              (bvadd (signal-value btor841) (signal-value btor942))
-             (merge-state (list btor841 btor942))))
+             (list)))
            (btor944
             (signal
              (extract 12 12 (signal-value btor943))
@@ -4089,7 +3997,7 @@
            (btor945
             (signal
              (bvand (signal-value btor199) (signal-value btor944))
-             (merge-state (list btor199 btor944))))
+             (list)))
            (btor946
             (bv->signal
              (zero-extend (signal-value btor945) (bitvector 14))
@@ -4097,7 +4005,7 @@
            (btor947
             (signal
              (bvadd (signal-value btor833) (signal-value btor946))
-             (merge-state (list btor833 btor946))))
+             (list)))
            (btor948
             (signal
              (extract 12 12 (signal-value btor947))
@@ -4105,11 +4013,11 @@
            (btor949
             (signal
              (bvxor (signal-value btor184) (signal-value btor948))
-             (merge-state (list btor184 btor948))))
+             (list)))
            (btor950
             (signal
              (bvxor (signal-value btor184) (signal-value btor949))
-             (merge-state (list btor184 btor949))))
+             (list)))
            (btor951
             (signal (extract 0 0 (signal-value btor76)) (signal-state btor76)))
            (btor952
@@ -4117,15 +4025,15 @@
            (btor954
             (signal
              (bvxor (signal-value btor842) (signal-value btor936))
-             (merge-state (list btor842 btor936))))
+             (list)))
            (btor955
             (signal
              (bvxor (signal-value btor954) (signal-value btor788))
-             (merge-state (list btor954 btor788))))
+             (list)))
            (btor956
             (signal
              (bvxor (signal-value btor184) (signal-value btor955))
-             (merge-state (list btor184 btor955))))
+             (list)))
            (btor957
             (signal
              (extract 3 0 (signal-value btor417))
@@ -4138,7 +4046,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor957) (signal-value btor958)))
-             (merge-state (list btor957 btor958))))
+             (list)))
            (btor960
             (signal
              (extract 3 2 (signal-value btor181))
@@ -4150,7 +4058,7 @@
            (btor962
             (signal
              (bvor (signal-value btor959) (signal-value btor961))
-             (merge-state (list btor959 btor961))))
+             (list)))
            (btor963
             (if (bitvector->bool (signal-value btor962)) btor106 btor956))
            (btor964
@@ -4161,21 +4069,21 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor197) (signal-value btor964)))
-             (merge-state (list btor197 btor964))))
+             (list)))
            (btor966
             (if (bitvector->bool (signal-value btor965)) btor963 btor106))
            (btor967
             (signal
              (bvxor (signal-value btor834) (signal-value btor940))
-             (merge-state (list btor834 btor940))))
+             (list)))
            (btor968
             (signal
              (bvxor (signal-value btor967) (signal-value btor790))
-             (merge-state (list btor967 btor790))))
+             (list)))
            (btor969
             (signal
              (bvxor (signal-value btor184) (signal-value btor968))
-             (merge-state (list btor184 btor968))))
+             (list)))
            (btor970
             (if (bitvector->bool (signal-value btor962)) btor106 btor969))
            (btor971
@@ -4187,15 +4095,15 @@
            (btor973
             (signal
              (bvxor (signal-value btor822) (signal-value btor944))
-             (merge-state (list btor822 btor944))))
+             (list)))
            (btor974
             (signal
              (bvxor (signal-value btor973) (signal-value btor792))
-             (merge-state (list btor973 btor792))))
+             (list)))
            (btor975
             (signal
              (bvxor (signal-value btor184) (signal-value btor974))
-             (merge-state (list btor184 btor974))))
+             (list)))
            (btor976
             (if (bitvector->bool (signal-value btor962)) btor106 btor975))
            (btor977
@@ -4203,15 +4111,15 @@
            (btor978
             (signal
              (concat (signal-value btor972) (signal-value btor966))
-             (merge-state (list btor972 btor966))))
+             (list)))
            (btor979
             (signal
              (concat (signal-value btor977) (signal-value btor978))
-             (merge-state (list btor977 btor978))))
+             (list)))
            (btor980
             (signal
              (concat (signal-value btor949) (signal-value btor979))
-             (merge-state (list btor949 btor979))))
+             (list)))
            (btor981
             (if (bitvector->bool (signal-value btor951)) btor895 btor980))
            (btor983
@@ -4269,12 +4177,12 @@
            (btor988
             (signal
              (concat (signal-value btor100) (signal-value btor986))
-             (merge-state (list btor100 btor986))))
+             (list)))
            (btor989
             (signal
              (bool->bitvector
               (bveq (signal-value btor988) (signal-value btor103)))
-             (merge-state (list btor988 btor103))))
+             (list)))
            (btor990
             (if (bitvector->bool (signal-value btor989)) btor985 btor984))
            (btor991
@@ -4284,7 +4192,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor89) (signal-value btor993)))
-             (merge-state (list btor89 btor993))))
+             (list)))
            (btor995
             (if (bitvector->bool (signal-value btor994)) btor97 btor106))
            (btor996 (bv->signal (bv 9 (bitvector 4))))
@@ -4296,7 +4204,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor89) (signal-value btor997)))
-             (merge-state (list btor89 btor997))))
+             (list)))
            (btor999
             (if (bitvector->bool (signal-value btor998)) btor106 btor995))
            (btor1000
@@ -4312,7 +4220,7 @@
            (btor1003
             (signal
              (concat (signal-value btor1002) (signal-value btor1001))
-             (merge-state (list btor1002 btor1001))))
+             (list)))
            (btor1004
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4320,7 +4228,7 @@
            (btor1005
             (signal
              (concat (signal-value btor1004) (signal-value btor1003))
-             (merge-state (list btor1004 btor1003))))
+             (list)))
            (btor1006
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4328,7 +4236,7 @@
            (btor1007
             (signal
              (concat (signal-value btor1006) (signal-value btor1005))
-             (merge-state (list btor1006 btor1005))))
+             (list)))
            (btor1008
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4336,7 +4244,7 @@
            (btor1009
             (signal
              (concat (signal-value btor1008) (signal-value btor1007))
-             (merge-state (list btor1008 btor1007))))
+             (list)))
            (btor1010
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4344,7 +4252,7 @@
            (btor1011
             (signal
              (concat (signal-value btor1010) (signal-value btor1009))
-             (merge-state (list btor1010 btor1009))))
+             (list)))
            (btor1012
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4352,7 +4260,7 @@
            (btor1013
             (signal
              (concat (signal-value btor1012) (signal-value btor1011))
-             (merge-state (list btor1012 btor1011))))
+             (list)))
            (btor1014
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4360,7 +4268,7 @@
            (btor1015
             (signal
              (concat (signal-value btor1014) (signal-value btor1013))
-             (merge-state (list btor1014 btor1013))))
+             (list)))
            (btor1016
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4368,7 +4276,7 @@
            (btor1017
             (signal
              (concat (signal-value btor1016) (signal-value btor1015))
-             (merge-state (list btor1016 btor1015))))
+             (list)))
            (btor1018
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4376,7 +4284,7 @@
            (btor1019
             (signal
              (concat (signal-value btor1018) (signal-value btor1017))
-             (merge-state (list btor1018 btor1017))))
+             (list)))
            (btor1020
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4384,7 +4292,7 @@
            (btor1021
             (signal
              (concat (signal-value btor1020) (signal-value btor1019))
-             (merge-state (list btor1020 btor1019))))
+             (list)))
            (btor1022
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4392,7 +4300,7 @@
            (btor1023
             (signal
              (concat (signal-value btor1022) (signal-value btor1021))
-             (merge-state (list btor1022 btor1021))))
+             (list)))
            (btor1024
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4400,7 +4308,7 @@
            (btor1025
             (signal
              (concat (signal-value btor1024) (signal-value btor1023))
-             (merge-state (list btor1024 btor1023))))
+             (list)))
            (btor1026
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4408,7 +4316,7 @@
            (btor1027
             (signal
              (concat (signal-value btor1026) (signal-value btor1025))
-             (merge-state (list btor1026 btor1025))))
+             (list)))
            (btor1028
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4416,7 +4324,7 @@
            (btor1029
             (signal
              (concat (signal-value btor1028) (signal-value btor1027))
-             (merge-state (list btor1028 btor1027))))
+             (list)))
            (btor1030
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4424,7 +4332,7 @@
            (btor1031
             (signal
              (concat (signal-value btor1030) (signal-value btor1029))
-             (merge-state (list btor1030 btor1029))))
+             (list)))
            (btor1032
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4432,7 +4340,7 @@
            (btor1033
             (signal
              (concat (signal-value btor1032) (signal-value btor1031))
-             (merge-state (list btor1032 btor1031))))
+             (list)))
            (btor1034
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4440,7 +4348,7 @@
            (btor1035
             (signal
              (concat (signal-value btor1034) (signal-value btor1033))
-             (merge-state (list btor1034 btor1033))))
+             (list)))
            (btor1036
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4448,7 +4356,7 @@
            (btor1037
             (signal
              (concat (signal-value btor1036) (signal-value btor1035))
-             (merge-state (list btor1036 btor1035))))
+             (list)))
            (btor1038
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4456,7 +4364,7 @@
            (btor1039
             (signal
              (concat (signal-value btor1038) (signal-value btor1037))
-             (merge-state (list btor1038 btor1037))))
+             (list)))
            (btor1040
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4464,7 +4372,7 @@
            (btor1041
             (signal
              (concat (signal-value btor1040) (signal-value btor1039))
-             (merge-state (list btor1040 btor1039))))
+             (list)))
            (btor1042
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4472,7 +4380,7 @@
            (btor1043
             (signal
              (concat (signal-value btor1042) (signal-value btor1041))
-             (merge-state (list btor1042 btor1041))))
+             (list)))
            (btor1044
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4480,7 +4388,7 @@
            (btor1045
             (signal
              (concat (signal-value btor1044) (signal-value btor1043))
-             (merge-state (list btor1044 btor1043))))
+             (list)))
            (btor1046
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4488,7 +4396,7 @@
            (btor1047
             (signal
              (concat (signal-value btor1046) (signal-value btor1045))
-             (merge-state (list btor1046 btor1045))))
+             (list)))
            (btor1048
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4496,7 +4404,7 @@
            (btor1049
             (signal
              (concat (signal-value btor1048) (signal-value btor1047))
-             (merge-state (list btor1048 btor1047))))
+             (list)))
            (btor1050
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4504,7 +4412,7 @@
            (btor1051
             (signal
              (concat (signal-value btor1050) (signal-value btor1049))
-             (merge-state (list btor1050 btor1049))))
+             (list)))
            (btor1052
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4512,7 +4420,7 @@
            (btor1053
             (signal
              (concat (signal-value btor1052) (signal-value btor1051))
-             (merge-state (list btor1052 btor1051))))
+             (list)))
            (btor1054
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4520,7 +4428,7 @@
            (btor1055
             (signal
              (concat (signal-value btor1054) (signal-value btor1053))
-             (merge-state (list btor1054 btor1053))))
+             (list)))
            (btor1056
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4528,7 +4436,7 @@
            (btor1057
             (signal
              (concat (signal-value btor1056) (signal-value btor1055))
-             (merge-state (list btor1056 btor1055))))
+             (list)))
            (btor1058
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4536,7 +4444,7 @@
            (btor1059
             (signal
              (concat (signal-value btor1058) (signal-value btor1057))
-             (merge-state (list btor1058 btor1057))))
+             (list)))
            (btor1060
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4544,7 +4452,7 @@
            (btor1061
             (signal
              (concat (signal-value btor1060) (signal-value btor1059))
-             (merge-state (list btor1060 btor1059))))
+             (list)))
            (btor1062
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4552,7 +4460,7 @@
            (btor1063
             (signal
              (concat (signal-value btor1062) (signal-value btor1061))
-             (merge-state (list btor1062 btor1061))))
+             (list)))
            (btor1064
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4560,7 +4468,7 @@
            (btor1065
             (signal
              (concat (signal-value btor1064) (signal-value btor1063))
-             (merge-state (list btor1064 btor1063))))
+             (list)))
            (btor1066
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4568,7 +4476,7 @@
            (btor1067
             (signal
              (concat (signal-value btor1066) (signal-value btor1065))
-             (merge-state (list btor1066 btor1065))))
+             (list)))
            (btor1068
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4576,7 +4484,7 @@
            (btor1069
             (signal
              (concat (signal-value btor1068) (signal-value btor1067))
-             (merge-state (list btor1068 btor1067))))
+             (list)))
            (btor1070
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4584,7 +4492,7 @@
            (btor1071
             (signal
              (concat (signal-value btor1070) (signal-value btor1069))
-             (merge-state (list btor1070 btor1069))))
+             (list)))
            (btor1072
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4592,7 +4500,7 @@
            (btor1073
             (signal
              (concat (signal-value btor1072) (signal-value btor1071))
-             (merge-state (list btor1072 btor1071))))
+             (list)))
            (btor1074
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4600,7 +4508,7 @@
            (btor1075
             (signal
              (concat (signal-value btor1074) (signal-value btor1073))
-             (merge-state (list btor1074 btor1073))))
+             (list)))
            (btor1076
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4608,7 +4516,7 @@
            (btor1077
             (signal
              (concat (signal-value btor1076) (signal-value btor1075))
-             (merge-state (list btor1076 btor1075))))
+             (list)))
            (btor1078
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4616,7 +4524,7 @@
            (btor1079
             (signal
              (concat (signal-value btor1078) (signal-value btor1077))
-             (merge-state (list btor1078 btor1077))))
+             (list)))
            (btor1080
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4624,7 +4532,7 @@
            (btor1081
             (signal
              (concat (signal-value btor1080) (signal-value btor1079))
-             (merge-state (list btor1080 btor1079))))
+             (list)))
            (btor1082
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4632,7 +4540,7 @@
            (btor1083
             (signal
              (concat (signal-value btor1082) (signal-value btor1081))
-             (merge-state (list btor1082 btor1081))))
+             (list)))
            (btor1084
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4640,7 +4548,7 @@
            (btor1085
             (signal
              (concat (signal-value btor1084) (signal-value btor1083))
-             (merge-state (list btor1084 btor1083))))
+             (list)))
            (btor1086
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4648,7 +4556,7 @@
            (btor1087
             (signal
              (concat (signal-value btor1086) (signal-value btor1085))
-             (merge-state (list btor1086 btor1085))))
+             (list)))
            (btor1088
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4656,7 +4564,7 @@
            (btor1089
             (signal
              (concat (signal-value btor1088) (signal-value btor1087))
-             (merge-state (list btor1088 btor1087))))
+             (list)))
            (btor1090
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4664,7 +4572,7 @@
            (btor1091
             (signal
              (concat (signal-value btor1090) (signal-value btor1089))
-             (merge-state (list btor1090 btor1089))))
+             (list)))
            (btor1092
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4672,7 +4580,7 @@
            (btor1093
             (signal
              (concat (signal-value btor1092) (signal-value btor1091))
-             (merge-state (list btor1092 btor1091))))
+             (list)))
            (btor1094
             (signal
              (extract 1 1 (signal-value btor181))
@@ -4680,7 +4588,7 @@
            (btor1095
             (signal
              (concat (signal-value btor1094) (signal-value btor1093))
-             (merge-state (list btor1094 btor1093))))
+             (list)))
            (btor1096
             (signal
              (extract 11 0 (signal-value btor935))
@@ -4692,7 +4600,7 @@
            (btor1098
             (signal
              (concat (signal-value btor1097) (signal-value btor1096))
-             (merge-state (list btor1097 btor1096))))
+             (list)))
            (btor1099
             (signal
              (extract 11 0 (signal-value btor943))
@@ -4700,7 +4608,7 @@
            (btor1100
             (signal
              (concat (signal-value btor1099) (signal-value btor1098))
-             (merge-state (list btor1099 btor1098))))
+             (list)))
            (btor1101
             (signal
              (extract 11 0 (signal-value btor947))
@@ -4708,37 +4616,31 @@
            (btor1102
             (signal
              (concat (signal-value btor1101) (signal-value btor1100))
-             (merge-state (list btor1101 btor1100))))
+             (list)))
            (btor1103
             (signal
              (bvxor (signal-value btor1095) (signal-value btor1102))
-             (merge-state (list btor1095 btor1102))))
+             (list)))
            (btor1104
             (signal
              (bvxor (signal-value btor1000) (signal-value btor1103))
-             (merge-state (list btor1000 btor1103))))
-           (btor1105
-            (signal
-             (bvnot (signal-value btor1104))
-             (merge-state (list btor1104))))
+             (list)))
+           (btor1105 (signal (bvnot (signal-value btor1104)) (list)))
            (btor1106
             (signal
              (extract 45 0 (signal-value btor476))
              (signal-state btor476)))
-           (btor1107
-            (signal
-             (bvnot (signal-value btor1106))
-             (merge-state (list btor1106))))
+           (btor1107 (signal (bvnot (signal-value btor1106)) (list)))
            (btor1108
             (signal
              (concat (signal-value btor1107) (signal-value btor186))
-             (merge-state (list btor1107 btor186))))
+             (list)))
            (btor1109 (bv->signal (bv 23 (bitvector 5))))
            (btor1110
             (signal
              (bool->bitvector
               (bveq (signal-value btor88) (signal-value btor1109)))
-             (merge-state (list btor88 btor1109))))
+             (list)))
            (btor1111
             (if (bitvector->bool (signal-value btor1110)) btor419 btor186))
            (btor1112 (bv->signal (bv 22 (bitvector 5))))
@@ -4746,14 +4648,14 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor88) (signal-value btor1112)))
-             (merge-state (list btor88 btor1112))))
+             (list)))
            (btor1114
             (if (bitvector->bool (signal-value btor1113)) btor103 btor1111))
            (btor1115
             (signal
              (bool->bitvector
               (bveq (signal-value btor88) (signal-value btor993)))
-             (merge-state (list btor88 btor993))))
+             (list)))
            (btor1116
             (if (bitvector->bool (signal-value btor1115)) btor190 btor1114))
            (btor1117 (bv->signal (bv 8 (bitvector 4))))
@@ -4765,33 +4667,30 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor88) (signal-value btor1118)))
-             (merge-state (list btor88 btor1118))))
+             (list)))
            (btor1120
             (if (bitvector->bool (signal-value btor1119)) btor186 btor1116))
            (btor1121
             (signal
              (bool->bitvector
               (bveq (signal-value btor1120) (signal-value btor419)))
-             (merge-state (list btor1120 btor419))))
+             (list)))
            (btor1122
             (if (bitvector->bool (signal-value btor1121)) btor1108 btor68))
            (btor1123
             (signal
              (extract 46 0 (signal-value btor476))
              (signal-state btor476)))
-           (btor1124
-            (signal
-             (bvnot (signal-value btor1123))
-             (merge-state (list btor1123))))
+           (btor1124 (signal (bvnot (signal-value btor1123)) (list)))
            (btor1125
             (signal
              (concat (signal-value btor1124) (signal-value btor106))
-             (merge-state (list btor1124 btor106))))
+             (list)))
            (btor1126
             (signal
              (bool->bitvector
               (bveq (signal-value btor1120) (signal-value btor103)))
-             (merge-state (list btor1120 btor103))))
+             (list)))
            (btor1127
             (if (bitvector->bool (signal-value btor1126)) btor1125 btor1122))
            (btor1128
@@ -4802,7 +4701,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor1120) (signal-value btor1128)))
-             (merge-state (list btor1120 btor1128))))
+             (list)))
            (btor1130
             (if (bitvector->bool (signal-value btor1129)) btor476 btor1127))
            (btor1131 (bv->signal (bv 21 (bitvector 5))))
@@ -4810,7 +4709,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor91) (signal-value btor1131)))
-             (merge-state (list btor91 btor1131))))
+             (list)))
            (btor1133
             (if (bitvector->bool (signal-value btor1132)) btor97 btor106))
            (btor1134 (bv->signal (bv 11 (bitvector 4))))
@@ -4822,7 +4721,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor91) (signal-value btor1135)))
-             (merge-state (list btor91 btor1135))))
+             (list)))
            (btor1137
             (if (bitvector->bool (signal-value btor1136)) btor106 btor1133))
            (btor1138
@@ -4830,7 +4729,7 @@
            (btor1139
             (signal
              (bvor (signal-value btor1105) (signal-value btor1138))
-             (merge-state (list btor1105 btor1138))))
+             (list)))
            (btor1140
             (signal
              (apply bvand (bitvector->bits (signal-value btor1139)))
@@ -4886,24 +4785,21 @@
            (btor1145
             (signal
              (concat (signal-value btor100) (signal-value btor1143))
-             (merge-state (list btor100 btor1143))))
+             (list)))
            (btor1146
             (signal
              (bool->bitvector
               (bveq (signal-value btor1145) (signal-value btor103)))
-             (merge-state (list btor1145 btor103))))
+             (list)))
            (btor1147
             (if (bitvector->bool (signal-value btor1146)) btor1142 btor1141))
            (btor1148
             (if (bitvector->bool (signal-value btor951)) btor1147 btor1140))
-           (btor1149
-            (signal
-             (bvnot (signal-value btor1148))
-             (merge-state (list btor1148))))
+           (btor1149 (signal (bvnot (signal-value btor1148)) (list)))
            (btor1150
             (signal
              (bvor (signal-value btor1104) (signal-value btor1138))
-             (merge-state (list btor1104 btor1138))))
+             (list)))
            (btor1151
             (signal
              (apply bvand (bitvector->bits (signal-value btor1150)))
@@ -4959,24 +4855,21 @@
            (btor1156
             (signal
              (concat (signal-value btor100) (signal-value btor1154))
-             (merge-state (list btor100 btor1154))))
+             (list)))
            (btor1157
             (signal
              (bool->bitvector
               (bveq (signal-value btor1156) (signal-value btor103)))
-             (merge-state (list btor1156 btor103))))
+             (list)))
            (btor1158
             (if (bitvector->bool (signal-value btor1157)) btor1153 btor1152))
            (btor1159
             (if (bitvector->bool (signal-value btor951)) btor1158 btor1151))
-           (btor1160
-            (signal
-             (bvnot (signal-value btor1159))
-             (merge-state (list btor1159))))
+           (btor1160 (signal (bvnot (signal-value btor1159)) (list)))
            (btor1161
             (signal
              (bvand (signal-value btor1149) (signal-value btor1160))
-             (merge-state (list btor1149 btor1160))))
+             (list)))
            (btor1162
             (let* ((state-value
                     (cond
@@ -5028,12 +4921,12 @@
            (btor1166
             (signal
              (concat (signal-value btor100) (signal-value btor1164))
-             (merge-state (list btor100 btor1164))))
+             (list)))
            (btor1167
             (signal
              (bool->bitvector
               (bveq (signal-value btor1166) (signal-value btor103)))
-             (merge-state (list btor1166 btor103))))
+             (list)))
            (btor1168
             (if (bitvector->bool (signal-value btor1167)) btor1163 btor1162))
            (btor1169
@@ -5041,7 +4934,7 @@
            (btor1170
             (signal
              (bvand (signal-value btor1161) (signal-value btor1169))
-             (merge-state (list btor1161 btor1169))))
+             (list)))
            (btor1171
             (if (bitvector->bool (signal-value btor1137)) btor1170 btor106))
            (btor1173
@@ -5097,12 +4990,12 @@
            (btor1182
             (signal
              (concat (signal-value btor100) (signal-value btor1180))
-             (merge-state (list btor100 btor1180))))
+             (list)))
            (btor1183
             (signal
              (bool->bitvector
               (bveq (signal-value btor1182) (signal-value btor103)))
-             (merge-state (list btor1182 btor103))))
+             (list)))
            (btor1184
             (if (bitvector->bool (signal-value btor1183)) btor1179 btor1178))
            (btor1185
@@ -5110,7 +5003,7 @@
            (btor1186
             (signal
              (bvand (signal-value btor1161) (signal-value btor1185))
-             (merge-state (list btor1161 btor1185))))
+             (list)))
            (btor1187
             (if (bitvector->bool (signal-value btor1137)) btor1186 btor106))
            (btor1189
@@ -5126,7 +5019,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor93) (signal-value btor1191)))
-             (merge-state (list btor93 btor1191))))
+             (list)))
            (btor1193
             (if (bitvector->bool (signal-value btor1192)) btor97 btor106))
            (btor1194 (bv->signal (bv 13 (bitvector 4))))
@@ -5138,7 +5031,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor93) (signal-value btor1195)))
-             (merge-state (list btor93 btor1195))))
+             (list)))
            (btor1197
             (if (bitvector->bool (signal-value btor1196)) btor106 btor1193))
            (btor1198
@@ -5156,13 +5049,13 @@
            (btor1202
             (signal
              (bvxor (signal-value btor1198) (signal-value btor1201))
-             (merge-state (list btor1198 btor1201))))
+             (list)))
            (btor1203 (bv->signal (bv 26 (bitvector 5))))
            (btor1204
             (signal
              (bool->bitvector
               (bveq (signal-value btor94) (signal-value btor1203)))
-             (merge-state (list btor94 btor1203))))
+             (list)))
            (btor1205
             (if (bitvector->bool (signal-value btor1204)) btor97 btor106))
            (btor1206 (bv->signal (bv 14 (bitvector 4))))
@@ -5174,7 +5067,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor94) (signal-value btor1207)))
-             (merge-state (list btor94 btor1207))))
+             (list)))
            (btor1209
             (if (bitvector->bool (signal-value btor1208)) btor106 btor1205))
            (btor1210
@@ -5202,11 +5095,11 @@
            (btor1217
             (signal
              (bvxor (signal-value btor1213) (signal-value btor1216))
-             (merge-state (list btor1213 btor1216))))
+             (list)))
            (btor1218
             (signal
              (bvxor (signal-value btor1202) (signal-value btor1217))
-             (merge-state (list btor1202 btor1217))))
+             (list)))
            (btor1219
             (if (bitvector->bool (signal-value btor1209)) btor1201 btor1218))
            (btor1220
@@ -5234,7 +5127,7 @@
            (btor1227
             (signal
              (bvxor (signal-value btor1223) (signal-value btor1226))
-             (merge-state (list btor1223 btor1226))))
+             (list)))
            (btor1228
             (signal
              (extract 41 36 (signal-value btor778))
@@ -5258,15 +5151,15 @@
            (btor1234
             (signal
              (bvxor (signal-value btor1230) (signal-value btor1233))
-             (merge-state (list btor1230 btor1233))))
+             (list)))
            (btor1235
             (signal
              (bvxor (signal-value btor1227) (signal-value btor1234))
-             (merge-state (list btor1227 btor1234))))
+             (list)))
            (btor1236
             (signal
              (bvxor (signal-value btor1218) (signal-value btor1235))
-             (merge-state (list btor1218 btor1235))))
+             (list)))
            (btor1237
             (if (bitvector->bool (signal-value btor1209)) btor1216 btor1236))
            (btor1238
@@ -5278,31 +5171,31 @@
            (btor1241
             (signal
              (concat (signal-value btor1219) (signal-value btor1210))
-             (merge-state (list btor1219 btor1210))))
+             (list)))
            (btor1242
             (signal
              (concat (signal-value btor1220) (signal-value btor1241))
-             (merge-state (list btor1220 btor1241))))
+             (list)))
            (btor1243
             (signal
              (concat (signal-value btor1237) (signal-value btor1242))
-             (merge-state (list btor1237 btor1242))))
+             (list)))
            (btor1244
             (signal
              (concat (signal-value btor1238) (signal-value btor1243))
-             (merge-state (list btor1238 btor1243))))
+             (list)))
            (btor1245
             (signal
              (concat (signal-value btor1239) (signal-value btor1244))
-             (merge-state (list btor1239 btor1244))))
+             (list)))
            (btor1246
             (signal
              (concat (signal-value btor1240) (signal-value btor1245))
-             (merge-state (list btor1240 btor1245))))
+             (list)))
            (btor1247
             (signal
              (concat (signal-value btor1233) (signal-value btor1246))
-             (merge-state (list btor1233 btor1246))))
+             (list)))
            (btor1248
             (let* ((state-value
                     (cond
@@ -5354,12 +5247,12 @@
            (btor1252
             (signal
              (concat (signal-value btor100) (signal-value btor1250))
-             (merge-state (list btor100 btor1250))))
+             (list)))
            (btor1253
             (signal
              (bool->bitvector
               (bveq (signal-value btor1252) (signal-value btor103)))
-             (merge-state (list btor1252 btor103))))
+             (list)))
            (btor1254
             (if (bitvector->bool (signal-value btor1253)) btor1249 btor1248))
            (btor1255
@@ -5476,7 +5369,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor13) (signal-value btor1283)))
-             (merge-state (list btor13 btor1283))))
+             (list)))
            (btor1285
             (if (bitvector->bool (signal-value btor1284)) btor103 btor186))
            (btor1286
@@ -5487,7 +5380,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor13) (signal-value btor1286)))
-             (merge-state (list btor13 btor1286))))
+             (list)))
            (btor1288
             (if (bitvector->bool (signal-value btor1287)) btor190 btor1285))
            (btor1289
@@ -5498,7 +5391,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor13) (signal-value btor1289)))
-             (merge-state (list btor13 btor1289))))
+             (list)))
            (btor1291
             (if (bitvector->bool (signal-value btor1290)) btor186 btor1288))
            (btor1292
@@ -5511,7 +5404,7 @@
            (btor1296
             (signal
              (concat (signal-value btor1295) (signal-value btor13))
-             (merge-state (list btor1295 btor13))))
+             (list)))
            (btor1297
             (bv->signal
              (zero-extend (signal-value btor1296) (bitvector 120))
@@ -5521,7 +5414,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor14) (signal-value btor1298)))
-             (merge-state (list btor14 btor1298))))
+             (list)))
            (btor1300
             (if (bitvector->bool (signal-value btor1299)) btor97 btor106))
            (btor1301
@@ -5532,7 +5425,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor14) (signal-value btor1301)))
-             (merge-state (list btor14 btor1301))))
+             (list)))
            (btor1303
             (if (bitvector->bool (signal-value btor1302)) btor106 btor1300))
            (btor1304
@@ -5543,7 +5436,7 @@
            (btor1306
             (signal
              (concat (signal-value btor1305) (signal-value btor14))
-             (merge-state (list btor1305 btor14))))
+             (list)))
            (btor1307
             (bv->signal
              (zero-extend (signal-value btor1306) (bitvector 40))
@@ -5562,7 +5455,7 @@
            (btor1313
             (signal
              (concat (signal-value btor1312) (signal-value btor15))
-             (merge-state (list btor1312 btor15))))
+             (list)))
            (btor1314
             (bv->signal
              (zero-extend (signal-value btor1313) (bitvector 56))
@@ -5610,7 +5503,7 @@
            (btor1325
             (signal
              (concat (signal-value btor552) (signal-value btor20))
-             (merge-state (list btor552 btor20))))
+             (list)))
            (btor1326
             (bv->signal
              (zero-extend (signal-value btor1325) (bitvector 16))
@@ -5634,7 +5527,7 @@
            (btor1331
             (signal
              (concat (signal-value btor1312) (signal-value btor22))
-             (merge-state (list btor1312 btor22))))
+             (list)))
            (btor1332
             (bv->signal
              (zero-extend (signal-value btor1331) (bitvector 56))
@@ -5970,7 +5863,7 @@
            (btor1415
             (signal
              (bvxor (signal-value btor79) (signal-value btor58))
-             (merge-state (list btor79 btor58))))
+             (list)))
            (btor1416
             (bv->signal
              (zero-extend (signal-value btor1415) (bitvector 1))
@@ -5978,7 +5871,7 @@
            (btor1417
             (signal
              (bvxor (signal-value btor80) (signal-value btor59))
-             (merge-state (list btor80 btor59))))
+             (list)))
            (btor1418
             (bv->signal
              (zero-extend (signal-value btor1417) (bitvector 1))
@@ -5986,7 +5879,7 @@
            (btor1419
             (signal
              (bvxor (signal-value btor78) (signal-value btor60))
-             (merge-state (list btor78 btor60))))
+             (list)))
            (btor1420
             (bv->signal
              (zero-extend (signal-value btor1419) (bitvector 1))
@@ -5994,7 +5887,7 @@
            (btor1421
             (signal
              (bvxor (signal-value btor81) (signal-value btor61))
-             (merge-state (list btor81 btor61))))
+             (list)))
            (btor1422
             (bv->signal
              (zero-extend (signal-value btor1421) (bitvector 1))
@@ -6002,7 +5895,7 @@
            (btor1423
             (signal
              (bvxor (signal-value btor83) (signal-value btor62))
-             (merge-state (list btor83 btor62))))
+             (list)))
            (btor1424
             (bv->signal
              (zero-extend (signal-value btor1423) (bitvector 1))
@@ -6010,8 +5903,7 @@
            (btor1425
             (signal
              (bvxor (signal-value btor82) (signal-value btor63))
-             (merge-state (list btor82 btor63))))
-             [_ (displayln "here7")]
+             (list)))
            (btor1426
             (bv->signal
              (zero-extend (signal-value btor1425) (bitvector 1))
@@ -6019,7 +5911,7 @@
            (btor1427
             (signal
              (bvxor (signal-value btor84) (signal-value btor64))
-             (merge-state (list btor84 btor64))))
+             (list)))
            (btor1428
             (bv->signal
              (zero-extend (signal-value btor1427) (bitvector 1))
@@ -6027,7 +5919,7 @@
            (btor1429
             (signal
              (bvxor (signal-value btor85) (signal-value btor65))
-             (merge-state (list btor85 btor65))))
+             (list)))
            (btor1430
             (bv->signal
              (zero-extend (signal-value btor1429) (bitvector 1))
@@ -6035,7 +5927,7 @@
            (btor1431
             (signal
              (bvxor (signal-value btor86) (signal-value btor66))
-             (merge-state (list btor86 btor66))))
+             (list)))
            (btor1432
             (bv->signal
              (zero-extend (signal-value btor1431) (bitvector 1))
@@ -6043,7 +5935,7 @@
            (btor1433
             (signal
              (bvxor (signal-value btor87) (signal-value btor67))
-             (merge-state (list btor87 btor67))))
+             (list)))
            (btor1434
             (bv->signal
              (zero-extend (signal-value btor1433) (bitvector 1))
@@ -6058,7 +5950,7 @@
            (btor1439
             (signal
              (concat (signal-value btor1438) (signal-value btor88))
-             (merge-state (list btor1438 btor88))))
+             (list)))
            (btor1440
             (bv->signal
              (zero-extend (signal-value btor1439) (bitvector 112))
@@ -6070,7 +5962,7 @@
            (btor1442
             (signal
              (concat (signal-value btor1312) (signal-value btor89))
-             (merge-state (list btor1312 btor89))))
+             (list)))
            (btor1443
             (bv->signal
              (zero-extend (signal-value btor1442) (bitvector 56))
@@ -6085,7 +5977,7 @@
            (btor1448
             (signal
              (concat (signal-value btor1447) (signal-value btor90))
-             (merge-state (list btor1447 btor90))))
+             (list)))
            (btor1449
             (bv->signal
              (zero-extend (signal-value btor1448) (bitvector 64))
@@ -6100,7 +5992,7 @@
            (btor1454
             (signal
              (concat (signal-value btor1453) (signal-value btor91))
-             (merge-state (list btor1453 btor91))))
+             (list)))
            (btor1455
             (bv->signal
              (zero-extend (signal-value btor1454) (bitvector 72))
@@ -6113,7 +6005,7 @@
            (btor1458
             (signal
              (concat (signal-value btor1457) (signal-value btor92))
-             (merge-state (list btor1457 btor92))))
+             (list)))
            (btor1459
             (bv->signal
              (zero-extend (signal-value btor1458) (bitvector 48))
@@ -6125,7 +6017,7 @@
            (btor1461
             (signal
              (concat (signal-value btor1305) (signal-value btor93))
-             (merge-state (list btor1305 btor93))))
+             (list)))
            (btor1462
             (bv->signal
              (zero-extend (signal-value btor1461) (bitvector 40))
@@ -6172,7 +6064,7 @@
            (btor1475
             (signal
              (concat (signal-value btor1474) (signal-value btor94))
-             (merge-state (list btor1474 btor94))))
+             (list)))
            (btor1476
             (bv->signal
              (zero-extend (signal-value btor1475) (bitvector 88))
@@ -6189,7 +6081,7 @@
            (btor1480
             (signal
              (concat (signal-value btor821) (signal-value btor929))
-             (merge-state (list btor821 btor929))))
+             (list)))
            (btor1481
             (bv->signal
              (zero-extend (signal-value btor1480) (bitvector 49))
@@ -6198,14 +6090,11 @@
             (bv->signal
              (zero-extend (signal-value btor620) (bitvector 27))
              btor620))
-           (btor1483
-            (signal
-             (bvnot (signal-value btor1303))
-             (merge-state (list btor1303))))
+           (btor1483 (signal (bvnot (signal-value btor1303)) (list)))
            (btor1484
             (signal
              (bvor (signal-value btor1483) (signal-value btor44))
-             (merge-state (list btor1483 btor44))))
+             (list)))
            (btor1485
             (bv->signal
              (zero-extend (signal-value btor1484) (bitvector 1))
@@ -6257,7 +6146,7 @@
            (btor1497
             (signal
              (concat (signal-value btor789) (signal-value btor1496))
-             (merge-state (list btor789 btor1496))))
+             (list)))
            (btor1498
             (signal
              (extract 22 12 (signal-value btor787))
@@ -6265,11 +6154,11 @@
            (btor1499
             (signal
              (concat (signal-value btor1498) (signal-value btor1497))
-             (merge-state (list btor1498 btor1497))))
+             (list)))
            (btor1500
             (signal
              (concat (signal-value btor791) (signal-value btor1499))
-             (merge-state (list btor791 btor1499))))
+             (list)))
            (btor1501
             (signal
              (extract 34 24 (signal-value btor787))
@@ -6277,11 +6166,11 @@
            (btor1502
             (signal
              (concat (signal-value btor1501) (signal-value btor1500))
-             (merge-state (list btor1501 btor1500))))
+             (list)))
            (btor1503
             (signal
              (concat (signal-value btor793) (signal-value btor1502))
-             (merge-state (list btor793 btor1502))))
+             (list)))
            (btor1504
             (signal
              (extract 47 36 (signal-value btor787))
@@ -6289,7 +6178,7 @@
            (btor1505
             (signal
              (concat (signal-value btor1504) (signal-value btor1503))
-             (merge-state (list btor1504 btor1503))))
+             (list)))
            (btor1506
             (bv->signal
              (zero-extend (signal-value btor1505) (bitvector 48))
@@ -6462,22 +6351,22 @@
            (btor1550
             (signal
              (bvand (signal-value btor1484) (signal-value btor1169))
-             (merge-state (list btor1484 btor1169))))
+             (list)))
            (btor1551
             (signal
              (bvand (signal-value btor1550) (signal-value btor1149))
-             (merge-state (list btor1550 btor1149))))
+             (list)))
            (btor1552
             (signal
              (bool->bitvector
               (bveq (signal-value btor1291) (signal-value btor103)))
-             (merge-state (list btor1291 btor103))))
+             (list)))
            (btor1553
             (if (bitvector->bool (signal-value btor1552)) btor1551 btor106))
            (btor1554
             (signal
              (bvand (signal-value btor1484) (signal-value btor1148))
-             (merge-state (list btor1484 btor1148))))
+             (list)))
            (btor1555
             (bv->signal
              (zero-extend (signal-value btor97) (bitvector 2))
@@ -6486,7 +6375,7 @@
             (signal
              (bool->bitvector
               (bveq (signal-value btor1291) (signal-value btor1555)))
-             (merge-state (list btor1291 btor1555))))
+             (list)))
            (btor1557
             (if (bitvector->bool (signal-value btor1556)) btor1554 btor1553))
            (btor1558
@@ -6596,21 +6485,18 @@
             (signal
              (apply bvor (bitvector->bits (signal-value btor123)))
              (signal-state btor123)))
-           (btor1587
-            (signal
-             (bvnot (signal-value btor1586))
-             (merge-state (list btor1586))))
+           (btor1587 (signal (bvnot (signal-value btor1586)) (list)))
            (btor1588
             (signal
              (bvor (signal-value btor1419) (signal-value btor1587))
-             (merge-state (list btor1419 btor1587))))
+             (list)))
            (btor1589
             (if (bitvector->bool (signal-value btor1588)) btor1585 btor1584))
            (btor1593
             (signal
              (bool->bitvector
               (bveq (signal-value btor123) (signal-value btor103)))
-             (merge-state (list btor123 btor103))))
+             (list)))
            (btor1594
             (if (bitvector->bool (signal-value btor1593)) btor105 btor115))
            (btor1595
@@ -6623,21 +6509,18 @@
             (signal
              (apply bvor (bitvector->bits (signal-value btor151)))
              (signal-state btor151)))
-           (btor1602
-            (signal
-             (bvnot (signal-value btor1601))
-             (merge-state (list btor1601))))
+           (btor1602 (signal (bvnot (signal-value btor1601)) (list)))
            (btor1603
             (signal
              (bvor (signal-value btor1421) (signal-value btor1602))
-             (merge-state (list btor1421 btor1602))))
+             (list)))
            (btor1604
             (if (bitvector->bool (signal-value btor1603)) btor584 btor1600))
            (btor1608
             (signal
              (bool->bitvector
               (bveq (signal-value btor151) (signal-value btor103)))
-             (merge-state (list btor151 btor103))))
+             (list)))
            (btor1609
             (if (bitvector->bool (signal-value btor1608)) btor136 btor143))
            (btor1610
@@ -6652,13 +6535,13 @@
            (btor1621
             (signal
              (bvand (signal-value btor44) (signal-value btor951))
-             (merge-state (list btor44 btor951))))
+             (list)))
            (btor1622
             (if (bitvector->bool (signal-value btor1621)) btor1103 btor338))
            (btor1623
             (signal
              (bvor (signal-value btor1433) (signal-value btor1557))
-             (merge-state (list btor1433 btor1557))))
+             (list)))
            (btor1624
             (if (bitvector->bool (signal-value btor1623)) btor483 btor1622))
            (btor1628
@@ -6668,39 +6551,30 @@
             (if (bitvector->bool (signal-value btor1423)) btor1629 btor1628))
            (btor1634
             (if (bitvector->bool (signal-value btor38)) btor24 btor474))
-           (btor1635
-            (signal
-             (bvnot (signal-value btor475))
-             (merge-state (list btor475))))
+           (btor1635 (signal (bvnot (signal-value btor475)) (list)))
            (btor1636
             (signal
              (bvor (signal-value btor1425) (signal-value btor1635))
-             (merge-state (list btor1425 btor1635))))
+             (list)))
            (btor1637
             (if (bitvector->bool (signal-value btor1636)) btor483 btor1634))
            (btor1641
             (if (bitvector->bool (signal-value btor42)) btor516 btor523))
            (btor1642 (bv->signal (bv 0 (bitvector 5))))
-           (btor1643
-            (signal
-             (bvnot (signal-value btor524))
-             (merge-state (list btor524))))
+           (btor1643 (signal (bvnot (signal-value btor524)) (list)))
            (btor1644
             (signal
              (bvor (signal-value btor1429) (signal-value btor1643))
-             (merge-state (list btor1429 btor1643))))
+             (list)))
            (btor1645
             (if (bitvector->bool (signal-value btor1644)) btor1642 btor1641))
            (btor1649
             (if (bitvector->bool (signal-value btor41)) btor48 btor547))
-           (btor1650
-            (signal
-             (bvnot (signal-value btor578))
-             (merge-state (list btor578))))
+           (btor1650 (signal (bvnot (signal-value btor578)) (list)))
            (btor1651
             (signal
              (bvor (signal-value btor1427) (signal-value btor1650))
-             (merge-state (list btor1427 btor1650))))
+             (list)))
            (btor1652
             (if (bitvector->bool (signal-value btor1651)) btor528 btor1649))
            (btor1656
@@ -6709,14 +6583,11 @@
             (if (bitvector->bool (signal-value btor1427)) btor528 btor1656))
            (btor1661
             (if (bitvector->bool (signal-value btor43)) btor720 btor727))
-           (btor1662
-            (signal
-             (bvnot (signal-value btor728))
-             (merge-state (list btor728))))
+           (btor1662 (signal (bvnot (signal-value btor728)) (list)))
            (btor1663
             (signal
              (bvor (signal-value btor1431) (signal-value btor1662))
-             (merge-state (list btor1431 btor1662))))
+             (list)))
            (btor1664
             (if (bitvector->bool (signal-value btor1663)) btor714 btor1661))
            (btor1668
@@ -6763,10 +6634,7 @@
             (if (bitvector->bool (signal-value btor1621)) btor1247 btor1254))
            (btor1722 (bv->signal (bv 0 (bitvector 8))))
            (btor1723
-            (if (bitvector->bool (signal-value btor1623)) btor1722 btor1721))
-            
-          [_ (displayln "here6")]
-            )
+            (if (bitvector->bool (signal-value btor1623)) btor1722 btor1721)))
       (list
        (cons
         'XOROUT
