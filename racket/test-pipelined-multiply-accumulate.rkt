@@ -36,8 +36,7 @@
        (format
         "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
         (build-path (getenv "LAKEROAD_DIR")
-                    "integration_tests"
-                    "lakeroad"
+                    "verilog"
                     "pipelined_multiply_accumulate.sv")
         "pipelined_multiply_accumulate")))))
   (define ns (namespace-anchor->namespace anc))
