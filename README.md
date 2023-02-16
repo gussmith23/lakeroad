@@ -19,6 +19,7 @@ Given a description
 - Racket, plus Racket packages (installable via `raco pkg install`):
   - `rosette`
   - `json`
+  - `yaml`
 - Verilator, ideally 4.228 or later
 - Boolector, which can be built from source from <https://github.com/Boolector/boolector>
 - Yosys
