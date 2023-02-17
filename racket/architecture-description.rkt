@@ -178,18 +178,25 @@
                          (let* ([diff (- biggest-lut-size (length w))]
                                 [right-pads (make-n-symbolics diff (bitvector 1))])
                            (append w right-pads)))]
+               [_ (printf "inputs: ~a" inputs)]
                ; get sharable internal data
                [(list _ lut-internal-data)
-                (construct-interface
-                 architecture-description
-                 (interface-identifier "LUT" (hash "num_inputs" num-inputs))
-                 ;;; Note that we don't care what the inputs are hooked up to here, because we are
-                 ;;; just trying to get the internal data.
-                 (for/list ([i biggest-lut-size])
-                   (cons (format "I~a" i) (bv 0 1)))
-                 #:internal-data internal-data)])
+                (begin
+                  (let ([port-map (for/list ([i biggest-lut-size])
+                                    (cons (format "I~a" i) (bv 0 1)))]
+                        [interface-id (interface-identifier "LUT" (hash "num_inputs" num-inputs))])
+                    (printf "port-map ~a\n" port-map)
+                    (printf "interface-id ~a\n" interface-id)
+                    (construct-interface
+                     architecture-description
+                     interface-id
+                     ;;; Note that we don't care what the inputs are hooked up to here, because we are
+                     ;;; just trying to get the internal data.
+                     port-map
+                     #:internal-data internal-data)))])
 
     (list (for/list ([lut-input inputs])
+            ;;; (displayln lut-input)
             (let ([port-map (for/list ([i (length lut-input)] [input lut-input])
                               (cons (format "I~a" i) input))])
               (lr:hash-ref (first (construct-interface

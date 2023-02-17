@@ -36,6 +36,7 @@
   (set! interp-memoization-misses 0)
   (define interpreter-memo-hash (make-hasheq))
   (define (interpret-helper expr)
+    (printf "INTERPRET(~a)\n\n" expr)
     (if (hash-has-key? interpreter-memo-hash expr)
         (begin
           (set! interp-memoization-hits (add1 interp-memoization-hits))
@@ -313,11 +314,17 @@
              ;;; (dup-extend (interpret-helper v) bv)]
              [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
              [(lr:extract h l v)
-              ;;; We need these for/alls to decompose h and l in weird situations where the indices
-              ;;; are concrete but there are multiple possible values.
-              (for/all ([h (interpret-helper h) #:exhaustive])
-                       (for/all ([l (interpret-helper l) #:exhaustive])
-                                (extract h l (interpret-helper v))))]
+              (begin
+                (displayln (format "high: ~a, low: ~a, v: ~a, (bvlen v): ~a"
+                                   (interpret-helper h)
+                                   (interpret-helper l)
+                                   (interpret-helper v)
+                                   (bvlen (interpret-helper v))))
+                ;;; We need these for/alls to decompose h and l in weird situations where the indices
+                ;;; are concrete but there are multiple possible values.
+                (for/all ([h (interpret-helper h) #:exhaustive])
+                         (for/all ([l (interpret-helper l) #:exhaustive])
+                                  (extract h l (interpret-helper v)))))]
              [(lr:concat vs) (apply concat (interpret-helper vs))]
              ;;; Datatypes.
              [(lr:bv v) v]
@@ -329,6 +336,7 @@
              ;;; Maybe make this tighter somehow? If it's a list of specific types?
              [(lr:list v) (map interpret-helper v)]))
           (hash-set! interpreter-memo-hash expr out)
+          (printf "INTERPRET(~a) -> ~a\n\n" expr out)
           out)))
   (interpret-helper expr))
 

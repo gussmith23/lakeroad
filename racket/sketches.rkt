@@ -509,6 +509,10 @@
         (displayln "sketch: ")
         (displayln sketch)
 
+        (define interpreter-result (interpret sketch #:module-semantics module-semantics))
+        (displayln "interpreter result: ")
+        (displayln interpreter-result)
+
         (define start-synthesis-time (current-inexact-milliseconds))
 
         (define result
@@ -701,18 +705,18 @@
   ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
   ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
-  (sketch-test
-   #:name "comparison sketch generator on ultrascale (4 bit)" ;;; TODO: change this back to 2
-   #:defines (define-symbolic a b (bitvector 4))
-   #:bv-expr (bool->bitvector (bveq a b))
-   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   #:sketch-generator comparison-sketch-generator
-   #:module-semantics
-   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+  ;;; (sketch-test
+  ;;;  #:name "comparison sketch generator on ultrascale (4 bit)" ;;; TODO: change this back to 2
+  ;;;  #:defines (define-symbolic a b (bitvector 4))
+  ;;;  #:bv-expr (bool->bitvector (bveq a b))
+  ;;;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+  ;;;  #:sketch-generator comparison-sketch-generator
+  ;;;  #:module-semantics
+  ;;;  (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+  ;;;        (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+  ;;;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+  ;;;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
   ;;;   (sketch-test
   ;;;    #:name "new comparison sketch generator on ultrascale (2 bit)"
