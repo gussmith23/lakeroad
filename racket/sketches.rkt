@@ -235,46 +235,37 @@
                                          num-logical-inputs
                                          bitwidth
                                          #:internal-data [internal-data #f])
-  (displayln (format "lut size: ~a" (find-biggest-lut architecture-description)))
-  (match-let*
-      ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+  ;; Helper function that builds the 'tree' portion of our circuit (not
+  ;; including the top row)
+  (define (helper inputs shared-internal-data)
+    (displayln "helper")
+    (cond
+      [(= (length inputs) 0) (error "length of inputs should not be 0")]
+      [(<= (length inputs) 1) (list inputs shared-internal-data)]
+      [else
+       (match-let* ([(list outputs shared-internal-data)
+                     (densely-pack-inputs-into-luts architecture-description
+                                                    (list inputs)
+                                                    #:internal-data shared-internal-data)])
+         (helper outputs shared-internal-data))]))
 
-       [lut-a-internal-data (if internal-data (first internal-data) #f)]
+  (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+               ;;; Unpack the internal data.
+               [(list first-row-internal-data lut-tree-internal-data)
+                (if internal-data internal-data (list #f #f))]
 
-       ;;; There are two flavors of LUTs used in this sketch. The first, "LUT-A", has internal
-       ;;; data used to just compare the inputs (a bitwise eq). The second, "LUT-B", has internal
-       ;;; data that essentially makes it an AND gate.
-       ;;; If the largest LUT in the architecture handles m inputs, then for an arbitrary
-       ;;; number of inputs n, we will need ceil(n/m) LUT As.
-       ;;; The ceil(n/m) outputs of all LUT As will be ANDed together.
-       ;;; The question is how - I feel like there might be a clever way to do this, but I'm not sure how.
-       ;;; If we only use LUTs of size m, don't you essentially get a tree of LUTs with a height of
-       ;;; ceil(logm(n/m))? Does that even matter in practice?
-       [(list _ lut-a-internal-data)
-        (construct-interface
-         architecture-description
-         (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
-         ;;; Note that we don't care what the inputs are hooked up to here, because we are
-         ;;; just trying to get the internal data.
-         (for/list ([i num-logical-inputs])
-           (cons (format "I~a" i) (bv 0 1)))
-         #:internal-data lut-a-internal-data)]
+               ; Transform inputs into an explicit list of lists
+               [inputs (for/list ([i num-logical-inputs])
+                         (let ([input (lr:list-ref logical-inputs (lr:integer i))])
+                           (for/list ([j bitwidth])
+                             (lr:extract (lr:integer j) (lr:integer j) input))))]
+               [(list first-row-inputs first-row-internal-data)
+                (densely-pack-inputs-into-luts architecture-description inputs)]
+               [(list lut-tree-expr lut-tree-internal-data) (helper first-row-inputs #f)]
 
-       [(list lut-expr lut-internal-data)
-        (construct-interface
-         architecture-description
-         (interface-identifier "LUT" (hash "num_inputs" (* num-logical-inputs bitwidth)))
-         (for/list ([i (in-range (* num-logical-inputs bitwidth))])
-           (cons (format "I~a" i)
-                 (lr:extract (lr:integer (modulo i bitwidth))
-                             (lr:integer (modulo i bitwidth))
-                             (lr:list-ref logical-inputs (lr:integer (quotient i bitwidth)))))))]
-       [_ (find-biggest-lut architecture-description)]
+               [out-expr (lr:hash-ref (lr:list lut-tree-expr) 'O)])
 
-       ;;; Return the out signal.
-       [out-expr (lr:hash-ref lut-expr 'O)])
-
-    (list out-expr #f)))
+    (list out-expr (list first-row-internal-data lut-tree-internal-data))))
 
 ;;; Logical inputs should be a lr:list of length 2, where both bitvectors are the same length.
 ;;;
@@ -515,6 +506,9 @@
         (displayln (format "sketch generation time: ~ams"
                            (- end-sketch-gen-time start-sketch-gen-time)))
 
+        (displayln "sketch: ")
+        (displayln sketch)
+
         (define start-synthesis-time (current-inexact-milliseconds))
 
         (define result
@@ -738,7 +732,7 @@
    ;;; TODO(acheung8): when cleaning code and updating tests,
    ;;; make sure you make an issue on github and tag it here
    ;;; saying that synthesizing this is slow for LUT n : n > 2 * 3
-   #:defines (define-symbolic a b (bitvector 4))
+   #:defines (define-symbolic a b (bitvector 6))
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    #:sketch-generator new-comparison-sketch-generator

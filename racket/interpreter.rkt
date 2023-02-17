@@ -45,6 +45,7 @@
           (define out
             (destruct
              expr
+             [(list l) (error "hi")]
              [(lr:symbol s) s]
              [(lr:make-immutable-hash list-expr) (make-immutable-hash (interpret-helper list-expr))]
              [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]

@@ -187,11 +187,11 @@
 (define (get-lakeroad-directory)
   LAKEROAD_DIR)
 
-(define (interleave a b)
-  (flatten (map list a b)))
+(define (interleave args)
+  (flatten (apply map list args)))
 
 (define (window xs size)
   (cond
     [(= (length xs) 0) (list)]
     [(<= (length xs) size) (list xs)]
-    [else (cons (take xs size) (window (xs xs size) size))]))
+    [else (cons (take xs size) (window (drop xs size) size))]))
