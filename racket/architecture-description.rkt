@@ -158,39 +158,42 @@
 ;;; passed an inputs-list (list a b) where a and b both have 8 bits. Rather
 ;;; than using 8 LUT4s, one per each a_i, we can use 4 LUT4s, where the first
 ;;; takes a0, b0, a1, b1, the second takes a2, b2, a3, b3, etc.
+;;;
+;;; Returns (list (list lr:hash ...) INTERNAL-DATA)
+;;;
 ;;; TODO(acheung8): write the tests for this :)
 (define (densely-pack-inputs-into-luts architecture-description
                                        inputs-list
                                        #:internal-data [internal-data #f])
-  (match-let* ([num-inputs (length inputs-list)]
-               [_ (when (or (> num-inputs 2) (= num-inputs 0))
-                    (error "Can only densely pack 1 or 2 logical inputs"))]
-               [biggest-lut-size (find-biggest-lut-size architecture-description)]
-               [window-size (if (odd? biggest-lut-size) (sub1 biggest-lut-size) biggest-lut-size)]
-               [windowed-inputs (window (interleave inputs-list) window-size)]
-               ; Now, pad each input so that it is the same size as the lut inputs.
-               ; this handles cases where either our number of inputs isn't a divisor of
-               ; biggest-lut-size OR when we have leftover bits (yum!)
-               [inputs (for/list ([w windowed-inputs])
-                         (let* ([diff (- biggest-lut-size (length w))]
-                                [right-pads (make-n-symbolics diff (bitvector 1))]
-                                [right-pads (map lr:bv right-pads)])
-                           (append w right-pads)))]
-               ; [_ (printf "inputs: ~a" inputs)]
-               ; get sharable internal data
-               [(list _ lut-internal-data)
-                (begin
-                  (let ([_ '()]
-                        ;;; Note that we don't care what the inputs are hooked up to here, because we are
-                        ;;; just trying to get the internal data.
-                        [port-map (for/list ([i biggest-lut-size])
-                                    (cons (format "I~a" i) (bv 0 1)))]
-                        [interface-id (interface-identifier "LUT" (hash "num_inputs" biggest-lut-size))])
-                    (construct-interface
-                     architecture-description
-                     interface-id
-                     port-map
-                     #:internal-data internal-data)))])
+  (match-let*
+      ([num-inputs (length inputs-list)]
+       [_ (when (or (> num-inputs 2) (= num-inputs 0))
+            (error "Can only densely pack 1 or 2 logical inputs"))]
+       [biggest-lut-size (find-biggest-lut-size architecture-description)]
+       [window-size (if (odd? biggest-lut-size) (sub1 biggest-lut-size) biggest-lut-size)]
+       [windowed-inputs (window (interleave inputs-list) window-size)]
+       ; Now, pad each input so that it is the same size as the lut inputs.
+       ; this handles cases where either our number of inputs isn't a divisor of
+       ; biggest-lut-size OR when we have leftover bits (yum!)
+       [inputs (for/list ([w windowed-inputs])
+                 (let* ([diff (- biggest-lut-size (length w))]
+                        [right-pads (make-n-symbolics diff (bitvector 1))]
+                        [right-pads (map lr:bv right-pads)])
+                   (append w right-pads)))]
+       ; [_ (printf "inputs: ~a" inputs)]
+       ; get sharable internal data
+       [(list _ lut-internal-data)
+        (begin
+          (let ([_ '()]
+                ;;; Note that we don't care what the inputs are hooked up to here, because we are
+                ;;; just trying to get the internal data.
+                [port-map (for/list ([i biggest-lut-size])
+                            (cons (format "I~a" i) (bv 0 1)))]
+                [interface-id (interface-identifier "LUT" (hash "num_inputs" biggest-lut-size))])
+            (construct-interface architecture-description
+                                 interface-id
+                                 port-map
+                                 #:internal-data internal-data)))])
 
     (list (for/list ([lut-input inputs])
             (let ([port-map (for/list ([i (length lut-input)] [input lut-input])
@@ -277,6 +280,8 @@
 ;;;
 ;;; Returns a Lakeroad expression representing the result of the interface, and the internal data
 ;;; constructed while generating the interface.
+;;;
+;;; (list lr:hash internal-data)
 (define (construct-interface-internal architecture-description
                                       interface-id
                                       port-map

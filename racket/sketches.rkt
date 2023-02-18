@@ -17,7 +17,7 @@
 ;;;   the two sketches should be the same (e.g. they're both performing addition), then you can pass
 ;;;   this internal data to the second invocation of the sketch generator.
 
-#lang errortrace racket/base
+#lang racket/base
 
 (provide generate-sketch
          all-sketch-generators
@@ -236,13 +236,13 @@
                                          num-logical-inputs
                                          bitwidth
                                          #:internal-data [internal-data #f])
-  ;; Helper function that builds the 'tree' portion of our circuit (not
-  ;; including the top row)
+  ;; Recursive helper function that builds the 'tree' portion of our circuit
+  ;; (not including the top row)
   (define (helper inputs shared-internal-data)
     (displayln "helper")
     (cond
       [(= (length inputs) 0) (error "length of inputs should not be 0")]
-      [(<= (length inputs) 1) (list inputs shared-internal-data)]
+      [(= (length inputs) 1) (list inputs shared-internal-data)]
       [else
        (match-let* ([(list outputs shared-internal-data)
                      (densely-pack-inputs-into-luts architecture-description
@@ -255,16 +255,22 @@
                [(list first-row-internal-data lut-tree-internal-data)
                 (if internal-data internal-data (list #f #f))]
 
-               ; Transform inputs into an explicit list of lists
+               ;;; Transform inputs into an explicit list of lists
                [inputs (for/list ([i num-logical-inputs])
                          (let ([input (lr:list-ref logical-inputs (lr:integer i))])
                            (for/list ([j bitwidth])
                              (lr:extract (lr:integer j) (lr:integer j) input))))]
-               [(list first-row-inputs first-row-internal-data)
-                (densely-pack-inputs-into-luts architecture-description inputs)]
-               [(list lut-tree-expr lut-tree-internal-data) (helper first-row-inputs #f)]
+               [(list first-row-outputs first-row-internal-data)
+                (densely-pack-inputs-into-luts architecture-description
+                                               inputs
+                                               #:internal-data first-row-internal-data)]
+               [(list lut-tree-expr-wrapped lut-tree-internal-data)
+                (helper first-row-outputs lut-tree-internal-data)]
+               ; We need to get the first item from helper's outputs, which is a
+               ; list of hash-maps
+               [lut-tree-expr (first lut-tree-expr-wrapped)]
 
-               [out-expr (lr:hash-ref (lr:list lut-tree-expr) 'O)])
+               [out-expr lut-tree-expr])
 
     (list out-expr (list first-row-internal-data lut-tree-internal-data))))
 
@@ -506,9 +512,6 @@
         (displayln (format "number of symbolics in sketch: ~a" (length (symbolics sketch))))
         (displayln (format "sketch generation time: ~ams"
                            (- end-sketch-gen-time start-sketch-gen-time)))
-
-
-        (define interpreter-result (interpret sketch #:module-semantics module-semantics))
 
         (define start-synthesis-time (current-inexact-milliseconds))
 

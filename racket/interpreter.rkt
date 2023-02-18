@@ -90,7 +90,7 @@
                      [all-values (map interpret-helper all-values)]
                      ;;; Wrap in signal.
                      [all-values (map bv->signal all-values)]
-                     
+
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
 
