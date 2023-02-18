@@ -904,9 +904,9 @@
          (list (lr:concat (lr:list (list (lr:bv (sign-extend (choose (bv 0 1) (bv 1 1))
                                                              (bitvector (- bw 16))))
                                          (lr:extract (lr:integer 31) (lr:integer 16) bv-expr))))
-               (lr:concat (lr:list (list (lr:bv (sign-extend (choose (bv 0 1) (bv 1 1))
-                                                             (bitvector (- bw 16))))
-                                         (lr:extract (lr:integer 15) (lr:integer 0) bv-expr)))))))
+               (lr:concat
+                (lr:list (list (lr:bv (sign-extend (choose (bv 0 1) (bv 1 1)) (bitvector (- bw 16))))
+                               (lr:extract (lr:integer 15) (lr:integer 0) bv-expr)))))))
 
      (match-define (list Ah Al) (f 30))
      (match-define (list Bh Bl) (f 18))
