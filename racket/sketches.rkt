@@ -545,24 +545,24 @@
                                              (list (to-simulate lr-expr bv-expr))
                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
 
-  ;;;   (sketch-test
-  ;;;    #:name "left shift on SOFA"
-  ;;;    #:defines (define-symbolic a b (bitvector 8))
-  ;;;    #:bv-expr (bvshl a b)
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator shift-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "left shift on SOFA"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvshl a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
   ;;; TODO(@gussmith23): Right shifts broken on SOFA
   ;; (sketch-test
@@ -602,141 +602,125 @@
   ;;  #:extra-verilator-args
   ;;  "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;;   (sketch-test
-  ;;;    #:name "logical right shift on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 5))
-  ;;;    #:bv-expr (bvlshr a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator shift-sketch-generator
-  ;;;    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;;;                                   lattice-ecp5-lut4))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED")
-
-  ;;;   (sketch-test
-  ;;;    #:name "arithmetic right shift on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 5))
-  ;;;    #:bv-expr (bvashr a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator shift-sketch-generator
-  ;;;    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;;;                                   lattice-ecp5-lut4))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED")
-
-  ;;;   (sketch-test
-  ;;;    #:name "left shift on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 5))
-  ;;;    #:bv-expr (bvshl a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator shift-sketch-generator
-  ;;;    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;;;                                   lattice-ecp5-lut4))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED")
-
-  ;;;   ;;; TODO(@gussmith23): we have a bug in bvexpr->cexpr that's causing this to fail. (I think.)
-  ;;;   (sketch-test
-  ;;;    #:name "logical right shift on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 16))
-  ;;;    #:bv-expr (bvlshr a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator shift-sketch-generator
-  ;;;    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;;;                                   lattice-ecp5-lut4))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED")
-
-  ;;;   (sketch-test
-  ;;;    #:name "arithmetic right shift on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 16))
-  ;;;    #:bv-expr (bvashr a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator shift-sketch-generator
-  ;;;    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;;;                                   lattice-ecp5-lut4))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED")
-
-  ;;;   (sketch-test
-  ;;;    #:name "left shift on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 16))
-  ;;;    #:bv-expr (bvshl a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator shift-sketch-generator
-  ;;;    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;;;                                   lattice-ecp5-lut4))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED")
-
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise sketch generator on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bvand a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator bitwise-sketch-generator
-  ;;;    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;;;                                   lattice-ecp5-lut4))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED")
-
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise sketch generator on lattice (2 bit mux)"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    (define-symbolic sel (bitvector 1))
-  ;;;    #:bv-expr (if (not (bvzero? sel)) a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator bitwise-sketch-generator
-  ;;;    #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-  ;;;                                   lattice-ecp5-lut4))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED")
-
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise with carry sketch generator on ultrascale"
-  ;;;    #:defines (define-symbolic a b (bitvector 8))
-  ;;;    #:bv-expr (bvadd a b)
-  ;;;    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-  ;;;    #:sketch-generator bitwise-with-carry-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-  ;;;          (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-  ;;;          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
-
-  ;;; (sketch-test
-  ;;;  #:name "comparison sketch generator on ultrascale (4 bit)" ;;; TODO: change this back to 2
-  ;;;  #:defines (define-symbolic a b (bitvector 4))
-  ;;;  #:bv-expr (bool->bitvector (bveq a b))
-  ;;;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-  ;;;  #:sketch-generator comparison-sketch-generator
-  ;;;  #:module-semantics
-  ;;;  (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-  ;;;        (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-  ;;;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-  ;;;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
-
-  ;;;   (sketch-test
-  ;;;    #:name "new comparison sketch generator on ultrascale (2 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bool->bitvector (bveq a b))
-  ;;;    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-  ;;;    #:sketch-generator new-comparison-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-  ;;;          (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-  ;;;          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+  (sketch-test
+   #:name "logical right shift on lattice"
+   #:defines (define-symbolic a b (bitvector 5))
+   #:bv-expr (bvlshr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
-   #:name "new comparison sketch generator on ultrascale (4 bit)"
-   ;;; TODO(acheung8): when cleaning code and updating tests,
-   ;;; make sure you make an issue on github and tag it here
-   ;;; saying that synthesizing this is slow for LUT n : n > 2 * 3
-   #:defines (define-symbolic a b (bitvector 6))
+   #:name "arithmetic right shift on lattice"
+   #:defines (define-symbolic a b (bitvector 5))
+   #:bv-expr (bvashr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "left shift on lattice"
+   #:defines (define-symbolic a b (bitvector 5))
+   #:bv-expr (bvshl a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  ;;; TODO(@gussmith23): we have a bug in bvexpr->cexpr that's causing this to fail. (I think.)
+  (sketch-test
+   #:name "logical right shift on lattice"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bvlshr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "arithmetic right shift on lattice"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bvashr a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "left shift on lattice"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bvshl a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "bitwise sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvand a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "bitwise sketch generator on lattice (2 bit mux)"
+   #:defines (define-symbolic a b (bitvector 2))
+   (define-symbolic sel (bitvector 1))
+   #:bv-expr (if (not (bvzero? sel)) a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-sketch-generator
+   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+                                  lattice-ecp5-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED")
+
+  (sketch-test
+   #:name "bitwise with carry sketch generator on ultrascale"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator on ultrascale (4 bit)" ;;; TODO: change this back to 2
+   #:defines (define-symbolic a b (bitvector 4))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "new comparison sketch generator on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    #:sketch-generator new-comparison-sketch-generator
@@ -747,317 +731,332 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
-  ;;;   (sketch-test
-  ;;;    #:name "comparison sketch generator on ultrascale"
-  ;;;    #:defines (define-symbolic a b (bitvector 8))
-  ;;;    #:bv-expr (bool->bitvector (bveq a b))
-  ;;;    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-  ;;;    #:sketch-generator comparison-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-  ;;;          (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-  ;;;          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+  (sketch-test
+   #:name "new comparison sketch generator on ultrascale (4 bit)"
+   ;;; TODO(acheung8): when cleaning code and updating tests,
+   ;;; make sure you make an issue on github and tag it here
+   ;;; saying that synthesizing this is slow for LUT n : n > 2 * 3
+   #:defines (define-symbolic a b (bitvector 4))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator new-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch generator on ultrascale (2 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bvmul a b)
-  ;;;    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-  ;;;          (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-  ;;;          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+  (sketch-test
+   #:name "comparison sketch generator on ultrascale"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch generator on ultrascale (8 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 8))
-  ;;;    #:bv-expr (bvmul a b)
-  ;;;    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-  ;;;          (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-  ;;;          (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+  (sketch-test
+   #:name "multiplication sketch generator on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise sketch generator on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 8))
-  ;;;    #:bv-expr (bvand a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator bitwise-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "multiplication sketch generator on ultrascale (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise with carry sketch generator on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bvadd a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator bitwise-with-carry-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "bitwise sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvand a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise with carry sketch generator on lattice (3 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 3))
-  ;;;    #:bv-expr (bvadd a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator bitwise-with-carry-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "bitwise with carry sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise with carry sketch generator on lattice (1 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 1))
-  ;;;    #:bv-expr (bvadd a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator bitwise-with-carry-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "bitwise with carry sketch generator on lattice (3 bit)"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise with carry sketch generator on lattice (9 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 9))
-  ;;;    #:bv-expr (bvadd a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator bitwise-with-carry-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "bitwise with carry sketch generator on lattice (1 bit)"
+   #:defines (define-symbolic a b (bitvector 1))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "comparison sketch generator on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bool->bitvector (bveq a b))
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator comparison-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "bitwise with carry sketch generator on lattice (9 bit)"
+   #:defines (define-symbolic a b (bitvector 9))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "new comparison sketch generator on lattice"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bool->bitvector (bveq a b))
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator new-comparison-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "comparison sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch generator on lattice (1 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 1))
-  ;;;    #:bv-expr (bvmul (zero-extend a (bitvector 1)) (zero-extend b (bitvector 1)))
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "new comparison sketch generator on lattice"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator new-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch generator on lattice (2 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bvmul a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "multiplication sketch generator on lattice (1 bit)"
+   #:defines (define-symbolic a b (bitvector 1))
+   #:bv-expr (bvmul (zero-extend a (bitvector 1)) (zero-extend b (bitvector 1)))
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch generator on lattice (3 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 3))
-  ;;;    #:bv-expr (bvmul a b)
-  ;;;    #:architecture-description (lattice-ecp5-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-  ;;;          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-  ;;;    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
+  (sketch-test
+   #:name "multiplication sketch generator on lattice (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise on SOFA"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bvand a b)
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator bitwise-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "multiplication sketch generator on lattice (3 bit)"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (lattice-ecp5-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-  ;;;   (sketch-test
-  ;;;    #:name "bitwise with carry on SOFA"
-  ;;;    #:defines (define-symbolic a b (bitvector 8))
-  ;;;    #:bv-expr (bvadd a b)
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator bitwise-with-carry-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "bitwise on SOFA"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvand a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator bitwise-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;;   (sketch-test
-  ;;;    #:name "comparison sketch on SOFA"
-  ;;;    #:defines (define-symbolic a b (bitvector 8))
-  ;;;    #:bv-expr (bool->bitvector (bveq a b))
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator comparison-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "bitwise with carry on SOFA"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvadd a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator bitwise-with-carry-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+
+  (sketch-test
+   #:name "comparison sketch on SOFA"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
   ;;; TODO(acheung8): This one's the long one.
   ;;; interestingly, bveq with two bvs w/ width 4 is fast. this requires a LUT 8?
   ;;; todo: explore if bwidth of 5 seems to exponentially explode # of symbolics
-  ;;;   (sketch-test
-  ;;;    #:name "new comparison sketch on SOFA"
-  ;;;    #:defines (define-symbolic a b (bitvector 4))
-  ;;;    #:bv-expr (bool->bitvector (bveq a b))
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator new-comparison-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "new comparison sketch on SOFA"
+   #:defines (define-symbolic a b (bitvector 4))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator new-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch on SOFA (1bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 1))
-  ;;;    #:bv-expr (bvmul a b)
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "multiplication sketch on SOFA (1bit)"
+   #:defines (define-symbolic a b (bitvector 1))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch on SOFA (2 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 2))
-  ;;;    #:bv-expr (bvmul a b)
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "multiplication sketch on SOFA (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch on SOFA (3 bits)"
-  ;;;    #:defines (define-symbolic a b (bitvector 3))
-  ;;;    #:bv-expr (bvmul a b)
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "multiplication sketch on SOFA (3 bits)"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;;   (sketch-test
-  ;;;    #:name "multiplication sketch on SOFA (8 bit)"
-  ;;;    #:defines (define-symbolic a b (bitvector 8))
-  ;;;    #:bv-expr (bvmul a b)
-  ;;;    #:architecture-description (sofa-architecture-description)
-  ;;;    #:sketch-generator multiplication-sketch-generator
-  ;;;    #:module-semantics
-  ;;;    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;;    #:include-dirs
-  ;;;    (list
-  ;;;     (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;;     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;;    #:extra-verilator-args
-  ;;;    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES"))
-  )
+  (sketch-test
+   #:name "multiplication sketch on SOFA (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator multiplication-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES"))
