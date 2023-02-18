@@ -42,6 +42,7 @@
 (define (all-sketch-generators)
   (list bitwise-sketch-generator
         bitwise-with-carry-sketch-generator
+        new-comparison-sketch-generator
         comparison-sketch-generator
         multiplication-sketch-generator))
 
