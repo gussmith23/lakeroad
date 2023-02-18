@@ -162,9 +162,6 @@
 (define (densely-pack-inputs-into-luts architecture-description
                                        inputs-list
                                        #:internal-data [internal-data #f])
-  (displayln "")
-  (display "Inputs list: ")
-  (displayln inputs-list)
   (match-let* ([num-inputs (length inputs-list)]
                [_ (when (or (> num-inputs 2) (= num-inputs 0))
                     (error "Can only densely pack 1 or 2 logical inputs"))]
@@ -176,27 +173,26 @@
                ; biggest-lut-size OR when we have leftover bits (yum!)
                [inputs (for/list ([w windowed-inputs])
                          (let* ([diff (- biggest-lut-size (length w))]
-                                [right-pads (make-n-symbolics diff (bitvector 1))])
+                                [right-pads (make-n-symbolics diff (bitvector 1))]
+                                [right-pads (map lr:bv right-pads)])
                            (append w right-pads)))]
-               [_ (printf "inputs: ~a" inputs)]
+               ; [_ (printf "inputs: ~a" inputs)]
                ; get sharable internal data
                [(list _ lut-internal-data)
                 (begin
-                  (let ([port-map (for/list ([i biggest-lut-size])
+                  (let ([_ '()]
+                        ;;; Note that we don't care what the inputs are hooked up to here, because we are
+                        ;;; just trying to get the internal data.
+                        [port-map (for/list ([i biggest-lut-size])
                                     (cons (format "I~a" i) (bv 0 1)))]
-                        [interface-id (interface-identifier "LUT" (hash "num_inputs" num-inputs))])
-                    (printf "port-map ~a\n" port-map)
-                    (printf "interface-id ~a\n" interface-id)
+                        [interface-id (interface-identifier "LUT" (hash "num_inputs" biggest-lut-size))])
                     (construct-interface
                      architecture-description
                      interface-id
-                     ;;; Note that we don't care what the inputs are hooked up to here, because we are
-                     ;;; just trying to get the internal data.
                      port-map
                      #:internal-data internal-data)))])
 
     (list (for/list ([lut-input inputs])
-            ;;; (displayln lut-input)
             (let ([port-map (for/list ([i (length lut-input)] [input lut-input])
                               (cons (format "I~a" i) input))])
               (lr:hash-ref (first (construct-interface

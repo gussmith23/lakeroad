@@ -34,6 +34,7 @@
          rosette
          rosette/lib/angelic
          rosette/lib/synthax
+         racket/pretty
          "verilator.rkt"
          "utils.rkt")
 
@@ -506,12 +507,8 @@
         (displayln (format "sketch generation time: ~ams"
                            (- end-sketch-gen-time start-sketch-gen-time)))
 
-        (displayln "sketch: ")
-        (displayln sketch)
 
         (define interpreter-result (interpret sketch #:module-semantics module-semantics))
-        (displayln "interpreter result: ")
-        (displayln interpreter-result)
 
         (define start-synthesis-time (current-inexact-milliseconds))
 
