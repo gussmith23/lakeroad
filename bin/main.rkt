@@ -108,6 +108,8 @@
 
   (define (helper expr)
     (match expr
+      [`(bitvector->bits ,a) (bitvector->bits (helper a))]
+      [`(apply bvxor ,a) (apply bvxor (helper a))]
       [`(bvlshr ,a ,b) (bvlshr (helper a) (helper b))]
       [`(bvashr ,a ,b) (bvashr (helper a) (helper b))]
       [`(bvshl ,a ,b) (bvshl (helper a) (helper b))]
