@@ -1104,7 +1104,8 @@
        #:unnamed-input-850 (bv->signal unnamed-input-850)))
     (define P (signal-value (hash-ref dsp-expr 'P)))
     (define COUT (signal-value (hash-ref dsp-expr 'CARRYCASCOUT)))
-    (list P COUT)))
+    (define XOROUT (signal-value (hash-ref dsp-expr 'XOROUT)))
+    (list P COUT XOROUT)))
 
 (define (compile-ultrascale-plus-dsp48e2 dsp p-name clk-name a-name b-name c-name ce-name reset-name)
   (format
