@@ -1112,7 +1112,13 @@
        ;;; connectivity or OPMODE value to allow for proper implementation.
        ;;;
        ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-       ;(assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+       (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+
+       ;;; ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
+       ;;; has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
+       ;;; however the PCIN input is not properly connected to another DSP48E2 Block.  Please either
+       ;;; correct the connectivity or CARRYINSEL value to allow for proper implementation.
+       (assert (not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3))))
 
        ;(assert (bvzero? CARRYIN))
        (assert (bvzero? CARRYCASCIN))
