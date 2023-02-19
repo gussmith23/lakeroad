@@ -153,8 +153,11 @@
      (signal-value (hash-ref (f) (string->symbol (verilog-module-out-signal))))]))
 
 (when (boolean? bv-expr)
-  (error (format "Expected a bitvector expression but found a boolean ~a: consider wrapping in (bool->bitvector ...)" bv-expr)))
-(when (not (bv? bv-expr)) 
+  (error
+   (format
+    "Expected a bitvector expression but found a boolean ~a: consider wrapping in (bool->bitvector ...)"
+    bv-expr)))
+(when (not (bv? bv-expr))
   (error (format "Expected a bitvector expression but found ~a" bv-expr)))
 (define sketch-generator
   (match (template)
