@@ -24,7 +24,8 @@
          bitwise-sketch-generator
          bitwise-with-carry-sketch-generator
          comparison-sketch-generator
-         new-comparison-sketch-generator
+         shallow-comparison-sketch-generator
+         double-shallow-comparison-sketch-generator
          multiplication-sketch-generator
          shift-sketch-generator)
 
@@ -42,7 +43,8 @@
 (define (all-sketch-generators)
   (list bitwise-sketch-generator
         bitwise-with-carry-sketch-generator
-        new-comparison-sketch-generator
+        shallow-comparison-sketch-generator
+        double-shallow-comparison-sketch-generator
         comparison-sketch-generator
         multiplication-sketch-generator))
 
@@ -229,18 +231,22 @@
     (list out-expr
           (list bitwise-sketch-0-internal-data bitwise-sketch-1-internal-data carry-internal-data))))
 
-;;; Fancy optimized comparison sketch generator.
+;;; A comparison sketch generator that makes efficient use of LUTs.
 ;;;
-;;; TODO(acheung8): document and elaborate on the specific optimization happening here.
-(define (new-comparison-sketch-generator architecture-description
-                                         logical-inputs
-                                         num-logical-inputs
-                                         bitwidth
-                                         #:internal-data [internal-data #f])
+;;; This sketch generator starts by _densely packing_ all input signals into a
+;;; row of LUTs: this means that multiple input bits are handled in a single LUT.
+;;;
+;;; This first row of LUTs then has its outputs densely packed into a second row
+;;; of LUTs, which then is passed into a third row of LUTs etc, until only a
+;;; single LUT remains. This has log depth in the size of the the input
+(define (shallow-comparison-sketch-generator architecture-description
+                                             logical-inputs
+                                             num-logical-inputs
+                                             bitwidth
+                                             #:internal-data [internal-data #f])
   ;; Recursive helper function that builds the 'tree' portion of our circuit
   ;; (not including the top row)
   (define (helper inputs shared-internal-data)
-    (displayln "helper")
     (cond
       [(= (length inputs) 0) (error "length of inputs should not be 0")]
       [(= (length inputs) 1) (list inputs shared-internal-data)]
@@ -275,6 +281,72 @@
 
     (list out-expr (list first-row-internal-data lut-tree-internal-data))))
 
+;;; A comparison sketch generator that makes efficient use of LUTs that can
+;;; handle bvult, etc.
+;;;
+;;; This sketch generator starts by _densely packing_ all input signals into a
+;;; row of LUTs: this means that multiple input bits are handled in a single LUT.
+;;;
+;;; This first row of LUTs then has its outputs densely packed into a second row
+;;; of LUTs, which then is passed into a third row of LUTs etc, until only a
+;;; single LUT remains. This has log depth in the size of the the input
+(define (double-shallow-comparison-sketch-generator architecture-description
+                                                    logical-inputs
+                                                    num-logical-inputs
+                                                    bitwidth
+                                                    #:internal-data [internal-data #f])
+  ;; Recursive helper function that builds the 'tree' portion of our circuit
+  ;; (not including the top row)
+  (define (helper inputs shared-internal-data)
+    (cond
+      [(= (length inputs) 0) (error "length of inputs should not be 0")]
+      [(= (length inputs) 1) (list inputs shared-internal-data)]
+      [else
+       (match-let* ([(list outputs shared-internal-data)
+                     (densely-pack-inputs-into-luts architecture-description
+                                                    (list inputs)
+                                                    #:internal-data shared-internal-data)])
+         (helper outputs shared-internal-data))]))
+
+  (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+               ;;; Unpack the internal data.
+               [(list first-row-a-internal-data first-row-b-internal-data lut-tree-internal-data)
+                (if internal-data internal-data (list #f #f #f))]
+
+               ;;; Transform inputs into an explicit list of lists
+               [inputs (for/list ([i num-logical-inputs])
+                         (let ([input (lr:list-ref logical-inputs (lr:integer i))])
+                           (for/list ([j bitwidth])
+                             (lr:extract (lr:integer j) (lr:integer j) input))))]
+               ;;; Generate two rows: we need more than one bit of information
+               ;;; output from each LUT: we need to know if a set of inputs is one of
+               ;;; A_GT_B, A_EQ_B, or A_LT_B.
+               [(list first-row-a-outputs first-row-a-internal-data)
+                (densely-pack-inputs-into-luts architecture-description
+                                               inputs
+                                               #:internal-data first-row-a-internal-data)]
+               [(list first-row-b-outputs first-row-b-internal-data)
+                (densely-pack-inputs-into-luts architecture-description
+                                               inputs
+                                               #:internal-data first-row-b-internal-data)]
+               ;;; We now want to interleave the outputs of rows a and b,
+               ;;; transforming them from
+               ;;;  (a0 a1 a2 a3) (b0 b1 b2 b3) to (a0 b0 a1 b1 a2 b2 a3 b3)
+               ;;; NOTE: we need to ensure that ai and bi are always paired, and this is
+               ;;; maintained by the `window-size` variable in
+               ;;; `densely-pack-inputs-into-luts`: `window-size` is always even, and this means
+               ;;; this means that even numbers of bits will always be packed together.
+               [interleaved-outputs (interleave (list first-row-a-outputs first-row-b-outputs))]
+               [(list lut-tree-expr-wrapped lut-tree-internal-data)
+                (helper interleaved-outputs lut-tree-internal-data)]
+               ; We need to get the first item from helper's outputs, which is a
+               ; list of hash-maps
+               [lut-tree-expr (first lut-tree-expr-wrapped)]
+
+               [out-expr lut-tree-expr])
+
+    (list out-expr
+          (list first-row-a-internal-data first-row-b-internal-data lut-tree-internal-data))))
 ;;; Logical inputs should be a lr:list of length 2, where both bitvectors are the same length.
 ;;;
 ;;; We implement multiplication as (using four bits as an example):
@@ -501,6 +573,7 @@
      name
      (with-terms
       (begin
+        (displayln "--------------------------------------------------------------------------------")
         (displayln (format "running test ~a" name))
         defines ...
 
@@ -706,8 +779,129 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;                             TEST COMPARISONS                             ;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
   (sketch-test
-   #:name "comparison sketch generator on ultrascale (4 bit)" ;;; TODO: change this back to 2
+   #:name "comparison sketch generator for bveq on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bveq on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvneq on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bvneq on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvneq on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bvneq on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvult on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (bvult a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvugt on ultrascale (2 bit)"
+   #:defines (define-symbolic a b (bitvector 2))
+   #:bv-expr (bool->bitvector (bvugt a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  ; (sketch-test
+  ;  #:name "shallow comparison sketch generator for bvugt on ultrascale (2 bit)"
+  ;  #:defines (define-symbolic a b (bitvector 2))
+  ;  #:bv-expr (bool->bitvector (bvugt a b))
+  ;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+  ;  #:sketch-generator shallow-comparison-sketch-generator
+  ;  #:module-semantics
+  ;  (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+  ;        (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+  ;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+  ;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+  ;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bveq on ultrascale (4 bit)"
    #:defines (define-symbolic a b (bitvector 4))
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
@@ -720,27 +914,11 @@
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
   (sketch-test
-   #:name "new comparison sketch generator on ultrascale (2 bit)"
-   #:defines (define-symbolic a b (bitvector 2))
-   #:bv-expr (bool->bitvector (bveq a b))
-   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   #:sketch-generator new-comparison-sketch-generator
-   #:module-semantics
-   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
-   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
-
-  (sketch-test
-   #:name "new comparison sketch generator on ultrascale (4 bit)"
-   ;;; TODO(acheung8): when cleaning code and updating tests,
-   ;;; make sure you make an issue on github and tag it here
-   ;;; saying that synthesizing this is slow for LUT n : n > 2 * 3
+   #:name "shallow comparison sketch generator for bveq on ultrascale (4 bit)"
    #:defines (define-symbolic a b (bitvector 4))
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   #:sketch-generator new-comparison-sketch-generator
+   #:sketch-generator shallow-comparison-sketch-generator
    #:module-semantics
    (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
          (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
@@ -749,7 +927,85 @@
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
   (sketch-test
-   #:name "comparison sketch generator on ultrascale"
+   #:name "comparison sketch generator for bvneq on ultrascale (4 bit)"
+   #:defines (define-symbolic a b (bitvector 4))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bvneq on ultrascale (4 bit)"
+   #:defines (define-symbolic a b (bitvector 4))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvult on ultrascale (4 bit)"
+   #:defines (define-symbolic a b (bitvector 4))
+   #:bv-expr (bool->bitvector (bvult a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  ; (sketch-test
+  ;  #:name "shallow comparison sketch generator for bvult on ultrascale (4 bit)"
+  ;  #:defines (define-symbolic a b (bitvector 4))
+  ;  #:bv-expr (bool->bitvector (bvult a b))
+  ;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+  ;  #:sketch-generator shallow-comparison-sketch-generator
+  ;  #:module-semantics
+  ;  (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+  ;        (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+  ;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+  ;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+  ;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvugt on ultrascale (4 bit)"
+   #:defines (define-symbolic a b (bitvector 4))
+   #:bv-expr (bool->bitvector (bvugt a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  ; (sketch-test
+  ;  #:name "shallow comparison sketch generator for bvugt on ultrascale (4 bit)"
+  ;  #:defines (define-symbolic a b (bitvector 4))
+  ;  #:bv-expr (bool->bitvector (bvugt a b))
+  ;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+  ;  #:sketch-generator shallow-comparison-sketch-generator
+  ;  #:module-semantics
+  ;  (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+  ;        (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+  ;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+  ;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+  ;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bveq on ultrascale (8 bit)"
    #:defines (define-symbolic a b (bitvector 8))
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
@@ -762,11 +1018,193 @@
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
 
   (sketch-test
-   #:name "multiplication sketch generator on ultrascale (2 bit)"
-   #:defines (define-symbolic a b (bitvector 2))
-   #:bv-expr (bvmul a b)
+   #:name "shallow comparison sketch generator for bveq on ultrascale (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   #:sketch-generator multiplication-sketch-generator
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvneq on ultrascale (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bvneq on ultrascale (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvult on ultrascale (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (bvult a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  ; (sketch-test
+  ;  #:name "shallow comparison sketch generator for bvult on ultrascale (8 bit)"
+  ;  #:defines (define-symbolic a b (bitvector 8))
+  ;  #:bv-expr (bool->bitvector (bvult a b))
+  ;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+  ;  #:sketch-generator shallow-comparison-sketch-generator
+  ;  #:module-semantics
+  ;  (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+  ;        (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+  ;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+  ;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+  ;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvugt on ultrascale (8 bit)"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bool->bitvector (bvugt a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  ; (sketch-test
+  ;  #:name "shallow comparison sketch generator for bvugt on ultrascale (8 bit)"
+  ;  #:defines (define-symbolic a b (bitvector 8))
+  ;  #:bv-expr (bool->bitvector (bvugt a b))
+  ;  #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+  ;  #:sketch-generator shallow-comparison-sketch-generator
+  ;  #:module-semantics
+  ;  (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+  ;        (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+  ;        (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+  ;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+  ;  #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bveq on ultrascale (16 bit)"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bveq on ultrascale (16 bit)"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvneq on ultrascale (16 bit)"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bvneq on ultrascale (16 bit)"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bveq on ultrascale (32 bit)"
+   #:defines (define-symbolic a b (bitvector 32))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bveq on ultrascale (32 bit)"
+   #:defines (define-symbolic a b (bitvector 32))
+   #:bv-expr (bool->bitvector (bveq a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "comparison sketch generator for bvneq on ultrascale (32 bit)"
+   #:defines (define-symbolic a b (bitvector 32))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator comparison-sketch-generator
+   #:module-semantics
+   (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
+         (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
+         (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING -Wno-WIDTH -Wno-TIMESCALEMOD")
+
+  (sketch-test
+   #:name "shallow comparison sketch generator for bvneq on ultrascale (32 bit)"
+   #:defines (define-symbolic a b (bitvector 32))
+   #:bv-expr (bool->bitvector (not (bveq a b)))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator shallow-comparison-sketch-generator
    #:module-semantics
    (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
          (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
@@ -860,11 +1298,11 @@
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
-   #:name "new comparison sketch generator on lattice"
+   #:name "shallow comparison sketch generator on lattice"
    #:defines (define-symbolic a b (bitvector 2))
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (lattice-ecp5-architecture-description)
-   #:sketch-generator new-comparison-sketch-generator
+   #:sketch-generator shallow-comparison-sketch-generator
    #:module-semantics
    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
@@ -968,11 +1406,11 @@
   ;;; interestingly, bveq with two bvs w/ width 4 is fast. this requires a LUT 8?
   ;;; todo: explore if bwidth of 5 seems to exponentially explode # of symbolics
   (sketch-test
-   #:name "new comparison sketch on SOFA"
+   #:name "shallow comparison sketch on SOFA"
    #:defines (define-symbolic a b (bitvector 4))
    #:bv-expr (bool->bitvector (bveq a b))
    #:architecture-description (sofa-architecture-description)
-   #:sketch-generator new-comparison-sketch-generator
+   #:sketch-generator shallow-comparison-sketch-generator
    #:module-semantics
    (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
    #:include-dirs

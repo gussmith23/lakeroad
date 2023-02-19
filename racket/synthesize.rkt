@@ -21,6 +21,7 @@
          rosette
          rosette/lib/synthax
          rosette/lib/angelic
+         racket/pretty
          racket/sandbox
          rosette/solver/smt/boolector
          "utils.rkt"

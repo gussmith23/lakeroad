@@ -175,10 +175,11 @@
        ; Now, pad each input so that it is the same size as the lut inputs.
        ; this handles cases where either our number of inputs isn't a divisor of
        ; biggest-lut-size OR when we have leftover bits (yum!)
+
+       [symbolic-bit (lr:bv (?? (bitvector 1)))]
        [inputs (for/list ([w windowed-inputs])
                  (let* ([diff (- biggest-lut-size (length w))]
-                        [right-pads (make-n-symbolics diff (bitvector 1))]
-                        [right-pads (map lr:bv right-pads)])
+                        [right-pads (make-list diff symbolic-bit)])
                    (append w right-pads)))]
        ; [_ (printf "inputs: ~a" inputs)]
        ; get sharable internal data
