@@ -1294,6 +1294,8 @@ here-string-delimiter
                                       add-parameter-default-value
                                       expr)
   (match-let* ([P (get-bits 48)]
+               [CARRYCASCOUT (get-bits 1)]
+               [XOROUT (get-bits 8)]
                [(ultrascale-plus-dsp48e2 A
                                          ACASCREG
                                          ACIN
@@ -1423,9 +1425,13 @@ here-string-delimiter
                                                        'RSTINMODE
                                                        'RSTM
                                                        'RSTP)
-                                                 (list 'P))
+                                                 (list 'P 'CARRYCASCOUT 'XOROUT))
                       (hash 'P
                             P
+                            'CARRYCASCOUT
+                            CARRYCASCOUT
+                            'XOROUT
+                            XOROUT
                             'A
                             (compile A)
                             'ACIN
@@ -1595,8 +1601,10 @@ here-string-delimiter
                                      'PREG
                                      (make-literal-value-from-bv (lr:bv-v PREG))))])
     (add-netname 'P (make-net-details P))
+    (add-netname 'CARRYCASCOUT (make-net-details CARRYCASCOUT))
+    (add-netname 'XOROUT (make-net-details XOROUT))
     (add-cell 'DSP48E2 cell)
-    (list P)))
+    (list P CARRYCASCOUT XOROUT)))
 
 (define (compile-xilinx-ultrascale-plus-carry8 compile
                                                get-bits
