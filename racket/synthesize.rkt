@@ -2492,9 +2492,10 @@
 
   (test-case "ultrascale+ dsp 96-bit xor reduction"
              (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a bitvector 96))
-                                                         (check-not-equal?
-                                                          #f
-                                                          (synthesize-xilinx-ultrascale-plus-dsp-xor
-                                                           (apply bvxor (bitvector->bits a)))))))))))
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a (bitvector 96))
+                                                (check-not-equal?
+                                                 #f
+                                                 (synthesize-xilinx-ultrascale-plus-dsp-xor
+                                                  (apply bvxor (bitvector->bits a))))))))))))
