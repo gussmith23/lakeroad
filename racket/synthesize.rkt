@@ -879,39 +879,37 @@
    return
    (begin
 
-     ;;; Only supporting 4 inputs, a, b, c, d.
-     (when (> (length (symbolics bv-expr)) 4)
-       (return #f))
+     ;;; Only supporting 2 inputs.
+     (when (> (length (symbolics bv-expr)) 2)
+       (error "Only supporting 2 inputs."))
 
-     ;;; Only supporting max bws of 32 across 2 DSPs for now.
-     (when (> (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 32)
-       (return #f))
+     ;;; Only supporting max bws of 2*48 using 2 DSPs.
+     (when (> (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 96)
+       (error "Only supporting max bitwidth 96."))
 
      (define inputs
        (for/list ([v (symbolics bv-expr)])
-         (zero-extend v (bitvector 32))))
+         (zero-extend v (bitvector 96))))
 
-     (define in0 (if (>= (length inputs) 1) (list-ref inputs 0) (bv 0 32)))
-     (define in1 (if (>= (length inputs) 2) (list-ref inputs 1) (bv 0 32)))
-     (define in2 (if (>= (length inputs) 3) (list-ref inputs 2) (bv 0 32)))
-     (define in3 (if (>= (length inputs) 4) (list-ref inputs 3) (bv 0 32)))
+     (define in0 (if (>= (length inputs) 1) (list-ref inputs 0) (bv 0 96)))
+     (define in1 (if (>= (length inputs) 2) (list-ref inputs 1) (bv 0 96)))
+     ;(define in2 (if (>= (length inputs) 3) (list-ref inputs 2) (bv 0 32)))
+     ;(define in3 (if (>= (length inputs) 4) (list-ref inputs 3) (bv 0 32)))
 
-     ;;; Split bitvector v into two 16-bit bitvector Lakeroad exprs.
-     (define (f bw)
-       (let* ([bv-expr (lr:bv (choose* in0 in1 in2 in3 (bv 0 32) (bv 1 32)))])
-         ;;; Pad up the inputs to `bw` bits, padding with either 0s or 1s. This preserves carries.
-         ;;; There's probably a better way to do this, but I don't think it's fundamentally incorrect.
-         (list (lr:concat (lr:list (list (lr:bv (sign-extend (choose (bv 0 1) (bv 1 1))
-                                                             (bitvector (- bw 16))))
-                                         (lr:extract (lr:integer 31) (lr:integer 16) bv-expr))))
-               (lr:concat
-                (lr:list (list (lr:bv (sign-extend (choose (bv 0 1) (bv 1 1)) (bitvector (- bw 16))))
-                               (lr:extract (lr:integer 15) (lr:integer 0) bv-expr)))))))
+     ;;; Split bitvector v into two 48-bit bitvector Lakeroad exprs.
+     ;;;  (define (f bw)
+     ;;;    (let* ([bv-expr (lr:bv (choose* in0 in1 (bv 0 48) (bv 1 48)))])
+     ;;;      (list (lr:concat (lr:list (list (lr:bv (sign-extend (choose (bv 0 1) (bv 1 1))
+     ;;;                                                          (bitvector (- bw 16))))
+     ;;;                                      (lr:extract (lr:integer 31) (lr:integer 16) bv-expr))))
+     ;;;            (lr:concat
+     ;;;             (lr:list (list (lr:bv (sign-extend (choose (bv 0 1) (bv 1 1)) (bitvector (- bw 16))))
+     ;;;                            (lr:extract (lr:integer 15) (lr:integer 0) bv-expr)))))))
 
-     (match-define (list Ah Al) (f 30))
-     (match-define (list Bh Bl) (f 18))
-     (match-define (list Ch Cl) (f 48))
-     (match-define (list Dh Dl) (f 27))
+     ;;;  (match-define (list Ah Al) (f 30))
+     ;;;  (match-define (list Bh Bl) (f 18))
+     ;;;  (match-define (list Ch Cl) (f 48))
+     ;;;  (match-define (list Dh Dl) (f 27))
 
      (define (make-dsp-expr A B C D CARRYIN)
 
@@ -1195,19 +1193,24 @@
 
        dsp-expr)
 
-     (define dsp-0-expr (make-dsp-expr Al Bl Cl Dl (lr:bv (bv 0 1))))
-     ;;; Extract CARRYOUT[3]. See manual, chapter 2, CARRYCASCOUT and CARRYOUT Ports.
-     (define dsp-0-cout-expr
-       (lr:extract (lr:integer 3) (lr:integer 3) (lr:list-ref dsp-0-expr (lr:integer 1))))
-     (define dsp-1-expr (make-dsp-expr Ah Bh Ch Dh dsp-0-cout-expr))
+     (define dsp-0-expr
+       (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv in1))
+                      (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv in1))
+                      (lr:extract (lr:integer 47) (lr:integer 0) (lr:bv in0))
+                      (lr:bv (bv 0 27))
+                      (lr:bv (choose (bv 0 1) (bv 1 1)))))
+     (define dsp-0-cout-expr (lr:list-ref dsp-0-expr (lr:integer 1)))
+     (define dsp-1-expr
+       (make-dsp-expr (lr:extract (lr:integer 95) (lr:integer 66) (lr:bv in1))
+                      (lr:extract (lr:integer 65) (lr:integer 48) (lr:bv in1))
+                      (lr:extract (lr:integer 95) (lr:integer 48) (lr:bv in0))
+                      (lr:bv (bv 0 27))
+                      dsp-0-cout-expr))
 
      (define lakeroad-expr
-       (lr:extract
-        (lr:integer (sub1 (bvlen bv-expr)))
-        (lr:integer 0)
-        (lr:concat
-         (lr:list (list (lr:extract (lr:integer 15) (lr:integer 0) (lr:first dsp-1-expr))
-                        (lr:extract (lr:integer 15) (lr:integer 0) (lr:first dsp-0-expr)))))))
+       (lr:extract (lr:integer (sub1 (bvlen bv-expr)))
+                   (lr:integer 0)
+                   (lr:concat (lr:list (list (lr:first dsp-1-expr) (lr:first dsp-0-expr))))))
 
      ;;;  (define lakeroad-expr
      ;;;    (lr:extract (lr:integer (sub1 (bvlen bv-expr))) (lr:integer 0) (lr:first dsp-0-expr)))
@@ -2119,4 +2122,30 @@
                                                              (check-not-equal?
                                                               #f
                                                               (synthesize-lattice-ecp5-dsp
-                                                               (bvmul a b))))))))))))
+                                                               (bvmul a b)))))))))))
+
+  (test-case "ultrascale+ dsp 96-bit add"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b (bitvector 96))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                             (bvadd a b))))))))))
+
+  (test-case "ultrascale+ dsp 96-bit and"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b (bitvector 96))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                             (bvand a b))))))))))
+  (test-case "ultrascale+ dsp 96-bit sub"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b (bitvector 96))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                             (bvsub a b)))))))))))
