@@ -162,6 +162,7 @@
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
     ["shift" shift-sketch-generator]
+    ;;; TODO(@gussmith23) Clean up these hacks.
     ["xilinx-ultrascale-plus-dsp48e2"
      (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
        (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
