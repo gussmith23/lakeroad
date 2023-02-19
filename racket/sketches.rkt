@@ -549,12 +549,12 @@
 (module+ test
   (require rackunit
            "interpreter.rkt"
-           "lattice-ecp5-lut4.rkt"
-           "lattice-ecp5-ccu2c.rkt"
+           "generated/lattice-ecp5-lut4.rkt"
+           "generated/lattice-ecp5-ccu2c.rkt"
            "xilinx-ultrascale-plus-lut2.rkt"
-           "xilinx-ultrascale-plus-lut6.rkt"
-           "xilinx-ultrascale-plus-carry8.rkt"
-           "sofa-frac-lut4.rkt"
+           "generated/xilinx-ultrascale-plus-lut6.rkt"
+           "generated/xilinx-ultrascale-plus-carry8.rkt"
+           "generated/sofa-frac-lut4.rkt"
            rosette/solver/smt/boolector)
 
   (current-solver (boolector))

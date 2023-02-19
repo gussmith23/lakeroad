@@ -6,7 +6,7 @@
 
 #lang racket/base
 (provide xilinx-ultrascale-plus-lut6-2)
-(require "stateful-design-experiment.rkt")
+(require "../stateful-design-experiment.rkt")
 (require rosette)
 (require racket/hash)
 (define xilinx-ultrascale-plus-lut6-2

@@ -2,13 +2,13 @@ name: Run checks
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   # Run at 4am PT each day.
   schedule:
-  - cron: '0 11 * * *'
+    - cron: "0 11 * * *"
 
   # Allow manual trigger.
   workflow_dispatch:
@@ -20,7 +20,6 @@ env:
   IMAGE_TAG: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
 
 jobs:
-
   # Job which cleans up GitHub Actions workspace. This is only needed when
   # running on self-hosted runners.
   #
@@ -80,7 +79,6 @@ jobs:
     runs-on: self-hosted
     needs: [build-and-push-image, cleaner]
     steps:
-
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
@@ -98,7 +96,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
-
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
@@ -112,7 +109,7 @@ jobs:
       - name: Racket format check
         run: |
           docker run ${{ env.IMAGE_TAG }} \
-            bash -c 'raco fmt -i racket/*.rkt && [ -z "$(git status --porcelain)" ]'
+            bash -c 'raco fmt -i racket/*.rkt && git diff && [ -z "$(git status --porcelain)" ]'
 
       - name: Rust format check
         run: docker run ${{ env.IMAGE_TAG }} cargo fmt --manifest-path ./rust/Cargo.toml -- --check

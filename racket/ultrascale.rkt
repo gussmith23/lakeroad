@@ -27,15 +27,15 @@
          "comp-json.rkt"
          "lut.rkt"
          (prefix-in lr: "language.rkt")
-         (rename-in (file "xilinx-ultrascale-plus-dsp48e2.rkt")
+         (rename-in (file "generated/xilinx-ultrascale-plus-dsp48e2.rkt")
                     (xilinx-ultrascale-plus-dsp48e2 interpret-xilinx-ultrascale-plus-dsp48e2))
          "logical-to-physical.rkt"
          "stateful-design-experiment.rkt"
-         (rename-in (file "xilinx-ultrascale-plus-carry8.rkt")
+         (rename-in (file "generated/xilinx-ultrascale-plus-carry8.rkt")
                     (xilinx-ultrascale-plus-carry8 interpret-xilinx-ultrascale-plus-carry8))
-         (rename-in (file "xilinx-ultrascale-plus-lut6.rkt")
+         (rename-in (file "generated/xilinx-ultrascale-plus-lut6.rkt")
                     (xilinx-ultrascale-plus-lut6 interpret-xilinx-ultrascale-plus-lut6))
-         (rename-in (file "xilinx-ultrascale-plus-lut6-2.rkt")
+         (rename-in (file "generated/xilinx-ultrascale-plus-lut6-2.rkt")
                     (xilinx-ultrascale-plus-lut6-2 interpret-xilinx-ultrascale-plus-lut6-2)))
 
 (struct ultrascale-plus-clb
