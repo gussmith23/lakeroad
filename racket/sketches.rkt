@@ -25,7 +25,6 @@
          bitwise-with-carry-sketch-generator
          comparison-sketch-generator
          shallow-comparison-sketch-generator
-         double-shallow-comparison-sketch-generator
          multiplication-sketch-generator
          shift-sketch-generator)
 
@@ -44,7 +43,6 @@
   (list bitwise-sketch-generator
         bitwise-with-carry-sketch-generator
         shallow-comparison-sketch-generator
-        double-shallow-comparison-sketch-generator
         comparison-sketch-generator
         multiplication-sketch-generator))
 
@@ -290,6 +288,8 @@
 ;;; This first row of LUTs then has its outputs densely packed into a second row
 ;;; of LUTs, which then is passed into a third row of LUTs etc, until only a
 ;;; single LUT remains. This has log depth in the size of the the input
+;;;
+;;; NOTE: This is currently not functioning properly and is not exported
 (define (double-shallow-comparison-sketch-generator architecture-description
                                                     logical-inputs
                                                     num-logical-inputs
