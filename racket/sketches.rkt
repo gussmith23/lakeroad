@@ -42,7 +42,6 @@
 (define (all-sketch-generators)
   (list bitwise-sketch-generator
         bitwise-with-carry-sketch-generator
-        shallow-comparison-sketch-generator
         comparison-sketch-generator
         multiplication-sketch-generator))
 
@@ -782,6 +781,8 @@
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;                             TEST COMPARISONS                             ;;
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;;; XILINX ULTRASCALE PLUS
 
   (sketch-test
    #:name "comparison sketch generator for bveq on ultrascale (2 bit)"

@@ -164,7 +164,6 @@
     ["bitwise" bitwise-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
     ["shallow-comparison" shallow-comparison-sketch-generator]
-    ["double-shallow-comparison" double-shallow-comparison-sketch-generator]
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
     ["shift" shift-sketch-generator]
