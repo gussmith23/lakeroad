@@ -8,14 +8,14 @@
          "../racket/sketches.rkt"
          "../racket/architecture-description.rkt"
          json
-         "../racket/lattice-ecp5-lut4.rkt"
-         "../racket/lattice-ecp5-ccu2c.rkt"
+         "../racket/generated/lattice-ecp5-lut4.rkt"
+         "../racket/generated/lattice-ecp5-ccu2c.rkt"
          "../racket/xilinx-ultrascale-plus-lut2.rkt"
-         "../racket/xilinx-ultrascale-plus-lut6.rkt"
-         "../racket/xilinx-ultrascale-plus-carry8.rkt"
-         "../racket/sofa-frac-lut4.rkt"
-         "../racket/lattice-ecp5-mult18x18d.rkt"
-         "../racket/lattice-ecp5-alu24b.rkt"
+         "../racket/generated/xilinx-ultrascale-plus-lut6.rkt"
+         "../racket/generated/xilinx-ultrascale-plus-carry8.rkt"
+         "../racket/generated/sofa-frac-lut4.rkt"
+         "../racket/generated/lattice-ecp5-mult18x18d.rkt"
+         "../racket/generated/lattice-ecp5-alu24b.rkt"
          rosette/solver/smt/boolector
          "../racket/stateful-design-experiment.rkt"
          racket/hash
@@ -154,11 +154,19 @@
      (define f (eval (first (btor->racket btor)) ns))
      (signal-value (hash-ref (f) (string->symbol (verilog-module-out-signal))))]))
 
+(when (boolean? bv-expr)
+  (error
+   (format
+    "Expected a bitvector expression but found a boolean ~a: consider wrapping in (bool->bitvector ...)"
+    bv-expr)))
+(when (not (bv? bv-expr))
+  (error (format "Expected a bitvector expression but found ~a" bv-expr)))
 (define sketch-generator
   (match (template)
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
+    ["shallow-comparison" shallow-comparison-sketch-generator]
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
     ["shift" shift-sketch-generator]

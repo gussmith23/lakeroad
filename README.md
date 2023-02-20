@@ -10,7 +10,7 @@ Given a description
   (e.g. LUT programmings)
   to implement high-level programs
   (e.g. 8-bit add with carry).
-  
+
 ## Dependencies
 
 - LLVM

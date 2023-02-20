@@ -1,6 +1,6 @@
 #lang racket/base
 (provide MULT18X18D)
-(require "stateful-design-experiment.rkt")
+(require "../stateful-design-experiment.rkt")
 (require rosette)
 (require racket/hash)
 (define MULT18X18D

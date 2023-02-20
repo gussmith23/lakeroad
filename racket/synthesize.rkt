@@ -23,6 +23,7 @@
          rosette
          rosette/lib/synthax
          rosette/lib/angelic
+         racket/pretty
          racket/sandbox
          rosette/solver/smt/boolector
          "utils.rkt"
@@ -30,8 +31,8 @@
          (prefix-in lr: "language.rkt")
          "sketches.rkt"
          "architecture-description.rkt"
-         "lattice-ecp5-mult18x18d.rkt"
-         "lattice-ecp5-alu24b.rkt")
+         "generated/lattice-ecp5-mult18x18d.rkt"
+         "generated/lattice-ecp5-alu24b.rkt")
 
 ;;; Attempt synthesis, return the first that works.
 (define (synthesize-any architecture-description

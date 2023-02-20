@@ -9,8 +9,8 @@
            "circt-comb-operators.rkt"
            "synthesize.rkt"
            "utils.rkt"
-           "lattice-ecp5-lut4.rkt"
-           "lattice-ecp5-ccu2c.rkt"
+           "generated/lattice-ecp5-lut4.rkt"
+           "generated/lattice-ecp5-ccu2c.rkt"
            "architecture-description.rkt")
 
   (current-solver (boolector))

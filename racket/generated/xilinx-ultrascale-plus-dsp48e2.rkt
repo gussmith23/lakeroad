@@ -11,7 +11,7 @@
 ;;; A_INPUT param the setting "DIRECT", you would give it the value (bv->signal (bv 7 5)), as the
 ;;; DIRECT enum variant is defined as DIRECT_ENUM_VAL = 7.
 (provide xilinx-ultrascale-plus-dsp48e2)
-(require "stateful-design-experiment.rkt")
+(require "../stateful-design-experiment.rkt")
 (require rosette)
 (require racket/hash)
 (define xilinx-ultrascale-plus-dsp48e2

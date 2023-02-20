@@ -45,6 +45,7 @@
           (define out
             (destruct
              expr
+             [(list l) (error "hi")]
              [(lr:symbol s) s]
              [(lr:make-immutable-hash list-expr) (make-immutable-hash (interpret-helper list-expr))]
              [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]
@@ -312,11 +313,12 @@
              ;;; (dup-extend (interpret-helper v) bv)]
              [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
              [(lr:extract h l v)
-              ;;; We need these for/alls to decompose h and l in weird situations where the indices
-              ;;; are concrete but there are multiple possible values.
-              (for/all ([h (interpret-helper h) #:exhaustive])
-                       (for/all ([l (interpret-helper l) #:exhaustive])
-                                (extract h l (interpret-helper v))))]
+              (begin
+                ;;; We need these for/alls to decompose h and l in weird situations where the indices
+                ;;; are concrete but there are multiple possible values.
+                (for/all ([h (interpret-helper h) #:exhaustive])
+                         (for/all ([l (interpret-helper l) #:exhaustive])
+                                  (extract h l (interpret-helper v)))))]
              [(lr:concat vs) (apply concat (interpret-helper vs))]
              ;;; Datatypes.
              [(lr:bv v) v]
