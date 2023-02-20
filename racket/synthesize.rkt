@@ -1459,7 +1459,7 @@
        ;;; connectivity or OPMODE value to allow for proper implementation.
        ;;;
        ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-       ;(assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+       (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
 
        ;(assert (bvzero? CARRYIN))
        (assert (bvzero? CARRYCASCIN))
