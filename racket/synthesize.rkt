@@ -882,20 +882,16 @@
    return
    (begin
 
-     ;;; Only supporting 2 inputs.
-     (when (> (length (symbolics bv-expr)) 2)
-       (error "Only supporting 2 inputs."))
+     ;;; Only supporting 1 inputs.
+     (when (> (length (symbolics bv-expr)) 1)
+       (error "Only supporting 1 input."))
 
-     ;;; Only supporting max bws of 48.
-     (when (> (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 48)
-       (error "Only supporting max bitwidth 48."))
+     ;;; Only supporting max bws of 96.
+     (when (not (equal? (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 96))
+       (error "Only supporting bw 96."))
 
-     (define inputs
-       (for/list ([v (symbolics bv-expr)])
-         (zero-extend v (bitvector 48))))
-
-     (define in0 (if (>= (length inputs) 1) (list-ref inputs 0) (bv 0 48)))
-     (define in1 (if (>= (length inputs) 2) (list-ref inputs 1) (bv 0 48)))
+     ;(define in0 (if (>= (length inputs) 1) (list-ref inputs 0) (bv 0 48)))
+     ;(define in1 (if (>= (length inputs) 2) (list-ref inputs 1) (bv 0 48)))
      ;(define in2 (if (>= (length inputs) 3) (list-ref inputs 2) (bv 0 32)))
      ;(define in3 (if (>= (length inputs) 4) (list-ref inputs 3) (bv 0 32)))
 
@@ -1116,7 +1112,13 @@
        ;;; connectivity or OPMODE value to allow for proper implementation.
        ;;;
        ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-       ;(assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+       (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+
+       ;;; ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
+       ;;; has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
+       ;;; however the PCIN input is not properly connected to another DSP48E2 Block.  Please either
+       ;;; correct the connectivity or CARRYINSEL value to allow for proper implementation.
+       (assert (not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3))))
 
        ;(assert (bvzero? CARRYIN))
        (assert (bvzero? CARRYCASCIN))
@@ -1196,10 +1198,11 @@
 
        dsp-expr)
 
+     (match-define (list in0) (symbolics bv-expr))
      (define dsp-0-expr
-       (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv in1))
-                      (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv in1))
-                      (lr:extract (lr:integer 47) (lr:integer 0) (lr:bv in0))
+       (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv in0))
+                      (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv in0))
+                      (lr:extract (lr:integer 95) (lr:integer 48) (lr:bv in0))
                       (lr:bv (bv 0 27))
                       (lr:bv (choose (bv 0 1) (bv 1 1)))))
 
@@ -1456,7 +1459,7 @@
        ;;; connectivity or OPMODE value to allow for proper implementation.
        ;;;
        ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-       ;(assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+       (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
 
        ;(assert (bvzero? CARRYIN))
        (assert (bvzero? CARRYCASCIN))
@@ -2495,12 +2498,10 @@
 
   (test-case "ultrascale+ dsp 96-bit xor reduction"
              (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 48))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-xilinx-ultrascale-plus-dsp-xor
-                                                             (apply bvxor
-                                                                    (append (bitvector->bits a)
-                                                                            (bitvector->bits
-                                                                             b)))))))))))))
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a (bitvector 96))
+                                                (check-not-equal?
+                                                 #f
+                                                 (synthesize-xilinx-ultrascale-plus-dsp-xor
+                                                  (apply bvxor (bitvector->bits a))))))))))))
