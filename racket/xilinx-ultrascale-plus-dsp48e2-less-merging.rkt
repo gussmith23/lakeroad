@@ -1,6 +1,6 @@
 #lang racket/base
 (provide xilinx-ultrascale-plus-dsp48e2)
-(require (file "/Users/gus/lakeroad/racket/stateful-design-experiment.rkt"))
+(require (file "stateful-design-experiment.rkt"))
 (require rosette)
 (define xilinx-ultrascale-plus-dsp48e2
   (λ (#:A
