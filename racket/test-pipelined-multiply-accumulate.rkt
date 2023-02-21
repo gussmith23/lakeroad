@@ -1,3 +1,4 @@
+;;; TODO(@gussmith23) Add this to eval. Currently I just time it from the command line.
 ;;; Manually testing mapping a pipelined multiply-accumulate to Xilinx UltraScale+ DSPs.
 #lang errortrace racket/base
 
