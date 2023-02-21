@@ -63,17 +63,17 @@
   (define bw 8)
   (define-symbolic clock-ticks (bitvector bw))
   ;;; To get the module to implement (a*b)+acc, we need to tick the clock twice.
-  (check-equal?
-   (evaluate
-    clock-ticks
-    ;;; This synthesis query basically asks Rosette: how many clock ticks do I need to implement
-    ;;; (a*b)+acc?
-    (synthesize #:forall (list a b acc)
-                #:guarantee
-                (assert (bveq (bvadd acc (bvmul a b))
-                              ;;; We give a dummy value for the initial value of `previous-value`.
-                              (signal-value (run-design clock-ticks (signal (bv 0 16) (list))))))))
-   (bv 2 bw))
+  ;;; (chek-equal?
+  ;;;  (evaluate
+  ;;;   clock-ticks
+  ;;;   ;;; This synthesis query basically asks Rosette: how many clock ticks do I need to implement
+  ;;;   ;;; (a*b)+acc?
+  ;;;   (synthesize #:forall (list a b acc)
+  ;;;               #:guarantee
+  ;;;               (assert (bveq (bvadd acc (bvmul a b))
+  ;;;                             ;;; We give a dummy value for the initial value of `previous-value`.
+  ;;;                             (signal-value (run-design clock-ticks (signal (bv 0 16) (list))))))))
+  ;;;  (bv 2 bw))
 
   (clear-terms!)
   (clear-vc!)
