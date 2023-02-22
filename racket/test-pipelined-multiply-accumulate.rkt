@@ -97,7 +97,7 @@
                                                  #:acc (bv->signal acc2)
                                                  #:clk (bv->signal (bv 1 1)))
                                               'out)])
-                        (run-design (bvsub1 n) out1))))
+                        (run-design-to-compile (bvsub1 n) out1))))
 
   (define dsp-a (zero-extend (choose a2 b2 acc2 (bv 0 1)) (bitvector 30)))
   (define dsp-b (zero-extend (choose a2 b2 acc2 (bv 0 1)) (bitvector 18)))
