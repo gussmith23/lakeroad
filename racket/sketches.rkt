@@ -1306,7 +1306,6 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
-
   (sketch-test
    #:name "carry sketch generator on lattice"
    #:defines (define-symbolic a b (bitvector 2))
