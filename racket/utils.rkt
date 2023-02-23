@@ -156,7 +156,7 @@
         defines ...
         (define cexpr (bvexpr->cexpr bv-expr))
         (define bv-symbolics (symbolics bv-expr))
-        (define fuzzing-space-size 256)
+        (define fuzzing-space-size 2048)
 
         ;;; Helper function for generating testing input.
         ;;; Given a list of n symbols, generate a list of n-tuples. The ith value in the tuple
@@ -193,70 +193,55 @@
         (for ([bv-tuple bv-tuples])
           (let* ([number-tuple (map bitvector->natural bv-tuple)])
             (displayln number-tuple args-file)))
+        (close-output-port args-file)
 
         ;;; Save C code to file
         (define cfile-filename (make-temporary-file "~a.c"))
         (define cfile (open-output-file cfile-filename #:exists 'replace))
-        ;;; (displayln "#include <stdint.h>" cfile)
-        ;;; (displayln "#include <stdio.h>" cfile)
-        ;;; (displayln "#include <stdlib.h>" cfile)
-        ;;; (displayln "int main(int argc, char* argv[]) {" cfile)
-        ;;; (displayln (format "FILE *fp = fopen(~a, \"r\");" args-filename) cfile)
-        ;;; (displayln "if (!fp) { return 1; }" cfile)
-        ;;; (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)) cfile)
-        ;;; (displayln (format "uint64_t values[~a];" (length bv-symbolics)) cfile)
-        ;;; (displayln "if (getchar() != '(') { return 1; }" cfile)
-        ;;; (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))) cfile)
-        ;;; (displayln "scanf(fp, \"%lld\", &values[j]);" cfile)
-        ;;; (for ([(i id) (in-indexed (symbolics bv-expr))])
-        ;;;   (displayln (format "uint64_t ~a = values[~a];" i id) cfile)
-        ;;;   cfile)
-        ;;; ;;; idea: print out each result on its own line
-        ;;; (displayln (format "printf(\"%llu\\n\", ~a);" cexpr) cfile)
-        ;;; (displayln "}" cfile)
-        ;;; (displayln "}" cfile)
-        ;;; (displayln "return 0;" cfile)
-        ;;; (displayln "}" cfile)
 
-        (displayln "#include <stdint.h>")
-        (displayln "#include <stdio.h>")
-        (displayln "#include <stdlib.h>")
-        (displayln "int main(int argc, char* argv[]) {")
-        (displayln (format "FILE *fp = fopen(\"~a\", \"r\");" args-filename))
-        (displayln "if (!fp) { return 1; }")
-        (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)))
-        (displayln (format "uint64_t values[~a];" (length bv-symbolics)))
-        (displayln "if (fgetc(fp) != '(') { return 1; }")
-        (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))))
-        (displayln "fscanf(fp, \"%lld\", &values[j]);") ;;; worry about space b/w nums?
-        (displayln "}")
-        (displayln "if (fgetc(fp) != ')') { return 1; }") ;;; TODO: take care of newline
+        (displayln "#include <stdint.h>" cfile)
+        (displayln "#include <stdio.h>" cfile)
+        (displayln "#include <stdlib.h>" cfile)
+        (displayln "int main(int argc, char* argv[]) {" cfile)
+        (displayln (format "FILE *fp = fopen(\"~a\", \"r\");" args-filename) cfile)
+        (displayln "if (!fp) { return 1; }" cfile)
+        (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)) cfile)
+        (displayln (format "uint64_t values[~a];" (length bv-symbolics)) cfile)
+        (displayln "if (fgetc(fp) != '(') { return 1; }" cfile)
+        (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))) cfile)
+        (displayln "fscanf(fp, \"%lld\", &values[j]);" cfile) ;;; worry about space b/w nums?
+        (displayln "}" cfile)
+        (displayln "if (fgetc(fp) != ')') { return 1; }" cfile)
+        (displayln "if (fgetc(fp) != '\\n') { return 1; }" cfile)
 
-        (for ([(i id) (in-indexed (symbolics bv-expr))])
-          (displayln (format "uint64_t ~a = values[~a];" i id)))
+        (for ([(bv-name idx) (in-indexed (symbolics bv-expr))])
+          (displayln (format "uint64_t ~a = values[~a];" bv-name idx) cfile))
         ;;; idea: print out each result on its own line
-        (displayln (format "printf(\"%llu\\n\", ~a);" cexpr))
-        (displayln "}")
-        (displayln "return 0;")
-        (displayln "}")
-        (exit 1)
+        (displayln (format "printf(\"%llu\\n\", ~a);" cexpr) cfile)
+        (displayln "}" cfile)
+        (displayln "return 0;" cfile)
+        (displayln "}" cfile)
 
         (close-output-port cfile)
         (define executable-filename (make-temporary-file "~a.out"))
         (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
+        (displayln "Running C file...")
 
-        (for ([args (generate-values bv-symbolics)])
+        (define c-result
+          (map string->number
+               (string-split (with-output-to-string (thunk (system* executable-filename))) "\n")))
+        ;;; (displayln c-result)
+
+        (for ([bv-tuple bv-tuples] [current-c-result c-result])
           (begin
-            (define c-result
-              (string->number
-               (with-output-to-string
-                (thunk (apply system*
-                              executable-filename
-                              (map (lambda (arg) (number->string (bitvector->natural arg))) args))))))
+            (displayln (format "Testing ~a with input ~a" bv-expr bv-tuple))
             (define rosette-result
-              (with-vc (evaluate bv-expr (sat (make-immutable-hash (map cons bv-symbolics args))))))
+              (with-vc
+               (evaluate bv-expr (sat (make-immutable-hash (map cons bv-symbolics bv-tuple))))))
+            (displayln (format "C result: ~a" current-c-result))
+            (displayln (format "Rosette value: ~a" (result-value rosette-result)))
             (check-true (normal? rosette-result))
-            (check-equal? c-result
+            (check-equal? current-c-result
                           (let ([rosette-value-num (result-value rosette-result)])
                             (bitvector->natural (if (boolean? rosette-value-num)
                                                     (bool->bitvector rosette-value-num)
