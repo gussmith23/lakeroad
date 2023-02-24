@@ -225,21 +225,16 @@
         (close-output-port cfile)
         (define executable-filename (make-temporary-file "~a.out"))
         (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
-        (displayln "Running C file...")
 
         (define c-result
           (map string->number
                (string-split (with-output-to-string (thunk (system* executable-filename))) "\n")))
-        ;;; (displayln c-result)
 
         (for ([bv-tuple bv-tuples] [current-c-result c-result])
           (begin
-            (displayln (format "Testing ~a with input ~a" bv-expr bv-tuple))
             (define rosette-result
               (with-vc
                (evaluate bv-expr (sat (make-immutable-hash (map cons bv-symbolics bv-tuple))))))
-            (displayln (format "C result: ~a" current-c-result))
-            (displayln (format "Rosette value: ~a" (result-value rosette-result)))
             (check-true (normal? rosette-result))
             (check-equal? current-c-result
                           (let ([rosette-value-num (result-value rosette-result)])
