@@ -156,11 +156,11 @@
         defines ...
         (define cexpr (bvexpr->cexpr bv-expr))
         (define bv-symbolics (symbolics bv-expr))
-        (define fuzzing-space-size 2048)
+        (define fuzzing-space-size 4096)
 
         ;;; Helper function for generating testing input.
         ;;; Given a list of n symbols, generate a list of n-tuples. The ith value in the tuple
-        ;;; is a bitvector that the ith symbolic constant will be set to.
+        ;;; is a bitvector value that the ith symbolic constant will be set to.
         (define (generate-values symbols)
           (let* ([iteration-space-size (expt 2 (apply + (map bvlen symbols)))])
             ;;; We choose to exhaustively test by looking at the iteration space of bv-expr's symbolics.
@@ -197,32 +197,32 @@
 
         ;;; Save C code to file
         (define cfile-filename (make-temporary-file "~a.c"))
-        (define cfile (open-output-file cfile-filename #:exists 'replace))
 
-        (displayln "#include <stdint.h>" cfile)
-        (displayln "#include <stdio.h>" cfile)
-        (displayln "#include <stdlib.h>" cfile)
-        (displayln "int main(int argc, char* argv[]) {" cfile)
-        (displayln (format "FILE *fp = fopen(\"~a\", \"r\");" args-filename) cfile)
-        (displayln "if (!fp) { return 1; }" cfile)
-        (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)) cfile)
-        (displayln (format "uint64_t values[~a];" (length bv-symbolics)) cfile)
-        (displayln "if (fgetc(fp) != '(') { return 1; }" cfile)
-        (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))) cfile)
-        (displayln "fscanf(fp, \"%lld\", &values[j]);" cfile) ;;; worry about space b/w nums?
-        (displayln "}" cfile)
-        (displayln "if (fgetc(fp) != ')') { return 1; }" cfile)
-        (displayln "if (fgetc(fp) != '\\n') { return 1; }" cfile)
+        (with-output-to-file
+         cfile-filename
+         #:exists 'replace
+         (lambda ()
+           (displayln "#include <stdint.h>")
+           (displayln "#include <stdio.h>")
+           (displayln "#include <stdlib.h>")
+           (displayln "int main(int argc, char* argv[]) {")
+           (displayln (format "FILE *fp = fopen(\"~a\", \"r\");" args-filename))
+           (displayln "if (!fp) { return 1; }")
+           (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)))
+           (displayln (format "uint64_t values[~a];" (length bv-symbolics)))
+           (displayln "if (fgetc(fp) != '(') { return 1; }")
+           (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))))
+           (displayln "fscanf(fp, \"%lld\", &values[j]);")
+           (displayln "}")
+           (displayln "if (fgetc(fp) != ')') { return 1; }")
+           (displayln "if (fgetc(fp) != '\\n') { return 1; }")
+           (for ([(bv-name idx) (in-indexed (symbolics bv-expr))])
+             (displayln (format "uint64_t ~a = values[~a];" bv-name idx)))
+           (displayln (format "printf(\"%llu\\n\", ~a);" cexpr))
+           (displayln "}")
+           (displayln "return 0;")
+           (displayln "}")))
 
-        (for ([(bv-name idx) (in-indexed (symbolics bv-expr))])
-          (displayln (format "uint64_t ~a = values[~a];" bv-name idx) cfile))
-        ;;; idea: print out each result on its own line
-        (displayln (format "printf(\"%llu\\n\", ~a);" cexpr) cfile)
-        (displayln "}" cfile)
-        (displayln "return 0;" cfile)
-        (displayln "}" cfile)
-
-        (close-output-port cfile)
         (define executable-filename (make-temporary-file "~a.out"))
         (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
 
@@ -244,10 +244,10 @@
 
         (clear-terms! (symbolics bv-expr))))))
 
-  ;;; Basic cases that do not work.
+  ;;; Basic cases that do not work. (GitHub issue #171)
   ;;;   (for ([sz (list 1 2 3 4 5 6 7 8 12 16 32 64)])
-  ;;;   ;;; Here, concatenating two bv64s throws a compile error. The integeral literal in the bitmask
-  ;;;   ;;; required to represent all 128 bits isn't possible to write out.
+  ;;;   ;;; Here, concatenating two bv64s throws a compile error. The integer literal in the bitmask
+  ;;;   ;;; required to represent all 128 bits isn't possible to include in a C file.
   ;;;   (semantic-test
   ;;;    #:name "basic concat"
   ;;;    #:defines (define-symbolic a b (bitvector sz))
