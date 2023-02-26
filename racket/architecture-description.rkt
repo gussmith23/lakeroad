@@ -90,7 +90,12 @@
                                     (interface-port "DI" 'input 8)
                                     (interface-port "S" 'input 8)
                                     (interface-port "CO" 'output 1)
-                                    (interface-port "O" 'output 8)))))
+                                    (interface-port "O" 'output 8)))
+        ;;; DSP definition.
+        (interface-definition (interface-identifier "DSP" (hash "width" 16))
+                              (list (interface-port "A" 'input 16)
+                                    (interface-port "B" 'input 16)
+                                    (interface-port "O" 'output 16)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 
