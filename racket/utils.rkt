@@ -206,7 +206,6 @@
            (displayln "#include <stdint.h>")
            (displayln "#include <stdio.h>")
            (displayln "#include <stdlib.h>")
-           (displayln "#include <stdint.h>")
            (displayln "int main(int argc, char* argv[]) {")
            (displayln (format "FILE *fp = fopen(\"~a\", \"r\");" args-filename))
            (displayln "if (!fp) { return 1; }")
