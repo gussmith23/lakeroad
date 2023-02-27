@@ -41,9 +41,15 @@ pub(crate) fn all_programs() -> HashMap<String, Program> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
+    use std::{
+        collections::HashSet,
+        path::Path,
+        process::{Command, Stdio},
+    };
 
     use egg::EGraph;
+    use std::io::Write;
+    use tempfile::{Builder, NamedTempFile, TempDir};
 
     use crate::language::LanguageAnalysis;
 
@@ -82,5 +88,115 @@ mod tests {
                 .collect::<HashSet<_>>()
             )
         );
+    }
+
+    #[test]
+    fn test_permuter_4x4() -> Result<(), std::io::Error> {
+        // Hilariously, Verilator silently fails if a cc file starts with a dot
+        // (which named temp files do). So we prefix the file.
+        let mut f = Builder::new()
+            .prefix("testbench")
+            .suffix(".cc")
+            .tempfile()?;
+        let verilator_dir = TempDir::new()?;
+        writeln!(
+            &mut f,
+            "
+#include <iostream>
+#include <sstream>
+#include <{header_dir}>
+
+int main(int argc, char** argv) {{
+
+    std::string line;
+    while (std::getline(std::cin, line))
+    {{
+        // Get inputs and expected outputs.
+        std::stringstream ss(line);
+        int din, control, dout_expected;
+        ss >> din >> control >> dout_expected;
+
+        VerilatedContext *contextp = new VerilatedContext;
+        contextp->commandArgs(argc, argv);
+        Vpermuter_4x4_sim *top = new Vpermuter_4x4_sim{{contextp}};
+
+        top->din = din;
+        top->control = control;
+        top->clk = 0;
+        top->eval();
+        top->clk = 1;
+        top->eval();
+
+        int dout_actual = top->dout;
+
+        if (dout_actual != dout_expected) {{
+            fprintf(stderr, \"din: 0x%x, control: 0x%x, dout_actual: 0x%x, dout_expected: 0x%x\\n\", din, control, dout_actual, dout_expected);
+        }}
+        assert(dout_actual == dout_expected);
+
+        delete contextp;
+    }}
+
+  return 0;
+}}
+        ",
+            header_dir = verilator_dir.path().join("Vpermuter_4x4_sim.h").display()
+        )?;
+
+        let executable = NamedTempFile::new()?;
+        let output = Command::new("verilator")
+            .arg("--cc")
+            .arg("--exe")
+            .arg("--build")
+            .arg("-o")
+            .arg(executable.path())
+            .arg("--Mdir")
+            .arg(verilator_dir.path())
+            .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("verilog/permuter_4x4_sim.v"))
+            .arg(f.path())
+            .output()?;
+        if !output.status.success() {
+            panic!(
+                "Failed to run verilator: {}",
+                String::from_utf8(output.stderr).unwrap()
+            );
+        }
+
+        let output = Command::new("chmod")
+            .arg("+x")
+            .arg(executable.path())
+            .output()?;
+        if !output.status.success() {
+            panic!(
+                "Failed to run chmod: {}",
+                String::from_utf8(output.stderr).unwrap()
+            );
+        }
+
+        let mut child = Command::new(executable.path())
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()?;
+        let make_str =
+            |din: i64, control: i64, dout: i64| format!("{} {} {}", din, control, dout);
+        child.stdin.take().unwrap().write_all(
+            [
+                make_str(0,0,0),
+                make_str(0xABCD,0,0xABCD),
+                make_str(0xABCD,1,0xBADC),
+                make_str(0xABCD,2,0xCDAB),
+                make_str(0xABCD,3,0xDCBA),
+                ].join("\n").as_bytes()
+        )?;
+
+        let output = child.wait_with_output()?;
+        if !output.status.success() {
+            panic!(
+                "Failed to run executable: {}",
+                String::from_utf8(output.stderr).unwrap()
+            );
+        }
+
+        Ok(())
     }
 }
