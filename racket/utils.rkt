@@ -213,7 +213,7 @@
            (displayln (format "uint64_t values[~a];" (length bv-symbolics)))
            (displayln "if (fgetc(fp) != '(') { return 1; }")
            (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))))
-           (displayln "fscanf(fp, \"%llu\", &values[j]);")
+           (displayln "fscanf(fp, \"%lu\", &values[j]);")
            (displayln "}")
            (displayln "if (fgetc(fp) != ')') { return 1; }")
            (displayln "if (fgetc(fp) != '\\n') { return 1; }")
