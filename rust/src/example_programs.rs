@@ -109,7 +109,7 @@ mod tests {
         )
         .expect("Failed to parse permuter_4x4.lakeroad");
 
-        let _run_test = |din: u64, control: u64, dout_expected: u64| {
+        let run_test = |din: u64, control: u64, dout_expected: u64| {
             assert_eq!(
                 interpret(
                     &expr,
@@ -122,10 +122,10 @@ mod tests {
             );
         };
 
-        _run_test(0xABCD, 0, 0xABCD);
-        _run_test(0xABCD, 1, 0xBADC);
-        _run_test(0xABCD, 2, 0xCDAB);
-        _run_test(0xABCD, 3, 0xDCBA);
+        run_test(0xABCD, 0, 0xABCD);
+        run_test(0xABCD, 1, 0xBADC);
+        run_test(0xABCD, 2, 0xCDAB);
+        run_test(0xABCD, 3, 0xDCBA);
     }
 
     #[test]
