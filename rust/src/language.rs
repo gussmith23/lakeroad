@@ -38,6 +38,9 @@ define_language! {
         "unop" = UnOp([Id; 3]),
         // (binop op: Op bitwidth: Num arg0,arg1: Expr) -> Expr
         "binop" = BinOp([Id; 4]),
+        // Ternary operator.
+        // (op3 op: Op bitwidth: Num arg0,arg1,arg2: Expr) -> Expr
+        "op3" = Op3([Id; 5]),
 
         // (apply instr: Instr args: List of Exprs) -> Expr
         "apply" = Apply([Id; 2]),
@@ -98,6 +101,7 @@ pub enum Op {
     Neg,
     Lsr,
     Add,
+    If,
 }
 impl Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -115,6 +119,7 @@ impl Display for Op {
                 Op::Neg => "neg",
                 Op::Lsr => "lsr",
                 Op::Add => "add",
+                Op::If => "if",
             }
         )
     }
@@ -134,6 +139,7 @@ impl FromStr for Op {
             "neg" => Ok(Op::Neg),
             "lsr" => Ok(Op::Lsr),
             "add" => Ok(Op::Add),
+            "if" => Ok(Op::If),
             _ => Err(()),
         }
     }
@@ -193,6 +199,38 @@ impl Analysis<Language> for LanguageAnalysis {
             }
             Language::Num(v) => Num(*v),
             Language::String(v) => _String(v.clone()),
+            &Language::Op3([op_id, bitwidth_id, a_id, b_id, c_id]) => {
+                //| &Language::BinOpAst([op_id, bitwidth_id, a_id, b_id]) => {
+                match (
+                    &egraph[op_id].data,
+                    &egraph[bitwidth_id].data,
+                    &egraph[a_id].data,
+                    &egraph[b_id].data,
+                    &egraph[c_id].data,
+                ) {
+                    (
+                        Op(op),
+                        Num(bitwidth),
+                        Signal(_a_bitwidth),
+                        Signal(b_bitwidth),
+                        Signal(c_bitwidth),
+                    ) => {
+                        match op {
+                            Op::If => {
+                                assert_eq!(b_bitwidth, c_bitwidth, "bitwidths must match");
+                                assert_eq!(
+                                    *b_bitwidth,
+                                    (*bitwidth).try_into().unwrap(),
+                                    "bitwidths must match"
+                                );
+                            }
+                            _ => panic!("{:?} is not a ternary op", op),
+                        }
+                        Signal(*bitwidth as usize)
+                    }
+                    _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
+                }
+            }
             &Language::BinOp([op_id, bitwidth_id, a_id, b_id])
             | &Language::BinOpAst([op_id, bitwidth_id, a_id, b_id]) => {
                 match (
@@ -339,6 +377,7 @@ fn to_racket_helper(
         Language::List(_) => todo!(),
         Language::Concat(_) => todo!(),
         Language::Op(_) => todo!(),
+        Language::Op3(_) => todo!(),
         Language::CanonicalArgs(_) | Language::Canonicalize(_) | Language::Instr(_) => panic!(),
     }
 }
@@ -635,6 +674,7 @@ pub fn instr_appears_in_program(
                 | Language::Apply(ids) => ids.to_vec(),
                 Language::UnOp(ids) | Language::UnOpAst(ids) => ids.to_vec(),
                 Language::BinOp(ids) | Language::BinOpAst(ids) => ids.to_vec(),
+                Language::Op3(ids) => ids.to_vec(),
                 Language::Canonicalize(ids) | Language::Hole(ids) => ids.to_vec(),
                 Language::CanonicalArgs(ids) | Language::List(ids) => ids.to_vec(),
                 Language::Op(_) | Language::Num(_) | Language::String(_) => vec![],
@@ -675,6 +715,7 @@ fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExp
                     Language::Const(_) => true,
                     Language::UnOp(_) => false,
                     Language::BinOp(_) => false,
+                    Language::Op3(_) => false,
                     Language::Apply(_) => true,
                     Language::Hole(_) => true,
                     Language::UnOpAst(_) => true,
@@ -758,6 +799,60 @@ pub fn sample_instr_in_program(
     }
 
     count
+}
+
+/// Possible values that come of interpreting a Lakeroad expression.
+#[derive(PartialEq, Debug)]
+pub enum Value {
+    String(String),
+    SignalValue(u64),
+    Num(i64),
+}
+impl Value {
+    fn get_string(&self) -> String {
+        match self {
+            Value::String(s) => s.clone(),
+            _ => panic!(),
+        }
+    }
+    fn _get_signal_value(&self) -> u64 {
+        match self {
+            Value::SignalValue(v) => *v,
+            _ => panic!(),
+        }
+    }
+    fn get_num(&self) -> i64 {
+        match self {
+            Value::Num(v) => *v,
+            _ => panic!(),
+        }
+    }
+}
+
+pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -> Value {
+    match &expr[id] {
+        Language::Var([name_id, bitwidth_id]) => {
+            let name = interpret(expr, env, *name_id).get_string();
+            let bitwidth = interpret(expr, env, *bitwidth_id).get_num();
+            Value::SignalValue(env.get(&name.to_string()).unwrap().clone() & ((1 << bitwidth) - 1))
+        }
+        Language::Const(_) => todo!(),
+        Language::UnOp(_) => todo!(),
+        Language::BinOp(_) => todo!(),
+        Language::Op3(_) => todo!(),
+        Language::Apply(_) => todo!(),
+        Language::Hole(_) => todo!(),
+        Language::UnOpAst(_) => todo!(),
+        Language::BinOpAst(_) => todo!(),
+        Language::List(_) => todo!(),
+        Language::Concat(_) => todo!(),
+        Language::Canonicalize(_) => todo!(),
+        Language::CanonicalArgs(_) => todo!(),
+        Language::Instr(_) => todo!(),
+        Language::Op(_) => todo!(),
+        Language::Num(v) => Value::Num(*v),
+        Language::String(v) => Value::String(v.clone()),
+    }
 }
 
 #[cfg(test)]
@@ -998,4 +1093,29 @@ mod tests {
             );
         }
     }
+
+    #[macro_export]
+    macro_rules! interpreter_test {
+        ($test_name:ident, $lakeroad_expr:expr, $env:expr, $expected:expr) => {
+            #[test]
+            fn $test_name() {
+                let lakeroad_expr = $lakeroad_expr;
+                let env = $env;
+                let expected = $expected;
+                let actual = interpret(
+                    &lakeroad_expr,
+                    &env,
+                    (lakeroad_expr.as_ref().len() - 1).try_into().unwrap(),
+                );
+                assert_eq!(actual, expected);
+            }
+        };
+    }
+
+    interpreter_test!(
+        test_interpret_var,
+        "(var x 8)".parse().unwrap(),
+        vec![("x".to_owned(), 0x12)].into_iter().collect(),
+        Value::SignalValue(0x12)
+    );
 }
