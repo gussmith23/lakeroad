@@ -97,7 +97,6 @@ mod tests {
     /// Interpret our expression for the permuter and check that it matches on a
     /// few test cases.
     #[test]
-    #[should_panic = "assertion failed: `(left == right)`"]
     fn interpret_permuter() {
         let expr: RecExpr<Language> = RecExpr::from_str(
             &read_to_string(
@@ -118,7 +117,7 @@ mod tests {
                         .collect(),
                     (expr.as_ref().len() - 1).try_into().unwrap(),
                 ),
-                Value::SignalValue(dout_expected)
+                Value::SignalValue(dout_expected, 16)
             );
         };
 
@@ -215,20 +214,8 @@ int main(int argc, char** argv) {{
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()?;
-        let make_str = |din: i64, control: i64, dout: i64| format!("{} {} {}", din, control, dout);
-        child.stdin.take().unwrap().write_all(
-            [
-                make_str(0, 0, 0),
-                make_str(0xABCD, 0, 0xABCD),
-                make_str(0xABCD, 1, 0xBADC),
-                make_str(0xABCD, 2, 0xCDAB),
-                make_str(0xABCD, 3, 0xDCBA),
-            ]
-            .join("\n")
-            .as_bytes(),
-        )?;
 
-        let _expr: RecExpr<Language> = RecExpr::from_str(
+        let expr: RecExpr<Language> = RecExpr::from_str(
             &read_to_string(
                 Path::new(env!("CARGO_MANIFEST_DIR"))
                     .join("lakeroad_programs")
@@ -237,6 +224,27 @@ int main(int argc, char** argv) {{
             .unwrap(),
         )
         .expect("Failed to parse permuter_4x4.lakeroad");
+
+        let mut stdin = child.stdin.take().unwrap();
+
+        for din in 0..=0xFFFF {
+            for control in 0..=3 {
+                let dout = interpret(
+                    &expr,
+                    &vec![("din".to_owned(), din), ("control".to_owned(), control)]
+                        .into_iter()
+                        .collect(),
+                    (expr.as_ref().len() - 1).try_into().unwrap(),
+                )
+                .get_signal_value()
+                .0;
+
+                writeln!(stdin, "{} {} {}", din, control, dout)?;
+            }
+        }
+
+        // Drop stdin to signal EOF.
+        drop(stdin);
 
         let output = child.wait_with_output()?;
         if !output.status.success() {

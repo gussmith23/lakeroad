@@ -811,7 +811,8 @@ pub fn sample_instr_in_program(
 #[derive(PartialEq, Debug, Clone)]
 pub enum Value {
     String(String),
-    SignalValue(u64),
+    /// (value, width)
+    SignalValue(u64, usize),
     Num(i64),
     Op(Op),
 }
@@ -822,9 +823,9 @@ impl Value {
             _ => panic!(),
         }
     }
-    fn get_signal_value(&self) -> u64 {
+    pub fn get_signal_value(&self) -> (u64, usize) {
         match self {
-            Value::SignalValue(v) => *v,
+            Value::SignalValue(v, width) => (*v, *width),
             _ => panic!(),
         }
     }
@@ -843,11 +844,18 @@ impl Value {
 }
 
 pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -> Value {
+    /// "Clean" a value by masking off the bits that are outside the width.
+    fn clean(v: u64, width: usize) -> u64 {
+        v & ((1 << width) - 1)
+    }
     match &expr[id] {
         Language::Var([name_id, bitwidth_id]) => {
             let name = interpret(expr, env, *name_id).get_string();
             let bitwidth = interpret(expr, env, *bitwidth_id).get_num();
-            Value::SignalValue(env.get(&name.to_string()).unwrap().clone() & ((1 << bitwidth) - 1))
+            Value::SignalValue(
+                env.get(&name.to_string()).unwrap().clone() & ((1 << bitwidth) - 1),
+                bitwidth.try_into().unwrap(),
+            )
         }
         Language::Const([value_id, bitwidth_id]) => {
             let value = interpret(expr, env, *value_id).get_num();
@@ -856,12 +864,16 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
                 "using negative values here will lead to headaches in the interpreter"
             );
             let bitwidth = interpret(expr, env, *bitwidth_id).get_num();
-            Value::SignalValue((value & ((1 << bitwidth) - 1)).try_into().unwrap())
+            Value::SignalValue(
+                (value & ((1 << bitwidth) - 1)).try_into().unwrap(),
+                bitwidth.try_into().unwrap(),
+            )
         }
         Language::UnOp(_) => todo!(),
         Language::BinOp([op_id, bitwidth_id, arg0_id, arg1_id]) => {
             let op = interpret(expr, env, *op_id).get_op();
             let bitwidth = interpret(expr, env, *bitwidth_id).get_num();
+            assert!(bitwidth <= 64, "bitwidth too large for interpreter");
             let arg0 = interpret(expr, env, *arg0_id);
             let arg1 = interpret(expr, env, *arg1_id);
 
@@ -874,17 +886,27 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
                 Op::Asr => todo!(),
                 Op::Eq => {
                     assert_eq!(bitwidth, 1, "expect eq result bitwidth to be 1");
-                    Value::SignalValue(if arg0.get_signal_value() == arg1.get_signal_value() {
-                        1
-                    } else {
-                        0
-                    })
+                    Value::SignalValue(
+                        if arg0.get_signal_value() == arg1.get_signal_value() {
+                            1
+                        } else {
+                            0
+                        },
+                        1,
+                    )
                 }
                 Op::Neg => todo!(),
                 Op::Lsr => todo!(),
                 Op::Add => todo!(),
                 Op::If => todo!(),
-                Op::Concat => todo!(),
+                Op::Concat => {
+                    let (arg0, arg0_bw) = arg0.get_signal_value();
+                    let (arg1, arg1_bw) = arg1.get_signal_value();
+                    let arg0 = clean(arg0, arg0_bw);
+                    let arg1 = clean(arg1, arg1_bw);
+                    assert!(arg0_bw + arg1_bw <= 64, "concat too large for interpreter");
+                    Value::SignalValue((arg0 << arg1_bw) | arg1, arg0_bw + arg1_bw)
+                }
                 Op::Extract => todo!(),
             }
         }
@@ -907,7 +929,7 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
                 Op::Lsr => todo!(),
                 Op::Add => todo!(),
                 Op::If => {
-                    if arg0.get_signal_value() == 1 {
+                    if arg0.get_signal_value().0 > 0 {
                         arg1
                     } else {
                         arg2
@@ -918,8 +940,18 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
                     let top = arg0.get_num();
                     let bottom = arg1.get_num();
                     assert!(top > bottom, "top must be greater than bottom");
-                    let value = arg2.get_signal_value();
-                    Value::SignalValue((value >> bottom) & ((1 << (top - bottom)) - 1))
+                    let (value, value_bw) = arg2.get_signal_value();
+                    assert!(
+                        top < value_bw.try_into().unwrap(),
+                        "top must be less than bitwidth"
+                    );
+                    assert!(top >= 0);
+                    assert!(bottom >= 0);
+                    assert!(bottom < value_bw.try_into().unwrap());
+                    Value::SignalValue(
+                        (value >> bottom) & ((1 << (top - bottom + 1)) - 1),
+                        (top - bottom + 1).try_into().unwrap(),
+                    )
                 }
             }
         }
@@ -1199,6 +1231,46 @@ mod tests {
         test_interpret_var,
         "(var x 8)".parse().unwrap(),
         vec![("x".to_owned(), 0x12)].into_iter().collect(),
-        Value::SignalValue(0x12)
+        Value::SignalValue(0x12, 8)
+    );
+
+    interpreter_test!(
+        test_permuter_case_1,
+        "(binop concat
+         16
+         (binop concat 8 (op3 extract 4 11 8 (var din 16)) (op3 extract 4 15 12 (var din 16)))
+         (binop concat 8 (op3 extract 4 3 0 (var din 16)) (op3 extract 4 7 4 (var din 16))))"
+            .parse()
+            .unwrap(),
+        vec![("din".to_owned(), 0xABCD)].into_iter().collect(),
+        Value::SignalValue(0xBADC, 16)
+    );
+
+    interpreter_test!(
+        test_extract_0,
+        "(op3 extract 4 15 12 (var din 16))".parse().unwrap(),
+        vec![("din".to_owned(), 0xABCD)].into_iter().collect(),
+        Value::SignalValue(0xA, 4)
+    );
+
+    interpreter_test!(
+        test_extract_1,
+        "(op3 extract 4 11 8 (var din 16))".parse().unwrap(),
+        vec![("din".to_owned(), 0xABCD)].into_iter().collect(),
+        Value::SignalValue(0xB, 4)
+    );
+
+    interpreter_test!(
+        test_extract_2,
+        "(op3 extract 4 7 4 (var din 16))".parse().unwrap(),
+        vec![("din".to_owned(), 0xABCD)].into_iter().collect(),
+        Value::SignalValue(0xC, 4)
+    );
+
+    interpreter_test!(
+        test_extract_3,
+        "(op3 extract 4 3 0 (var din 16))".parse().unwrap(),
+        vec![("din".to_owned(), 0xABCD)].into_iter().collect(),
+        Value::SignalValue(0xD, 4)
     );
 }
