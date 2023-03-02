@@ -31,7 +31,8 @@ pub(crate) fn all_programs() -> HashMap<String, Program> {
                     .unwrap()
                     .to_owned(),
                 RecExpr::from_str(&read_to_string(dir_entry.path()).unwrap()).expect(&format!(
-                    "Failed to parse the following text as a Lakeroad program:\n{}",
+                    "Failed to parse the following text from file {:#?} as a Lakeroad program:\n{}",
+                    dir_entry,
                     read_to_string(dir_entry.path()).unwrap()
                 )),
             )
