@@ -1,1 +1,7 @@
-(var din 16)
+(op3 if 16 
+     (binop eq 1 (var control 2) (const 0 2)) 
+     (var din 16)
+     (op3 if 16
+          (binop eq 1 (var control 2) (const 1 2)) 
+          (var din 16)
+          (var din 16)))

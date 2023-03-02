@@ -802,11 +802,12 @@ pub fn sample_instr_in_program(
 }
 
 /// Possible values that come of interpreting a Lakeroad expression.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Value {
     String(String),
     SignalValue(u64),
     Num(i64),
+    Op(Op),
 }
 impl Value {
     fn get_string(&self) -> String {
@@ -815,7 +816,7 @@ impl Value {
             _ => panic!(),
         }
     }
-    fn _get_signal_value(&self) -> u64 {
+    fn get_signal_value(&self) -> u64 {
         match self {
             Value::SignalValue(v) => *v,
             _ => panic!(),
@@ -824,6 +825,12 @@ impl Value {
     fn get_num(&self) -> i64 {
         match self {
             Value::Num(v) => *v,
+            _ => panic!(),
+        }
+    }
+    fn get_op(&self) -> Op {
+        match self {
+            Value::Op(op) => op.clone(),
             _ => panic!(),
         }
     }
@@ -836,10 +843,70 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
             let bitwidth = interpret(expr, env, *bitwidth_id).get_num();
             Value::SignalValue(env.get(&name.to_string()).unwrap().clone() & ((1 << bitwidth) - 1))
         }
-        Language::Const(_) => todo!(),
+        Language::Const([value_id, bitwidth_id]) => {
+            let value = interpret(expr, env, *value_id).get_num();
+            assert!(
+                value >= 0,
+                "using negative values here will lead to headaches in the interpreter"
+            );
+            let bitwidth = interpret(expr, env, *bitwidth_id).get_num();
+            Value::SignalValue((value & ((1 << bitwidth) - 1)).try_into().unwrap())
+        }
         Language::UnOp(_) => todo!(),
-        Language::BinOp(_) => todo!(),
-        Language::Op3(_) => todo!(),
+        Language::BinOp([op_id, bitwidth_id, arg0_id, arg1_id]) => {
+            let op = interpret(expr, env, *op_id).get_op();
+            let bitwidth = interpret(expr, env, *bitwidth_id).get_num();
+            let arg0 = interpret(expr, env, *arg0_id);
+            let arg1 = interpret(expr, env, *arg1_id);
+
+            match op {
+                Op::And => todo!(),
+                Op::Or => todo!(),
+                Op::Not => todo!(),
+                Op::Sub => todo!(),
+                Op::Xor => todo!(),
+                Op::Asr => todo!(),
+                Op::Eq => {
+                    assert_eq!(bitwidth, 1, "expect eq result bitwidth to be 1");
+                    Value::SignalValue(if arg0.get_signal_value() == arg1.get_signal_value() {
+                        1
+                    } else {
+                        0
+                    })
+                }
+                Op::Neg => todo!(),
+                Op::Lsr => todo!(),
+                Op::Add => todo!(),
+                Op::If => todo!(),
+            }
+        }
+        Language::Op3([op_id, bitwidth_id, arg0_id, arg1_id, arg2_id]) => {
+            let op = interpret(expr, env, *op_id).get_op();
+            let _bitwidth = interpret(expr, env, *bitwidth_id).get_num();
+            let arg0 = interpret(expr, env, *arg0_id);
+            let arg1 = interpret(expr, env, *arg1_id);
+            let arg2 = interpret(expr, env, *arg2_id);
+
+            match op {
+                Op::And => todo!(),
+                Op::Or => todo!(),
+                Op::Not => todo!(),
+                Op::Sub => todo!(),
+                Op::Xor => todo!(),
+                Op::Asr => todo!(),
+                Op::Eq => todo!(),
+                Op::Neg => todo!(),
+                Op::Lsr => todo!(),
+                Op::Add => todo!(),
+                Op::If => {
+                    if arg0.get_signal_value() == 1 {
+                        arg1
+                    } else {
+                        arg2
+                    }
+                }
+            }
+        }
         Language::Apply(_) => todo!(),
         Language::Hole(_) => todo!(),
         Language::UnOpAst(_) => todo!(),
@@ -849,7 +916,7 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
         Language::Canonicalize(_) => todo!(),
         Language::CanonicalArgs(_) => todo!(),
         Language::Instr(_) => todo!(),
-        Language::Op(_) => todo!(),
+        Language::Op(op) => Value::Op(op.clone()),
         Language::Num(v) => Value::Num(*v),
         Language::String(v) => Value::String(v.clone()),
     }
