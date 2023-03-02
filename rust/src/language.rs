@@ -102,6 +102,8 @@ pub enum Op {
     Lsr,
     Add,
     If,
+    Concat,
+    Extract,
 }
 impl Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -120,6 +122,8 @@ impl Display for Op {
                 Op::Lsr => "lsr",
                 Op::Add => "add",
                 Op::If => "if",
+                Op::Concat => "concat",
+                Op::Extract => "extract",
             }
         )
     }
@@ -140,6 +144,8 @@ impl FromStr for Op {
             "lsr" => Ok(Op::Lsr),
             "add" => Ok(Op::Add),
             "if" => Ok(Op::If),
+            "concat" => Ok(Op::Concat),
+            "extract" => Ok(Op::Extract),
             _ => Err(()),
         }
     }
@@ -825,13 +831,13 @@ impl Value {
     fn get_num(&self) -> i64 {
         match self {
             Value::Num(v) => *v,
-            _ => panic!(),
+            _ => panic!("unexpected value: {:?}", self),
         }
     }
     fn get_op(&self) -> Op {
         match self {
             Value::Op(op) => op.clone(),
-            _ => panic!(),
+            _ => panic!("unexpected value: {:?}", self),
         }
     }
 }
@@ -878,6 +884,8 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
                 Op::Lsr => todo!(),
                 Op::Add => todo!(),
                 Op::If => todo!(),
+                Op::Concat => todo!(),
+                Op::Extract => todo!(),
             }
         }
         Language::Op3([op_id, bitwidth_id, arg0_id, arg1_id, arg2_id]) => {
@@ -904,6 +912,14 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
                     } else {
                         arg2
                     }
+                }
+                Op::Concat => todo!(),
+                Op::Extract => {
+                    let top = arg0.get_num();
+                    let bottom = arg1.get_num();
+                    assert!(top > bottom, "top must be greater than bottom");
+                    let value = arg2.get_signal_value();
+                    Value::SignalValue((value >> bottom) & ((1 << (top - bottom)) - 1))
                 }
             }
         }

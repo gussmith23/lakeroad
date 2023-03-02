@@ -3,5 +3,13 @@
      (var din 16)
      (op3 if 16
           (binop eq 1 (var control 2) (const 1 2)) 
-          (var din 16)
+
+          (binop concat 16
+          (binop concat 8 
+               (op3 extract 4 11 8 (var din 16))
+               (op3 extract 4 15 12 (var din 16)))
+          (binop concat 8 
+               (op3 extract 4 3 0 (var din 16))
+               (op3 extract 4 7 4 (var din 16))))
+
           (var din 16)))
