@@ -172,6 +172,16 @@ pub enum LanguageAnalysisData {
     Instr(usize),
     Empty,
 }
+
+impl LanguageAnalysisData {
+    pub fn get_signal(&self) -> usize {
+        match self {
+            LanguageAnalysisData::Signal(v) => *v,
+            _ => panic!(),
+        }
+    }
+}
+
 impl Analysis<Language> for LanguageAnalysis {
     type Data = LanguageAnalysisData;
 
@@ -214,27 +224,31 @@ impl Analysis<Language> for LanguageAnalysis {
                     &egraph[b_id].data,
                     &egraph[c_id].data,
                 ) {
-                    (
-                        Op(op),
-                        Num(bitwidth),
-                        Signal(_a_bitwidth),
-                        Signal(b_bitwidth),
-                        Signal(c_bitwidth),
-                    ) => {
+                    (Op(op), Num(bitwidth), arg0, arg1, arg2) => {
                         match op {
                             Op::If => {
-                                assert_eq!(b_bitwidth, c_bitwidth, "bitwidths must match");
-                                assert_eq!(
-                                    *b_bitwidth,
-                                    (*bitwidth).try_into().unwrap(),
-                                    "bitwidths must match"
-                                );
+                                let c_bitwidth = arg0.get_signal();
+                                let t_bitwidth = arg1.get_signal();
+                                let f_bitwidth = arg2.get_signal();
+                                // This may not always be the case.
+                                assert_eq!(c_bitwidth, 1, "condition must be 1 bit");
+                                assert_eq!(t_bitwidth, f_bitwidth, "bitwidths of branches match");
                             }
                             _ => panic!("{:?} is not a ternary op", op),
                         }
                         Signal(*bitwidth as usize)
                     }
-                    _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
+                    _ => panic!(
+                        "types don't check when unpacking {:?}; is {:?} an op?",
+                        (
+                            &egraph[op_id].data,
+                            &egraph[bitwidth_id].data,
+                            &egraph[a_id].data,
+                            &egraph[b_id].data,
+                            &egraph[c_id].data,
+                        ),
+                        egraph[op_id]
+                    ),
                 }
             }
             &Language::BinOp([op_id, bitwidth_id, a_id, b_id])
