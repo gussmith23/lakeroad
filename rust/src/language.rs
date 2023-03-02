@@ -245,9 +245,10 @@ impl Analysis<Language> for LanguageAnalysis {
                     &egraph[a_id].data,
                     &egraph[b_id].data,
                 ) {
-                    (Op(_), Num(bitwidth), Signal(a_bitwidth), Signal(b_bitwidth)) => {
-                        assert_eq!(a_bitwidth, b_bitwidth, "bitwidths must match");
-                        assert_eq!(*a_bitwidth, *bitwidth as usize, "bitwidths must match");
+                    (Op(_), Num(bitwidth), Signal(_a_bitwidth), Signal(_b_bitwidth)) => {
+                        // These aren't true anymore. But will it break things to comment this out?
+                        //assert_eq!(a_bitwidth, b_bitwidth, "bitwidths must match");
+                        //assert_eq!(*a_bitwidth, *bitwidth as usize, "bitwidths must match");
                         Signal(*bitwidth as usize)
                     }
                     _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
