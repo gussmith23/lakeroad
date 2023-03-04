@@ -46,7 +46,7 @@ define_language! {
         "apply" = Apply([Id; 2]),
 
         // Hole.
-        // (hole bitwidth: Num) -> AST
+        // (hole type: HoleType) -> AST
         "hole" = Hole([Id; 1]),
 
         // Operator application for ASTs.
@@ -55,6 +55,8 @@ define_language! {
         "unop-ast" = UnOpAst([Id; 3]),
         // (binop-ast op: Op bitwidth: Num arg0,arg1: AST) -> AST
         "binop-ast" = BinOpAst([Id; 4]),
+        // (op3-ast op: Op bitwidth: Num arg0,arg1,arg2: AST) -> AST
+        "op3-ast" = Op3Ast([Id; 5]),
 
         "list" = List(Box<[Id]>),
 
@@ -83,10 +85,21 @@ define_language! {
         // same variable, e.g. (and x x).
         "instr" = Instr([Id; 2]),
 
+
+        // Bitwidth-typed hole. (hole-type-bw bw: Num) -> HoleType
+        "hole-type-bw" = TypeBw([Id; 1]),
+        "hole-type-num" = TypeNum,
+
         Op(Op),
         Num(i64),
         String(String),
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum HoleType {
+    Bw(usize),
+    Num,
 }
 
 #[derive(PartialEq, Debug, Eq, PartialOrd, Ord, Hash, Clone)]
@@ -151,6 +164,13 @@ impl FromStr for Op {
     }
 }
 
+// The type of ASTs.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Ast {
+    Signal(usize),
+    Num,
+}
+
 #[derive(Default)]
 pub struct LanguageAnalysis;
 #[derive(Debug, Clone, PartialEq)]
@@ -171,6 +191,8 @@ pub enum LanguageAnalysisData {
     /// An instruction. The usize represents its output bitwidth.
     Instr(usize),
     Empty,
+    HoleType(HoleType),
+    Ast(Ast),
 }
 
 impl LanguageAnalysisData {
@@ -180,6 +202,24 @@ impl LanguageAnalysisData {
             _ => panic!(),
         }
     }
+    pub fn get_num(&self) -> i64 {
+        match self {
+            LanguageAnalysisData::Num(v) => *v,
+            _ => panic!(),
+        }
+    }
+    pub fn get_ast_signal_type(&self) -> usize {
+        match self {
+            LanguageAnalysisData::Ast(a) => match a {
+                Ast::Signal(v) => *v,
+                _ => panic!(),
+            },
+            _ => panic!(),
+        }
+    }
+    pub fn is_ast_num_type(&self) -> bool {
+        matches!(self, LanguageAnalysisData::Ast(Ast::Num))
+    }
 }
 
 impl Analysis<Language> for LanguageAnalysis {
@@ -187,9 +227,15 @@ impl Analysis<Language> for LanguageAnalysis {
 
     fn make(egraph: &EGraph<Language, Self>, enode: &Language) -> Self::Data {
         match enode {
+            &Language::TypeBw([bitwidth_id]) => match &egraph[bitwidth_id].data {
+                Num(v) => LanguageAnalysisData::HoleType(HoleType::Bw(*v as usize)),
+                _ => panic!(),
+            },
+            &Language::TypeNum => LanguageAnalysisData::HoleType(HoleType::Num),
             &Language::Instr([ast_id, canonical_args_id]) => {
                 match (&egraph[ast_id].data, &egraph[canonical_args_id].data) {
-                    (Signal(v), Empty) => Instr(*v),
+                    (Ast(Ast::Signal(v)), Empty) => Ast(Ast::Signal(*v)),
+                    (Ast(Ast::Num), Empty) => Ast(Ast::Num),
                     _ => panic!(),
                 }
             }
@@ -216,7 +262,6 @@ impl Analysis<Language> for LanguageAnalysis {
             Language::Num(v) => Num(*v),
             Language::String(v) => _String(v.clone()),
             &Language::Op3([op_id, bitwidth_id, a_id, b_id, c_id]) => {
-                //| &Language::BinOpAst([op_id, bitwidth_id, a_id, b_id]) => {
                 match (
                     &egraph[op_id].data,
                     &egraph[bitwidth_id].data,
@@ -233,10 +278,60 @@ impl Analysis<Language> for LanguageAnalysis {
                                 // This may not always be the case.
                                 assert_eq!(c_bitwidth, 1, "condition must be 1 bit");
                                 assert_eq!(t_bitwidth, f_bitwidth, "bitwidths of branches match");
+                                assert_eq!(t_bitwidth, *bitwidth as usize);
+                            }
+                            Op::Extract => {
+                                let high_val = arg0.get_num();
+                                let low_val = arg1.get_num();
+                                let in_bitwidth = arg2.get_signal();
+                                assert!(high_val < in_bitwidth.try_into().unwrap());
+                                assert!(high_val >= low_val);
+                                assert!(low_val >= 0);
+                                assert_eq!(bitwidth, &(high_val - low_val + 1));
                             }
                             _ => panic!("{:?} is not a ternary op", op),
                         }
                         Signal(*bitwidth as usize)
+                    }
+                    _ => panic!(
+                        "types don't check when unpacking {:?}; is {:?} an op?",
+                        (
+                            &egraph[op_id].data,
+                            &egraph[bitwidth_id].data,
+                            &egraph[a_id].data,
+                            &egraph[b_id].data,
+                            &egraph[c_id].data,
+                        ),
+                        egraph[op_id]
+                    ),
+                }
+            }
+            &Language::Op3Ast([op_id, bitwidth_id, a_id, b_id, c_id]) => {
+                match (
+                    &egraph[op_id].data,
+                    &egraph[bitwidth_id].data,
+                    &egraph[a_id].data,
+                    &egraph[b_id].data,
+                    &egraph[c_id].data,
+                ) {
+                    (Op(op), Num(bitwidth), arg0, arg1, arg2) => {
+                        match op {
+                            Op::If => {
+                                let c_bitwidth = arg0.get_ast_signal_type();
+                                let t_bitwidth = arg1.get_ast_signal_type();
+                                let f_bitwidth = arg2.get_ast_signal_type();
+                                // This may not always be the case.
+                                assert_eq!(c_bitwidth, 1, "condition must be 1 bit");
+                                assert_eq!(t_bitwidth, f_bitwidth, "bitwidths of branches match");
+                                assert_eq!(t_bitwidth, *bitwidth as usize);
+                            }
+                            Op::Extract => {
+                                assert!(arg0.is_ast_num_type());
+                                assert!(arg1.is_ast_num_type());
+                            }
+                            _ => panic!("{:?} is not a ternary op", op),
+                        }
+                        Ast(Ast::Signal(*bitwidth as usize))
                     }
                     _ => panic!(
                         "types don't check when unpacking {:?}; is {:?} an op?",
@@ -287,7 +382,10 @@ impl Analysis<Language> for LanguageAnalysis {
             }
             Language::Op(op) => Op(op.clone()),
             &Language::Hole([bw_id]) => match &egraph[bw_id].data {
-                Num(v) => Signal(*v as usize),
+                HoleType(t) => match t {
+                    HoleType::Bw(bw) => Ast(Ast::Signal(*bw as usize)),
+                    HoleType::Num => Ast(Ast::Num),
+                },
                 _ => panic!(),
             },
             Language::List(ids) => List(ids.clone()),
@@ -302,8 +400,10 @@ impl Analysis<Language> for LanguageAnalysis {
                 _ => panic!(),
             },
             &Language::Apply([instr_id, _args_id]) => match &egraph[instr_id].data {
-                Instr(v) => Signal(*v),
-                other @ _ => panic!("Expected instruction, found:\n{:#?}", other),
+                Ast(Ast::Signal(v)) => Signal(*v),
+                // we're going to have an interesting time when we try to
+                // implement Ast::Num...
+                _ => panic!(),
             },
         }
     }
@@ -399,6 +499,9 @@ fn to_racket_helper(
         Language::Concat(_) => todo!(),
         Language::Op(_) => todo!(),
         Language::Op3(_) => todo!(),
+        Language::TypeBw(_) => todo!(),
+        Language::TypeNum => todo!(),
+        Language::Op3Ast(_) => todo!(),
         Language::CanonicalArgs(_) | Language::Canonicalize(_) | Language::Instr(_) => panic!(),
     }
 }
@@ -441,6 +544,78 @@ pub fn call_racket(expr: String, map: &HashMap<String, usize>) -> bool {
     output.status.success()
 }
 
+/// Represents a place where either a hole or an AST will be introduced, when
+/// generating an AST.
+enum HoleOrAst {
+    Hole(Var),
+    Ast { ast: Var, args: Var },
+}
+struct RenameThisApplier {
+    arity: usize,
+    hole_or_asts: Vec<HoleOrAst>,
+}
+
+impl Applier<Language, LanguageAnalysis> for RenameThisApplier {
+    fn apply_one(
+        &self,
+        egraph: &mut EGraph<Language, LanguageAnalysis>,
+        eclass: Id,
+        subst: &egg::Subst,
+        searcher_ast: Option<&egg::PatternAst<Language>>,
+        rule_name: egg::Symbol,
+    ) -> Vec<Id> {
+        let ast_op_str = match self.arity {
+            3 => "op3-ast",
+            2 => "binop-ast",
+            1 => "unop-ast",
+            _ => todo!(),
+        };
+
+        let mut hole_or_asts_str = String::new();
+        let mut args_strs: Vec<String> = Vec::new();
+
+        for hole_or_ast in &self.hole_or_asts {
+            match hole_or_ast {
+                HoleOrAst::Hole(var) => {
+                    let hole_type_str = match egraph[subst[*var]].data {
+                        Signal(bw) => format!("(hole-type-bw {bw})"),
+                        Num(_) => "(hole-type-num)".into(),
+                        _ => panic!(),
+                    };
+                    hole_or_asts_str.push_str(&format!(" (hole {})", hole_type_str));
+                    args_strs.push(format!(" (list {})", var.to_string()).to_owned());
+                }
+                HoleOrAst::Ast { ast, args } => {
+                    hole_or_asts_str.push_str(format!(" {}", ast.to_string().as_str()).as_str());
+                    args_strs.push(format!(" {}", args.to_string()));
+                }
+            }
+        }
+
+        let mut concat_str = String::new();
+        for (i, args_str) in args_strs.iter().enumerate() {
+            if i < args_strs.len() - 1 {
+                concat_str.push_str(&format!("(concat {args_str} "));
+            } else {
+                concat_str.push_str(args_str);
+            }
+        }
+        concat_str.push_str(&")".repeat(args_strs.len() - 1));
+
+        dbg!(ast_op_str);
+        format!(
+            "(apply 
+                  (instr
+                   ({ast_op_str} ?op ?bw {hole_or_asts_str})
+                   (canonicalize {concat_str}))
+                  {concat_str})",
+        )
+        .parse::<Pattern<Language>>()
+        .unwrap()
+        .apply_one(egraph, eclass, subst, searcher_ast, rule_name)
+    }
+}
+
 pub fn introduce_hole_var() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-var";
                 "(var ?a ?bw)" =>
@@ -455,9 +630,19 @@ pub fn fuse_op() -> Rewrite<Language, LanguageAnalysis> {
                 "(binop ?op ?bw
                   (apply (instr ?ast0 ?canonical-args0) ?args0)
                   (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
-                "(apply
-                  (instr (binop-ast ?op ?bw ?ast0 ?ast1) (canonicalize (concat ?args0 ?args1)))
-                  (concat ?args0 ?args1))")
+                {RenameThisApplier{
+        arity: 2,
+        hole_or_asts: vec![
+            HoleOrAst::Ast {
+                ast: "?ast0".parse().unwrap(),
+                args: "?args0".parse().unwrap(),
+            },
+            HoleOrAst::Ast {
+                ast: "?ast1".parse().unwrap(),
+                args: "?args1".parse().unwrap(),
+            },
+        ],
+    }})
 }
 
 pub fn introduce_hole_op_left() -> Rewrite<Language, LanguageAnalysis> {
@@ -465,11 +650,16 @@ pub fn introduce_hole_op_left() -> Rewrite<Language, LanguageAnalysis> {
                 "(binop ?op ?bw
                   ?left
                   (apply (instr ?ast1 ?canonical-args1) ?args1))" => 
-                "(apply 
-                  (instr
-                   (binop-ast ?op ?bw (hole ?bw) ?ast1)
-                   (canonicalize (concat (list ?left) ?args1)))
-                  (concat (list ?left) ?args1))")
+                {RenameThisApplier{
+        arity: 2,
+        hole_or_asts: vec![
+            HoleOrAst::Hole("?left".parse().unwrap()),
+            HoleOrAst::Ast {
+                ast: "?ast1".parse().unwrap(),
+                args: "?args1".parse().unwrap(),
+            },
+        ],
+    }})
 }
 
 pub fn introduce_hole_op_right() -> Rewrite<Language, LanguageAnalysis> {
@@ -477,11 +667,16 @@ pub fn introduce_hole_op_right() -> Rewrite<Language, LanguageAnalysis> {
                 "(binop ?op ?bw
                   (apply (instr ?ast0 ?canonical-args0) ?args0)
                   ?right)" => 
-                "(apply 
-                  (instr
-                   (binop-ast ?op ?bw ?ast0 (hole ?bw))
-                   (canonicalize (concat ?args0 (list ?right))))
-                  (concat ?args0 (list ?right)))")
+                {RenameThisApplier{
+        arity: 2,
+        hole_or_asts: vec![
+            HoleOrAst::Ast {
+                ast: "?ast0".parse().unwrap(),
+                args: "?args0".parse().unwrap(),
+            },
+            HoleOrAst::Hole("?right".parse().unwrap()),
+        ],
+    }})
 }
 
 pub fn introduce_hole_op_both() -> Rewrite<Language, LanguageAnalysis> {
@@ -489,30 +684,52 @@ pub fn introduce_hole_op_both() -> Rewrite<Language, LanguageAnalysis> {
                 "(binop ?op ?bw
                   ?a
                   ?b)" => 
-                "(apply 
-                  (instr
-                   (binop-ast ?op ?bw (hole ?bw) (hole ?bw))
-                   (canonicalize
-                    (list
-                     ?a
-                     ?b)))
-                  (list
-                   ?a
-                   ?b))")
+                {RenameThisApplier{
+        arity: 2,
+        hole_or_asts: vec![
+            HoleOrAst::Hole("?a".parse().unwrap()),
+            HoleOrAst::Hole("?b".parse().unwrap()),
+        ],
+    }})
 }
 
 pub fn unary0() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary0";
-                "(unop ?op ?bw (apply (instr ?ast ?canonical-args) ?args))" => 
-                "(apply (instr (unop-ast ?op ?bw ?ast) (canonicalize ?args)) ?args)")
+                "(unop ?op ?bw (apply (instr ?ast ?canonical-args) ?args))" =>
+                {RenameThisApplier{
+        arity: 1,
+        hole_or_asts: vec![
+            HoleOrAst::Ast {
+                ast: "?ast".parse().unwrap(),
+                args: "?args".parse().unwrap(),
+            },
+        ],
+    }})
 }
 
 pub fn unary1() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("unary1";
-                "(unop ?op ?bw (apply (instr ?ast ?canonical-args) ?args))" => 
-                "(apply
-                  (instr (unop-ast ?op ?bw (hole ?bw)) (canonicalize (list (apply (instr ?ast ?canonical-args) ?args))))
-                  (list (apply (instr ?ast ?canonical-args) ?args)))")
+            "(unop ?op ?bw ?v)" =>
+            {RenameThisApplier{
+    arity: 1,
+    hole_or_asts: vec![
+        HoleOrAst::Hole("?v".parse().unwrap()),]}
+            })
+}
+
+pub fn ternary0() -> Rewrite<Language, LanguageAnalysis> {
+    rewrite!("ternary0";
+    "(op3 ?op ?bw ?arg0 ?arg1 ?arg2)" =>
+    {
+        RenameThisApplier{
+            arity: 3,
+            hole_or_asts: vec![
+                HoleOrAst::Hole("?arg0".parse().unwrap()),
+                HoleOrAst::Hole("?arg1".parse().unwrap()),
+                HoleOrAst::Hole("?arg2".parse().unwrap()),
+            ]
+        }
+    })
 }
 
 pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
@@ -695,10 +912,14 @@ pub fn instr_appears_in_program(
                 | Language::Apply(ids) => ids.to_vec(),
                 Language::UnOp(ids) | Language::UnOpAst(ids) => ids.to_vec(),
                 Language::BinOp(ids) | Language::BinOpAst(ids) => ids.to_vec(),
-                Language::Op3(ids) => ids.to_vec(),
-                Language::Canonicalize(ids) | Language::Hole(ids) => ids.to_vec(),
+                Language::Op3(ids) | Language::Op3Ast(ids) => ids.to_vec(),
+                Language::Canonicalize(ids) | Language::Hole(ids) | Language::TypeBw(ids) => {
+                    ids.to_vec()
+                }
                 Language::CanonicalArgs(ids) | Language::List(ids) => ids.to_vec(),
-                Language::Op(_) | Language::Num(_) | Language::String(_) => vec![],
+                Language::TypeNum | Language::Op(_) | Language::Num(_) | Language::String(_) => {
+                    vec![]
+                }
             };
 
             worklist.extend(ids.iter().filter(|id| !visited.contains(id)));
@@ -741,6 +962,7 @@ fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExp
                     Language::Hole(_) => true,
                     Language::UnOpAst(_) => true,
                     Language::BinOpAst(_) => true,
+                    Language::Op3Ast(_) => true,
                     Language::List(_) => true,
                     Language::Concat(_) => true,
                     Language::Canonicalize(_) => false,
@@ -749,6 +971,8 @@ fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExp
                     Language::Op(_) => true,
                     Language::Num(_) => true,
                     Language::String(_) => true,
+                    Language::TypeBw(_) => true,
+                    Language::TypeNum => true,
                 })
                 .choose(&mut rand::thread_rng())
                 .map(|(_, node)| (eclass.id, node.clone()));
@@ -974,11 +1198,14 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
         Language::Hole(_) => todo!(),
         Language::UnOpAst(_) => todo!(),
         Language::BinOpAst(_) => todo!(),
+        Language::Op3Ast(_) => todo!(),
         Language::List(_) => todo!(),
         Language::Concat(_) => todo!(),
         Language::Canonicalize(_) => todo!(),
         Language::CanonicalArgs(_) => todo!(),
         Language::Instr(_) => todo!(),
+        Language::TypeBw(_) => todo!(),
+        Language::TypeNum => todo!(),
         Language::Op(op) => Value::Op(op.clone()),
         Language::Num(v) => Value::Num(*v),
         Language::String(v) => Value::String(v.clone()),
@@ -1222,6 +1449,7 @@ mod tests {
                 count
             );
         }
+        panic!();
     }
 
     #[macro_export]
@@ -1287,5 +1515,40 @@ mod tests {
         "(op3 extract 4 3 0 (var din 16))".parse().unwrap(),
         vec![("din".to_owned(), 0xABCD)].into_iter().collect(),
         Value::SignalValue(0xD, 4)
+    );
+
+    /// Takes an initial expression and some rewrites to run. Runs checks on the
+    /// resulting egraph.
+    ///
+    /// - initial_exprs: a Vector of RecExprs to add to the egraph initially.
+    /// - rewrites: a Vector of rewrites to run on the egraph.
+    /// - check_fn: a function that takes an egraph, plus a vector of the ids of
+    ///   the initial exprs, and performs assertions.
+    macro_rules! egraph_test {
+        ($test_name:ident, $initial_exprs:expr, $rewrites:expr, $check_fn:expr) => {
+            #[test]
+            fn $test_name() {
+                let mut egraph = EGraph::<Language, LanguageAnalysis>::default();
+                let ids: Vec<Id> = $initial_exprs
+                    .iter()
+                    .map(|expr| egraph.add_expr(&expr))
+                    .collect();
+                egraph.rebuild();
+                let runner = Runner::default()
+                    .with_egraph(egraph)
+                    .with_node_limit(1000000)
+                    .run(&$rewrites);
+                $check_fn(runner.egraph, ids);
+            }
+        };
+    }
+
+    egraph_test!(
+        test_ternary0,
+        vec!["(op3 extract 4 15 12 (var din 16))".parse().unwrap(),],
+        vec![ternary0(), canonicalize()],
+        |egraph, ids: Vec<Id>| {
+            assert!("(apply (instr (op3-ast extract 4 (hole hole-type-num) (hole hole-type-num) (hole (hole-type-bw 16))) (canonical-args 0 1 2)) ?args)".parse::<Pattern<_>>().unwrap().search_eclass(&egraph, ids[0]).is_some());
+        }
     );
 }
