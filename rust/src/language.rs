@@ -1538,7 +1538,8 @@ mod tests {
     /// - check_fn: a function that takes an egraph, plus a vector of the ids of
     ///   the initial exprs, and performs assertions.
     macro_rules! egraph_test {
-        ($test_name:ident, $initial_exprs:expr, $rewrites:expr, $check_fn:expr) => {
+        ($(#[$meta:meta])* $test_name:ident, $initial_exprs:expr, $rewrites:expr, $check_fn:expr) => {
+            $(#[$meta])*
             #[test]
             fn $test_name() {
                 let mut egraph = EGraph::<Language, LanguageAnalysis>::default();
