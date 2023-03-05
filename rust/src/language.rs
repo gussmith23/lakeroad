@@ -602,7 +602,6 @@ impl Applier<Language, LanguageAnalysis> for RenameThisApplier {
         }
         concat_str.push_str(&")".repeat(args_strs.len() - 1));
 
-        dbg!(ast_op_str);
         format!(
             "(apply 
                   (instr
