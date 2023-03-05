@@ -618,7 +618,7 @@ impl Applier<Language, LanguageAnalysis> for RenameThisApplier {
 pub fn introduce_hole_var() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-var";
                 "(var ?a ?bw)" =>
-                "(apply (instr (hole ?bw) (canonicalize (list (var ?a ?bw)))) (list (var ?a ?bw)))")
+                "(apply (instr (hole (hole-type-bw ?bw)) (canonicalize (list (var ?a ?bw)))) (list (var ?a ?bw)))")
 }
 
 // This shouldn't be called fusion. Or, more specifically, the next two rewrites
