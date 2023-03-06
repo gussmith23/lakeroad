@@ -1672,7 +1672,6 @@ mod tests {
                 count
             );
         }
-        panic!();
     }
 
     #[macro_export]
