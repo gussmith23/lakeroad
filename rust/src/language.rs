@@ -90,6 +90,9 @@ define_language! {
         "hole-type-bw" = TypeBw([Id; 1]),
         "hole-type-num" = TypeNum,
 
+        // Subtraction over Nums.
+        "-" = NumSub([Id; 2]),
+
         Op(Op),
         Num(i64),
         String(String),
@@ -237,6 +240,10 @@ impl Analysis<Language> for LanguageAnalysis {
 
     fn make(egraph: &EGraph<Language, Self>, enode: &Language) -> Self::Data {
         match enode {
+            &Language::NumSub([a_id, b_id]) => match (&egraph[a_id].data, &egraph[b_id].data) {
+                (Num(a), Num(b)) => Num(a - b),
+                _ => panic!(),
+            },
             &Language::TypeBw([bitwidth_id]) => match &egraph[bitwidth_id].data {
                 Num(v) => LanguageAnalysisData::HoleType(HoleType::Bw(*v as usize)),
                 _ => panic!(),
@@ -589,6 +596,7 @@ fn to_racket_helper(
         Language::Op(_) => todo!(),
         Language::Op3(_) => todo!(),
         Language::TypeBw(_) => todo!(),
+        Language::NumSub(_) => todo!(),
         Language::TypeNum => todo!(),
         Language::Op3Ast(_) => todo!(),
         Language::CanonicalArgs(_) | Language::Canonicalize(_) | Language::Instr(_) => panic!(),
@@ -1057,6 +1065,36 @@ pub fn simplify_concat() -> Rewrite<Language, LanguageAnalysis> {
                 { Impl { list0, list1}})
 }
 
+pub fn simplify_num_arithmetic() -> Vec<Rewrite<Language, LanguageAnalysis>> {
+    struct Impl {
+        a: Var,
+        b: Var,
+        f: fn(i64, i64) -> i64,
+    }
+    impl Applier<Language, LanguageAnalysis> for Impl {
+        fn apply_one(
+            &self,
+            egraph: &mut EGraph<Language, LanguageAnalysis>,
+            eclass: Id,
+            subst: &egg::Subst,
+            searcher_ast: Option<&egg::PatternAst<Language>>,
+            rule_name: egg::Symbol,
+        ) -> Vec<Id> {
+            match (&egraph[subst[self.a]].data, &egraph[subst[self.b]].data) {
+                (Num(a), Num(b)) => format!("{}", (self.f)(*a, *b))
+                    .parse::<Pattern<_>>()
+                    .unwrap()
+                    .apply_one(egraph, eclass, subst, searcher_ast, rule_name),
+                _ => panic!(),
+            }
+        }
+    }
+    vec![rewrite!("simplify_num_sub";
+                "(- ?a ?b)"
+                =>
+                { Impl { a:"?a".parse().unwrap(), b:"?b".parse().unwrap(), f: |a, b| a - b }})]
+}
+
 pub fn explore_new(egraph: &EGraph<Language, LanguageAnalysis>, _id: Id) -> HashMap<Id, bool> {
     let extractor = Extractor::new(egraph, AstSize);
     let out: HashMap<Id, bool> = egraph
@@ -1108,6 +1146,7 @@ pub fn instr_appears_in_program(
         for enode in &egraph[this].nodes {
             let ids = match enode {
                 Language::Const(ids)
+                | Language::NumSub(ids)
                 | Language::Var(ids)
                 | Language::Instr(ids)
                 | Language::Concat(ids)
@@ -1182,6 +1221,7 @@ fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExp
                     Language::Instr(_) => true,
                     Language::Op(_) => true,
                     Language::Num(_) => true,
+                    Language::NumSub(_) => true,
                     Language::String(_) => true,
                     Language::TypeBw(_) => true,
                     Language::TypeNum => true,
@@ -1420,6 +1460,7 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
         Language::Instr(_) => todo!(),
         Language::TypeBw(_) => todo!(),
         Language::TypeNum => todo!(),
+        Language::NumSub(_) => todo!(),
         Language::Op(op) => Value::Op(op.clone()),
         Language::Num(v) => Value::Num(*v),
         Language::String(v) => Value::String(v.clone()),
