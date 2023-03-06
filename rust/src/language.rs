@@ -943,6 +943,47 @@ pub fn ternary7() -> Rewrite<Language, LanguageAnalysis> {
     })
 }
 
+pub fn demorgan_and() -> Vec<Rewrite<Language, LanguageAnalysis>> {
+    rewrite!("demorgan_and";
+    "(unop not ?bw (binop and ?bw ?arg0 ?arg1))" 
+    <=> "(binop or ?bw (unop not ?bw ?arg0) (unop not ?bw ?arg1))")
+}
+
+pub fn demorgan_or() -> Vec<Rewrite<Language, LanguageAnalysis>> {
+    rewrite!("demorgan_or";
+    "(unop not ?bw (binop or ?bw ?arg0 ?arg1))" 
+    <=> "(binop and ?bw (unop not ?bw ?arg0) (unop not ?bw ?arg1))")
+}
+
+macro_rules! binop_bitwise_rewrite {
+    ($op:literal) => {
+        rewrite!(format!("bitwise_{}", $op);
+        {format!("(binop {op} ?bw ?arg0 ?arg1)", op=$op).parse::<Pattern<_>>().unwrap()} <=>
+        {format!("(binop concat ?bw 
+            (binop {op} (- ?bw 1) 
+                (op3 extract (- ?bw 1) (- ?bw 1) 1 ?arg0) 
+                (op3 extract (- ?bw 1) (- ?bw 1) 1 ?arg1))
+            (binop {op} 1 
+                (op3 extract 1 0 0 ?arg0)
+                (op3 extract 1 0 0 ?arg1)))", op=$op).parse::<Pattern<_>>().unwrap()}
+                // Don't fire rewrite if bw is already 1.
+    if move |egraph: &mut EGraph<Language, LanguageAnalysis>, _, subst: &Subst| match &egraph[subst["?bw".parse().unwrap()]].data {
+        LanguageAnalysisData::Num(v) => *v > 1,
+        _ => panic!(),
+    })
+
+    };
+}
+
+pub fn bitwise_rewrites() -> Vec<Rewrite<Language, LanguageAnalysis>> {
+    vec![]
+        .into_iter()
+        .chain(binop_bitwise_rewrite!("and").into_iter())
+        .chain(binop_bitwise_rewrite!("or").into_iter())
+        .chain(binop_bitwise_rewrite!("xor").into_iter())
+        .collect()
+}
+
 pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
     struct Impl(Var);
     impl Applier<Language, LanguageAnalysis> for Impl {
@@ -1629,26 +1670,39 @@ mod tests {
         let runner = Runner::default()
             .with_egraph(egraph)
             .with_iter_limit(300)
-            .run(&vec![
-                introduce_hole_var(),
-                introduce_hole_num(),
-                fuse_op(),
-                introduce_hole_op_both(),
-                introduce_hole_op_left(),
-                introduce_hole_op_right(),
-                simplify_concat(),
-                unary0(),
-                unary1(),
-                ternary0(),
-                ternary1(),
-                ternary2(),
-                ternary3(),
-                ternary4(),
-                ternary5(),
-                ternary6(),
-                ternary7(),
-                canonicalize(),
-            ]);
+            .with_node_limit(100000)
+            .run(
+                &vec![
+                    // Instruction enumeration rewrites.
+                    introduce_hole_var(),
+                    introduce_hole_num(),
+                    fuse_op(),
+                    introduce_hole_op_both(),
+                    introduce_hole_op_left(),
+                    introduce_hole_op_right(),
+                    unary0(),
+                    unary1(),
+                    ternary0(),
+                    ternary1(),
+                    ternary2(),
+                    ternary3(),
+                    ternary4(),
+                    ternary5(),
+                    ternary6(),
+                    ternary7(),
+                    // Bookkeeping rewrites: canonicalization, simplification.
+                    canonicalize(),
+                    simplify_concat(),
+                ]
+                .into_iter()
+                // More bookkeeping rewrites.
+                .chain(simplify_num_arithmetic())
+                // Exploratory rewrites.
+                .chain(demorgan_and().into_iter())
+                .chain(demorgan_or().into_iter())
+                .chain(bitwise_rewrites().into_iter())
+                .collect::<Vec<_>>(),
+            );
 
         runner.print_report();
 
@@ -1951,6 +2005,22 @@ mod tests {
         ],
         |egraph, ids: Vec<Id>| {
             assert!("(apply (instr (op3-ast extract 4 (hole hole-type-num) (hole hole-type-num) (hole (hole-type-bw 16))) (canonical-args 0 1 2)) ?args)".parse::<Pattern<_>>().unwrap().search_eclass(&egraph, ids[0]).is_some());
+        }
+    );
+
+    egraph_test!(
+        test_bitwise_rewrites,
+        vec!["(binop and 4 (var a 4) (var b 4))".parse().unwrap(),],
+        bitwise_rewrites(),
+        |egraph, ids: Vec<Id>| {
+            assert!(
+                "(binop and 1 ?a ?b)"
+                    .parse::<Pattern<_>>()
+                    .unwrap()
+                    .search(&egraph)
+                    .len()
+                    > 0
+            );
         }
     );
 }
