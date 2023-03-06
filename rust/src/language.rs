@@ -500,6 +500,12 @@ impl Analysis<Language> for LanguageAnalysis {
     }
 
     fn merge(&mut self, a: &mut Self::Data, b: Self::Data) -> egg::DidMerge {
+        // Don't check equality in the case of lists, because they won't
+        // actually be equal. If we had a reference to the egraph, we could
+        // check that the ids are actually equivalent.
+        if matches!((&a, &b), (List(_), List(_))) {
+            return DidMerge(false, false);
+        }
         assert_eq!(*a, b);
         DidMerge(false, false)
     }
