@@ -9,7 +9,7 @@ use std::{
 use crate::language::LanguageAnalysisData::*;
 use egg::{
     define_language, rewrite, Analysis, Applier, AstSize, DidMerge, EGraph, Extractor, Id,
-    Language as LanguageTrait, Pattern, RecExpr, Rewrite, Searcher, Var,
+    Language as LanguageTrait, Pattern, RecExpr, Rewrite, Searcher, Subst, Var,
 };
 use rand::prelude::IteratorRandom;
 use rayon::prelude::*;
@@ -220,6 +220,13 @@ impl LanguageAnalysisData {
     pub fn is_ast_num_type(&self) -> bool {
         matches!(self, LanguageAnalysisData::Ast(Ast::Num))
     }
+
+    pub fn get_list(&self) -> &[Id] {
+        match self {
+            LanguageAnalysisData::List(v) => v,
+            _ => panic!(),
+        }
+    }
 }
 
 impl Analysis<Language> for LanguageAnalysis {
@@ -399,10 +406,22 @@ impl Analysis<Language> for LanguageAnalysis {
                 ),
                 _ => panic!(),
             },
-            &Language::Apply([instr_id, _args_id]) => match &egraph[instr_id].data {
+            &Language::Apply([instr_id, args_id]) => match &egraph[instr_id].data {
                 Ast(Ast::Signal(v)) => Signal(*v),
-                // we're going to have an interesting time when we try to
-                // implement Ast::Num...
+                // The implementation of Num is a bit weird. Basically, we're
+                // re-inferring the value of the number by looking at the value
+                // of the arg. I'm not convinced that's correct.
+                //
+                // I.e., if we have a program:
+                // 23
+                // we can abstract it to (in simplified syntax):
+                // (apply (ast (num)) (list 23))
+                // and then we can re-infere the value of the number by looking
+                // at the value in the list.
+                Ast(Ast::Num) => {
+                    assert_eq!(egraph[args_id].data.get_list().len(), 1);
+                    Num(egraph[egraph[args_id].data.get_list()[0]].data.get_num())
+                }
                 _ => panic!(),
             },
         }
@@ -619,6 +638,16 @@ pub fn introduce_hole_var() -> Rewrite<Language, LanguageAnalysis> {
     rewrite!("introduce-hole-var";
                 "(var ?a ?bw)" =>
                 "(apply (instr (hole (hole-type-bw ?bw)) (canonicalize (list (var ?a ?bw)))) (list (var ?a ?bw)))")
+}
+
+pub fn introduce_hole_num() -> Rewrite<Language, LanguageAnalysis> {
+    rewrite!("introduce-hole-num";
+        "?a" =>
+        "(apply (instr (hole (hole-type-num)) (canonicalize (list ?a))) (list ?a))"
+    if move |egraph: &mut EGraph<Language, LanguageAnalysis>, _, subst: &Subst| match &egraph[subst["?a".parse().unwrap()]].data {
+        LanguageAnalysisData::Num(_) => true,
+        _ => false,
+    })
 }
 
 // This shouldn't be called fusion. Or, more specifically, the next two rewrites
@@ -1583,6 +1612,21 @@ mod tests {
         vec![introduce_hole_var(), ternary1(), canonicalize()],
         |egraph, ids: Vec<Id>| {
             assert!("(apply (instr (op3-ast extract 4 (hole hole-type-num) (hole hole-type-num) (hole (hole-type-bw 16))) (canonical-args 0 1 2)) ?args)".parse::<Pattern<_>>().unwrap().search_eclass(&egraph, ids[0]).is_some());
+        }
+    );
+
+    egraph_test!(
+        test_introduce_hole_num,
+        vec!["23".parse().unwrap(),],
+        vec![introduce_hole_num(), canonicalize()],
+        |egraph, ids: Vec<Id>| {
+            assert!(
+                "(apply (instr (hole (hole-type-num)) (canonical-args 0)) (list 23))"
+                    .parse::<Pattern<_>>()
+                    .unwrap()
+                    .search_eclass(&egraph, ids[0])
+                    .is_some()
+            );
         }
     );
 }
