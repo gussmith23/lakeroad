@@ -117,6 +117,7 @@ pub enum Op {
     If,
     Concat,
     Extract,
+    ZeroExtend,
 }
 impl Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -137,6 +138,7 @@ impl Display for Op {
                 Op::If => "if",
                 Op::Concat => "concat",
                 Op::Extract => "extract",
+                Op::ZeroExtend => "zero-extend",
             }
         )
     }
@@ -159,6 +161,7 @@ impl FromStr for Op {
             "if" => Ok(Op::If),
             "concat" => Ok(Op::Concat),
             "extract" => Ok(Op::Extract),
+            "zero-extend" => Ok(Op::ZeroExtend),
             _ => Err(()),
         }
     }
@@ -1279,6 +1282,7 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
                     Value::SignalValue((arg0 << arg1_bw) | arg1, arg0_bw + arg1_bw)
                 }
                 Op::Extract => todo!(),
+                Op::ZeroExtend => todo!(),
             }
         }
         Language::Op3([op_id, bitwidth_id, arg0_id, arg1_id, arg2_id]) => {
@@ -1289,6 +1293,7 @@ pub fn interpret(expr: &RecExpr<Language>, env: &HashMap<String, u64>, id: Id) -
             let arg2 = interpret(expr, env, *arg2_id);
 
             match op {
+                Op::ZeroExtend => todo!(),
                 Op::And => todo!(),
                 Op::Or => todo!(),
                 Op::Not => todo!(),
