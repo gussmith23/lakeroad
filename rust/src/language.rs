@@ -984,6 +984,41 @@ pub fn bitwise_rewrites() -> Vec<Rewrite<Language, LanguageAnalysis>> {
         .collect()
 }
 
+macro_rules! binop_commutative_rewrite {
+    ($op:literal) => {
+        rewrite!(format!("commutative_{}", $op);
+            {format!("(binop {op} ?bw ?arg0 ?arg1)", op=$op).parse::<Pattern<_>>().unwrap()} =>
+            {format!("(binop {op} ?bw ?arg1 ?arg0)", op=$op).parse::<Pattern<_>>().unwrap()})
+    };
+}
+
+pub fn commutative_rewrites() -> Vec<Rewrite<Language, LanguageAnalysis>> {
+    vec![
+        binop_commutative_rewrite!("and"),
+        binop_commutative_rewrite!("or"),
+        binop_commutative_rewrite!("xor"),
+        binop_commutative_rewrite!("add"),
+    ]
+}
+
+macro_rules! binop_associative_rewrite {
+    ($op:literal) => {
+        rewrite!(format!("associative_{}", $op);
+            {format!("(binop {op} ?bw (binop {op} ?bw ?arg0 ?arg1) ?arg2)", op=$op).parse::<Pattern<_>>().unwrap()} <=>
+            {format!("(binop {op} ?bw ?arg0 (binop {op} ?bw ?arg1 ?arg2))", op=$op).parse::<Pattern<_>>().unwrap()})
+    };
+}
+
+pub fn associative_rewrites() -> Vec<Rewrite<Language, LanguageAnalysis>> {
+    vec![]
+        .into_iter()
+        .chain(binop_associative_rewrite!("and").into_iter())
+        .chain(binop_associative_rewrite!("or").into_iter())
+        .chain(binop_associative_rewrite!("xor").into_iter())
+        .chain(binop_associative_rewrite!("add").into_iter())
+        .collect()
+}
+
 pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
     struct Impl(Var);
     impl Applier<Language, LanguageAnalysis> for Impl {
@@ -1701,16 +1736,40 @@ mod tests {
                 .chain(demorgan_and().into_iter())
                 .chain(demorgan_or().into_iter())
                 .chain(bitwise_rewrites().into_iter())
+                .chain(commutative_rewrites().into_iter())
+                .chain(associative_rewrites().into_iter())
                 .collect::<Vec<_>>(),
             );
 
         runner.print_report();
 
+        // Ensure instructions are enumerated.
+        let runner = Runner::default()
+            .with_egraph(runner.egraph)
+            .with_node_limit(10000000)
+            .run(&vec![
+                introduce_hole_var(),
+                introduce_hole_num(),
+                fuse_op(),
+                introduce_hole_op_both(),
+                introduce_hole_op_left(),
+                introduce_hole_op_right(),
+                unary0(),
+                unary1(),
+                ternary0(),
+                ternary1(),
+                ternary2(),
+                ternary3(),
+                ternary4(),
+                ternary5(),
+                ternary6(),
+            ]);
+
         // Ensure everything gets canonicalized. If you get errors in
         // extract_ast, it may be because not everything got canonicalized.
         let runner = Runner::default()
             .with_egraph(runner.egraph)
-            .with_node_limit(1000000)
+            .with_node_limit(10000000)
             .run(&vec![canonicalize()]);
 
         runner.print_report();
