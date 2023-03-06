@@ -1149,6 +1149,16 @@ fn extract_random(egraph: &EGraph<Language, LanguageAnalysis>, id: Id) -> RecExp
             }) {
                 return Some((eclass.id, var_node.clone()));
             }
+            // Do the same thing with nums.
+            //
+            // TODO(@gussmith23): Think more about whether this is the right
+            // thing to do.
+            if let Some(num_node) = eclass.nodes.iter().find(|l| match l {
+                Language::Num(_) => true,
+                _ => false,
+            }) {
+                return Some((eclass.id, num_node.clone()));
+            }
             let tmp = eclass
                 .nodes
                 .iter()
