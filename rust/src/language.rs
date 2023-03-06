@@ -467,7 +467,7 @@ impl Analysis<Language> for LanguageAnalysis {
                 },
                 _ => panic!(),
             },
-            Language::List(ids) => List(ids.clone()),
+            Language::List(ids) => List(ids.clone().iter().map(|id| egraph.find(*id)).collect()),
             &Language::Concat([a_id, b_id]) => match (&egraph[a_id].data, &egraph[b_id].data) {
                 (List(a), List(b)) => List(
                     a.iter()
