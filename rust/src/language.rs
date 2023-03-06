@@ -774,6 +774,21 @@ pub fn ternary1() -> Rewrite<Language, LanguageAnalysis> {
     })
 }
 
+pub fn ternary2() -> Rewrite<Language, LanguageAnalysis> {
+    rewrite!("ternary2";
+    "(op3 ?op ?bw ?arg0 (apply (instr ?ast1 ?canonical-args1) ?args1) ?arg2)" =>
+    {
+        RenameThisApplier{
+            arity: 3,
+            hole_or_asts: vec![
+                HoleOrAst::Hole("?arg0".parse().unwrap()),
+                HoleOrAst::Ast{ast: "?ast1".parse().unwrap(), args: "?args1".parse().unwrap()},
+                HoleOrAst::Hole("?arg2".parse().unwrap()),
+            ]
+        }
+    })
+}
+
 pub fn canonicalize() -> Rewrite<Language, LanguageAnalysis> {
     struct Impl(Var);
     impl Applier<Language, LanguageAnalysis> for Impl {
@@ -1627,6 +1642,26 @@ mod tests {
                     .search_eclass(&egraph, ids[0])
                     .is_some()
             );
+        }
+    );
+
+    // Panics because the second argument must be converted into an AST for the rewrite to fire.
+    egraph_test!(
+        #[should_panic = "assertion failed: \\\"(apply (instr (op3-ast"]
+        test_ternary2_fail,
+        vec!["(op3 extract 4 15 12 (var din 16))".parse().unwrap(),],
+        vec![ternary2(), canonicalize()],
+        |egraph, ids: Vec<Id>| {
+            assert!("(apply (instr (op3-ast extract 4 (hole hole-type-num) (hole hole-type-num) (hole (hole-type-bw 16))) (canonical-args 0 1 2)) ?args)".parse::<Pattern<_>>().unwrap().search_eclass(&egraph, ids[0]).is_some());
+        }
+    );
+
+    egraph_test!(
+        test_ternary2,
+        vec!["(op3 extract 4 15 12 (var din 16))".parse().unwrap(),],
+        vec![introduce_hole_num(), ternary2(), canonicalize()],
+        |egraph, ids: Vec<Id>| {
+            assert!("(apply (instr (op3-ast extract 4 (hole hole-type-num) (hole hole-type-num) (hole (hole-type-bw 16))) (canonical-args 0 1 2)) ?args)".parse::<Pattern<_>>().unwrap().search_eclass(&egraph, ids[0]).is_some());
         }
     );
 }
