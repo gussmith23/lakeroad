@@ -364,7 +364,6 @@ impl Analysis<Language> for LanguageAnalysis {
                 }
             }
             &Language::BinOp([op_id, bitwidth_id, a_id, b_id]) => {
-                dbg!(enode);
                 match (
                     &egraph[op_id].data,
                     &egraph[bitwidth_id].data,
@@ -373,10 +372,6 @@ impl Analysis<Language> for LanguageAnalysis {
                 ) {
                     (Op(op), Num(bitwidth), arg0_data, arg1_data) => match op {
                         Op::And | Op::Asr | Op::Sub | Op::Xor | Op::Or | Op::Add | Op::Lsr => {
-                            dbg!(&egraph[op_id]);
-                            dbg!(&egraph[bitwidth_id]);
-                            dbg!(&egraph[a_id]);
-                            dbg!(&egraph[b_id]);
                             match (arg0_data, arg1_data) {
                                 (Signal(a_bitwidth), Signal(b_bitwidth)) => {
                                     assert_eq!(a_bitwidth, b_bitwidth);
