@@ -1589,6 +1589,7 @@ mod tests {
             .with_iter_limit(300)
             .run(&vec![
                 introduce_hole_var(),
+                introduce_hole_num(),
                 fuse_op(),
                 introduce_hole_op_both(),
                 introduce_hole_op_left(),
@@ -1596,6 +1597,14 @@ mod tests {
                 simplify_concat(),
                 unary0(),
                 unary1(),
+                ternary0(),
+                ternary1(),
+                ternary2(),
+                ternary3(),
+                ternary4(),
+                ternary5(),
+                ternary6(),
+                ternary7(),
                 canonicalize(),
             ]);
 
