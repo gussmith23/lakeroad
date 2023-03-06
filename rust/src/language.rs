@@ -2012,7 +2012,7 @@ mod tests {
         test_bitwise_rewrites,
         vec!["(binop and 4 (var a 4) (var b 4))".parse().unwrap(),],
         bitwise_rewrites(),
-        |egraph, ids: Vec<Id>| {
+        |egraph, _ids: Vec<Id>| {
             assert!(
                 "(binop and 1 ?a ?b)"
                     .parse::<Pattern<_>>()
