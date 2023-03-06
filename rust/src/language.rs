@@ -356,25 +356,80 @@ impl Analysis<Language> for LanguageAnalysis {
                     ),
                 }
             }
-            &Language::BinOp([op_id, bitwidth_id, a_id, b_id])
-            | &Language::BinOpAst([op_id, bitwidth_id, a_id, b_id]) => {
+            &Language::BinOp([op_id, bitwidth_id, a_id, b_id]) => {
+                dbg!(enode);
                 match (
                     &egraph[op_id].data,
                     &egraph[bitwidth_id].data,
                     &egraph[a_id].data,
                     &egraph[b_id].data,
                 ) {
-                    (Op(_), Num(bitwidth), Signal(_a_bitwidth), Signal(_b_bitwidth)) => {
+                    (Op(op), Num(bitwidth), arg0_data, arg1_data) => match op {
+                        Op::And | Op::Asr | Op::Sub | Op::Xor | Op::Or | Op::Add | Op::Lsr => {
+                            dbg!(&egraph[op_id]);
+                            dbg!(&egraph[bitwidth_id]);
+                            dbg!(&egraph[a_id]);
+                            dbg!(&egraph[b_id]);
+                            match (arg0_data, arg1_data) {
+                                (Signal(a_bitwidth), Signal(b_bitwidth)) => {
+                                    assert_eq!(a_bitwidth, b_bitwidth);
+                                    assert_eq!(
+                                        *a_bitwidth,
+                                        TryInto::<usize>::try_into(*bitwidth).unwrap()
+                                    );
+                                }
+                                _ => panic!(),
+                            }
+                        }
+                        Op::Eq => match (arg0_data, arg1_data) {
+                            (Signal(a_bitwidth), Signal(b_bitwidth)) => {
+                                assert_eq!(a_bitwidth, b_bitwidth);
+                                assert_eq!(*bitwidth, 1);
+                            }
+                            _ => panic!(),
+                        },
+                        Op::ZeroExtend => match (arg0_data, arg1_data) {
+                            (Signal(_a_bitwidth), Num(v)) => {
+                                assert_eq!(*bitwidth, *v);
+                            }
+                            _ => panic!(),
+                        },
+                        Op::Not => todo!(),
+                        Op::Neg => todo!(),
+                        Op::If => todo!(),
+                        Op::Extract => todo!(),
+
+                        Op::Concat => match (arg0_data, arg1_data) {
+                            (Signal(a_bitwidth), Signal(b_bitwidth)) => {
+                                assert_eq!(
+                                    a_bitwidth + b_bitwidth,
+                                    TryInto::<usize>::try_into(*bitwidth).unwrap()
+                                );
+                            }
+                            _ => panic!(),
+                        },
+                    },
+                    _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
+                }
+                Signal(egraph[bitwidth_id].data.get_num().try_into().unwrap())
+            }
+            &Language::BinOpAst([op_id, bitwidth_id, a_id, b_id]) => {
+                match (
+                    &egraph[op_id].data,
+                    &egraph[bitwidth_id].data,
+                    &egraph[a_id].data,
+                    &egraph[b_id].data,
+                ) {
+                    (Op(_), Num(bitwidth), _arg0_data, _arg1_data) => {
                         // These aren't true anymore. But will it break things to comment this out?
                         //assert_eq!(a_bitwidth, b_bitwidth, "bitwidths must match");
                         //assert_eq!(*a_bitwidth, *bitwidth as usize, "bitwidths must match");
-                        Signal(*bitwidth as usize)
+                        Ast(Ast::Signal(*bitwidth as usize))
                     }
                     _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
                 }
             }
-            &Language::UnOp([op_id, bitwidth_id, arg_id])
-            | &Language::UnOpAst([op_id, bitwidth_id, arg_id]) => {
+            &Language::UnOp([op_id, bitwidth_id, arg_id]) => {
                 match (
                     &egraph[op_id].data,
                     &egraph[bitwidth_id].data,
@@ -386,6 +441,18 @@ impl Analysis<Language> for LanguageAnalysis {
                             "bitwidths must match"
                         );
                         Signal(*out_bitwidth as usize)
+                    }
+                    _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
+                }
+            }
+            &Language::UnOpAst([op_id, bitwidth_id, arg_id]) => {
+                match (
+                    &egraph[op_id].data,
+                    &egraph[bitwidth_id].data,
+                    &egraph[arg_id].data,
+                ) {
+                    (Op(_), Num(out_bitwidth), _arg0_data) => {
+                        Ast(Ast::Signal(*out_bitwidth as usize))
                     }
                     _ => panic!("types don't check; is {:?} an op?", egraph[op_id]),
                 }
