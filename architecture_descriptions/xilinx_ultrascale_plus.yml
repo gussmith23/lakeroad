@@ -44,3 +44,14 @@ implementations:
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
     outputs: { O: O, CO: (bit 7 CO) }
+  - interface: { name: DSP, parameters: { width: 16 } }
+    modules:
+      - module_name: DSP48E2
+        filepath: ../verilator_unisims/DSP48E2.v
+        racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v
+        ports:
+          [
+            { name: A, direction: input, bitwidth: 16, value: (zero-extend A (bitvector 30)) },
+            { name: B, direction: input, bitwidth: 16, value: (zero-extend B (bitvector 18)) },
+          ]
+    outputs: { P : (extract 15 0 P) }
