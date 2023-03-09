@@ -292,6 +292,8 @@
                                       interface-id
                                       port-map
                                       #:internal-data [internal-data #f])
+
+  ;;; TODO(@acheung8): print out architecture description to understand how yaml is parsed.
   (let* ([internal-data (if (not internal-data)
                             (construct-internal-data architecture-description interface-id)
                             internal-data)]
@@ -301,6 +303,8 @@
                      interface-id
                      " on architecture "
                      architecture-description))]
+         ;;; TODO(@acheung8): the yaml parser is probably looking here
+         [_ (displayln (format "yaml is ~a" interface-implementation))]
          [module-instance (interface-implementation-module-instance interface-implementation)]
          [name (module-instance-module-name module-instance)]
          [interface-definition (or (find-interface-definition interface-id)

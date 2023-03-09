@@ -5,6 +5,7 @@
 (require (prefix-in lr: "language.rkt"))
 (require "architecture-description.rkt")
 (require "synthesize.rkt")
+(require "verilator.rkt")
 (require "generated/xilinx-ultrascale-plus-dsp48e2.rkt")
 
 (define architecture-description (xilinx-ultrascale-plus-architecture-description))
@@ -25,4 +26,8 @@
                       (list a b)
                       #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                                      xilinx-ultrascale-plus-dsp48e2))))
+(displayln "DSP sketch:")
 (displayln lr-dsp)
+;;; (displayln "DSP simulation:")
+;;; (define result (simulate-expr lr-dsp (bvmul a b)))
+;;; (displayln result)
