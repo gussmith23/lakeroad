@@ -636,8 +636,7 @@
         (check-true (simulate-with-verilator #:include-dirs include-dirs
                                              #:extra-verilator-args extra-verilator-args
                                              (list (to-simulate lr-expr bv-expr))
-                                             (getenv "VERILATOR_INCLUDE_DIR")))
-                                             ))))
+                                             (getenv "VERILATOR_INCLUDE_DIR")))))))
 
   (sketch-test
    #:name "left shift on SOFA"
