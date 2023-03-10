@@ -554,7 +554,7 @@
                               (list (cons "I0" i0-expr) (cons "I1" i1-value-left) (cons "S" s-expr))
                               #:internal-data mux2-internal-data))]
 
-                           [out-expr (lr:hash-ref (choose mux-expr-right mux-expr-left) 'O)])
+                           [out-expr (lr:hash-ref (choose* mux-expr-right mux-expr-left) 'O)])
 
                       out-expr))]
 
@@ -636,7 +636,8 @@
         (check-true (simulate-with-verilator #:include-dirs include-dirs
                                              #:extra-verilator-args extra-verilator-args
                                              (list (to-simulate lr-expr bv-expr))
-                                             (getenv "VERILATOR_INCLUDE_DIR")))))))
+                                             (getenv "VERILATOR_INCLUDE_DIR")))
+                                             ))))
 
   (sketch-test
    #:name "left shift on SOFA"
@@ -657,43 +658,43 @@
    #:extra-verilator-args
    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;; TODO(@gussmith23): Right shifts broken on SOFA
-  ;; (sketch-test
-  ;;  #:name "logical right shift on SOFA"
-  ;;  #:defines (define-symbolic a b (bitvector 3))
-  ;;  #:bv-expr (bvlshr a b)
-  ;;  #:architecture-description (sofa-architecture-description)
-  ;;  #:sketch-generator shift-sketch-generator
-  ;;  #:module-semantics
-  ;;  (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;  #:include-dirs
-  ;;  (list
-  ;;   (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;  #:extra-verilator-args
-  ;;  "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
-  ;; (sketch-test
-  ;;  #:name "arithmetic right shift on SOFA"
-  ;;  #:defines (define-symbolic a b (bitvector 3))
-  ;;  #:bv-expr (bvashr a b)
-  ;;  #:architecture-description (sofa-architecture-description)
-  ;;  #:sketch-generator shift-sketch-generator
-  ;;  #:module-semantics
-  ;;  (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;  #:include-dirs
-  ;;  (list
-  ;;   (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;  #:extra-verilator-args
-  ;;  "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  ;;; TODO(@vcanumalla): Shifts work on SOFA, but there is probably a better way of doing the sketch.
+  (sketch-test
+   #:name "logical right shift on SOFA"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvlshr a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "arithmetic right shift on SOFA"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvashr a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
   (sketch-test
    #:name "logical right shift on lattice"
