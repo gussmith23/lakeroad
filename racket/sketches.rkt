@@ -540,21 +540,35 @@
                                                           (lr:integer i1-bit-left)
                                                           previous-stage-expr))]
                            [mux-expr-right
-                            (first
-                             (construct-interface
-                              architecture-description
-                              (interface-identifier "MUX" (hash "num_inputs" 2))
-                              (list (cons "I0" i0-expr) (cons "I1" i1-value-right) (cons "S" s-expr))
-                              #:internal-data mux2-internal-data))]
+                            (lr:hash-ref (first (construct-interface
+                                                 architecture-description
+                                                 (interface-identifier "MUX" (hash "num_inputs" 2))
+                                                 (list (cons "I0" i0-expr)
+                                                       (cons "I1" i1-value-right)
+                                                       (cons "S" s-expr))
+                                                 #:internal-data mux2-internal-data))
+                                         'O)]
                            [mux-expr-left
-                            (first
-                             (construct-interface
-                              architecture-description
-                              (interface-identifier "MUX" (hash "num_inputs" 2))
-                              (list (cons "I0" i0-expr) (cons "I1" i1-value-left) (cons "S" s-expr))
-                              #:internal-data mux2-internal-data))]
-
-                           [out-expr (lr:hash-ref (choose mux-expr-right mux-expr-left) 'O)])
+                            (lr:hash-ref (first (construct-interface
+                                                 architecture-description
+                                                 (interface-identifier "MUX" (hash "num_inputs" 2))
+                                                 (list (cons "I0" i0-expr)
+                                                       (cons "I1" i1-value-left)
+                                                       (cons "S" s-expr))
+                                                 #:internal-data mux2-internal-data))
+                                         'O)]
+                           ;;; TODO(@vcanumalla): This is a hack to get around a bug in SOFA right
+                           ;;; shifts. Something prevents just a simple
+                           ;;; (choose mux-expr-left mux-expr-right). Handed off to @gussmith23.
+                           [out-expr (lr:hash-ref
+                                      (first (construct-interface
+                                              architecture-description
+                                              (interface-identifier "MUX" (hash "num_inputs" 2))
+                                              (list (cons "I0" mux-expr-left)
+                                                    (cons "I1" mux-expr-right)
+                                                    (cons "S" (lr:bv (choose (bv 0 1) (bv 1 1)))))
+                                              #:internal-data mux2-internal-data))
+                                      'O)])
 
                       out-expr))]
 
@@ -657,43 +671,43 @@
    #:extra-verilator-args
    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;; TODO(@gussmith23): Right shifts broken on SOFA
-  ;; (sketch-test
-  ;;  #:name "logical right shift on SOFA"
-  ;;  #:defines (define-symbolic a b (bitvector 3))
-  ;;  #:bv-expr (bvlshr a b)
-  ;;  #:architecture-description (sofa-architecture-description)
-  ;;  #:sketch-generator shift-sketch-generator
-  ;;  #:module-semantics
-  ;;  (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;  #:include-dirs
-  ;;  (list
-  ;;   (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;  #:extra-verilator-args
-  ;;  "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
-  ;; (sketch-test
-  ;;  #:name "arithmetic right shift on SOFA"
-  ;;  #:defines (define-symbolic a b (bitvector 3))
-  ;;  #:bv-expr (bvashr a b)
-  ;;  #:architecture-description (sofa-architecture-description)
-  ;;  #:sketch-generator shift-sketch-generator
-  ;;  #:module-semantics
-  ;;  (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;  #:include-dirs
-  ;;  (list
-  ;;   (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;  #:extra-verilator-args
-  ;;  "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  ;;; TODO(@gussmith23): Right shifts strange on SOFA, need a better fix than what is current.
+  (sketch-test
+   #:name "logical right shift on SOFA"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvlshr a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "arithmetic right shift on SOFA"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvashr a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics
+   (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
+   #:include-dirs
+   (list
+    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
+    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
   (sketch-test
    #:name "logical right shift on lattice"
