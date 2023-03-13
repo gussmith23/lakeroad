@@ -135,7 +135,8 @@
 ;;;   definition is a immutable hash, mapping a string variable name to an integer representing the
 ;;;   bitwidth of that variable.
 ;;; - output-map: hash map mapping interface outputs to expressions.
-(struct interface-implementation (identifier module-instance internal-data output-map) #:transparent)
+;;; - constraints: hash map mapping interface ports/parameters to Rosette functions (as strings).
+(struct interface-implementation (identifier module-instance internal-data output-map constraints))
 
 ;;; Architecture description.
 ;;;
@@ -232,6 +233,32 @@
   (findf (lambda (impl) (equal? (interface-implementation-identifier impl) id))
          (architecture-description-interface-implementations ad)))
 
+;;; Applies constraints to a piece of internal data.
+;;; internal-data is the Rosette object to apply the constraint to.
+;;; constraints-fn is the function that applies the constraint when called.
+(define (apply-constraints constraints-fn internal-data)
+  (define (parse-dsl expr-str)
+    (define expr (read (open-input-string expr-str)))
+    (define (recursive-helper expr)
+      (match expr
+        [`(lambda (,val) ,fn) (lambda (val) (recursive-helper fn))]
+        [`(bv ,val ,width)
+         (begin
+           (displayln (format "bvlen of expected is ~a" (bvlen (bv val width))))
+           (bv val width))]
+        [`(bveq ,actual ,expected)
+         (begin
+           (displayln "writing bveq")
+           (bveq (recursive-helper actual) (recursive-helper expected)))]
+        [`(assert ,fn) (assert (recursive-helper fn))]
+        [(? symbol? s) s]))
+    (recursive-helper expr))
+  (displayln (format "Applying constraints: ~a" constraints-fn))
+  (displayln (format "is it a bitvector? ~a" (bv? internal-data)))
+  (displayln (format "bvlen of object is ~a" (bvlen internal-data)))
+  (displayln (format "Applying it on: ~a" internal-data))
+  ((parse-dsl constraints-fn) internal-data))
+
 ;;; Construct a fresh instance of the internal state for a given interface on a given architecture.
 (define (construct-internal-data architecture-description interface-name)
   (define interface-implementation
@@ -240,15 +267,19 @@
                interface-name
                " on architecture "
                architecture-description)))
+  (define constraints (interface-implementation-constraints interface-implementation))
   (define internal-data-definition (interface-implementation-internal-data interface-implementation))
 
   ;;; We loop over each pair and construct a fresh variable for it.
   ;;; - internal-data-definition-pair: pair of internal state variable name (string) and bitwidth
   ;;;   (integer).
-  (map (lambda (internal-data-definition-pair)
-         (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
-         (cons (car internal-data-definition-pair) (lr:bv internal-data)))
-       (hash->list internal-data-definition)))
+  (map
+   (lambda (internal-data-definition-pair)
+     (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
+     (when (hash-ref constraints (car internal-data-definition-pair) #f)
+       (apply-constraints (hash-ref constraints (car internal-data-definition-pair)) internal-data))
+     (cons (car internal-data-definition-pair) (lr:bv internal-data)))
+   (hash->list internal-data-definition)))
 
 ;;; Get interface definition from list of interfaces.
 ;;
@@ -952,11 +983,15 @@
 
     (define output-map (or (hash-ref impl-yaml "outputs" #f) (error "outputs not found")))
 
+    ;;; TODO(@acheung8): you left off here.
+    (define constraints (or (hash-ref impl-yaml "constraints" #f) (hash)))
+
     (interface-implementation
      interface-identifier
      (first modules)
      (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))
-     (convert-to-immutable output-map)))
+     (convert-to-immutable output-map)
+     constraints))
 
   (define implementations
     (for/list ([impl-yaml impls-yaml])
