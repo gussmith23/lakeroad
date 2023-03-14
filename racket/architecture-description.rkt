@@ -28,6 +28,9 @@
          (prefix-in lr: "language.rkt")
          rosette/lib/synthax)
 
+(define-namespace-anchor anc)
+(define ns (namespace-anchor->namespace anc))
+
 ;;; Part 1: defining an interface.
 
 ;;; Interface identifier.
@@ -237,27 +240,8 @@
 ;;; internal-data is the Rosette object to apply the constraint to.
 ;;; constraints-fn is the function that applies the constraint when called.
 (define (apply-constraints constraints-fn internal-data)
-  (define (parse-dsl expr-str)
-    (define expr (read (open-input-string expr-str)))
-    (define (recursive-helper expr)
-      (match expr
-        [`(lambda (,val) ,fn) (lambda (val) (recursive-helper fn))]
-        [`(bv ,val ,width)
-         (begin
-           (displayln (format "bvlen of expected is ~a" (bvlen (bv val width))))
-           (bv val width))]
-        [`(bveq ,actual ,expected)
-         (begin
-           (displayln "writing bveq")
-           (bveq (recursive-helper actual) (recursive-helper expected)))]
-        [`(assert ,fn) (assert (recursive-helper fn))]
-        [(? symbol? s) s]))
-    (recursive-helper expr))
-  (displayln (format "Applying constraints: ~a" constraints-fn))
-  (displayln (format "is it a bitvector? ~a" (bv? internal-data)))
-  (displayln (format "bvlen of object is ~a" (bvlen internal-data)))
-  (displayln (format "Applying it on: ~a" internal-data))
-  ((parse-dsl constraints-fn) internal-data))
+  (define func (eval (read (open-input-string constraints-fn)) ns))
+  (func internal-data))
 
 ;;; Construct a fresh instance of the internal state for a given interface on a given architecture.
 (define (construct-internal-data architecture-description interface-name)
@@ -324,7 +308,6 @@
                                       port-map
                                       #:internal-data [internal-data #f])
 
-  ;;; TODO(@acheung8): print out architecture description to understand how yaml is parsed.
   (let* ([internal-data (if (not internal-data)
                             (construct-internal-data architecture-description interface-id)
                             internal-data)]
@@ -334,8 +317,6 @@
                      interface-id
                      " on architecture "
                      architecture-description))]
-         ;;; TODO(@acheung8): the yaml parser is probably looking here
-         [_ (displayln (format "yaml is ~a" interface-implementation))]
          [module-instance (interface-implementation-module-instance interface-implementation)]
          [name (module-instance-module-name module-instance)]
          [interface-definition (or (find-interface-definition interface-id)
@@ -983,7 +964,6 @@
 
     (define output-map (or (hash-ref impl-yaml "outputs" #f) (error "outputs not found")))
 
-    ;;; TODO(@acheung8): you left off here.
     (define constraints (or (hash-ref impl-yaml "constraints" #f) (hash)))
 
     (interface-implementation

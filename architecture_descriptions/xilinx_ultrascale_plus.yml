@@ -46,8 +46,9 @@ implementations:
     outputs: { O: O, CO: (bit 7 CO) }
   - interface: { name: DSP, parameters: { width: 16 } }
     internal_data: { OPMODE: 9 }
-    # TODO(acheung8): make sure this is actually a correct assertion to make
-    constraints: { OPMODE: (lambda (v) (assert (bveq v (bv 9 9)))) }
+    constraints: {
+      ACASCREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32)) (bveq v (bv 2 32)))))
+    }
     modules:
       - module_name: DSP48E2
         filepath: ../verilator_unisims/DSP48E2.v
