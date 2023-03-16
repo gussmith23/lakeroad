@@ -3,35 +3,9 @@
 ;;; which can be thought of as a wrapper over a Rosette bitvector, which carries along with it some
 ;;; hidden state. I think this may be a monad-ish idea...?
 
-;;; (provide signal
-;;;          signal?
-;;;          bv->signal
-;;;          signal-value
-;;;          signal-state
-;;;          merge-state)
-
 (require rosette
          racket/hash
          "./signal.rkt")
-
-;;; value: (bv?). Represents the outwardly visible value tied to this signal.
-;;;
-;;; state: hash map of identifiers (strings? symbols?) to (bv?). Represents the internal
-;;; state tied to this signal.
-;;;
-;;; TODO(@gussmith): We rely heavily on hash tables for this implementation. Hash tables are not
-;;; lifted in Rosette, and thus we have to be very careful with them. In general, I think these are
-;;; the rules to obey when using hash tables in Rosette:
-;;; - Only use immutable hash tables.
-;;; - Keys should never be symbolic. They should always be concrete.
-
-;;; Lift bitvector into signal, optionally taking the state from an existing signal.
-;;; (define (bv->signal bv [with-state-from (signal '() (hash))])
-;;;   (signal bv (signal-state with-state-from)))
-
-;;; Gets state from a signal.
-;;; (define (signal-state-value signal k)
-;;;   (hash-ref (signal-state signal) k))
 
 ;;; New interpreter definition over signals.
 (define (experimental-interpreter expr)
