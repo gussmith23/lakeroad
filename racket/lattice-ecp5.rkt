@@ -13,7 +13,7 @@
                     (lattice-ecp5-lut2 interpret-lattice-ecp5-lut2))
          (rename-in (file "generated/lattice-ecp5-lut4.rkt")
                     (lattice-ecp5-lut4 interpret-lattice-ecp5-lut4))
-         "stateful-design-experiment.rkt")
+         "signal.rkt")
 
 (provide interpret-lattice-ecp5
          lattice-ecp5-logical-to-physical-inputs

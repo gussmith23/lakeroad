@@ -30,7 +30,7 @@
          (rename-in (file "generated/xilinx-ultrascale-plus-dsp48e2.rkt")
                     (xilinx-ultrascale-plus-dsp48e2 interpret-xilinx-ultrascale-plus-dsp48e2))
          "logical-to-physical.rkt"
-         "stateful-design-experiment.rkt"
+         "signal.rkt"
          (rename-in (file "generated/xilinx-ultrascale-plus-carry8.rkt")
                     (xilinx-ultrascale-plus-carry8 interpret-xilinx-ultrascale-plus-carry8))
          (rename-in (file "generated/xilinx-ultrascale-plus-lut6.rkt")

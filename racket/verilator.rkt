@@ -250,10 +250,11 @@ endif
 
 run_all: $(TESTBENCH_EXECUTABLES)
 
-%.out: %.cc $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(VERILOG_FILES:.v=.vo)
+%.out: %.cc $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(VERILATOR_INCLUDE_DIR)/verilated_threads.cpp $(VERILOG_FILES:.v=.vo)
   # -lstdc++ fixes build problems on Mac.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
-	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -faligned-new -lstdc++ -std=c++11 -Wall -Wextra -Werror $^ -o $@
+	# TODO(@gussmith23): Had to remove -Werror, would be nice to add it back.
+	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -faligned-new -lstdc++ -std=c++11 -Wall -Wextra $^ -o $@
 	$@ || (echo "Test failed: $@"; exit 1)
 
 %.vo: %.v

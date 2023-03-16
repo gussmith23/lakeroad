@@ -16,7 +16,7 @@
          "utils.rkt"
          "comp-json.rkt"
          (rename-in (file "generated/sofa-frac-lut4.rkt") (sofa-frac-lut4 interpret-sofa-frac-lut4))
-         "stateful-design-experiment.rkt")
+         "signal.rkt")
 
 (struct sofa-lut1 (sram inputs) #:transparent)
 (struct sofa-lut2 (sram inputs) #:transparent)

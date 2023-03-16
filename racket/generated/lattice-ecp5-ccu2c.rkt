@@ -6,7 +6,7 @@
 
 #lang racket/base
 (provide lattice-ecp5-ccu2c)
-(require "../stateful-design-experiment.rkt")
+(require "../signal.rkt")
 (require rosette)
 (require racket/hash)
 (define lattice-ecp5-ccu2c
