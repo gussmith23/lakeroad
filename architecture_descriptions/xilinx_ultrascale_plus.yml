@@ -78,6 +78,10 @@ implementations:
       USE_PATTERN_DETECT: 5,
     }
     constraints: {
+      # TODO(@acheung8): check if we actually need all these constraints - we might just be able
+      # to use the default values in the Verilog? (probably not because multiple bveq arguments are passed)
+
+      # The following are from ultrascale.rkt, interpret-ultrascale-dsp48e2-new:
       ACASCREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32)) (bveq v (bv 2 32))))),
       ADREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
       ALUMODEREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
@@ -120,6 +124,8 @@ implementations:
       # ;;; unknown values after reset occurs. It is suggested to use OPMODEREG = 1 when cascading large
       # ;;; adders.
       # (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
+
+      # The following are from synthesize.rkt, synthesize-xilinx-ultrascale-plus-dsp
     }
     modules:
       - module_name: DSP48E2
@@ -167,25 +173,27 @@ implementations:
             { name: RSTINMODE, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: RSTM, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: RSTP, direction: input, bitwidth: 1, value: (bv 0 1) },
+
+            { name: P, direction: output, bitwidth: 48, value: P },
           ]
         parameters: [
-          { name: ACASCREG, value: (bv 0 32) },
-          { name: ADREG, value: (bv 0 32) },
-          { name: ALUMODEREG, value: (bv 0 32) },
-          { name: AMULTSEL, value: (bv 0 5) },
-          { name: AREG, value: (bv 0 32) },
-          { name: AUTORESET_PATDET, value: (bv 3 5) },
-          { name: AUTORESET_PRIORITY, value: (bv 6 5) },
-          { name: A_INPUT, value: (bv 7 5) },
-          { name: BCASCREG, value: (bv 0 32) },
-          { name: BMULTSEL, value: (bv 1 5) },
-          { name: BREG, value: (bv 0 32) },
-          { name: B_INPUT, value: (bv 7 5) },
-          { name: CARRYINREG, value: (bv 0 32) },
-          { name: CARRYINSELREG, value: (bv 0 32) },
-          { name: CREG, value: (bv 0 32) },
-          { name: DREG, value: (bv 0 32) },
-          { name: INMODEREG, value: (bv 0 32) },
+          { name: ACASCREG, value: ACASCREG },
+          { name: ADREG, value: ADREG },
+          { name: ALUMODEREG, value: ALUMODEREG },
+          { name: AMULTSEL, value: AMULTSEL },
+          { name: AREG, value: AREG },
+          { name: AUTORESET_PATDET, value: AUTORESET_PATDET },
+          { name: AUTORESET_PRIORITY, value: AUTORESET_PRIORITY },
+          { name: A_INPUT, value: A_INPUT },
+          { name: BCASCREG, value: BCASCREG },
+          { name: BMULTSEL, value: BMULTSEL },
+          { name: BREG, value: BREG },
+          { name: B_INPUT, value: B_INPUT },
+          { name: CARRYINREG, value: CARRYINREG },
+          { name: CARRYINSELREG, value: CARRYINSELREG },
+          { name: CREG, value: CREG },
+          { name: DREG, value: DREG },
+          { name: INMODEREG, value: INMODEREG },
           { name: IS_ALUMODE_INVERTED, value: (bv 0 4) },
           { name: IS_CARRYIN_INVERTED, value: (bv 0 1) },
           { name: IS_CLK_INVERTED, value: (bv 0 1) },
@@ -202,18 +210,18 @@ implementations:
           { name: IS_RSTM_INVERTED, value: (bv 0 1) },
           { name: IS_RSTP_INVERTED, value: (bv 0 1) },
           { name: MASK, value: (bv 0 48) },
-          { name: MREG, value: (bv 0 32) },
-          { name: OPMODEREG, value: (bv 0 32) },
+          { name: MREG, value: MREG },
+          { name: OPMODEREG, value: OPMODEREG },
           { name: PATTERN, value: (bv 0 48) },
-          { name: PREADDINSEL, value: (bv 0 5) },
-          { name: PREG, value: (bv 0 32) },
+          { name: PREADDINSEL, value: PREADDINSEL },
+          { name: PREG, value: PREG },
           { name: RND, value: (bv 0 48) },
-          { name: SEL_MASK, value: (bv 8 5) },
-          { name: SEL_PATTERN, value: (bv 9 5) },
-          { name: USE_MULT, value: (bv 10 5) },
-          { name: USE_PATTERN_DETECT, value: (bv 11 5) },
-          { name: USE_SIMD, value: (bv 12 5) },
-          { name: USE_WIDEXOR, value: (bv 13 5) },
-          { name: XORSIMD, value: (bv 14 5) },
+          { name: SEL_MASK, value: SEL_MASK },
+          { name: SEL_PATTERN, value: SEL_PATTERN },
+          { name: USE_MULT, value: USE_MULT },
+          { name: USE_PATTERN_DETECT, value: USE_PATTERN_DETECT },
+          { name: USE_SIMD, value: USE_SIMD },
+          { name: USE_WIDEXOR, value: USE_WIDEXOR },
+          { name: XORSIMD, value: XORSIMD },
         ]
-    outputs: { P : (extract 15 0 P) }
+    outputs: { O : (extract 15 0 P) }
