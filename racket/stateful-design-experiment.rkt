@@ -33,7 +33,6 @@
 ;;; (define (signal-state-value signal k)
 ;;;   (hash-ref (signal-state signal) k))
 
-
 ;;; New interpreter definition over signals.
 (define (experimental-interpreter expr)
   (match expr

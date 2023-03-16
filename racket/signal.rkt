@@ -1,5 +1,5 @@
 #lang racket
-;; Signal struct 
+;; Signal struct
 (provide signal
          signal?
          bv->signal
