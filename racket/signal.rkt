@@ -1,5 +1,6 @@
+;;; This file provides the signal struct and its associated functions.
 #lang racket
-;; Signal struct
+
 (provide signal
          signal?
          bv->signal
@@ -7,6 +8,7 @@
          signal-state
          signal-state-value
          merge-state)
+
 (require rosette
          racket/hash)
 
@@ -16,10 +18,17 @@
 ;;; - Only use immutable hash tables.
 ;;; - Keys should never be symbolic. They should always be concrete.
 
+;;; Signals represent bitvectors with associated state.
+;;;
+;;; State is a map from keywords to bitvectors. The entries in the state map are the various pieces of
+;;; state that existed when the signal value was generated. For example, the output of a pipelined
+;;; multiplier module might be an bitvector v. The signal representing the multiplier's output might
+;;; then look like (signal v { internal-register-0: (bv #x0a 8), internal-register-1: (bv #x0b 8) }),
+;;; where the internal registers represent some state internal to the multiplier module.
 (struct signal (value state) #:transparent)
 
-;;; Creates a signal from a bitvector. Optionally, the state of the signal
-;;; can be specified. If not, the state is an empty hash.
+;;; Creates a signal from a bitvector. Optionally, the state of the signal can be specified. If not,
+;;; the state is an empty hash.
 (define (bv->signal bv [with-state-from (signal '() (hash))])
   (signal bv (signal-state with-state-from)))
 
