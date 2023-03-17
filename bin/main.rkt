@@ -17,7 +17,7 @@
          "../racket/generated/lattice-ecp5-mult18x18d.rkt"
          "../racket/generated/lattice-ecp5-alu24b.rkt"
          rosette/solver/smt/boolector
-         "../racket/stateful-design-experiment.rkt"
+         "../racket/signal.rkt"
          racket/hash
          "../racket/btor.rkt")
 

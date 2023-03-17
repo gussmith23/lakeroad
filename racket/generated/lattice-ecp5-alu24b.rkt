@@ -1,6 +1,6 @@
 #lang racket/base
 (provide lattice-ecp5-alu24b)
-(require "../stateful-design-experiment.rkt")
+(require "../signal.rkt")
 (require rosette)
 (require racket/hash)
 (define lattice-ecp5-alu24b

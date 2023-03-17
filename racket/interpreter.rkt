@@ -15,7 +15,7 @@
          rosette/lib/destruct
          (prefix-in lr: "language.rkt")
          "architecture-description.rkt"
-         "stateful-design-experiment.rkt")
+         "signal.rkt")
 
 (define interp-memoization-hits 0)
 (define interp-memoization-misses 0)
