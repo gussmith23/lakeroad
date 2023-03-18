@@ -170,7 +170,7 @@
 ;;;
 ;;; Returns (list (list lr:hash ...) INTERNAL-DATA)
 ;;;
-;;; TODO(acheung8): write the tests for this :)
+;;; TODO(@ninehusky): write the tests for this :)
 (define (densely-pack-inputs-into-luts architecture-description
                                        inputs-list
                                        #:internal-data [internal-data #f])
