@@ -11,8 +11,8 @@
            "synthesize.rkt"
            "architecture-description.rkt"
            "xilinx-ultrascale-plus-lut2.rkt"
-           "xilinx-ultrascale-plus-lut6.rkt"
-           "xilinx-ultrascale-plus-carry8.rkt")
+           "generated/xilinx-ultrascale-plus-lut6.rkt"
+           "generated/xilinx-ultrascale-plus-carry8.rkt")
 
   (current-solver (boolector))
 

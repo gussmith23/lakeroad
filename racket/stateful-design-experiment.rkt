@@ -3,61 +3,9 @@
 ;;; which can be thought of as a wrapper over a Rosette bitvector, which carries along with it some
 ;;; hidden state. I think this may be a monad-ish idea...?
 
-(provide signal
-         signal?
-         bv->signal
-         signal-value
-         signal-state
-         merge-state
-         assoc-has-key?
-         assoc-ref
-         )
-
 (require rosette
-         racket/hash)
-
-(define (assoc-has-key? l k)
-  (not (equal? #f (assoc k l))))
-(define (assoc-ref l k)
-  (cdr (or (assoc k l) (cons 'unread #f))))
-
-;;; value: (bv?). Represents the outwardly visible value tied to this signal.
-;;; state: association list of keys to bvs.
-(struct signal (value state) #:transparent)
-
-;;; Lift bitvector into signal, optionally taking the state from an existing signal.
-(define (bv->signal bv [with-state-from (signal '() (list))])
-  (signal bv (signal-state with-state-from)))
-
-;;; Gets state from a signal.
-(define (signal-state-value signal k)
-  (cdr (assoc k (signal-state signal))))
-
-(define-syntax-rule (make-assoc-list vs ...)
-  (let* ([l (list vs ...)] [l-len (length l)])
-    (when (not (equal? 0 (modulo l-len 2)))
-      (error "need even number of keys+vals"))
-    (map cons
-         (for/list ([i (/ l-len 2)])
-           (list-ref l (* 2 i)))
-         (for/list ([i (/ l-len 2)])
-           (list-ref l (+ 1 (* 2 i)))))))
-
-(module+ test
-  (require rackunit
-           rosette)
-  (check-not-exn (λ () (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8)))))
-  (check-equal? (bv->signal (bv 0 1)) (bv->signal (bv 0 1)))
-  (check-equal?
-   (signal-state-value (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state0)
-   (bv 5 8))
-  (check-equal?
-   (signal-state-value (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state1)
-   (bv 8 8))
-  (check-true
-   (normal? (with-vc (check-exn
-                      #rx"given: state1"
-                      (λ () (signal-state-value 'state1 (signal (bv 0 1) (make-assoc-list)))))))))
+         racket/hash
+         "./signal.rkt")
 
 ;;; New interpreter definition over signals.
 (define (experimental-interpreter expr)
@@ -86,13 +34,10 @@
     (parameterize ([fuel (sub1 (fuel))])
       body ...)))
 
-;;; Merge the state from each signal in a list of signals. Simply appends the association lists. Does
-;;; not handle any conflicting keys.
-(define (merge-state signals)
-  (apply append (map signal-state signals)))
-
 (module+ test
-  (require rosette/solver/smt/boolector)
+  (require rosette/solver/smt/boolector
+           rackunit
+           rosette)
   (current-solver (boolector))
 
   ;;; Simple counter.

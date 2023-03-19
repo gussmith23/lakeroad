@@ -10,7 +10,7 @@ Given a description
   (e.g. LUT programmings)
   to implement high-level programs
   (e.g. 8-bit add with carry).
-  
+
 ## Dependencies
 
 - LLVM
@@ -19,6 +19,7 @@ Given a description
 - Racket, plus Racket packages (installable via `raco pkg install`):
   - `rosette`
   - `json`
+  - `yaml`
 - Verilator, ideally 4.228 or later
 - Boolector, which can be built from source from <https://github.com/Boolector/boolector>
 - Yosys

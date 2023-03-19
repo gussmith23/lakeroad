@@ -8,16 +8,16 @@
          "../racket/sketches.rkt"
          "../racket/architecture-description.rkt"
          json
-         "../racket/lattice-ecp5-lut4.rkt"
-         "../racket/lattice-ecp5-ccu2c.rkt"
+         "../racket/generated/lattice-ecp5-lut4.rkt"
+         "../racket/generated/lattice-ecp5-ccu2c.rkt"
          "../racket/xilinx-ultrascale-plus-lut2.rkt"
-         "../racket/xilinx-ultrascale-plus-lut6.rkt"
-         "../racket/xilinx-ultrascale-plus-carry8.rkt"
-         "../racket/sofa-frac-lut4.rkt"
-         "../racket/lattice-ecp5-mult18x18d.rkt"
-         "../racket/lattice-ecp5-alu24b.rkt"
+         "../racket/generated/xilinx-ultrascale-plus-lut6.rkt"
+         "../racket/generated/xilinx-ultrascale-plus-carry8.rkt"
+         "../racket/generated/sofa-frac-lut4.rkt"
+         "../racket/generated/lattice-ecp5-mult18x18d.rkt"
+         "../racket/generated/lattice-ecp5-alu24b.rkt"
          rosette/solver/smt/boolector
-         "../racket/stateful-design-experiment.rkt"
+         "../racket/signal.rkt"
          racket/hash
          "../racket/btor.rkt")
 
@@ -108,6 +108,8 @@
 
   (define (helper expr)
     (match expr
+      [`(bitvector->bits ,a) (bitvector->bits (helper a))]
+      [`(apply bvxor ,a) (apply bvxor (helper a))]
       [`(bvlshr ,a ,b) (bvlshr (helper a) (helper b))]
       [`(bvashr ,a ,b) (bvashr (helper a) (helper b))]
       [`(bvshl ,a ,b) (bvshl (helper a) (helper b))]
@@ -152,13 +154,23 @@
      (define f (eval (first (btor->racket btor)) ns))
      (signal-value (hash-ref (f) (string->symbol (verilog-module-out-signal))))]))
 
+(when (boolean? bv-expr)
+  (error
+   (format
+    "Expected a bitvector expression but found a boolean ~a: consider wrapping in (bool->bitvector ...)"
+    bv-expr)))
+(when (not (bv? bv-expr))
+  (error (format "Expected a bitvector expression but found ~a" bv-expr)))
 (define sketch-generator
   (match (template)
     ["bitwise" bitwise-sketch-generator]
+    ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
+    ["shallow-comparison" shallow-comparison-sketch-generator]
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
     ["shift" shift-sketch-generator]
+    ;;; TODO(@gussmith23) Clean up these hacks.
     ["xilinx-ultrascale-plus-dsp48e2"
      (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
        (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
@@ -168,6 +180,24 @@
      (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
        ;;; Note: wrap in list to mock the return value of sketch generators.
        (list (synthesize-xilinx-ultrascale-plus-dsp bv-expr)))]
+    ["xilinx-ultrascale-plus-dsp48e2-2-dsps"
+     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
+       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
+
+     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
+     ;;; synthesis function.
+     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+       ;;; Note: wrap in list to mock the return value of sketch generators.
+       (list (synthesize-xilinx-ultrascale-plus-2-dsps bv-expr)))]
+    ["xilinx-ultrascale-plus-dsp48e2-xor"
+     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
+       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
+
+     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
+     ;;; synthesis function.
+     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+       ;;; Note: wrap in list to mock the return value of sketch generators.
+       (list (synthesize-xilinx-ultrascale-plus-dsp-xor bv-expr)))]
     ["lattice-ecp5-dsp"
      (when (not (equal? "lattice-ecp5" (architecture)))
        (error "lattice-ecp5-dsp template only supported for lattice-ecp5 architecture."))

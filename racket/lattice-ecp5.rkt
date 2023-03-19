@@ -7,10 +7,13 @@
          "comp-json.rkt"
          "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt")
-         (rename-in (file "lattice-ecp5-ccu2c.rkt") (lattice-ecp5-ccu2c interpret-lattice-ecp5-ccu2c))
-         (rename-in (file "lattice-ecp5-lut2.rkt") (lattice-ecp5-lut2 interpret-lattice-ecp5-lut2))
-         (rename-in (file "lattice-ecp5-lut4.rkt") (lattice-ecp5-lut4 interpret-lattice-ecp5-lut4))
-         "stateful-design-experiment.rkt")
+         (rename-in (file "generated/lattice-ecp5-ccu2c.rkt")
+                    (lattice-ecp5-ccu2c interpret-lattice-ecp5-ccu2c))
+         (rename-in (file "generated/lattice-ecp5-lut2.rkt")
+                    (lattice-ecp5-lut2 interpret-lattice-ecp5-lut2))
+         (rename-in (file "generated/lattice-ecp5-lut4.rkt")
+                    (lattice-ecp5-lut4 interpret-lattice-ecp5-lut4))
+         "signal.rkt")
 
 (provide interpret-lattice-ecp5
          lattice-ecp5-logical-to-physical-inputs

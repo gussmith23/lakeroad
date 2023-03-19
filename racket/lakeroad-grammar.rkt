@@ -62,8 +62,8 @@
            "verilator.rkt"
            "synthesize.rkt"
            "interpreter.rkt"
-           "lattice-ecp5-lut4.rkt"
-           "lattice-ecp5-ccu2c.rkt")
+           "generated/lattice-ecp5-lut4.rkt"
+           "generated/lattice-ecp5-ccu2c.rkt")
 
   (define-syntax-rule (grammar-test #:name name
                                     #:defines defines

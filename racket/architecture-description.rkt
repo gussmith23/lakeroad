@@ -12,6 +12,8 @@
          xilinx-ultrascale-plus-architecture-description
          lattice-ecp5-architecture-description
          sofa-architecture-description
+         find-biggest-lut-size
+         densely-pack-inputs-into-luts
          (struct-out lr:hw-module-instance)
          (struct-out module-instance-port)
          (struct-out module-instance-parameter)
@@ -120,6 +122,7 @@
 ;;; which is completely different.
 (struct module-instance (module-name ports params filepath racket-import-filepath) #:transparent)
 
+;;; - identifier: an interface-identifier, e.g., (interface-identifier "LUT" (hash "num_inputs" 2))
 ;;; - module-instance: Module, representing how this interface is implemented. For now, we only
 ;;;   support a single module, but we should figure out how to support multiple. We can likely just
 ;;;   make this an association list of string module names to module instances.
@@ -134,6 +137,79 @@
 ;;; - interface-implementations: association list mapping string interface names to interface
 ;;;   implementations.
 (struct architecture-description (interface-implementations) #:transparent)
+
+;;; Return the size of the largest lut that is supported by this architecture
+;;; description
+(define (find-biggest-lut-size architecture-description)
+  (apply max
+         (map (lambda (impl)
+                (let ([id (interface-implementation-identifier impl)])
+                  (if (equal? (interface-identifier-name id) "LUT")
+                      (hash-ref (interface-identifier-parameters id) "num_inputs")
+                      0)))
+              (architecture-description-interface-implementations architecture-description))))
+
+;;; This densely packs a list of innputs into LUTs. By this we mean that
+;;; if inputs = (list (list a0...an) (list b0...bn)), then a_i and b_i are
+;;; always passed to the same LUT, and as many bits as possible are passed
+;;; into a LUT before allocating another LUT.
+;;;
+;;; Example: suppose an architecture's largest LUT is a LUT4, and suppose we are
+;;; passed an inputs-list (list a b) where a and b both have 8 bits. Rather
+;;; than using 8 LUT4s, one per each a_i, we can use 4 LUT4s, where the first
+;;; takes a0, b0, a1, b1, the second takes a2, b2, a3, b3, etc.
+;;;
+;;; Returns (list (list lr:hash ...) INTERNAL-DATA)
+;;;
+;;; TODO(acheung8): write the tests for this :)
+(define (densely-pack-inputs-into-luts architecture-description
+                                       inputs-list
+                                       #:internal-data [internal-data #f])
+  (match-let*
+      ([num-inputs (length inputs-list)]
+       [_ (when (or (> num-inputs 2) (= num-inputs 0))
+            (error "Can only densely pack 1 or 2 logical inputs"))]
+       [biggest-lut-size (find-biggest-lut-size architecture-description)]
+       [window-size (if (odd? biggest-lut-size) (sub1 biggest-lut-size) biggest-lut-size)]
+       [windowed-inputs (window (interleave inputs-list) window-size)]
+       ; Now, pad each input so that it is the same size as the lut inputs.
+       ; this handles cases where either our number of inputs isn't a divisor of
+       ; biggest-lut-size OR when we have leftover bits (yum!)
+
+       [symbolic-bit (lr:bv (?? (bitvector 1)))]
+       [inputs (for/list ([w windowed-inputs])
+                 (let* ([diff (- biggest-lut-size (length w))]
+                        [right-pads (make-list diff symbolic-bit)])
+                   (append w right-pads)))]
+       ; [_ (printf "inputs: ~a" inputs)]
+       ; get sharable internal data
+       [(list _ lut-internal-data)
+        (begin
+          (let ([_ '()]
+                ;;; Note that we don't care what the inputs are hooked up to here, because we are
+                ;;; just trying to get the internal data.
+                [port-map (for/list ([i biggest-lut-size])
+                            (cons (format "I~a" i) (bv 0 1)))]
+                [interface-id (interface-identifier "LUT" (hash "num_inputs" biggest-lut-size))])
+            (construct-interface architecture-description
+                                 interface-id
+                                 port-map
+                                 #:internal-data internal-data)))])
+
+    (list (for/list ([lut-input inputs])
+            (let ([port-map (for/list ([i (length lut-input)] [input lut-input])
+                              (cons (format "I~a" i) input))])
+              (lr:hash-ref (first (construct-interface
+                                   architecture-description
+                                   (interface-identifier "LUT" (hash "num_inputs" biggest-lut-size))
+                                   port-map
+                                   #:internal-data lut-internal-data))
+                           'O)))
+          lut-internal-data)))
+
+;;; (module+ test
+;;;   (require rackunit)
+;;;   ((densely-pack-inputs-into-luts sofa-architecture-description (list (range 0 8) (range 8 16)))))
 
 ;;; Part 3: constructing things using the architecture description.
 
@@ -205,6 +281,8 @@
 ;;;
 ;;; Returns a Lakeroad expression representing the result of the interface, and the internal data
 ;;; constructed while generating the interface.
+;;;
+;;; (list lr:hash internal-data)
 (define (construct-interface-internal architecture-description
                                       interface-id
                                       port-map

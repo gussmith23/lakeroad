@@ -2005,7 +2005,7 @@ here-string-delimiter
                 (assert (bveq O6 lrO6))))
       (unsat)))))
 
-(require "stateful-design-experiment.rkt")
+(require "signal.rkt")
 
 (define (parse-btor-new str)
 

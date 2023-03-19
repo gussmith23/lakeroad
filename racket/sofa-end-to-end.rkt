@@ -9,7 +9,7 @@
            "utils.rkt"
            rosette
            "architecture-description.rkt"
-           "sofa-frac-lut4.rkt")
+           "generated/sofa-frac-lut4.rkt")
   (current-solver (boolector))
 
   (define to-simulate-list (list))

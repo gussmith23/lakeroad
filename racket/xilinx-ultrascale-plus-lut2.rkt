@@ -1,6 +1,6 @@
 #lang racket/base
 (provide xilinx-ultrascale-plus-lut2)
-(require "stateful-design-experiment.rkt")
+(require "signal.rkt")
 (require "lut.rkt")
 (require rosette)
 (require racket/hash)

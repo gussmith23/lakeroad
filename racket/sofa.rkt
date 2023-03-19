@@ -15,8 +15,8 @@
          rosette
          "utils.rkt"
          "comp-json.rkt"
-         (rename-in (file "sofa-frac-lut4.rkt") (sofa-frac-lut4 interpret-sofa-frac-lut4))
-         "stateful-design-experiment.rkt")
+         (rename-in (file "generated/sofa-frac-lut4.rkt") (sofa-frac-lut4 interpret-sofa-frac-lut4))
+         "signal.rkt")
 
 (struct sofa-lut1 (sram inputs) #:transparent)
 (struct sofa-lut2 (sram inputs) #:transparent)
