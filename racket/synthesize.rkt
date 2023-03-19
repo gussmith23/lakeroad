@@ -146,9 +146,7 @@
                (normal? (with-vc (with-terms (begin
                                                before-call
                                                (let ([result (f args ...)])
-                                                 (check-true (not (or (equal? #f result)
-                                                                      (equal? 'unsynthesizable
-                                                                              result))))))))))))
+                                                 (check-not-equal? #f result)))))))))
 
 ;;; (module+ test
 ;;;   (simple-test synthesize-sofa-impl (define-symbolic a b (bitvector 8)) (bvand a b)))

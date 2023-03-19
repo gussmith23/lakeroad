@@ -50,8 +50,8 @@
 
        (if expect-timeout?
            ;;; TODO(@gussmith23): Standardize what the synthesis functions return when they fail.
-           (check-true (or (equal? lakeroad-expr 'unsynthesizable) (equal? lakeroad-expr #f)))
-           (check-false (or (equal? lakeroad-expr 'unsynthesizable) (equal? lakeroad-expr #f))))
+           (check-equal? lakeroad-expr #f)
+           (check-not-equal? lakeroad-expr #f))
 
        ;;; Add the result to the list of things to simulate, when the result is expected to be valid.
        (when (not expect-timeout?)
