@@ -12,8 +12,7 @@
          assoc-ref
          make-assoc-list)
 
-(require rosette
-         racket/hash)
+(require rosette)
 
 ;;; TODO(@gussmith): We rely heavily on hash tables for this implementation. Hash tables are not
 ;;; lifted in Rosette, and thus we have to be very careful with them. In general, I think these are
@@ -36,28 +35,28 @@
 
 ;;; Gets state from a signal.
 (define (signal-state-value signal k)
-  (hash-ref (signal-state signal) k))
+  (cdr (or (assoc k (signal-state signal)) (error "key not found: ~a" k))))
 
 (module+ test
   (require rackunit
            rosette)
-  (check-not-exn (λ () (signal (bv 0 1) (hash 'state0 (bv 5 8) 'state1 (bv 8 8)))))
+  (check-not-exn (λ () (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8)))))
   (check-equal? (bv->signal (bv 0 1)) (bv->signal (bv 0 1)))
   (check-equal?
-   (signal-state-value (signal (bv 0 1) (hash 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state0)
+   (signal-state-value (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state0)
    (bv 5 8))
   (check-equal?
-   (signal-state-value (signal (bv 0 1) (hash 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state1)
+   (signal-state-value (signal (bv 0 1) (make-assoc-list 'state0 (bv 5 8) 'state1 (bv 8 8))) 'state1)
    (bv 8 8))
   (check-true
-   (normal? (with-vc (check-exn #rx"given: state1"
-                                (λ () (signal-state-value 'state1 (signal (bv 0 1) (hash)))))))))
+   (normal? (with-vc (check-exn
+                      #rx"given: state1"
+                      (λ () (signal-state-value 'state1 (signal (bv 0 1) (make-assoc-list)))))))))
 
 ;;; Merge the state from each signal in a list of signals. Simply appends the association lists. Does
 ;;; not handle any conflicting keys.
 (define (merge-state signals)
   (apply append (map signal-state signals)))
-
 
 (define (assoc-has-key? l k)
   (not (equal? #f (assoc k l))))

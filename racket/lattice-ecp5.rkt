@@ -338,13 +338,13 @@
                                               #:C (bv->signal (bit 2 inputs))
                                               #:D (bv->signal (bit 3 inputs))
                                               #:init (bv->signal (interpreter INIT)))])
-       (list (signal-value (hash-ref out 'Z))))]
+       (list (signal-value (cdr (or (assoc 'Z out) (error "key not found"))))))]
     [(lattice-ecp5-lut2 INIT inputs)
      (let* ([inputs (interpreter inputs)]
             [out (interpret-lattice-ecp5-lut2 #:A (bv->signal (bit 0 inputs))
                                               #:B (bv->signal (bit 1 inputs))
                                               #:init (bv->signal (interpreter INIT)))])
-       (list (signal-value (hash-ref out 'Z))))]
+       (list (signal-value (cdr (or (assoc 'Z out) (error "key not found"))))))]
     [(lattice-ecp5-lut5 INIT inputs) (list (interpret-lut5-impl INIT (interpreter inputs)))]
     [(lattice-ecp5-lut6 INIT inputs) (list (interpret-lut6-impl INIT (interpreter inputs)))]
     [(lattice-ecp5-lut7 INIT inputs) (list (interpret-lut7-impl INIT (interpreter inputs)))]
@@ -387,9 +387,9 @@
                                                #:INIT1 (bv->signal INIT1)
                                                #:INJECT1_0 (bv->signal INJECT1_0)
                                                #:INJECT1_1 (bv->signal INJECT1_1))])
-       (list (signal-value (hash-ref out 'S0))
-             (signal-value (hash-ref out 'S1))
-             (signal-value (hash-ref out 'COUT))))]
+       (list (signal-value (cdr (or (assoc 'S0 out) (error "key not found"))))
+             (signal-value (cdr (or (assoc 'S1 out) (error "key not found"))))
+             (signal-value (cdr (or (assoc 'COUT out) (error "key not found"))))))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
 (define (interpret-ecp5-ripple-pfu-impl INIT0
