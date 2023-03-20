@@ -59,9 +59,9 @@
                                            #:mode_inv (bv->signal (interpreter mode-inv))
                                            #:sram (bv->signal (interpreter sram))
                                            #:sram_inv (bv->signal (interpreter sram-inv)))]
-            [lut2-out (signal-value (hash-ref out 'lut2_out))]
-            [lut3-out (signal-value (hash-ref out 'lut3_out))]
-            [lut4-out (signal-value (hash-ref out 'lut4_out))])
+            [lut2-out (signal-value (assoc-ref out 'lut2_out))]
+            [lut3-out (signal-value (assoc-ref out 'lut3_out))]
+            [lut4-out (signal-value (assoc-ref out 'lut4_out))])
        (list lut2-out lut3-out lut4-out))]))
 
 (define (compile-sofa compile get-bits add-cell add-netname add-parameter-default-value expr)
