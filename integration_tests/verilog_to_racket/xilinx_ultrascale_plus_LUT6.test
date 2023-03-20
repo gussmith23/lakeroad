@@ -7,9 +7,7 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide xilinx-ultrascale-plus-lut6)
 CHECK: (require (file "
-
 CHECK: (require rosette)
-CHECK: (require racket/hash)
 CHECK: (define xilinx-ultrascale-plus-lut6
 CHECK:   (λ (#:I0
 CHECK:       (I0 (bv->signal (constant 'I0 (bitvector 1))))
@@ -154,31 +152,31 @@ CHECK:        (bv->signal (constant 'unnamed-input-1082 (bitvector 8))))
 CHECK:       #:unnamed-input-1084
 CHECK:       (unnamed-input-1084
 CHECK:        (bv->signal (constant 'unnamed-input-1084 (bitvector 3)))))
-CHECK:     (let* ((merged-input-state-hash (hash))
-CHECK:            (init-hash (hash))
+CHECK:     (let* ((merged-input-state-hash (list))
+CHECK:            (init-hash (list))
 CHECK:            (btor1 (bitvector 1))
 CHECK:            (btor2 I0)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state I0)))
+CHECK:             (append merged-input-state-hash (signal-state I0)))
 CHECK:            (btor3 I1)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state I1)))
+CHECK:             (append merged-input-state-hash (signal-state I1)))
 CHECK:            (btor4 I2)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state I2)))
+CHECK:             (append merged-input-state-hash (signal-state I2)))
 CHECK:            (btor5 I3)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state I3)))
+CHECK:             (append merged-input-state-hash (signal-state I3)))
 CHECK:            (btor6 I4)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state I4)))
+CHECK:             (append merged-input-state-hash (signal-state I4)))
 CHECK:            (btor7 I5)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state I5)))
+CHECK:             (append merged-input-state-hash (signal-state I5)))
 CHECK:            (btor8 (bitvector 64))
 CHECK:            (btor9 INIT)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state INIT)))
+CHECK:             (append merged-input-state-hash (signal-state INIT)))
 CHECK:            (btor10 unnamed-input-10)
 CHECK:            (btor11 (bitvector 8))
 CHECK:            (btor12 unnamed-input-12)
@@ -190,7 +188,7 @@ CHECK:            (btor16 (bitvector 3))
 CHECK:            (btor17
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor15))
-CHECK:              (merge-state (list btor4 btor15))))
+CHECK:              (list)))
 CHECK:            (btor18
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor17) (bitvector 8))
@@ -198,7 +196,7 @@ CHECK:              btor17))
 CHECK:            (btor19
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor18))
-CHECK:              (merge-state (list btor13 btor18))))
+CHECK:              (list)))
 CHECK:            (btor20
 CHECK:             (signal (extract 0 0 (signal-value btor19)) (signal-state btor19)))
 CHECK:            (btor21 (bv->signal (bv 1 (bitvector 1))))
@@ -206,22 +204,20 @@ CHECK:            (btor22
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor4) (signal-value btor21)))
-CHECK:              (merge-state (list btor4 btor21))))
+CHECK:              (list)))
 CHECK:            (btor23 (bv->signal (bv 0 (bitvector 1))))
 CHECK:            (btor24
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor4) (signal-value btor23)))
-CHECK:              (merge-state (list btor4 btor23))))
+CHECK:              (list)))
 CHECK:            (btor25
-CHECK:             (signal
-CHECK:              (bvor (signal-value btor22) (signal-value btor24))
-CHECK:              (merge-state (list btor22 btor24))))
+CHECK:             (signal (bvor (signal-value btor22) (signal-value btor24)) (list)))
 CHECK:            (btor26 (bv->signal (bv 1 (bitvector 2))))
 CHECK:            (btor27
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor26))
-CHECK:              (merge-state (list btor4 btor26))))
+CHECK:              (list)))
 CHECK:            (btor28
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor27) (bitvector 8))
@@ -229,23 +225,23 @@ CHECK:              btor27))
 CHECK:            (btor29
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor28))
-CHECK:              (merge-state (list btor13 btor28))))
+CHECK:              (list)))
 CHECK:            (btor30
 CHECK:             (signal (extract 0 0 (signal-value btor29)) (signal-state btor29)))
 CHECK:            (btor31
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor20) (signal-value btor30)))
-CHECK:              (merge-state (list btor20 btor30))))
+CHECK:              (list)))
 CHECK:            (btor32
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor25) (signal-value btor31))
-CHECK:              (merge-state (list btor25 btor31))))
+CHECK:              (list)))
 CHECK:            (btor33 (bv->signal (bv 2 (bitvector 2))))
 CHECK:            (btor34
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor33))
-CHECK:              (merge-state (list btor4 btor33))))
+CHECK:              (list)))
 CHECK:            (btor35
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 8))
@@ -253,23 +249,23 @@ CHECK:              btor34))
 CHECK:            (btor36
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor35))
-CHECK:              (merge-state (list btor13 btor35))))
+CHECK:              (list)))
 CHECK:            (btor37
 CHECK:             (signal (extract 0 0 (signal-value btor36)) (signal-state btor36)))
 CHECK:            (btor38
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor20) (signal-value btor37)))
-CHECK:              (merge-state (list btor20 btor37))))
+CHECK:              (list)))
 CHECK:            (btor39
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor32) (signal-value btor38))
-CHECK:              (merge-state (list btor32 btor38))))
+CHECK:              (list)))
 CHECK:            (btor40 (bv->signal (bv 3 (bitvector 2))))
 CHECK:            (btor41
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor40))
-CHECK:              (merge-state (list btor4 btor40))))
+CHECK:              (list)))
 CHECK:            (btor42
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor41) (bitvector 8))
@@ -277,23 +273,23 @@ CHECK:              btor41))
 CHECK:            (btor43
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor42))
-CHECK:              (merge-state (list btor13 btor42))))
+CHECK:              (list)))
 CHECK:            (btor44
 CHECK:             (signal (extract 0 0 (signal-value btor43)) (signal-state btor43)))
 CHECK:            (btor45
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor20) (signal-value btor44)))
-CHECK:              (merge-state (list btor20 btor44))))
+CHECK:              (list)))
 CHECK:            (btor46
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor39) (signal-value btor45))
-CHECK:              (merge-state (list btor39 btor45))))
+CHECK:              (list)))
 CHECK:            (btor47 (if (bitvector->bool (signal-value btor46)) btor20 btor12))
 CHECK:            (btor48
 CHECK:             (signal
 CHECK:              (concat (signal-value btor3) (signal-value btor23))
-CHECK:              (merge-state (list btor3 btor23))))
+CHECK:              (list)))
 CHECK:            (btor49
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor48) (bitvector 8))
@@ -301,27 +297,25 @@ CHECK:              btor48))
 CHECK:            (btor50
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor49))
-CHECK:              (merge-state (list btor13 btor49))))
+CHECK:              (list)))
 CHECK:            (btor51
 CHECK:             (signal (extract 0 0 (signal-value btor50)) (signal-state btor50)))
 CHECK:            (btor52
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor3) (signal-value btor21)))
-CHECK:              (merge-state (list btor3 btor21))))
+CHECK:              (list)))
 CHECK:            (btor53
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor3) (signal-value btor23)))
-CHECK:              (merge-state (list btor3 btor23))))
+CHECK:              (list)))
 CHECK:            (btor54
-CHECK:             (signal
-CHECK:              (bvor (signal-value btor52) (signal-value btor53))
-CHECK:              (merge-state (list btor52 btor53))))
+CHECK:             (signal (bvor (signal-value btor52) (signal-value btor53)) (list)))
 CHECK:            (btor55
 CHECK:             (signal
 CHECK:              (concat (signal-value btor3) (signal-value btor21))
-CHECK:              (merge-state (list btor3 btor21))))
+CHECK:              (list)))
 CHECK:            (btor56
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor55) (bitvector 8))
@@ -329,26 +323,26 @@ CHECK:              btor55))
 CHECK:            (btor57
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor56))
-CHECK:              (merge-state (list btor13 btor56))))
+CHECK:              (list)))
 CHECK:            (btor58
 CHECK:             (signal (extract 0 0 (signal-value btor57)) (signal-state btor57)))
 CHECK:            (btor59
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor51) (signal-value btor58)))
-CHECK:              (merge-state (list btor51 btor58))))
+CHECK:              (list)))
 CHECK:            (btor60
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor54) (signal-value btor59))
-CHECK:              (merge-state (list btor54 btor59))))
+CHECK:              (list)))
 CHECK:            (btor61
 CHECK:             (signal
 CHECK:              (concat (signal-value btor3) (signal-value btor23))
-CHECK:              (merge-state (list btor3 btor23))))
+CHECK:              (list)))
 CHECK:            (btor62
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor61))
-CHECK:              (merge-state (list btor21 btor61))))
+CHECK:              (list)))
 CHECK:            (btor63
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor62) (bitvector 8))
@@ -356,26 +350,26 @@ CHECK:              btor62))
 CHECK:            (btor64
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor63))
-CHECK:              (merge-state (list btor13 btor63))))
+CHECK:              (list)))
 CHECK:            (btor65
 CHECK:             (signal (extract 0 0 (signal-value btor64)) (signal-state btor64)))
 CHECK:            (btor66
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor51) (signal-value btor65)))
-CHECK:              (merge-state (list btor51 btor65))))
+CHECK:              (list)))
 CHECK:            (btor67
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor60) (signal-value btor66))
-CHECK:              (merge-state (list btor60 btor66))))
+CHECK:              (list)))
 CHECK:            (btor68
 CHECK:             (signal
 CHECK:              (concat (signal-value btor3) (signal-value btor21))
-CHECK:              (merge-state (list btor3 btor21))))
+CHECK:              (list)))
 CHECK:            (btor69
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor68))
-CHECK:              (merge-state (list btor21 btor68))))
+CHECK:              (list)))
 CHECK:            (btor70
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor69) (bitvector 8))
@@ -383,18 +377,18 @@ CHECK:              btor69))
 CHECK:            (btor71
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor70))
-CHECK:              (merge-state (list btor13 btor70))))
+CHECK:              (list)))
 CHECK:            (btor72
 CHECK:             (signal (extract 0 0 (signal-value btor71)) (signal-state btor71)))
 CHECK:            (btor73
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor51) (signal-value btor72)))
-CHECK:              (merge-state (list btor51 btor72))))
+CHECK:              (list)))
 CHECK:            (btor74
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor67) (signal-value btor73))
-CHECK:              (merge-state (list btor67 btor73))))
+CHECK:              (list)))
 CHECK:            (btor75 (if (bitvector->bool (signal-value btor74)) btor51 btor47))
 CHECK:            (btor76
 CHECK:             (bv->signal
@@ -403,27 +397,25 @@ CHECK:              btor2))
 CHECK:            (btor77
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor76))
-CHECK:              (merge-state (list btor13 btor76))))
+CHECK:              (list)))
 CHECK:            (btor78
 CHECK:             (signal (extract 0 0 (signal-value btor77)) (signal-state btor77)))
 CHECK:            (btor79
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor2) (signal-value btor21)))
-CHECK:              (merge-state (list btor2 btor21))))
+CHECK:              (list)))
 CHECK:            (btor80
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor2) (signal-value btor23)))
-CHECK:              (merge-state (list btor2 btor23))))
+CHECK:              (list)))
 CHECK:            (btor81
-CHECK:             (signal
-CHECK:              (bvor (signal-value btor79) (signal-value btor80))
-CHECK:              (merge-state (list btor79 btor80))))
+CHECK:             (signal (bvor (signal-value btor79) (signal-value btor80)) (list)))
 CHECK:            (btor82
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor2))
-CHECK:              (merge-state (list btor21 btor2))))
+CHECK:              (list)))
 CHECK:            (btor83
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor82) (bitvector 8))
@@ -431,22 +423,22 @@ CHECK:              btor82))
 CHECK:            (btor84
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor83))
-CHECK:              (merge-state (list btor13 btor83))))
+CHECK:              (list)))
 CHECK:            (btor85
 CHECK:             (signal (extract 0 0 (signal-value btor84)) (signal-state btor84)))
 CHECK:            (btor86
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor78) (signal-value btor85)))
-CHECK:              (merge-state (list btor78 btor85))))
+CHECK:              (list)))
 CHECK:            (btor87
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor81) (signal-value btor86))
-CHECK:              (merge-state (list btor81 btor86))))
+CHECK:              (list)))
 CHECK:            (btor88
 CHECK:             (signal
 CHECK:              (concat (signal-value btor33) (signal-value btor2))
-CHECK:              (merge-state (list btor33 btor2))))
+CHECK:              (list)))
 CHECK:            (btor89
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor88) (bitvector 8))
@@ -454,22 +446,22 @@ CHECK:              btor88))
 CHECK:            (btor90
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor89))
-CHECK:              (merge-state (list btor13 btor89))))
+CHECK:              (list)))
 CHECK:            (btor91
 CHECK:             (signal (extract 0 0 (signal-value btor90)) (signal-state btor90)))
 CHECK:            (btor92
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor78) (signal-value btor91)))
-CHECK:              (merge-state (list btor78 btor91))))
+CHECK:              (list)))
 CHECK:            (btor93
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor87) (signal-value btor92))
-CHECK:              (merge-state (list btor87 btor92))))
+CHECK:              (list)))
 CHECK:            (btor94
 CHECK:             (signal
 CHECK:              (concat (signal-value btor40) (signal-value btor2))
-CHECK:              (merge-state (list btor40 btor2))))
+CHECK:              (list)))
 CHECK:            (btor95
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor94) (bitvector 8))
@@ -477,27 +469,27 @@ CHECK:              btor94))
 CHECK:            (btor96
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor95))
-CHECK:              (merge-state (list btor13 btor95))))
+CHECK:              (list)))
 CHECK:            (btor97
 CHECK:             (signal (extract 0 0 (signal-value btor96)) (signal-state btor96)))
 CHECK:            (btor98
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor78) (signal-value btor97)))
-CHECK:              (merge-state (list btor78 btor97))))
+CHECK:              (list)))
 CHECK:            (btor99
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor93) (signal-value btor98))
-CHECK:              (merge-state (list btor93 btor98))))
+CHECK:              (list)))
 CHECK:            (btor100 (if (bitvector->bool (signal-value btor99)) btor78 btor75))
 CHECK:            (btor101
 CHECK:             (signal
 CHECK:              (concat (signal-value btor3) (signal-value btor23))
-CHECK:              (merge-state (list btor3 btor23))))
+CHECK:              (list)))
 CHECK:            (btor102
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor101))
-CHECK:              (merge-state (list btor4 btor101))))
+CHECK:              (list)))
 CHECK:            (btor103
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor102) (bitvector 8))
@@ -505,37 +497,35 @@ CHECK:              btor102))
 CHECK:            (btor104
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor103))
-CHECK:              (merge-state (list btor13 btor103))))
+CHECK:              (list)))
 CHECK:            (btor105
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor104))
 CHECK:              (signal-state btor104)))
 CHECK:            (btor106
-CHECK:             (signal
-CHECK:              (bvxor (signal-value btor4) (signal-value btor3))
-CHECK:              (merge-state (list btor4 btor3))))
+CHECK:             (signal (bvxor (signal-value btor4) (signal-value btor3)) (list)))
 CHECK:            (btor107
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor106) (signal-value btor21)))
-CHECK:              (merge-state (list btor106 btor21))))
+CHECK:              (list)))
 CHECK:            (btor108
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor106) (signal-value btor23)))
-CHECK:              (merge-state (list btor106 btor23))))
+CHECK:              (list)))
 CHECK:            (btor109
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor107) (signal-value btor108))
-CHECK:              (merge-state (list btor107 btor108))))
+CHECK:              (list)))
 CHECK:            (btor110
 CHECK:             (signal
 CHECK:              (concat (signal-value btor3) (signal-value btor21))
-CHECK:              (merge-state (list btor3 btor21))))
+CHECK:              (list)))
 CHECK:            (btor111
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor110))
-CHECK:              (merge-state (list btor4 btor110))))
+CHECK:              (list)))
 CHECK:            (btor112
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor111) (bitvector 8))
@@ -543,7 +533,7 @@ CHECK:              btor111))
 CHECK:            (btor113
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor112))
-CHECK:              (merge-state (list btor13 btor112))))
+CHECK:              (list)))
 CHECK:            (btor114
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor113))
@@ -552,21 +542,21 @@ CHECK:            (btor115
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor105) (signal-value btor114)))
-CHECK:              (merge-state (list btor105 btor114))))
+CHECK:              (list)))
 CHECK:            (btor116
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor109) (signal-value btor115))
-CHECK:              (merge-state (list btor109 btor115))))
+CHECK:              (list)))
 CHECK:            (btor117
 CHECK:             (if (bitvector->bool (signal-value btor116)) btor105 btor100))
 CHECK:            (btor118
 CHECK:             (signal
 CHECK:              (concat (signal-value btor23) (signal-value btor2))
-CHECK:              (merge-state (list btor23 btor2))))
+CHECK:              (list)))
 CHECK:            (btor119
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor118))
-CHECK:              (merge-state (list btor4 btor118))))
+CHECK:              (list)))
 CHECK:            (btor120
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor119) (bitvector 8))
@@ -574,37 +564,35 @@ CHECK:              btor119))
 CHECK:            (btor121
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor120))
-CHECK:              (merge-state (list btor13 btor120))))
+CHECK:              (list)))
 CHECK:            (btor122
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor121))
 CHECK:              (signal-state btor121)))
 CHECK:            (btor123
-CHECK:             (signal
-CHECK:              (bvxor (signal-value btor4) (signal-value btor2))
-CHECK:              (merge-state (list btor4 btor2))))
+CHECK:             (signal (bvxor (signal-value btor4) (signal-value btor2)) (list)))
 CHECK:            (btor124
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor123) (signal-value btor21)))
-CHECK:              (merge-state (list btor123 btor21))))
+CHECK:              (list)))
 CHECK:            (btor125
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor123) (signal-value btor23)))
-CHECK:              (merge-state (list btor123 btor23))))
+CHECK:              (list)))
 CHECK:            (btor126
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor124) (signal-value btor125))
-CHECK:              (merge-state (list btor124 btor125))))
+CHECK:              (list)))
 CHECK:            (btor127
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor2))
-CHECK:              (merge-state (list btor21 btor2))))
+CHECK:              (list)))
 CHECK:            (btor128
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor127))
-CHECK:              (merge-state (list btor4 btor127))))
+CHECK:              (list)))
 CHECK:            (btor129
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor128) (bitvector 8))
@@ -612,7 +600,7 @@ CHECK:              btor128))
 CHECK:            (btor130
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor129))
-CHECK:              (merge-state (list btor13 btor129))))
+CHECK:              (list)))
 CHECK:            (btor131
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor130))
@@ -621,17 +609,15 @@ CHECK:            (btor132
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor122) (signal-value btor131)))
-CHECK:              (merge-state (list btor122 btor131))))
+CHECK:              (list)))
 CHECK:            (btor133
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor126) (signal-value btor132))
-CHECK:              (merge-state (list btor126 btor132))))
+CHECK:              (list)))
 CHECK:            (btor134
 CHECK:             (if (bitvector->bool (signal-value btor133)) btor122 btor117))
 CHECK:            (btor135
-CHECK:             (signal
-CHECK:              (concat (signal-value btor3) (signal-value btor2))
-CHECK:              (merge-state (list btor3 btor2))))
+CHECK:             (signal (concat (signal-value btor3) (signal-value btor2)) (list)))
 CHECK:            (btor136
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor135) (bitvector 8))
@@ -639,37 +625,33 @@ CHECK:              btor135))
 CHECK:            (btor137
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor136))
-CHECK:              (merge-state (list btor13 btor136))))
+CHECK:              (list)))
 CHECK:            (btor138
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor137))
 CHECK:              (signal-state btor137)))
 CHECK:            (btor139
-CHECK:             (signal
-CHECK:              (bvxor (signal-value btor2) (signal-value btor3))
-CHECK:              (merge-state (list btor2 btor3))))
+CHECK:             (signal (bvxor (signal-value btor2) (signal-value btor3)) (list)))
 CHECK:            (btor140
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor139) (signal-value btor21)))
-CHECK:              (merge-state (list btor139 btor21))))
+CHECK:              (list)))
 CHECK:            (btor141
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor139) (signal-value btor23)))
-CHECK:              (merge-state (list btor139 btor23))))
+CHECK:              (list)))
 CHECK:            (btor142
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor140) (signal-value btor141))
-CHECK:              (merge-state (list btor140 btor141))))
+CHECK:              (list)))
 CHECK:            (btor143
-CHECK:             (signal
-CHECK:              (concat (signal-value btor3) (signal-value btor2))
-CHECK:              (merge-state (list btor3 btor2))))
+CHECK:             (signal (concat (signal-value btor3) (signal-value btor2)) (list)))
 CHECK:            (btor144
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor143))
-CHECK:              (merge-state (list btor21 btor143))))
+CHECK:              (list)))
 CHECK:            (btor145
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor144) (bitvector 8))
@@ -677,7 +659,7 @@ CHECK:              btor144))
 CHECK:            (btor146
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor145))
-CHECK:              (merge-state (list btor13 btor145))))
+CHECK:              (list)))
 CHECK:            (btor147
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor146))
@@ -686,11 +668,11 @@ CHECK:            (btor148
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor138) (signal-value btor147)))
-CHECK:              (merge-state (list btor138 btor147))))
+CHECK:              (list)))
 CHECK:            (btor149
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor142) (signal-value btor148))
-CHECK:              (merge-state (list btor142 btor148))))
+CHECK:              (list)))
 CHECK:            (btor150
 CHECK:             (if (bitvector->bool (signal-value btor149)) btor138 btor134))
 CHECK:            (btor151
@@ -699,10 +681,7 @@ CHECK:            (btor152
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor13)))
 CHECK:              (signal-state btor13)))
-CHECK:            (btor153
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor152))
-CHECK:              (merge-state (list btor152))))
+CHECK:            (btor153 (signal (bvnot (signal-value btor152)) (list)))
 CHECK:            (btor154
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor13)))
@@ -710,17 +689,15 @@ CHECK:              (signal-state btor13)))
 CHECK:            (btor155
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor153) (signal-value btor154))
-CHECK:              (merge-state (list btor153 btor154))))
+CHECK:              (list)))
 CHECK:            (btor156
 CHECK:             (if (bitvector->bool (signal-value btor155)) btor151 btor150))
 CHECK:            (btor157
-CHECK:             (signal
-CHECK:              (concat (signal-value btor3) (signal-value btor2))
-CHECK:              (merge-state (list btor3 btor2))))
+CHECK:             (signal (concat (signal-value btor3) (signal-value btor2)) (list)))
 CHECK:            (btor158
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor157))
-CHECK:              (merge-state (list btor4 btor157))))
+CHECK:              (list)))
 CHECK:            (btor159
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor158) (bitvector 8))
@@ -728,7 +705,7 @@ CHECK:              btor158))
 CHECK:            (btor160
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor13) (signal-value btor159))
-CHECK:              (merge-state (list btor13 btor159))))
+CHECK:              (list)))
 CHECK:            (btor161
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor160))
@@ -736,21 +713,21 @@ CHECK:              (signal-state btor160)))
 CHECK:            (btor162
 CHECK:             (signal
 CHECK:              (bvxor (signal-value btor106) (signal-value btor2))
-CHECK:              (merge-state (list btor106 btor2))))
+CHECK:              (list)))
 CHECK:            (btor163
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor162) (signal-value btor21)))
-CHECK:              (merge-state (list btor162 btor21))))
+CHECK:              (list)))
 CHECK:            (btor164
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor162) (signal-value btor23)))
-CHECK:              (merge-state (list btor162 btor23))))
+CHECK:              (list)))
 CHECK:            (btor165
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor163) (signal-value btor164))
-CHECK:              (merge-state (list btor163 btor164))))
+CHECK:              (list)))
 CHECK:            (btor166
 CHECK:             (if (bitvector->bool (signal-value btor165)) btor161 btor156))
 CHECK:            (btor167 unnamed-input-167)
@@ -758,10 +735,7 @@ CHECK:            (btor168
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor9)))
 CHECK:              (signal-state btor9)))
-CHECK:            (btor169
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor168))
-CHECK:              (merge-state (list btor168))))
+CHECK:            (btor169 (signal (bvnot (signal-value btor168)) (list)))
 CHECK:            (btor170
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor9)))
@@ -769,40 +743,40 @@ CHECK:              (signal-state btor9)))
 CHECK:            (btor171
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor169) (signal-value btor170))
-CHECK:              (merge-state (list btor169 btor170))))
+CHECK:              (list)))
 CHECK:            (btor172
 CHECK:             (if (bitvector->bool (signal-value btor171)) btor167 btor166))
 CHECK:            (btor173 unnamed-input-173)
 CHECK:            (btor174
 CHECK:             (signal
 CHECK:              (bvxor (signal-value btor139) (signal-value btor4))
-CHECK:              (merge-state (list btor139 btor4))))
+CHECK:              (list)))
 CHECK:            (btor175
 CHECK:             (signal
 CHECK:              (bvxor (signal-value btor174) (signal-value btor5))
-CHECK:              (merge-state (list btor174 btor5))))
+CHECK:              (list)))
 CHECK:            (btor176
 CHECK:             (signal
 CHECK:              (bvxor (signal-value btor175) (signal-value btor6))
-CHECK:              (merge-state (list btor175 btor6))))
+CHECK:              (list)))
 CHECK:            (btor177
 CHECK:             (signal
 CHECK:              (bvxor (signal-value btor176) (signal-value btor7))
-CHECK:              (merge-state (list btor176 btor7))))
+CHECK:              (list)))
 CHECK:            (btor178
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor177) (signal-value btor23)))
-CHECK:              (merge-state (list btor177 btor23))))
+CHECK:              (list)))
 CHECK:            (btor179
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor177) (signal-value btor21)))
-CHECK:              (merge-state (list btor177 btor21))))
+CHECK:              (list)))
 CHECK:            (btor180
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor178) (signal-value btor179))
-CHECK:              (merge-state (list btor178 btor179))))
+CHECK:              (list)))
 CHECK:            (btor181
 CHECK:             (if (bitvector->bool (signal-value btor180)) btor173 btor172))
 CHECK:            (btor182 unnamed-input-182)
@@ -815,7 +789,7 @@ CHECK:              btor17))
 CHECK:            (btor185
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor184))
-CHECK:              (merge-state (list btor183 btor184))))
+CHECK:              (list)))
 CHECK:            (btor186
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor185))
@@ -827,7 +801,7 @@ CHECK:              btor27))
 CHECK:            (btor188
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor187))
-CHECK:              (merge-state (list btor183 btor187))))
+CHECK:              (list)))
 CHECK:            (btor189
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor188))
@@ -836,11 +810,11 @@ CHECK:            (btor190
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor186) (signal-value btor189)))
-CHECK:              (merge-state (list btor186 btor189))))
+CHECK:              (list)))
 CHECK:            (btor191
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor25) (signal-value btor190))
-CHECK:              (merge-state (list btor25 btor190))))
+CHECK:              (list)))
 CHECK:            (btor192
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 8))
@@ -848,7 +822,7 @@ CHECK:              btor34))
 CHECK:            (btor193
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor192))
-CHECK:              (merge-state (list btor183 btor192))))
+CHECK:              (list)))
 CHECK:            (btor194
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor193))
@@ -857,11 +831,11 @@ CHECK:            (btor195
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor186) (signal-value btor194)))
-CHECK:              (merge-state (list btor186 btor194))))
+CHECK:              (list)))
 CHECK:            (btor196
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor191) (signal-value btor195))
-CHECK:              (merge-state (list btor191 btor195))))
+CHECK:              (list)))
 CHECK:            (btor197
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor41) (bitvector 8))
@@ -869,7 +843,7 @@ CHECK:              btor41))
 CHECK:            (btor198
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor197))
-CHECK:              (merge-state (list btor183 btor197))))
+CHECK:              (list)))
 CHECK:            (btor199
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor198))
@@ -878,11 +852,11 @@ CHECK:            (btor200
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor186) (signal-value btor199)))
-CHECK:              (merge-state (list btor186 btor199))))
+CHECK:              (list)))
 CHECK:            (btor201
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor196) (signal-value btor200))
-CHECK:              (merge-state (list btor196 btor200))))
+CHECK:              (list)))
 CHECK:            (btor202
 CHECK:             (if (bitvector->bool (signal-value btor201)) btor186 btor182))
 CHECK:            (btor203
@@ -892,7 +866,7 @@ CHECK:              btor48))
 CHECK:            (btor204
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor203))
-CHECK:              (merge-state (list btor183 btor203))))
+CHECK:              (list)))
 CHECK:            (btor205
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor204))
@@ -904,7 +878,7 @@ CHECK:              btor55))
 CHECK:            (btor207
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor206))
-CHECK:              (merge-state (list btor183 btor206))))
+CHECK:              (list)))
 CHECK:            (btor208
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor207))
@@ -913,11 +887,11 @@ CHECK:            (btor209
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor205) (signal-value btor208)))
-CHECK:              (merge-state (list btor205 btor208))))
+CHECK:              (list)))
 CHECK:            (btor210
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor54) (signal-value btor209))
-CHECK:              (merge-state (list btor54 btor209))))
+CHECK:              (list)))
 CHECK:            (btor211
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor62) (bitvector 8))
@@ -925,7 +899,7 @@ CHECK:              btor62))
 CHECK:            (btor212
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor211))
-CHECK:              (merge-state (list btor183 btor211))))
+CHECK:              (list)))
 CHECK:            (btor213
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor212))
@@ -934,11 +908,11 @@ CHECK:            (btor214
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor205) (signal-value btor213)))
-CHECK:              (merge-state (list btor205 btor213))))
+CHECK:              (list)))
 CHECK:            (btor215
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor210) (signal-value btor214))
-CHECK:              (merge-state (list btor210 btor214))))
+CHECK:              (list)))
 CHECK:            (btor216
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor69) (bitvector 8))
@@ -946,7 +920,7 @@ CHECK:              btor69))
 CHECK:            (btor217
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor216))
-CHECK:              (merge-state (list btor183 btor216))))
+CHECK:              (list)))
 CHECK:            (btor218
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor217))
@@ -955,11 +929,11 @@ CHECK:            (btor219
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor205) (signal-value btor218)))
-CHECK:              (merge-state (list btor205 btor218))))
+CHECK:              (list)))
 CHECK:            (btor220
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor215) (signal-value btor219))
-CHECK:              (merge-state (list btor215 btor219))))
+CHECK:              (list)))
 CHECK:            (btor221
 CHECK:             (if (bitvector->bool (signal-value btor220)) btor205 btor202))
 CHECK:            (btor222
@@ -969,7 +943,7 @@ CHECK:              btor2))
 CHECK:            (btor223
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor222))
-CHECK:              (merge-state (list btor183 btor222))))
+CHECK:              (list)))
 CHECK:            (btor224
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor223))
@@ -981,7 +955,7 @@ CHECK:              btor82))
 CHECK:            (btor226
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor225))
-CHECK:              (merge-state (list btor183 btor225))))
+CHECK:              (list)))
 CHECK:            (btor227
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor226))
@@ -990,11 +964,11 @@ CHECK:            (btor228
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor224) (signal-value btor227)))
-CHECK:              (merge-state (list btor224 btor227))))
+CHECK:              (list)))
 CHECK:            (btor229
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor81) (signal-value btor228))
-CHECK:              (merge-state (list btor81 btor228))))
+CHECK:              (list)))
 CHECK:            (btor230
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor88) (bitvector 8))
@@ -1002,7 +976,7 @@ CHECK:              btor88))
 CHECK:            (btor231
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor230))
-CHECK:              (merge-state (list btor183 btor230))))
+CHECK:              (list)))
 CHECK:            (btor232
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor231))
@@ -1011,11 +985,11 @@ CHECK:            (btor233
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor224) (signal-value btor232)))
-CHECK:              (merge-state (list btor224 btor232))))
+CHECK:              (list)))
 CHECK:            (btor234
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor229) (signal-value btor233))
-CHECK:              (merge-state (list btor229 btor233))))
+CHECK:              (list)))
 CHECK:            (btor235
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor94) (bitvector 8))
@@ -1023,7 +997,7 @@ CHECK:              btor94))
 CHECK:            (btor236
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor235))
-CHECK:              (merge-state (list btor183 btor235))))
+CHECK:              (list)))
 CHECK:            (btor237
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor236))
@@ -1032,11 +1006,11 @@ CHECK:            (btor238
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor224) (signal-value btor237)))
-CHECK:              (merge-state (list btor224 btor237))))
+CHECK:              (list)))
 CHECK:            (btor239
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor234) (signal-value btor238))
-CHECK:              (merge-state (list btor234 btor238))))
+CHECK:              (list)))
 CHECK:            (btor240
 CHECK:             (if (bitvector->bool (signal-value btor239)) btor224 btor221))
 CHECK:            (btor241
@@ -1046,7 +1020,7 @@ CHECK:              btor102))
 CHECK:            (btor242
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor241))
-CHECK:              (merge-state (list btor183 btor241))))
+CHECK:              (list)))
 CHECK:            (btor243
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor242))
@@ -1058,7 +1032,7 @@ CHECK:              btor111))
 CHECK:            (btor245
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor244))
-CHECK:              (merge-state (list btor183 btor244))))
+CHECK:              (list)))
 CHECK:            (btor246
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor245))
@@ -1067,11 +1041,11 @@ CHECK:            (btor247
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor243) (signal-value btor246)))
-CHECK:              (merge-state (list btor243 btor246))))
+CHECK:              (list)))
 CHECK:            (btor248
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor109) (signal-value btor247))
-CHECK:              (merge-state (list btor109 btor247))))
+CHECK:              (list)))
 CHECK:            (btor249
 CHECK:             (if (bitvector->bool (signal-value btor248)) btor243 btor240))
 CHECK:            (btor250
@@ -1081,7 +1055,7 @@ CHECK:              btor119))
 CHECK:            (btor251
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor250))
-CHECK:              (merge-state (list btor183 btor250))))
+CHECK:              (list)))
 CHECK:            (btor252
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor251))
@@ -1093,7 +1067,7 @@ CHECK:              btor128))
 CHECK:            (btor254
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor253))
-CHECK:              (merge-state (list btor183 btor253))))
+CHECK:              (list)))
 CHECK:            (btor255
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor254))
@@ -1102,11 +1076,11 @@ CHECK:            (btor256
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor252) (signal-value btor255)))
-CHECK:              (merge-state (list btor252 btor255))))
+CHECK:              (list)))
 CHECK:            (btor257
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor126) (signal-value btor256))
-CHECK:              (merge-state (list btor126 btor256))))
+CHECK:              (list)))
 CHECK:            (btor258
 CHECK:             (if (bitvector->bool (signal-value btor257)) btor252 btor249))
 CHECK:            (btor259
@@ -1116,7 +1090,7 @@ CHECK:              btor135))
 CHECK:            (btor260
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor259))
-CHECK:              (merge-state (list btor183 btor259))))
+CHECK:              (list)))
 CHECK:            (btor261
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor260))
@@ -1128,7 +1102,7 @@ CHECK:              btor144))
 CHECK:            (btor263
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor262))
-CHECK:              (merge-state (list btor183 btor262))))
+CHECK:              (list)))
 CHECK:            (btor264
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor263))
@@ -1137,11 +1111,11 @@ CHECK:            (btor265
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor261) (signal-value btor264)))
-CHECK:              (merge-state (list btor261 btor264))))
+CHECK:              (list)))
 CHECK:            (btor266
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor142) (signal-value btor265))
-CHECK:              (merge-state (list btor142 btor265))))
+CHECK:              (list)))
 CHECK:            (btor267
 CHECK:             (if (bitvector->bool (signal-value btor266)) btor261 btor258))
 CHECK:            (btor268
@@ -1150,10 +1124,7 @@ CHECK:            (btor269
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor183)))
 CHECK:              (signal-state btor183)))
-CHECK:            (btor270
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor269))
-CHECK:              (merge-state (list btor269))))
+CHECK:            (btor270 (signal (bvnot (signal-value btor269)) (list)))
 CHECK:            (btor271
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor183)))
@@ -1161,7 +1132,7 @@ CHECK:              (signal-state btor183)))
 CHECK:            (btor272
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor270) (signal-value btor271))
-CHECK:              (merge-state (list btor270 btor271))))
+CHECK:              (list)))
 CHECK:            (btor273
 CHECK:             (if (bitvector->bool (signal-value btor272)) btor268 btor267))
 CHECK:            (btor274
@@ -1171,7 +1142,7 @@ CHECK:              btor158))
 CHECK:            (btor275
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor183) (signal-value btor274))
-CHECK:              (merge-state (list btor183 btor274))))
+CHECK:              (list)))
 CHECK:            (btor276
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor275))
@@ -1194,7 +1165,7 @@ CHECK:              btor17))
 CHECK:            (btor285
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor284))
-CHECK:              (merge-state (list btor283 btor284))))
+CHECK:              (list)))
 CHECK:            (btor286
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor285))
@@ -1206,7 +1177,7 @@ CHECK:              btor27))
 CHECK:            (btor288
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor287))
-CHECK:              (merge-state (list btor283 btor287))))
+CHECK:              (list)))
 CHECK:            (btor289
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor288))
@@ -1215,11 +1186,11 @@ CHECK:            (btor290
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor286) (signal-value btor289)))
-CHECK:              (merge-state (list btor286 btor289))))
+CHECK:              (list)))
 CHECK:            (btor291
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor25) (signal-value btor290))
-CHECK:              (merge-state (list btor25 btor290))))
+CHECK:              (list)))
 CHECK:            (btor292
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 8))
@@ -1227,7 +1198,7 @@ CHECK:              btor34))
 CHECK:            (btor293
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor292))
-CHECK:              (merge-state (list btor283 btor292))))
+CHECK:              (list)))
 CHECK:            (btor294
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor293))
@@ -1236,11 +1207,11 @@ CHECK:            (btor295
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor286) (signal-value btor294)))
-CHECK:              (merge-state (list btor286 btor294))))
+CHECK:              (list)))
 CHECK:            (btor296
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor291) (signal-value btor295))
-CHECK:              (merge-state (list btor291 btor295))))
+CHECK:              (list)))
 CHECK:            (btor297
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor41) (bitvector 8))
@@ -1248,7 +1219,7 @@ CHECK:              btor41))
 CHECK:            (btor298
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor297))
-CHECK:              (merge-state (list btor283 btor297))))
+CHECK:              (list)))
 CHECK:            (btor299
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor298))
@@ -1257,11 +1228,11 @@ CHECK:            (btor300
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor286) (signal-value btor299)))
-CHECK:              (merge-state (list btor286 btor299))))
+CHECK:              (list)))
 CHECK:            (btor301
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor296) (signal-value btor300))
-CHECK:              (merge-state (list btor296 btor300))))
+CHECK:              (list)))
 CHECK:            (btor302
 CHECK:             (if (bitvector->bool (signal-value btor301)) btor286 btor282))
 CHECK:            (btor303
@@ -1271,7 +1242,7 @@ CHECK:              btor48))
 CHECK:            (btor304
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor303))
-CHECK:              (merge-state (list btor283 btor303))))
+CHECK:              (list)))
 CHECK:            (btor305
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor304))
@@ -1283,7 +1254,7 @@ CHECK:              btor55))
 CHECK:            (btor307
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor306))
-CHECK:              (merge-state (list btor283 btor306))))
+CHECK:              (list)))
 CHECK:            (btor308
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor307))
@@ -1292,11 +1263,11 @@ CHECK:            (btor309
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor305) (signal-value btor308)))
-CHECK:              (merge-state (list btor305 btor308))))
+CHECK:              (list)))
 CHECK:            (btor310
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor54) (signal-value btor309))
-CHECK:              (merge-state (list btor54 btor309))))
+CHECK:              (list)))
 CHECK:            (btor311
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor62) (bitvector 8))
@@ -1304,7 +1275,7 @@ CHECK:              btor62))
 CHECK:            (btor312
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor311))
-CHECK:              (merge-state (list btor283 btor311))))
+CHECK:              (list)))
 CHECK:            (btor313
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor312))
@@ -1313,11 +1284,11 @@ CHECK:            (btor314
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor305) (signal-value btor313)))
-CHECK:              (merge-state (list btor305 btor313))))
+CHECK:              (list)))
 CHECK:            (btor315
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor310) (signal-value btor314))
-CHECK:              (merge-state (list btor310 btor314))))
+CHECK:              (list)))
 CHECK:            (btor316
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor69) (bitvector 8))
@@ -1325,7 +1296,7 @@ CHECK:              btor69))
 CHECK:            (btor317
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor316))
-CHECK:              (merge-state (list btor283 btor316))))
+CHECK:              (list)))
 CHECK:            (btor318
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor317))
@@ -1334,11 +1305,11 @@ CHECK:            (btor319
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor305) (signal-value btor318)))
-CHECK:              (merge-state (list btor305 btor318))))
+CHECK:              (list)))
 CHECK:            (btor320
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor315) (signal-value btor319))
-CHECK:              (merge-state (list btor315 btor319))))
+CHECK:              (list)))
 CHECK:            (btor321
 CHECK:             (if (bitvector->bool (signal-value btor320)) btor305 btor302))
 CHECK:            (btor322
@@ -1348,7 +1319,7 @@ CHECK:              btor2))
 CHECK:            (btor323
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor322))
-CHECK:              (merge-state (list btor283 btor322))))
+CHECK:              (list)))
 CHECK:            (btor324
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor323))
@@ -1360,7 +1331,7 @@ CHECK:              btor82))
 CHECK:            (btor326
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor325))
-CHECK:              (merge-state (list btor283 btor325))))
+CHECK:              (list)))
 CHECK:            (btor327
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor326))
@@ -1369,11 +1340,11 @@ CHECK:            (btor328
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor324) (signal-value btor327)))
-CHECK:              (merge-state (list btor324 btor327))))
+CHECK:              (list)))
 CHECK:            (btor329
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor81) (signal-value btor328))
-CHECK:              (merge-state (list btor81 btor328))))
+CHECK:              (list)))
 CHECK:            (btor330
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor88) (bitvector 8))
@@ -1381,7 +1352,7 @@ CHECK:              btor88))
 CHECK:            (btor331
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor330))
-CHECK:              (merge-state (list btor283 btor330))))
+CHECK:              (list)))
 CHECK:            (btor332
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor331))
@@ -1390,11 +1361,11 @@ CHECK:            (btor333
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor324) (signal-value btor332)))
-CHECK:              (merge-state (list btor324 btor332))))
+CHECK:              (list)))
 CHECK:            (btor334
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor329) (signal-value btor333))
-CHECK:              (merge-state (list btor329 btor333))))
+CHECK:              (list)))
 CHECK:            (btor335
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor94) (bitvector 8))
@@ -1402,7 +1373,7 @@ CHECK:              btor94))
 CHECK:            (btor336
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor335))
-CHECK:              (merge-state (list btor283 btor335))))
+CHECK:              (list)))
 CHECK:            (btor337
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor336))
@@ -1411,11 +1382,11 @@ CHECK:            (btor338
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor324) (signal-value btor337)))
-CHECK:              (merge-state (list btor324 btor337))))
+CHECK:              (list)))
 CHECK:            (btor339
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor334) (signal-value btor338))
-CHECK:              (merge-state (list btor334 btor338))))
+CHECK:              (list)))
 CHECK:            (btor340
 CHECK:             (if (bitvector->bool (signal-value btor339)) btor324 btor321))
 CHECK:            (btor341
@@ -1425,7 +1396,7 @@ CHECK:              btor102))
 CHECK:            (btor342
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor341))
-CHECK:              (merge-state (list btor283 btor341))))
+CHECK:              (list)))
 CHECK:            (btor343
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor342))
@@ -1437,7 +1408,7 @@ CHECK:              btor111))
 CHECK:            (btor345
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor344))
-CHECK:              (merge-state (list btor283 btor344))))
+CHECK:              (list)))
 CHECK:            (btor346
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor345))
@@ -1446,11 +1417,11 @@ CHECK:            (btor347
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor343) (signal-value btor346)))
-CHECK:              (merge-state (list btor343 btor346))))
+CHECK:              (list)))
 CHECK:            (btor348
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor109) (signal-value btor347))
-CHECK:              (merge-state (list btor109 btor347))))
+CHECK:              (list)))
 CHECK:            (btor349
 CHECK:             (if (bitvector->bool (signal-value btor348)) btor343 btor340))
 CHECK:            (btor350
@@ -1460,7 +1431,7 @@ CHECK:              btor119))
 CHECK:            (btor351
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor350))
-CHECK:              (merge-state (list btor283 btor350))))
+CHECK:              (list)))
 CHECK:            (btor352
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor351))
@@ -1472,7 +1443,7 @@ CHECK:              btor128))
 CHECK:            (btor354
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor353))
-CHECK:              (merge-state (list btor283 btor353))))
+CHECK:              (list)))
 CHECK:            (btor355
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor354))
@@ -1481,11 +1452,11 @@ CHECK:            (btor356
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor352) (signal-value btor355)))
-CHECK:              (merge-state (list btor352 btor355))))
+CHECK:              (list)))
 CHECK:            (btor357
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor126) (signal-value btor356))
-CHECK:              (merge-state (list btor126 btor356))))
+CHECK:              (list)))
 CHECK:            (btor358
 CHECK:             (if (bitvector->bool (signal-value btor357)) btor352 btor349))
 CHECK:            (btor359
@@ -1495,7 +1466,7 @@ CHECK:              btor135))
 CHECK:            (btor360
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor359))
-CHECK:              (merge-state (list btor283 btor359))))
+CHECK:              (list)))
 CHECK:            (btor361
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor360))
@@ -1507,7 +1478,7 @@ CHECK:              btor144))
 CHECK:            (btor363
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor362))
-CHECK:              (merge-state (list btor283 btor362))))
+CHECK:              (list)))
 CHECK:            (btor364
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor363))
@@ -1516,11 +1487,11 @@ CHECK:            (btor365
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor361) (signal-value btor364)))
-CHECK:              (merge-state (list btor361 btor364))))
+CHECK:              (list)))
 CHECK:            (btor366
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor142) (signal-value btor365))
-CHECK:              (merge-state (list btor142 btor365))))
+CHECK:              (list)))
 CHECK:            (btor367
 CHECK:             (if (bitvector->bool (signal-value btor366)) btor361 btor358))
 CHECK:            (btor368
@@ -1529,10 +1500,7 @@ CHECK:            (btor369
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor283)))
 CHECK:              (signal-state btor283)))
-CHECK:            (btor370
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor369))
-CHECK:              (merge-state (list btor369))))
+CHECK:            (btor370 (signal (bvnot (signal-value btor369)) (list)))
 CHECK:            (btor371
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor283)))
@@ -1540,7 +1508,7 @@ CHECK:              (signal-state btor283)))
 CHECK:            (btor372
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor370) (signal-value btor371))
-CHECK:              (merge-state (list btor370 btor371))))
+CHECK:              (list)))
 CHECK:            (btor373
 CHECK:             (if (bitvector->bool (signal-value btor372)) btor368 btor367))
 CHECK:            (btor374
@@ -1550,7 +1518,7 @@ CHECK:              btor158))
 CHECK:            (btor375
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor283) (signal-value btor374))
-CHECK:              (merge-state (list btor283 btor374))))
+CHECK:              (list)))
 CHECK:            (btor376
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor375))
@@ -1573,7 +1541,7 @@ CHECK:              btor17))
 CHECK:            (btor385
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor384))
-CHECK:              (merge-state (list btor383 btor384))))
+CHECK:              (list)))
 CHECK:            (btor386
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor385))
@@ -1585,7 +1553,7 @@ CHECK:              btor27))
 CHECK:            (btor388
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor387))
-CHECK:              (merge-state (list btor383 btor387))))
+CHECK:              (list)))
 CHECK:            (btor389
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor388))
@@ -1594,11 +1562,11 @@ CHECK:            (btor390
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor386) (signal-value btor389)))
-CHECK:              (merge-state (list btor386 btor389))))
+CHECK:              (list)))
 CHECK:            (btor391
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor25) (signal-value btor390))
-CHECK:              (merge-state (list btor25 btor390))))
+CHECK:              (list)))
 CHECK:            (btor392
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 8))
@@ -1606,7 +1574,7 @@ CHECK:              btor34))
 CHECK:            (btor393
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor392))
-CHECK:              (merge-state (list btor383 btor392))))
+CHECK:              (list)))
 CHECK:            (btor394
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor393))
@@ -1615,11 +1583,11 @@ CHECK:            (btor395
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor386) (signal-value btor394)))
-CHECK:              (merge-state (list btor386 btor394))))
+CHECK:              (list)))
 CHECK:            (btor396
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor391) (signal-value btor395))
-CHECK:              (merge-state (list btor391 btor395))))
+CHECK:              (list)))
 CHECK:            (btor397
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor41) (bitvector 8))
@@ -1627,7 +1595,7 @@ CHECK:              btor41))
 CHECK:            (btor398
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor397))
-CHECK:              (merge-state (list btor383 btor397))))
+CHECK:              (list)))
 CHECK:            (btor399
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor398))
@@ -1636,11 +1604,11 @@ CHECK:            (btor400
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor386) (signal-value btor399)))
-CHECK:              (merge-state (list btor386 btor399))))
+CHECK:              (list)))
 CHECK:            (btor401
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor396) (signal-value btor400))
-CHECK:              (merge-state (list btor396 btor400))))
+CHECK:              (list)))
 CHECK:            (btor402
 CHECK:             (if (bitvector->bool (signal-value btor401)) btor386 btor382))
 CHECK:            (btor403
@@ -1650,7 +1618,7 @@ CHECK:              btor48))
 CHECK:            (btor404
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor403))
-CHECK:              (merge-state (list btor383 btor403))))
+CHECK:              (list)))
 CHECK:            (btor405
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor404))
@@ -1662,7 +1630,7 @@ CHECK:              btor55))
 CHECK:            (btor407
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor406))
-CHECK:              (merge-state (list btor383 btor406))))
+CHECK:              (list)))
 CHECK:            (btor408
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor407))
@@ -1671,11 +1639,11 @@ CHECK:            (btor409
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor405) (signal-value btor408)))
-CHECK:              (merge-state (list btor405 btor408))))
+CHECK:              (list)))
 CHECK:            (btor410
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor54) (signal-value btor409))
-CHECK:              (merge-state (list btor54 btor409))))
+CHECK:              (list)))
 CHECK:            (btor411
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor62) (bitvector 8))
@@ -1683,7 +1651,7 @@ CHECK:              btor62))
 CHECK:            (btor412
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor411))
-CHECK:              (merge-state (list btor383 btor411))))
+CHECK:              (list)))
 CHECK:            (btor413
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor412))
@@ -1692,11 +1660,11 @@ CHECK:            (btor414
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor405) (signal-value btor413)))
-CHECK:              (merge-state (list btor405 btor413))))
+CHECK:              (list)))
 CHECK:            (btor415
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor410) (signal-value btor414))
-CHECK:              (merge-state (list btor410 btor414))))
+CHECK:              (list)))
 CHECK:            (btor416
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor69) (bitvector 8))
@@ -1704,7 +1672,7 @@ CHECK:              btor69))
 CHECK:            (btor417
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor416))
-CHECK:              (merge-state (list btor383 btor416))))
+CHECK:              (list)))
 CHECK:            (btor418
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor417))
@@ -1713,11 +1681,11 @@ CHECK:            (btor419
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor405) (signal-value btor418)))
-CHECK:              (merge-state (list btor405 btor418))))
+CHECK:              (list)))
 CHECK:            (btor420
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor415) (signal-value btor419))
-CHECK:              (merge-state (list btor415 btor419))))
+CHECK:              (list)))
 CHECK:            (btor421
 CHECK:             (if (bitvector->bool (signal-value btor420)) btor405 btor402))
 CHECK:            (btor422
@@ -1727,7 +1695,7 @@ CHECK:              btor2))
 CHECK:            (btor423
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor422))
-CHECK:              (merge-state (list btor383 btor422))))
+CHECK:              (list)))
 CHECK:            (btor424
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor423))
@@ -1739,7 +1707,7 @@ CHECK:              btor82))
 CHECK:            (btor426
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor425))
-CHECK:              (merge-state (list btor383 btor425))))
+CHECK:              (list)))
 CHECK:            (btor427
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor426))
@@ -1748,11 +1716,11 @@ CHECK:            (btor428
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor424) (signal-value btor427)))
-CHECK:              (merge-state (list btor424 btor427))))
+CHECK:              (list)))
 CHECK:            (btor429
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor81) (signal-value btor428))
-CHECK:              (merge-state (list btor81 btor428))))
+CHECK:              (list)))
 CHECK:            (btor430
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor88) (bitvector 8))
@@ -1760,7 +1728,7 @@ CHECK:              btor88))
 CHECK:            (btor431
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor430))
-CHECK:              (merge-state (list btor383 btor430))))
+CHECK:              (list)))
 CHECK:            (btor432
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor431))
@@ -1769,11 +1737,11 @@ CHECK:            (btor433
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor424) (signal-value btor432)))
-CHECK:              (merge-state (list btor424 btor432))))
+CHECK:              (list)))
 CHECK:            (btor434
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor429) (signal-value btor433))
-CHECK:              (merge-state (list btor429 btor433))))
+CHECK:              (list)))
 CHECK:            (btor435
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor94) (bitvector 8))
@@ -1781,7 +1749,7 @@ CHECK:              btor94))
 CHECK:            (btor436
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor435))
-CHECK:              (merge-state (list btor383 btor435))))
+CHECK:              (list)))
 CHECK:            (btor437
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor436))
@@ -1790,11 +1758,11 @@ CHECK:            (btor438
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor424) (signal-value btor437)))
-CHECK:              (merge-state (list btor424 btor437))))
+CHECK:              (list)))
 CHECK:            (btor439
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor434) (signal-value btor438))
-CHECK:              (merge-state (list btor434 btor438))))
+CHECK:              (list)))
 CHECK:            (btor440
 CHECK:             (if (bitvector->bool (signal-value btor439)) btor424 btor421))
 CHECK:            (btor441
@@ -1804,7 +1772,7 @@ CHECK:              btor102))
 CHECK:            (btor442
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor441))
-CHECK:              (merge-state (list btor383 btor441))))
+CHECK:              (list)))
 CHECK:            (btor443
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor442))
@@ -1816,7 +1784,7 @@ CHECK:              btor111))
 CHECK:            (btor445
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor444))
-CHECK:              (merge-state (list btor383 btor444))))
+CHECK:              (list)))
 CHECK:            (btor446
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor445))
@@ -1825,11 +1793,11 @@ CHECK:            (btor447
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor443) (signal-value btor446)))
-CHECK:              (merge-state (list btor443 btor446))))
+CHECK:              (list)))
 CHECK:            (btor448
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor109) (signal-value btor447))
-CHECK:              (merge-state (list btor109 btor447))))
+CHECK:              (list)))
 CHECK:            (btor449
 CHECK:             (if (bitvector->bool (signal-value btor448)) btor443 btor440))
 CHECK:            (btor450
@@ -1839,7 +1807,7 @@ CHECK:              btor119))
 CHECK:            (btor451
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor450))
-CHECK:              (merge-state (list btor383 btor450))))
+CHECK:              (list)))
 CHECK:            (btor452
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor451))
@@ -1851,7 +1819,7 @@ CHECK:              btor128))
 CHECK:            (btor454
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor453))
-CHECK:              (merge-state (list btor383 btor453))))
+CHECK:              (list)))
 CHECK:            (btor455
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor454))
@@ -1860,11 +1828,11 @@ CHECK:            (btor456
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor452) (signal-value btor455)))
-CHECK:              (merge-state (list btor452 btor455))))
+CHECK:              (list)))
 CHECK:            (btor457
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor126) (signal-value btor456))
-CHECK:              (merge-state (list btor126 btor456))))
+CHECK:              (list)))
 CHECK:            (btor458
 CHECK:             (if (bitvector->bool (signal-value btor457)) btor452 btor449))
 CHECK:            (btor459
@@ -1874,7 +1842,7 @@ CHECK:              btor135))
 CHECK:            (btor460
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor459))
-CHECK:              (merge-state (list btor383 btor459))))
+CHECK:              (list)))
 CHECK:            (btor461
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor460))
@@ -1886,7 +1854,7 @@ CHECK:              btor144))
 CHECK:            (btor463
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor462))
-CHECK:              (merge-state (list btor383 btor462))))
+CHECK:              (list)))
 CHECK:            (btor464
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor463))
@@ -1895,11 +1863,11 @@ CHECK:            (btor465
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor461) (signal-value btor464)))
-CHECK:              (merge-state (list btor461 btor464))))
+CHECK:              (list)))
 CHECK:            (btor466
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor142) (signal-value btor465))
-CHECK:              (merge-state (list btor142 btor465))))
+CHECK:              (list)))
 CHECK:            (btor467
 CHECK:             (if (bitvector->bool (signal-value btor466)) btor461 btor458))
 CHECK:            (btor468
@@ -1908,10 +1876,7 @@ CHECK:            (btor469
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor383)))
 CHECK:              (signal-state btor383)))
-CHECK:            (btor470
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor469))
-CHECK:              (merge-state (list btor469))))
+CHECK:            (btor470 (signal (bvnot (signal-value btor469)) (list)))
 CHECK:            (btor471
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor383)))
@@ -1919,7 +1884,7 @@ CHECK:              (signal-state btor383)))
 CHECK:            (btor472
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor470) (signal-value btor471))
-CHECK:              (merge-state (list btor470 btor471))))
+CHECK:              (list)))
 CHECK:            (btor473
 CHECK:             (if (bitvector->bool (signal-value btor472)) btor468 btor467))
 CHECK:            (btor474
@@ -1929,7 +1894,7 @@ CHECK:              btor158))
 CHECK:            (btor475
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor383) (signal-value btor474))
-CHECK:              (merge-state (list btor383 btor474))))
+CHECK:              (list)))
 CHECK:            (btor476
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor475))
@@ -1952,7 +1917,7 @@ CHECK:              btor17))
 CHECK:            (btor485
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor484))
-CHECK:              (merge-state (list btor483 btor484))))
+CHECK:              (list)))
 CHECK:            (btor486
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor485))
@@ -1964,7 +1929,7 @@ CHECK:              btor27))
 CHECK:            (btor488
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor487))
-CHECK:              (merge-state (list btor483 btor487))))
+CHECK:              (list)))
 CHECK:            (btor489
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor488))
@@ -1973,11 +1938,11 @@ CHECK:            (btor490
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor486) (signal-value btor489)))
-CHECK:              (merge-state (list btor486 btor489))))
+CHECK:              (list)))
 CHECK:            (btor491
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor25) (signal-value btor490))
-CHECK:              (merge-state (list btor25 btor490))))
+CHECK:              (list)))
 CHECK:            (btor492
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 8))
@@ -1985,7 +1950,7 @@ CHECK:              btor34))
 CHECK:            (btor493
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor492))
-CHECK:              (merge-state (list btor483 btor492))))
+CHECK:              (list)))
 CHECK:            (btor494
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor493))
@@ -1994,11 +1959,11 @@ CHECK:            (btor495
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor486) (signal-value btor494)))
-CHECK:              (merge-state (list btor486 btor494))))
+CHECK:              (list)))
 CHECK:            (btor496
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor491) (signal-value btor495))
-CHECK:              (merge-state (list btor491 btor495))))
+CHECK:              (list)))
 CHECK:            (btor497
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor41) (bitvector 8))
@@ -2006,7 +1971,7 @@ CHECK:              btor41))
 CHECK:            (btor498
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor497))
-CHECK:              (merge-state (list btor483 btor497))))
+CHECK:              (list)))
 CHECK:            (btor499
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor498))
@@ -2015,11 +1980,11 @@ CHECK:            (btor500
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor486) (signal-value btor499)))
-CHECK:              (merge-state (list btor486 btor499))))
+CHECK:              (list)))
 CHECK:            (btor501
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor496) (signal-value btor500))
-CHECK:              (merge-state (list btor496 btor500))))
+CHECK:              (list)))
 CHECK:            (btor502
 CHECK:             (if (bitvector->bool (signal-value btor501)) btor486 btor482))
 CHECK:            (btor503
@@ -2029,7 +1994,7 @@ CHECK:              btor48))
 CHECK:            (btor504
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor503))
-CHECK:              (merge-state (list btor483 btor503))))
+CHECK:              (list)))
 CHECK:            (btor505
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor504))
@@ -2041,7 +2006,7 @@ CHECK:              btor55))
 CHECK:            (btor507
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor506))
-CHECK:              (merge-state (list btor483 btor506))))
+CHECK:              (list)))
 CHECK:            (btor508
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor507))
@@ -2050,11 +2015,11 @@ CHECK:            (btor509
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor505) (signal-value btor508)))
-CHECK:              (merge-state (list btor505 btor508))))
+CHECK:              (list)))
 CHECK:            (btor510
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor54) (signal-value btor509))
-CHECK:              (merge-state (list btor54 btor509))))
+CHECK:              (list)))
 CHECK:            (btor511
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor62) (bitvector 8))
@@ -2062,7 +2027,7 @@ CHECK:              btor62))
 CHECK:            (btor512
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor511))
-CHECK:              (merge-state (list btor483 btor511))))
+CHECK:              (list)))
 CHECK:            (btor513
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor512))
@@ -2071,11 +2036,11 @@ CHECK:            (btor514
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor505) (signal-value btor513)))
-CHECK:              (merge-state (list btor505 btor513))))
+CHECK:              (list)))
 CHECK:            (btor515
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor510) (signal-value btor514))
-CHECK:              (merge-state (list btor510 btor514))))
+CHECK:              (list)))
 CHECK:            (btor516
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor69) (bitvector 8))
@@ -2083,7 +2048,7 @@ CHECK:              btor69))
 CHECK:            (btor517
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor516))
-CHECK:              (merge-state (list btor483 btor516))))
+CHECK:              (list)))
 CHECK:            (btor518
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor517))
@@ -2092,11 +2057,11 @@ CHECK:            (btor519
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor505) (signal-value btor518)))
-CHECK:              (merge-state (list btor505 btor518))))
+CHECK:              (list)))
 CHECK:            (btor520
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor515) (signal-value btor519))
-CHECK:              (merge-state (list btor515 btor519))))
+CHECK:              (list)))
 CHECK:            (btor521
 CHECK:             (if (bitvector->bool (signal-value btor520)) btor505 btor502))
 CHECK:            (btor522
@@ -2106,7 +2071,7 @@ CHECK:              btor2))
 CHECK:            (btor523
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor522))
-CHECK:              (merge-state (list btor483 btor522))))
+CHECK:              (list)))
 CHECK:            (btor524
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor523))
@@ -2118,7 +2083,7 @@ CHECK:              btor82))
 CHECK:            (btor526
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor525))
-CHECK:              (merge-state (list btor483 btor525))))
+CHECK:              (list)))
 CHECK:            (btor527
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor526))
@@ -2127,11 +2092,11 @@ CHECK:            (btor528
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor524) (signal-value btor527)))
-CHECK:              (merge-state (list btor524 btor527))))
+CHECK:              (list)))
 CHECK:            (btor529
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor81) (signal-value btor528))
-CHECK:              (merge-state (list btor81 btor528))))
+CHECK:              (list)))
 CHECK:            (btor530
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor88) (bitvector 8))
@@ -2139,7 +2104,7 @@ CHECK:              btor88))
 CHECK:            (btor531
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor530))
-CHECK:              (merge-state (list btor483 btor530))))
+CHECK:              (list)))
 CHECK:            (btor532
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor531))
@@ -2148,11 +2113,11 @@ CHECK:            (btor533
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor524) (signal-value btor532)))
-CHECK:              (merge-state (list btor524 btor532))))
+CHECK:              (list)))
 CHECK:            (btor534
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor529) (signal-value btor533))
-CHECK:              (merge-state (list btor529 btor533))))
+CHECK:              (list)))
 CHECK:            (btor535
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor94) (bitvector 8))
@@ -2160,7 +2125,7 @@ CHECK:              btor94))
 CHECK:            (btor536
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor535))
-CHECK:              (merge-state (list btor483 btor535))))
+CHECK:              (list)))
 CHECK:            (btor537
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor536))
@@ -2169,11 +2134,11 @@ CHECK:            (btor538
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor524) (signal-value btor537)))
-CHECK:              (merge-state (list btor524 btor537))))
+CHECK:              (list)))
 CHECK:            (btor539
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor534) (signal-value btor538))
-CHECK:              (merge-state (list btor534 btor538))))
+CHECK:              (list)))
 CHECK:            (btor540
 CHECK:             (if (bitvector->bool (signal-value btor539)) btor524 btor521))
 CHECK:            (btor541
@@ -2183,7 +2148,7 @@ CHECK:              btor102))
 CHECK:            (btor542
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor541))
-CHECK:              (merge-state (list btor483 btor541))))
+CHECK:              (list)))
 CHECK:            (btor543
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor542))
@@ -2195,7 +2160,7 @@ CHECK:              btor111))
 CHECK:            (btor545
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor544))
-CHECK:              (merge-state (list btor483 btor544))))
+CHECK:              (list)))
 CHECK:            (btor546
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor545))
@@ -2204,11 +2169,11 @@ CHECK:            (btor547
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor543) (signal-value btor546)))
-CHECK:              (merge-state (list btor543 btor546))))
+CHECK:              (list)))
 CHECK:            (btor548
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor109) (signal-value btor547))
-CHECK:              (merge-state (list btor109 btor547))))
+CHECK:              (list)))
 CHECK:            (btor549
 CHECK:             (if (bitvector->bool (signal-value btor548)) btor543 btor540))
 CHECK:            (btor550
@@ -2218,7 +2183,7 @@ CHECK:              btor119))
 CHECK:            (btor551
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor550))
-CHECK:              (merge-state (list btor483 btor550))))
+CHECK:              (list)))
 CHECK:            (btor552
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor551))
@@ -2230,7 +2195,7 @@ CHECK:              btor128))
 CHECK:            (btor554
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor553))
-CHECK:              (merge-state (list btor483 btor553))))
+CHECK:              (list)))
 CHECK:            (btor555
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor554))
@@ -2239,11 +2204,11 @@ CHECK:            (btor556
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor552) (signal-value btor555)))
-CHECK:              (merge-state (list btor552 btor555))))
+CHECK:              (list)))
 CHECK:            (btor557
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor126) (signal-value btor556))
-CHECK:              (merge-state (list btor126 btor556))))
+CHECK:              (list)))
 CHECK:            (btor558
 CHECK:             (if (bitvector->bool (signal-value btor557)) btor552 btor549))
 CHECK:            (btor559
@@ -2253,7 +2218,7 @@ CHECK:              btor135))
 CHECK:            (btor560
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor559))
-CHECK:              (merge-state (list btor483 btor559))))
+CHECK:              (list)))
 CHECK:            (btor561
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor560))
@@ -2265,7 +2230,7 @@ CHECK:              btor144))
 CHECK:            (btor563
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor562))
-CHECK:              (merge-state (list btor483 btor562))))
+CHECK:              (list)))
 CHECK:            (btor564
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor563))
@@ -2274,11 +2239,11 @@ CHECK:            (btor565
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor561) (signal-value btor564)))
-CHECK:              (merge-state (list btor561 btor564))))
+CHECK:              (list)))
 CHECK:            (btor566
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor142) (signal-value btor565))
-CHECK:              (merge-state (list btor142 btor565))))
+CHECK:              (list)))
 CHECK:            (btor567
 CHECK:             (if (bitvector->bool (signal-value btor566)) btor561 btor558))
 CHECK:            (btor568
@@ -2287,10 +2252,7 @@ CHECK:            (btor569
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor483)))
 CHECK:              (signal-state btor483)))
-CHECK:            (btor570
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor569))
-CHECK:              (merge-state (list btor569))))
+CHECK:            (btor570 (signal (bvnot (signal-value btor569)) (list)))
 CHECK:            (btor571
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor483)))
@@ -2298,7 +2260,7 @@ CHECK:              (signal-state btor483)))
 CHECK:            (btor572
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor570) (signal-value btor571))
-CHECK:              (merge-state (list btor570 btor571))))
+CHECK:              (list)))
 CHECK:            (btor573
 CHECK:             (if (bitvector->bool (signal-value btor572)) btor568 btor567))
 CHECK:            (btor574
@@ -2308,7 +2270,7 @@ CHECK:              btor158))
 CHECK:            (btor575
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor483) (signal-value btor574))
-CHECK:              (merge-state (list btor483 btor574))))
+CHECK:              (list)))
 CHECK:            (btor576
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor575))
@@ -2331,7 +2293,7 @@ CHECK:              btor17))
 CHECK:            (btor585
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor584))
-CHECK:              (merge-state (list btor583 btor584))))
+CHECK:              (list)))
 CHECK:            (btor586
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor585))
@@ -2343,7 +2305,7 @@ CHECK:              btor27))
 CHECK:            (btor588
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor587))
-CHECK:              (merge-state (list btor583 btor587))))
+CHECK:              (list)))
 CHECK:            (btor589
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor588))
@@ -2352,11 +2314,11 @@ CHECK:            (btor590
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor586) (signal-value btor589)))
-CHECK:              (merge-state (list btor586 btor589))))
+CHECK:              (list)))
 CHECK:            (btor591
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor25) (signal-value btor590))
-CHECK:              (merge-state (list btor25 btor590))))
+CHECK:              (list)))
 CHECK:            (btor592
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 8))
@@ -2364,7 +2326,7 @@ CHECK:              btor34))
 CHECK:            (btor593
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor592))
-CHECK:              (merge-state (list btor583 btor592))))
+CHECK:              (list)))
 CHECK:            (btor594
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor593))
@@ -2373,11 +2335,11 @@ CHECK:            (btor595
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor586) (signal-value btor594)))
-CHECK:              (merge-state (list btor586 btor594))))
+CHECK:              (list)))
 CHECK:            (btor596
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor591) (signal-value btor595))
-CHECK:              (merge-state (list btor591 btor595))))
+CHECK:              (list)))
 CHECK:            (btor597
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor41) (bitvector 8))
@@ -2385,7 +2347,7 @@ CHECK:              btor41))
 CHECK:            (btor598
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor597))
-CHECK:              (merge-state (list btor583 btor597))))
+CHECK:              (list)))
 CHECK:            (btor599
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor598))
@@ -2394,11 +2356,11 @@ CHECK:            (btor600
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor586) (signal-value btor599)))
-CHECK:              (merge-state (list btor586 btor599))))
+CHECK:              (list)))
 CHECK:            (btor601
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor596) (signal-value btor600))
-CHECK:              (merge-state (list btor596 btor600))))
+CHECK:              (list)))
 CHECK:            (btor602
 CHECK:             (if (bitvector->bool (signal-value btor601)) btor586 btor582))
 CHECK:            (btor603
@@ -2408,7 +2370,7 @@ CHECK:              btor48))
 CHECK:            (btor604
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor603))
-CHECK:              (merge-state (list btor583 btor603))))
+CHECK:              (list)))
 CHECK:            (btor605
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor604))
@@ -2420,7 +2382,7 @@ CHECK:              btor55))
 CHECK:            (btor607
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor606))
-CHECK:              (merge-state (list btor583 btor606))))
+CHECK:              (list)))
 CHECK:            (btor608
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor607))
@@ -2429,11 +2391,11 @@ CHECK:            (btor609
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor605) (signal-value btor608)))
-CHECK:              (merge-state (list btor605 btor608))))
+CHECK:              (list)))
 CHECK:            (btor610
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor54) (signal-value btor609))
-CHECK:              (merge-state (list btor54 btor609))))
+CHECK:              (list)))
 CHECK:            (btor611
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor62) (bitvector 8))
@@ -2441,7 +2403,7 @@ CHECK:              btor62))
 CHECK:            (btor612
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor611))
-CHECK:              (merge-state (list btor583 btor611))))
+CHECK:              (list)))
 CHECK:            (btor613
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor612))
@@ -2450,11 +2412,11 @@ CHECK:            (btor614
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor605) (signal-value btor613)))
-CHECK:              (merge-state (list btor605 btor613))))
+CHECK:              (list)))
 CHECK:            (btor615
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor610) (signal-value btor614))
-CHECK:              (merge-state (list btor610 btor614))))
+CHECK:              (list)))
 CHECK:            (btor616
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor69) (bitvector 8))
@@ -2462,7 +2424,7 @@ CHECK:              btor69))
 CHECK:            (btor617
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor616))
-CHECK:              (merge-state (list btor583 btor616))))
+CHECK:              (list)))
 CHECK:            (btor618
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor617))
@@ -2471,11 +2433,11 @@ CHECK:            (btor619
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor605) (signal-value btor618)))
-CHECK:              (merge-state (list btor605 btor618))))
+CHECK:              (list)))
 CHECK:            (btor620
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor615) (signal-value btor619))
-CHECK:              (merge-state (list btor615 btor619))))
+CHECK:              (list)))
 CHECK:            (btor621
 CHECK:             (if (bitvector->bool (signal-value btor620)) btor605 btor602))
 CHECK:            (btor622
@@ -2485,7 +2447,7 @@ CHECK:              btor2))
 CHECK:            (btor623
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor622))
-CHECK:              (merge-state (list btor583 btor622))))
+CHECK:              (list)))
 CHECK:            (btor624
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor623))
@@ -2497,7 +2459,7 @@ CHECK:              btor82))
 CHECK:            (btor626
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor625))
-CHECK:              (merge-state (list btor583 btor625))))
+CHECK:              (list)))
 CHECK:            (btor627
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor626))
@@ -2506,11 +2468,11 @@ CHECK:            (btor628
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor624) (signal-value btor627)))
-CHECK:              (merge-state (list btor624 btor627))))
+CHECK:              (list)))
 CHECK:            (btor629
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor81) (signal-value btor628))
-CHECK:              (merge-state (list btor81 btor628))))
+CHECK:              (list)))
 CHECK:            (btor630
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor88) (bitvector 8))
@@ -2518,7 +2480,7 @@ CHECK:              btor88))
 CHECK:            (btor631
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor630))
-CHECK:              (merge-state (list btor583 btor630))))
+CHECK:              (list)))
 CHECK:            (btor632
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor631))
@@ -2527,11 +2489,11 @@ CHECK:            (btor633
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor624) (signal-value btor632)))
-CHECK:              (merge-state (list btor624 btor632))))
+CHECK:              (list)))
 CHECK:            (btor634
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor629) (signal-value btor633))
-CHECK:              (merge-state (list btor629 btor633))))
+CHECK:              (list)))
 CHECK:            (btor635
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor94) (bitvector 8))
@@ -2539,7 +2501,7 @@ CHECK:              btor94))
 CHECK:            (btor636
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor635))
-CHECK:              (merge-state (list btor583 btor635))))
+CHECK:              (list)))
 CHECK:            (btor637
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor636))
@@ -2548,11 +2510,11 @@ CHECK:            (btor638
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor624) (signal-value btor637)))
-CHECK:              (merge-state (list btor624 btor637))))
+CHECK:              (list)))
 CHECK:            (btor639
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor634) (signal-value btor638))
-CHECK:              (merge-state (list btor634 btor638))))
+CHECK:              (list)))
 CHECK:            (btor640
 CHECK:             (if (bitvector->bool (signal-value btor639)) btor624 btor621))
 CHECK:            (btor641
@@ -2562,7 +2524,7 @@ CHECK:              btor102))
 CHECK:            (btor642
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor641))
-CHECK:              (merge-state (list btor583 btor641))))
+CHECK:              (list)))
 CHECK:            (btor643
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor642))
@@ -2574,7 +2536,7 @@ CHECK:              btor111))
 CHECK:            (btor645
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor644))
-CHECK:              (merge-state (list btor583 btor644))))
+CHECK:              (list)))
 CHECK:            (btor646
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor645))
@@ -2583,11 +2545,11 @@ CHECK:            (btor647
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor643) (signal-value btor646)))
-CHECK:              (merge-state (list btor643 btor646))))
+CHECK:              (list)))
 CHECK:            (btor648
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor109) (signal-value btor647))
-CHECK:              (merge-state (list btor109 btor647))))
+CHECK:              (list)))
 CHECK:            (btor649
 CHECK:             (if (bitvector->bool (signal-value btor648)) btor643 btor640))
 CHECK:            (btor650
@@ -2597,7 +2559,7 @@ CHECK:              btor119))
 CHECK:            (btor651
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor650))
-CHECK:              (merge-state (list btor583 btor650))))
+CHECK:              (list)))
 CHECK:            (btor652
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor651))
@@ -2609,7 +2571,7 @@ CHECK:              btor128))
 CHECK:            (btor654
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor653))
-CHECK:              (merge-state (list btor583 btor653))))
+CHECK:              (list)))
 CHECK:            (btor655
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor654))
@@ -2618,11 +2580,11 @@ CHECK:            (btor656
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor652) (signal-value btor655)))
-CHECK:              (merge-state (list btor652 btor655))))
+CHECK:              (list)))
 CHECK:            (btor657
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor126) (signal-value btor656))
-CHECK:              (merge-state (list btor126 btor656))))
+CHECK:              (list)))
 CHECK:            (btor658
 CHECK:             (if (bitvector->bool (signal-value btor657)) btor652 btor649))
 CHECK:            (btor659
@@ -2632,7 +2594,7 @@ CHECK:              btor135))
 CHECK:            (btor660
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor659))
-CHECK:              (merge-state (list btor583 btor659))))
+CHECK:              (list)))
 CHECK:            (btor661
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor660))
@@ -2644,7 +2606,7 @@ CHECK:              btor144))
 CHECK:            (btor663
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor662))
-CHECK:              (merge-state (list btor583 btor662))))
+CHECK:              (list)))
 CHECK:            (btor664
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor663))
@@ -2653,11 +2615,11 @@ CHECK:            (btor665
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor661) (signal-value btor664)))
-CHECK:              (merge-state (list btor661 btor664))))
+CHECK:              (list)))
 CHECK:            (btor666
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor142) (signal-value btor665))
-CHECK:              (merge-state (list btor142 btor665))))
+CHECK:              (list)))
 CHECK:            (btor667
 CHECK:             (if (bitvector->bool (signal-value btor666)) btor661 btor658))
 CHECK:            (btor668
@@ -2666,10 +2628,7 @@ CHECK:            (btor669
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor583)))
 CHECK:              (signal-state btor583)))
-CHECK:            (btor670
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor669))
-CHECK:              (merge-state (list btor669))))
+CHECK:            (btor670 (signal (bvnot (signal-value btor669)) (list)))
 CHECK:            (btor671
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor583)))
@@ -2677,7 +2636,7 @@ CHECK:              (signal-state btor583)))
 CHECK:            (btor672
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor670) (signal-value btor671))
-CHECK:              (merge-state (list btor670 btor671))))
+CHECK:              (list)))
 CHECK:            (btor673
 CHECK:             (if (bitvector->bool (signal-value btor672)) btor668 btor667))
 CHECK:            (btor674
@@ -2687,7 +2646,7 @@ CHECK:              btor158))
 CHECK:            (btor675
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor583) (signal-value btor674))
-CHECK:              (merge-state (list btor583 btor674))))
+CHECK:              (list)))
 CHECK:            (btor676
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor675))
@@ -2710,7 +2669,7 @@ CHECK:              btor17))
 CHECK:            (btor685
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor684))
-CHECK:              (merge-state (list btor683 btor684))))
+CHECK:              (list)))
 CHECK:            (btor686
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor685))
@@ -2722,7 +2681,7 @@ CHECK:              btor27))
 CHECK:            (btor688
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor687))
-CHECK:              (merge-state (list btor683 btor687))))
+CHECK:              (list)))
 CHECK:            (btor689
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor688))
@@ -2731,11 +2690,11 @@ CHECK:            (btor690
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor686) (signal-value btor689)))
-CHECK:              (merge-state (list btor686 btor689))))
+CHECK:              (list)))
 CHECK:            (btor691
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor25) (signal-value btor690))
-CHECK:              (merge-state (list btor25 btor690))))
+CHECK:              (list)))
 CHECK:            (btor692
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 8))
@@ -2743,7 +2702,7 @@ CHECK:              btor34))
 CHECK:            (btor693
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor692))
-CHECK:              (merge-state (list btor683 btor692))))
+CHECK:              (list)))
 CHECK:            (btor694
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor693))
@@ -2752,11 +2711,11 @@ CHECK:            (btor695
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor686) (signal-value btor694)))
-CHECK:              (merge-state (list btor686 btor694))))
+CHECK:              (list)))
 CHECK:            (btor696
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor691) (signal-value btor695))
-CHECK:              (merge-state (list btor691 btor695))))
+CHECK:              (list)))
 CHECK:            (btor697
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor41) (bitvector 8))
@@ -2764,7 +2723,7 @@ CHECK:              btor41))
 CHECK:            (btor698
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor697))
-CHECK:              (merge-state (list btor683 btor697))))
+CHECK:              (list)))
 CHECK:            (btor699
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor698))
@@ -2773,11 +2732,11 @@ CHECK:            (btor700
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor686) (signal-value btor699)))
-CHECK:              (merge-state (list btor686 btor699))))
+CHECK:              (list)))
 CHECK:            (btor701
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor696) (signal-value btor700))
-CHECK:              (merge-state (list btor696 btor700))))
+CHECK:              (list)))
 CHECK:            (btor702
 CHECK:             (if (bitvector->bool (signal-value btor701)) btor686 btor682))
 CHECK:            (btor703
@@ -2787,7 +2746,7 @@ CHECK:              btor48))
 CHECK:            (btor704
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor703))
-CHECK:              (merge-state (list btor683 btor703))))
+CHECK:              (list)))
 CHECK:            (btor705
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor704))
@@ -2799,7 +2758,7 @@ CHECK:              btor55))
 CHECK:            (btor707
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor706))
-CHECK:              (merge-state (list btor683 btor706))))
+CHECK:              (list)))
 CHECK:            (btor708
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor707))
@@ -2808,11 +2767,11 @@ CHECK:            (btor709
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor705) (signal-value btor708)))
-CHECK:              (merge-state (list btor705 btor708))))
+CHECK:              (list)))
 CHECK:            (btor710
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor54) (signal-value btor709))
-CHECK:              (merge-state (list btor54 btor709))))
+CHECK:              (list)))
 CHECK:            (btor711
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor62) (bitvector 8))
@@ -2820,7 +2779,7 @@ CHECK:              btor62))
 CHECK:            (btor712
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor711))
-CHECK:              (merge-state (list btor683 btor711))))
+CHECK:              (list)))
 CHECK:            (btor713
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor712))
@@ -2829,11 +2788,11 @@ CHECK:            (btor714
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor705) (signal-value btor713)))
-CHECK:              (merge-state (list btor705 btor713))))
+CHECK:              (list)))
 CHECK:            (btor715
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor710) (signal-value btor714))
-CHECK:              (merge-state (list btor710 btor714))))
+CHECK:              (list)))
 CHECK:            (btor716
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor69) (bitvector 8))
@@ -2841,7 +2800,7 @@ CHECK:              btor69))
 CHECK:            (btor717
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor716))
-CHECK:              (merge-state (list btor683 btor716))))
+CHECK:              (list)))
 CHECK:            (btor718
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor717))
@@ -2850,11 +2809,11 @@ CHECK:            (btor719
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor705) (signal-value btor718)))
-CHECK:              (merge-state (list btor705 btor718))))
+CHECK:              (list)))
 CHECK:            (btor720
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor715) (signal-value btor719))
-CHECK:              (merge-state (list btor715 btor719))))
+CHECK:              (list)))
 CHECK:            (btor721
 CHECK:             (if (bitvector->bool (signal-value btor720)) btor705 btor702))
 CHECK:            (btor722
@@ -2864,7 +2823,7 @@ CHECK:              btor2))
 CHECK:            (btor723
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor722))
-CHECK:              (merge-state (list btor683 btor722))))
+CHECK:              (list)))
 CHECK:            (btor724
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor723))
@@ -2876,7 +2835,7 @@ CHECK:              btor82))
 CHECK:            (btor726
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor725))
-CHECK:              (merge-state (list btor683 btor725))))
+CHECK:              (list)))
 CHECK:            (btor727
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor726))
@@ -2885,11 +2844,11 @@ CHECK:            (btor728
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor724) (signal-value btor727)))
-CHECK:              (merge-state (list btor724 btor727))))
+CHECK:              (list)))
 CHECK:            (btor729
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor81) (signal-value btor728))
-CHECK:              (merge-state (list btor81 btor728))))
+CHECK:              (list)))
 CHECK:            (btor730
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor88) (bitvector 8))
@@ -2897,7 +2856,7 @@ CHECK:              btor88))
 CHECK:            (btor731
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor730))
-CHECK:              (merge-state (list btor683 btor730))))
+CHECK:              (list)))
 CHECK:            (btor732
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor731))
@@ -2906,11 +2865,11 @@ CHECK:            (btor733
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor724) (signal-value btor732)))
-CHECK:              (merge-state (list btor724 btor732))))
+CHECK:              (list)))
 CHECK:            (btor734
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor729) (signal-value btor733))
-CHECK:              (merge-state (list btor729 btor733))))
+CHECK:              (list)))
 CHECK:            (btor735
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor94) (bitvector 8))
@@ -2918,7 +2877,7 @@ CHECK:              btor94))
 CHECK:            (btor736
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor735))
-CHECK:              (merge-state (list btor683 btor735))))
+CHECK:              (list)))
 CHECK:            (btor737
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor736))
@@ -2927,11 +2886,11 @@ CHECK:            (btor738
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor724) (signal-value btor737)))
-CHECK:              (merge-state (list btor724 btor737))))
+CHECK:              (list)))
 CHECK:            (btor739
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor734) (signal-value btor738))
-CHECK:              (merge-state (list btor734 btor738))))
+CHECK:              (list)))
 CHECK:            (btor740
 CHECK:             (if (bitvector->bool (signal-value btor739)) btor724 btor721))
 CHECK:            (btor741
@@ -2941,7 +2900,7 @@ CHECK:              btor102))
 CHECK:            (btor742
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor741))
-CHECK:              (merge-state (list btor683 btor741))))
+CHECK:              (list)))
 CHECK:            (btor743
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor742))
@@ -2953,7 +2912,7 @@ CHECK:              btor111))
 CHECK:            (btor745
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor744))
-CHECK:              (merge-state (list btor683 btor744))))
+CHECK:              (list)))
 CHECK:            (btor746
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor745))
@@ -2962,11 +2921,11 @@ CHECK:            (btor747
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor743) (signal-value btor746)))
-CHECK:              (merge-state (list btor743 btor746))))
+CHECK:              (list)))
 CHECK:            (btor748
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor109) (signal-value btor747))
-CHECK:              (merge-state (list btor109 btor747))))
+CHECK:              (list)))
 CHECK:            (btor749
 CHECK:             (if (bitvector->bool (signal-value btor748)) btor743 btor740))
 CHECK:            (btor750
@@ -2976,7 +2935,7 @@ CHECK:              btor119))
 CHECK:            (btor751
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor750))
-CHECK:              (merge-state (list btor683 btor750))))
+CHECK:              (list)))
 CHECK:            (btor752
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor751))
@@ -2988,7 +2947,7 @@ CHECK:              btor128))
 CHECK:            (btor754
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor753))
-CHECK:              (merge-state (list btor683 btor753))))
+CHECK:              (list)))
 CHECK:            (btor755
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor754))
@@ -2997,11 +2956,11 @@ CHECK:            (btor756
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor752) (signal-value btor755)))
-CHECK:              (merge-state (list btor752 btor755))))
+CHECK:              (list)))
 CHECK:            (btor757
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor126) (signal-value btor756))
-CHECK:              (merge-state (list btor126 btor756))))
+CHECK:              (list)))
 CHECK:            (btor758
 CHECK:             (if (bitvector->bool (signal-value btor757)) btor752 btor749))
 CHECK:            (btor759
@@ -3011,7 +2970,7 @@ CHECK:              btor135))
 CHECK:            (btor760
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor759))
-CHECK:              (merge-state (list btor683 btor759))))
+CHECK:              (list)))
 CHECK:            (btor761
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor760))
@@ -3023,7 +2982,7 @@ CHECK:              btor144))
 CHECK:            (btor763
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor762))
-CHECK:              (merge-state (list btor683 btor762))))
+CHECK:              (list)))
 CHECK:            (btor764
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor763))
@@ -3032,11 +2991,11 @@ CHECK:            (btor765
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor761) (signal-value btor764)))
-CHECK:              (merge-state (list btor761 btor764))))
+CHECK:              (list)))
 CHECK:            (btor766
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor142) (signal-value btor765))
-CHECK:              (merge-state (list btor142 btor765))))
+CHECK:              (list)))
 CHECK:            (btor767
 CHECK:             (if (bitvector->bool (signal-value btor766)) btor761 btor758))
 CHECK:            (btor768
@@ -3045,10 +3004,7 @@ CHECK:            (btor769
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor683)))
 CHECK:              (signal-state btor683)))
-CHECK:            (btor770
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor769))
-CHECK:              (merge-state (list btor769))))
+CHECK:            (btor770 (signal (bvnot (signal-value btor769)) (list)))
 CHECK:            (btor771
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor683)))
@@ -3056,7 +3012,7 @@ CHECK:              (signal-state btor683)))
 CHECK:            (btor772
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor770) (signal-value btor771))
-CHECK:              (merge-state (list btor770 btor771))))
+CHECK:              (list)))
 CHECK:            (btor773
 CHECK:             (if (bitvector->bool (signal-value btor772)) btor768 btor767))
 CHECK:            (btor774
@@ -3066,7 +3022,7 @@ CHECK:              btor158))
 CHECK:            (btor775
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor683) (signal-value btor774))
-CHECK:              (merge-state (list btor683 btor774))))
+CHECK:              (list)))
 CHECK:            (btor776
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor775))
@@ -3089,7 +3045,7 @@ CHECK:              btor17))
 CHECK:            (btor785
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor784))
-CHECK:              (merge-state (list btor783 btor784))))
+CHECK:              (list)))
 CHECK:            (btor786
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor785))
@@ -3101,7 +3057,7 @@ CHECK:              btor27))
 CHECK:            (btor788
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor787))
-CHECK:              (merge-state (list btor783 btor787))))
+CHECK:              (list)))
 CHECK:            (btor789
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor788))
@@ -3110,11 +3066,11 @@ CHECK:            (btor790
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor786) (signal-value btor789)))
-CHECK:              (merge-state (list btor786 btor789))))
+CHECK:              (list)))
 CHECK:            (btor791
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor25) (signal-value btor790))
-CHECK:              (merge-state (list btor25 btor790))))
+CHECK:              (list)))
 CHECK:            (btor792
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor34) (bitvector 8))
@@ -3122,7 +3078,7 @@ CHECK:              btor34))
 CHECK:            (btor793
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor792))
-CHECK:              (merge-state (list btor783 btor792))))
+CHECK:              (list)))
 CHECK:            (btor794
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor793))
@@ -3131,11 +3087,11 @@ CHECK:            (btor795
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor786) (signal-value btor794)))
-CHECK:              (merge-state (list btor786 btor794))))
+CHECK:              (list)))
 CHECK:            (btor796
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor791) (signal-value btor795))
-CHECK:              (merge-state (list btor791 btor795))))
+CHECK:              (list)))
 CHECK:            (btor797
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor41) (bitvector 8))
@@ -3143,7 +3099,7 @@ CHECK:              btor41))
 CHECK:            (btor798
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor797))
-CHECK:              (merge-state (list btor783 btor797))))
+CHECK:              (list)))
 CHECK:            (btor799
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor798))
@@ -3152,11 +3108,11 @@ CHECK:            (btor800
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor786) (signal-value btor799)))
-CHECK:              (merge-state (list btor786 btor799))))
+CHECK:              (list)))
 CHECK:            (btor801
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor796) (signal-value btor800))
-CHECK:              (merge-state (list btor796 btor800))))
+CHECK:              (list)))
 CHECK:            (btor802
 CHECK:             (if (bitvector->bool (signal-value btor801)) btor786 btor782))
 CHECK:            (btor803
@@ -3166,7 +3122,7 @@ CHECK:              btor48))
 CHECK:            (btor804
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor803))
-CHECK:              (merge-state (list btor783 btor803))))
+CHECK:              (list)))
 CHECK:            (btor805
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor804))
@@ -3178,7 +3134,7 @@ CHECK:              btor55))
 CHECK:            (btor807
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor806))
-CHECK:              (merge-state (list btor783 btor806))))
+CHECK:              (list)))
 CHECK:            (btor808
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor807))
@@ -3187,11 +3143,11 @@ CHECK:            (btor809
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor805) (signal-value btor808)))
-CHECK:              (merge-state (list btor805 btor808))))
+CHECK:              (list)))
 CHECK:            (btor810
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor54) (signal-value btor809))
-CHECK:              (merge-state (list btor54 btor809))))
+CHECK:              (list)))
 CHECK:            (btor811
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor62) (bitvector 8))
@@ -3199,7 +3155,7 @@ CHECK:              btor62))
 CHECK:            (btor812
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor811))
-CHECK:              (merge-state (list btor783 btor811))))
+CHECK:              (list)))
 CHECK:            (btor813
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor812))
@@ -3208,11 +3164,11 @@ CHECK:            (btor814
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor805) (signal-value btor813)))
-CHECK:              (merge-state (list btor805 btor813))))
+CHECK:              (list)))
 CHECK:            (btor815
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor810) (signal-value btor814))
-CHECK:              (merge-state (list btor810 btor814))))
+CHECK:              (list)))
 CHECK:            (btor816
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor69) (bitvector 8))
@@ -3220,7 +3176,7 @@ CHECK:              btor69))
 CHECK:            (btor817
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor816))
-CHECK:              (merge-state (list btor783 btor816))))
+CHECK:              (list)))
 CHECK:            (btor818
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor817))
@@ -3229,11 +3185,11 @@ CHECK:            (btor819
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor805) (signal-value btor818)))
-CHECK:              (merge-state (list btor805 btor818))))
+CHECK:              (list)))
 CHECK:            (btor820
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor815) (signal-value btor819))
-CHECK:              (merge-state (list btor815 btor819))))
+CHECK:              (list)))
 CHECK:            (btor821
 CHECK:             (if (bitvector->bool (signal-value btor820)) btor805 btor802))
 CHECK:            (btor822
@@ -3243,7 +3199,7 @@ CHECK:              btor2))
 CHECK:            (btor823
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor822))
-CHECK:              (merge-state (list btor783 btor822))))
+CHECK:              (list)))
 CHECK:            (btor824
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor823))
@@ -3255,7 +3211,7 @@ CHECK:              btor82))
 CHECK:            (btor826
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor825))
-CHECK:              (merge-state (list btor783 btor825))))
+CHECK:              (list)))
 CHECK:            (btor827
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor826))
@@ -3264,11 +3220,11 @@ CHECK:            (btor828
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor824) (signal-value btor827)))
-CHECK:              (merge-state (list btor824 btor827))))
+CHECK:              (list)))
 CHECK:            (btor829
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor81) (signal-value btor828))
-CHECK:              (merge-state (list btor81 btor828))))
+CHECK:              (list)))
 CHECK:            (btor830
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor88) (bitvector 8))
@@ -3276,7 +3232,7 @@ CHECK:              btor88))
 CHECK:            (btor831
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor830))
-CHECK:              (merge-state (list btor783 btor830))))
+CHECK:              (list)))
 CHECK:            (btor832
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor831))
@@ -3285,11 +3241,11 @@ CHECK:            (btor833
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor824) (signal-value btor832)))
-CHECK:              (merge-state (list btor824 btor832))))
+CHECK:              (list)))
 CHECK:            (btor834
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor829) (signal-value btor833))
-CHECK:              (merge-state (list btor829 btor833))))
+CHECK:              (list)))
 CHECK:            (btor835
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor94) (bitvector 8))
@@ -3297,7 +3253,7 @@ CHECK:              btor94))
 CHECK:            (btor836
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor835))
-CHECK:              (merge-state (list btor783 btor835))))
+CHECK:              (list)))
 CHECK:            (btor837
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor836))
@@ -3306,11 +3262,11 @@ CHECK:            (btor838
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor824) (signal-value btor837)))
-CHECK:              (merge-state (list btor824 btor837))))
+CHECK:              (list)))
 CHECK:            (btor839
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor834) (signal-value btor838))
-CHECK:              (merge-state (list btor834 btor838))))
+CHECK:              (list)))
 CHECK:            (btor840
 CHECK:             (if (bitvector->bool (signal-value btor839)) btor824 btor821))
 CHECK:            (btor841
@@ -3320,7 +3276,7 @@ CHECK:              btor102))
 CHECK:            (btor842
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor841))
-CHECK:              (merge-state (list btor783 btor841))))
+CHECK:              (list)))
 CHECK:            (btor843
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor842))
@@ -3332,7 +3288,7 @@ CHECK:              btor111))
 CHECK:            (btor845
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor844))
-CHECK:              (merge-state (list btor783 btor844))))
+CHECK:              (list)))
 CHECK:            (btor846
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor845))
@@ -3341,11 +3297,11 @@ CHECK:            (btor847
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor843) (signal-value btor846)))
-CHECK:              (merge-state (list btor843 btor846))))
+CHECK:              (list)))
 CHECK:            (btor848
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor109) (signal-value btor847))
-CHECK:              (merge-state (list btor109 btor847))))
+CHECK:              (list)))
 CHECK:            (btor849
 CHECK:             (if (bitvector->bool (signal-value btor848)) btor843 btor840))
 CHECK:            (btor850
@@ -3355,7 +3311,7 @@ CHECK:              btor119))
 CHECK:            (btor851
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor850))
-CHECK:              (merge-state (list btor783 btor850))))
+CHECK:              (list)))
 CHECK:            (btor852
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor851))
@@ -3367,7 +3323,7 @@ CHECK:              btor128))
 CHECK:            (btor854
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor853))
-CHECK:              (merge-state (list btor783 btor853))))
+CHECK:              (list)))
 CHECK:            (btor855
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor854))
@@ -3376,11 +3332,11 @@ CHECK:            (btor856
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor852) (signal-value btor855)))
-CHECK:              (merge-state (list btor852 btor855))))
+CHECK:              (list)))
 CHECK:            (btor857
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor126) (signal-value btor856))
-CHECK:              (merge-state (list btor126 btor856))))
+CHECK:              (list)))
 CHECK:            (btor858
 CHECK:             (if (bitvector->bool (signal-value btor857)) btor852 btor849))
 CHECK:            (btor859
@@ -3390,7 +3346,7 @@ CHECK:              btor135))
 CHECK:            (btor860
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor859))
-CHECK:              (merge-state (list btor783 btor859))))
+CHECK:              (list)))
 CHECK:            (btor861
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor860))
@@ -3402,7 +3358,7 @@ CHECK:              btor144))
 CHECK:            (btor863
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor862))
-CHECK:              (merge-state (list btor783 btor862))))
+CHECK:              (list)))
 CHECK:            (btor864
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor863))
@@ -3411,11 +3367,11 @@ CHECK:            (btor865
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor861) (signal-value btor864)))
-CHECK:              (merge-state (list btor861 btor864))))
+CHECK:              (list)))
 CHECK:            (btor866
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor142) (signal-value btor865))
-CHECK:              (merge-state (list btor142 btor865))))
+CHECK:              (list)))
 CHECK:            (btor867
 CHECK:             (if (bitvector->bool (signal-value btor866)) btor861 btor858))
 CHECK:            (btor868
@@ -3424,10 +3380,7 @@ CHECK:            (btor869
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor783)))
 CHECK:              (signal-state btor783)))
-CHECK:            (btor870
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor869))
-CHECK:              (merge-state (list btor869))))
+CHECK:            (btor870 (signal (bvnot (signal-value btor869)) (list)))
 CHECK:            (btor871
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor783)))
@@ -3435,7 +3388,7 @@ CHECK:              (signal-state btor783)))
 CHECK:            (btor872
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor870) (signal-value btor871))
-CHECK:              (merge-state (list btor870 btor871))))
+CHECK:              (list)))
 CHECK:            (btor873
 CHECK:             (if (bitvector->bool (signal-value btor872)) btor868 btor867))
 CHECK:            (btor874
@@ -3445,7 +3398,7 @@ CHECK:              btor158))
 CHECK:            (btor875
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor783) (signal-value btor874))
-CHECK:              (merge-state (list btor783 btor874))))
+CHECK:              (list)))
 CHECK:            (btor876
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor875))
@@ -3461,39 +3414,39 @@ CHECK:             (if (bitvector->bool (signal-value btor180)) btor880 btor879)
 CHECK:            (btor882
 CHECK:             (signal
 CHECK:              (concat (signal-value btor281) (signal-value btor181))
-CHECK:              (merge-state (list btor281 btor181))))
+CHECK:              (list)))
 CHECK:            (btor883
 CHECK:             (signal
 CHECK:              (concat (signal-value btor381) (signal-value btor882))
-CHECK:              (merge-state (list btor381 btor882))))
+CHECK:              (list)))
 CHECK:            (btor884 (bitvector 4))
 CHECK:            (btor885
 CHECK:             (signal
 CHECK:              (concat (signal-value btor481) (signal-value btor883))
-CHECK:              (merge-state (list btor481 btor883))))
+CHECK:              (list)))
 CHECK:            (btor886 (bitvector 5))
 CHECK:            (btor887
 CHECK:             (signal
 CHECK:              (concat (signal-value btor581) (signal-value btor885))
-CHECK:              (merge-state (list btor581 btor885))))
+CHECK:              (list)))
 CHECK:            (btor888 (bitvector 6))
 CHECK:            (btor889
 CHECK:             (signal
 CHECK:              (concat (signal-value btor681) (signal-value btor887))
-CHECK:              (merge-state (list btor681 btor887))))
+CHECK:              (list)))
 CHECK:            (btor890 (bitvector 7))
 CHECK:            (btor891
 CHECK:             (signal
 CHECK:              (concat (signal-value btor781) (signal-value btor889))
-CHECK:              (merge-state (list btor781 btor889))))
+CHECK:              (list)))
 CHECK:            (btor892
 CHECK:             (signal
 CHECK:              (concat (signal-value btor881) (signal-value btor891))
-CHECK:              (merge-state (list btor881 btor891))))
+CHECK:              (list)))
 CHECK:            (btor893
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor15))
-CHECK:              (merge-state (list btor7 btor15))))
+CHECK:              (list)))
 CHECK:            (btor894
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor893) (bitvector 8))
@@ -3501,7 +3454,7 @@ CHECK:              btor893))
 CHECK:            (btor895
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor894))
-CHECK:              (merge-state (list btor892 btor894))))
+CHECK:              (list)))
 CHECK:            (btor896
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor895))
@@ -3510,20 +3463,20 @@ CHECK:            (btor897
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor7) (signal-value btor21)))
-CHECK:              (merge-state (list btor7 btor21))))
+CHECK:              (list)))
 CHECK:            (btor898
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor7) (signal-value btor23)))
-CHECK:              (merge-state (list btor7 btor23))))
+CHECK:              (list)))
 CHECK:            (btor899
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor897) (signal-value btor898))
-CHECK:              (merge-state (list btor897 btor898))))
+CHECK:              (list)))
 CHECK:            (btor900
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor26))
-CHECK:              (merge-state (list btor7 btor26))))
+CHECK:              (list)))
 CHECK:            (btor901
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor900) (bitvector 8))
@@ -3531,7 +3484,7 @@ CHECK:              btor900))
 CHECK:            (btor902
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor901))
-CHECK:              (merge-state (list btor892 btor901))))
+CHECK:              (list)))
 CHECK:            (btor903
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor902))
@@ -3540,15 +3493,15 @@ CHECK:            (btor904
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor896) (signal-value btor903)))
-CHECK:              (merge-state (list btor896 btor903))))
+CHECK:              (list)))
 CHECK:            (btor905
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor899) (signal-value btor904))
-CHECK:              (merge-state (list btor899 btor904))))
+CHECK:              (list)))
 CHECK:            (btor906
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor33))
-CHECK:              (merge-state (list btor7 btor33))))
+CHECK:              (list)))
 CHECK:            (btor907
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor906) (bitvector 8))
@@ -3556,7 +3509,7 @@ CHECK:              btor906))
 CHECK:            (btor908
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor907))
-CHECK:              (merge-state (list btor892 btor907))))
+CHECK:              (list)))
 CHECK:            (btor909
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor908))
@@ -3565,15 +3518,15 @@ CHECK:            (btor910
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor896) (signal-value btor909)))
-CHECK:              (merge-state (list btor896 btor909))))
+CHECK:              (list)))
 CHECK:            (btor911
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor905) (signal-value btor910))
-CHECK:              (merge-state (list btor905 btor910))))
+CHECK:              (list)))
 CHECK:            (btor912
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor40))
-CHECK:              (merge-state (list btor7 btor40))))
+CHECK:              (list)))
 CHECK:            (btor913
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor912) (bitvector 8))
@@ -3581,7 +3534,7 @@ CHECK:              btor912))
 CHECK:            (btor914
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor913))
-CHECK:              (merge-state (list btor892 btor913))))
+CHECK:              (list)))
 CHECK:            (btor915
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor914))
@@ -3590,17 +3543,17 @@ CHECK:            (btor916
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor896) (signal-value btor915)))
-CHECK:              (merge-state (list btor896 btor915))))
+CHECK:              (list)))
 CHECK:            (btor917
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor911) (signal-value btor916))
-CHECK:              (merge-state (list btor911 btor916))))
+CHECK:              (list)))
 CHECK:            (btor918
 CHECK:             (if (bitvector->bool (signal-value btor917)) btor896 btor10))
 CHECK:            (btor919
 CHECK:             (signal
 CHECK:              (concat (signal-value btor6) (signal-value btor23))
-CHECK:              (merge-state (list btor6 btor23))))
+CHECK:              (list)))
 CHECK:            (btor920
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor919) (bitvector 8))
@@ -3608,7 +3561,7 @@ CHECK:              btor919))
 CHECK:            (btor921
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor920))
-CHECK:              (merge-state (list btor892 btor920))))
+CHECK:              (list)))
 CHECK:            (btor922
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor921))
@@ -3617,20 +3570,20 @@ CHECK:            (btor923
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor6) (signal-value btor21)))
-CHECK:              (merge-state (list btor6 btor21))))
+CHECK:              (list)))
 CHECK:            (btor924
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor6) (signal-value btor23)))
-CHECK:              (merge-state (list btor6 btor23))))
+CHECK:              (list)))
 CHECK:            (btor925
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor923) (signal-value btor924))
-CHECK:              (merge-state (list btor923 btor924))))
+CHECK:              (list)))
 CHECK:            (btor926
 CHECK:             (signal
 CHECK:              (concat (signal-value btor6) (signal-value btor21))
-CHECK:              (merge-state (list btor6 btor21))))
+CHECK:              (list)))
 CHECK:            (btor927
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor926) (bitvector 8))
@@ -3638,7 +3591,7 @@ CHECK:              btor926))
 CHECK:            (btor928
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor927))
-CHECK:              (merge-state (list btor892 btor927))))
+CHECK:              (list)))
 CHECK:            (btor929
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor928))
@@ -3647,19 +3600,19 @@ CHECK:            (btor930
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor922) (signal-value btor929)))
-CHECK:              (merge-state (list btor922 btor929))))
+CHECK:              (list)))
 CHECK:            (btor931
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor925) (signal-value btor930))
-CHECK:              (merge-state (list btor925 btor930))))
+CHECK:              (list)))
 CHECK:            (btor932
 CHECK:             (signal
 CHECK:              (concat (signal-value btor6) (signal-value btor23))
-CHECK:              (merge-state (list btor6 btor23))))
+CHECK:              (list)))
 CHECK:            (btor933
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor932))
-CHECK:              (merge-state (list btor21 btor932))))
+CHECK:              (list)))
 CHECK:            (btor934
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor933) (bitvector 8))
@@ -3667,7 +3620,7 @@ CHECK:              btor933))
 CHECK:            (btor935
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor934))
-CHECK:              (merge-state (list btor892 btor934))))
+CHECK:              (list)))
 CHECK:            (btor936
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor935))
@@ -3676,19 +3629,19 @@ CHECK:            (btor937
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor922) (signal-value btor936)))
-CHECK:              (merge-state (list btor922 btor936))))
+CHECK:              (list)))
 CHECK:            (btor938
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor931) (signal-value btor937))
-CHECK:              (merge-state (list btor931 btor937))))
+CHECK:              (list)))
 CHECK:            (btor939
 CHECK:             (signal
 CHECK:              (concat (signal-value btor6) (signal-value btor21))
-CHECK:              (merge-state (list btor6 btor21))))
+CHECK:              (list)))
 CHECK:            (btor940
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor939))
-CHECK:              (merge-state (list btor21 btor939))))
+CHECK:              (list)))
 CHECK:            (btor941
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor940) (bitvector 8))
@@ -3696,7 +3649,7 @@ CHECK:              btor940))
 CHECK:            (btor942
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor941))
-CHECK:              (merge-state (list btor892 btor941))))
+CHECK:              (list)))
 CHECK:            (btor943
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor942))
@@ -3705,11 +3658,11 @@ CHECK:            (btor944
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor922) (signal-value btor943)))
-CHECK:              (merge-state (list btor922 btor943))))
+CHECK:              (list)))
 CHECK:            (btor945
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor938) (signal-value btor944))
-CHECK:              (merge-state (list btor938 btor944))))
+CHECK:              (list)))
 CHECK:            (btor946
 CHECK:             (if (bitvector->bool (signal-value btor945)) btor922 btor918))
 CHECK:            (btor947
@@ -3719,7 +3672,7 @@ CHECK:              btor5))
 CHECK:            (btor948
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor947))
-CHECK:              (merge-state (list btor892 btor947))))
+CHECK:              (list)))
 CHECK:            (btor949
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor948))
@@ -3728,20 +3681,20 @@ CHECK:            (btor950
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor5) (signal-value btor21)))
-CHECK:              (merge-state (list btor5 btor21))))
+CHECK:              (list)))
 CHECK:            (btor951
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor5) (signal-value btor23)))
-CHECK:              (merge-state (list btor5 btor23))))
+CHECK:              (list)))
 CHECK:            (btor952
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor950) (signal-value btor951))
-CHECK:              (merge-state (list btor950 btor951))))
+CHECK:              (list)))
 CHECK:            (btor953
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor5))
-CHECK:              (merge-state (list btor21 btor5))))
+CHECK:              (list)))
 CHECK:            (btor954
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor953) (bitvector 8))
@@ -3749,7 +3702,7 @@ CHECK:              btor953))
 CHECK:            (btor955
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor954))
-CHECK:              (merge-state (list btor892 btor954))))
+CHECK:              (list)))
 CHECK:            (btor956
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor955))
@@ -3758,15 +3711,15 @@ CHECK:            (btor957
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor949) (signal-value btor956)))
-CHECK:              (merge-state (list btor949 btor956))))
+CHECK:              (list)))
 CHECK:            (btor958
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor952) (signal-value btor957))
-CHECK:              (merge-state (list btor952 btor957))))
+CHECK:              (list)))
 CHECK:            (btor959
 CHECK:             (signal
 CHECK:              (concat (signal-value btor33) (signal-value btor5))
-CHECK:              (merge-state (list btor33 btor5))))
+CHECK:              (list)))
 CHECK:            (btor960
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor959) (bitvector 8))
@@ -3774,7 +3727,7 @@ CHECK:              btor959))
 CHECK:            (btor961
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor960))
-CHECK:              (merge-state (list btor892 btor960))))
+CHECK:              (list)))
 CHECK:            (btor962
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor961))
@@ -3783,15 +3736,15 @@ CHECK:            (btor963
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor949) (signal-value btor962)))
-CHECK:              (merge-state (list btor949 btor962))))
+CHECK:              (list)))
 CHECK:            (btor964
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor958) (signal-value btor963))
-CHECK:              (merge-state (list btor958 btor963))))
+CHECK:              (list)))
 CHECK:            (btor965
 CHECK:             (signal
 CHECK:              (concat (signal-value btor40) (signal-value btor5))
-CHECK:              (merge-state (list btor40 btor5))))
+CHECK:              (list)))
 CHECK:            (btor966
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor965) (bitvector 8))
@@ -3799,7 +3752,7 @@ CHECK:              btor965))
 CHECK:            (btor967
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor966))
-CHECK:              (merge-state (list btor892 btor966))))
+CHECK:              (list)))
 CHECK:            (btor968
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor967))
@@ -3808,21 +3761,21 @@ CHECK:            (btor969
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor949) (signal-value btor968)))
-CHECK:              (merge-state (list btor949 btor968))))
+CHECK:              (list)))
 CHECK:            (btor970
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor964) (signal-value btor969))
-CHECK:              (merge-state (list btor964 btor969))))
+CHECK:              (list)))
 CHECK:            (btor971
 CHECK:             (if (bitvector->bool (signal-value btor970)) btor949 btor946))
 CHECK:            (btor972
 CHECK:             (signal
 CHECK:              (concat (signal-value btor6) (signal-value btor23))
-CHECK:              (merge-state (list btor6 btor23))))
+CHECK:              (list)))
 CHECK:            (btor973
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor972))
-CHECK:              (merge-state (list btor7 btor972))))
+CHECK:              (list)))
 CHECK:            (btor974
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor973) (bitvector 8))
@@ -3830,37 +3783,35 @@ CHECK:              btor973))
 CHECK:            (btor975
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor974))
-CHECK:              (merge-state (list btor892 btor974))))
+CHECK:              (list)))
 CHECK:            (btor976
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor975))
 CHECK:              (signal-state btor975)))
 CHECK:            (btor977
-CHECK:             (signal
-CHECK:              (bvxor (signal-value btor7) (signal-value btor6))
-CHECK:              (merge-state (list btor7 btor6))))
+CHECK:             (signal (bvxor (signal-value btor7) (signal-value btor6)) (list)))
 CHECK:            (btor978
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor977) (signal-value btor21)))
-CHECK:              (merge-state (list btor977 btor21))))
+CHECK:              (list)))
 CHECK:            (btor979
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor977) (signal-value btor23)))
-CHECK:              (merge-state (list btor977 btor23))))
+CHECK:              (list)))
 CHECK:            (btor980
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor978) (signal-value btor979))
-CHECK:              (merge-state (list btor978 btor979))))
+CHECK:              (list)))
 CHECK:            (btor981
 CHECK:             (signal
 CHECK:              (concat (signal-value btor6) (signal-value btor21))
-CHECK:              (merge-state (list btor6 btor21))))
+CHECK:              (list)))
 CHECK:            (btor982
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor981))
-CHECK:              (merge-state (list btor7 btor981))))
+CHECK:              (list)))
 CHECK:            (btor983
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor982) (bitvector 8))
@@ -3868,7 +3819,7 @@ CHECK:              btor982))
 CHECK:            (btor984
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor983))
-CHECK:              (merge-state (list btor892 btor983))))
+CHECK:              (list)))
 CHECK:            (btor985
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor984))
@@ -3877,21 +3828,21 @@ CHECK:            (btor986
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor976) (signal-value btor985)))
-CHECK:              (merge-state (list btor976 btor985))))
+CHECK:              (list)))
 CHECK:            (btor987
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor980) (signal-value btor986))
-CHECK:              (merge-state (list btor980 btor986))))
+CHECK:              (list)))
 CHECK:            (btor988
 CHECK:             (if (bitvector->bool (signal-value btor987)) btor976 btor971))
 CHECK:            (btor989
 CHECK:             (signal
 CHECK:              (concat (signal-value btor23) (signal-value btor5))
-CHECK:              (merge-state (list btor23 btor5))))
+CHECK:              (list)))
 CHECK:            (btor990
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor989))
-CHECK:              (merge-state (list btor7 btor989))))
+CHECK:              (list)))
 CHECK:            (btor991
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor990) (bitvector 8))
@@ -3899,37 +3850,35 @@ CHECK:              btor990))
 CHECK:            (btor992
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor991))
-CHECK:              (merge-state (list btor892 btor991))))
+CHECK:              (list)))
 CHECK:            (btor993
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor992))
 CHECK:              (signal-state btor992)))
 CHECK:            (btor994
-CHECK:             (signal
-CHECK:              (bvxor (signal-value btor7) (signal-value btor5))
-CHECK:              (merge-state (list btor7 btor5))))
+CHECK:             (signal (bvxor (signal-value btor7) (signal-value btor5)) (list)))
 CHECK:            (btor995
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor994) (signal-value btor21)))
-CHECK:              (merge-state (list btor994 btor21))))
+CHECK:              (list)))
 CHECK:            (btor996
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor994) (signal-value btor23)))
-CHECK:              (merge-state (list btor994 btor23))))
+CHECK:              (list)))
 CHECK:            (btor997
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor995) (signal-value btor996))
-CHECK:              (merge-state (list btor995 btor996))))
+CHECK:              (list)))
 CHECK:            (btor998
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor5))
-CHECK:              (merge-state (list btor21 btor5))))
+CHECK:              (list)))
 CHECK:            (btor999
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor998))
-CHECK:              (merge-state (list btor7 btor998))))
+CHECK:              (list)))
 CHECK:            (btor1000
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor999) (bitvector 8))
@@ -3937,7 +3886,7 @@ CHECK:              btor999))
 CHECK:            (btor1001
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor1000))
-CHECK:              (merge-state (list btor892 btor1000))))
+CHECK:              (list)))
 CHECK:            (btor1002
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor1001))
@@ -3946,17 +3895,15 @@ CHECK:            (btor1003
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor993) (signal-value btor1002)))
-CHECK:              (merge-state (list btor993 btor1002))))
+CHECK:              (list)))
 CHECK:            (btor1004
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor997) (signal-value btor1003))
-CHECK:              (merge-state (list btor997 btor1003))))
+CHECK:              (list)))
 CHECK:            (btor1005
 CHECK:             (if (bitvector->bool (signal-value btor1004)) btor993 btor988))
 CHECK:            (btor1006
-CHECK:             (signal
-CHECK:              (concat (signal-value btor6) (signal-value btor5))
-CHECK:              (merge-state (list btor6 btor5))))
+CHECK:             (signal (concat (signal-value btor6) (signal-value btor5)) (list)))
 CHECK:            (btor1007
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor1006) (bitvector 8))
@@ -3964,37 +3911,33 @@ CHECK:              btor1006))
 CHECK:            (btor1008
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor1007))
-CHECK:              (merge-state (list btor892 btor1007))))
+CHECK:              (list)))
 CHECK:            (btor1009
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor1008))
 CHECK:              (signal-state btor1008)))
 CHECK:            (btor1010
-CHECK:             (signal
-CHECK:              (bvxor (signal-value btor6) (signal-value btor5))
-CHECK:              (merge-state (list btor6 btor5))))
+CHECK:             (signal (bvxor (signal-value btor6) (signal-value btor5)) (list)))
 CHECK:            (btor1011
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor1010) (signal-value btor21)))
-CHECK:              (merge-state (list btor1010 btor21))))
+CHECK:              (list)))
 CHECK:            (btor1012
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor1010) (signal-value btor23)))
-CHECK:              (merge-state (list btor1010 btor23))))
+CHECK:              (list)))
 CHECK:            (btor1013
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor1011) (signal-value btor1012))
-CHECK:              (merge-state (list btor1011 btor1012))))
+CHECK:              (list)))
 CHECK:            (btor1014
-CHECK:             (signal
-CHECK:              (concat (signal-value btor6) (signal-value btor5))
-CHECK:              (merge-state (list btor6 btor5))))
+CHECK:             (signal (concat (signal-value btor6) (signal-value btor5)) (list)))
 CHECK:            (btor1015
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor1014))
-CHECK:              (merge-state (list btor21 btor1014))))
+CHECK:              (list)))
 CHECK:            (btor1016
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor1015) (bitvector 8))
@@ -4002,7 +3945,7 @@ CHECK:              btor1015))
 CHECK:            (btor1017
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor1016))
-CHECK:              (merge-state (list btor892 btor1016))))
+CHECK:              (list)))
 CHECK:            (btor1018
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor1017))
@@ -4011,21 +3954,18 @@ CHECK:            (btor1019
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor1009) (signal-value btor1018)))
-CHECK:              (merge-state (list btor1009 btor1018))))
+CHECK:              (list)))
 CHECK:            (btor1020
 CHECK:             (signal
 CHECK:              (bvand (signal-value btor1013) (signal-value btor1019))
-CHECK:              (merge-state (list btor1013 btor1019))))
+CHECK:              (list)))
 CHECK:            (btor1021
 CHECK:             (if (bitvector->bool (signal-value btor1020)) btor1009 btor1005))
 CHECK:            (btor1022
 CHECK:             (signal
 CHECK:              (apply bvor (bitvector->bits (signal-value btor892)))
 CHECK:              (signal-state btor892)))
-CHECK:            (btor1023
-CHECK:             (signal
-CHECK:              (bvnot (signal-value btor1022))
-CHECK:              (merge-state (list btor1022))))
+CHECK:            (btor1023 (signal (bvnot (signal-value btor1022)) (list)))
 CHECK:            (btor1024
 CHECK:             (signal
 CHECK:              (apply bvand (bitvector->bits (signal-value btor892)))
@@ -4033,17 +3973,15 @@ CHECK:              (signal-state btor892)))
 CHECK:            (btor1025
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor1023) (signal-value btor1024))
-CHECK:              (merge-state (list btor1023 btor1024))))
+CHECK:              (list)))
 CHECK:            (btor1026
 CHECK:             (if (bitvector->bool (signal-value btor1025)) btor181 btor1021))
 CHECK:            (btor1027
-CHECK:             (signal
-CHECK:              (concat (signal-value btor6) (signal-value btor5))
-CHECK:              (merge-state (list btor6 btor5))))
+CHECK:             (signal (concat (signal-value btor6) (signal-value btor5)) (list)))
 CHECK:            (btor1028
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor1027))
-CHECK:              (merge-state (list btor7 btor1027))))
+CHECK:              (list)))
 CHECK:            (btor1029
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor1028) (bitvector 8))
@@ -4051,7 +3989,7 @@ CHECK:              btor1028))
 CHECK:            (btor1030
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor892) (signal-value btor1029))
-CHECK:              (merge-state (list btor892 btor1029))))
+CHECK:              (list)))
 CHECK:            (btor1031
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor1030))
@@ -4059,45 +3997,43 @@ CHECK:              (signal-state btor1030)))
 CHECK:            (btor1032
 CHECK:             (signal
 CHECK:              (bvxor (signal-value btor977) (signal-value btor5))
-CHECK:              (merge-state (list btor977 btor5))))
+CHECK:              (list)))
 CHECK:            (btor1033
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor1032) (signal-value btor21)))
-CHECK:              (merge-state (list btor1032 btor21))))
+CHECK:              (list)))
 CHECK:            (btor1034
 CHECK:             (signal
 CHECK:              (bool->bitvector
 CHECK:               (bveq (signal-value btor1032) (signal-value btor23)))
-CHECK:              (merge-state (list btor1032 btor23))))
+CHECK:              (list)))
 CHECK:            (btor1035
 CHECK:             (signal
 CHECK:              (bvor (signal-value btor1033) (signal-value btor1034))
-CHECK:              (merge-state (list btor1033 btor1034))))
+CHECK:              (list)))
 CHECK:            (btor1036
 CHECK:             (if (bitvector->bool (signal-value btor1035)) btor1031 btor1026))
 CHECK:            (btor1037
 CHECK:             (if (bitvector->bool (signal-value btor171)) btor151 btor1036))
 CHECK:            (btor1038
-CHECK:             (signal
-CHECK:              (concat (signal-value btor3) (signal-value btor2))
-CHECK:              (merge-state (list btor3 btor2))))
+CHECK:             (signal (concat (signal-value btor3) (signal-value btor2)) (list)))
 CHECK:            (btor1039
 CHECK:             (signal
 CHECK:              (concat (signal-value btor4) (signal-value btor1038))
-CHECK:              (merge-state (list btor4 btor1038))))
+CHECK:              (list)))
 CHECK:            (btor1040
 CHECK:             (signal
 CHECK:              (concat (signal-value btor5) (signal-value btor1039))
-CHECK:              (merge-state (list btor5 btor1039))))
+CHECK:              (list)))
 CHECK:            (btor1041
 CHECK:             (signal
 CHECK:              (concat (signal-value btor6) (signal-value btor1040))
-CHECK:              (merge-state (list btor6 btor1040))))
+CHECK:              (list)))
 CHECK:            (btor1042
 CHECK:             (signal
 CHECK:              (concat (signal-value btor7) (signal-value btor1041))
-CHECK:              (merge-state (list btor7 btor1041))))
+CHECK:              (list)))
 CHECK:            (btor1043
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor1042) (bitvector 64))
@@ -4105,7 +4041,7 @@ CHECK:              btor1042))
 CHECK:            (btor1044
 CHECK:             (signal
 CHECK:              (bvlshr (signal-value btor9) (signal-value btor1043))
-CHECK:              (merge-state (list btor9 btor1043))))
+CHECK:              (list)))
 CHECK:            (btor1045
 CHECK:             (signal
 CHECK:              (extract 0 0 (signal-value btor1044))
@@ -4214,6 +4150,4 @@ CHECK:            (btor1086
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor23) (bitvector 1))
 CHECK:              btor23)))
-CHECK:       (make-immutable-hash
-CHECK:        (list (cons 'O (signal (signal-value btor1046) (hash))))))))
-
+CHECK:       (list (cons 'O (signal (signal-value btor1046) (list)))))))

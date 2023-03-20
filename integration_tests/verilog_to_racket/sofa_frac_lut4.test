@@ -16,9 +16,7 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide sofa-frac-lut4)
 CHECK: (require (file "
-
 CHECK: (require rosette)
-CHECK: (require racket/hash)
 CHECK: (define sofa-frac-lut4
 CHECK:   (λ (#:in
 CHECK:       (in (bv->signal (constant 'in (bitvector 4))))
@@ -30,26 +28,26 @@ CHECK:       #:sram
 CHECK:       (sram (bv->signal (constant 'sram (bitvector 16))))
 CHECK:       #:sram_inv
 CHECK:       (sram_inv (bv->signal (constant 'sram_inv (bitvector 16)))))
-CHECK:     (let* ((merged-input-state-hash (hash))
-CHECK:            (init-hash (hash))
+CHECK:     (let* ((merged-input-state-hash (list))
+CHECK:            (init-hash (list))
 CHECK:            (btor1 (bitvector 4))
 CHECK:            (btor2 in)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state in)))
+CHECK:             (append merged-input-state-hash (signal-state in)))
 CHECK:            (btor3 (bitvector 1))
 CHECK:            (btor4 mode)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state mode)))
+CHECK:             (append merged-input-state-hash (signal-state mode)))
 CHECK:            (btor5 mode_inv)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state mode_inv)))
+CHECK:             (append merged-input-state-hash (signal-state mode_inv)))
 CHECK:            (btor6 (bitvector 16))
 CHECK:            (btor7 sram)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state sram)))
+CHECK:             (append merged-input-state-hash (signal-state sram)))
 CHECK:            (btor8 sram_inv)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state sram_inv)))
+CHECK:             (append merged-input-state-hash (signal-state sram_inv)))
 CHECK:            (btor9
 CHECK:             (signal (extract 0 0 (signal-value btor7)) (signal-state btor7)))
 CHECK:            (btor10
@@ -80,7 +78,7 @@ CHECK:            (btor25 (bitvector 2))
 CHECK:            (btor26
 CHECK:             (signal
 CHECK:              (concat (signal-value btor24) (signal-value btor17))
-CHECK:              (merge-state (list btor24 btor17))))
+CHECK:              (list)))
 CHECK:            (btor28
 CHECK:             (signal (extract 1 1 (signal-value btor2)) (signal-state btor2)))
 CHECK:            (btor29 (if (bitvector->bool (signal-value btor28)) btor24 btor17))
@@ -110,35 +108,29 @@ CHECK:            (btor44 (if (bitvector->bool (signal-value btor28)) btor43 bto
 CHECK:            (btor45
 CHECK:             (signal
 CHECK:              (concat (signal-value btor44) (signal-value btor29))
-CHECK:              (merge-state (list btor44 btor29))))
+CHECK:              (list)))
 CHECK:            (btor47
 CHECK:             (signal (extract 0 0 (signal-value btor2)) (signal-state btor2)))
 CHECK:            (btor48
-CHECK:             (signal
-CHECK:              (bvor (signal-value btor47) (signal-value btor4))
-CHECK:              (merge-state (list btor47 btor4))))
+CHECK:             (signal (bvor (signal-value btor47) (signal-value btor4)) (list)))
 CHECK:            (btor49 (if (bitvector->bool (signal-value btor48)) btor44 btor29))
-CHECK:            (btor51
-CHECK:             (signal (bvnot (signal-value btor48)) (merge-state (list btor48))))
-CHECK:            (btor52
-CHECK:             (signal (bvnot (signal-value btor28)) (merge-state (list btor28))))
-CHECK:            (btor53
-CHECK:             (signal (bvnot (signal-value btor16)) (merge-state (list btor16))))
-CHECK:            (btor54
-CHECK:             (signal (bvnot (signal-value btor11)) (merge-state (list btor11))))
+CHECK:            (btor51 (signal (bvnot (signal-value btor48)) (list)))
+CHECK:            (btor52 (signal (bvnot (signal-value btor28)) (list)))
+CHECK:            (btor53 (signal (bvnot (signal-value btor16)) (list)))
+CHECK:            (btor54 (signal (bvnot (signal-value btor11)) (list)))
 CHECK:            (btor55
 CHECK:             (signal
 CHECK:              (concat (signal-value btor52) (signal-value btor51))
-CHECK:              (merge-state (list btor52 btor51))))
+CHECK:              (list)))
 CHECK:            (btor56 (bitvector 3))
 CHECK:            (btor57
 CHECK:             (signal
 CHECK:              (concat (signal-value btor53) (signal-value btor55))
-CHECK:              (merge-state (list btor53 btor55))))
+CHECK:              (list)))
 CHECK:            (btor58
 CHECK:             (signal
 CHECK:              (concat (signal-value btor54) (signal-value btor57))
-CHECK:              (merge-state (list btor54 btor57))))
+CHECK:              (list)))
 CHECK:            (btor59
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor58) (bitvector 4))
@@ -148,7 +140,7 @@ CHECK:             (signal (extract 3 1 (signal-value btor2)) (signal-state btor
 CHECK:            (btor61
 CHECK:             (signal
 CHECK:              (concat (signal-value btor60) (signal-value btor48))
-CHECK:              (merge-state (list btor60 btor48))))
+CHECK:              (list)))
 CHECK:            (btor62
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor61) (bitvector 4))
@@ -1879,8 +1871,7 @@ CHECK:            (btor495
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor48) (bitvector 1))
 CHECK:              btor48)))
-CHECK:       (make-immutable-hash
-CHECK:        (list
-CHECK:         (cons 'lut3_out (signal (signal-value btor45) (hash)))
-CHECK:         (cons 'lut4_out (signal (signal-value btor49) (hash)))
-CHECK:         (cons 'lut2_out (signal (signal-value btor26) (hash))))))))
+CHECK:       (list
+CHECK:        (cons 'lut3_out (signal (signal-value btor45) (list)))
+CHECK:        (cons 'lut4_out (signal (signal-value btor49) (list)))
+CHECK:        (cons 'lut2_out (signal (signal-value btor26) (list)))))))

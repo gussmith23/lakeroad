@@ -7,9 +7,7 @@ RUN: | FileCheck %s
 CHECK: #lang racket/base
 CHECK: (provide xilinx-ultrascale-plus-carry8)
 CHECK: (require (file "
-
 CHECK: (require rosette)
-CHECK: (require racket/hash)
 CHECK: (define xilinx-ultrascale-plus-carry8
 CHECK:   (λ (#:CARRY_TYPE
 CHECK:       (CARRY_TYPE (bv->signal (constant 'CARRY_TYPE (bitvector 1))))
@@ -21,25 +19,25 @@ CHECK:       #:DI
 CHECK:       (DI (bv->signal (constant 'DI (bitvector 8))))
 CHECK:       #:S
 CHECK:       (S (bv->signal (constant 'S (bitvector 8)))))
-CHECK:     (let* ((merged-input-state-hash (hash))
-CHECK:            (init-hash (hash))
+CHECK:     (let* ((merged-input-state-hash (list))
+CHECK:            (init-hash (list))
 CHECK:            (btor1 (bitvector 1))
 CHECK:            (btor2 CARRY_TYPE)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state CARRY_TYPE)))
+CHECK:             (append merged-input-state-hash (signal-state CARRY_TYPE)))
 CHECK:            (btor3 CI)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state CI)))
+CHECK:             (append merged-input-state-hash (signal-state CI)))
 CHECK:            (btor4 CI_TOP)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state CI_TOP)))
+CHECK:             (append merged-input-state-hash (signal-state CI_TOP)))
 CHECK:            (btor5 (bitvector 8))
 CHECK:            (btor6 DI)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state DI)))
+CHECK:             (append merged-input-state-hash (signal-state DI)))
 CHECK:            (btor7 S)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state S)))
+CHECK:             (append merged-input-state-hash (signal-state S)))
 CHECK:            (btor8
 CHECK:             (signal (extract 0 0 (signal-value btor6)) (signal-state btor6)))
 CHECK:            (btor9
@@ -85,68 +83,66 @@ CHECK:            (btor33 (bitvector 2))
 CHECK:            (btor34
 CHECK:             (signal
 CHECK:              (concat (signal-value btor13) (signal-value btor10))
-CHECK:              (merge-state (list btor13 btor10))))
+CHECK:              (list)))
 CHECK:            (btor35 (bitvector 3))
 CHECK:            (btor36
 CHECK:             (signal
 CHECK:              (concat (signal-value btor16) (signal-value btor34))
-CHECK:              (merge-state (list btor16 btor34))))
+CHECK:              (list)))
 CHECK:            (btor37 (bitvector 4))
 CHECK:            (btor38
 CHECK:             (signal
 CHECK:              (concat (signal-value btor19) (signal-value btor36))
-CHECK:              (merge-state (list btor19 btor36))))
+CHECK:              (list)))
 CHECK:            (btor39 (bitvector 5))
 CHECK:            (btor40
 CHECK:             (signal
 CHECK:              (concat (signal-value btor23) (signal-value btor38))
-CHECK:              (merge-state (list btor23 btor38))))
+CHECK:              (list)))
 CHECK:            (btor41 (bitvector 6))
 CHECK:            (btor42
 CHECK:             (signal
 CHECK:              (concat (signal-value btor26) (signal-value btor40))
-CHECK:              (merge-state (list btor26 btor40))))
+CHECK:              (list)))
 CHECK:            (btor43 (bitvector 7))
 CHECK:            (btor44
 CHECK:             (signal
 CHECK:              (concat (signal-value btor29) (signal-value btor42))
-CHECK:              (merge-state (list btor29 btor42))))
+CHECK:              (list)))
 CHECK:            (btor45
 CHECK:             (signal
 CHECK:              (concat (signal-value btor32) (signal-value btor44))
-CHECK:              (merge-state (list btor32 btor44))))
+CHECK:              (list)))
 CHECK:            (btor47
 CHECK:             (signal
 CHECK:              (concat (signal-value btor10) (signal-value btor3))
-CHECK:              (merge-state (list btor10 btor3))))
+CHECK:              (list)))
 CHECK:            (btor48
 CHECK:             (signal
 CHECK:              (concat (signal-value btor13) (signal-value btor47))
-CHECK:              (merge-state (list btor13 btor47))))
+CHECK:              (list)))
 CHECK:            (btor49
 CHECK:             (signal
 CHECK:              (concat (signal-value btor16) (signal-value btor48))
-CHECK:              (merge-state (list btor16 btor48))))
+CHECK:              (list)))
 CHECK:            (btor50
 CHECK:             (signal
 CHECK:              (concat (signal-value btor21) (signal-value btor49))
-CHECK:              (merge-state (list btor21 btor49))))
+CHECK:              (list)))
 CHECK:            (btor51
 CHECK:             (signal
 CHECK:              (concat (signal-value btor23) (signal-value btor50))
-CHECK:              (merge-state (list btor23 btor50))))
+CHECK:              (list)))
 CHECK:            (btor52
 CHECK:             (signal
 CHECK:              (concat (signal-value btor26) (signal-value btor51))
-CHECK:              (merge-state (list btor26 btor51))))
+CHECK:              (list)))
 CHECK:            (btor53
 CHECK:             (signal
 CHECK:              (concat (signal-value btor29) (signal-value btor52))
-CHECK:              (merge-state (list btor29 btor52))))
+CHECK:              (list)))
 CHECK:            (btor54
-CHECK:             (signal
-CHECK:              (bvxor (signal-value btor7) (signal-value btor53))
-CHECK:              (merge-state (list btor7 btor53))))
+CHECK:             (signal (bvxor (signal-value btor7) (signal-value btor53)) (list)))
 CHECK:            (btor56
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor21) (bitvector 1))
@@ -183,8 +179,6 @@ CHECK:            (btor64
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor32) (bitvector 1))
 CHECK:              btor32)))
-CHECK:       (make-immutable-hash
-CHECK:        (list
-CHECK:         (cons 'CO (signal (signal-value btor45) (hash)))
-CHECK:         (cons 'O (signal (signal-value btor54) (hash))))))))
-
+CHECK:       (list
+CHECK:        (cons 'CO (signal (signal-value btor45) (list)))
+CHECK:        (cons 'O (signal (signal-value btor54) (list)))))))

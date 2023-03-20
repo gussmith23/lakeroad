@@ -8,7 +8,6 @@ CHECK: #lang racket/base
 CHECK: (provide lattice-ecp5-lut4)
 CHECK: (require (file "
 CHECK: (require rosette)
-CHECK: (require racket/hash)
 CHECK: (define lattice-ecp5-lut4
 CHECK:   (λ (#:A
 CHECK:       (A (bv->signal (constant 'A (bitvector 1))))
@@ -20,25 +19,25 @@ CHECK:       #:D
 CHECK:       (D (bv->signal (constant 'D (bitvector 1))))
 CHECK:       #:init
 CHECK:       (init (bv->signal (constant 'init (bitvector 16)))))
-CHECK:     (let* ((merged-input-state-hash (hash))
-CHECK:            (init-hash (hash))
+CHECK:     (let* ((merged-input-state-hash (list))
+CHECK:            (init-hash (list))
 CHECK:            (btor1 (bitvector 1))
 CHECK:            (btor2 A)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state A)))
+CHECK:             (append merged-input-state-hash (signal-state A)))
 CHECK:            (btor3 B)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state B)))
+CHECK:             (append merged-input-state-hash (signal-state B)))
 CHECK:            (btor4 C)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state C)))
+CHECK:             (append merged-input-state-hash (signal-state C)))
 CHECK:            (btor5 D)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state D)))
+CHECK:             (append merged-input-state-hash (signal-state D)))
 CHECK:            (btor6 (bitvector 16))
 CHECK:            (btor7 init)
 CHECK:            (merged-input-state-hash
-CHECK:             (hash-union merged-input-state-hash (signal-state init)))
+CHECK:             (append merged-input-state-hash (signal-state init)))
 CHECK:            (btor8 (bitvector 8))
 CHECK:            (btor9
 CHECK:             (signal (extract 7 0 (signal-value btor7)) (signal-state btor7)))
@@ -74,5 +73,4 @@ CHECK:            (btor26
 CHECK:             (bv->signal
 CHECK:              (zero-extend (signal-value btor11) (bitvector 8))
 CHECK:              btor11)))
-CHECK:       (make-immutable-hash
-CHECK:        (list (cons 'Z (signal (signal-value btor22) (hash))))))))
+CHECK:       (list (cons 'Z (signal (signal-value btor22) (list)))))))
