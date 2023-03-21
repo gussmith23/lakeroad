@@ -47,25 +47,30 @@
              expr
              [(list l) (error "hi")]
              [(lr:symbol s) s]
-             [(lr:make-immutable-hash list-expr) (make-immutable-hash (interpret-helper list-expr))]
+             [(lr:make-immutable-hash list-expr) (interpret-helper list-expr)]
              [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]
              [(lr:hash-remap-keys h-expr ks)
               (let* ([h (interpret-helper h-expr)]
+                     [_ (when (not (list? h))
+                          (error "hash-remap-keys: expected h to be assoc list, got: " h))]
                      [new-h
-                      (make-immutable-hash
-                       (hash-map
-                        h
-                        (λ (k v)
-                          (cons (cdr (or (assoc k ks)
+                      (map (λ (pair)
+                             (let ([k (car pair)] [v (cdr pair)])
+                               (cons
+                                (cdr (or (assoc k ks)
                                          (error
                                           (format
                                            "old key ~a not found in list: ~a. original hash map: ~a"
                                            k
                                            ks
                                            h))))
-                                v))))])
+                                v)))
+                           h)])
                 new-h)]
-             [(lr:hash-ref h-expr k) (let* ([h (interpret-helper h-expr)] [out (hash-ref h k)]) out)]
+             [(lr:hash-ref h-expr k)
+              (let* ([h (interpret-helper h-expr)]
+                     [out (cdr (or (assoc k h) (error "key " k " not found")))])
+                out)]
              [(lr:hw-module-instance name ports params filepath)
               (let* ([module-semantics-fn (cdr (or (assoc (cons name filepath) module-semantics)
                                                    (error "No semantics for module: "
@@ -102,7 +107,7 @@
 
                      ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
                      ;;; interpreter, we have to unwrap the signal values.
-                     [out (make-immutable-hash (hash-map out (λ (k v) (cons k (signal-value v)))))])
+                     [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)])
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)

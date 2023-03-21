@@ -863,15 +863,16 @@
      (define lakeroad-expr (lr:extract (lr:integer (sub1 (bvlen bv-expr))) (lr:integer 0) R-expr))
 
      (interpret lakeroad-expr
-                #:module-semantics (list (cons (cons "MULT18X18D" "") MULT18X18D)
+                #:module-semantics (list (cons (cons "MULT18X18D" "") lattice-ecp5-mult18x18d)
                                          (cons (cons "ALU24B" "") lattice-ecp5-alu24b)))
 
      (define-symbolic unnamed-input-218 (bitvector 24))
-     (rosette-synthesize bv-expr
-                         lakeroad-expr
-                         (append (symbolics bv-expr) (list unnamed-input-624))
-                         #:module-semantics (list (cons (cons "MULT18X18D" "") MULT18X18D)
-                                                  (cons (cons "ALU24B" "") lattice-ecp5-alu24b))))))
+     (rosette-synthesize
+      bv-expr
+      lakeroad-expr
+      (append (symbolics bv-expr) (list unnamed-input-624))
+      #:module-semantics (list (cons (cons "MULT18X18D" "") lattice-ecp5-mult18x18d)
+                               (cons (cons "ALU24B" "") lattice-ecp5-alu24b))))))
 
 ;;; TODO(@gussmith23): We need to condense all DSP sketches into one.
 

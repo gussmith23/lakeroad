@@ -20,29 +20,27 @@
 (provide sofa-frac-lut4)
 (require "../signal.rkt")
 (require rosette)
-(require racket/hash)
 (define sofa-frac-lut4
-  (λ (#:in (in (bv->signal (constant (list 'in 'symbolic-constant) (bitvector 4))))
-      #:mode (mode (bv->signal (constant (list 'mode 'symbolic-constant) (bitvector 1))))
-      #:mode_inv (mode_inv (bv->signal (constant (list 'mode_inv 'symbolic-constant) (bitvector 1))))
-      #:sram (sram (bv->signal (constant (list 'sram 'symbolic-constant) (bitvector 16))))
-      #:sram_inv (sram_inv (bv->signal (constant (list 'sram_inv 'symbolic-constant)
-                                                 (bitvector 16)))))
-    (let* ([merged-input-state-hash (hash)]
-           [init-hash (hash)]
+  (λ (#:in (in (bv->signal (constant 'in (bitvector 4))))
+      #:mode (mode (bv->signal (constant 'mode (bitvector 1))))
+      #:mode_inv (mode_inv (bv->signal (constant 'mode_inv (bitvector 1))))
+      #:sram (sram (bv->signal (constant 'sram (bitvector 16))))
+      #:sram_inv (sram_inv (bv->signal (constant 'sram_inv (bitvector 16)))))
+    (let* ([merged-input-state-hash (list)]
+           [init-hash (list)]
            [btor1 (bitvector 4)]
            [btor2 in]
-           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state in))]
+           [merged-input-state-hash (append merged-input-state-hash (signal-state in))]
            [btor3 (bitvector 1)]
            [btor4 mode]
-           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state mode))]
+           [merged-input-state-hash (append merged-input-state-hash (signal-state mode))]
            [btor5 mode_inv]
-           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state mode_inv))]
+           [merged-input-state-hash (append merged-input-state-hash (signal-state mode_inv))]
            [btor6 (bitvector 16)]
            [btor7 sram]
-           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state sram))]
+           [merged-input-state-hash (append merged-input-state-hash (signal-state sram))]
            [btor8 sram_inv]
-           [merged-input-state-hash (hash-union merged-input-state-hash (signal-state sram_inv))]
+           [merged-input-state-hash (append merged-input-state-hash (signal-state sram_inv))]
            [btor9 (signal (extract 0 0 (signal-value btor7)) (signal-state btor7))]
            [btor10 (signal (extract 1 1 (signal-value btor7)) (signal-state btor7))]
            [btor11 (signal (extract 3 3 (signal-value btor2)) (signal-state btor2))]
@@ -60,8 +58,7 @@
            [btor23 (if (bitvector->bool (signal-value btor11)) btor22 btor21)]
            [btor24 (if (bitvector->bool (signal-value btor16)) btor23 btor20)]
            [btor25 (bitvector 2)]
-           [btor26 (signal (concat (signal-value btor24) (signal-value btor17))
-                           (merge-state (list btor24 btor17)))]
+           [btor26 (signal (concat (signal-value btor24) (signal-value btor17)) (list))]
            [btor28 (signal (extract 1 1 (signal-value btor2)) (signal-state btor2))]
            [btor29 (if (bitvector->bool (signal-value btor28)) btor24 btor17)]
            [btor30 (signal (extract 8 8 (signal-value btor7)) (signal-state btor7))]
@@ -79,27 +76,21 @@
            [btor42 (if (bitvector->bool (signal-value btor11)) btor41 btor40)]
            [btor43 (if (bitvector->bool (signal-value btor16)) btor42 btor39)]
            [btor44 (if (bitvector->bool (signal-value btor28)) btor43 btor36)]
-           [btor45 (signal (concat (signal-value btor44) (signal-value btor29))
-                           (merge-state (list btor44 btor29)))]
+           [btor45 (signal (concat (signal-value btor44) (signal-value btor29)) (list))]
            [btor47 (signal (extract 0 0 (signal-value btor2)) (signal-state btor2))]
-           [btor48 (signal (bvor (signal-value btor47) (signal-value btor4))
-                           (merge-state (list btor47 btor4)))]
+           [btor48 (signal (bvor (signal-value btor47) (signal-value btor4)) (list))]
            [btor49 (if (bitvector->bool (signal-value btor48)) btor44 btor29)]
-           [btor51 (signal (bvnot (signal-value btor48)) (merge-state (list btor48)))]
-           [btor52 (signal (bvnot (signal-value btor28)) (merge-state (list btor28)))]
-           [btor53 (signal (bvnot (signal-value btor16)) (merge-state (list btor16)))]
-           [btor54 (signal (bvnot (signal-value btor11)) (merge-state (list btor11)))]
-           [btor55 (signal (concat (signal-value btor52) (signal-value btor51))
-                           (merge-state (list btor52 btor51)))]
+           [btor51 (signal (bvnot (signal-value btor48)) (list))]
+           [btor52 (signal (bvnot (signal-value btor28)) (list))]
+           [btor53 (signal (bvnot (signal-value btor16)) (list))]
+           [btor54 (signal (bvnot (signal-value btor11)) (list))]
+           [btor55 (signal (concat (signal-value btor52) (signal-value btor51)) (list))]
            [btor56 (bitvector 3)]
-           [btor57 (signal (concat (signal-value btor53) (signal-value btor55))
-                           (merge-state (list btor53 btor55)))]
-           [btor58 (signal (concat (signal-value btor54) (signal-value btor57))
-                           (merge-state (list btor54 btor57)))]
+           [btor57 (signal (concat (signal-value btor53) (signal-value btor55)) (list))]
+           [btor58 (signal (concat (signal-value btor54) (signal-value btor57)) (list))]
            [btor59 (bv->signal (zero-extend (signal-value btor58) (bitvector 4)) btor58)]
            [btor60 (signal (extract 3 1 (signal-value btor2)) (signal-state btor2))]
-           [btor61 (signal (concat (signal-value btor60) (signal-value btor48))
-                           (merge-state (list btor60 btor48)))]
+           [btor61 (signal (concat (signal-value btor60) (signal-value btor48)) (list))]
            [btor62 (bv->signal (zero-extend (signal-value btor61) (bitvector 4)) btor61)]
            [btor63 (bv->signal (zero-extend (signal-value btor36) (bitvector 1)) btor36)]
            [btor64 (bv->signal (zero-extend (signal-value btor43) (bitvector 1)) btor43)]
@@ -534,6 +525,6 @@
            [btor493 (bv->signal (zero-extend (signal-value btor52) (bitvector 1)) btor52)]
            [btor494 (bv->signal (zero-extend (signal-value btor51) (bitvector 1)) btor51)]
            [btor495 (bv->signal (zero-extend (signal-value btor48) (bitvector 1)) btor48)])
-      (make-immutable-hash (list (cons 'lut3_out (signal (signal-value btor45) (hash)))
-                                 (cons 'lut4_out (signal (signal-value btor49) (hash)))
-                                 (cons 'lut2_out (signal (signal-value btor26) (hash))))))))
+      (list (cons 'lut3_out (signal (signal-value btor45) (list)))
+            (cons 'lut4_out (signal (signal-value btor49) (list)))
+            (cons 'lut2_out (signal (signal-value btor26) (list)))))))

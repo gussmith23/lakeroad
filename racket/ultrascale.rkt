@@ -641,7 +641,7 @@
                                                           #:CI_TOP (bv->signal ci-top)
                                                           #:DI (bv->signal di)
                                                           #:S (bv->signal s))])
-       (list (signal-value (hash-ref out 'CO)) (signal-value (hash-ref out 'O))))]
+       (list (signal-value (assoc-ref out 'CO)) (signal-value (assoc-ref out 'O))))]
     [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
      (let* ([i0 (interpreter i0)]
             [i1 (interpreter i1)]
@@ -657,7 +657,7 @@
                                                         #:I4 (bv->signal i4)
                                                         #:I5 (bv->signal i5)
                                                         #:INIT (bv->signal init))])
-       (signal-value (hash-ref out 'O)))]
+       (signal-value (assoc-ref out 'O)))]
     [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
      (let* ([i0 (interpreter i0)]
             [i1 (interpreter i1)]
@@ -673,7 +673,7 @@
                                                           #:I4 (bv->signal i4)
                                                           #:I5 (bv->signal i5)
                                                           #:INIT (bv->signal init))])
-       (list (signal-value (hash-ref out 'O5)) (signal-value (hash-ref out 'O6))))]))
+       (list (signal-value (assoc-ref out 'O5)) (signal-value (assoc-ref out 'O6))))]))
 
 ; Returns the physical outputs of the CLB.
 (define (interpret-ultrascale-plus-clb-impl clb
@@ -1102,9 +1102,9 @@
        #:unnamed-input-750 (bv->signal unnamed-input-750)
        #:unnamed-input-806 (bv->signal unnamed-input-806)
        #:unnamed-input-850 (bv->signal unnamed-input-850)))
-    (define P (signal-value (hash-ref dsp-expr 'P)))
-    (define COUT (signal-value (hash-ref dsp-expr 'CARRYCASCOUT)))
-    (define XOROUT (signal-value (hash-ref dsp-expr 'XOROUT)))
+    (define P (signal-value (assoc-ref dsp-expr 'P)))
+    (define COUT (signal-value (assoc-ref dsp-expr 'CARRYCASCOUT)))
+    (define XOROUT (signal-value (assoc-ref dsp-expr 'XOROUT)))
     (list P COUT XOROUT)))
 
 (define (compile-ultrascale-plus-dsp48e2 dsp p-name clk-name a-name b-name c-name ce-name reset-name)
