@@ -59,7 +59,7 @@ import argparse
 import sys
 import verilog_to_racket
 from pathlib import Path
-from typing import Dict, Optional, Union, List
+from typing import Dict, Optional, Tuple, Union, List
 import subprocess
 import itertools
 from tempfile import NamedTemporaryFile
@@ -75,6 +75,7 @@ def preprocess_flatten_convert_verilog(
     include_directories: List[StrOrPath] = [],
     defines: Dict[str, Optional[str]] = {},
     check_for_not_derived: bool = True,
+    parameters: Dict[str, Optional[str]] = {},
 ) -> str:
     """Preprocess, flatten, and convert Verilog to btor.
 
@@ -113,20 +114,28 @@ def preprocess_flatten_convert_verilog(
         for infile in infiles
     ]
 
+    setparam_commands = [
+        f"chparam -set {name} {val} {top}" for (name, val) in parameters.items()
+    ]
+
     # Temporary btor and Verilog files.
     btorfile = NamedTemporaryFile()
     vfile = NamedTemporaryFile()
 
-    yosys_commands = read_verilog_commands + [
-        # -simcheck runs checks like -check, but also checks that there are no blackboxes.
-        f"hierarchy -simcheck -top {top}",
-        "prep",
-        "proc",
-        "flatten",
-        "clk2fflogic",
-        f"write_btor {btorfile.name}",
-        f"write_verilog -sv {vfile.name}",
-    ]
+    yosys_commands = (
+        read_verilog_commands
+        + setparam_commands
+        + [
+            # -simcheck runs checks like -check, but also checks that there are no blackboxes.
+            f"hierarchy -simcheck -top {top}",
+            "prep",
+            "proc",
+            "flatten",
+            "clk2fflogic",
+            f"write_btor {btorfile.name}",
+            f"write_verilog -sv {vfile.name}",
+        ]
+    )
 
     try:
         cmd = [
@@ -225,12 +234,34 @@ if __name__ == "__main__":
         type=str,
         default=[],
         action="append",
-        help="Variables to define for the preprocessor.",
+        help="Variables to define for the preprocessor. Syntax: <name>=<val> or just <name>.",
+    )
+    parser.add_argument(
+        "--parameter",
+        type=str,
+        default=[],
+        action="append",
+        help="Parameters to set on the top module. Syntax: <name>=<val> or just <name>.",
     )
     args = parser.parse_args()
 
     LOGLEVEL = os.environ.get("LOGLEVEL", "WARNING").upper()
     logging.basicConfig(level=LOGLEVEL)
+
+    def split_define(define: str) -> Tuple[str, Optional[str]]:
+        """Split a define string into a key and value.
+
+        Args:
+            define: String of the form <key>[=<val>].
+
+        Returns:
+            Tuple of (key, val). If val is not set, returns (key, None).
+        """
+        if "=" in define:
+            key, val = define.split("=", 1)
+            return key, val
+        else:
+            return define, None
 
     out = verilog_to_racket.preprocess_flatten_convert_verilog(
         infiles=[f.name for f in args.infile],
@@ -238,7 +269,8 @@ if __name__ == "__main__":
         function_name=args.function_name,
         check_for_not_derived=True,
         include_directories=args.include,
-        defines={k: None for k in args.define},
+        defines={split_define(v)[0]: split_define(v)[1] for v in args.define},
+        parameters={split_define(v)[0]: split_define(v)[1] for v in args.parameter},
     )
 
     print(out, file=args.outfile)
