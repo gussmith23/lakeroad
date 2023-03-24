@@ -130,10 +130,10 @@ def preprocess_flatten_convert_verilog(
 
     try:
         cmd = [
-                "yosys",
-                "-p",
-                "\n".join(yosys_commands),
-            ]
+            "yosys",
+            "-p",
+            "\n".join(yosys_commands),
+        ]
         logging.info(f"Running command: {' '.join(cmd)}")
         subprocess.run(
             args=cmd,
