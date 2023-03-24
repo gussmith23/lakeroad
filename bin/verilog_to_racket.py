@@ -160,11 +160,11 @@ def preprocess_flatten_convert_verilog(
 
     try:
         cmd = [
-                str(BTOR_TO_RACKET_SCRIPT),
-                "--input-file",
-                str(btorfile.name),
-                function_name,
-            ]
+            str(BTOR_TO_RACKET_SCRIPT),
+            "--input-file",
+            str(btorfile.name),
+            function_name,
+        ]
         logging.info(f"Running command: {' '.join(cmd)}")
         p = subprocess.run(
             args=cmd,
@@ -206,9 +206,7 @@ if __name__ == "__main__":
         default=sys.stdout,
         help="File to write Racket/Rosette code to. When not set, writes to stdout.",
     )
-    parser.add_argument(
-        "--top", type=str, required=True, help="Top module name."
-    )
+    parser.add_argument("--top", type=str, required=True, help="Top module name.")
     parser.add_argument(
         "--function-name",
         type=str,
