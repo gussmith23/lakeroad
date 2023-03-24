@@ -142,9 +142,10 @@ def preprocess_flatten_convert_verilog(
         )
     except subprocess.CalledProcessError as e:
         print("Yosys failed. stdout:", file=sys.stderr)
-        print(e.stdout.decode("utf-8"),file= sys.stderr)
+        print(e.stdout.decode("utf-8"), file=sys.stderr)
         print("stderr:", file=sys.stderr)
-        print(e.stderr.decode("utf-8"),file= sys.stderr)
+        print(e.stderr.decode("utf-8"), file=sys.stderr)
+        print(f"Command: {' '.join(e.cmd)}", file=sys.stderr)
         raise e
 
     if check_for_not_derived:
