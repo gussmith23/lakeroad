@@ -173,9 +173,9 @@ def preprocess_flatten_convert_verilog(
         )
     except subprocess.CalledProcessError as e:
         print("btor_to_racket.rkt failed. stdout:", file=sys.stderr)
-        print(e.stdout.decode("utf-8"),file= sys.stderr)
+        print(e.stdout.decode("utf-8"), file=sys.stderr)
         print("stderr:", file=sys.stderr)
-        print(e.stderr.decode("utf-8"),file= sys.stderr)
+        print(e.stderr.decode("utf-8"), file=sys.stderr)
         raise e
 
     vfile.close()
