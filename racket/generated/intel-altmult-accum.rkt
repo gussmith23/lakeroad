@@ -1,3 +1,12 @@
+;;; Generated with
+;;; $LAKEROAD_DIR/bin/verilog_to_racket.py \
+;;;   --infile ~/lakeroad-private/altera_mf/altera_mf_modified_2nd_attempt.v \
+;;;   --top altmult_accum \
+;;;   --function-name intel-altmult-accum
+;;;
+;;; with this version of the file: https://github.com/uwsampl/lakeroad-private/blob/a5a5b32f1fbb54b4cedbf2328098793dd4a1ffa6/altera_mf/altera_mf_modified_2nd_attempt.v#L309
+;;;
+;;; Plus manually replacing the erroneous #f with 0.
 #lang racket/base
 (provide intel-altmult-accum)
 (require (file "/Users/gus/lakeroad/racket/signal.rkt"))
