@@ -131,7 +131,8 @@ def preprocess_flatten_convert_verilog(
             "prep",
             "proc",
             "flatten",
-            "clk2fflogic",
+            "async2sync",
+            "dffunmap",
             f"write_btor {btorfile.name}",
             f"write_verilog -sv {vfile.name}",
         ]
