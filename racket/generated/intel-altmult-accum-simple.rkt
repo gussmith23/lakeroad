@@ -14,7 +14,7 @@
 ;;; the parameters to ports. The inputs are fixed at 2 bits wide, and the output is 5 bits.
 #lang racket/base
 (provide intel-altmult-accum)
-(require (file "/Users/gus/lakeroad/racket/signal.rkt"))
+(require (file "../signal.rkt"))
 (require rosette)
 (define intel-altmult-accum
   (λ (#:accum_round
