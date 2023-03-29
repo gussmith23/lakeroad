@@ -217,9 +217,9 @@
            (begin
              (define-symbolic a b (bitvector 2))
              (define o0 (run (list) #:dataa a #:datab b))
-             (define o1 (run (signal-state o0) #:dataa a #:datab b))
-             (define o2 (run (signal-state o1) #:dataa a #:datab b))
-             (define o3 (run (signal-state o2) #:dataa a #:datab b))
+             (define o1 (run (signal-state o0)))
+             (define o2 (run (signal-state o1)))
+             (define o3 (run (signal-state o2)))
              (check-true (sat? (synthesize #:forall (list a b)
                                            #:guarantee
                                            (assert (bveq (bvmul a b)
