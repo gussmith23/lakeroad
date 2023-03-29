@@ -205,22 +205,22 @@
                                   #:unnamed-input-319 (bv->signal unnamed-input-319))
              'result))
 
-(define o0 (run (list)))
-(define o1 (run (signal-state o0)))
-(define o2 (run (signal-state o1)))
-(define o3 (run (signal-state o2)))
-;;; (define o4 (run (signal-state o3)))
-;;; (define o5 (run (signal-state o4)))
-;;; (define o6 (run (signal-state o5)))
-;;; (define o7 (run (signal-state o6)))
-;;; (define o8 (run (signal-state o7)))
-;;; (define o9 (run (signal-state o8)))
+(test-case "find any nonzero output"
+           (begin
+             (define o0 (run (list)))
+             (define o1 (run (signal-state o0)))
+             (define o2 (run (signal-state o1)))
+             (define o3 (run (signal-state o2)))
+             (check-true (sat? (solve (assert (bveq (bv 1 5) (signal-value o3))))))))
 
-(error-print-width 100000)
-
-;(match-define (list aclr120 aclr24 clock0 ena0 dataa) (symbolics (signal-value o1)))
-;(evaluate (signal-value o1) (sat (hash aclr24 (bv 0 1) aclr120 (bv 0 1) clock0 (bv 1 1) ena0 (bv 1 1) dataa (bv 1 2))))
-;(vc)
-
-(test-true "find any nonzero output" (sat? (solve (assert (bveq (bv 1 5) (signal-value o3))))))
-
+(test-case "multiplication"
+           (begin
+             (define-symbolic a b (bitvector 2))
+             (define o0 (run (list) #:dataa a #:datab b))
+             (define o1 (run (signal-state o0) #:dataa a #:datab b))
+             (define o2 (run (signal-state o1) #:dataa a #:datab b))
+             (define o3 (run (signal-state o2) #:dataa a #:datab b))
+             (check-true (sat? (synthesize #:forall (list a b)
+                                           #:guarantee
+                                           (assert (bveq (bvmul a b)
+                                                         (extract 1 0 (signal-value o3)))))))))
