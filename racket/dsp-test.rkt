@@ -15,12 +15,6 @@
 (module+ test
   (require rackunit
            "interpreter.rkt"
-           ;;;  "generated/lattice-ecp5-lut4.rkt"
-           ;;;  "generated/lattice-ecp5-ccu2c.rkt"
-           ;;;  "xilinx-ultrascale-plus-lut2.rkt"
-           ;;;  "generated/xilinx-ultrascale-plus-lut6.rkt"
-           ;;;  "generated/xilinx-ultrascale-plus-carry8.rkt"
-           ;;;  "generated/sofa-frac-lut4.rkt"
            rosette/solver/smt/boolector)
 
   (current-solver (boolector))
@@ -47,9 +41,6 @@
                               (symbolics bv-expr)
                               #:module-semantics module-semantics))
 
-        ;;; (displayln "result:")
-        ;;; (displayln result-that-actually-works)
-
         (define result
           (with-vc (with-terms (rosette-synthesize bv-expr
                                                    dsp-sketch
@@ -59,9 +50,6 @@
         (check-true (normal? result))
         (define soln (result-value result))
         (check-true (not (equal? soln #f)))
-        ;;; (check-true (sat? soln))
-
-        ;;; (displayln soln)
 
         (when (not (getenv "VERILATOR_INCLUDE_DIR"))
           (raise "VERILATOR_INCLUDE_DIR not set"))

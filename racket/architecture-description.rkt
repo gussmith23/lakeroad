@@ -139,7 +139,8 @@
 ;;;   bitwidth of that variable.
 ;;; - output-map: hash map mapping interface outputs to expressions.
 ;;; - constraints: hash map mapping interface ports/parameters to Rosette functions (as strings).
-(struct interface-implementation (identifier module-instance internal-data output-map constraints))
+(struct interface-implementation (identifier module-instance internal-data output-map constraints)
+  #:transparent)
 
 ;;; Architecture description.
 ;;;
@@ -1008,7 +1009,8 @@
                                         "../verilator_xilinx/LUT2.v"
                                         "../verilator_xilinx/LUT2.v")
                        (hash "INIT" 4)
-                       (hash "O" "O"))
+                       (hash "O" "O")
+                       (hash))
                       (interface-implementation
                        (interface-identifier "LUT" (hash "num_inputs" 6))
                        (module-instance "LUT6"
@@ -1023,7 +1025,8 @@
                                         "../verilator_xilinx/LUT6.v"
                                         "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v")
                        (hash "INIT" 64)
-                       (hash "O" "O"))
+                       (hash "O" "O")
+                       (hash))
                       (interface-implementation
                        (interface-identifier "carry" (hash "width" 8))
                        (module-instance "CARRY8"
@@ -1035,8 +1038,9 @@
                                         (list)
                                         "../verilator_xilinx/CARRY8.v"
                                         "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
+                       (hash "CO" "(bit 7 CO)" "O" "O")
                        (hash)
-                       (hash "CO" "(bit 7 CO)" "O" "O")))))
+                       (hash)))))
 
   (test-equal? "Parse Lattice ECP5 YAML"
                (lattice-ecp5-architecture-description)
@@ -1053,7 +1057,8 @@
                                         "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
                                         "../modules_for_importing/lattice_ecp5/LUT4.v")
                        (hash "init" 16)
-                       (hash "O" "Z"))
+                       (hash "O" "Z")
+                       (hash))
                       ;;; (interface-implementation
                       ;;;  (interface-identifier "MUX" (hash "num_inputs" 2))
                       ;;;  (module-instance "L6MUX21"
@@ -1088,7 +1093,8 @@
                                         "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
                                         "../modules_for_importing/lattice_ecp5/CCU2C.v")
                        (hash "INIT0" 16 "INIT1" 16)
-                       (hash "CO" "COUT" "O" "(concat S1 S0)")))))
+                       (hash "CO" "COUT" "O" "(concat S1 S0)")
+                       (hash)))))
 
   (test-not-exn "Parse SOFA YAML" (λ () (sofa-architecture-description))))
 
