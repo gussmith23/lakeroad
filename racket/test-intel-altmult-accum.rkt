@@ -82,8 +82,8 @@
          #:coefsel1 [coefsel1 (constant (list 'coefsel1 (index!)) (bitvector 3))]
          #:coefsel2 [coefsel2 (constant (list 'coefsel2 (index!)) (bitvector 3))]
          #:coefsel3 [coefsel3 (constant (list 'coefsel3 (index!)) (bitvector 3))]
-         #:dataa [dataa (constant (list 'dataa (index!)) (bitvector 2))]
-         #:datab [datab (constant (list 'datab (index!)) (bitvector 2))]
+         #:dataa [dataa (constant (list 'dataa (index!)) (bitvector 18))]
+         #:datab [datab (constant (list 'datab (index!)) (bitvector 18))]
          #:datac [datac (constant (list 'datac (index!)) (bitvector 22))]
          #:dedicated_multiplier_circuitry
          [dedicated_multiplier_circuitry
@@ -131,8 +131,8 @@
          [representation_a (constant (list 'representation_a (index!)) (bitvector 5))]
          #:representation_b
          [representation_b (constant (list 'representation_b (index!)) (bitvector 5))]
-         #:scanina [scanina (constant (list 'scanina (index!)) (bitvector 2))]
-         #:scaninb [scaninb (constant (list 'scaninb (index!)) (bitvector 2))]
+         #:scanina [scanina (constant (list 'scanina (index!)) (bitvector 18))]
+         #:scaninb [scaninb (constant (list 'scaninb (index!)) (bitvector 18))]
          #:sign_aclr_a [sign_aclr_a (constant (list 'sign_aclr_a (index!)) (bitvector 5))]
          #:sign_aclr_b [sign_aclr_b (constant (list 'sign_aclr_b (index!)) (bitvector 5))]
          #:sign_pipeline_aclr_a
@@ -149,36 +149,40 @@
          #:signb [signb (constant (list 'signb (index!)) (bitvector 1))]
          #:sourcea [sourcea (constant (list 'sourcea (index!)) (bitvector 1))]
          #:sourceb [sourceb (constant (list 'sourceb (index!)) (bitvector 1))]
-         #:unnamed-input-398
-         [unnamed-input-398 (constant (list 'unnamed-input-398 (index!)) (bitvector 1))]
          #:unnamed-input-400
          [unnamed-input-400 (constant (list 'unnamed-input-400 (index!)) (bitvector 1))]
-         #:unnamed-input-481
-         [unnamed-input-481 (constant (list 'unnamed-input-481 (index!)) (bitvector 4))]
-         #:unnamed-input-848
-         [unnamed-input-848 (constant (list 'unnamed-input-848 (index!)) (bitvector 5))]
-         #:unnamed-input-849
-         [unnamed-input-849 (constant (list 'unnamed-input-849 (index!)) (bitvector 5))]
-         #:unnamed-input-851
-         [unnamed-input-851 (constant (list 'unnamed-input-851 (index!)) (bitvector 5))]
-         #:unnamed-input-852
-         [unnamed-input-852 (constant (list 'unnamed-input-852 (index!)) (bitvector 5))]
-         #:unnamed-input-863
-         [unnamed-input-863 (constant (list 'unnamed-input-863 (index!)) (bitvector 5))]
-         #:unnamed-input-884
-         [unnamed-input-884 (constant (list 'unnamed-input-884 (index!)) (bitvector 5))]
-         #:unnamed-input-924
-         [unnamed-input-924 (constant (list 'unnamed-input-924 (index!)) (bitvector 1))]
-         #:unnamed-input-925
-         [unnamed-input-925 (constant (list 'unnamed-input-925 (index!)) (bitvector 1))]
-         #:unnamed-input-935
-         [unnamed-input-935 (constant (list 'unnamed-input-935 (index!)) (bitvector 1))]
+         #:unnamed-input-402
+         [unnamed-input-402 (constant (list 'unnamed-input-402 (index!)) (bitvector 1))]
+         #:unnamed-input-484
+         [unnamed-input-484 (constant (list 'unnamed-input-484 (index!)) (bitvector 36))]
          #:unnamed-input-953
-         [unnamed-input-953 (constant (list 'unnamed-input-953 (index!)) (bitvector 1))]
+         [unnamed-input-953 (constant (list 'unnamed-input-953 (index!)) (bitvector 35))]
          #:unnamed-input-954
-         [unnamed-input-954 (constant (list 'unnamed-input-954 (index!)) (bitvector 1))]
+         [unnamed-input-954 (constant (list 'unnamed-input-954 (index!)) (bitvector 35))]
+         #:unnamed-input-956
+         [unnamed-input-956 (constant (list 'unnamed-input-956 (index!)) (bitvector 35))]
          #:unnamed-input-957
-         [unnamed-input-957 (constant (list 'unnamed-input-957 (index!)) (bitvector 1))])
+         [unnamed-input-957 (constant (list 'unnamed-input-957 (index!)) (bitvector 35))]
+         #:unnamed-input-963
+         [unnamed-input-963 (constant (list 'unnamed-input-963 (index!)) (bitvector 35))]
+         #:unnamed-input-983
+         [unnamed-input-983 (constant (list 'unnamed-input-983 (index!)) (bitvector 35))]
+         #:unnamed-input-1023
+         [unnamed-input-1023 (constant (list 'unnamed-input-1023 (index!)) (bitvector 1))]
+         #:unnamed-input-1024
+         [unnamed-input-1024 (constant (list 'unnamed-input-1024 (index!)) (bitvector 1))]
+         #:unnamed-input-1034
+         [unnamed-input-1034 (constant (list 'unnamed-input-1034 (index!)) (bitvector 1))]
+         #:unnamed-input-1038
+         [unnamed-input-1038 (constant (list 'unnamed-input-1038 (index!)) (bitvector 1))]
+         #:unnamed-input-1046
+         [unnamed-input-1046 (constant (list 'unnamed-input-1046 (index!)) (bitvector 1))]
+         #:unnamed-input-1053
+         [unnamed-input-1053 (constant (list 'unnamed-input-1053 (index!)) (bitvector 1))]
+         #:unnamed-input-1054
+         [unnamed-input-1054 (constant (list 'unnamed-input-1054 (index!)) (bitvector 1))]
+         #:unnamed-input-1057
+         [unnamed-input-1057 (constant (list 'unnamed-input-1057 (index!)) (bitvector 1))])
 
   (assoc-ref (intel-altmult-accum
               #:accum_direction (signal accum_direction state)
@@ -270,21 +274,23 @@
               #:signb (bv->signal signb)
               #:sourcea (bv->signal sourcea)
               #:sourceb (bv->signal sourceb)
-              #:unnamed-input-398 (bv->signal unnamed-input-398)
               #:unnamed-input-400 (bv->signal unnamed-input-400)
-              #:unnamed-input-481 (bv->signal unnamed-input-481)
-              #:unnamed-input-848 (bv->signal unnamed-input-848)
-              #:unnamed-input-849 (bv->signal unnamed-input-849)
-              #:unnamed-input-851 (bv->signal unnamed-input-851)
-              #:unnamed-input-852 (bv->signal unnamed-input-852)
-              #:unnamed-input-863 (bv->signal unnamed-input-863)
-              #:unnamed-input-884 (bv->signal unnamed-input-884)
-              #:unnamed-input-924 (bv->signal unnamed-input-924)
-              #:unnamed-input-925 (bv->signal unnamed-input-925)
-              #:unnamed-input-935 (bv->signal unnamed-input-935)
+              #:unnamed-input-402 (bv->signal unnamed-input-402)
+              #:unnamed-input-484 (bv->signal unnamed-input-484)
               #:unnamed-input-953 (bv->signal unnamed-input-953)
               #:unnamed-input-954 (bv->signal unnamed-input-954)
-              #:unnamed-input-957 (bv->signal unnamed-input-957))
+              #:unnamed-input-956 (bv->signal unnamed-input-956)
+              #:unnamed-input-957 (bv->signal unnamed-input-957)
+              #:unnamed-input-963 (bv->signal unnamed-input-963)
+              #:unnamed-input-983 (bv->signal unnamed-input-983)
+              #:unnamed-input-1023 (bv->signal unnamed-input-1023)
+              #:unnamed-input-1024 (bv->signal unnamed-input-1024)
+              #:unnamed-input-1034 (bv->signal unnamed-input-1034)
+              #:unnamed-input-1038 (bv->signal unnamed-input-1038)
+              #:unnamed-input-1046 (bv->signal unnamed-input-1046)
+              #:unnamed-input-1053 (bv->signal unnamed-input-1053)
+              #:unnamed-input-1054 (bv->signal unnamed-input-1054)
+              #:unnamed-input-1057 (bv->signal unnamed-input-1057))
              'result))
 
 (test-case "find any nonzero output"
@@ -293,11 +299,11 @@
              (define o1 (run (signal-state o0)))
              (define o2 (run (signal-state o1)))
              (define o3 (run (signal-state o2)))
-             (check-true (sat? (solve (assert (bveq (bv 1 5) (signal-value o3))))))))
+             (check-true (sat? (solve (assert (bveq (bv 1 18) (signal-value o3))))))))
 
 (test-case "multiplication"
            (begin
-             (define-symbolic a b (bitvector 2))
+             (define-symbolic a b (bitvector 18))
              (define o0 (run (list) #:dataa a #:datab b))
              (define o1 (run (signal-state o0)))
              (define o2 (run (signal-state o1)))
@@ -305,4 +311,4 @@
              (check-true (sat? (synthesize #:forall (list a b)
                                            #:guarantee
                                            (assert (bveq (bvmul a b)
-                                                         (extract 1 0 (signal-value o3)))))))))
+                                                         (extract 17 0 (signal-value o3)))))))))
