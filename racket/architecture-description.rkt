@@ -139,7 +139,8 @@
 ;;;   bitwidth of that variable.
 ;;; - output-map: hash map mapping interface outputs to expressions.
 ;;; - constraints: hash map mapping interface ports/parameters to Rosette functions (as strings).
-(struct interface-implementation (identifier module-instance internal-data output-map constraints))
+(struct interface-implementation (identifier module-instance internal-data output-map constraints)
+  #:transparent)
 
 ;;; Architecture description.
 ;;;
