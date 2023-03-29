@@ -3,7 +3,7 @@
 (require racket/base
          racket/match
          rackunit
-         "generated/intel-altmult-accum.rkt"
+         "generated/intel-altmult-accum-simple.rkt"
          "signal.rkt"
          rosette/solver/smt/boolector
          rosette/lib/synthax)
