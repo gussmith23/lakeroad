@@ -3,9 +3,7 @@
 ;;;
 ;;; TODO provide a top-level synthesis procedure?
 
-(provide synthesize-any
-         synthesize-all
-         synthesize-with-sketch
+(provide synthesize-with-sketch
          synthesize-with
          synthesize-xilinx-ultrascale-plus-impl
          synthesize-lattice-ecp5-impl
@@ -33,36 +31,6 @@
          "architecture-description.rkt"
          "generated/lattice-ecp5-mult18x18d.rkt"
          "generated/lattice-ecp5-alu24b.rkt")
-
-;;; Attempt synthesis, return the first that works.
-(define (synthesize-any architecture-description
-                        bv-expr
-                        #:additional-forall [additional-forall '()]
-                        #:module-semantics [module-semantics '()])
-  (let/ec return
-          (for ([sketch-generator (all-sketch-generators)])
-            (let ([result (synthesize-with-sketch sketch-generator
-                                                  architecture-description
-                                                  bv-expr
-                                                  #:additional-forall additional-forall
-                                                  #:module-semantics module-semantics)])
-              (when result
-                (return result))))
-          #f))
-
-;;; Attempt synthesis with all sketch generators.
-;;; Returns a list of pairs of (sketch-generator-fn . result).
-(define (synthesize-all architecture-description
-                        bv-expr
-                        #:additional-forall [additional-forall '()]
-                        #:module-semantics [module-semantics '()])
-  (for/list ([sketch-generator (all-sketch-generators)])
-    (let ([result (synthesize-with-sketch sketch-generator
-                                          architecture-description
-                                          bv-expr
-                                          #:additional-forall additional-forall
-                                          #:module-semantics module-semantics)])
-      (cons sketch-generator result))))
 
 ;;; Attempt synthesis with a single sketch generator.
 (define (synthesize-with-sketch sketch-generator
