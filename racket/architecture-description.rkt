@@ -313,7 +313,7 @@
                           [`(bit ,i ,expr)
                            (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
                           [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
-                          [`(bv->signal (concat ,v ...)) (lr:concat (lr:list (map recursive-helper v)))]
+                          ;;; [`(bv->signal (concat ,v ...)) (lr:concat (lr:list (map recursive-helper v)))]
                           [(? symbol? s) (lookup-symbol s)]))
                       (recursive-helper expr))]
 
@@ -382,8 +382,8 @@
           [expr (first out)]
           [internal-data (second out)])
      (check-true (match internal-data
-                   [(list (cons "init" (lr:bv v)))
-                    (check-true ((bitvector 16) v))
+                        [(list (cons "init" (lr:bv v)))
+                    (check-true ((bitvector 16) (signal-value v)))
                     #t]
                    [else #f]))
      (check-true
@@ -800,9 +800,9 @@
                    [(list (list (cons "init" (lr:bv v0)))
                           (list (cons "init" (lr:bv v1)))
                           (list (cons "init" (lr:bv v2))))
-                    (check-true ((bitvector 16) v0))
-                    (check-true ((bitvector 16) v1))
-                    (check-true ((bitvector 16) v2))
+                    (check-true ((bitvector 16) (signal-value v0)))
+                    (check-true ((bitvector 16) (signal-value v1)))
+                    (check-true ((bitvector 16) (signal-value v2)))
                     #t]
                    [else #f]))
      (check-true
@@ -1074,15 +1074,16 @@
                  (construct-interface
                   (lattice-ecp5-architecture-description)
                   (interface-identifier "LUT" (hash "num_inputs" 2))
-                  (list (cons "I0" (lr:bv (bv 0 1))) (cons "I1" (lr:bv (bv 0 1)))))])
+                  (list (cons "I0" (lr:bv (bv->signal (bv 0 1)))) (cons "I1" (lr:bv (bv->signal (bv 0 1))))))])
      (check-true (match internal-data
                    [(list (cons "init" (lr:bv v)))
-                    (check-true ((bitvector 16) v))
+                    (check-true ((bitvector 16) (signal-value v)))
                     #t]
                    [else #f]))
      (check-true
       (match expr
-        [(lr:make-immutable-hash
+        [
+          (lr:make-immutable-hash
           (lr:list (list (lr:cons (lr:symbol 'O)
                                   (lr:hash-ref (lr:hw-module-instance
                                                 "LUT4"
@@ -1094,8 +1095,8 @@
                                                 (list (module-instance-parameter "init" (lr:bv s0)))
                                                 filepath-unchecked)
                                                'Z)))))
-         (check-equal? v0 (bv 0 1))
-         (check-equal? v1 (bv 1 1))
+         (check-equal? (signal-value v0) (bv 0 1))
+         (check-equal? (signal-value v1) (bv 1 1))
          #t]
         [else #f])))))
 
@@ -1109,10 +1110,11 @@
      (construct-interface
       (lattice-ecp5-architecture-description)
       (interface-identifier "carry" (hash "width" 2))
-      (list (cons "CI" (lr:bv (bv 0 1))) (cons "DI" (lr:bv (bv 0 2))) (cons "S" (lr:bv (bv 0 2))))))
+      (list (cons "CI" (lr:bv (bv->signal (bv 0 1)))) (cons "DI" (lr:bv (bv->signal (bv 0 2)))) (cons "S" (lr:bv (bv->signal (bv 0 2)) )))))
    (check-true (match internal-data
-                 [(list (cons "INIT0" (lr:bv (? (bitvector 16) _)))
-                        (cons "INIT1" (lr:bv (? (bitvector 16) _))))
+                 [
+                  (list (cons "INIT0" (lr:bv (signal (? (bitvector 16) _) _)))
+                        (cons "INIT1" (lr:bv (signal (? (bitvector 16) _) _))))
                   #t]
                  [else #f]))
    (match-define (lr:make-immutable-hash
@@ -1131,17 +1133,17 @@
          (module-instance-port "A1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
          (module-instance-port "B0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv v0)) 'input 1)
          (module-instance-port "B1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
-         (module-instance-port "C0" (lr:bv (? bv? _)) 'input 1)
-         (module-instance-port "C1" (lr:bv (? bv? _)) 'input 1)
-         (module-instance-port "D0" (lr:bv (? bv? _)) 'input 1)
-         (module-instance-port "D1" (lr:bv (? bv? _)) 'input 1)
+         (module-instance-port "C0" (lr:bv (signal (? bv? _) _)) 'input 1)
+         (module-instance-port "C1" (lr:bv (signal (? bv? _) _)) 'input 1)
+         (module-instance-port "D0" (lr:bv (signal (? bv? _) _)) 'input 1)
+         (module-instance-port "D1" (lr:bv (signal (? bv? _) _)) 'input 1)
          (module-instance-port "S0" "unused" 'output 1)
          (module-instance-port "S1" "unused" 'output 1)
          (module-instance-port "COUT" "unused" 'output 1))
         list
         filepath-unchecked)
-       (check-equal? v0 (bv 0 2))
-       (check-equal? v1 (bv 0 1))
+       (check-equal? (signal-value v0) (bv 0 2))
+       (check-equal? (signal-value v1) (bv 0 1))
        #t]
 
       [else #f])))
@@ -1151,12 +1153,12 @@
    (match-define (list expr internal-data)
      (construct-interface (sofa-architecture-description)
                           (interface-identifier "LUT" (hash "num_inputs" 4))
-                          (list (cons "I0" (lr:bv (bv 0 1)))
-                                (cons "I1" (lr:bv (bv 0 1)))
-                                (cons "I2" (lr:bv (bv 0 1)))
-                                (cons "I3" (lr:bv (bv 0 1))))))
+                          (list (cons "I0" (lr:bv (bv->signal (bv 0 1))))
+                                (cons "I1" (lr:bv (bv->signal (bv 0 1))))
+                                (cons "I2" (lr:bv (bv->signal (bv 0 1))))
+                                (cons "I3" (lr:bv (bv->signal (bv 0 1) ))))))
    (check-true (match internal-data
-                 [(list (cons "sram" (lr:bv (? (bitvector 16) _)))) #t]
+                 [(list (cons "sram" (lr:bv (signal (? (bitvector 16) _) _)))) #t]
                  [else #f]))
    (match-define (lr:make-immutable-hash
                   (lr:list (list (lr:cons (lr:symbol 'O) (lr:hash-ref mod-expr 'lut4_out)))))
