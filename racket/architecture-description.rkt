@@ -996,52 +996,69 @@
    (build-path (get-lakeroad-directory) "architecture_descriptions" "sofa.yml")))
 
 (module+ test
-  (test-equal? "Parse Xilinx UltraScale+ YAML"
-               (xilinx-ultrascale-plus-architecture-description)
-               (architecture-description
-                (list (interface-implementation
-                       (interface-identifier "LUT" (hash "num_inputs" 2))
-                       (module-instance "LUT2"
-                                        (list (module-instance-port "I0" "I0" 'input 1)
-                                              (module-instance-port "I1" "I1" 'input 1)
-                                              (module-instance-port "O" "O" 'output 1))
-                                        (list (module-instance-parameter "INIT" "INIT"))
-                                        "../verilator_xilinx/LUT2.v"
-                                        "../verilator_xilinx/LUT2.v")
-                       (hash "INIT" 4)
-                       (hash "O" "O")
-                       (hash))
-                      (interface-implementation
-                       (interface-identifier "LUT" (hash "num_inputs" 6))
-                       (module-instance "LUT6"
-                                        (list (module-instance-port "I0" "I0" 'input 1)
-                                              (module-instance-port "I1" "I1" 'input 1)
-                                              (module-instance-port "I2" "I2" 'input 1)
-                                              (module-instance-port "I3" "I3" 'input 1)
-                                              (module-instance-port "I4" "I4" 'input 1)
-                                              (module-instance-port "I5" "I5" 'input 1)
-                                              (module-instance-port "O" "O" 'output 1))
-                                        (list (module-instance-parameter "INIT" "INIT"))
-                                        "../verilator_xilinx/LUT6.v"
-                                        "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v")
-                       (hash "INIT" 64)
-                       (hash "O" "O")
-                       (hash))
-                      (interface-implementation
-                       (interface-identifier "carry" (hash "width" 8))
-                       (module-instance "CARRY8"
-                                        (list (module-instance-port "CI" "CI" 'input 1)
-                                              (module-instance-port "DI" "DI" 'input 8)
-                                              (module-instance-port "S" "S" 'input 8)
-                                              (module-instance-port "CO" "CO" 'output 8)
-                                              (module-instance-port "O" "O" 'output 8))
-                                        (list)
-                                        "../verilator_xilinx/CARRY8.v"
-                                        "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
-                       (hash "CO" "(bit 7 CO)" "O" "O")
-                       (hash)
-                       (hash)))))
+  (test-case
+   "Parse Xilinx UltraScale+ YAML"
+   (begin
+     (check-true
+      (match (xilinx-ultrascale-plus-architecture-description)
+        [(architecture-description
+          (list (interface-implementation
+                 (interface-identifier "LUT" (hash-table ("num_inputs" 2)))
+                 (module-instance "LUT2"
+                                  (list (module-instance-port "I0" "I0" 'input 1)
+                                        (module-instance-port "I1" "I1" 'input 1)
+                                        (module-instance-port "O" "O" 'output 1))
+                                  (list (module-instance-parameter "INIT" "INIT"))
+                                  "../verilator_xilinx/LUT2.v"
+                                  "../verilator_xilinx/LUT2.v")
+                 (hash-table ("INIT" 4))
+                 (hash-table ("O" "O"))
+                 (hash-table))
+                (interface-implementation
+                 (interface-identifier "LUT" (hash-table ("num_inputs" 6)))
+                 (module-instance "LUT6"
+                                  (list (module-instance-port "I0" "I0" 'input 1)
+                                        (module-instance-port "I1" "I1" 'input 1)
+                                        (module-instance-port "I2" "I2" 'input 1)
+                                        (module-instance-port "I3" "I3" 'input 1)
+                                        (module-instance-port "I4" "I4" 'input 1)
+                                        (module-instance-port "I5" "I5" 'input 1)
+                                        (module-instance-port "O" "O" 'output 1))
+                                  (list (module-instance-parameter "INIT" "INIT"))
+                                  "../verilator_xilinx/LUT6.v"
+                                  "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v")
+                 (hash-table ("INIT" 64))
+                 (hash-table ("O" "O"))
+                 (hash-table))
+                (interface-implementation
+                 (interface-identifier "carry" (hash-table ("width" 8)))
+                 (module-instance "CARRY8"
+                                  (list (module-instance-port "CI" "CI" 'input 1)
+                                        (module-instance-port "DI" "DI" 'input 8)
+                                        (module-instance-port "S" "S" 'input 8)
+                                        (module-instance-port "CO" "CO" 'output 8)
+                                        (module-instance-port "O" "O" 'output 8))
+                                  (list)
+                                  "../verilator_xilinx/CARRY8.v"
+                                  "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
+                 (hash-table)
+                 (hash-table ("CO" "(bit 7 CO)") ("O" "O"))
+                 (hash-table))
+                (interface-implementation (interface-identifier "DSP" (hash-table ("width" 16)))
+                                          module-instance
+                                          internal-data
+                                          (hash-table ("O" "(extract 15 0 P)"))
+                                          constraints)))
 
+         (check-equal?
+          (hash-ref constraints "AUTORESET_PATDET")
+          "(lambda (v) (assert (|| (bveq v (bv 3 5)) (bveq v (bv 4 5)) (bveq v (bv 5 5)))))")
+         (check-equal? (hash-ref constraints "XORSIMD")
+                       "(lambda (v) (assert (|| (bveq v (bv 26 5)) (bveq v (bv 14 5)))))")
+         (check-equal? (hash-ref constraints "SEL_PATTERN")
+                       "(lambda (v) (assert (|| (bveq v (bv 9 5)) (bveq v (bv 17 5)))))")
+         #t]
+        [else #f]))))
   (test-equal? "Parse Lattice ECP5 YAML"
                (lattice-ecp5-architecture-description)
                (architecture-description
