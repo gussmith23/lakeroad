@@ -36,6 +36,8 @@
   (set! interp-memoization-misses 0)
   (define interpreter-memo-hash (make-hasheq))
   (define (interpret-helper expr)
+    ;;; (displayln (~a (string (expr)) #:max-width 30))
+    ;;; (let-values ([(struct-type skipped) (struct-info expr)]) (displayln struct-type))
     (if (hash-has-key? interpreter-memo-hash expr)
         (begin
           (set! interp-memoization-hits (add1 interp-memoization-hits))
@@ -94,7 +96,7 @@
                      ;;; Interpret values.
                      [all-values (map interpret-helper all-values)]
                      ;;; Wrap in signal.
-                     [all-values (map bv->signal all-values)]
+                    ;;;  [all-values (map bv->signal all-values)]
 
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
@@ -107,7 +109,8 @@
 
                      ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
                      ;;; interpreter, we have to unwrap the signal values.
-                     [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)])
+                    ;;;  [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)]
+                     )
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
@@ -309,22 +312,52 @@
               (for/all ([n (interpret-helper n) #:exhaustive]) (list-ref (interpret-helper l) n))]
              [(lr:map f lsts) (apply map f (interpret-helper lsts))]
              ;;; Rosette functions lifted to our language.
-             [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
+            ;;;  [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
+             [(lr:zero-extend v bv) 
+              (let* (
+                [v (interpret-helper v)]
+                [bv (interpret-helper bv)]
+                [state (merge-state (list v))])
+                (signal (zero-extend (signal-value v) bv) state))]
              ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
              ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
              ;;; ((union zero-extend dup-extend) v b) instead of (union (zero-extend v b) (dup-extend v b)).
              ;;; The latter is a lot harder to deal with in the interpreter. How to stop this?
              ;;; [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv)
              ;;; (dup-extend (interpret-helper v) bv)]
-             [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
-             [(lr:extract h l v)
+            ;;;  [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
+             [(lr:dup-extend v bv) 
+              (let* (
+                [v (interpret-helper v)]
+                [bv (interpret-helper bv)]
+                [state (merge-state (list v ))])
+                (signal (dup-extend (signal-value v) bv) state))]
+            ;;;  [(lr:extract h l v) ;; TODO
+            ;;;   (begin
+            ;;;     ;;; We need these for/alls to decompose h and l in weird situations where the indices
+            ;;;     ;;; are concrete but there are multiple possible values.
+            ;;;     (for/all ([h (interpret-helper h) #:exhaustive])
+            ;;;              (for/all ([l (interpret-helper l) #:exhaustive])
+
+            ;;;                       (extract h l (interpret-helper v)))))]
+             [(lr:extract h l v) ;; TODO
               (begin
                 ;;; We need these for/alls to decompose h and l in weird situations where the indices
                 ;;; are concrete but there are multiple possible values.
+                (let (
+                  [v (interpret-helper v)]
+                )
                 (for/all ([h (interpret-helper h) #:exhaustive])
                          (for/all ([l (interpret-helper l) #:exhaustive])
-                                  (extract h l (interpret-helper v)))))]
-             [(lr:concat vs) (apply concat (interpret-helper vs))]
+                                  (signal (extract h l (signal-value v)) (merge-state (list v)))))))]
+            ;;;  [(lr:concat vs) (apply concat (interpret-helper vs))]
+            ;;; (for ([e (lr:list-v vs)]) (let-values ([(struct-type skipped) (struct-info e)]) (displayln struct-type)))
+             [(lr:concat vs)   (let*(
+              [vs (interpret-helper vs)]
+              [state (merge-state vs)]
+              [bv-list (map signal-value vs)]
+             ) 
+             (signal (apply concat bv-list) state))]
              ;;; Datatypes.
              [(lr:bv v) v]
              [(lr:bitvector v) v]

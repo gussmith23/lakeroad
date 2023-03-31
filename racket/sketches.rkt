@@ -32,6 +32,7 @@
 (require "architecture-description.rkt"
          "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt")
+         "signal.rkt"
          rosette
          rosette/lib/angelic
          rosette/lib/synthax
@@ -50,7 +51,7 @@
 ;;; Simple helper to generate an architecture-specific sketch for the given bitvector expression.
 (define (generate-sketch sketch-generator architecture-description bv-expr)
   (first (sketch-generator architecture-description
-                           (lr:list (map lr:bv (symbolics bv-expr)))
+                           (lr:list (map lr:bv (map bv->signal (symbolics bv-expr))))
                            (length (symbolics bv-expr))
                            (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))))
 
@@ -153,7 +154,7 @@
                [(list carry-expr internal-data)
                 (construct-interface architecture-description
                                      (interface-identifier "carry" (hash "width" bitwidth))
-                                     (list (cons "CI" (lr:bv (?? (bitvector 1))))
+                                     (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
                                            (cons "DI" (lr:list-ref logical-inputs (lr:integer 0)))
                                            (cons "S" (lr:list-ref logical-inputs (lr:integer 1))))
                                      #:internal-data internal-data)]
@@ -187,7 +188,7 @@
        [(list carry-expr carry-internal-data)
         (construct-interface architecture-description
                              (interface-identifier "carry" (hash "width" bitwidth))
-                             (list (cons "CI" (lr:bv (?? (bitvector 1))))
+                             (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
                                    (cons "DI" (lr:list-ref logical-inputs (lr:integer 0)))
                                    (cons "S" bitwise-sketch))
                              #:internal-data carry-internal-data)]
@@ -237,7 +238,7 @@
        [(list carry-expr carry-internal-data)
         (construct-interface architecture-description
                              (interface-identifier "carry" (hash "width" bitwidth))
-                             (list (cons "CI" (lr:bv (?? (bitvector 1))))
+                             (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
                                    (cons "DI" bitwise-sketch-0)
                                    (cons "S" bitwise-sketch-1))
                              #:internal-data carry-internal-data)]
@@ -421,7 +422,7 @@
                ;;; Only generate ANDs for the correct bits. Refer to our diagram above if you want to
                ;;; double check the condition on this if statement.
                (if (> row-i col-i)
-                   (lr:bv (bv 0 1))
+                   (lr:bv (bv->signal (bv 0 1)))
                    (lr:hash-ref
                     (first
                      (construct-interface
@@ -453,7 +454,7 @@
                           bitwidth
                           #:internal-data bitwise-with-carry-internal-data)))]
 
-       [out-expr (foldl fold-fn (lr:bv (bv 0 bitwidth)) to-be-added-exprs)])
+       [out-expr (foldl fold-fn (lr:bv (bv->signal (bv 0 bitwidth))) to-be-added-exprs)])
 
     (list out-expr (list and-lut-internal-data bitwise-with-carry-internal-data))))
 
@@ -527,7 +528,7 @@
                            [i1-value-right (if (>= i1-bit-right bitwidth)
                                                ;;; Either shift in 0s or the sign bit.
                                                (if logical-or-arithmetic-chooser
-                                                   (lr:bv (bv 0 1))
+                                                   (lr:bv (bv->signal (bv 0 1)))
                                                    (lr:extract (lr:integer (sub1 bitwidth))
                                                                (lr:integer (sub1 bitwidth))
                                                                a-expr))
@@ -535,7 +536,7 @@
                                                            (lr:integer i1-bit-right)
                                                            previous-stage-expr))]
                            [i1-value-left (if (< i1-bit-left 0)
-                                              (lr:bv (bv 0 1))
+                                              (lr:bv (bv->signal (bv 0 1)))
                                               (lr:extract (lr:integer i1-bit-left)
                                                           (lr:integer i1-bit-left)
                                                           previous-stage-expr))]
@@ -607,14 +608,16 @@
                            (- end-sketch-gen-time start-sketch-gen-time)))
 
         (define start-synthesis-time (current-inexact-milliseconds))
-
+        (interpret sketch
+                                                                    #:module-semantics
+                                                                    module-semantics)
         (define result
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
                                            #:guarantee
                                            (assert (bveq bv-expr
-                                                         (interpret sketch
+                                                         (signal-value (interpret sketch
                                                                     #:module-semantics
-                                                                    module-semantics)))))))
+                                                                    module-semantics))))))))
 
         (define end-synthesis-time (current-inexact-milliseconds))
         (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))

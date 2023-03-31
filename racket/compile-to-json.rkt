@@ -12,6 +12,7 @@
          racket/pretty
          rosette
          (prefix-in lr: "language.rkt")
+         "signal.rkt"
          "architecture-description.rkt")
 
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
@@ -63,6 +64,8 @@
   ;;; "Blocks" like physical-to-logical mappings or CLBs return lists of signals (so, a list of lists
   ;;; of integers).
   (define (compile expr)
+    ;;; (displayln expr)
+    ;;; (let-values ([(struct-type skipped) (struct-info expr)]) (displayln struct-type))
     (if (hash-has-key? memo expr)
         (hash-ref memo expr)
         (let ([out
@@ -108,7 +111,7 @@
                          [param-pairs (map (λ (p)
                                              (cons (string->symbol (module-instance-parameter-name p))
                                                    (match (module-instance-parameter-value p)
-                                                     [(lr:bv v) (make-literal-value-from-bv v)])))
+                                                     [(lr:bv (signal v _)) (make-literal-value-from-bv v)])))
                                            params)]
                          ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
                          ;;; parameters. We will need to figure out a way around this hack especially
@@ -443,7 +446,7 @@
                   (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(lr:bv (? bv? (? symbolic? (? constant? s))))
+                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) state ))
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
@@ -458,7 +461,7 @@
                   (hash-ref port-details 'bits)]
 
                  ;;; Concrete bitvectors become constants.
-                 [(lr:bv (? bv? (? concrete? s)))
+                 [(lr:bv (signal (? bv? (? concrete? s)) state ))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
 
                  [(lr:integer v) v]

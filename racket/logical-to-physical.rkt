@@ -25,6 +25,7 @@
          racket/pretty
          rosette/lib/synthax
          "utils.rkt"
+         "signal.rkt"
          (prefix-in lr: "language.rkt")
          rosette/lib/destruct)
 
@@ -32,7 +33,10 @@
 (struct physical-to-logical-mapping (f outputs) #:transparent)
 
 (define (transpose inputs)
-  (apply map concat (map bitvector->bits (reverse inputs))))
+  (let* 
+   ([inputs-bv (map signal-value inputs)]
+    [state (merge-state inputs)])
+  (map (lambda (bv) (signal bv state)) (apply map concat (map bitvector->bits (reverse inputs-bv))))))
 
 ;;; Compiles physical-to-logical mapping.
 (define (compile-physical-to-logical-mapping compile f physical-expr)
@@ -228,7 +232,10 @@
   (let* (;;; First, creates one large bitvector in the following bit order:
          ;;; MSB of last input...LSB of last input:MSB of 2nd to last input...:...:MSB of i0...LSB i0
          ;;; Then converts to a list of bits, which reverses the bit order into lsb...msb order.
-         [inputs (apply concat (reverse inputs))]
+         [state (merge-state inputs)]
+         [inputs-bv (map signal-value inputs)]
+         [inputs (apply concat (reverse inputs-bv))]
+        ;;;  [inputs (apply concat (reverse inputs))]
          [inputs-length (length (bitvector->bits inputs))]
          ;;; 0..inputs-length-1
          [indices (map (lambda (v) (integer->bitvector v (bitvector bw))) (range inputs-length))]
@@ -246,7 +253,8 @@
          ;;; on.)
          [outputs
           (map (lambda (i) (extract (sub1 (* bits-per-group (+ i 1))) (* bits-per-group i) outputs))
-               (range num-groups))])
+               (range num-groups))]
+         [outputs (map (lambda (bv) (signal bv state)) outputs)])
     outputs))
 
 (module+ test
@@ -435,11 +443,16 @@
    ;;;
    ;;; Choose one of the bits to be the output.
    [(ptol-choose-one idx)
-    (let* ([logical-outputs (apply concat (interpreter logical-outputs))])
-      (list (bit 0
+    (let* (
+      [vs (interpreter logical-outputs)]
+      [state (merge-state vs)]
+      [bvvs (map signal-value vs)]
+      [logical-outputs (apply concat bvvs)]
+      )
+      (list (signal (bit 0
                  (bvlshr
                   logical-outputs
-                  (zero-extend idx (bitvector (length (bitvector->bits logical-outputs))))))))]))
+                  (zero-extend idx (bitvector (length (bitvector->bits logical-outputs)))))) state)))]))
 
 (module+ test
   (require rackunit)

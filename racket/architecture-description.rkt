@@ -26,7 +26,8 @@
          yaml
          "utils.rkt"
          (prefix-in lr: "language.rkt")
-         rosette/lib/synthax)
+         rosette/lib/synthax
+         "signal.rkt")
 
 ;;; Part 1: defining an interface.
 
@@ -176,7 +177,7 @@
        ; this handles cases where either our number of inputs isn't a divisor of
        ; biggest-lut-size OR when we have leftover bits (yum!)
 
-       [symbolic-bit (lr:bv (?? (bitvector 1)))]
+       [symbolic-bit (lr:bv (bv->signal (?? (bitvector 1))))]
        [inputs (for/list ([w windowed-inputs])
                  (let* ([diff (- biggest-lut-size (length w))]
                         [right-pads (make-list diff symbolic-bit)])
@@ -242,7 +243,7 @@
   ;;;   (integer).
   (map (lambda (internal-data-definition-pair)
          (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
-         (cons (car internal-data-definition-pair) (lr:bv internal-data)))
+         (cons (car internal-data-definition-pair) (lr:bv (bv->signal internal-data))))
        (hash->list internal-data-definition)))
 
 ;;; Get interface definition from list of interfaces.
@@ -308,10 +309,11 @@
                       (define expr (read (open-input-string expr-str)))
                       (define (recursive-helper expr)
                         (match expr
-                          [`(bv ,val ,width) (lr:bv (bv val width))]
+                          [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
                           [`(bit ,i ,expr)
                            (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
                           [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
+                          [`(bv->signal (concat ,v ...)) (lr:concat (lr:list (map recursive-helper v)))]
                           [(? symbol? s) (lookup-symbol s)]))
                       (recursive-helper expr))]
 
@@ -470,7 +472,7 @@
           ;;; to set them to 1 on Xilinx. We should perhaps allow this to be configurable.
           [new-port-map (append port-map
                                 (for/list ([i (range requested-lut-size larger-lut-size)])
-                                  (cons (format "I~a" i) (lr:bv (bv 1 1)))))]
+                                  (cons (format "I~a" i) (lr:bv (bv->signal (bv 1 1))))))]
           [(list out-lut-expr internal-data)
            (construct-interface-internal architecture-description
                                          larger-lut-interface-identifier
@@ -621,7 +623,7 @@
                        (if (equal? padding 0)
                            extract-expr
                            (lr:concat
-                            (lr:list (list (lr:bv (apply concat (make-list padding pad-val)))
+                            (lr:list (list (lr:bv (bv->signal (apply concat (make-list padding pad-val))))
                                            extract-expr))))))]
                   [this-di (extract-fn di-expr di-padding-val)]
                   [this-s (extract-fn s-expr s-padding-val)]
