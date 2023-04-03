@@ -41,3 +41,15 @@ for f in $SCRIPT_DIR/racket/*.rkt; do time raco test $f; done
 
 # Integration tests.
 source $SCRIPT_DIR/integration_tests/run.sh
+
+# Import Verilog to Racket and ensure that nothing changed. This is a somewhat
+# hacky way to ensure that the bitvector semantics used by Lakeroad are true to
+# the semantics produced by the current version of bin/verilog_to_racket.py,
+# while also not having to have tests tests that duplicate the contents of the
+# files in racket/generated/.
+./import_all_primitives.sh
+[ -z "$(git status --porcelain)" ] || {
+    echo >&2 "Files differ after re-importing Verilog to Racket:"
+    git status >&2
+    exit 1
+}
