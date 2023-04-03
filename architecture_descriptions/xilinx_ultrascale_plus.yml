@@ -77,7 +77,7 @@ implementations:
       SEL_PATTERN: 5,
       USE_PATTERN_DETECT: 5,
     }
-    constraints: {
+    constraints: [
       # TODO(@ninehusky): Right now, these constraints are commented out because we fix these parameters to specific values.
       # When we extend the DSP primitive interface to support sequential functionality, we'll need to
       # re-enable these constraints (and fix the parameter values accordingly).
@@ -99,20 +99,23 @@ implementations:
       # OPMODEREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
       # PREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
 
-      A_INPUT: (lambda (v) (assert (|| (bveq v (bv 7 5)) (bveq v (bv 15 5))))),
-      B_INPUT: (lambda (v) (assert (|| (bveq v (bv 7 5)) (bveq v (bv 15 5))))),
-      PREADDINSEL: (lambda (v) (assert (|| (bveq v (bv 0 5)) (bveq v (bv 1 5))))),
-      AMULTSEL: (lambda (v) (assert (|| (bveq v (bv 0 5)) (bveq v (bv 2 5))))),
-      BMULTSEL: (lambda (v) (assert (|| (bveq v (bv 1 5)) (bveq v (bv 2 5))))),
-      USE_MULT: (lambda (v) (assert (|| (bveq v (bv 20 5)) (bveq v (bv 10 5)) (bveq v (bv 18 5))))),
-      USE_SIMD: (lambda (v) (assert (|| (bveq v (bv 12 5)) (bveq v (bv 25 5)) (bveq v (bv 19 5))))),
-      USE_WIDEXOR: (lambda (v) (assert (|| (bveq v (bv 24 5)) (bveq v (bv 13 5))))),
-      XORSIMD: (lambda (v) (assert (|| (bveq v (bv 26 5)) (bveq v (bv 14 5))))),
-      AUTORESET_PATDET: (lambda (v) (assert (|| (bveq v (bv 3 5)) (bveq v (bv 4 5)) (bveq v (bv 5 5))))),
-      AUTORESET_PRIORITY: (lambda (v) (assert (|| (bveq v (bv 6 5)) (bveq v (bv 16 5))))),
-      SEL_MASK: (lambda (v) (assert (|| (bveq v (bv 8 5)) (bveq v (bv 17 5)) (bveq v (bv 22 5)) (bveq v (bv 23 5))))),
-      SEL_PATTERN: (lambda (v) (assert (|| (bveq v (bv 9 5)) (bveq v (bv 17 5))))),
-      USE_PATTERN_DETECT: (lambda (v) (assert (|| (bveq v (bv 11 5)) (bveq v (bv 21 5))))),
+      # TODO(@ninehusky): this block represents the constraints to include.
+      # A_INPUT: (lambda (v) (assert (|| (bveq v (bv 7 5)) (bveq v (bv 15 5))))),
+      # B_INPUT: (lambda (v) (assert (|| (bveq v (bv 7 5)) (bveq v (bv 15 5))))),
+      # PREADDINSEL: (lambda (v) (assert (|| (bveq v (bv 0 5)) (bveq v (bv 1 5))))),
+      # AMULTSEL: (lambda (v) (assert (|| (bveq v (bv 0 5)) (bveq v (bv 2 5))))),
+      # BMULTSEL: (lambda (v) (assert (|| (bveq v (bv 1 5)) (bveq v (bv 2 5))))),
+      # USE_MULT: (lambda (v) (assert (|| (bveq v (bv 20 5)) (bveq v (bv 10 5)) (bveq v (bv 18 5))))),
+      # USE_SIMD: (lambda (v) (assert (|| (bveq v (bv 12 5)) (bveq v (bv 25 5)) (bveq v (bv 19 5))))),
+      # USE_WIDEXOR: (lambda (v) (assert (|| (bveq v (bv 24 5)) (bveq v (bv 13 5))))),
+      # XORSIMD: (lambda (v) (assert (|| (bveq v (bv 26 5)) (bveq v (bv 14 5))))),
+      # AUTORESET_PATDET: (lambda (v) (assert (|| (bveq v (bv 3 5)) (bveq v (bv 4 5)) (bveq v (bv 5 5))))),
+      # AUTORESET_PRIORITY: (lambda (v) (assert (|| (bveq v (bv 6 5)) (bveq v (bv 16 5))))),
+      # SEL_MASK: (lambda (v) (assert (|| (bveq v (bv 8 5)) (bveq v (bv 17 5)) (bveq v (bv 22 5)) (bveq v (bv 23 5))))),
+      # SEL_PATTERN: (lambda (v) (assert (|| (bveq v (bv 9 5)) (bveq v (bv 17 5))))),
+      # USE_PATTERN_DETECT: (lambda (v) (assert (|| (bveq v (bv 11 5)) (bveq v (bv 21 5))))),
+
+      # "(|| (bveq A_INPUT (bv 7 5)) (bv A_INPUT (bv 15 5)))"
       # Here, I want to apply this assertion but it's unclear how I can apply it
       # without a reference to both OPMODE and IS_OPMODE_INVERTED.
       # ;;; Table 2-4 of DSP manual.
@@ -128,9 +131,10 @@ implementations:
       # (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
 
       # The following are from synthesize.rkt, synthesize-xilinx-ultrascale-plus-dsp
-      OPMODE: "(lambda (v) (assert (not (bveq (extract 5 4 v) (bv #b01 2)))))",
-      CARRYINSEL: "(lambda (v) (assert (not (bveq (extract 2 0 v) (bv #b011 3)))))",
-    }
+      # TODO(@ninehusky): include these too.
+      # OPMODE: "(lambda (v) (assert (not (bveq (extract 5 4 v) (bv #b01 2)))))",
+      # CARRYINSEL: "(lambda (v) (assert (not (bveq (extract 2 0 v) (bv #b011 3)))))",
+    ]
     modules:
       - module_name: DSP48E2
         filepath: ../verilator_unisims/DSP48E2.v
