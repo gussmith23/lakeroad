@@ -1806,10 +1806,6 @@
      ;;; connectivity or OPMODE value to allow for proper implementation.
      ;;;
      ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-     ;;; TODO(@ninehusky): I believe this is where the second chunk of constraints begin.
-     ;;; Check this! Also, in assert bvzeros, we can just set the value of the ports/params to 0
-     ;;; in the architecture description - I'm assuming that the nonzero values can just be
-     ;;; set to 1, because they're clock enable signals.
      (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
 
      (assert (bvzero? CARRYIN))

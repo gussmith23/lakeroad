@@ -35,12 +35,6 @@
         (displayln (format "running test ~a" name))
         defines ...
 
-        (define result-that-actually-works
-          (rosette-synthesize bv-expr
-                              dsp-sketch
-                              (symbolics bv-expr)
-                              #:module-semantics module-semantics))
-
         (define result
           (with-vc (with-terms (rosette-synthesize bv-expr
                                                    dsp-sketch

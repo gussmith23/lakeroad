@@ -261,7 +261,7 @@
   (map
    (lambda (internal-data-definition-pair)
      (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
-     (when (hash-ref constraints (car internal-data-definition-pair) #f)
+     (when (hash-has-key? constraints (car internal-data-definition-pair))
        (apply-constraints (hash-ref constraints (car internal-data-definition-pair)) internal-data))
      (cons (car internal-data-definition-pair) (lr:bv internal-data)))
    (hash->list internal-data-definition)))
@@ -965,7 +965,7 @@
 
     (define output-map (or (hash-ref impl-yaml "outputs" #f) (error "outputs not found")))
 
-    (define constraints (or (hash-ref impl-yaml "constraints" #f) (hash)))
+    (define constraints (hash-ref impl-yaml "constraints" (hash)))
 
     (interface-implementation
      interface-identifier

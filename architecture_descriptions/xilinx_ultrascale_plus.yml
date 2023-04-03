@@ -46,7 +46,6 @@ implementations:
     outputs: { O: O, CO: (bit 7 CO) }
   - interface: { name: DSP, parameters: { width: 16 } }
     internal_data: {
-      # TODO(@acheung8): trim these down to only the ones we actually use
       ACASCREG: 32,
       ADREG: 32,
       ALUMODEREG: 32,
@@ -79,9 +78,9 @@ implementations:
       USE_PATTERN_DETECT: 5,
     }
     constraints: {
-      # TODO(@acheung8): check if we actually need all these constraints - we might just be able
-      # to use the default values in the Verilog? (probably not because multiple bveq arguments are passed)
-
+      # TODO(@ninehusky): Right now, these constraints are commented out because we fix these parameters to specific values.
+      # When we extend the DSP primitive interface to support sequential functionality, we'll need to
+      # re-enable these constraints (and fix the parameter values accordingly).
       # The following are from ultrascale.rkt, interpret-ultrascale-dsp48e2-new:
       # Commented out ones are unnecessary based on (assert bvzero?...)
       # asserts present in synthesize.rkt/interpret-ultrascale-dsp48e2-new.
