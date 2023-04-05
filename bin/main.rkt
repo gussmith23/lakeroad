@@ -152,7 +152,7 @@
 
      (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
-     (signal-value (hash-ref (f) (string->symbol (verilog-module-out-signal))))]))
+     (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))]))
 
 (when (boolean? bv-expr)
   (error
