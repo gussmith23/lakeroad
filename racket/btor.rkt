@@ -330,6 +330,13 @@
             `(bv->signal (zero-extend (signal-value ,s)
                                       ,(hash-ref sorts (string->number out-type-id-str)))
                          ,s)))]
+        [`("sext" ,out-type-id-str ,in-id-str ,_ ...)
+         (let ([s (get-expr-id-str in-id-str)])
+           (add-expr-id-str
+            id-str
+            `(bv->signal (sign-extend (signal-value ,s)
+                                      ,(hash-ref sorts (string->number out-type-id-str)))
+                         ,s)))]
         [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
            (add-expr-id-str id-str (op-call-builder concat a b)))]
