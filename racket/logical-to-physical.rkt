@@ -1,4 +1,4 @@
-#lang rosette/safe
+#lang errortrace rosette/safe
 
 ;;; Logical to physical (and vice versa) mapping tools for Lakeroad.
 ;;;
@@ -32,12 +32,24 @@
 (struct logical-to-physical-mapping (f inputs) #:transparent)
 (struct physical-to-logical-mapping (f outputs) #:transparent)
 
-(define (transpose inputs)
-  (let* 
-   ([inputs-bv (map signal-value inputs)]
-    [state (merge-state inputs)])
-  (map (lambda (bv) (signal bv state)) (apply map concat (map bitvector->bits (reverse inputs-bv))))))
+;;; (define (transpose inputs)
+;;;   (let* 
+;;;    ([inputs-bv (map signal-value inputs)]
+;;;     [state (merge-state inputs)])
+;;;   (map (lambda (bv) (signal bv state)) (apply map concat (map bitvector->bits (reverse inputs-bv))))))
 
+
+;; this is a function to help with operating on lists of signals. We take in a list of bitvectors 
+;; (extracted from the signal input) and return the list of bitvectors with the match arm's operatiosn applied.
+(define (signal-helper f inputs)
+ f inputs) 
+
+(define (bvvs->signalvs inputs state)
+  (map (lambda (bv) (signal bv state)) inputs))
+
+
+(define (transpose inputs)
+  (apply map concat (map bitvector->bits (reverse inputs))))
 ;;; Compiles physical-to-logical mapping.
 (define (compile-physical-to-logical-mapping compile f physical-expr)
   (destruct f
@@ -110,7 +122,7 @@
    f
    [(ltop-identity) inputs]
    ;;; Variant which uses a Rosette uninterpreted function.
-   [(ltop-uf uf bw bits-per-group) (helper uf bw bits-per-group inputs)]
+   [(ltop-uf uf bw bits-per-group) (helper uf bw bits-per-group inputs)] ;; question: I dont think I need to change this
    ;;;
    ;;; Uses an uninterpreted function plus a mask.
    ;;;[`(uf-with-mask ,uf ,bw ,bits-per-group ,masks)
@@ -129,7 +141,13 @@
    ;;;
    ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern
    ;;;   described above.
-   [(ltop-bitwise) (transpose (interpreter inputs))]
+  ;;;  [(ltop-bitwise) (transpose (interpreter inputs))]
+   [(ltop-bitwise) 
+    (let* 
+     ([inputs (interpreter inputs)]
+      [inputs-bv (map signal-value inputs)]
+      [state (merge-state inputs)])
+     (bvvs->signalvs (transpose inputs-bv) state))]
    ;;;
    ;;; "Shift" logical-to-physical-mapping.
    ;;;
@@ -142,30 +160,63 @@
    ;;; Since bits are grouped from least significant to most significant, a
    ;;; 'left shift' actually of the underlying number corresponds to a 'right
    ;;; shift' of our list and vice versa.
+  ;;;  [(ltop-shift n)
+  ;;;   ;;; TODO(@gussmith23): Do we need for/all here?
+  ;;;   (for/all ([n n #:exhaustive])
+  ;;;            (let* ([transposed (transpose (interpreter inputs))]
+  ;;;                   [num-cols (length transposed)]
+  ;;;                   [pad-col (bv #x0 (length (interpreter inputs)))]
+  ;;;                   [num-pads (min (abs n) num-cols)]
+  ;;;                   [pads (make-list num-pads pad-col)])
+  ;;;              (cond
+  ;;;                [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
+  ;;;                [(< n 0) (append (drop transposed num-pads) pads)]
+  ;;;                [else transposed])))]
    [(ltop-shift n)
-    ;;; TODO(@gussmith23): Do we need for/all here?
     (for/all ([n n #:exhaustive])
-             (let* ([transposed (transpose (interpreter inputs))]
+             (let* ([inputs (interpreter inputs)]
+                    [inputs-bv (map signal-value inputs)]
+                    [state (merge-state inputs)]
+                    [transposed (transpose inputs-bv)]
                     [num-cols (length transposed)]
-                    [pad-col (bv #x0 (length (interpreter inputs)))]
+                    [pad-col (bv #x0 (length inputs-bv))]
                     [num-pads (min (abs n) num-cols)]
                     [pads (make-list num-pads pad-col)])
-               (cond
-                 [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
-                 [(< n 0) (append (drop transposed num-pads) pads)]
-                 [else transposed])))]
-   [(ltop-constant c) (bitvector->bits (interpreter c))]
+                    (cond
+                      [(> n 0) (bvvs->signalvs (append pads (take transposed (- num-cols num-pads))) state)]
+                      [(< n 0) (bvvs->signalvs (append (drop transposed num-pads) pads) state)]
+                      [else (bvvs->signalvs transposed state)])))]
+  ;;;  [(ltop-constant c) (bitvector->bits (interpreter c))] ;; question not sure about this one?
+   [(ltop-constant c)
+    (let* (
+      [inputs (interpreter inputs)]
+      [inputs-bv (map signal-value inputs)]
+      [state (merge-state inputs)]
+    ) (bvvs->signalvs (bitvector->bits inputs-bv) state))]
    ;;;
    ;;; Same as bitwise, but includes masks on the physical outputs.
    ;;;
    ;;; `masks` is a list of masks, one for each of the physical output bitvectors. Each mask is a
    ;;; bitvector of the same length as its corresponding physical output. The mask is ORed with the
    ;;; physical outputs before being returned.
-   [(ltop-bitwise-with-mask masks) (map bvor (transpose (interpreter inputs)) (interpreter masks))]
+  ;;;  [(ltop-bitwise-with-mask masks) (map bvor (transpose (interpreter inputs)) (interpreter masks))]
+   [(ltop-bitwise-with-mask masks)
+     (let* (
+      [inputs (interpreter inputs)]
+      [inputs-bv (map signal-value inputs)]
+      [state (merge-state inputs)]
+      [masks-bv (map signal-value masks)] ;; question: I think I have to dothis?
+    ) (bvvs->signalvs (map bvor (transpose inputs-bv) masks-bv) state))]
    ;;;
    ;;; Same as bitwise, but reverse.
+  ;;;  [(ltop-bitwise-reverse)
+  ;;;   (transpose (map (lambda (v) (apply concat (bitvector->bits v))) (interpreter inputs)))]
    [(ltop-bitwise-reverse)
-    (transpose (map (lambda (v) (apply concat (bitvector->bits v))) (interpreter inputs)))]
+    (let* (
+     [inputs (interpreter inputs)]
+     [inputs-bv (map signal-value inputs)]
+     [state (merge-state inputs)])
+    (bvvs->signalvs (transpose (map (lambda (v) (apply concat (bitvector->bits v))) inputs-bv)) state))]
    ;;;
    ;;; Like bitwise mapping, but a bit more flexible. Logical input n always maps to bit n of each
    ;;; LUT, but any bit of logical input n can go to bit n of any LUT. (In bitwise, we require that
@@ -266,33 +317,31 @@
   (test-case
    "bitwise with mask"
    (begin
-     (define-symbolic x (bitvector 3))
-     (define-symbolic y (bitvector 3))
-     (define pttn (list (?? (bitvector 2)) (?? (bitvector 2)) (?? (bitvector 2))))
+     (define x (bv->signal (?? (bitvector 3))))
+     (define y (bv->signal (?? (bitvector 3))))
+     (define pttn (map bv->signal (list (?? (bitvector 2)) (?? (bitvector 2)) (?? (bitvector 2)))))
      (match-define (list o0 o1 o2)
        (interpret-logical-to-physical-mapping identity (ltop-bitwise-with-mask pttn) (list x y)))
-     ;;; Simple case: none should be masked.
      (define soln0
        (synthesize #:forall (list x y)
                    #:guarantee (begin
-                                 (assert (bveq (bit 0 o0) (bit 0 x)))
-                                 (assert (bveq (bit 1 o0) (bit 0 y)))
-                                 (assert (bveq (bit 0 o1) (bit 1 x)))
-                                 (assert (bveq (bit 1 o1) (bit 1 y)))
-                                 (assert (bveq (bit 0 o2) (bit 2 x)))
-                                 (assert (bveq (bit 1 o2) (bit 2 y))))))
-     (check-equal? (list (bv #b00 2) (bv #b00 2) (bv #b00 2)) (evaluate pttn soln0))
-     ;;; More complex case: some should be masked.
+                                 (assert (bveq (bit 0 (signal-value o0)) (bit 0 (signal-value x))))
+                                 (assert (bveq (bit 1 (signal-value o0)) (bit 0 (signal-value y))))
+                                 (assert (bveq (bit 0 (signal-value o1)) (bit 1 (signal-value x))))
+                                 (assert (bveq (bit 1 (signal-value o1)) (bit 1 (signal-value y))))
+                                 (assert (bveq (bit 0 (signal-value o2)) (bit 2 (signal-value x))))
+                                 (assert (bveq (bit 1 (signal-value o2)) (bit 2 (signal-value y)))))))
+     (check-equal? (list (bv #b00 2) (bv #b00 2) (bv #b00 2)) (map signal-value (evaluate pttn soln0)))
      (define soln1
        (synthesize #:forall (list x y)
                    #:guarantee (begin
-                                 (assert (bveq (bit 0 o0) (bv 1 1)))
-                                 (assert (bveq (bit 1 o0) (bit 0 y)))
-                                 (assert (bveq (bit 0 o1) (bit 1 x)))
-                                 (assert (bveq (bit 1 o1) (bit 1 y)))
-                                 (assert (bveq (bit 0 o2) (bv 1 1)))
-                                 (assert (bveq (bit 1 o2) (bv 1 1))))))
-     (check-equal? (list (bv #b01 2) (bv #b00 2) (bv #b11 2)) (evaluate pttn soln1)))))
+                                 (assert (bveq (bit 0 (signal-value o0)) (bv 1 1)))
+                                 (assert (bveq (bit 1 (signal-value o0)) (bit 0 (signal-value y))))
+                                 (assert (bveq (bit 0 (signal-value o1)) (bit 1 (signal-value x))))
+                                 (assert (bveq (bit 1 (signal-value o1)) (bit 1 (signal-value y))))
+                                 (assert (bveq (bit 0 (signal-value o2)) (bv 1 1)))
+                                 (assert (bveq (bit 1 (signal-value o2)) (bv 1 1))))))
+     (check-equal? (list (bv #b01 2) (bv #b00 2) (bv #b11 2)) (map signal-value (evaluate pttn soln1))))))
 
 (module+ test
   (require rackunit
@@ -307,9 +356,9 @@
       (begin
 
         ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
-        (define-symbolic a (bitvector 8))
-        (define-symbolic b (bitvector 8))
-        (define-symbolic c (bitvector 8))
+        (define a (bv->signal (?? (bitvector 8))))
+        (define b (bv->signal (?? (bitvector 8))))
+        (define c (bv->signal (?? (bitvector 8))))
         (define pttn (?? (~> (bitvector 5) (bitvector 5))))
         (match-define (list o0 o1 o2 o3 o4 o5)
           (interpret-logical-to-physical-mapping identity (ltop-uf pttn 5 4) (list a b c)))
@@ -317,12 +366,12 @@
           (synthesize #:forall (list a b c)
                       #:guarantee (begin
                                     ;;; Make up some random constraints...
-                                    (assert (bveq (bit 0 a) (bit 0 o1)))
-                                    (assert (bveq (bit 1 a) (bit 2 o0)))
-                                    (assert (bveq (extract 7 4 c) o4))
+                                    (assert (bveq (bit 0 (signal-value a)) (bit 0 (signal-value o1))))
+                                    (assert (bveq (bit 1 (signal-value a)) (bit 2 (signal-value o0))))
+                                    (assert (bveq (extract 7 4 (signal-value c)) (signal-value o4)))
                                     ;;; This one reverses the bits (via bitvector->bits --> concat).
-                                    (assert (bveq (apply concat (bitvector->bits (extract 3 1 b)))
-                                                  (extract 2 0 o3))))))
+                                    (assert (bveq (apply concat (bitvector->bits (extract 3 1 (signal-value b))))
+                                                  (extract 2 0 (signal-value o3)))))))
         (check-true (sat? soln))
         ;;; Get the mapping function...
         (define f (evaluate pttn soln))
@@ -343,12 +392,12 @@
 (module+ test
   (require rackunit)
   (check-equal?
-   (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv #b01 2) (bv #b10 2)))
-   (list (bv #b01 2) (bv #b10 2)))
-  (check-equal? (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv #b01 2)))
-                (list (bv #b1 1) (bv #b0 1)))
-  (check-equal? (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv #b01 2)))
-                (list (bv #b1 1) (bv #b0 1)))
+   (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv->signal (bv #b01 2)) (bv->signal (bv #b10 2))))
+   (list (bv->signal (bv #b01 2)) (bv->signal (bv #b10 2))))
+  (check-equal? (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv->signal (bv #b01 2))))
+                (list (bv->signal (bv #b1 1)) (bv->signal (bv #b0 1))))
+  (check-equal? (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv->signal (bv #b01 2))))
+                (list (bv->signal (bv #b1 1)) (bv->signal (bv #b0 1))))
 
   ; The following two functions are helpers to help us test our wire
   ; implementations. They each create and interpret a logical-to-physical
@@ -375,37 +424,37 @@
             (ptol-bitwise)
             '())))
   ;;;                 TEST CONSTANTS                    ;;;
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 0) (bv 1 2))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #b01 2))) #:shift-by 0)) (bv 1 2))
 
   ;;;                 TEST SHIFTS                    ;;;
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 0) (bv 1 2))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 1) (bv 2 2))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 2) (bv 0 2))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b01 2)) #:shift-by 3) (bv 0 2))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b10 2)) #:shift-by -1) (bv 1 2))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b10 2)) #:shift-by -2) (bv 0 2))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #b10 2)) #:shift-by -3) (bv 0 2))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #b01 2))) #:shift-by 0)) (bv 1 2))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #b01 2))) #:shift-by 1)) (bv 2 2))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #b01 2))) #:shift-by 2)) (bv 0 2))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #b01 2))) #:shift-by 3)) (bv 0 2))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #b10 2))) #:shift-by -1)) (bv 1 2))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #b10 2))) #:shift-by -2)) (bv 0 2))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #b10 2))) #:shift-by -3)) (bv 0 2))
 
   ;; Test right shifts
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 0) (bv #xaa 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -1) (bv #x55 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -2) (bv #x2a 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -3) (bv #x15 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -4) (bv #x0a 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -5) (bv #x05 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -6) (bv #x02 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -7) (bv #x01 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by -8) (bv #x00 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 0)) (bv #xaa 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by -1)) (bv #x55 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by -2)) (bv #x2a 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by -3)) (bv #x15 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by -4)) (bv #x0a 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by -5)) (bv #x05 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by -6)) (bv #x02 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by -7)) (bv #x01 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by -8)) (bv #x00 8))
 
   ;; Test left shifts
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 1) (bv #x54 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 2) (bv #xa8 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 3) (bv #x50 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 4) (bv #xa0 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 5) (bv #x40 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 6) (bv #x80 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 7) (bv #x00 8))
-  (check-equal? (interpret-shift-instruction #:inputs (list (bv #xaa 8)) #:shift-by 8) (bv #x00 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 1)) (bv #x54 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 2)) (bv #xa8 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 3)) (bv #x50 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 4)) (bv #xa0 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 5)) (bv #x40 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 6)) (bv #x80 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 7)) (bv #x00 8))
+  (check-equal? (signal-value (interpret-shift-instruction #:inputs (list (bv->signal (bv #xaa 8))) #:shift-by 8)) (bv #x00 8))
 
   (check-exn
    (regexp
@@ -417,7 +466,7 @@
    (regexp
     "map: all lists must have same size\n  first list length: 1\n  other list length: 2\n  procedure: concat")
    (lambda ()
-     (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv #b01 2) (bv #b1 1))))))
+     (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv->signal (bv #b01 2)) (bv->signal (bv #b1 1)))))))
 
 ;;; Interprets physical-to-logical mappings.
 ;;; Expects a list of logical outputs in least significant->most significant order.
@@ -434,10 +483,22 @@
    ;;; outputs.
    ;;;
    ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
-   [(ptol-bitwise) (transpose (interpreter logical-outputs))]
+  ;;;  [(ptol-bitwise) (transpose (interpreter logical-outputs))]
+   [(ptol-bitwise)
+    (let* (
+      [outputs (interpreter logical-outputs)]
+      [state (merge-state outputs)]
+      [outputs-bv (map signal-value outputs)]
+    ) (bvvs->signalvs (transpose outputs-bv) state))]
    ;;;
    ;;; Same as bitwise, but reverse.
-   [(ptol-bitwise-reverse) (transpose (reverse (interpreter logical-outputs)))]
+  ;;;  [(ptol-bitwise-reverse) (transpose (reverse (interpreter logical-outputs)))]
+   [(ptol-bitwise-reverse) 
+    (let* (
+      [outputs (interpreter logical-outputs)]
+      [state (merge-state outputs)]
+      [outputs-bv (map signal-value outputs)]
+    ) (bvvs->signalvs (transpose (reverse outputs-bv)) state))] 
    ;;; Variant which uses a Rosette uninterpreted function.
    [(ptol-uf uf bw bits-per-group) (helper uf bw bits-per-group (interpreter logical-outputs))]
    ;;;
@@ -457,24 +518,24 @@
 (module+ test
   (require rackunit)
   (check-equal?
-   (interpret-physical-to-logical-mapping identity (ptol-bitwise) (list (bv #b1 1) (bv #b0 1)))
-   (list (bv #b01 2)))
+   (interpret-physical-to-logical-mapping identity (ptol-bitwise) (list (bv->signal (bv #b1 1)) (bv->signal (bv #b0 1))))
+   (list (bv->signal (bv #b01 2))))
 
   (check-equal? (interpret-physical-to-logical-mapping identity
                                                        (ptol-bitwise-reverse)
-                                                       (list (bv #b1 1) (bv #b0 1)))
-                (list (bv #b10 2)))
+                                                       (list (bv->signal (bv #b1 1)) (bv->signal (bv #b0 1))))
+                (list (bv->signal (bv #b10 2))))
 
   ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
   (test-begin
-   (define-symbolic logical-out-a (bitvector 1))
-   (define-symbolic logical-out-b (bitvector 1))
-   (define-symbolic logical-out-c (bitvector 1))
-   (define-symbolic logical-out-d (bitvector 1))
-   (define-symbolic logical-out-e (bitvector 1))
-   (define-symbolic logical-out-f (bitvector 1))
-   (define-symbolic logical-out-g (bitvector 1))
-   (define-symbolic logical-out-h (bitvector 1))
+   (define logical-out-a (bv->signal (?? (bitvector 1))))
+   (define logical-out-b (bv->signal (?? (bitvector 1))))
+   (define logical-out-c (bv->signal (?? (bitvector 1))))
+   (define logical-out-d (bv->signal (?? (bitvector 1))))
+   (define logical-out-e (bv->signal (?? (bitvector 1))))
+   (define logical-out-f (bv->signal (?? (bitvector 1))))
+   (define logical-out-g (bv->signal (?? (bitvector 1))))
+   (define logical-out-h (bv->signal (?? (bitvector 1))))
    (define pttn (?? (~> (bitvector 3) (bitvector 3))))
    (match-define (list physical-out)
      (interpret-physical-to-logical-mapping identity
@@ -499,21 +560,21 @@
                  #:guarantee
                  (begin
                    ;;; Make up some random constraints...
-                   (assert (bveq logical-out-a (bit 0 physical-out)))
-                   (assert (bveq (concat logical-out-e logical-out-d logical-out-c logical-out-b)
-                                 (extract 4 1 physical-out)))
-                   (assert (bveq (concat logical-out-f logical-out-g logical-out-h)
-                                 (extract 7 5 physical-out))))))
+                   (assert (bveq (signal-value logical-out-a) (bit 0 (signal-value physical-out))))
+                   (assert (bveq (concat (signal-value logical-out-e) (signal-value logical-out-d) (signal-value logical-out-c) (signal-value logical-out-b))
+                                 (extract 4 1 (signal-value physical-out))))
+                   (assert (bveq (concat (signal-value logical-out-f) (signal-value logical-out-g) (signal-value logical-out-h))
+                                 (extract 7 5 (signal-value physical-out))))
+                                 )))
    (check-true (sat? soln)))
-
   (test-begin
    (check-equal? (list (bv 0 1))
-                 (interpret-physical-to-logical-mapping
+                 (map signal-value (interpret-physical-to-logical-mapping
                   identity
                   (ptol-choose-one (bv 0 3))
-                  (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))
+                  (map bv->signal (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))))
    (check-equal? (list (bv 1 1))
-                 (interpret-physical-to-logical-mapping
+                 (map signal-value (interpret-physical-to-logical-mapping
                   identity
                   (ptol-choose-one (bv 7 3))
-                  (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))))
+                  (map bv->signal (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))))))
