@@ -49,7 +49,7 @@ source $SCRIPT_DIR/integration_tests/run.sh
 # files in racket/generated/.
 ./import_all_primitives.sh
 [ -z "$(git status --porcelain)" ] || {
-    echo >&2 "Files differ after re-importing Verilog to Racket:"
+    echo >&2 "Error: files differ after re-importing Verilog to Racket:"
     git status >&2
     exit 1
 }
