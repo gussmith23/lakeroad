@@ -1015,7 +1015,7 @@
 
 (module+ test
   (define-symbolic SOME_DATA (bitvector 32))
-  (test-begin
+  (test-case
    "Test parsing of constraints."
    (check-eq? (parse-constraint-dsl "(|| (bveq SOME_DATA (bv 0 32)) (bveq SOME_DATA (bv 1 32)))"
                                     (lambda (s) (hash-ref (hash 'SOME_DATA SOME_DATA) s)))
@@ -1074,17 +1074,25 @@
                                           module-instance
                                           internal-data
                                           (hash-table ("O" "(extract 15 0 P)"))
-                                          ;;; (list "asdfghjkl" ...)
                                           constraints)))
 
-         ;;; TODO(@acheung8) re-enable these with list check instead of hash check
-         ;;;  (check-equal?
-         ;;;   (hash-ref constraints "AUTORESET_PATDET")
-         ;;;   "(lambda (v) (assert (|| (bveq v (bv 3 5)) (bveq v (bv 4 5)) (bveq v (bv 5 5)))))")
-         ;;;  (check-equal? (hash-ref constraints "XORSIMD")
-         ;;;                "(lambda (v) (assert (|| (bveq v (bv 26 5)) (bveq v (bv 14 5)))))")
-         ;;;  (check-equal? (hash-ref constraints "SEL_PATTERN")
-         ;;;                "(lambda (v) (assert (|| (bveq v (bv 9 5)) (bveq v (bv 17 5)))))")
+         (check-true
+          (not
+           (equal?
+            (member
+             "(|| (bveq AUTORESET_PATDET (bv 3 5)) (bveq AUTORESET_PATDET (bv 4 5)) (bveq AUTORESET_PATDET (bv 5 5)))"
+             constraints)
+            #f)))
+         (check-true (not (equal? (member "(|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5)))"
+                                          constraints)
+                                  #f)))
+         (check-true
+          (not
+           (equal?
+            (member
+             "(|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5)) (bveq SEL_PATTERN (bv 22 5)) (bveq SEL_PATTERN (bv 23 5)))"
+             constraints)
+            #f)))
          #t]
         [else #f]))))
   (test-equal? "Parse Lattice ECP5 YAML"
