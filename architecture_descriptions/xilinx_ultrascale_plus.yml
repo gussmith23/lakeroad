@@ -62,11 +62,13 @@ implementations:
       PREG: 32,
 
       OPMODE: 9,
+      IS_OPMODE_INVERTED: 9,
       A_INPUT: 5,
       B_INPUT: 5,
       PREADDINSEL: 5,
       AMULTSEL: 5,
       BMULTSEL: 5,
+      CARRYINSEL: 3,
       USE_MULT: 5,
       USE_SIMD: 5,
       USE_WIDEXOR: 5,
@@ -116,15 +118,9 @@ implementations:
       "(|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5)) (bveq SEL_PATTERN (bv 22 5)) (bveq SEL_PATTERN (bv 23 5)))",
       "(|| (bveq USE_PATTERN_DETECT (bv 11 5)) (bveq USE_PATTERN_DETECT (bv 21 5)))",
 
-      # Here, I want to apply this assertion but it's unclear how I can apply it
-      # without a reference to both OPMODE and IS_OPMODE_INVERTED.
-      # ;;; Table 2-4 of DSP manual.
-      # (assert (=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
-      #             (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2))))
-      # "(=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
-      #             (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2)))",
-      # ;;; Table 2-6 of DSP manual.
-      # (assert (not (bveq (bvxor (extract 6 4 OPMODE) (extract 6 4 IS_OPMODE_INVERTED)) (bv #b111 3))))
+      "(=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
+                  (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2)))",
+      "(not (bveq (bvxor (extract 6 4 OPMODE) (extract 6 4 IS_OPMODE_INVERTED)) (bv #b111 3)))",
       # ;;; Warning from DSP model:
       # ;;;
       # ;;; DRC warning : [Unisim DSP48E2-11] CARRYINSEL is set to 010 with OPMODEREG set to 0. This causes
@@ -133,11 +129,8 @@ implementations:
       # (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
 
       # The following are from synthesize.rkt, synthesize-xilinx-ultrascale-plus-dsp
-      # TODO(@ninehusky): include these too.
-      # OPMODE: "(lambda (v) (assert (not (bveq (extract 5 4 v) (bv #b01 2)))))",
       "(not (bveq (extract 5 4 OPMODE) (bv #b01 2)))",
-      # "(not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3)))",
-      # CARRYINSEL: "(lambda (v) (assert (not (bveq (extract 2 0 v) (bv #b011 3)))))",
+      "(not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3)))",
     ]
     modules:
       - module_name: DSP48E2
@@ -153,7 +146,7 @@ implementations:
             { name: C, direction: input, bitwidth: 48, value: (bv 0 48) },
             { name: CARRYCASCIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: CARRYIN, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: CARRYINSEL, direction : input, bitwidth: 3, value: (bv 0 3) },
+            { name: CARRYINSEL, direction : input, bitwidth: 3, value: CARRYINSEL },
 
             # Here, we set clock enable inputs to 1.
             { name: CEA1, direction: input, bitwidth: 1, value: (bv 1 1) },
@@ -211,7 +204,7 @@ implementations:
           { name: IS_CARRYIN_INVERTED, value: (bv 0 1) },
           { name: IS_CLK_INVERTED, value: (bv 0 1) },
           { name: IS_INMODE_INVERTED, value: (bv 0 5) },
-          { name: IS_OPMODE_INVERTED, value: (bv 0 9) },
+          { name: IS_OPMODE_INVERTED, value: IS_OPMODE_INVERTED },
           { name: IS_RSTALLCARRYIN_INVERTED, value: (bv 0 1) },
           { name: IS_RSTALUMODE_INVERTED, value: (bv 0 1) },
           { name: IS_RSTA_INVERTED, value: (bv 0 1) },

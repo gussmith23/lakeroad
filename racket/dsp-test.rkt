@@ -11,15 +11,8 @@
 
 (define architecture-description (xilinx-ultrascale-plus-architecture-description))
 
-(define-symbolic a b (bitvector 16))
-(construct-interface architecture-description
-                     (interface-identifier "DSP" (hash "width" 16))
-                     (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
-                     #:internal-data #f)
-
 (module+ test
   (require rackunit
-           "interpreter.rkt"
            rosette/solver/smt/boolector)
 
   (current-solver (boolector))
