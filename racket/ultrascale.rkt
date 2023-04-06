@@ -1,4 +1,4 @@
-#lang racket
+#lang errortrace racket
 
 (provide interpret-ultrascale-plus
          ultrascale-plus-clb
@@ -405,30 +405,32 @@
 ;
 ; Returns the O5 and O6 signals.
 (define (interpret-ultrascale-plus-lut6-2-impl lut6-2-memory inputs)
-  (let* ([memory lut6-2-memory]
+  (let* ([state (signal-state inputs)] ;;question do I have to do this with the memory as well
+         [memory (signal-value lut6-2-memory)]
+         [inputs (signal-value inputs)]
          [lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
          [lut5-1 (lut (extract 31 0 memory) (extract 4 0 inputs))]
-         [O6 (if (bitvector->bool (bit 5 inputs)) lut5-0 lut5-1)]
-         [O5 lut5-1])
+         [O6 (signal (if (bitvector->bool (bit 5 inputs)) lut5-0 lut5-1) state)]
+         [O5 (signal lut5-1 state)])
     (list O5 O6)))
 
 (module+ test
   (require rackunit)
-  (check-equal? (second (interpret-ultrascale-plus-lut6-2
+  (check-equal? (signal-value (second (interpret-ultrascale-plus-lut6-2
                          identity
-                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64) (bv 0 6))))
+                         (ultrascale-plus-lut6-2 (bv->signal (bv #x0000000000000008 64)) (bv->signal (bv 0 6))))))
                 (bv 0 1))
-  (check-equal? (second (interpret-ultrascale-plus-lut6-2
+  (check-equal? (signal-value (second (interpret-ultrascale-plus-lut6-2
                          identity
-                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64) (bv 1 6))))
+                         (ultrascale-plus-lut6-2 (bv->signal (bv #x0000000000000008 64)) (bv->signal (bv 1 6))))))
                 (bv 0 1))
-  (check-equal? (second (interpret-ultrascale-plus-lut6-2
+  (check-equal? (signal-value (second (interpret-ultrascale-plus-lut6-2
                          identity
-                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64) (bv 2 6))))
+                         (ultrascale-plus-lut6-2 (bv->signal (bv #x0000000000000008 64)) (bv->signal (bv 2 6))))))
                 (bv 0 1))
-  (check-equal? (second (interpret-ultrascale-plus-lut6-2
+  (check-equal? (signal-value (second (interpret-ultrascale-plus-lut6-2
                          identity
-                         (ultrascale-plus-lut6-2 (bv #x0000000000000008 64) (bv 3 6))))
+                         (ultrascale-plus-lut6-2 (bv->signal (bv #x0000000000000008 64)) (bv->signal (bv 3 6))))))
                 (bv 1 1)))
 
 ; Carry signals CO0..CO7 (aka MUXCY; carry output) in fig 2-4. Note that, to implement a mux with
@@ -449,7 +451,14 @@
 ; Implementation translated from
 ; https://github.com/fredrequin/verilator_xilinx/blob/352de831223a65e8eca3f6abe5c11217863a9dd3/CARRY8.v
 (define (interpret-ultrascale-plus-carry8 d s ci)
-  (let* ([w_CO0 (if (bitvector->bool (bit 0 s)) ci (bit 0 d))]
+  (let* ([check (displayln s)]
+         [check2 (displayln d)]
+         [check3 (displayln ci)]
+         [state (signal-state d)]
+         [d (signal-value d)]
+         [s (signal-value s)]
+         [ci (signal-value ci)]
+         [w_CO0 (if (bitvector->bool (bit 0 s)) ci (bit 0 d))]
          [w_CO1 (if (bitvector->bool (bit 1 s)) w_CO0 (bit 1 d))]
          [w_CO2 (if (bitvector->bool (bit 2 s)) w_CO1 (bit 2 d))]
          [w_CO3 (if (bitvector->bool (bit 3 s)) w_CO2 (bit 3 d))]
@@ -457,8 +466,8 @@
          [w_CO5 (if (bitvector->bool (bit 5 s)) w_CO4 (bit 5 d))]
          [w_CO6 (if (bitvector->bool (bit 6 s)) w_CO5 (bit 6 d))]
          [w_CO7 (if (bitvector->bool (bit 7 s)) w_CO6 (bit 7 d))]
-         [CO (concat w_CO7 w_CO6 w_CO5 w_CO4 w_CO3 w_CO2 w_CO1 w_CO0)]
-         [O (bvxor s (concat w_CO6 w_CO5 w_CO4 w_CO3 w_CO2 w_CO1 w_CO0 ci))])
+         [CO (signal (concat w_CO7 w_CO6 w_CO5 w_CO4 w_CO3 w_CO2 w_CO1 w_CO0) state)]
+         [O (signal (bvxor s (concat w_CO6 w_CO5 w_CO4 w_CO3 w_CO2 w_CO1 w_CO0 ci)) state)])
     (list O CO)))
 
 ; Defines the programmable state of an UltraScale+ CLB.
@@ -713,23 +722,24 @@
                           (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-h clb))
                           lut-input-h)]
        [(list carry-o carry-co) (interpret-ultrascale-plus-carry8
-                                 (concat h-o5 g-o5 f-o5 e-o5 d-o5 c-o5 b-o5 a-o5)
-                                 (concat h-o6 g-o6 f-o6 e-o6 d-o6 c-o6 b-o6 a-o6)
+                                 (bv->signal (concat (signal-value h-o5) (signal-value g-o5) (signal-value f-o5) (signal-value e-o5) (signal-value d-o5) (signal-value c-o5) (signal-value b-o5) (signal-value a-o5)))
+                                 (bv->signal (concat (signal-value h-o6) (signal-value g-o6) (signal-value f-o6) (signal-value e-o6) (signal-value d-o6) (signal-value c-o6) (signal-value b-o6) (signal-value a-o6))) ;; question, we should preserve the previous state instead of doing bv->signal
                                  cin)]
-       [cout (bit 7 carry-co)]
-       [(list carry-o0 carry-co0) (list (bit 0 carry-o) (bit 0 carry-co))]
-       [(list carry-o1 carry-co1) (list (bit 1 carry-o) (bit 1 carry-co))]
-       [(list carry-o2 carry-co2) (list (bit 2 carry-o) (bit 2 carry-co))]
-       [(list carry-o3 carry-co3) (list (bit 3 carry-o) (bit 3 carry-co))]
-       [(list carry-o4 carry-co4) (list (bit 4 carry-o) (bit 4 carry-co))]
-       [(list carry-o5 carry-co5) (list (bit 5 carry-o) (bit 5 carry-co))]
-       [(list carry-o6 carry-co6) (list (bit 6 carry-o) (bit 6 carry-co))]
-       [(list carry-o7 carry-co7) (list (bit 7 carry-o) (bit 7 carry-co))]
+       [cout (signal (bit 7 (signal-value carry-co)) (signal-state carry-co))]
+       [(list carry-o0 carry-co0) (list (bit 0 (signal-value carry-o)) (bit 0 (signal-value carry-co)))]
+       [(list carry-o1 carry-co1) (list (bit 1 (signal-value carry-o)) (bit 1 (signal-value carry-co)))]
+       [(list carry-o2 carry-co2) (list (bit 2 (signal-value carry-o)) (bit 2 (signal-value carry-co)))]
+       [(list carry-o3 carry-co3) (list (bit 3 (signal-value carry-o)) (bit 3 (signal-value carry-co)))]
+       [(list carry-o4 carry-co4) (list (bit 4 (signal-value carry-o)) (bit 4 (signal-value carry-co)))]
+       [(list carry-o5 carry-co5) (list (bit 5 (signal-value carry-o)) (bit 5 (signal-value carry-co)))]
+       [(list carry-o6 carry-co6) (list (bit 6 (signal-value carry-o)) (bit 6 (signal-value carry-co)))]
+       [(list carry-o7 carry-co7) (list (bit 7 (signal-value carry-o)) (bit 7 (signal-value carry-co)))]
        [mux-helper
         (lambda (o5 o6 carry-o carry-co selector)
-          (if (bveq selector (bv 0 2))
+          (if (bveq (signal-value selector) (bv 0 2))
               o5
               (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
+       [display (displayln a-o6)]
        [a-mux-out
         (mux-helper a-o5 a-o6 carry-o0 carry-co0 (ultrascale-plus-clb-state-mux-selector-a clb))]
        [b-mux-out
@@ -745,7 +755,16 @@
        [g-mux-out
         (mux-helper g-o5 g-o6 carry-o6 carry-co6 (ultrascale-plus-clb-state-mux-selector-g clb))]
        [h-mux-out
-        (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-state-mux-selector-h clb))])
+        (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-state-mux-selector-h clb))]
+       [display (list (signal-value a-mux-out)
+                                 (signal-value b-mux-out)
+                                 (signal-value c-mux-out)
+                                 (signal-value d-mux-out)
+                                 (signal-value e-mux-out)
+                                 (signal-value f-mux-out)
+                                 (signal-value g-mux-out)
+                                 (signal-value h-mux-out)
+                                 )])
     (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out cout)))
 
 ; Programmable state for DSP48E2. See spec in the spec-sheets dir.
