@@ -405,7 +405,7 @@
 ;
 ; Returns the O5 and O6 signals.
 (define (interpret-ultrascale-plus-lut6-2-impl lut6-2-memory inputs)
-  (let* ([state (signal-state inputs)] ;;question do I have to do this with the memory as well
+  (let* ([state (merge-state (list lut6-2-memory inputs))]
          [memory (signal-value lut6-2-memory)]
          [inputs (signal-value inputs)]
          [lut5-0 (lut (extract 63 32 memory) (extract 4 0 inputs))]
@@ -697,7 +697,9 @@
                                             lut-input-h)
 
   (match-let*
-      ([(list a-o5 a-o6) (interpret-ultrascale-plus-lut6-2-impl
+      ([state (merge-state (list clb cin lut-input-a lut-input-b lut-input-c lut-input-d
+                                 lut-input-e lut-input-f lut-input-g lut-input-h))]
+       [(list a-o5 a-o6) (interpret-ultrascale-plus-lut6-2-impl
                           (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-a clb))
                           lut-input-a)]
        [(list b-o5 b-o6) (interpret-ultrascale-plus-lut6-2-impl
@@ -722,8 +724,8 @@
                           (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-h clb))
                           lut-input-h)]
        [(list carry-o carry-co) (interpret-ultrascale-plus-carry8
-                                 (bv->signal (concat (signal-value h-o5) (signal-value g-o5) (signal-value f-o5) (signal-value e-o5) (signal-value d-o5) (signal-value c-o5) (signal-value b-o5) (signal-value a-o5)))
-                                 (bv->signal (concat (signal-value h-o6) (signal-value g-o6) (signal-value f-o6) (signal-value e-o6) (signal-value d-o6) (signal-value c-o6) (signal-value b-o6) (signal-value a-o6))) ;; question, we should preserve the previous state instead of doing bv->signal
+                                 (signal (concat (signal-value h-o5) (signal-value g-o5) (signal-value f-o5) (signal-value e-o5) (signal-value d-o5) (signal-value c-o5) (signal-value b-o5) (signal-value a-o5)) state)
+                                 (signal (concat (signal-value h-o6) (signal-value g-o6) (signal-value f-o6) (signal-value e-o6) (signal-value d-o6) (signal-value c-o6) (signal-value b-o6) (signal-value a-o6))state ) 
                                  cin)]
        [cout (signal (bit 7 (signal-value carry-co)) (signal-state carry-co))]
        [(list carry-o0 carry-co0) (list (bit 0 (signal-value carry-o)) (bit 0 (signal-value carry-co)))]
@@ -755,16 +757,7 @@
        [g-mux-out
         (mux-helper g-o5 g-o6 carry-o6 carry-co6 (ultrascale-plus-clb-state-mux-selector-g clb))]
        [h-mux-out
-        (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-state-mux-selector-h clb))]
-       [display (list (signal-value a-mux-out)
-                                 (signal-value b-mux-out)
-                                 (signal-value c-mux-out)
-                                 (signal-value d-mux-out)
-                                 (signal-value e-mux-out)
-                                 (signal-value f-mux-out)
-                                 (signal-value g-mux-out)
-                                 (signal-value h-mux-out)
-                                 )])
+        (mux-helper h-o5 h-o6 carry-o7 carry-co7 (ultrascale-plus-clb-state-mux-selector-h clb))])
     (list a-mux-out b-mux-out c-mux-out d-mux-out e-mux-out f-mux-out g-mux-out h-mux-out cout)))
 
 ; Programmable state for DSP48E2. See spec in the spec-sheets dir.

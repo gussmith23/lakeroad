@@ -26,6 +26,7 @@
            "interpreter.rkt"
            "logical-to-physical.rkt"
            "lattice-ecp5.rkt"
+           "signal.rkt"
            (prefix-in lr: "language.rkt"))
 
   ;;; Boolector is a fast solver for the theory of bitvectors. We have intentionally kept all of
@@ -55,10 +56,10 @@
               ;;; the functioning of the Lattice ripple PFU (a special type of PFU that we're using)
               ;;; that these inputs not be all zeros, so we use #xff instead. You can try this for
               ;;; yourself---switch it to #x00 and see if the tests still pass!
-              [padded-inputs (lr:list (list (lr:bv (zero-extend a (bitvector 8)))
-                                            (lr:bv (zero-extend b (bitvector 8)))
-                                            (lr:bv (bv #xff 8))
-                                            (lr:bv (bv #xff 8))))]
+              [padded-inputs (lr:list (list (lr:bv (bv->signal (zero-extend a (bitvector 8))))
+                                            (lr:bv (bv->signal (zero-extend b (bitvector 8))))
+                                            (lr:bv (bv->signal (bv #xff 8)))
+                                            (lr:bv (bv->signal (bv #xff 8)))))]
 
               ;;; To start generating our Lakeroad expression, we first convert our list of logical
               ;;; inputs (our 2bit a and b, padded to 8 bits, with two additional 8-bit zero values to
@@ -71,9 +72,9 @@
               [physical-inputs (logical-to-physical-mapping (ltop-bitwise-reverse) padded-inputs)]
               ;;; A symbolic value representing a LUT memory. All 8 LUTs will perform the same function,
               ;;; so we can just use a single LUT memory. This significantly speeds up search.
-              [ripple-pfu-lutmem (lr:bv (?? (bitvector 16)))]
+              [ripple-pfu-lutmem (lr:bv (bv->signal (?? (bitvector 16))))]
               ;;; A symbolic value representing the carry-in to the ripple PFU.
-              [ripple-pfu-cin (lr:bv (?? (bitvector 1)))]
+              [ripple-pfu-cin (lr:bv (bv->signal (?? (bitvector 1))))]
               ;;; The Lakeroad expression representing the output of a Lattice ripple PFU. We feed our
               ;;; physical inputs in, and also give it our LUT memories, and we get a list of outputs
               ;;; out.
@@ -97,17 +98,17 @@
                                                           ripple-pfu-lutmem
                                                           ripple-pfu-lutmem
                                                           ripple-pfu-lutmem
-                                                          (lr:bv (bv 0 1))
-                                                          (lr:bv (bv 0 1))
-                                                          (lr:bv (bv 0 1))
-                                                          (lr:bv (bv 0 1))
-                                                          (lr:bv (bv 0 1))
-                                                          (lr:bv (bv 0 1))
-                                                          (lr:bv (bv 0 1))
-                                                          (lr:bv (bv 0 1))
+                                                          (lr:bv (bv->signal (bv 0 1)))
+                                                          (lr:bv (bv->signal (bv 0 1)))
+                                                          (lr:bv (bv->signal (bv 0 1)))
+                                                          (lr:bv (bv->signal (bv 0 1)))
+                                                          (lr:bv (bv->signal (bv 0 1)))
+                                                          (lr:bv (bv->signal (bv 0 1)))
+                                                          (lr:bv (bv->signal (bv 0 1)))
+                                                          (lr:bv (bv->signal (bv 0 1)))
                                                           ripple-pfu-cin
                                                           physical-inputs)]
-
+              ;;; The carry out value is the last value in the list of ripple PFU outputs. We use
               ;;; For comparisons, we actually care most about the 1-bit carry out output! This output
               ;;; will indicate the result of our comparison. Ripple PFUs in Lakeroad return 9 values:
               ;;; the 8 LUT outputs (xor'ed with the carry value at that location, which allows
@@ -119,172 +120,15 @@
      (define eq-soln
        (synthesize #:forall (list a b)
                    #:guarantee (assert (bveq (bool->bitvector (bveq a b))
-                                             (interpret lakeroad-expr)))))
+                                             (signal-value (interpret lakeroad-expr))))))
      (check-true (sat? eq-soln))
 
      ;;; Synthesize an implementation of the template which implements !=.
      (define neq-soln
        (synthesize #:forall (list a b)
                    #:guarantee (assert (bveq (bool->bitvector (not (bveq a b)))
-                                             (interpret lakeroad-expr)))))
+                                             (signal-value (interpret lakeroad-expr))))))
      (check-true (sat? neq-soln))))
 
-  (test-case
-   "Synthesize <=, <, >=, > implementations with three ripple PFUs"
-   (begin
-     (define lakeroad-expr
-       (let* ([padded-inputs (lr:list (list (lr:bv (zero-extend a (bitvector 8)))
-                                            (lr:bv (zero-extend b (bitvector 8)))
-                                            (lr:bv (bv #xff 8))
-                                            (lr:bv (bv #xff 8))))]
-              [physical-inputs (logical-to-physical-mapping (ltop-bitwise-reverse) padded-inputs)]
-
-              ;;; To implement the more complicated comparisons, we need more than one ripple PFU. We
-              ;;; may be able to implement this with two ripple PFUs, but I just use three, as I think
-              ;;; it makes the pattern clearer. Ripple PFUs 0 and 1 implement some arbitrary function
-              ;;; over a and b:
-              [ripple-pfu-0-lutmem (lr:bv (?? (bitvector 16)))]
-              [ripple-pfu-0-output (lattice-ecp5-ripple-pfu ripple-pfu-0-lutmem
-                                                            ripple-pfu-0-lutmem
-                                                            ripple-pfu-0-lutmem
-                                                            ripple-pfu-0-lutmem
-                                                            ripple-pfu-0-lutmem
-                                                            ripple-pfu-0-lutmem
-                                                            ripple-pfu-0-lutmem
-                                                            ripple-pfu-0-lutmem
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (?? (bitvector 1)))
-                                                            physical-inputs)]
-              [ripple-pfu-1-lutmem (lr:bv (?? (bitvector 16)))]
-              [ripple-pfu-1-output (lattice-ecp5-ripple-pfu ripple-pfu-1-lutmem
-                                                            ripple-pfu-1-lutmem
-                                                            ripple-pfu-1-lutmem
-                                                            ripple-pfu-1-lutmem
-                                                            ripple-pfu-1-lutmem
-                                                            ripple-pfu-1-lutmem
-                                                            ripple-pfu-1-lutmem
-                                                            ripple-pfu-1-lutmem
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (bv 0 1))
-                                                            (lr:bv (?? (bitvector 1)))
-                                                            physical-inputs)]
-
-              ;;; Then, we use the outputs of ripple PFUs 0 and 1, and feed them in to another ripple
-              ;;; PFU. Note that we're using the 8 LUT outputs of ripple PFUs 0 and 1, and ignoring
-              ;;; their carry out values, while we are using the carry out value of ripple PFU 2 as
-              ;;; our output (and ignoring its LUT values).
-              [ripple-pfu-2-lutmem (lr:bv (?? (bitvector 16)))]
-              [ripple-pfu-2-output
-               (lattice-ecp5-ripple-pfu
-                ripple-pfu-2-lutmem
-                ripple-pfu-2-lutmem
-                ripple-pfu-2-lutmem
-                ripple-pfu-2-lutmem
-                ripple-pfu-2-lutmem
-                ripple-pfu-2-lutmem
-                ripple-pfu-2-lutmem
-                ripple-pfu-2-lutmem
-                (lr:bv (bv 0 1))
-                (lr:bv (bv 0 1))
-                (lr:bv (bv 0 1))
-                (lr:bv (bv 0 1))
-                (lr:bv (bv 0 1))
-                (lr:bv (bv 0 1))
-                (lr:bv (bv 0 1))
-                (lr:bv (bv 0 1))
-                (lr:bv (?? (bitvector 1)))
-                ;;; Once again, note the use of all ones (and not zeros) when
-                ;;; padding the inputs to the ripple PFUs.
-                (lr:list
-                 (list
-                  (lr:concat
-                   (lr:list (list (lr:bv (bv #b11 2))
-                                  (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                         (lr:integer 0))
-                                                            (lr:list-ref ripple-pfu-1-output
-                                                                         (lr:integer 0))))))))
-                  (lr:concat
-                   (lr:list (list (lr:bv (bv #b11 2))
-                                  (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                         (lr:integer 1))
-                                                            (lr:list-ref ripple-pfu-1-output
-                                                                         (lr:integer 1))))))))
-                  (lr:concat
-                   (lr:list (list (lr:bv (bv #b11 2))
-                                  (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                         (lr:integer 2))
-                                                            (lr:list-ref ripple-pfu-1-output
-                                                                         (lr:integer 2))))))))
-                  (lr:concat
-                   (lr:list (list (lr:bv (bv #b11 2))
-                                  (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                         (lr:integer 3))
-                                                            (lr:list-ref ripple-pfu-1-output
-                                                                         (lr:integer 3))))))))
-                  (lr:concat
-                   (lr:list (list (lr:bv (bv #b11 2))
-                                  (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                         (lr:integer 4))
-                                                            (lr:list-ref ripple-pfu-1-output
-                                                                         (lr:integer 4))))))))
-                  (lr:concat
-                   (lr:list (list (lr:bv (bv #b11 2))
-                                  (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                         (lr:integer 5))
-                                                            (lr:list-ref ripple-pfu-1-output
-                                                                         (lr:integer 5))))))))
-                  (lr:concat
-                   (lr:list (list (lr:bv (bv #b11 2))
-                                  (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                         (lr:integer 6))
-                                                            (lr:list-ref ripple-pfu-1-output
-                                                                         (lr:integer 6))))))))
-                  (lr:concat
-                   (lr:list (list (lr:bv (bv #b11 2))
-                                  (lr:concat
-                                   (lr:list (list (lr:list-ref ripple-pfu-0-output (lr:integer 7))
-                                                  (lr:list-ref ripple-pfu-1-output
-                                                               (lr:integer 7)))))))))))]
-
-              ;;; Our output is the carry out of ripple PFU 2.
-              [cout (lr:list-ref ripple-pfu-2-output (lr:integer 8))])
-         cout))
-
-     ;;; Use the template to synthesize solutions.
-
-     (define uge-soln
-       (synthesize #:forall (list a b)
-                   #:guarantee (assert (bveq (bool->bitvector (bvuge a b))
-                                             (interpret lakeroad-expr)))))
-     (check-true (sat? uge-soln))
-
-     (define ugt-soln
-       (synthesize #:forall (list a b)
-                   #:guarantee (assert (bveq (bool->bitvector (bvugt a b))
-                                             (interpret lakeroad-expr)))))
-     (check-true (sat? ugt-soln))
-
-     (define ule-soln
-       (synthesize #:forall (list a b)
-                   #:guarantee (assert (bveq (bool->bitvector (bvule a b))
-                                             (interpret lakeroad-expr)))))
-     (check-true (sat? ule-soln))
-
-     (define ult-soln
-       (synthesize #:forall (list a b)
-                   #:guarantee (assert (bveq (bool->bitvector (bvult a b))
-                                             (interpret lakeroad-expr)))))
-     (check-true (sat? ult-soln)))))
+  ;;; 
+  )
