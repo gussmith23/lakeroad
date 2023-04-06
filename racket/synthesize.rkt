@@ -17,7 +17,8 @@
          rosette-synthesize
          template-map)
 
-(require "interpreter.rkt"
+(require "signal.rkt"
+         "interpreter.rkt"
          "ultrascale.rkt"
          "lattice-ecp5.rkt"
          rosette
@@ -2225,10 +2226,11 @@
                             #:module-semantics [module-semantics '()])
 
   (define soln
-    (synthesize
-     #:forall inputs
-     #:guarantee
-     (assert (bveq bv-expr (interpret lakeroad-expr #:module-semantics module-semantics)))))
+    (synthesize #:forall inputs
+                #:guarantee (assert (bveq bv-expr
+                                          (signal-value (interpret lakeroad-expr
+                                                                   #:module-semantics
+                                                                   module-semantics))))))
 
   (if (sat? soln)
       (evaluate
