@@ -29,9 +29,6 @@
          (prefix-in lr: "language.rkt")
          rosette/lib/synthax)
 
-(define-namespace-anchor anc)
-(define ns (namespace-anchor->namespace anc))
-
 ;;; Part 1: defining an interface.
 
 ;;; Interface identifier.
