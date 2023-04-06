@@ -5,7 +5,7 @@
 ;;; - Definitions of Lakeroad's supported interfaces.
 ;;; - Functions for parsing architecture descriptions from files.
 ;;; - Functions for instantiating instances of interfaces, given an architecture description.
-#lang racket/base
+#lang errortrace racket/base
 
 (provide construct-interface
          (struct-out interface-identifier)
@@ -25,6 +25,7 @@
 (require rosette
          yaml
          "utils.rkt"
+         racket/symbol
          (prefix-in lr: "language.rkt")
          rosette/lib/synthax)
 
@@ -138,7 +139,7 @@
 ;;;   definition is a immutable hash, mapping a string variable name to an integer representing the
 ;;;   bitwidth of that variable.
 ;;; - output-map: hash map mapping interface outputs to expressions.
-;;; - constraints: hash map mapping interface ports/parameters to Rosette functions (as strings).
+;;; - constraints: list of Rosette functions as strings serving as the argument to an (assert).
 (struct interface-implementation (identifier module-instance internal-data output-map constraints)
   #:transparent)
 
@@ -237,12 +238,23 @@
   (findf (lambda (impl) (equal? (interface-implementation-identifier impl) id))
          (architecture-description-interface-implementations ad)))
 
-;;; Applies constraints to a piece of internal data.
-;;; internal-data is the Rosette object to apply the constraint to.
-;;; constraints-fn is the function that applies the constraint when called.
-(define (apply-constraints constraints-fn internal-data)
-  (define func (eval (read (open-input-string constraints-fn)) ns))
-  (func internal-data))
+;;; Parse an expression in the constraint DSL into a Rosette function.
+;;; expr-str: string containing one constraint expression.
+;;; lookup-symbol: function that takes a symbol and returns a piece of internal data.
+(define (parse-constraint-dsl expr-str lookup-symbol)
+  (let ([expr (read (open-input-string expr-str))])
+    (letrec ([recursive-helper
+              (lambda (expr)
+                (match expr
+                  [`(bv ,val ,width) (bv val width)]
+                  [`(|| ,e ...) (apply || (map recursive-helper e))]
+                  [`(bveq ,e1 ,e2) (bveq (recursive-helper e1) (recursive-helper e2))]
+                  [`(not ,e) (not (recursive-helper e))]
+                  [`(extract ,i ,j ,bv) (extract i j (recursive-helper bv))]
+                  [`(bvxor ,e1 ,e2) (bvxor (recursive-helper e1) (recursive-helper e2))]
+                  [`(=> ,e1 ,e2) (=> (recursive-helper e1) (recursive-helper e2))]
+                  [(? symbol? s) (lookup-symbol s)]))])
+      (recursive-helper expr))))
 
 ;;; Construct a fresh instance of the internal state for a given interface on a given architecture.
 (define (construct-internal-data architecture-description interface-name)
@@ -255,13 +267,25 @@
   (define constraints (interface-implementation-constraints interface-implementation))
   (define internal-data-definition (interface-implementation-internal-data interface-implementation))
 
+  (define name-to-internal-data (make-hash))
+
   ;;; We loop over each pair and construct a fresh variable for it.
   ;;; - internal-data-definition-pair: pair of internal state variable name (string) and bitwidth
   ;;;   (integer).
-  (map (lambda (internal-data-definition-pair)
-         (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
-         (cons (car internal-data-definition-pair) (lr:bv internal-data)))
-       (hash->list internal-data-definition)))
+  (define result
+    (map (lambda (internal-data-definition-pair)
+           (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
+           (hash-set! name-to-internal-data
+                      (string->symbol (car internal-data-definition-pair))
+                      internal-data)
+           (cons (car internal-data-definition-pair) (lr:bv internal-data)))
+         (hash->list internal-data-definition)))
+
+  ;;; Iterate over each constraint, replacing variable names with their corresponding internal data
+  ;;; before applying the constraint.
+  (for ([constraint constraints])
+    (assert (parse-constraint-dsl constraint (lambda (s) (hash-ref name-to-internal-data s #f)))))
+  result)
 
 ;;; Get interface definition from list of interfaces.
 ;;
@@ -993,6 +1017,14 @@
    (build-path (get-lakeroad-directory) "architecture_descriptions" "sofa.yml")))
 
 (module+ test
+  (define-symbolic SOME_DATA (bitvector 32))
+  (test-begin
+   "Test parsing of constraints."
+   (check-eq? (parse-constraint-dsl "(|| (bveq SOME_DATA (bv 0 32)) (bveq SOME_DATA (bv 1 32)))"
+                                    (lambda (s) (hash-ref (hash 'SOME_DATA SOME_DATA) s)))
+              (|| (bveq SOME_DATA (bv 0 32)) (bveq SOME_DATA (bv 1 32))))))
+
+(module+ test
   (test-case
    "Parse Xilinx UltraScale+ YAML"
    (begin
@@ -1045,6 +1077,7 @@
                                           module-instance
                                           internal-data
                                           (hash-table ("O" "(extract 15 0 P)"))
+                                          ;;; (list "asdfghjkl" ...)
                                           constraints)))
 
          ;;; TODO(@acheung8) re-enable these with list check instead of hash check

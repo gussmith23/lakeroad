@@ -1,5 +1,4 @@
-;;; TODO(@ninehusky): get rid of errortrace
-#lang errortrace racket
+#lang racket
 
 (require rackunit)
 (require rosette)
@@ -11,6 +10,12 @@
 (require "generated/xilinx-ultrascale-plus-dsp48e2.rkt")
 
 (define architecture-description (xilinx-ultrascale-plus-architecture-description))
+
+(define-symbolic a b (bitvector 16))
+(construct-interface architecture-description
+                     (interface-identifier "DSP" (hash "width" 16))
+                     (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
+                     #:internal-data #f)
 
 (module+ test
   (require rackunit
