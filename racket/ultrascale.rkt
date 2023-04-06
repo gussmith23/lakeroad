@@ -239,38 +239,38 @@
                          luts_O6
                          o
                          co
-                         (list mux-selector-a
+                         (map signal-value (list mux-selector-a
                                mux-selector-b
                                mux-selector-c
                                mux-selector-d
                                mux-selector-e
                                mux-selector-f
                                mux-selector-g
-                               mux-selector-h))]
+                               mux-selector-h)))]
                ;;; LUTs.
                [A_LUT (apply make-ultrascale-plus-lut6-2
-                             (make-literal-value-from-bv lut-a)
+                             (make-literal-value-from-bv (signal-value lut-a))
                              (append a-ins (list (bit 0 luts_O5) (bit 0 luts_O6))))]
                [B_LUT (apply make-ultrascale-plus-lut6-2
-                             (make-literal-value-from-bv lut-b)
+                             (make-literal-value-from-bv (signal-value lut-b))
                              (append b-ins (list (bit 1 luts_O5) (bit 1 luts_O6))))]
                [C_LUT (apply make-ultrascale-plus-lut6-2
-                             (make-literal-value-from-bv lut-c)
+                             (make-literal-value-from-bv (signal-value lut-c))
                              (append c-ins (list (bit 2 luts_O5) (bit 2 luts_O6))))]
                [D_LUT (apply make-ultrascale-plus-lut6-2
-                             (make-literal-value-from-bv lut-d)
+                             (make-literal-value-from-bv (signal-value lut-d))
                              (append d-ins (list (bit 3 luts_O5) (bit 3 luts_O6))))]
                [E_LUT (apply make-ultrascale-plus-lut6-2
-                             (make-literal-value-from-bv lut-e)
+                             (make-literal-value-from-bv (signal-value lut-e))
                              (append e-ins (list (bit 4 luts_O5) (bit 4 luts_O6))))]
                [F_LUT (apply make-ultrascale-plus-lut6-2
-                             (make-literal-value-from-bv lut-f)
+                             (make-literal-value-from-bv (signal-value lut-f))
                              (append f-ins (list (bit 5 luts_O5) (bit 5 luts_O6))))]
                [G_LUT (apply make-ultrascale-plus-lut6-2
-                             (make-literal-value-from-bv lut-g)
+                             (make-literal-value-from-bv (signal-value lut-g))
                              (append g-ins (list (bit 6 luts_O5) (bit 6 luts_O6))))]
                [H_LUT (apply make-ultrascale-plus-lut6-2
-                             (make-literal-value-from-bv lut-h)
+                             (make-literal-value-from-bv (signal-value lut-h))
                              (append h-ins (list (bit 7 luts_O5) (bit 7 luts_O6))))]
                ;;; Carry.
                [carry (make-ultrascale-plus-carry8 "0" (bit 0 cin) luts_O5 luts_O6 o co)])
@@ -451,10 +451,7 @@
 ; Implementation translated from
 ; https://github.com/fredrequin/verilator_xilinx/blob/352de831223a65e8eca3f6abe5c11217863a9dd3/CARRY8.v
 (define (interpret-ultrascale-plus-carry8 d s ci)
-  (let* ([check (displayln s)]
-         [check2 (displayln d)]
-         [check3 (displayln ci)]
-         [state (signal-state d)]
+  (let* ([state (signal-state d)]
          [d (signal-value d)]
          [s (signal-value s)]
          [ci (signal-value ci)]
@@ -697,7 +694,7 @@
                                             lut-input-h)
 
   (match-let*
-      ([state (merge-state (list clb cin lut-input-a lut-input-b lut-input-c lut-input-d
+      ([state (merge-state (list cin lut-input-a lut-input-b lut-input-c lut-input-d
                                  lut-input-e lut-input-f lut-input-g lut-input-h))]
        [(list a-o5 a-o6) (interpret-ultrascale-plus-lut6-2-impl
                           (ultrascale-plus-lut6-2-state-memory (ultrascale-plus-clb-state-lut-a clb))
@@ -741,7 +738,6 @@
           (if (bveq (signal-value selector) (bv 0 2))
               o5
               (if (bveq selector (bv 1 2)) o6 (if (bveq selector (bv 2 2)) carry-o carry-co))))]
-       [display (displayln a-o6)]
        [a-mux-out
         (mux-helper a-o5 a-o6 carry-o0 carry-co0 (ultrascale-plus-clb-state-mux-selector-a clb))]
        [b-mux-out
