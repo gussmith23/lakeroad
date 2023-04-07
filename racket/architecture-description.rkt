@@ -25,6 +25,7 @@
 (require rosette
          yaml
          "utils.rkt"
+         racket/symbol
          (prefix-in lr: "language.rkt")
          rosette/lib/synthax)
 
@@ -90,7 +91,12 @@
                                     (interface-port "DI" 'input 8)
                                     (interface-port "S" 'input 8)
                                     (interface-port "CO" 'output 1)
-                                    (interface-port "O" 'output 8)))))
+                                    (interface-port "O" 'output 8)))
+        ;;; DSP definition.
+        (interface-definition (interface-identifier "DSP" (hash "width" 16))
+                              (list (interface-port "A" 'input 16)
+                                    (interface-port "B" 'input 16)
+                                    (interface-port "O" 'output 16)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 
@@ -130,7 +136,9 @@
 ;;;   definition is a immutable hash, mapping a string variable name to an integer representing the
 ;;;   bitwidth of that variable.
 ;;; - output-map: hash map mapping interface outputs to expressions.
-(struct interface-implementation (identifier module-instance internal-data output-map) #:transparent)
+;;; - constraints: list of Rosette functions as strings serving as the argument to an (assert).
+(struct interface-implementation (identifier module-instance internal-data output-map constraints)
+  #:transparent)
 
 ;;; Architecture description.
 ;;;
@@ -161,7 +169,7 @@
 ;;;
 ;;; Returns (list (list lr:hash ...) INTERNAL-DATA)
 ;;;
-;;; TODO(acheung8): write the tests for this :)
+;;; TODO(@ninehusky): write the tests for this :)
 (define (densely-pack-inputs-into-luts architecture-description
                                        inputs-list
                                        #:internal-data [internal-data #f])
@@ -227,6 +235,24 @@
   (findf (lambda (impl) (equal? (interface-implementation-identifier impl) id))
          (architecture-description-interface-implementations ad)))
 
+;;; Parse an expression in the constraint DSL into a Rosette function.
+;;; expr-str: string containing one constraint expression.
+;;; lookup-symbol: function that takes a symbol and returns a piece of internal data.
+(define (parse-constraint-dsl expr-str lookup-symbol)
+  (let ([expr (read (open-input-string expr-str))])
+    (letrec ([recursive-helper
+              (lambda (expr)
+                (match expr
+                  [`(bv ,val ,width) (bv val width)]
+                  [`(|| ,e ...) (apply || (map recursive-helper e))]
+                  [`(bveq ,e1 ,e2) (bveq (recursive-helper e1) (recursive-helper e2))]
+                  [`(not ,e) (not (recursive-helper e))]
+                  [`(extract ,i ,j ,bv) (extract i j (recursive-helper bv))]
+                  [`(bvxor ,e1 ,e2) (bvxor (recursive-helper e1) (recursive-helper e2))]
+                  [`(=> ,e1 ,e2) (=> (recursive-helper e1) (recursive-helper e2))]
+                  [(? symbol? s) (lookup-symbol s)]))])
+      (recursive-helper expr))))
+
 ;;; Construct a fresh instance of the internal state for a given interface on a given architecture.
 (define (construct-internal-data architecture-description interface-name)
   (define interface-implementation
@@ -235,15 +261,28 @@
                interface-name
                " on architecture "
                architecture-description)))
+  (define constraints (interface-implementation-constraints interface-implementation))
   (define internal-data-definition (interface-implementation-internal-data interface-implementation))
+
+  (define name-to-internal-data (make-hash))
 
   ;;; We loop over each pair and construct a fresh variable for it.
   ;;; - internal-data-definition-pair: pair of internal state variable name (string) and bitwidth
   ;;;   (integer).
-  (map (lambda (internal-data-definition-pair)
-         (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
-         (cons (car internal-data-definition-pair) (lr:bv internal-data)))
-       (hash->list internal-data-definition)))
+  (define result
+    (map (lambda (internal-data-definition-pair)
+           (define-symbolic* internal-data (bitvector (cdr internal-data-definition-pair)))
+           (hash-set! name-to-internal-data
+                      (string->symbol (car internal-data-definition-pair))
+                      internal-data)
+           (cons (car internal-data-definition-pair) (lr:bv internal-data)))
+         (hash->list internal-data-definition)))
+
+  ;;; Iterate over each constraint, replacing variable names with their corresponding internal data
+  ;;; before applying the constraint.
+  (for ([constraint constraints])
+    (assert (parse-constraint-dsl constraint (lambda (s) (hash-ref name-to-internal-data s #f)))))
+  result)
 
 ;;; Get interface definition from list of interfaces.
 ;;
@@ -287,6 +326,7 @@
                                       interface-id
                                       port-map
                                       #:internal-data [internal-data #f])
+
   (let* ([internal-data (if (not internal-data)
                             (construct-internal-data architecture-description interface-id)
                             internal-data)]
@@ -308,7 +348,12 @@
                       (define expr (read (open-input-string expr-str)))
                       (define (recursive-helper expr)
                         (match expr
+                          [`(extract ,i ,j ,expr)
+                           (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
                           [`(bv ,val ,width) (lr:bv (bv val width))]
+                          [`(bitvector ,val) (lr:bitvector (bitvector val))]
+                          [`(zero-extend ,val ,bv)
+                           (lr:zero-extend (recursive-helper val) (recursive-helper bv))]
                           [`(bit ,i ,expr)
                            (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
                           [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
@@ -341,8 +386,6 @@
            (module-instance-ports module-instance))]
 
          ;;; Construct the list of parameters, by mapping in the values provided in the internal state.
-         ;;; - param-pair: pair of actual param name (string) to name given in internal state definition
-         ;;;   (string).
          [parameters (map (lambda (parameter)
                             (module-instance-parameter
                              (module-instance-parameter-name parameter)
@@ -940,11 +983,14 @@
 
     (define output-map (or (hash-ref impl-yaml "outputs" #f) (error "outputs not found")))
 
+    (define constraints (hash-ref impl-yaml "constraints" (list)))
+
     (interface-implementation
      interface-identifier
      (first modules)
      (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))
-     (convert-to-immutable output-map)))
+     (convert-to-immutable output-map)
+     constraints))
 
   (define implementations
     (for/list ([impl-yaml impls-yaml])
@@ -968,49 +1014,87 @@
    (build-path (get-lakeroad-directory) "architecture_descriptions" "sofa.yml")))
 
 (module+ test
-  (test-equal? "Parse Xilinx UltraScale+ YAML"
-               (xilinx-ultrascale-plus-architecture-description)
-               (architecture-description
-                (list (interface-implementation
-                       (interface-identifier "LUT" (hash "num_inputs" 2))
-                       (module-instance "LUT2"
-                                        (list (module-instance-port "I0" "I0" 'input 1)
-                                              (module-instance-port "I1" "I1" 'input 1)
-                                              (module-instance-port "O" "O" 'output 1))
-                                        (list (module-instance-parameter "INIT" "INIT"))
-                                        "../verilator_xilinx/LUT2.v"
-                                        "../verilator_xilinx/LUT2.v")
-                       (hash "INIT" 4)
-                       (hash "O" "O"))
-                      (interface-implementation
-                       (interface-identifier "LUT" (hash "num_inputs" 6))
-                       (module-instance "LUT6"
-                                        (list (module-instance-port "I0" "I0" 'input 1)
-                                              (module-instance-port "I1" "I1" 'input 1)
-                                              (module-instance-port "I2" "I2" 'input 1)
-                                              (module-instance-port "I3" "I3" 'input 1)
-                                              (module-instance-port "I4" "I4" 'input 1)
-                                              (module-instance-port "I5" "I5" 'input 1)
-                                              (module-instance-port "O" "O" 'output 1))
-                                        (list (module-instance-parameter "INIT" "INIT"))
-                                        "../verilator_xilinx/LUT6.v"
-                                        "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v")
-                       (hash "INIT" 64)
-                       (hash "O" "O"))
-                      (interface-implementation
-                       (interface-identifier "carry" (hash "width" 8))
-                       (module-instance "CARRY8"
-                                        (list (module-instance-port "CI" "CI" 'input 1)
-                                              (module-instance-port "DI" "DI" 'input 8)
-                                              (module-instance-port "S" "S" 'input 8)
-                                              (module-instance-port "CO" "CO" 'output 8)
-                                              (module-instance-port "O" "O" 'output 8))
-                                        (list)
-                                        "../verilator_xilinx/CARRY8.v"
-                                        "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
-                       (hash)
-                       (hash "CO" "(bit 7 CO)" "O" "O")))))
+  (define-symbolic SOME_DATA (bitvector 32))
+  (test-case
+   "Test parsing of constraints."
+   (check-eq? (parse-constraint-dsl "(|| (bveq SOME_DATA (bv 0 32)) (bveq SOME_DATA (bv 1 32)))"
+                                    (lambda (s) (hash-ref (hash 'SOME_DATA SOME_DATA) s)))
+              (|| (bveq SOME_DATA (bv 0 32)) (bveq SOME_DATA (bv 1 32))))))
 
+(module+ test
+  (test-case
+   "Parse Xilinx UltraScale+ YAML"
+   (begin
+     (check-true
+      (match (xilinx-ultrascale-plus-architecture-description)
+        [(architecture-description
+          (list (interface-implementation
+                 (interface-identifier "LUT" (hash-table ("num_inputs" 2)))
+                 (module-instance "LUT2"
+                                  (list (module-instance-port "I0" "I0" 'input 1)
+                                        (module-instance-port "I1" "I1" 'input 1)
+                                        (module-instance-port "O" "O" 'output 1))
+                                  (list (module-instance-parameter "INIT" "INIT"))
+                                  "../verilator_xilinx/LUT2.v"
+                                  "../verilator_xilinx/LUT2.v")
+                 (hash-table ("INIT" 4))
+                 (hash-table ("O" "O"))
+                 (list))
+                (interface-implementation
+                 (interface-identifier "LUT" (hash-table ("num_inputs" 6)))
+                 (module-instance "LUT6"
+                                  (list (module-instance-port "I0" "I0" 'input 1)
+                                        (module-instance-port "I1" "I1" 'input 1)
+                                        (module-instance-port "I2" "I2" 'input 1)
+                                        (module-instance-port "I3" "I3" 'input 1)
+                                        (module-instance-port "I4" "I4" 'input 1)
+                                        (module-instance-port "I5" "I5" 'input 1)
+                                        (module-instance-port "O" "O" 'output 1))
+                                  (list (module-instance-parameter "INIT" "INIT"))
+                                  "../verilator_xilinx/LUT6.v"
+                                  "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v")
+                 (hash-table ("INIT" 64))
+                 (hash-table ("O" "O"))
+                 (list))
+                (interface-implementation
+                 (interface-identifier "carry" (hash-table ("width" 8)))
+                 (module-instance "CARRY8"
+                                  (list (module-instance-port "CI" "CI" 'input 1)
+                                        (module-instance-port "DI" "DI" 'input 8)
+                                        (module-instance-port "S" "S" 'input 8)
+                                        (module-instance-port "CO" "CO" 'output 8)
+                                        (module-instance-port "O" "O" 'output 8))
+                                  (list)
+                                  "../verilator_xilinx/CARRY8.v"
+                                  "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
+                 (hash-table)
+                 (hash-table ("CO" "(bit 7 CO)") ("O" "O"))
+                 (list))
+                (interface-implementation (interface-identifier "DSP" (hash-table ("width" 16)))
+                                          module-instance
+                                          internal-data
+                                          (hash-table ("O" "(extract 15 0 P)"))
+                                          constraints)))
+
+         (check-true
+          (not
+           (equal?
+            (member
+             "(|| (bveq AUTORESET_PATDET (bv 3 5)) (bveq AUTORESET_PATDET (bv 4 5)) (bveq AUTORESET_PATDET (bv 5 5)))"
+             constraints)
+            #f)))
+         (check-true (not (equal? (member "(|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5)))"
+                                          constraints)
+                                  #f)))
+         (check-true
+          (not
+           (equal?
+            (member
+             "(|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5)) (bveq SEL_PATTERN (bv 22 5)) (bveq SEL_PATTERN (bv 23 5)))"
+             constraints)
+            #f)))
+         #t]
+        [else #f]))))
   (test-equal? "Parse Lattice ECP5 YAML"
                (lattice-ecp5-architecture-description)
                (architecture-description
@@ -1026,7 +1110,8 @@
                                         "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
                                         "../modules_for_importing/lattice_ecp5/LUT4.v")
                        (hash "init" 16)
-                       (hash "O" "Z"))
+                       (hash "O" "Z")
+                       (list))
                       ;;; (interface-implementation
                       ;;;  (interface-identifier "MUX" (hash "num_inputs" 2))
                       ;;;  (module-instance "L6MUX21"
@@ -1061,7 +1146,8 @@
                                         "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
                                         "../modules_for_importing/lattice_ecp5/CCU2C.v")
                        (hash "INIT0" 16 "INIT1" 16)
-                       (hash "CO" "COUT" "O" "(concat S1 S0)")))))
+                       (hash "CO" "COUT" "O" "(concat S1 S0)")
+                       (list)))))
 
   (test-not-exn "Parse SOFA YAML" (λ () (sofa-architecture-description))))
 

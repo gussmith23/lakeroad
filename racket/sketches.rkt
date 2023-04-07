@@ -1471,9 +1471,6 @@
    #:extra-verilator-args
    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;; TODO(acheung8): This one's the long one.
-  ;;; interestingly, bveq with two bvs w/ width 4 is fast. this requires a LUT 8?
-  ;;; todo: explore if bwidth of 5 seems to exponentially explode # of symbolics
   (sketch-test
    #:name "shallow comparison sketch on SOFA"
    #:defines (define-symbolic a b (bitvector 4))
