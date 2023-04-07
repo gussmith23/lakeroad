@@ -2226,11 +2226,13 @@
                             #:module-semantics [module-semantics '()])
 
   (define soln
-    (synthesize #:forall inputs
-                #:guarantee (assert (bveq bv-expr
-                                          (signal-value (interpret lakeroad-expr
-                                                                   #:module-semantics
-                                                                   module-semantics))))))
+    (match multi-cycle
+      [#f
+       (synthesize #:forall inputs
+                   #:guarantee (assert (bveq bv-expr
+                                             (signal-value (interpret lakeroad-expr
+                                                                      #:module-semantics
+                                                                      module-semantics)))))]))
 
   (if (sat? soln)
       (evaluate
