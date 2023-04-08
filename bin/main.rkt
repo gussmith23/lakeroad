@@ -95,9 +95,6 @@
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)])
 
-(when (not (verilog-module-out-signal))
-  (error "Please specify --verilog-module-out-signal."))
-
 ;;; Parse instruction.
 ;;;
 ;;; This function will introduce new symbolic constants. Make sure you have good (vc) hygeine when
@@ -152,7 +149,7 @@
 
      (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
-     (signal-value (hash-ref (f) (string->symbol (verilog-module-out-signal))))]))
+     (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))]))
 
 (when (boolean? bv-expr)
   (error
