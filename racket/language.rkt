@@ -17,7 +17,8 @@
          (struct-out bv)
          (struct-out list)
          (struct-out integer)
-         (struct-out bitvector))
+         (struct-out bitvector)
+         (struct-out var))
 
 ;;; Functions from Racket/Rosette.
 (struct list-ref (lst pos) #:transparent)
@@ -37,3 +38,8 @@
 (struct list (v) #:transparent)
 (struct integer (v) #:transparent)
 (struct symbol (v) #:transparent)
+;;; Input into a Lakeroad expression.
+;;;
+;;; We actually didn't need `var`s for a very long time, as variable inputs could be passed in as
+;;; Rosette symbolic constants wrapped in `bv`s.
+(struct var (name) #:transparent)

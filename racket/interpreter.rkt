@@ -28,10 +28,12 @@
 ;;; module-semantics: association list of functions mapping (cons module-name filepath) to a function
 ;;; implementing the semantics for that module.
 ;;;
+;;; environment: association list of (cons var-name (string) value (signal)).
+;;;
 ;;; TODO(@gussmith23): This might be better as an argument to interpret, but I'm implementing this
 ;;; during crunch time, so this is easier.
 ;;;(define module-semantics (make-parameter '()))
-(define (interpret expr #:module-semantics [module-semantics '()])
+(define (interpret expr #:module-semantics [module-semantics '()] #:environment [environment '()])
   (set! interp-memoization-hits 0)
   (set! interp-memoization-misses 0)
   (define interpreter-memo-hash (make-hasheq))
@@ -48,6 +50,7 @@
             (destruct
              expr
              [(list l) (error "hi")]
+             [(lr:var name) (cdr (or (assoc name environment) (error "variable " name " not found")))]
              [(lr:symbol s) s]
              [(lr:make-immutable-hash list-expr) (interpret-helper list-expr)]
              [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]
