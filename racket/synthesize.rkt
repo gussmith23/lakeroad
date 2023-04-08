@@ -2232,7 +2232,27 @@
                    #:guarantee (assert (bveq bv-expr
                                              (signal-value (interpret lakeroad-expr
                                                                       #:module-semantics
-                                                                      module-semantics)))))]))
+                                                                      module-semantics)))))]
+      [(list envs ...)
+       (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
+              ;;; Interpret the Lakeroad expression once, using one of the environments from `envs` (stored
+              ;;; in `this-iter-env`). `prev-value` is the value from the previous call to the interpreter.
+              [interpret-one-iter
+               (lambda (this-iter-env prev-value)
+                 (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
+                        ;;; Attach the state generated last iteration to the environment for this iteration.
+                        [this-iter-env
+                         (map (lambda (pair)
+                                (match pair
+                                  [(cons k (signal v state))
+                                   (cons k (signal v (append (signal-state prev-value) state)))]))
+                              this-iter-env)])
+                   (interpret lakeroad-expr
+                              #:module-semantics module-semantics
+                              #:environment this-iter-env)))]
+              [final-value (foldl interpret-one-iter (signal 'unused '()) envs)])
+         (synthesize #:forall inputs
+                     #:guarantee (assert (bveq bv-expr (signal-value final-value)))))]))
 
   (if (sat? soln)
       (evaluate
@@ -2242,6 +2262,66 @@
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
                                                    (list->set (symbolics bv-expr))))))
       #f))
+
+(module+ test
+  (require rackunit)
+
+  (test-case
+   "sequential synthesis test"
+   (begin
+
+     ;;; Two-stage adder, taking two clock ticks to produce an output.
+     (define (two-stage-adder #:a a #:b b #:clk clk)
+       (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
+              [clk (signal-value clk)]
+              [a (signal-value a)]
+              [b (signal-value b)]
+              [old-clk (cdr (or (assoc 'clk state) (cons 'unused (bv 0 1))))]
+              [old-a (cdr (or (assoc 'a state) (cons 'unused (bv 0 8))))]
+              [old-b (cdr (or (assoc 'b state) (cons 'unused (bv 0 8))))]
+              [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
+              [new-a (if clk-ticked a old-a)]
+              [new-b (if clk-ticked b old-b)]
+              [out (bvadd old-a old-b)])
+         (list (cons 'O (signal out (list (cons 'a new-a) (cons 'b new-b) (cons 'clk clk)))))))
+
+     (define-symbolic a b (bitvector 8))
+
+     ;;; The Lakeroad program just calls the two-stage adder and gets the O output.
+     (define lr-expr
+       (lr:hash-ref (lr:hw-module-instance
+                     "two-stage-adder"
+                     (list (module-instance-port "a" (lr:bv (bv->signal a)) 'input 8)
+                           (module-instance-port "b" (lr:bv (bv->signal b)) 'input 8)
+                           (module-instance-port "clk" (lr:var "clk") 'input 1)
+                           (module-instance-port "O" "O" 'output 8))
+                     '()
+                     "unused filepath")
+                    'O))
+
+     ;;; Check: we *can't* synthesize an add with a single clock cycle.
+     (check-false (rosette-synthesize
+                   (bvadd a b)
+                   lr-expr
+                   (list a b)
+                   ;;; Tick the clock once (eval with clk=0, eval with clk=1).
+                   #:multi-cycle (list (list (cons "clk" (bv->signal (bv 0 1))))
+                                       (list (cons "clk" (bv->signal (bv 1 1)))))
+                   #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                  two-stage-adder))))
+
+     ;;; Check: we *can* successfully synthesize an add with two clock cycles.
+     (check-not-false (rosette-synthesize
+                       (bvadd a b)
+                       lr-expr
+                       (list a b)
+                       ;;; Tick the clock twice.
+                       #:multi-cycle (list (list (cons "clk" (bv->signal (bv 0 1))))
+                                           (list (cons "clk" (bv->signal (bv 1 1))))
+                                           (list (cons "clk" (bv->signal (bv 0 1))))
+                                           (list (cons "clk" (bv->signal (bv 1 1)))))
+                       #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                      two-stage-adder)))))))
 
 (define (synthesize-lattice-ecp5-for-pfu bv-expr)
 
