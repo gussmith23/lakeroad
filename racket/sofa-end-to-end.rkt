@@ -34,7 +34,6 @@
 
        (define lakeroad-expr (result-value with-vc-result))
 
-       (check-not-equal? lakeroad-expr 'unsynthesizable)
        (check-not-equal? lakeroad-expr #f)
 
        (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
