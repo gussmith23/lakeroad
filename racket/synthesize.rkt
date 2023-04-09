@@ -2219,14 +2219,23 @@
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 ;;; Returns a concrete Lakeroad expression, or #f if synthesis failed.
+;;;
+;;; Args:
+;;; - lr-sequential: Determines whether synthesis treats the Lakeroad expression as a combinational
+;;;     or a sequential expression. If #f, the expression is treated as combinational. Otherwise, it
+;;;     is expected to be a list of association lists. Each association list is the environment for
+;;;     one call to the interpreter. The interpreter is called once for each association list, and the
+;;;     state from each call is passed to the next call. The final bitvector expression is used for
+;;;     synthesis.
+;;; - module-semantics: The semantics of hardware modules. See the corresponding interpreter argument.
 (define (rosette-synthesize bv-expr
                             lakeroad-expr
                             inputs
-                            #:multi-cycle [multi-cycle #f]
+                            #:lr-sequential [lr-sequential #f]
                             #:module-semantics [module-semantics '()])
 
   (define soln
-    (match multi-cycle
+    (match lr-sequential
       [#f
        (synthesize #:forall inputs
                    #:guarantee (assert (bveq bv-expr
@@ -2305,7 +2314,7 @@
                    lr-expr
                    (list a b)
                    ;;; Tick the clock once (eval with clk=0, eval with clk=1).
-                   #:multi-cycle (list (list (cons "clk" (bv->signal (bv 0 1))))
+                   #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
                                        (list (cons "clk" (bv->signal (bv 1 1)))))
                    #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
                                                   two-stage-adder))))
@@ -2316,7 +2325,7 @@
                        lr-expr
                        (list a b)
                        ;;; Tick the clock twice.
-                       #:multi-cycle (list (list (cons "clk" (bv->signal (bv 0 1))))
+                       #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
                                            (list (cons "clk" (bv->signal (bv 1 1))))
                                            (list (cons "clk" (bv->signal (bv 0 1))))
                                            (list (cons "clk" (bv->signal (bv 1 1)))))
