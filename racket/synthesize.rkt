@@ -2221,24 +2221,64 @@
 ;;; Returns a concrete Lakeroad expression, or #f if synthesis failed.
 ;;;
 ;;; Args:
-;;; - lr-sequential: Determines whether synthesis treats the Lakeroad expression as a combinational
-;;;     or a sequential expression. If #f, the expression is treated as combinational. Otherwise, it
-;;;     is expected to be a list of association lists. Each association list is the environment for
-;;;     one call to the interpreter. The interpreter is called once for each association list, and the
+;;; - bv-sequential: Same as lr-sequuential, but for the input bitvector expression. See the
+;;;     documentation for lr-sequential. If #f, `bv-expr` is a Rosette bitvector expression (likely
+;;;     symbolic, but can also be concrete). If not #f, it must be a function with keyword args
+;;;     matching the args in the `bv-sequential` association lists.
+;;; - lr-sequential: Determines whether synthesis treats the Lakeroad expression as a combinational or
+;;;     a sequential expression. If #f, the expression is treated as combinational. Otherwise, it is
+;;;     expected to be a list of association lists. Each association list is the environment for one
+;;;     call to the interpreter. The interpreter is called once for each association list, and the
 ;;;     state from each call is passed to the next call. The final bitvector expression is used for
 ;;;     synthesis.
 ;;; - module-semantics: The semantics of hardware modules. See the corresponding interpreter argument.
 (define (rosette-synthesize bv-expr
                             lakeroad-expr
                             inputs
+                            #:bv-sequential [bv-sequential #f]
                             #:lr-sequential [lr-sequential #f]
                             #:module-semantics [module-semantics '()])
+
+  ;;; Evaluate the bv-expr. If it's already a bitvector expression, nothing needs to be done with it.
+  (define bv-expr-evaluated
+    (match bv-sequential
+      ;;; If the bv-sequential argument is #f, it indicates that the expression is combinational. We
+      ;;; take the expression as-is.
+      [#f bv-expr]
+      ;;; Otherwise, we have to symbolically execute the expression a number of iterations, as
+      ;;; determined by `env`.
+      [(list envs ...)
+       (when (not (procedure? bv-expr))
+         (error "bv-expr must be a procedure if bv-sequential is not #f"))
+       (let* ([interpret-one-iter
+               ;;; Interpret the expression once, using the environment for this iteration.
+               (lambda (this-iter-env prev-value)
+                 (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
+
+                        ;;; Attach the state generated last iteration to the environment for this iteration.
+                        [this-iter-env
+                         (map (lambda (pair)
+                                (match pair
+                                  [(cons k (signal v state))
+                                   (cons k (signal v (append (signal-state prev-value) state)))]))
+                              this-iter-env)]
+
+                        ;;; Convert to keywords.
+                        [this-iter-env (map (lambda (pair)
+                                              (match pair
+                                                [(cons k v) (cons (string->keyword k) v)]))
+                                            this-iter-env)]
+
+                        ;;; Sort keywords.
+                        [this-iter-env (sort this-iter-env keyword<? #:key car)])
+                   (keyword-apply bv-expr (map car this-iter-env) (map cdr this-iter-env) '())))])
+         (signal-value (foldl interpret-one-iter (signal 'unused '()) envs)))]))
 
   (define soln
     (match lr-sequential
       [#f
        (synthesize #:forall inputs
-                   #:guarantee (assert (bveq bv-expr
+                   #:guarantee (assert (bveq bv-expr-evaluated
                                              (signal-value (interpret lakeroad-expr
                                                                       #:module-semantics
                                                                       module-semantics)))))]
@@ -2261,7 +2301,7 @@
                               #:environment this-iter-env)))]
               [final-value (foldl interpret-one-iter (signal 'unused '()) envs)])
          (synthesize #:forall inputs
-                     #:guarantee (assert (bveq bv-expr (signal-value final-value)))))]))
+                     #:guarantee (assert (bveq bv-expr-evaluated (signal-value final-value)))))]))
 
   (if (sat? soln)
       (evaluate
@@ -2269,7 +2309,7 @@
        ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
        (complete-solution soln
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics bv-expr))))))
+                                                   (list->set (symbolics bv-expr-evaluated))))))
       #f))
 
 (module+ test
@@ -2308,6 +2348,8 @@
                      "unused filepath")
                     'O))
 
+     ;;; The next two checks test the `lr-sequential` argument to `rosette-synthesize`.
+
      ;;; Check: we *can't* synthesize an add with a single clock cycle.
      (check-false (rosette-synthesize
                    (bvadd a b)
@@ -2315,22 +2357,78 @@
                    (list a b)
                    ;;; Tick the clock once (eval with clk=0, eval with clk=1).
                    #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
-                                       (list (cons "clk" (bv->signal (bv 1 1)))))
+                                         (list (cons "clk" (bv->signal (bv 1 1)))))
                    #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
                                                   two-stage-adder))))
 
      ;;; Check: we *can* successfully synthesize an add with two clock cycles.
+     ;;;
+     ;;; Note that "synthesis" here is actually equivalent to `verify` in Rosette, because there are
+     ;;; no free symbolics to be solved for. So `rosette-synthesize` actually just verifies whether
+     ;;; bv-expr == lr-expr for all inputs.
      (check-not-false (rosette-synthesize
                        (bvadd a b)
                        lr-expr
                        (list a b)
                        ;;; Tick the clock twice.
                        #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
-                                           (list (cons "clk" (bv->signal (bv 1 1))))
-                                           (list (cons "clk" (bv->signal (bv 0 1))))
-                                           (list (cons "clk" (bv->signal (bv 1 1)))))
+                                             (list (cons "clk" (bv->signal (bv 1 1))))
+                                             (list (cons "clk" (bv->signal (bv 0 1))))
+                                             (list (cons "clk" (bv->signal (bv 1 1)))))
                        #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
-                                                      two-stage-adder)))))))
+                                                      two-stage-adder))))
+
+     ;;; The next check tests the `bv-sequential` argument to `rosette-synthesize`.
+
+     ;;; Two-stage adder that does its add on the first clock tick. This will serve as our `bv-expr`
+     ;;; input to synthesis. It's just a different way to implement the same adder. We could have also
+     ;;; made it one stage or three stages.
+     (define (two-stage-adder-2 #:a a #:b b #:clk clk)
+       (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
+              [clk (signal-value clk)]
+              [a (signal-value a)]
+              [b (signal-value b)]
+              [sum (bvadd a b)]
+              [old-clk (cdr (or (assoc 'clk state) (cons 'unused (bv 0 1))))]
+              [old-sum (cdr (or (assoc 'sum state) (cons 'unused (bv 0 8))))]
+              [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
+              [new-sum (if clk-ticked sum old-sum)]
+              [out old-sum])
+         (signal out (list (cons 'sum new-sum) (cons 'clk clk)))))
+
+     ;;; Check that we can successfully "synthesize" (same note as above re: "synthesis" being
+     ;;; equivalent to verification in this case) a Lakeroad expression that implements our
+     ;;; `two-stage-adder-2` spec.
+     (check-not-false
+      (rosette-synthesize
+       (lambda (#:clk clk) (two-stage-adder-2 #:a (bv->signal a) #:b (bv->signal b) #:clk clk))
+       lr-expr
+       (list a b)
+       ;;; Tick the clock twice, on both designs.
+       #:bv-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
+                             (list (cons "clk" (bv->signal (bv 1 1))))
+                             (list (cons "clk" (bv->signal (bv 0 1))))
+                             (list (cons "clk" (bv->signal (bv 1 1)))))
+       #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
+                             (list (cons "clk" (bv->signal (bv 1 1))))
+                             (list (cons "clk" (bv->signal (bv 0 1))))
+                             (list (cons "clk" (bv->signal (bv 1 1)))))
+       #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath") two-stage-adder))))
+
+     ;;; If you don't tick the clock twice on the `bv-expr`, then the synthesis will fail.
+     (check-false
+      (rosette-synthesize
+       (lambda (#:clk clk) (two-stage-adder-2 #:a (bv->signal a) #:b (bv->signal b) #:clk clk))
+       lr-expr
+       (list a b)
+       #:bv-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
+                             (list (cons "clk" (bv->signal (bv 1 1)))))
+       #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
+                             (list (cons "clk" (bv->signal (bv 1 1))))
+                             (list (cons "clk" (bv->signal (bv 0 1))))
+                             (list (cons "clk" (bv->signal (bv 1 1)))))
+       #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                      two-stage-adder)))))))
 
 (define (synthesize-lattice-ecp5-for-pfu bv-expr)
 
