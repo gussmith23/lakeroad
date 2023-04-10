@@ -13,9 +13,6 @@
 (define xilinx-architecture-description (xilinx-ultrascale-plus-architecture-description))
 (define lattice-architecture-description (lattice-ecp5-architecture-description))
 
-(displayln "--------------------------------------------------------------------------------")
-(displayln lattice-architecture-description)
-
 (module+ test
   (require rackunit
            rosette/solver/smt/boolector)
@@ -60,7 +57,7 @@
                                                (getenv "VERILATOR_INCLUDE_DIR"))))))))
 
   (sketch-test
-   #:name "bvmul on Xilinx DSP48E2"
+   #:name "bvmul 16 on Xilinx DSP48E2"
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvmul a b)
    #:dsp-sketch (lr:hash-ref (first (construct-interface
@@ -78,7 +75,29 @@
    #:run-with-verilator #t)
 
   (sketch-test
-   #:name "bvmul on Lattice ECP5"
+   #:name "bvmul 8 on Lattice ECP5"
+   #:defines (define-symbolic a b (bitvector 8))
+   #:bv-expr (bvmul a b)
+   #:dsp-sketch
+   (lr:extract (lr:integer 7)
+               (lr:integer 0)
+               (lr:hash-ref
+                (first (construct-interface
+                        lattice-architecture-description
+                        (interface-identifier "DSP" (hash "width" 16))
+                        (list (cons "A" (lr:zero-extend (lr:bv a) (lr:bitvector (bitvector 16))))
+                              (cons "B" (lr:zero-extend (lr:bv b) (lr:bitvector (bitvector 16)))))
+                        #:internal-data #f))
+                'O))
+   #:module-semantics
+   (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v") MULT18X18D))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:extra-verilator-args
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+   #:run-with-verilator #f)
+
+  (sketch-test
+   #:name "bvmul 16 on Lattice ECP5"
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvmul a b)
    #:dsp-sketch (lr:hash-ref (first (construct-interface
@@ -88,12 +107,11 @@
                                      #:internal-data #f))
                              'O)
    #:module-semantics
-   (list (cons (cons "MUL18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v") MULT18X18D))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
-                        (build-path (get-lakeroad-directory) "verilator-unisims"))
+   (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v") MULT18X18D))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
    #:extra-verilator-args
    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
-   #:run-with-verilator #t)
+   #:run-with-verilator #f)
 
   ;;; TODO(@ninehusky): find out why these aren't working by going through the DSP48E2 manual
 
