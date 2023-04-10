@@ -2334,6 +2334,10 @@
               [out (bvadd old-a old-b)])
          (list (cons 'O (signal out (list (cons 'a new-a) (cons 'b new-b) (cons 'clk clk)))))))
 
+     ;;; Helper function used by the below tests.
+     (define (make-env clk a b)
+       (list (cons "a" (bv->signal a)) (cons "b" (bv->signal b)) (cons "clk" (bv->signal clk))))
+
      (define-symbolic a b (bitvector 8))
 
      ;;; The Lakeroad program just calls the two-stage adder and gets the O output.
@@ -2356,8 +2360,7 @@
                    lr-expr
                    (list a b)
                    ;;; Tick the clock once (eval with clk=0, eval with clk=1).
-                   #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
-                                         (list (cons "clk" (bv->signal (bv 1 1)))))
+                   #:lr-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
                    #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
                                                   two-stage-adder))))
 
@@ -2371,10 +2374,10 @@
                        lr-expr
                        (list a b)
                        ;;; Tick the clock twice.
-                       #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
-                                             (list (cons "clk" (bv->signal (bv 1 1))))
-                                             (list (cons "clk" (bv->signal (bv 0 1))))
-                                             (list (cons "clk" (bv->signal (bv 1 1)))))
+                       #:lr-sequential (list (make-env (bv 0 1) a b)
+                                             (make-env (bv 1 1) a b)
+                                             (make-env (bv 0 1) (bv 0 8)(bv 0 8))
+                                             (make-env (bv 1 1) (bv 0 8)(bv 0 8)))
                        #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
                                                       two-stage-adder))))
 
@@ -2399,36 +2402,34 @@
      ;;; Check that we can successfully "synthesize" (same note as above re: "synthesis" being
      ;;; equivalent to verification in this case) a Lakeroad expression that implements our
      ;;; `two-stage-adder-2` spec.
-     (check-not-false
-      (rosette-synthesize
-       (lambda (#:clk clk) (two-stage-adder-2 #:a (bv->signal a) #:b (bv->signal b) #:clk clk))
-       lr-expr
-       (list a b)
-       ;;; Tick the clock twice, on both designs.
-       #:bv-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
-                             (list (cons "clk" (bv->signal (bv 1 1))))
-                             (list (cons "clk" (bv->signal (bv 0 1))))
-                             (list (cons "clk" (bv->signal (bv 1 1)))))
-       #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
-                             (list (cons "clk" (bv->signal (bv 1 1))))
-                             (list (cons "clk" (bv->signal (bv 0 1))))
-                             (list (cons "clk" (bv->signal (bv 1 1)))))
-       #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath") two-stage-adder))))
+     (check-not-false (rosette-synthesize
+                       two-stage-adder-2
+                       lr-expr
+                       (list a b)
+                       ;;; Tick the clock twice, on both designs.
+                       #:bv-sequential (list (make-env (bv 0 1) a b)
+                                             (make-env (bv 1 1) a b)
+                                             (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                             (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                       #:lr-sequential (list (make-env (bv 0 1) a b)
+                                             (make-env (bv 1 1) a b)
+                                             (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                             (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                       #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                      two-stage-adder))))
 
      ;;; If you don't tick the clock twice on the `bv-expr`, then the synthesis will fail.
-     (check-false
-      (rosette-synthesize
-       (lambda (#:clk clk) (two-stage-adder-2 #:a (bv->signal a) #:b (bv->signal b) #:clk clk))
-       lr-expr
-       (list a b)
-       #:bv-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
-                             (list (cons "clk" (bv->signal (bv 1 1)))))
-       #:lr-sequential (list (list (cons "clk" (bv->signal (bv 0 1))))
-                             (list (cons "clk" (bv->signal (bv 1 1))))
-                             (list (cons "clk" (bv->signal (bv 0 1))))
-                             (list (cons "clk" (bv->signal (bv 1 1)))))
-       #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
-                                      two-stage-adder)))))))
+     (check-false (rosette-synthesize
+                   two-stage-adder-2
+                   lr-expr
+                   (list a b)
+                   #:bv-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
+                   #:lr-sequential (list (make-env (bv 0 1) a b)
+                                         (make-env (bv 1 1) a b)
+                                         (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                         (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                   #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                  two-stage-adder)))))))
 
 (define (synthesize-lattice-ecp5-for-pfu bv-expr)
 
