@@ -17,7 +17,7 @@
          "../racket/generated/lattice-ecp5-mult18x18d.rkt"
          "../racket/generated/lattice-ecp5-alu24b.rkt"
          rosette/solver/smt/boolector
-         "../racket/stateful-design-experiment.rkt"
+         "../racket/signal.rkt"
          racket/hash
          "../racket/btor.rkt")
 
@@ -95,9 +95,6 @@
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)])
 
-(when (not (verilog-module-out-signal))
-  (error "Please specify --verilog-module-out-signal."))
-
 ;;; Parse instruction.
 ;;;
 ;;; This function will introduce new symbolic constants. Make sure you have good (vc) hygeine when
@@ -152,7 +149,7 @@
 
      (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
-     (signal-value (hash-ref (f) (string->symbol (verilog-module-out-signal))))]))
+     (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))]))
 
 (when (boolean? bv-expr)
   (error
@@ -227,7 +224,7 @@
     ["lattice-ecp5"
      (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
            (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
-           (cons (cons "MULT18X18D" "") MULT18X18D)
+           (cons (cons "MULT18X18D" "") lattice-ecp5-mult18x18d)
            (cons (cons "ALU24B" "") lattice-ecp5-alu24b))]
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]

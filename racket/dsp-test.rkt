@@ -89,8 +89,8 @@
                               (cons "B" (lr:zero-extend (lr:bv b) (lr:bitvector (bitvector 16)))))
                         #:internal-data #f))
                 'O))
-   #:module-semantics
-   (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v") MULT18X18D))
+   #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
+                                  lattice-ecp5-mult18x18d))
    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
    #:extra-verilator-args
    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
@@ -106,8 +106,8 @@
                                      (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
                                      #:internal-data #f))
                              'O)
-   #:module-semantics
-   (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v") MULT18X18D))
+   #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
+                                  lattice-ecp5-mult18x18d))
    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
    #:extra-verilator-args
    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
