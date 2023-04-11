@@ -460,6 +460,20 @@
                   ;;; Return the bits.
                   (hash-ref port-details 'bits)]
 
+                 ;;; Vars correspond to module inputs!
+                 [(lr:var name bw)
+                  ;;; Get the port details if they exist; create and return them if they don't.
+                  (define port-details
+                    (hash-ref ports
+                              name
+                              (lambda ()
+                                (define bits (get-bits bw))
+                                (define port-details (make-port-details "input" bits))
+                                (add-port (string->symbol name) port-details)
+                                port-details)))
+
+                  ;;; Return the bits.
+                  (hash-ref port-details 'bits)]
                  ;;; Concrete bitvectors become constants.
                  [(lr:bv (signal (? bv? (? concrete? s)) state ))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
