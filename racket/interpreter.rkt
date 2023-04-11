@@ -50,7 +50,8 @@
             (destruct
              expr
              [(list l) (error "hi")]
-             [(lr:var name) (cdr (or (assoc name environment) (error "variable " name " not found")))]
+             [(lr:var name bw)
+              (cdr (or (assoc name environment) (error "variable " name " not found")))]
              [(lr:symbol s) s]
              [(lr:make-immutable-hash list-expr) (interpret-helper list-expr)]
              [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]
