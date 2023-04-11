@@ -27,7 +27,8 @@
          comparison-sketch-generator
          shallow-comparison-sketch-generator
          multiplication-sketch-generator
-         shift-sketch-generator)
+         shift-sketch-generator
+         single-dsp-sketch-generator)
 
 (require "architecture-description.rkt"
          "logical-to-physical.rkt"
