@@ -42,4 +42,4 @@
 ;;;
 ;;; We actually didn't need `var`s for a very long time, as variable inputs could be passed in as
 ;;; Rosette symbolic constants wrapped in `bv`s.
-(struct var (name) #:transparent)
+(struct var (name bw) #:transparent)
