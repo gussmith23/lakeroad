@@ -285,6 +285,12 @@
                         (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
                    (inputs))]
 
+             ;;; The same environments, but with everything set to zero.
+             [input-zeroes (map (λ (p)
+                                  (match p
+                                    [(cons name bw) (cons name (bv->signal (bv 0 bw)))]))
+                                (inputs))]
+
              [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
 
              [sketch (first (sketch-generator architecture-description
@@ -300,11 +306,16 @@
              ;;; get the output (including all of the internal state), and then pass that state on to
              ;;; the next iteration. See `rosette-synthesize`.
              ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
-             [envs (apply append
-                          (make-list
-                           (initiation-interval)
-                           (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
-                                 (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))))])
+             [envs ;;; First, we tick the clock with the inputs set to their input values.
+              (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
+                            (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
+                      ;;; then, we tick the clock with the inputs set to zero.
+                      (apply append
+                             (make-list
+                              (sub1 (initiation-interval))
+                              (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-zeroes)
+                                    (cons (cons (clock-name) (bv->signal (bv 1 1)))
+                                          input-zeroes)))))])
         (rosette-synthesize
          (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal)))) bv-expr)
          sketch
