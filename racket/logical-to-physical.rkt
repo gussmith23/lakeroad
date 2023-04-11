@@ -1,4 +1,4 @@
-#lang errortrace rosette/safe
+#lang rosette/safe
 
 ;;; Logical to physical (and vice versa) mapping tools for Lakeroad.
 ;;;
