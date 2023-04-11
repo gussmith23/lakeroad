@@ -186,6 +186,7 @@
   (error (format "Expected a bitvector expression but found ~a" bv-expr)))
 (define sketch-generator
   (match (template)
+    ["dsp" single-dsp-sketch-generator]
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
