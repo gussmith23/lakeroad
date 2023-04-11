@@ -175,7 +175,11 @@
 
      (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
-     (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))]))
+     ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
+     ;;; path expects a bvexpr, which we can get by just calling the function.
+     (if (initiation-interval)
+         f
+         (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal)))))]))
 
 (when (boolean? bv-expr)
   (error
