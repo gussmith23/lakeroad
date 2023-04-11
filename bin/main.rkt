@@ -94,7 +94,7 @@
   v
   "Initiation interval of the module to be compiled. This will also be the initiation interval of the"
   " resulting synthesized Verilog module, though this need not be the case in general."
-  (initiation-interval v)]
+  (initiation-interval (string->number v))]
  ["--clock-name"
   v
   "Name of the clock signal of both modules. Currently assumes they're the same, but this need not be"
