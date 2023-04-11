@@ -50,6 +50,10 @@
 (define verilog-module-filepath (make-parameter #f))
 (define top-module-name (make-parameter #f))
 (define verilog-module-out-signal (make-parameter #f))
+(define initiation-interval (make-parameter #f))
+(define clock-name (make-parameter #f))
+;;; inputs is an association list mapping input name to a `signal` object representing that input.
+(define inputs (make-parameter '()))
 
 (command-line
  #:program "lakeroad"
@@ -86,6 +90,16 @@
   " the output signal name of the Verilog module specified by --verilog-module-filepath."
   " TODO(@gussmith23): There should be two separate arguments for this."
   (verilog-module-out-signal v)]
+ ["--initiation-interval"
+  v
+  "Initiation interval of the module to be compiled. This will also be the initiation interval of the"
+  " resulting synthesized Verilog module, though this need not be the case in general."
+  (initiation-interval v)]
+ ["--clock-name"
+  v
+  "Name of the clock signal of both modules. Currently assumes they're the same, but this need not be"
+  " the case."
+  (clock-name v)]
  #:once-any
  #:multi
  [("--instruction")
@@ -93,7 +107,20 @@
   "The instruction to synthesize, written in Rosette bitvector semantics. Use (var <name> <bw>) to"
   " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
   (instruction v)]
- [("--module-name") v "Name given to the module produced." (module-name v)])
+ [("--module-name") v "Name given to the module produced." (module-name v)]
+ [("--input-signal")
+  v
+  "Name of an input signal to the module in the format `<name>:<bw` e.g. `a:8` This flag can be"
+  " specified multiple times. This currently only needs to be specified for sequential synthesis."
+  ;;; Parse --input arg: split <name>:<bw> into name and bw, construct Rosette symbolic input.
+  (let* ([splits (string-split v ":")] [name (first splits)] [bw (string->number (second splits))])
+    (when (not (equal? 2 (length splits)))
+      (error (format "Invalid input signal specification: ~a" v)))
+    (when (not (assoc name (inputs)))
+      (error "Signal " name " already present; did you duplicate an --input?"))
+    ;;; Create an input signal with the given name and bitwidth. Give a unique name to the signal
+    ;;; (hence the main.rkt).
+    (inputs (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))) (inputs))))])
 
 (when (not (verilog-module-out-signal))
   (error "Please specify --verilog-module-out-signal."))
