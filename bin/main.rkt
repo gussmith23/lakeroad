@@ -116,7 +116,7 @@
   (let* ([splits (string-split v ":")] [name (first splits)] [bw (string->number (second splits))])
     (when (not (equal? 2 (length splits)))
       (error (format "Invalid input signal specification: ~a" v)))
-    (when (not (assoc name (inputs)))
+    (when (assoc name (inputs))
       (error "Signal " name " already present; did you duplicate an --input?"))
     ;;; Create an input signal with the given name and bitwidth. Give a unique name to the signal
     ;;; (hence the main.rkt).
