@@ -52,7 +52,7 @@
 (define verilog-module-out-signal (make-parameter #f))
 (define initiation-interval (make-parameter #f))
 (define clock-name (make-parameter #f))
-;;; inputs is an association list mapping input name to a `signal` object representing that input.
+;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
 
 (command-line
@@ -118,9 +118,7 @@
       (error (format "Invalid input signal specification: ~a" v)))
     (when (assoc name (inputs))
       (error "Signal " name " already present; did you duplicate an --input?"))
-    ;;; Create an input signal with the given name and bitwidth. Give a unique name to the signal
-    ;;; (hence the main.rkt).
-    (inputs (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))) (inputs))))])
+    (inputs (cons (cons name bw) (inputs))))])
 
 ;;; Parse instruction.
 ;;;
