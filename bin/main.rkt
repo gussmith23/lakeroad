@@ -2,6 +2,7 @@
 #lang racket/base
 
 (require rosette
+         (prefix-in lr: "../racket/language.rkt")
          "../racket/synthesize.rkt"
          "../racket/compile-to-json.rkt"
          "../racket/circt-comb-operators.rkt"
@@ -265,10 +266,58 @@
                     other))]))
 
 (define lakeroad-expr
-  (synthesize-with-sketch sketch-generator
-                          architecture-description
-                          bv-expr
-                          #:module-semantics module-semantics))
+
+  (if (initiation-interval)
+      ;;; If initiation interval is set, then we do sequential synthesis.
+      (let* (;;; Generate the inputs to sketch: a lr:var for each input signal.
+             [sketch-logical-inputs (lr:list (map (λ (p) (lr:var (car p) (cdr p))) (inputs)))]
+             [num-logical-inputs (length (inputs))]
+             [bw (apply max (map cdr (inputs)))]
+
+             ;;; Generate the input values: an association list mapping name to value, where the value
+             ;;; is a signal whose value is a symbolic bitvector.
+             ;;;
+             ;;; We'll use this as input to both the #:bv-sequential and #:lr-sequential args.
+             [input-values
+              (map (λ (p)
+                     (match p
+                       [(cons name bw)
+                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                   (inputs))]
+
+             [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
+
+             [sketch (first (sketch-generator architecture-description
+                                              sketch-logical-inputs
+                                              num-logical-inputs
+                                              bw))]
+
+             [_ (when (not (clock-name))
+                  (error "Clock name not specified."))]
+
+             ;;; Environments for sequential synthesis. Each environment represents one set of input
+             ;;; states. For each set of input states, we run the interpreter with the given inputs,
+             ;;; get the output (including all of the internal state), and then pass that state on to
+             ;;; the next iteration. See `rosette-synthesize`.
+             ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
+             [envs (apply append
+                          (make-list
+                           (initiation-interval)
+                           (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
+                                 (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))))])
+        (rosette-synthesize
+         (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal)))) bv-expr)
+         sketch
+         input-symbolic-constants
+         #:bv-sequential envs
+         #:lr-sequential envs
+         #:module-semantics module-semantics))
+
+      ;;; If initiation interval is #f, then do normal combinational synthesis.
+      (synthesize-with-sketch sketch-generator
+                              architecture-description
+                              bv-expr
+                              #:module-semantics module-semantics)))
 
 (cond
   [(not lakeroad-expr) (error "Synthesis failed.")]
