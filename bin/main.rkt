@@ -13,6 +13,7 @@
          "../racket/xilinx-ultrascale-plus-lut2.rkt"
          "../racket/generated/xilinx-ultrascale-plus-lut6.rkt"
          "../racket/generated/xilinx-ultrascale-plus-carry8.rkt"
+         "../racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt"
          "../racket/generated/sofa-frac-lut4.rkt"
          "../racket/generated/lattice-ecp5-mult18x18d.rkt"
          "../racket/generated/lattice-ecp5-alu24b.rkt"
@@ -245,7 +246,8 @@
     ["xilinx-ultrascale-plus"
      (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
            (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-           (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8))]
+           (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8)
+           (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v") xilinx-ultrascale-plus-dsp48e2))]
     ["lattice-ecp5"
      (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
            (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
