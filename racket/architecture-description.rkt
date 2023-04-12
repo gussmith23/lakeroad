@@ -824,91 +824,12 @@
                                 (cons "I2" (cdr (or (assoc "S" port-map) (error "Expected S")))))
                           #:internal-data internal-data)]
 
-    ;;; Implement a smaller DSP with a larger DSP.
-    [(let* ([their-dsp-impl
-             (findf
-              (lambda (impl)
-                (equal? "DSP" (interface-identifier-name (interface-implementation-identifier impl))))
-              (architecture-description-interface-implementations architecture-description))])
-
-       ;;; Check: They're asking for a DSP.
-       (and (equal? "DSP" (interface-identifier-name interface-id))
-            ;;; Check: The architecture description implements a DSP.
-            their-dsp-impl
-            ;;; Check: the implemented DSP is larger than the requested DSP.
-            (>= (hash-ref (interface-identifier-parameters
-                           (interface-implementation-identifier their-dsp-impl))
-                          "width")
-                (hash-ref (interface-identifier-parameters interface-id) "width"))))
-
-     (let* ([their-dsp-impl
-             (findf
-              (lambda (impl)
-                (equal? "DSP" (interface-identifier-name (interface-implementation-identifier impl))))
-              (architecture-description-interface-implementations architecture-description))]
-            [their-dsp-width (hash-ref (interface-identifier-parameters
-                                        (interface-implementation-identifier their-dsp-impl))
-                                       "width")])
-       (construct-interface
-        architecture-description
-        (interface-identifier "DSP" (hash "width" their-dsp-width))
-        (list (cons "A"
-                    (lr:zero-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
-                                    (lr:bitvector (bitvector their-dsp-width))))
-              (cons "B"
-                    (lr:zero-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
-                                    (lr:bitvector (bitvector their-dsp-width)))))
-        #:internal-data internal-data))]
-
     [else
      (error
       "Interface not implemented, and no way to implement it with the interfaces already implemented: "
       interface-id)]))
 
 (module+ test
-  (test-case
-   "Construct smaller DSP from larger DSP"
-   (match-let* ([(list expr internal-data)
-                 (construct-interface (xilinx-ultrascale-plus-architecture-description)
-                                      (interface-identifier "DSP" (hash "width" 8))
-                                      (list (cons "A" 'a-input-expr) (cons "B" 'b-input-expr)))])
-     (check-true
-      (match expr
-        [(lr:make-immutable-hash
-          (lr:list
-           (list (lr:cons (lr:symbol 'O)
-                          (lr:extract
-                           (lr:integer 15)
-                           (lr:integer 0)
-                           (lr:hash-ref
-                            (lr:hw-module-instance
-                             "DSP48E2"
-                             (list stuff ...
-                                   (module-instance-port
-                                    "A"
-                                    (lr:zero-extend
-                                     (lr:zero-extend 'a-input-expr (lr:bitvector (bitvector 16)))
-                                     (lr:bitvector (bitvector 30)))
-                                    'input
-                                    16)
-                                   stuff2 ...
-                                   (module-instance-port
-                                    "B"
-                                    (lr:zero-extend
-                                     (lr:zero-extend 'b-input-expr (lr:bitvector (bitvector 16)))
-                                     (lr:bitvector (bitvector 18)))
-                                    'input
-                                    16)
-                                   stuff3 ...
-                                   (module-instance-port "P" "P" 'output 48)
-                                   others ...)
-                             params
-                             filepath)
-                            'P)))
-                 others ...)))
-         #t]
-        [else #f]))))
-
   (test-begin
    "Construct a LUT5 on Lattice from LUT4s and a MUX2."
    (match-let* ([(list expr internal-data)
