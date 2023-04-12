@@ -1013,6 +1013,11 @@
   (parse-architecture-description-file
    (build-path (get-lakeroad-directory) "architecture_descriptions" "sofa.yml")))
 
+;;; Get architecture description of Intel.
+(define (intel-architecture-description)
+  (parse-architecture-description-file
+   (build-path (get-lakeroad-directory) "architecture_descriptions" "intel.yml")))
+
 (module+ test
   (define-symbolic SOME_DATA (bitvector 32))
   (test-case
@@ -1020,6 +1025,20 @@
    (check-eq? (parse-constraint-dsl "(|| (bveq SOME_DATA (bv 0 32)) (bveq SOME_DATA (bv 1 32)))"
                                     (lambda (s) (hash-ref (hash 'SOME_DATA SOME_DATA) s)))
               (|| (bveq SOME_DATA (bv 0 32)) (bveq SOME_DATA (bv 1 32))))))
+
+(module+ test
+  (test-case "Parse Intel YAML"
+             (begin
+               (check-true (match (intel-architecture-description)
+                             [(architecture-description
+                               (list (interface-implementation
+                                      (interface-identifier "DSP" (hash-table ("width" 16)))
+                                      module-instance
+                                      internal-data
+                                      output-map
+                                      constraints)))
+                              #t]
+                             [else #f])))))
 
 (module+ test
   (test-case

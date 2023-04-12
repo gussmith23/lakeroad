@@ -1,0 +1,14 @@
+implementations:
+  - interface: { name: DSP, parameters: { width: 16 } }
+    internal_data: { }
+    modules:
+      - module_name: altmult_accum
+        filepath: unused
+        racket_import_filepath: unused
+        ports: [
+
+         ]
+        parameters: [
+
+         ]
+    outputs: { O : O }
