@@ -108,6 +108,15 @@
                      ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
                      ;;; interpreter, we have to unwrap the signal values.
                      [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)])
+
+                ;;; Check if we passed all keyword arguments to the semantics function. If we didn't,
+                ;;; the semantics function will likely use some default values, which is almost
+                ;;; guaranteed to cause bugs.
+                (match-define-values (_ keywords) (procedure-keywords module-semantics-fn))
+                (when (not (equal? (length keywords) (length pairs)))
+                  (error "Calling semantics function with too few arguments. This will invoke default"
+                         " behavior of semantics functions, which will likely lead to bugs."))
+
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
