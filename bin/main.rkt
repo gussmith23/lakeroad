@@ -332,6 +332,22 @@
                               (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-zeroes)
                                     (cons (cons (clock-name) (bv->signal (bv 1 1)))
                                           input-zeroes)))))])
+
+        ;;; Throw error if we're not passing all values to the bv-expr.
+        ;;; TODO(@gussmith23): This check would be better elsewhere, but the use of `compose` below
+        ;;; makes it not possible to use `procedure-keywords` in `rosette-synthesize` itself.
+        ;;; TODO(@gussmith23): Even better would be to end the headache of using keyword arguments
+        ;;; altogether.
+        (match-define-values (_ keywords) (procedure-keywords bv-expr))
+        ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer.
+        (define keywords-minus-unnamed
+          (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-"))) keywords))
+        (for ([env envs])
+          (when (not (equal? (length env) (length keywords-minus-unnamed)))
+            (error "Not passing all inputs to bv-expr, Missing "
+                   (set-subtract (apply set keywords-minus-unnamed)
+                                 (apply set (map (compose1 string->keyword car) env))))))
+
         (rosette-synthesize
          (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal)))) bv-expr)
          sketch
