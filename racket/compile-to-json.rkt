@@ -107,12 +107,71 @@
                                    (cons (string->symbol (module-instance-port-name p)) bits)))
                                output-ports)]
 
+                         ;;; For now, you can add logic here to override parameter compilation.
+                         [compile-parameter-override
+                          (lambda (module-name param)
+                            (define (dsp48e2-enum-val-to-str v)
+                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                [0 "A"]
+                                [1 "B"]
+                                [2 "AD"]
+                                [3 "NO_RESET"]
+                                [4 "RESET_MATCH"]
+                                [5 "RESET_NOT_MATCH"]
+                                [6 "RESET"]
+                                [7 "DIRECT"]
+                                [8 "MASK"]
+                                [9 "PATTERN"]
+                                [10 "MULTIPLY"]
+                                [11 "NO_PATDET"]
+                                [12 "ONE48"]
+                                [13 "FALSE"]
+                                [14 "XOR24_48_96"]
+                                [15 "CASCADE"]
+                                [16 "CEP"]
+                                [17 "C"]
+                                [18 "DYNAMIC"]
+                                [19 "FOUR12"]
+                                [20 "NONE"]
+                                [21 "PATDET"]
+                                [22 "ROUNDING_MODE1"]
+                                [23 "ROUNDING_MODE2"]
+                                [24 "TRUE"]
+                                [25 "TWO24"]
+                                [26 "XOR12"]))
+                            (if (and (equal? module-name "DSP48E2")
+                                     (member (module-instance-parameter-name param)
+                                             (list "AMULTSEL"
+                                                   "AUTORESET_PATDET"
+                                                   "AUTORESET_PRIORITY"
+                                                   "A_INPUT"
+                                                   "BMULTSEL"
+                                                   "B_INPUT"
+                                                   "PREADDINSEL"
+                                                   "SEL_MASK"
+                                                   "SEL_PATTERN"
+                                                   "USE_MULT"
+                                                   "USE_PATTERN_DETECT"
+                                                   "USE_SIMD"
+                                                   "USE_WIDEXOR"
+                                                   "XORSIMD")))
+
+                                (dsp48e2-enum-val-to-str (module-instance-parameter-value param))
+                                #f))]
+
                          ;;; Pairs of parameter symbol with value.
-                         [param-pairs (map (λ (p)
-                                             (cons (string->symbol (module-instance-parameter-name p))
-                                                   (match (module-instance-parameter-value p)
-                                                     [(lr:bv (signal v _)) (make-literal-value-from-bv v)])))
-                                           params)]
+                         [param-pairs
+                          (map
+                           (λ (p)
+                             (cons
+                              (string->symbol (module-instance-parameter-name p))
+                              ;;; Here, we allow for overrides on parameter compilation. This is
+                              ;;; because we've had to manually ;;; convert string parameters to
+                              ;;; bitvectors, and so we need to convert them back for some modules.
+                              (or (compile-parameter-override module-name p)
+                                  (match (module-instance-parameter-value p)
+                                    [(lr:bv (signal v _)) (make-literal-value-from-bv v)]))))
+                           params)]
                          ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
                          ;;; parameters. We will need to figure out a way around this hack especially
                          ;;; if we want to support other modules that use string parameters e.g. DSP.
