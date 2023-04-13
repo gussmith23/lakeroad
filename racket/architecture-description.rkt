@@ -379,7 +379,7 @@
                           (assoc (symbol->string s) internal-data)
                           (error
                            (format
-                            "No value provided for port ~a in port map ~a or internal data list  ~a."
+                            "No value provided for port ~a in port map\n~a\nor internal data list\n~a"
                             s
                             port-map
                             internal-data))))))
