@@ -191,7 +191,16 @@
   (error (format "Expected a bitvector expression or procedure but found ~a" bv-expr)))
 (define sketch-generator
   (match (template)
-    ["dsp" single-dsp-sketch-generator]
+    ["dsp"
+     ;;; TODO(@gussmith23): There isn't any type checking on sketch generator input when there really
+     ;;; should be. We're forced to check that we're going to produce the correct # of inputs long
+     ;;; before we call the sketch generator.
+
+     ;;; Sketch generator expects 2 data inputs plus a clock input.
+     (when (not (equal? 2 (length (inputs))))
+       (error "DSP template expects 2 data inputs plus a clock input, but inputs is " (inputs)))
+
+     single-dsp-sketch-generator]
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
