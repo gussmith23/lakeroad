@@ -79,6 +79,7 @@ def yosys(script):
             script,
         ],
         stdout=sys.stderr,
+        check=True,
     )
 
 
