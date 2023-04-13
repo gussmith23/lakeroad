@@ -11,6 +11,7 @@
          (struct-out interface-identifier)
          xilinx-ultrascale-plus-architecture-description
          lattice-ecp5-architecture-description
+         intel-architecture-description
          sofa-architecture-description
          find-biggest-lut-size
          densely-pack-inputs-into-luts

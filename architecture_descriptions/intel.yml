@@ -6,9 +6,10 @@ implementations:
         filepath: unused
         racket_import_filepath: unused
         ports: [
-
+          { name: dataa, direction: input, bitwidth: 16, value: (zero-extend A (bitvector 18)) },
+          { name: datab, direction: input, bitwidth: 16, value: (zero-extend B (bitvector 18)) },
          ]
         parameters: [
 
          ]
-    outputs: { O : O }
+    outputs: { O : (extract 15 0 result) }
