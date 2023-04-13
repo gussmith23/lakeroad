@@ -2274,6 +2274,8 @@
                    (keyword-apply bv-expr (map car this-iter-env) (map cdr this-iter-env) '())))])
          (signal-value (foldl interpret-one-iter (signal 'unused '()) envs)))]))
 
+  ;;; This block of code should be restructured. Instead of running synthesis in here, this `define`
+  ;;; should interpret the Lakeroad expression, and then synthesis should be moved to another define.
   (define soln
     (match lr-sequential
       [#f
