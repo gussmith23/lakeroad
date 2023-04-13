@@ -167,6 +167,8 @@
 ;;; TODO(@ninehusky): ask about the bitwidth
 ;;; (do we need to revisit this decision at the interface level?)
 ;;; and, do we need to assert that there are exactly two logical inputs?
+;;;
+;;; The first 2 inputs are data inputs. The clock input is assumed to be the last of the inputs.
 (define (single-dsp-sketch-generator architecture-description
                                      logical-inputs
                                      num-logical-inputs
@@ -177,7 +179,8 @@
                 (construct-interface architecture-description
                                      (interface-identifier "DSP" (hash "width" bitwidth))
                                      (list (cons "A" (lr:list-ref logical-inputs (lr:integer 0)))
-                                           (cons "B" (lr:list-ref logical-inputs (lr:integer 1))))
+                                           (cons "B" (lr:list-ref logical-inputs (lr:integer 1)))
+                                           (cons "clk" (lr:list-ref logical-inputs (lr:integer 2))))
                                      #:internal-data internal-data)]
                [out-expr (lr:hash-ref dsp-expr 'O)])
     (list out-expr internal-data)))

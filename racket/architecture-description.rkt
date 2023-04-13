@@ -97,6 +97,7 @@
         (interface-definition (interface-identifier "DSP" (hash "width" 16))
                               (list (interface-port "A" 'input 16)
                                     (interface-port "B" 'input 16)
+                                    (interface-port "clk" 'input 1)
                                     (interface-port "O" 'output 16)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
@@ -857,7 +858,8 @@
                                     (lr:bitvector (bitvector their-dsp-width))))
               (cons "B"
                     (lr:zero-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
-                                    (lr:bitvector (bitvector their-dsp-width)))))
+                                    (lr:bitvector (bitvector their-dsp-width))))
+              (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk")))))
         #:internal-data internal-data))]
 
     [else
@@ -869,9 +871,10 @@
   (test-case
    "Construct smaller DSP from larger DSP"
    (match-let* ([(list expr internal-data)
-                 (construct-interface (xilinx-ultrascale-plus-architecture-description)
-                                      (interface-identifier "DSP" (hash "width" 8))
-                                      (list (cons "A" 'a-input-expr) (cons "B" 'b-input-expr)))])
+                 (construct-interface
+                  (xilinx-ultrascale-plus-architecture-description)
+                  (interface-identifier "DSP" (hash "width" 8))
+                  (list (cons "A" 'a-input-expr) (cons "B" 'b-input-expr) (cons "clk" 'clk-expr)))])
      (check-true
       (match expr
         [(lr:make-immutable-hash
@@ -900,6 +903,8 @@
                                     'input
                                     16)
                                    stuff3 ...
+                                   (module-instance-port "CLK" 'clk-expr 'input 1)
+                                   stuff4 ...
                                    (module-instance-port "P" "P" 'output 48)
                                    others ...)
                              params

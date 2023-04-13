@@ -278,10 +278,20 @@
 
   (if (initiation-interval)
       ;;; If initiation interval is set, then we do sequential synthesis.
-      (let* (;;; Generate the inputs to sketch: a lr:var for each input signal.
-             [sketch-logical-inputs (lr:list (map (λ (p) (lr:var (car p) (cdr p))) (inputs)))]
-             [num-logical-inputs (length (inputs))]
-             [bw (apply max (map cdr (inputs)))]
+      (let* ([_ "this line prevents autoformatter from messing up comments"]
+
+             [_ (when (not (clock-name))
+                  (error "Clock name not specified."))]
+
+             ;;; Sketch generators should take richer input than just a list of logical inputs and a
+             ;;; bitwidth. That interface is starting to be too weak.
+
+             ;;; Generate the inputs to sketch: a lr:var for each input signal.
+             [sketch-logical-inputs (append (map (λ (p) (lr:var (car p) (cdr p))) (inputs))
+                                            (list (lr:var (clock-name) 1)))]
+             [sketch-logical-inputs-expr (lr:list sketch-logical-inputs)]
+             [num-logical-inputs (length sketch-logical-inputs)]
+             [bw (apply max 1 (map cdr (inputs)))]
 
              ;;; Generate the input values: an association list mapping name to value, where the value
              ;;; is a signal whose value is a symbolic bitvector.
@@ -303,12 +313,9 @@
              [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
 
              [sketch (first (sketch-generator architecture-description
-                                              sketch-logical-inputs
+                                              sketch-logical-inputs-expr
                                               num-logical-inputs
                                               bw))]
-
-             [_ (when (not (clock-name))
-                  (error "Clock name not specified."))]
 
              ;;; Environments for sequential synthesis. Each environment represents one set of input
              ;;; states. For each set of input states, we run the interpreter with the given inputs,

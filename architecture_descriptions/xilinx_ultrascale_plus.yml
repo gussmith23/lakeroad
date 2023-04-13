@@ -164,7 +164,7 @@ implementations:
             { name: CEM, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: CEP, direction: input, bitwidth: 1, value: (bv 1 1) },
 
-            { name: CLK, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CLK, direction: input, bitwidth: 1, value: clk },
             { name: D, direction: input, bitwidth: 27, value: (bv 0 27) },
             { name: INMODE, direction: input, bitwidth: 5, value: (bv 0 5) },
             { name: MULTSIGNIN, direction: input, bitwidth: 1, value: (bv 0 1) },
