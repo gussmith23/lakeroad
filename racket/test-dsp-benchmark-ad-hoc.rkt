@@ -273,31 +273,6 @@
                                             (append (list (cons (quote state7) (signal-value btor16)))
                                                     (list)))))))))))))))))))
 
-(define-symbolic a b (bitvector 16))
-(let* ([o0 (assoc-ref
-            (to-synthesize #:clk (bv->signal (bv 0 1)) #:scale (bv->signal a) #:val (bv->signal b))
-            'dout)]
-       [o1 (assoc-ref
-            (to-synthesize #:clk (bv->signal (bv 1 1) o0) #:scale (bv->signal a) #:val (bv->signal b))
-            'dout)]
-       [o2 (assoc-ref (to-synthesize #:clk (bv->signal (bv 0 1) o1)
-                                     #:scale (bv->signal (bv 0 16))
-                                     #:val (bv->signal (bv 0 16)))
-                      'dout)]
-       [o3 (assoc-ref (to-synthesize #:clk (bv->signal (bv 1 1) o2)
-                                     #:scale (bv->signal (bv 0 16))
-                                     #:val (bv->signal (bv 0 16)))
-                      'dout)]
-       [o4 (assoc-ref (to-synthesize #:clk (bv->signal (bv 0 1) o3)
-                                     #:scale (bv->signal (bv 0 16))
-                                     #:val (bv->signal (bv 0 16)))
-                      'dout)]
-       [o5 (assoc-ref (to-synthesize #:clk (bv->signal (bv 1 1) o4)
-                                     #:scale (bv->signal (bv 0 16))
-                                     #:val (bv->signal (bv 0 16)))
-                      'dout)])
-  (signal-value o5))
-
 (define lr-expr
   (first (single-dsp-sketch-generator (xilinx-ultrascale-plus-architecture-description)
                                       #:out-width 32
@@ -310,6 +285,7 @@
         (cons "scale" (bv->signal scale))
         (cons "val" (bv->signal val))))
 
+(define-symbolic a b (bitvector 16))
 (define env
   (list (make-env (bv 0 1) a b)
         (make-env (bv 1 1) a b)
