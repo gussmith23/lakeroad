@@ -309,7 +309,8 @@
 
              ;;; TODO(@gussmith23): This will actually only work with the DSP sketch generator(s).
              ;;; Should be fixed.
-             [_ (when (not (verilog-module-out-bitwidth)) (error "Verilog module out bitwidth not specified."))]
+             [_ (when (not (verilog-module-out-bitwidth))
+                  (error "Verilog module out bitwidth not specified."))]
              [sketch (first (sketch-generator architecture-description
                                               #:out-width (verilog-module-out-bitwidth)
                                               #:clk-input clk-input
