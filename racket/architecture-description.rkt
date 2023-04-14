@@ -256,6 +256,7 @@
                 (match expr
                   [`(bv ,val ,width) (bv val width)]
                   [`(|| ,e ...) (apply || (map recursive-helper e))]
+                  [`(&& ,e ...) (apply && (map recursive-helper e))]
                   [`(bveq ,e1 ,e2) (bveq (recursive-helper e1) (recursive-helper e2))]
                   [`(not ,e) (not (recursive-helper e))]
                   [`(extract ,i ,j ,bv) (extract i j (recursive-helper bv))]
