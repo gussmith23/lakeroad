@@ -851,7 +851,6 @@
             [their-a-width (hash-ref (interface-identifier-parameters
                                       (interface-implementation-identifier their-dsp-impl))
                                      "a-width")]
-            [_ (displayln (interface-identifier-parameters interface-id))]
             [requested-a-width (hash-ref (interface-identifier-parameters interface-id) "a-width")]
             [their-b-width (hash-ref (interface-identifier-parameters
                                       (interface-implementation-identifier their-dsp-impl))
