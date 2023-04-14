@@ -495,6 +495,10 @@
                   (append (compile v)
                           (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
                                      "0"))]
+                 [(lr:sign-extend v bv-type)
+                  (append (compile v)
+                          (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
+                                     (last (compile v))))]
                  [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
