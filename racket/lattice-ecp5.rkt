@@ -187,14 +187,14 @@
 
 ;;; Create a lakeroad expression for a pfu
 (define (make-lattice-pfu-expr logical-inputs)
-  (lattice-ecp5-pfu (??* (bitvector 16))
-                    (??* (bitvector 16))
-                    (??* (bitvector 16))
-                    (??* (bitvector 16))
-                    (??* (bitvector 16))
-                    (??* (bitvector 16))
-                    (??* (bitvector 16))
-                    (??* (bitvector 16))
+  (lattice-ecp5-pfu (bv->signal (??* (bitvector 16)))
+                    (bv->signal (??* (bitvector 16)))
+                    (bv->signal (??* (bitvector 16)))
+                    (bv->signal (??* (bitvector 16)))
+                    (bv->signal (??* (bitvector 16)))
+                    (bv->signal (??* (bitvector 16)))
+                    (bv->signal (??* (bitvector 16)))
+                    (bv->signal (??* (bitvector 16)))
                     (logical-to-physical-mapping (ltop-bitwise) logical-inputs)))
 
 ;;; Create a Lakeroad expression for a CCU2C. This can be used to specify a
@@ -207,12 +207,12 @@
                                  #:INIT1 [INIT1 #f]
                                  #:INJECT1_0 [INJECT1_0 #f]
                                  #:INJECT1_1 [INJECT1_1 #f])
-  (define f (λ (v) (if (bv? v) (lr:bv v) v)))
-  (lattice-ecp5-ccu2c (or (f INIT0) (lr:bv (??* (bitvector 16)))) ; INIT0
-                      (or (f INIT1) (lr:bv (??* (bitvector 16)))) ; INIT1
-                      (or (f INJECT1_0) (lr:bv (??* (bitvector 1)))) ; INJECT1_0
-                      (or (f INJECT1_1) (lr:bv (??* (bitvector 1)))) ; INJECT1_1
-                      (or (f CIN) (lr:bv (??* (bitvector 1)))) ; CIN
+  (define f (λ (v) (if (signal? v) (lr:bv v) v)))
+  (lattice-ecp5-ccu2c (or (f INIT0) (lr:bv (bv->signal (??* (bitvector 16))))) ; INIT0
+                      (or (f INIT1) (lr:bv (bv->signal (??* (bitvector 16))))) ; INIT1
+                      (or (f INJECT1_0) (lr:bv (bv->signal (??* (bitvector 1))))) ; INJECT1_0
+                      (or (f INJECT1_1) (lr:bv (bv->signal (??* (bitvector 1))))) ; INJECT1_1
+                      (or (f CIN) (lr:bv (bv->signal (??* (bitvector 1))))) ; CIN
                       inputs))
 
 ;;; Create a Lakeroad expression for a Ripple PFU. This can be used to specify
@@ -336,18 +336,18 @@
     ;; Interpret LUT primitives
     [(lattice-ecp5-lut4 INIT inputs)
      (let* ([inputs (interpreter inputs)]
-            [out (interpret-lattice-ecp5-lut4 #:A (bv->signal (bit 0 inputs))
-                                              #:B (bv->signal (bit 1 inputs))
-                                              #:C (bv->signal (bit 2 inputs))
-                                              #:D (bv->signal (bit 3 inputs))
-                                              #:init (bv->signal (interpreter INIT)))])
-       (list (signal-value (cdr (or (assoc 'Z out) (error "key not found"))))))]
+            [out (interpret-lattice-ecp5-lut4 #:A (bv->signal (bit 0 (signal-value inputs)))
+                                              #:B (bv->signal (bit 1 (signal-value inputs)))
+                                              #:C (bv->signal (bit 2 (signal-value inputs)))
+                                              #:D (bv->signal (bit 3 (signal-value inputs)))
+                                              #:init (interpreter INIT))])
+       (list (cdr (or (assoc 'Z out) (error "key not found")))))]
     [(lattice-ecp5-lut2 INIT inputs)
      (let* ([inputs (interpreter inputs)]
-            [out (interpret-lattice-ecp5-lut2 #:A (bv->signal (bit 0 inputs))
-                                              #:B (bv->signal (bit 1 inputs))
-                                              #:init (bv->signal (interpreter INIT)))])
-       (list (signal-value (cdr (or (assoc 'Z out) (error "key not found"))))))]
+            [out (interpret-lattice-ecp5-lut2 #:A (bv->signal (bit 0 (signal-value inputs)))
+                                              #:B (bv->signal (bit 1 (signal-value inputs)))
+                                              #:init (interpreter INIT))])
+       (list (cdr (or (assoc 'Z out) (error "key not found")))))]
     [(lattice-ecp5-lut5 INIT inputs) (list (interpret-lut5-impl INIT (interpreter inputs)))]
     [(lattice-ecp5-lut6 INIT inputs) (list (interpret-lut6-impl INIT (interpreter inputs)))]
     [(lattice-ecp5-lut7 INIT inputs) (list (interpret-lut7-impl INIT (interpreter inputs)))]
@@ -364,19 +364,19 @@
     ;; Interpret Carry primitives
     [(lattice-ecp5-ccu2c INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
      (let* ([inputs (interpreter inputs)]
-            [A0 (bit 0 (list-ref inputs 0))]
-            [A1 (bit 0 (list-ref inputs 1))]
-            [B0 (bit 1 (list-ref inputs 0))]
-            [B1 (bit 1 (list-ref inputs 1))]
-            [C0 (bit 2 (list-ref inputs 0))]
-            [C1 (bit 2 (list-ref inputs 1))]
-            [D0 (bit 3 (list-ref inputs 0))]
-            [D1 (bit 3 (list-ref inputs 1))]
-            [CIN (interpreter CIN)]
-            [INIT0 (interpreter INIT0)]
-            [INIT1 (interpreter INIT1)]
-            [INJECT1_0 (interpreter INJECT1_0)]
-            [INJECT1_1 (interpreter INJECT1_1)]
+            [A0 (bit 0 (signal-value (list-ref inputs 0)))]
+            [A1 (bit 0 (signal-value (list-ref inputs 1)))]
+            [B0 (bit 1 (signal-value (list-ref inputs 0)))]
+            [B1 (bit 1 (signal-value (list-ref inputs 1)))]
+            [C0 (bit 2 (signal-value (list-ref inputs 0)))]
+            [C1 (bit 2 (signal-value (list-ref inputs 1)))]
+            [D0 (bit 3 (signal-value (list-ref inputs 0)))]
+            [D1 (bit 3 (signal-value (list-ref inputs 1)))]
+            [CIN (signal-value (interpreter CIN))]
+            [INIT0 (signal-value (interpreter INIT0))]
+            [INIT1 (signal-value (interpreter INIT1))]
+            [INJECT1_0 (signal-value (interpreter INJECT1_0))]
+            [INJECT1_1 (signal-value (interpreter INJECT1_1))]
             [out (interpret-lattice-ecp5-ccu2c #:CIN (bv->signal CIN)
                                                #:A0 (bv->signal A0)
                                                #:A1 (bv->signal A1)
@@ -389,10 +389,11 @@
                                                #:INIT0 (bv->signal INIT0)
                                                #:INIT1 (bv->signal INIT1)
                                                #:INJECT1_0 (bv->signal INJECT1_0)
-                                               #:INJECT1_1 (bv->signal INJECT1_1))])
-       (list (signal-value (cdr (or (assoc 'S0 out) (error "key not found"))))
-             (signal-value (cdr (or (assoc 'S1 out) (error "key not found"))))
-             (signal-value (cdr (or (assoc 'COUT out) (error "key not found"))))))]
+                                               #:INJECT1_1 (bv->signal INJECT1_1))]
+             )
+       (list (cdr (or (assoc 'S0 out) (error "key not found")))
+             (cdr (or (assoc 'S1 out) (error "key not found")))
+             (cdr (or (assoc 'COUT out) (error "key not found")))))]
     [_ (error (format "Could not match expression ~a in interpret-lattice-ecp5" expr))]))
 
 (define (interpret-ecp5-ripple-pfu-impl INIT0
@@ -899,10 +900,10 @@
                [(lr:bv INJECT1_0) INJECT1_0]
                [(lr:bv INJECT1_1) INJECT1_1]
                [ccu2c (make-lattice-ccu2c-cell
-                       (if (bv? INIT0) (make-literal-value-from-bv INIT0) INIT0)
-                       (if (bv? INIT1) (make-literal-value-from-bv INIT1) INIT1)
-                       (if (bvzero? INJECT1_0) "NO" "YES")
-                       (if (bvzero? INJECT1_1) "NO" "YES")
+                       (if (signal? INIT0) (make-literal-value-from-bv (signal-value INIT0)) INIT0)
+                       (if (signal? INIT1) (make-literal-value-from-bv (signal-value INIT1)) INIT1)
+                       (if (bvzero? (signal-value INJECT1_0)) "NO" "YES")
+                       (if (bvzero? (signal-value INJECT1_1)) "NO" "YES")
                        A0
                        B0
                        C0
@@ -985,7 +986,7 @@
   (match-let* ([(lattice-ecp5-lut4 INIT inputs) expr]
                [compiled-inputs (compiler inputs)]
                [(lr:bv INIT) INIT]
-               [init (if (bv? INIT) (make-literal-value-from-bv INIT) INIT)]
+               [init (if (signal? INIT) (make-literal-value-from-bv (signal-value INIT)) INIT)]
                [(list A B C D) compiled-inputs]
                [(list Z) (get-unique-bit-ids 1)]
                [lut4 (make-lattice-lut4-cell init A B C D Z)])
