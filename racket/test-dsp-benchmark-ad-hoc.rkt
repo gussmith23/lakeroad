@@ -1,7 +1,7 @@
 ;;; This is a handwritten test that tests one of our DSP benchmarks (once it's been imported into
 ;;; Racket via the Verilog to Racket script.) This was useful for figuring out what was needed to get
 ;;; real designs to map to DSPs via Lakeroad.
-#lang racket
+#lang racket/base
 (require rackunit
          rosette
          "signal.rkt"
