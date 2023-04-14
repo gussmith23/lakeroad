@@ -168,21 +168,54 @@
 ;;; (do we need to revisit this decision at the interface level?)
 ;;; and, do we need to assert that there are exactly two logical inputs?
 ;;;
-;;; The first 2 inputs are data inputs. The clock input is assumed to be the last of the inputs.
+;;; The first 2 inputs are data inputs. The clock input is assumed to be the first of the inputs.
+;;;
+;;; clk-input: (list lr-expr int): the expr and bitwidth of the clock.
+;;; data-inputs: (listof (list lr-expr int)): the exprs and bitwidths of the data inputs.
 (define (single-dsp-sketch-generator architecture-description
-                                     logical-inputs
-                                     num-logical-inputs
-                                     bitwidth
+                                     #:out-width out-width
+                                     #:clk-input clk-input
+                                     #:data-inputs data-inputs
                                      #:internal-data [internal-data #f])
-  (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
-               [(list dsp-expr internal-data)
-                (construct-interface architecture-description
-                                     (interface-identifier "DSP" (hash "width" bitwidth))
-                                     (list (cons "A" (lr:list-ref logical-inputs (lr:integer 0)))
-                                           (cons "B" (lr:list-ref logical-inputs (lr:integer 1)))
-                                           (cons "clk" (lr:list-ref logical-inputs (lr:integer 2))))
-                                     #:internal-data internal-data)]
-               [out-expr (lr:hash-ref dsp-expr 'O)])
+  (match-let*
+      ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+       [make-dsp-expr
+        (lambda (internal-data out-width clk-expr a-expr a-width b-expr b-width c-expr c-width)
+          (match-define (list dsp-expr ignored-internal-data)
+            (construct-interface
+             architecture-description
+             (interface-identifier
+              "DSP"
+              (hash "out-width" out-width "a-width" a-width "b-width" b-width "c-width" c-width))
+             (list (cons "clk" clk-expr) (cons "A" a-expr) (cons "B" b-expr) (cons "C" c-expr))
+             #:internal-data internal-data))
+          ;;; Ignoring internal data for now, but we could use it in the future.
+          ;(list (lr:hash-ref dsp-expr 'O) internal-data)
+          (lr:hash-ref dsp-expr 'O))]
+       ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
+       ;;; give C.
+       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw))
+        (match data-inputs
+          [(list a-tuple b-tuple c-tuple) (list a-tuple b-tuple c-tuple)]
+          [(list a-tuple b-tuple)
+           (list a-tuple b-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
+
+       [out-expr
+        (choose
+         (make-dsp-expr internal-data out-width (car clk-input) a-expr a-bw b-expr b-bw c-expr c-bw)
+         (make-dsp-expr internal-data out-width (car clk-input) a-expr a-bw c-expr c-bw b-expr b-bw)
+         (make-dsp-expr internal-data out-width (car clk-input) b-expr b-bw a-expr a-bw c-expr c-bw)
+         (make-dsp-expr internal-data out-width (car clk-input) b-expr b-bw c-expr c-bw a-expr a-bw)
+         (make-dsp-expr internal-data out-width (car clk-input) c-expr c-bw b-expr b-bw a-expr a-bw)
+         (make-dsp-expr internal-data
+                        out-width
+                        (car clk-input)
+                        c-expr
+                        c-bw
+                        a-expr
+                        a-bw
+                        b-expr
+                        b-bw))])
     (list out-expr internal-data)))
 
 ;;; Bitwise with carry sketch generator.

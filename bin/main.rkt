@@ -52,6 +52,7 @@
 (define verilog-module-filepath (make-parameter #f))
 (define top-module-name (make-parameter #f))
 (define verilog-module-out-signal (make-parameter #f))
+(define verilog-module-out-bitwidth (make-parameter #f))
 (define initiation-interval (make-parameter #f))
 (define clock-name (make-parameter #f))
 ;;; inputs is an association list mapping input name to an integer bitwidth.
@@ -91,7 +92,11 @@
   "Name of the output signal of the module written out by Lakeroad. This argument also indicates"
   " the output signal name of the Verilog module specified by --verilog-module-filepath."
   " TODO(@gussmith23): There should be two separate arguments for this."
-  (verilog-module-out-signal v)]
+  (let ([splits (string-split v ":")])
+    (when (not (equal? 2 (length splits)))
+      (error "Output signal must be specified as <name>:<bw>"))
+    (verilog-module-out-signal (first splits))
+    (verilog-module-out-bitwidth (string->number (second splits))))]
  ["--initiation-interval"
   v
   "Initiation interval of the module to be compiled. This will also be the initiation interval of the"
@@ -191,16 +196,7 @@
   (error (format "Expected a bitvector expression or procedure but found ~a" bv-expr)))
 (define sketch-generator
   (match (template)
-    ["dsp"
-     ;;; TODO(@gussmith23): There isn't any type checking on sketch generator input when there really
-     ;;; should be. We're forced to check that we're going to produce the correct # of inputs long
-     ;;; before we call the sketch generator.
-
-     ;;; Sketch generator expects 2 data inputs plus a clock input.
-     (when (not (equal? 2 (length (inputs))))
-       (error "DSP template expects 2 data inputs plus a clock input, but inputs is " (inputs)))
-
-     single-dsp-sketch-generator]
+    ["dsp" single-dsp-sketch-generator]
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
@@ -285,13 +281,12 @@
 
              ;;; Sketch generators should take richer input than just a list of logical inputs and a
              ;;; bitwidth. That interface is starting to be too weak.
+             ;;; For example, it's currently implicitly expected that the clock is the first list
+             ;;; item.
 
              ;;; Generate the inputs to sketch: a lr:var for each input signal.
-             [sketch-logical-inputs (append (map (λ (p) (lr:var (car p) (cdr p))) (inputs))
-                                            (list (lr:var (clock-name) 1)))]
-             [sketch-logical-inputs-expr (lr:list sketch-logical-inputs)]
-             [num-logical-inputs (length sketch-logical-inputs)]
-             [bw (apply max 1 (map cdr (inputs)))]
+             [data-inputs (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))]
+             [clk-input (cons (lr:var (clock-name) 1) 1)]
 
              ;;; Generate the input values: an association list mapping name to value, where the value
              ;;; is a signal whose value is a symbolic bitvector.
@@ -312,10 +307,13 @@
 
              [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
 
+             ;;; TODO(@gussmith23): This will actually only work with the DSP sketch generator(s).
+             ;;; Should be fixed.
+             [_ (when (not (verilog-module-out-bitwidth)) (error "Verilog module out bitwidth not specified."))]
              [sketch (first (sketch-generator architecture-description
-                                              sketch-logical-inputs-expr
-                                              num-logical-inputs
-                                              bw))]
+                                              #:out-width (verilog-module-out-bitwidth)
+                                              #:clk-input clk-input
+                                              #:data-inputs data-inputs))]
 
              ;;; Environments for sequential synthesis. Each environment represents one set of input
              ;;; states. For each set of input states, we run the interpreter with the given inputs,
