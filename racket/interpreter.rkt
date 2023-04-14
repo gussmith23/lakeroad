@@ -38,8 +38,6 @@
   (set! interp-memoization-misses 0)
   (define interpreter-memo-hash (make-hasheq))
   (define (interpret-helper expr)
-    ;;; (displayln (~a (string (expr)) #:max-width 30))
-    ;;; (let-values ([(struct-type skipped) (struct-info expr)]) (displayln struct-type))
     (if (hash-has-key? interpreter-memo-hash expr)
         (begin
           (set! interp-memoization-hits (add1 interp-memoization-hits))
