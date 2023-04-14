@@ -908,13 +908,13 @@
                                         "c-width"
                                         their-c-width))
             (list (cons "A"
-                        (lr:zero-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
+                        (lr:sign-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
                                         (lr:bitvector (bitvector their-a-width))))
                   (cons "B"
-                        (lr:zero-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
+                        (lr:sign-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
                                         (lr:bitvector (bitvector their-b-width))))
                   (cons "C"
-                        (lr:zero-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
+                        (lr:sign-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
                                         (lr:bitvector (bitvector their-c-width))))
                   (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk")))))
             #:internal-data internal-data)])

@@ -321,6 +321,11 @@
                 [bv (interpret-helper bv)]
                 [state (merge-state (list v))])
                 (signal (zero-extend (signal-value v) bv) state))]
+             [(lr:sign-extend v bv)
+              (let* ([v (interpret-helper v)]
+                     [bv (interpret-helper bv)]
+                     [state (merge-state (list v))])
+                (signal (sign-extend (signal-value v) bv) state))]
              ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
              ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
              ;;; ((union zero-extend dup-extend) v b) instead of (union (zero-extend v b) (dup-extend v b)).
