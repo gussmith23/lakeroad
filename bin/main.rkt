@@ -173,11 +173,13 @@
      (define btor
        (with-output-to-string
         (thunk
-         (system
-          (format
-           "yosys -q -p 'read_verilog ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
-           (verilog-module-filepath)
-           (top-module-name))))))
+         (when (not
+                (system
+                 (format
+                  "yosys -q -p 'read_verilog ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; async2sync; dffunmap; write_btor;'"
+                  (verilog-module-filepath)
+                  (top-module-name))))
+           (error "Yosys failed.")))))
 
      (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
