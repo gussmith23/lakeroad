@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (require rosette
          rosette/lib/synthax
@@ -262,23 +262,23 @@
                                       #:INJECT1_7 [INJECT1_7 #f]
                                       #:MAPPING [MAPPING (ltop-bitwise)])
 
-  (lattice-ecp5-ripple-pfu (or INIT0 (lr:bv (??* (bitvector 16))))
-                           (or INIT1 (lr:bv (??* (bitvector 16))))
-                           (or INIT2 (lr:bv (??* (bitvector 16))))
-                           (or INIT3 (lr:bv (??* (bitvector 16))))
-                           (or INIT4 (lr:bv (??* (bitvector 16))))
-                           (or INIT5 (lr:bv (??* (bitvector 16))))
-                           (or INIT6 (lr:bv (??* (bitvector 16))))
-                           (or INIT7 (lr:bv (??* (bitvector 16))))
-                           (or INJECT1_0 (lr:bv (??* (bitvector 1))))
-                           (or INJECT1_1 (lr:bv (??* (bitvector 1))))
-                           (or INJECT1_2 (lr:bv (??* (bitvector 1))))
-                           (or INJECT1_3 (lr:bv (??* (bitvector 1))))
-                           (or INJECT1_4 (lr:bv (??* (bitvector 1))))
-                           (or INJECT1_5 (lr:bv (??* (bitvector 1))))
-                           (or INJECT1_6 (lr:bv (??* (bitvector 1))))
-                           (or INJECT1_7 (lr:bv (??* (bitvector 1))))
-                           (or CIN (lr:bv (??* (bitvector 1))))
+  (lattice-ecp5-ripple-pfu (or INIT0 (lr:bv (bv->signal (??* (bitvector 16)))))
+                           (or INIT1 (lr:bv (bv->signal (??* (bitvector 16)))))
+                           (or INIT2 (lr:bv (bv->signal (??* (bitvector 16)))))
+                           (or INIT3 (lr:bv (bv->signal (??* (bitvector 16)))))
+                           (or INIT4 (lr:bv (bv->signal (??* (bitvector 16)))))
+                           (or INIT5 (lr:bv (bv->signal (??* (bitvector 16)))))
+                           (or INIT6 (lr:bv (bv->signal (??* (bitvector 16)))))
+                           (or INIT7 (lr:bv (bv->signal (??* (bitvector 16)))))
+                           (or INJECT1_0 (lr:bv (bv->signal (??* (bitvector 1)))))
+                           (or INJECT1_1 (lr:bv (bv->signal (??* (bitvector 1)))))
+                           (or INJECT1_2 (lr:bv (bv->signal (??* (bitvector 1)))))
+                           (or INJECT1_3 (lr:bv (bv->signal (??* (bitvector 1)))))
+                           (or INJECT1_4 (lr:bv (bv->signal (??* (bitvector 1)))))
+                           (or INJECT1_5 (lr:bv (bv->signal (??* (bitvector 1)))))
+                           (or INJECT1_6 (lr:bv (bv->signal (??* (bitvector 1)))))
+                           (or INJECT1_7 (lr:bv (bv->signal (??* (bitvector 1)))))
+                           (or CIN (lr:bv (bv->signal (??* (bitvector 1)))))
                            (logical-to-physical-mapping MAPPING inputs)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -33,7 +33,7 @@
   (syntax-rules ()
     ;;; Main macro implementation.
     [(_ name symbolic-define-etc-block lr-expr bv-expr add-f)
-     
+
      (test-true
       (string-append name ": check that test state is normal")
       (normal?
