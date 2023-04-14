@@ -261,6 +261,7 @@
                   [`(extract ,i ,j ,bv) (extract i j (recursive-helper bv))]
                   [`(bvxor ,e1 ,e2) (bvxor (recursive-helper e1) (recursive-helper e2))]
                   [`(=> ,e1 ,e2) (=> (recursive-helper e1) (recursive-helper e2))]
+                  [`(bvzero? ,e1) (bvzero? (recursive-helper e1) )]
                   [(? symbol? s) (lookup-symbol s)]))])
       (recursive-helper expr))))
 

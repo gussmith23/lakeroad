@@ -122,15 +122,33 @@ implementations:
       "(=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
                   (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2)))",
       "(not (bveq (bvxor (extract 6 4 OPMODE) (extract 6 4 IS_OPMODE_INVERTED)) (bv #b111 3)))",
-      # ;;; Warning from DSP model:
-      # ;;;
-      # ;;; DRC warning : [Unisim DSP48E2-11] CARRYINSEL is set to 010 with OPMODEREG set to 0. This causes
-      # ;;; unknown values after reset occurs. It is suggested to use OPMODEREG = 1 when cascading large
-      # ;;; adders.
-      # (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
+      # Warning from DSP model:
+      # 
+      # DRC warning : [Unisim DSP48E2-11] CARRYINSEL is set to 010 with OPMODEREG set to 0. This causes
+      # unknown values after reset occurs. It is suggested to use OPMODEREG = 1 when cascading large
+      # adders.
+      "(not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG)))",
+      
+      # DRC warning : [Unisim DSP48E2-10] CARRYINSEL is set to 010 with OPMODE
+      # set to multiplication (xxx0101). This is an illegal mode and may show
+      # deviation between simulation results and hardware behavior.
+      "(not (&& (bveq CARRYINSEL (bv #b010 3)) (bveq (extract 3 0 OPMODE) (bv #b0101 4))))",
 
-      # The following are from synthesize.rkt, synthesize-xilinx-ultrascale-plus-dsp
+
+      # ERROR: [DRC DSPS-2] Invalid PCIN Connection for OPMODE value: DSP48E2 cell DSP48E2_0 has
+      # OPMODE[5:4] set to 01 which uses the input of the PCIN bus for its computation, however the
+      # PCIN input is not properly connected to another DSP48E2 Block.  Please either correct the
+      # connectivity or OPMODE value to allow for proper implementation.
+      #
+      # TODO(@gussmith23): deal with this when we support multiple DSPs.
       "(not (bveq (extract 5 4 OPMODE) (bv #b01 2)))",
+
+      # ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
+      # has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
+      # however the PCIN input is not properly connected to another DSP48E2 Block.  Please either
+      # correct the connectivity or CARRYINSEL value to allow for proper implementation.
+      #
+      # TODO(@gussmith23): deal with this when we support multiple DSPs.
       "(not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3)))",
     ]
     modules:
