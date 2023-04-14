@@ -94,11 +94,20 @@
                                     (interface-port "CO" 'output 1)
                                     (interface-port "O" 'output 8)))
         ;;; DSP definition.
-        (interface-definition (interface-identifier "DSP" (hash "width" 16))
-                              (list (interface-port "A" 'input 16)
-                                    (interface-port "B" 'input 16)
-                                    (interface-port "clk" 'input 1)
-                                    (interface-port "O" 'output 16)))))
+        (interface-definition
+         (interface-identifier "DSP" (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
+         (list (interface-port "A" 'input 16)
+               (interface-port "B" 'input 16)
+               (interface-port "C" 'input 16)
+               (interface-port "clk" 'input 1)
+               (interface-port "O" 'output 16)))
+        (interface-definition
+         (interface-identifier "DSP" (hash "out-width" 48 "a-width" 30 "b-width" 18 "c-width" 48))
+         (list (interface-port "A" 'input 30)
+               (interface-port "B" 'input 18)
+               (interface-port "C" 'input 48)
+               (interface-port "clk" 'input 1)
+               (interface-port "O" 'output 48)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 
@@ -826,41 +835,95 @@
                           #:internal-data internal-data)]
 
     ;;; Implement a smaller DSP with a larger DSP.
+    ;;; Specifically, if they requested a DSP with an output width smaller than what the implemented
+    ;;; one supports, then it's fine. Also, if their requested input sizes are smaller than what the
+    ;;; output supports, then it's also fine.
     [(let* ([their-dsp-impl
              (findf
               (lambda (impl)
                 (equal? "DSP" (interface-identifier-name (interface-implementation-identifier impl))))
-              (architecture-description-interface-implementations architecture-description))])
+              (architecture-description-interface-implementations architecture-description))]
+            [their-out-width (hash-ref (interface-identifier-parameters
+                                        (interface-implementation-identifier their-dsp-impl))
+                                       "out-width")]
+            [requested-out-width
+             (hash-ref (interface-identifier-parameters interface-id) "out-width")]
+            [their-a-width (hash-ref (interface-identifier-parameters
+                                      (interface-implementation-identifier their-dsp-impl))
+                                     "a-width")]
+            [_ (displayln (interface-identifier-parameters interface-id))]
+            [requested-a-width (hash-ref (interface-identifier-parameters interface-id) "a-width")]
+            [their-b-width (hash-ref (interface-identifier-parameters
+                                      (interface-implementation-identifier their-dsp-impl))
+                                     "b-width")]
+            [requested-b-width (hash-ref (interface-identifier-parameters interface-id) "b-width")]
+            [their-c-width (hash-ref (interface-identifier-parameters
+                                      (interface-implementation-identifier their-dsp-impl))
+                                     "c-width")]
+            [requested-c-width (hash-ref (interface-identifier-parameters interface-id) "c-width")])
 
        ;;; Check: They're asking for a DSP.
        (and (equal? "DSP" (interface-identifier-name interface-id))
             ;;; Check: The architecture description implements a DSP.
             their-dsp-impl
             ;;; Check: the implemented DSP is larger than the requested DSP.
-            (>= (hash-ref (interface-identifier-parameters
-                           (interface-implementation-identifier their-dsp-impl))
-                          "width")
-                (hash-ref (interface-identifier-parameters interface-id) "width"))))
+            (>= their-out-width requested-out-width)
+            (>= their-a-width requested-a-width)
+            (>= their-b-width requested-b-width)
+            (>= their-c-width requested-c-width)))
 
-     (let* ([their-dsp-impl
-             (findf
-              (lambda (impl)
-                (equal? "DSP" (interface-identifier-name (interface-implementation-identifier impl))))
-              (architecture-description-interface-implementations architecture-description))]
-            [their-dsp-width (hash-ref (interface-identifier-parameters
-                                        (interface-implementation-identifier their-dsp-impl))
-                                       "width")])
-       (construct-interface
-        architecture-description
-        (interface-identifier "DSP" (hash "width" their-dsp-width))
-        (list (cons "A"
-                    (lr:zero-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
-                                    (lr:bitvector (bitvector their-dsp-width))))
-              (cons "B"
-                    (lr:zero-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
-                                    (lr:bitvector (bitvector their-dsp-width))))
-              (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk")))))
-        #:internal-data internal-data))]
+     (match-let*
+         ([their-dsp-impl
+           (findf
+            (lambda (impl)
+              (equal? "DSP" (interface-identifier-name (interface-implementation-identifier impl))))
+            (architecture-description-interface-implementations architecture-description))]
+          [their-out-width (hash-ref (interface-identifier-parameters
+                                      (interface-implementation-identifier their-dsp-impl))
+                                     "out-width")]
+          [requested-out-width (hash-ref (interface-identifier-parameters interface-id) "out-width")]
+          [their-a-width (hash-ref (interface-identifier-parameters
+                                    (interface-implementation-identifier their-dsp-impl))
+                                   "a-width")]
+          [requested-a-width (hash-ref (interface-identifier-parameters interface-id) "a-width")]
+          [their-b-width (hash-ref (interface-identifier-parameters
+                                    (interface-implementation-identifier their-dsp-impl))
+                                   "b-width")]
+          [requested-b-width (hash-ref (interface-identifier-parameters interface-id) "b-width")]
+          [their-c-width (hash-ref (interface-identifier-parameters
+                                    (interface-implementation-identifier their-dsp-impl))
+                                   "c-width")]
+          [requested-c-width (hash-ref (interface-identifier-parameters interface-id) "c-width")]
+
+          [(list dsp-expr internal-data)
+           (construct-interface
+            architecture-description
+            (interface-identifier "DSP"
+                                  (hash "out-width"
+                                        their-out-width
+                                        "a-width"
+                                        their-a-width
+                                        "b-width"
+                                        their-b-width
+                                        "c-width"
+                                        their-c-width))
+            (list (cons "A"
+                        (lr:zero-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
+                                        (lr:bitvector (bitvector their-a-width))))
+                  (cons "B"
+                        (lr:zero-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
+                                        (lr:bitvector (bitvector their-b-width))))
+                  (cons "C"
+                        (lr:zero-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
+                                        (lr:bitvector (bitvector their-c-width))))
+                  (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk")))))
+            #:internal-data internal-data)])
+       (list (lr:make-immutable-hash
+              (lr:list (list (lr:cons (lr:symbol 'O)
+                                      (lr:extract (lr:integer (- requested-out-width 1))
+                                                  (lr:integer 0)
+                                                  (lr:hash-ref dsp-expr 'O))))))
+             internal-data))]
 
     [else
      (error

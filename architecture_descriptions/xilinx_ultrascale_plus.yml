@@ -44,7 +44,7 @@ implementations:
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
     outputs: { O: O, CO: (bit 7 CO) }
-  - interface: { name: DSP, parameters: { width: 16 } }
+  - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48 } }
     internal_data: {
       ACASCREG: 32,
       ADREG: 32,
@@ -231,4 +231,4 @@ implementations:
           { name: USE_WIDEXOR, value: USE_WIDEXOR },
           { name: XORSIMD, value: XORSIMD },
         ]
-    outputs: { O : (extract 15 0 P) }
+    outputs: { O : P }
