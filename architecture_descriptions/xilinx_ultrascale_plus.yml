@@ -139,12 +139,12 @@ implementations:
         racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v
         ports:
           [
-            { name: A, direction: input, bitwidth: 16, value: (zero-extend A (bitvector 30)) },
+            { name: A, direction: input, bitwidth: 30, value: A },
             { name: ACIN, direction: input, bitwidth: 30, value: (bv 0 30) },
             { name: ALUMODE, direction: input, bitwidth: 4, value: (bv 0 4) },
-            { name: B, direction: input, bitwidth: 16, value: (zero-extend B (bitvector 18)) },
+            { name: B, direction: input, bitwidth: 18, value: B },
             { name: BCIN, direction: input, bitwidth: 18, value: (bv 0 18) },
-            { name: C, direction: input, bitwidth: 48, value: (bv 0 48) },
+            { name: C, direction: input, bitwidth: 48, value: C },
             { name: CARRYCASCIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: CARRYIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: CARRYINSEL, direction : input, bitwidth: 3, value: CARRYINSEL },
