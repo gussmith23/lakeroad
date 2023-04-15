@@ -150,6 +150,21 @@ implementations:
       #
       # TODO(@gussmith23): deal with this when we support multiple DSPs.
       "(not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3)))",
+
+      # Error: [Unisim DSP48E2-2] AREG attribute is set to     and ACASCREG
+      # attribute is set to     . When AREG is 0 or 1, ACASCREG must be set to
+      # the same value.
+      "(=> (|| (bveq AREG (bv 0 32)) (bveq AREG (bv 1 32))) (bveq ACASCREG AREG))",
+
+      # Error: [Unisim DSP48E2-3] AREG attribute is set to     and ACASCREG
+      # attribute is set to     . When AREG is 2, ACASCREG must be set to 1 or
+      # 2.
+      "(=> (bveq AREG (bv 2 32)) (|| (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32))))",
+
+      # Error: [Unisim DSP48E2-4] BREG attribute is set to     and BCASCREG
+      # attribute is set to     . When BREG is 0 or 1, BCASCREG must be set to
+      # the same value.
+      "(=> (|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32))) (bveq BCASCREG BREG))",
     ]
     modules:
       - module_name: DSP48E2
