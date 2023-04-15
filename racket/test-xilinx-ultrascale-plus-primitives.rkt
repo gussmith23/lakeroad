@@ -487,17 +487,16 @@
    (bvmul a b)
    add-to-simulate)
 
-  ;;; (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-  ;;;   (raise "VERILATOR_INCLUDE_DIR not set"))
-  ;;; (when (not (getenv "LAKEROAD_DIR"))
-  ;;;   (raise "LAKEROAD_DIR not set"))
-  ;;; (define include-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
-  ;;; (test-true "simulate all synthesized designs with Verilator"
-  ;;;            (simulate-with-verilator
-  ;;;             #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "verilator-unisims")
-  ;;;                                  (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
-  ;;;             #:extra-verilator-args
-  ;;;             "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING"
-  ;;;             to-simulate-list
-  ;;;             (getenv "VERILATOR_INCLUDE_DIR")))
-              )
+  (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+    (raise "VERILATOR_INCLUDE_DIR not set"))
+  (when (not (getenv "LAKEROAD_DIR"))
+    (raise "LAKEROAD_DIR not set"))
+  (define include-dir (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+  (test-true "simulate all synthesized designs with Verilator"
+             (simulate-with-verilator
+              #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "verilator-unisims")
+                                   (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
+              #:extra-verilator-args
+              "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING"
+              to-simulate-list
+              (getenv "VERILATOR_INCLUDE_DIR"))))

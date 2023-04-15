@@ -1,4 +1,4 @@
-#lang errortrace rosette/safe
+#lang rosette/safe
 ;;; Verify and simulate the implementation of Lattice ECP5 primitives in Lakeroad.
 
 (module test racket/base
@@ -212,21 +212,20 @@
                                 (lr:concat (lr:list (list (lr:bv (bv->signal D)) (lr:bv (bv->signal C)) (lr:bv (bv->signal B)) (lr:bv (bv->signal A))))))
                                (lr:integer 0))
                   (lut (signal-value lut-init-0) (concat D C B A))))
-                ;;; (add-to-simulate
-                ;;;  (to-simulate
-                ;;;   (lr:list-ref (lattice-ecp5-lut4
-                ;;;                 (lr:bv lut-init-1)
-                ;;;                 (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
-                ;;;                (lr:integer 0))
-                ;;;   (lut lut-init-1 (concat D C B A))))
-                ;;; (add-to-simulate
-                ;;;  (to-simulate
-                ;;;   (lr:list-ref (lattice-ecp5-lut4
-                ;;;                 (lr:bv lut-init-2)
-                ;;;                 (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
-                ;;;                (lr:integer 0))
-                ;;;   (lut lut-init-2 (concat D C B A))))
-                  )))))
+                (add-to-simulate
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut4
+                                (lr:bv lut-init-1)
+                                (lr:concat (lr:list (list (lr:bv (bv->signal D)) (lr:bv (bv->signal C)) (lr:bv (bv->signal B)) (lr:bv (bv->signal A))))))
+                               (lr:integer 0))
+                  (lut (signal-value lut-init-1) (concat D C B A))))
+                (add-to-simulate
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut4
+                                (lr:bv lut-init-2)
+                                (lr:concat (lr:list (list (lr:bv (bv->signal D)) (lr:bv (bv->signal C)) (lr:bv (bv->signal B)) (lr:bv (bv->signal A))))))
+                               (lr:integer 0))
+                  (lut (signal-value lut-init-2) (concat D C B A)))))))))
 
   ;;; ;;; Simulate with Verilator.
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
