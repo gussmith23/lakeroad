@@ -608,16 +608,15 @@
                            (- end-sketch-gen-time start-sketch-gen-time)))
 
         (define start-synthesis-time (current-inexact-milliseconds))
-        (interpret sketch
-                                                                    #:module-semantics
-                                                                    module-semantics)
+        (interpret sketch #:module-semantics module-semantics)
         (define result
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
                                            #:guarantee
                                            (assert (bveq bv-expr
-                                                         (signal-value (interpret sketch
-                                                                    #:module-semantics
-                                                                    module-semantics))))))))
+                                                         (signal-value
+                                                          (interpret sketch
+                                                                     #:module-semantics
+                                                                     module-semantics))))))))
 
         (define end-synthesis-time (current-inexact-milliseconds))
         (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))

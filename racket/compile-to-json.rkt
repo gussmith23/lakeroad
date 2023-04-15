@@ -108,11 +108,12 @@
                                output-ports)]
 
                          ;;; Pairs of parameter symbol with value.
-                         [param-pairs (map (λ (p)
-                                             (cons (string->symbol (module-instance-parameter-name p))
-                                                   (match (module-instance-parameter-value p)
-                                                     [(lr:bv (signal v _)) (make-literal-value-from-bv v)])))
-                                           params)]
+                         [param-pairs
+                          (map (λ (p)
+                                 (cons (string->symbol (module-instance-parameter-name p))
+                                       (match (module-instance-parameter-value p)
+                                         [(lr:bv (signal v _)) (make-literal-value-from-bv v)])))
+                               params)]
                          ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
                          ;;; parameters. We will need to figure out a way around this hack especially
                          ;;; if we want to support other modules that use string parameters e.g. DSP.
@@ -446,7 +447,7 @@
                   (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) state ))
+                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) state))
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
@@ -461,7 +462,7 @@
                   (hash-ref port-details 'bits)]
 
                  ;;; Concrete bitvectors become constants.
-                 [(lr:bv (signal (? bv? (? concrete? s)) state ))
+                 [(lr:bv (signal (? bv? (? concrete? s)) state))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
 
                  [(lr:integer v) v]
@@ -507,44 +508,46 @@
     (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
 
-  (test-begin (current-solver (boolector))
-              (define a (bv->signal (?? (bitvector 8))))
-              (define b (bv->signal (?? (bitvector 8))))
-              (define expr
-                (lr:first (physical-to-logical-mapping
-                           (ptol-bitwise)
-                           ;;; Take the 8 outputs from the LUTs; drop cout.
-                           (lr:take (ultrascale-plus-clb (lr:bv (bv->signal (?? (bitvector 1))))
-                                                         (lr:bv (bv->signal (?? (bitvector 64))))
-                                                         (lr:bv (bv->signal (?? (bitvector 64))))
-                                                         (lr:bv (bv->signal (?? (bitvector 64))))
-                                                         (lr:bv (bv->signal (?? (bitvector 64))))
-                                                         (lr:bv (bv->signal (?? (bitvector 64))))
-                                                         (lr:bv (bv->signal (?? (bitvector 64))))
-                                                         (lr:bv (bv->signal (?? (bitvector 64))))
-                                                         (lr:bv (bv->signal (?? (bitvector 64))))
-                                                         (lr:bv (bv->signal (?? (bitvector 2))))
-                                                         (lr:bv (bv->signal (?? (bitvector 2))))
-                                                         (lr:bv (bv->signal (?? (bitvector 2))))
-                                                         (lr:bv (bv->signal (?? (bitvector 2))))
-                                                         (lr:bv (bv->signal (?? (bitvector 2))))
-                                                         (lr:bv (bv->signal (?? (bitvector 2))))
-                                                         (lr:bv (bv->signal (?? (bitvector 2))))
-                                                         (lr:bv (bv->signal (?? (bitvector 2))))
-                                                         (logical-to-physical-mapping
-                                                          (ltop-bitwise)
-                                                          (lr:list (list (lr:bv a)
-                                                                         (lr:bv b)
-                                                                         (lr:bv (bv->signal (bv 0 8)))
-                                                                         (lr:bv (bv->signal (bv 0 8)))
-                                                                         (lr:bv (bv->signal (bv 0 8)))
-                                                                         (lr:bv (bv->signal (bv 0 8)))))))
-                                    (lr:integer 8)))))
-              (define soln
-                (synthesize #:forall (list a b)
-                            #:guarantee
-                            (begin
-                              ; Assert that the output of the CLB implements the requested function f.
-                              (assert (bveq (bvand (signal-value a) (signal-value b)) (signal-value (interpret expr)))))))
-              (check-true (sat? soln))
-              (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))
+  (test-begin
+   (current-solver (boolector))
+   (define a (bv->signal (?? (bitvector 8))))
+   (define b (bv->signal (?? (bitvector 8))))
+   (define expr
+     (lr:first (physical-to-logical-mapping
+                (ptol-bitwise)
+                ;;; Take the 8 outputs from the LUTs; drop cout.
+                (lr:take (ultrascale-plus-clb (lr:bv (bv->signal (?? (bitvector 1))))
+                                              (lr:bv (bv->signal (?? (bitvector 64))))
+                                              (lr:bv (bv->signal (?? (bitvector 64))))
+                                              (lr:bv (bv->signal (?? (bitvector 64))))
+                                              (lr:bv (bv->signal (?? (bitvector 64))))
+                                              (lr:bv (bv->signal (?? (bitvector 64))))
+                                              (lr:bv (bv->signal (?? (bitvector 64))))
+                                              (lr:bv (bv->signal (?? (bitvector 64))))
+                                              (lr:bv (bv->signal (?? (bitvector 64))))
+                                              (lr:bv (bv->signal (?? (bitvector 2))))
+                                              (lr:bv (bv->signal (?? (bitvector 2))))
+                                              (lr:bv (bv->signal (?? (bitvector 2))))
+                                              (lr:bv (bv->signal (?? (bitvector 2))))
+                                              (lr:bv (bv->signal (?? (bitvector 2))))
+                                              (lr:bv (bv->signal (?? (bitvector 2))))
+                                              (lr:bv (bv->signal (?? (bitvector 2))))
+                                              (lr:bv (bv->signal (?? (bitvector 2))))
+                                              (logical-to-physical-mapping
+                                               (ltop-bitwise)
+                                               (lr:list (list (lr:bv a)
+                                                              (lr:bv b)
+                                                              (lr:bv (bv->signal (bv 0 8)))
+                                                              (lr:bv (bv->signal (bv 0 8)))
+                                                              (lr:bv (bv->signal (bv 0 8)))
+                                                              (lr:bv (bv->signal (bv 0 8)))))))
+                         (lr:integer 8)))))
+   (define soln
+     (synthesize #:forall (list a b)
+                 #:guarantee
+                 (begin
+                   ; Assert that the output of the CLB implements the requested function f.
+                   (assert (bveq (bvand (signal-value a) (signal-value b))
+                                 (signal-value (interpret expr)))))))
+   (check-true (sat? soln))
+   (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))

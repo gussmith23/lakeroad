@@ -305,17 +305,17 @@
          ;;; Parse an expression in our small DSL.
          ;;;
          ;;; - lookup-symbol: a function which takes a symbol and maps it to an expression.
-         [parse-dsl (λ (expr-str lookup-symbol)
-                      (define expr (read (open-input-string expr-str)))
-                      (define (recursive-helper expr)
-                        (match expr
-                          [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
-                          [`(bit ,i ,expr)
-                           (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
-                          [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
-                          ;;; [`(bv->signal (concat ,v ...)) (lr:concat (lr:list (map recursive-helper v)))]
-                          [(? symbol? s) (lookup-symbol s)]))
-                      (recursive-helper expr))]
+         [parse-dsl
+          (λ (expr-str lookup-symbol)
+            (define expr (read (open-input-string expr-str)))
+            (define (recursive-helper expr)
+              (match expr
+                [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
+                [`(bit ,i ,expr) (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
+                [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
+                ;;; [`(bv->signal (concat ,v ...)) (lr:concat (lr:list (map recursive-helper v)))]
+                [(? symbol? s) (lookup-symbol s)]))
+            (recursive-helper expr))]
 
          ;;; Construct the list of new ports, by mapping in the values provided in the port-map for
          ;;; the inputs and leaving the outputs alone.
@@ -382,7 +382,7 @@
           [expr (first out)]
           [internal-data (second out)])
      (check-true (match internal-data
-                        [(list (cons "init" (lr:bv v)))
+                   [(list (cons "init" (lr:bv v)))
                     (check-true ((bitvector 16) (signal-value v)))
                     #t]
                    [else #f]))
@@ -623,8 +623,9 @@
                        (if (equal? padding 0)
                            extract-expr
                            (lr:concat
-                            (lr:list (list (lr:bv (bv->signal (apply concat (make-list padding pad-val))))
-                                           extract-expr))))))]
+                            (lr:list
+                             (list (lr:bv (bv->signal (apply concat (make-list padding pad-val))))
+                                   extract-expr))))))]
                   [this-di (extract-fn di-expr di-padding-val)]
                   [this-s (extract-fn s-expr s-padding-val)]
                   [this-carry (first (construct-interface-internal
@@ -1071,10 +1072,10 @@
   (test-begin
    "Construct a LUT2 on Lattice from a LUT4."
    (match-let* ([(list expr internal-data)
-                 (construct-interface
-                  (lattice-ecp5-architecture-description)
-                  (interface-identifier "LUT" (hash "num_inputs" 2))
-                  (list (cons "I0" (lr:bv (bv->signal (bv 0 1)))) (cons "I1" (lr:bv (bv->signal (bv 0 1))))))])
+                 (construct-interface (lattice-ecp5-architecture-description)
+                                      (interface-identifier "LUT" (hash "num_inputs" 2))
+                                      (list (cons "I0" (lr:bv (bv->signal (bv 0 1))))
+                                            (cons "I1" (lr:bv (bv->signal (bv 0 1))))))])
      (check-true (match internal-data
                    [(list (cons "init" (lr:bv v)))
                     (check-true ((bitvector 16) (signal-value v)))
@@ -1082,8 +1083,7 @@
                    [else #f]))
      (check-true
       (match expr
-        [
-          (lr:make-immutable-hash
+        [(lr:make-immutable-hash
           (lr:list (list (lr:cons (lr:symbol 'O)
                                   (lr:hash-ref (lr:hw-module-instance
                                                 "LUT4"
@@ -1107,13 +1107,13 @@
   (test-begin
    "Construct a CCU2C on Lattice."
    (match-define (list expr internal-data)
-     (construct-interface
-      (lattice-ecp5-architecture-description)
-      (interface-identifier "carry" (hash "width" 2))
-      (list (cons "CI" (lr:bv (bv->signal (bv 0 1)))) (cons "DI" (lr:bv (bv->signal (bv 0 2)))) (cons "S" (lr:bv (bv->signal (bv 0 2)) )))))
+     (construct-interface (lattice-ecp5-architecture-description)
+                          (interface-identifier "carry" (hash "width" 2))
+                          (list (cons "CI" (lr:bv (bv->signal (bv 0 1))))
+                                (cons "DI" (lr:bv (bv->signal (bv 0 2))))
+                                (cons "S" (lr:bv (bv->signal (bv 0 2)))))))
    (check-true (match internal-data
-                 [
-                  (list (cons "INIT0" (lr:bv (signal (? (bitvector 16) _) _)))
+                 [(list (cons "INIT0" (lr:bv (signal (? (bitvector 16) _) _)))
                         (cons "INIT1" (lr:bv (signal (? (bitvector 16) _) _))))
                   #t]
                  [else #f]))
@@ -1156,7 +1156,7 @@
                           (list (cons "I0" (lr:bv (bv->signal (bv 0 1))))
                                 (cons "I1" (lr:bv (bv->signal (bv 0 1))))
                                 (cons "I2" (lr:bv (bv->signal (bv 0 1))))
-                                (cons "I3" (lr:bv (bv->signal (bv 0 1) ))))))
+                                (cons "I3" (lr:bv (bv->signal (bv 0 1)))))))
    (check-true (match internal-data
                  [(list (cons "sram" (lr:bv (signal (? (bitvector 16) _) _)))) #t]
                  [else #f]))

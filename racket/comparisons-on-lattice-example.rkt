@@ -130,5 +130,5 @@
                                              (signal-value (interpret lakeroad-expr))))))
      (check-true (sat? neq-soln))))
 
-  ;;; 
+  ;;;
   )

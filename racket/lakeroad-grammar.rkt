@@ -87,9 +87,10 @@
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
                                            #:guarantee
                                            (assert (bveq bv-expr
-                                                         (signal-value (interpret sketch
-                                                                    #:module-semantics
-                                                                    module-semantics))))))))
+                                                         (signal-value
+                                                          (interpret sketch
+                                                                     #:module-semantics
+                                                                     module-semantics))))))))
 
         (check-true (normal? result))
         (define soln (result-value result))

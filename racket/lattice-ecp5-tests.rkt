@@ -82,8 +82,7 @@
                       #:INIT1 [INIT1 (bv->signal (bv #x6868 16))]
                       #:INJECT1_0 [INJECT1_0 (bv->signal (bv 0 1))]
                       #:INJECT1_1 [INJECT1_1 (bv->signal (bv 0 1))])
-    (let* (
-      [carry (curry-carry INIT0 INIT1 INJECT1_0 INJECT1_1)]
+    (let* ([carry (curry-carry INIT0 INIT1 INJECT1_0 INJECT1_1)]
            [inputs (lr:list (list (lr:bv A) (lr:bv B) (lr:bv C) (lr:bv D)))]
            [result (carry cin inputs)]
            [bits (bitvector->bits (signal-value result))]
@@ -94,15 +93,39 @@
       (check-true (bveq S1 (signal-value s1)) (format "Actual S1 ~a != ~a" S1 s1))
       (check-true (bveq COUT (signal-value cout)) (format "Actual COUT ~a != ~a" COUT cout))))
 
-  (test-carry #:A (bv->signal (bv 1 2)) #:B (bv->signal (bv 1 2)) #:S0 (bv->signal (bv 0 1)) #:S1 (bv->signal (bv 1 1)) #:COUT (bv->signal (bv 0 1)))
+  (test-carry #:A (bv->signal (bv 1 2))
+              #:B (bv->signal (bv 1 2))
+              #:S0 (bv->signal (bv 0 1))
+              #:S1 (bv->signal (bv 1 1))
+              #:COUT (bv->signal (bv 0 1)))
 
-  (test-carry #:A (bv->signal (bv 1 2)) #:B (bv->signal (bv 1 2)) #:CIN (bv->signal (bv 1 1)) #:S0 (bv->signal (bv 1 1)) #:S1 (bv->signal (bv 1 1)) #:COUT (bv->signal (bv 0 1)))
+  (test-carry #:A (bv->signal (bv 1 2))
+              #:B (bv->signal (bv 1 2))
+              #:CIN (bv->signal (bv 1 1))
+              #:S0 (bv->signal (bv 1 1))
+              #:S1 (bv->signal (bv 1 1))
+              #:COUT (bv->signal (bv 0 1)))
 
-  (test-carry #:A (bv->signal (bv 0 2)) #:B (bv->signal (bv 1 2)) #:CIN (bv->signal (bv 1 1)) #:S0 (bv->signal (bv 0 1)) #:S1 (bv->signal (bv 1 1)) #:COUT (bv->signal (bv 0 1)))
+  (test-carry #:A (bv->signal (bv 0 2))
+              #:B (bv->signal (bv 1 2))
+              #:CIN (bv->signal (bv 1 1))
+              #:S0 (bv->signal (bv 0 1))
+              #:S1 (bv->signal (bv 1 1))
+              #:COUT (bv->signal (bv 0 1)))
 
-  (test-carry #:A (bv->signal (bv 1 2)) #:B (bv->signal (bv 0 2)) #:CIN (bv->signal (bv 1 1)) #:S0 (bv->signal (bv 0 1)) #:S1 (bv->signal (bv 1 1)) #:COUT (bv->signal (bv 0 1)))
+  (test-carry #:A (bv->signal (bv 1 2))
+              #:B (bv->signal (bv 0 2))
+              #:CIN (bv->signal (bv 1 1))
+              #:S0 (bv->signal (bv 0 1))
+              #:S1 (bv->signal (bv 1 1))
+              #:COUT (bv->signal (bv 0 1)))
 
-  (test-carry #:A (bv->signal (bv 0 2)) #:B (bv->signal (bv 0 2)) #:CIN (bv->signal (bv 1 1)) #:S0 (bv->signal (bv 1 1)) #:S1 (bv->signal (bv 0 1)) #:COUT (bv->signal (bv 0 1)))
+  (test-carry #:A (bv->signal (bv 0 2))
+              #:B (bv->signal (bv 0 2))
+              #:CIN (bv->signal (bv 1 1))
+              #:S0 (bv->signal (bv 1 1))
+              #:S1 (bv->signal (bv 0 1))
+              #:COUT (bv->signal (bv 0 1)))
 
   ; (check-true (sat? (helper circt-comb-add 2 #:primitive 'ccu2c #:bitwidth 2)))
 
