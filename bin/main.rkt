@@ -370,6 +370,8 @@
   [(not lakeroad-expr) (error "Synthesis failed.")]
 
   [else
+   (when (not (verilog-module-out-signal))
+     (error "Verilog module out signal not specified."))
    (define json-source
      (lakeroad->jsexpr lakeroad-expr
                        #:module-name (module-name)
