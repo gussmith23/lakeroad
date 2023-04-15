@@ -131,8 +131,11 @@ def preprocess_flatten_convert_verilog(
             "prep",
             "proc",
             "flatten",
-            "async2sync",
-            "dffunmap",
+            # TODO(@gussmith23) I'm unclear on whether we need clk2fflogic here or not.
+            # See https://github.com/uwsampl/lakeroad/issues/238.
+            "clk2fflogic",
+            #"async2sync",
+            #"dffunmap",
             f"write_btor {btorfile.name}",
             f"write_verilog -sv {vfile.name}",
         ]
