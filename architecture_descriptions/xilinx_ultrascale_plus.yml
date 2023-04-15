@@ -217,7 +217,7 @@ implementations:
             { name: P, direction: output, bitwidth: 48, value: P },
           ]
         parameters: [
-          { name: ACASCREG, value: (bv 0 32) },
+          { name: ACASCREG, value: ACASCREG },
           { name: ADREG, value: (bv 0 32) },
           { name: ALUMODEREG, value: (bv 0 32) },
           { name: AMULTSEL, value: AMULTSEL },
@@ -225,7 +225,7 @@ implementations:
           { name: AUTORESET_PATDET, value: AUTORESET_PATDET },
           { name: AUTORESET_PRIORITY, value: AUTORESET_PRIORITY },
           { name: A_INPUT, value: A_INPUT },
-          { name: BCASCREG, value: (bv 0 32) },
+          { name: BCASCREG, value: BCASCREG },
           { name: BMULTSEL, value: BMULTSEL },
           { name: BREG, value: BREG },
           { name: B_INPUT, value: B_INPUT },
