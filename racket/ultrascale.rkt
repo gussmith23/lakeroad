@@ -642,12 +642,12 @@
             [ci-top (interpreter ci-top)]
             [di (interpreter di)]
             [s (interpreter s)]
-            [out (interpret-xilinx-ultrascale-plus-carry8 #:CARRY_TYPE (bv->signal carry-type)
-                                                          #:CI (bv->signal ci)
-                                                          #:CI_TOP (bv->signal ci-top)
-                                                          #:DI (bv->signal di)
-                                                          #:S (bv->signal s))])
-       (list (signal-value (assoc-ref out 'CO)) (signal-value (assoc-ref out 'O))))]
+            [out (interpret-xilinx-ultrascale-plus-carry8 #:CARRY_TYPE carry-type
+                                                          #:CI ci
+                                                          #:CI_TOP ci-top
+                                                          #:DI di
+                                                          #:S s)])
+       (list (assoc-ref out 'CO) (assoc-ref out 'O)))]
     [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
      (let* ([i0 (interpreter i0)]
             [i1 (interpreter i1)]
@@ -656,14 +656,14 @@
             [i4 (interpreter i4)]
             [i5 (interpreter i5)]
             [init (interpreter init)]
-            [out (interpret-xilinx-ultrascale-plus-lut6 #:I0 (bv->signal i0)
-                                                        #:I1 (bv->signal i1)
-                                                        #:I2 (bv->signal i2)
-                                                        #:I3 (bv->signal i3)
-                                                        #:I4 (bv->signal i4)
-                                                        #:I5 (bv->signal i5)
-                                                        #:INIT (bv->signal init))])
-       (signal-value (assoc-ref out 'O)))]
+            [out (interpret-xilinx-ultrascale-plus-lut6 #:I0 i0
+                                                        #:I1 i1
+                                                        #:I2 i2
+                                                        #:I3 i3
+                                                        #:I4 i4
+                                                        #:I5 i5
+                                                        #:INIT init)])
+       (assoc-ref out 'O))]
     [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
      (let* ([i0 (interpreter i0)]
             [i1 (interpreter i1)]
@@ -672,14 +672,14 @@
             [i4 (interpreter i4)]
             [i5 (interpreter i5)]
             [init (interpreter init)]
-            [out (interpret-xilinx-ultrascale-plus-lut6-2 #:I0 (bv->signal i0)
-                                                          #:I1 (bv->signal i1)
-                                                          #:I2 (bv->signal i2)
-                                                          #:I3 (bv->signal i3)
-                                                          #:I4 (bv->signal i4)
-                                                          #:I5 (bv->signal i5)
-                                                          #:INIT (bv->signal init))])
-       (list (signal-value (assoc-ref out 'O5)) (signal-value (assoc-ref out 'O6))))]))
+            [out (interpret-xilinx-ultrascale-plus-lut6-2 #:I0 i0
+                                                          #:I1 i1
+                                                          #:I2 i2
+                                                          #:I3 i3
+                                                          #:I4 i4
+                                                          #:I5 i5
+                                                          #:INIT init)])
+       (list (assoc-ref out 'O5) (assoc-ref out 'O6)))]))
 
 ; Returns the physical outputs of the CLB.
 (define (interpret-ultrascale-plus-clb-impl clb
@@ -958,161 +958,163 @@
                [unnamed-input-750 (interpreter unnamed-input-750)]
                [unnamed-input-806 (interpreter unnamed-input-806)]
                [unnamed-input-850 (interpreter unnamed-input-850)])
+        ;;; (displayln ACASCREG)
+        ;;; (displayln ADREG)
     ;;; Constrain the inputs based on the information in the DSP48E2 user manual. (see spec-sheets/.)
     ;;; Constrain #registers (usually to 0, 1, or 2).
-    (assert (|| (bveq ACASCREG (bv 0 32)) (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32))))
-    (assert (|| (bveq ADREG (bv 0 32)) (bveq ADREG (bv 1 32))))
-    (assert (|| (bveq ALUMODEREG (bv 0 32)) (bveq ALUMODEREG (bv 1 32))))
-    (assert (|| (bveq AREG (bv 0 32)) (bveq AREG (bv 1 32)) (bveq AREG (bv 2 32))))
-    (assert (|| (bveq BCASCREG (bv 0 32)) (bveq BCASCREG (bv 1 32)) (bveq BCASCREG (bv 2 32))))
-    (assert (|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32)) (bveq BREG (bv 2 32))))
-    (assert (|| (bveq CARRYINREG (bv 0 32)) (bveq CARRYINREG (bv 1 32))))
-    (assert (|| (bveq CARRYINSELREG (bv 0 32)) (bveq CARRYINSELREG (bv 1 32))))
-    (assert (|| (bveq CREG (bv 0 32)) (bveq CREG (bv 1 32))))
-    (assert (|| (bveq DREG (bv 0 32)) (bveq DREG (bv 1 32))))
-    (assert (|| (bveq INMODEREG (bv 0 32)) (bveq INMODEREG (bv 1 32))))
-    (assert (|| (bveq MREG (bv 0 32)) (bveq MREG (bv 1 32))))
-    (assert (|| (bveq OPMODEREG (bv 0 32)) (bveq OPMODEREG (bv 1 32))))
-    (assert (|| (bveq PREG (bv 0 32)) (bveq PREG (bv 1 32))))
+    (assert (|| (bveq (signal-value ACASCREG) (bv 0 32)) (bveq (signal-value ACASCREG) (bv 1 32)) (bveq (signal-value ACASCREG) (bv 2 32))))
+    (assert (|| (bveq (signal-value ADREG) (bv 0 32)) (bveq (signal-value ADREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value ALUMODEREG) (bv 0 32)) (bveq (signal-value ALUMODEREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value AREG) (bv 0 32)) (bveq (signal-value AREG) (bv 1 32)) (bveq (signal-value AREG) (bv 2 32))))
+    (assert (|| (bveq (signal-value BCASCREG) (bv 0 32)) (bveq (signal-value BCASCREG) (bv 1 32)) (bveq (signal-value BCASCREG) (bv 2 32))))
+    (assert (|| (bveq (signal-value BREG) (bv 0 32)) (bveq (signal-value BREG) (bv 1 32)) (bveq (signal-value BREG) (bv 2 32))))
+    (assert (|| (bveq (signal-value CARRYINREG) (bv 0 32)) (bveq (signal-value CARRYINREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value CARRYINSELREG) (bv 0 32)) (bveq (signal-value CARRYINSELREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value CREG) (bv 0 32)) (bveq (signal-value CREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value DREG) (bv 0 32)) (bveq (signal-value DREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value INMODEREG) (bv 0 32)) (bveq (signal-value INMODEREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value MREG) (bv 0 32)) (bveq (signal-value MREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value OPMODEREG) (bv 0 32)) (bveq (signal-value OPMODEREG) (bv 1 32))))
+    (assert (|| (bveq (signal-value PREG) (bv 0 32)) (bveq (signal-value PREG) (bv 1 32))))
     ;;; We converted the strings to enum values of bitwidth 5. See the enum defined at the top of
     ;;; utils/tests/convert-module-to-btor/DSP48E2.v for the mapping of string to number value.
     ;;; DIRECT or CASCADE.
-    (assert (|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5))))
-    (assert (|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5))))
+    (assert (|| (bveq (signal-value A_INPUT) (bv 7 5)) (bveq (signal-value A_INPUT) (bv 15 5))))
+    (assert (|| (bveq (signal-value B_INPUT) (bv 7 5)) (bveq (signal-value B_INPUT) (bv 15 5))))
     ;;; A or B.
-    (assert (|| (bveq PREADDINSEL (bv 0 5)) (bveq PREADDINSEL (bv 1 5))))
+    (assert (|| (bveq (signal-value PREADDINSEL) (bv 0 5)) (bveq (signal-value PREADDINSEL) (bv 1 5))))
     ;;; A or AD.
-    (assert (|| (bveq AMULTSEL (bv 0 5)) (bveq AMULTSEL (bv 2 5))))
+    (assert (|| (bveq (signal-value AMULTSEL) (bv 0 5)) (bveq (signal-value AMULTSEL) (bv 2 5))))
     ;;; B or AD.
-    (assert (|| (bveq BMULTSEL (bv 1 5)) (bveq BMULTSEL (bv 2 5))))
+    (assert (|| (bveq (signal-value BMULTSEL) (bv 1 5)) (bveq (signal-value BMULTSEL) (bv 2 5))))
     ;;; NONE, MULTIPLY, or DYNAMIC.
-    (assert (|| (bveq USE_MULT (bv 20 5)) (bveq USE_MULT (bv 10 5)) (bveq USE_MULT (bv 18 5))))
+    (assert (|| (bveq (signal-value USE_MULT) (bv 20 5)) (bveq (signal-value USE_MULT) (bv 10 5)) (bveq (signal-value USE_MULT) (bv 18 5))))
     ;;; ONE48, TWO24, FOUR12.
-    (assert (|| (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 25 5)) (bveq USE_SIMD (bv 19 5))))
+    (assert (|| (bveq (signal-value USE_SIMD) (bv 12 5)) (bveq (signal-value USE_SIMD) (bv 25 5)) (bveq (signal-value USE_SIMD) (bv 19 5))))
     ;;; TRUE, FALSE.
-    (assert (|| (bveq USE_WIDEXOR (bv 24 5)) (bveq USE_WIDEXOR (bv 13 5))))
+    (assert (|| (bveq (signal-value USE_WIDEXOR) (bv 24 5)) (bveq (signal-value USE_WIDEXOR) (bv 13 5))))
     ;;; XOR12, XOR24_48_96
-    (assert (|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5))))
+    (assert (|| (bveq (signal-value XORSIMD) (bv 26 5)) (bveq (signal-value XORSIMD) (bv 14 5))))
     ;;; NO_RESET, RESET_MATCH, RESET_NOT_MATCH.
-    (assert (|| (bveq AUTORESET_PATDET (bv 3 5))
-                (bveq AUTORESET_PATDET (bv 4 5))
-                (bveq AUTORESET_PATDET (bv 5 5))))
+    (assert (|| (bveq (signal-value AUTORESET_PATDET) (bv 3 5))
+                (bveq (signal-value AUTORESET_PATDET) (bv 4 5))
+                (bveq (signal-value AUTORESET_PATDET) (bv 5 5))))
     ;;; RESET, CEP.
-    (assert (|| (bveq AUTORESET_PRIORITY (bv 6 5)) (bveq AUTORESET_PRIORITY (bv 16 5))))
+    (assert (|| (bveq (signal-value AUTORESET_PRIORITY) (bv 6 5)) (bveq (signal-value AUTORESET_PRIORITY) (bv 16 5))))
     ;;; MASK, C, ROUNDING_MODE1, ROUNDING_MODE2
-    (assert (|| (bveq SEL_MASK (bv 8 5))
-                (bveq SEL_MASK (bv 17 5))
-                (bveq SEL_MASK (bv 22 5))
-                (bveq SEL_MASK (bv 23 5))))
-    ;;; PATTERN, C.
-    (assert (|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5))))
+    (assert (|| (bveq (signal-value SEL_MASK) (bv 8 5))
+                (bveq (signal-value SEL_MASK) (bv 17 5))
+                (bveq (signal-value SEL_MASK) (bv 22 5))
+                (bveq (signal-value SEL_MASK) (bv 23 5))))
+    ;;; ;;; PATTERN, C.
+    (assert (|| (bveq (signal-value SEL_PATTERN) (bv 9 5)) (bveq (signal-value SEL_PATTERN) (bv 17 5))))
     ;;; NO_PATDET, PATDET.
-    (assert (|| (bveq USE_PATTERN_DETECT (bv 11 5)) (bveq USE_PATTERN_DETECT (bv 21 5))))
+    (assert (|| (bveq (signal-value USE_PATTERN_DETECT) (bv 11 5)) (bveq (signal-value USE_PATTERN_DETECT) (bv 21 5))))
     ;;; Table 2-4 of DSP manual.
-    (assert (=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
-                (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2))))
+    (assert (=> (bveq (bvxor (extract 1 0 (signal-value OPMODE)) (extract 1 0 (signal-value IS_OPMODE_INVERTED))) (bv #b01 2))
+                (bveq (bvxor (extract 3 2 (signal-value OPMODE)) (extract 3 2 (signal-value IS_OPMODE_INVERTED))) (bv #b01 2))))
     ;;; Table 2-6 of DSP manual.
-    (assert (not (bveq (bvxor (extract 6 4 OPMODE) (extract 6 4 IS_OPMODE_INVERTED)) (bv #b111 3))))
+    (assert (not (bveq (bvxor (extract 6 4 (signal-value OPMODE)) (extract 6 4 (signal-value IS_OPMODE_INVERTED))) (bv #b111 3))))
     ;;; Warning from DSP model:
     ;;;
     ;;; DRC warning : [Unisim DSP48E2-11] CARRYINSEL is set to 010 with OPMODEREG set to 0. This causes
     ;;; unknown values after reset occurs. It is suggested to use OPMODEREG = 1 when cascading large
     ;;; adders.
-    (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
+    (assert (not (&& (bveq (signal-value CARRYINSEL) (bv #b010 3)) (bvzero? (signal-value OPMODEREG)))))
     (define dsp-expr
       (interpret-xilinx-ultrascale-plus-dsp48e2
-       #:A (bv->signal A)
-       #:ACASCREG (bv->signal ACASCREG)
-       #:ACIN (bv->signal ACIN)
-       #:ADREG (bv->signal ADREG)
-       #:ALUMODE (bv->signal ALUMODE)
-       #:ALUMODEREG (bv->signal ALUMODEREG)
-       #:AMULTSEL (bv->signal AMULTSEL)
-       #:AREG (bv->signal AREG)
-       #:AUTORESET_PATDET (bv->signal AUTORESET_PATDET)
-       #:AUTORESET_PRIORITY (bv->signal AUTORESET_PRIORITY)
-       #:A_INPUT (bv->signal A_INPUT)
-       #:B (bv->signal B)
-       #:BCASCREG (bv->signal BCASCREG)
-       #:BCIN (bv->signal BCIN)
-       #:BMULTSEL (bv->signal BMULTSEL)
-       #:BREG (bv->signal BREG)
-       #:B_INPUT (bv->signal B_INPUT)
-       #:C (bv->signal C)
-       #:CARRYCASCIN (bv->signal CARRYCASCIN)
-       #:CARRYIN (bv->signal CARRYIN)
-       #:CARRYINREG (bv->signal CARRYINREG)
-       #:CARRYINSEL (bv->signal CARRYINSEL)
-       #:CARRYINSELREG (bv->signal CARRYINSELREG)
-       #:CEA1 (bv->signal CEA1)
-       #:CEA2 (bv->signal CEA2)
-       #:CEAD (bv->signal CEAD)
-       #:CEALUMODE (bv->signal CEALUMODE)
-       #:CEB1 (bv->signal CEB1)
-       #:CEB2 (bv->signal CEB2)
-       #:CEC (bv->signal CEC)
-       #:CECARRYIN (bv->signal CECARRYIN)
-       #:CECTRL (bv->signal CECTRL)
-       #:CED (bv->signal CED)
-       #:CEINMODE (bv->signal CEINMODE)
-       #:CEM (bv->signal CEM)
-       #:CEP (bv->signal CEP)
-       #:CLK (bv->signal CLK)
-       #:CREG (bv->signal CREG)
-       #:D (bv->signal D)
-       #:DREG (bv->signal DREG)
-       #:INMODE (bv->signal INMODE)
-       #:INMODEREG (bv->signal INMODEREG)
-       #:IS_ALUMODE_INVERTED (bv->signal IS_ALUMODE_INVERTED)
-       #:IS_CARRYIN_INVERTED (bv->signal IS_CARRYIN_INVERTED)
-       #:IS_CLK_INVERTED (bv->signal IS_CLK_INVERTED)
-       #:IS_INMODE_INVERTED (bv->signal IS_INMODE_INVERTED)
-       #:IS_OPMODE_INVERTED (bv->signal IS_OPMODE_INVERTED)
-       #:IS_RSTALLCARRYIN_INVERTED (bv->signal IS_RSTALLCARRYIN_INVERTED)
-       #:IS_RSTALUMODE_INVERTED (bv->signal IS_RSTALUMODE_INVERTED)
-       #:IS_RSTA_INVERTED (bv->signal IS_RSTA_INVERTED)
-       #:IS_RSTB_INVERTED (bv->signal IS_RSTB_INVERTED)
-       #:IS_RSTCTRL_INVERTED (bv->signal IS_RSTCTRL_INVERTED)
-       #:IS_RSTC_INVERTED (bv->signal IS_RSTC_INVERTED)
-       #:IS_RSTD_INVERTED (bv->signal IS_RSTD_INVERTED)
-       #:IS_RSTINMODE_INVERTED (bv->signal IS_RSTINMODE_INVERTED)
-       #:IS_RSTM_INVERTED (bv->signal IS_RSTM_INVERTED)
-       #:IS_RSTP_INVERTED (bv->signal IS_RSTP_INVERTED)
-       #:MASK (bv->signal MASK)
-       #:MREG (bv->signal MREG)
-       #:MULTSIGNIN (bv->signal MULTSIGNIN)
-       #:OPMODE (bv->signal OPMODE)
-       #:OPMODEREG (bv->signal OPMODEREG)
-       #:PATTERN (bv->signal PATTERN)
-       #:PCIN (bv->signal PCIN)
-       #:PREADDINSEL (bv->signal PREADDINSEL)
-       #:PREG (bv->signal PREG)
-       #:RND (bv->signal RND)
-       #:RSTA (bv->signal RSTA)
-       #:RSTALLCARRYIN (bv->signal RSTALLCARRYIN)
-       #:RSTALUMODE (bv->signal RSTALUMODE)
-       #:RSTB (bv->signal RSTB)
-       #:RSTC (bv->signal RSTC)
-       #:RSTCTRL (bv->signal RSTCTRL)
-       #:RSTD (bv->signal RSTD)
-       #:RSTINMODE (bv->signal RSTINMODE)
-       #:RSTM (bv->signal RSTM)
-       #:RSTP (bv->signal RSTP)
-       #:SEL_MASK (bv->signal SEL_MASK)
-       #:SEL_PATTERN (bv->signal SEL_PATTERN)
-       #:USE_MULT (bv->signal USE_MULT)
-       #:USE_PATTERN_DETECT (bv->signal USE_PATTERN_DETECT)
-       #:USE_SIMD (bv->signal USE_SIMD)
-       #:USE_WIDEXOR (bv->signal USE_WIDEXOR)
-       #:XORSIMD (bv->signal XORSIMD)
-       #:unnamed-input-331 (bv->signal unnamed-input-331)
-       #:unnamed-input-488 (bv->signal unnamed-input-488)
-       #:unnamed-input-750 (bv->signal unnamed-input-750)
-       #:unnamed-input-806 (bv->signal unnamed-input-806)
-       #:unnamed-input-850 (bv->signal unnamed-input-850)))
-    (define P (signal-value (assoc-ref dsp-expr 'P)))
-    (define COUT (signal-value (assoc-ref dsp-expr 'CARRYCASCOUT)))
-    (define XOROUT (signal-value (assoc-ref dsp-expr 'XOROUT)))
+       #:A A
+       #:ACASCREG ACASCREG
+       #:ACIN ACIN
+       #:ADREG ADREG
+       #:ALUMODE ALUMODE
+       #:ALUMODEREG ALUMODEREG
+       #:AMULTSEL AMULTSEL
+       #:AREG AREG
+       #:AUTORESET_PATDET AUTORESET_PATDET
+       #:AUTORESET_PRIORITY AUTORESET_PRIORITY
+       #:A_INPUT A_INPUT
+       #:B B
+       #:BCASCREG BCASCREG
+       #:BCIN BCIN
+       #:BMULTSEL BMULTSEL
+       #:BREG BREG
+       #:B_INPUT B_INPUT
+       #:C C
+       #:CARRYCASCIN CARRYCASCIN
+       #:CARRYIN CARRYIN
+       #:CARRYINREG CARRYINREG
+       #:CARRYINSEL CARRYINSEL
+       #:CARRYINSELREG CARRYINSELREG
+       #:CEA1 CEA1
+       #:CEA2 CEA2
+       #:CEAD CEAD
+       #:CEALUMODE CEALUMODE
+       #:CEB1 CEB1
+       #:CEB2 CEB2
+       #:CEC CEC
+       #:CECARRYIN CECARRYIN
+       #:CECTRL CECTRL
+       #:CED CED
+       #:CEINMODE CEINMODE
+       #:CEM CEM
+       #:CEP CEP
+       #:CLK CLK
+       #:CREG CREG
+       #:D D
+       #:DREG DREG
+       #:INMODE INMODE
+       #:INMODEREG INMODEREG
+       #:IS_ALUMODE_INVERTED IS_ALUMODE_INVERTED
+       #:IS_CARRYIN_INVERTED IS_CARRYIN_INVERTED
+       #:IS_CLK_INVERTED IS_CLK_INVERTED
+       #:IS_INMODE_INVERTED IS_INMODE_INVERTED
+       #:IS_OPMODE_INVERTED IS_OPMODE_INVERTED
+       #:IS_RSTALLCARRYIN_INVERTED IS_RSTALLCARRYIN_INVERTED
+       #:IS_RSTALUMODE_INVERTED IS_RSTALUMODE_INVERTED
+       #:IS_RSTA_INVERTED IS_RSTA_INVERTED
+       #:IS_RSTB_INVERTED IS_RSTB_INVERTED
+       #:IS_RSTCTRL_INVERTED IS_RSTCTRL_INVERTED
+       #:IS_RSTC_INVERTED IS_RSTC_INVERTED
+       #:IS_RSTD_INVERTED IS_RSTD_INVERTED
+       #:IS_RSTINMODE_INVERTED IS_RSTINMODE_INVERTED
+       #:IS_RSTM_INVERTED IS_RSTM_INVERTED
+       #:IS_RSTP_INVERTED IS_RSTP_INVERTED
+       #:MASK MASK
+       #:MREG MREG
+       #:MULTSIGNIN MULTSIGNIN
+       #:OPMODE OPMODE
+       #:OPMODEREG OPMODEREG
+       #:PATTERN PATTERN
+       #:PCIN PCIN
+       #:PREADDINSEL PREADDINSEL
+       #:PREG PREG
+       #:RND RND
+       #:RSTA RSTA
+       #:RSTALLCARRYIN RSTALLCARRYIN
+       #:RSTALUMODE RSTALUMODE
+       #:RSTB RSTB
+       #:RSTC RSTC
+       #:RSTCTRL RSTCTRL
+       #:RSTD RSTD
+       #:RSTINMODE RSTINMODE
+       #:RSTM RSTM
+       #:RSTP RSTP
+       #:SEL_MASK SEL_MASK
+       #:SEL_PATTERN SEL_PATTERN
+       #:USE_MULT USE_MULT
+       #:USE_PATTERN_DETECT USE_PATTERN_DETECT
+       #:USE_SIMD USE_SIMD
+       #:USE_WIDEXOR USE_WIDEXOR
+       #:XORSIMD XORSIMD
+       #:unnamed-input-331 unnamed-input-331
+       #:unnamed-input-488 unnamed-input-488
+       #:unnamed-input-750 unnamed-input-750
+       #:unnamed-input-806 unnamed-input-806
+       #:unnamed-input-850 unnamed-input-850))
+    (define P (assoc-ref dsp-expr 'P))
+    (define COUT (assoc-ref dsp-expr 'CARRYCASCOUT))
+    (define XOROUT (assoc-ref dsp-expr 'XOROUT))
     (list P COUT XOROUT)))
 
 (define (compile-ultrascale-plus-dsp48e2 dsp p-name clk-name a-name b-name c-name ce-name reset-name)
