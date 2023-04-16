@@ -33,7 +33,6 @@
   (syntax-rules ()
     ;;; Main macro implementation.
     [(_ name symbolic-define-etc-block lr-expr bv-expr add-f)
-
      (test-true
       (string-append name ": check that test state is normal")
       (normal?
@@ -41,9 +40,14 @@
                                (begin
                                  symbolic-define-etc-block
                                  (add-f (to-simulate lr-expr bv-expr))
+                                 ;;;  (displayln "\n\n")
+                                 ;;;  (displayln (interpret lr-expr))
+                                 ;;;  (displayln "\n\n")
+                                 ;;;  (displayln bv-expr)
                                  (test-true
                                   (string-append name ": verify lr-expr against bv-expr")
-                                  (unsat? (let ([result (verify (assert (bveq (signal-value (interpret lr-expr))
+                                  (unsat? (let ([result (verify (assert (bveq (signal-value
+                                                                               (interpret lr-expr))
                                                                               bv-expr)))])
                                             (when (not (unsat? result))
                                               (displayln (model result)))

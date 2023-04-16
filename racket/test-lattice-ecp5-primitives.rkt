@@ -1,4 +1,4 @@
-#lang errortrace rosette/safe
+#lang rosette/safe
 ;;; Verify and simulate the implementation of Lattice ECP5 primitives in Lakeroad.
 
 (module test racket/base
@@ -81,45 +81,59 @@
   ;;; Add some simulation tasks for CCU2C using concrete LUT init memory values.
   (test-true
    "normal return"
-   (normal?
-    (with-vc
-     (with-terms
-      (begin
-        (define-symbolic CIN (bitvector 1))
-        (define-symbolic A0  (bitvector 1))
-        (define-symbolic B0  (bitvector 1))
-        (define-symbolic C0  (bitvector 1))
-        (define-symbolic D0  (bitvector 1))
-        (define-symbolic A1  (bitvector 1))
-        (define-symbolic B1  (bitvector 1))
-        (define-symbolic C1  (bitvector 1))
-        (define-symbolic D1  (bitvector 1))
-        (define lut-init-0 (bv->signal (bv #xdead 16)))
-        (define lut-init-1 (bv->signal (bv #xbeef 16)))
-        (define lut-init-2 (bv->signal (bv #x2324 16)))
-        (define lut-init-3 (bv->signal (bv #x1cf6 16)))
-        (define lut-init-4 (bv->signal (bv #x201c 16)))
+   (normal? (with-vc (with-terms
+                      (begin
+                        (define-symbolic CIN (bitvector 1))
+                        (define-symbolic A0 (bitvector 1))
+                        (define-symbolic B0 (bitvector 1))
+                        (define-symbolic C0 (bitvector 1))
+                        (define-symbolic D0 (bitvector 1))
+                        (define-symbolic A1 (bitvector 1))
+                        (define-symbolic B1 (bitvector 1))
+                        (define-symbolic C1 (bitvector 1))
+                        (define-symbolic D1 (bitvector 1))
+                        (define lut-init-0 (bv->signal (bv #xdead 16)))
+                        (define lut-init-1 (bv->signal (bv #xbeef 16)))
+                        (define lut-init-2 (bv->signal (bv #x2324 16)))
+                        (define lut-init-3 (bv->signal (bv #x1cf6 16)))
+                        (define lut-init-4 (bv->signal (bv #x201c 16)))
 
-        (define (add-test init0 init1)
-          (add-to-simulate
-           (to-simulate
-            (lr:concat
-             (lattice-ecp5-ccu2c
-              (lr:bv init0)
-              (lr:bv init1)
-              (lr:bv (bv->signal (bv 0 1)))
-              (lr:bv (bv->signal (bv 0 1)))
-              (lr:bv (bv->signal CIN))
-              (lr:list
-               (list (lr:concat (lr:list (list (lr:bv (bv->signal D0)) (lr:bv (bv->signal C0)) (lr:bv (bv->signal B0)) (lr:bv (bv->signal A0)))))
-                     (lr:concat (lr:list (list (lr:bv (bv->signal D1)) (lr:bv (bv->signal C1)) (lr:bv (bv->signal B1)) (lr:bv (bv->signal A1)))))))))
-            (apply concat (ccu2c-semantics init0 init1 (bv->signal CIN) (bv->signal A0) (bv->signal B0) (bv->signal C0) (bv->signal D0) (bv->signal A1) (bv->signal B1) (bv->signal C1) (bv->signal D1))))))
+                        (define (add-test init0 init1)
+                          (add-to-simulate
+                           (to-simulate
+                            (lr:concat
+                             (lattice-ecp5-ccu2c
+                              (lr:bv init0)
+                              (lr:bv init1)
+                              (lr:bv (bv->signal (bv 0 1)))
+                              (lr:bv (bv->signal (bv 0 1)))
+                              (lr:bv (bv->signal CIN))
+                              (lr:list (list (lr:concat (lr:list (list (lr:bv (bv->signal D0))
+                                                                       (lr:bv (bv->signal C0))
+                                                                       (lr:bv (bv->signal B0))
+                                                                       (lr:bv (bv->signal A0)))))
+                                             (lr:concat (lr:list (list (lr:bv (bv->signal D1))
+                                                                       (lr:bv (bv->signal C1))
+                                                                       (lr:bv (bv->signal B1))
+                                                                       (lr:bv (bv->signal A1)))))))))
+                            (apply concat
+                                   (ccu2c-semantics init0
+                                                    init1
+                                                    (bv->signal CIN)
+                                                    (bv->signal A0)
+                                                    (bv->signal B0)
+                                                    (bv->signal C0)
+                                                    (bv->signal D0)
+                                                    (bv->signal A1)
+                                                    (bv->signal B1)
+                                                    (bv->signal C1)
+                                                    (bv->signal D1))))))
 
-        (add-test lut-init-0 lut-init-1)
-        (add-test lut-init-1 lut-init-2)
-        (add-test lut-init-2 lut-init-0)
-        (add-test lut-init-3 lut-init-4)
-        (add-test lut-init-4 lut-init-3))))))
+                        (add-test lut-init-0 lut-init-1)
+                        (add-test lut-init-1 lut-init-2)
+                        (add-test lut-init-2 lut-init-0)
+                        (add-test lut-init-3 lut-init-4)
+                        (add-test lut-init-4 lut-init-3))))))
 
   (verify-lakeroad-expression
    "Lattice ECP5 LUT2"
@@ -129,7 +143,6 @@
      (define B (bv->signal (?? (bitvector 1)))))
    (lr:list-ref (lattice-ecp5-lut2 (lr:bv INIT) (lr:concat (lr:list (list (lr:bv B) (lr:bv A)))))
                 (lr:integer 0))
-   
    (lut (signal-value INIT) (concat (signal-value B) (signal-value A)))
    ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
    ;;; compiliation to Verilog through Yosys requires parameters to be concrete. Thus, we simulate
@@ -181,7 +194,8 @@
                  (lr:bv INIT)
                  (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
                 (lr:integer 0))
-   (lut (signal-value INIT) (concat (signal-value D) (signal-value C) (signal-value B) (signal-value A)))
+   (lut (signal-value INIT)
+        (concat (signal-value D) (signal-value C) (signal-value B) (signal-value A)))
    ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
    ;;; compiliation to Verilog through Yosys requires parameters to be concrete. Thus, we simulate
    ;;; below with some concrete values.
@@ -206,27 +220,32 @@
                 (define lut-init-2 (bv->signal (bv #x2323 16)))
 
                 (add-to-simulate
-                 (to-simulate
-                  (lr:list-ref (lattice-ecp5-lut4
-                                (lr:bv lut-init-0)
-                                (lr:concat (lr:list (list (lr:bv (bv->signal D)) (lr:bv (bv->signal C)) (lr:bv (bv->signal B)) (lr:bv (bv->signal A))))))
-                               (lr:integer 0))
-                  (lut (signal-value lut-init-0) (concat D C B A))))
-                ;;; (add-to-simulate
-                ;;;  (to-simulate
-                ;;;   (lr:list-ref (lattice-ecp5-lut4
-                ;;;                 (lr:bv lut-init-1)
-                ;;;                 (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
-                ;;;                (lr:integer 0))
-                ;;;   (lut lut-init-1 (concat D C B A))))
-                ;;; (add-to-simulate
-                ;;;  (to-simulate
-                ;;;   (lr:list-ref (lattice-ecp5-lut4
-                ;;;                 (lr:bv lut-init-2)
-                ;;;                 (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
-                ;;;                (lr:integer 0))
-                ;;;   (lut lut-init-2 (concat D C B A))))
-                  )))))
+                 (to-simulate (lr:list-ref (lattice-ecp5-lut4
+                                            (lr:bv lut-init-0)
+                                            (lr:concat (lr:list (list (lr:bv (bv->signal D))
+                                                                      (lr:bv (bv->signal C))
+                                                                      (lr:bv (bv->signal B))
+                                                                      (lr:bv (bv->signal A))))))
+                                           (lr:integer 0))
+                              (lut (signal-value lut-init-0) (concat D C B A))))
+                (add-to-simulate
+                 (to-simulate (lr:list-ref (lattice-ecp5-lut4
+                                            (lr:bv lut-init-1)
+                                            (lr:concat (lr:list (list (lr:bv (bv->signal D))
+                                                                      (lr:bv (bv->signal C))
+                                                                      (lr:bv (bv->signal B))
+                                                                      (lr:bv (bv->signal A))))))
+                                           (lr:integer 0))
+                              (lut (signal-value lut-init-1) (concat D C B A))))
+                (add-to-simulate
+                 (to-simulate (lr:list-ref (lattice-ecp5-lut4
+                                            (lr:bv lut-init-2)
+                                            (lr:concat (lr:list (list (lr:bv (bv->signal D))
+                                                                      (lr:bv (bv->signal C))
+                                                                      (lr:bv (bv->signal B))
+                                                                      (lr:bv (bv->signal A))))))
+                                           (lr:integer 0))
+                              (lut (signal-value lut-init-2) (concat D C B A)))))))))
 
   ;;; ;;; Simulate with Verilator.
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
@@ -238,5 +257,4 @@
              (simulate-with-verilator #:include-dirs (list include-dir)
                                       #:extra-verilator-args "-Wno-UNUSED"
                                       to-simulate-list
-                                      (getenv "VERILATOR_INCLUDE_DIR")))
-                                      )
+                                      (getenv "VERILATOR_INCLUDE_DIR"))))

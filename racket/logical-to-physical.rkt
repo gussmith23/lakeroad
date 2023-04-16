@@ -43,6 +43,8 @@
 (define (signal-helper f inputs)
   f
   inputs)
+  f
+  inputs)
 
 (define (bvvs->signalvs inputs state)
   (map (lambda (bv) (signal bv state)) inputs))
@@ -188,8 +190,10 @@
          [else (bvvs->signalvs transposed state)])))]
    ;;;  [(ltop-constant c) (bitvector->bits (interpreter c))] ;; question not sure about this one?
    [(ltop-constant c)
-    (let* ([inputs (interpreter c)])
-      (map (lambda (b) (signal b (signal-state inputs))) (bitvector->bits (signal-value inputs))))]
+    (let* ([inputs (interpreter inputs)]
+           [inputs-bv (map signal-value inputs)]
+           [state (merge-state inputs)])
+      (bvvs->signalvs (bitvector->bits inputs-bv) state))]
    ;;;
    ;;; Same as bitwise, but includes masks on the physical outputs.
    ;;;

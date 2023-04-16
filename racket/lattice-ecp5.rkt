@@ -94,7 +94,8 @@
   (let* ([memory-bv (signal-value memory)]
          [inputs-bv (signal-value inputs)]
          [state (merge-state (list memory inputs))]
-    [len (length (bitvector->bits memory-bv))] [inputs-bv (zero-extend inputs-bv (bitvector len))])
+         [len (length (bitvector->bits memory-bv))]
+         [inputs-bv (zero-extend inputs-bv (bitvector len))])
     (signal (bit 0 (bvlshr memory-bv inputs-bv)) state))) ;;question LUTs should now return a signal
 
 (module+ test
@@ -389,8 +390,7 @@
                                                #:INIT0 (bv->signal INIT0)
                                                #:INIT1 (bv->signal INIT1)
                                                #:INJECT1_0 (bv->signal INJECT1_0)
-                                               #:INJECT1_1 (bv->signal INJECT1_1))]
-             )
+                                               #:INJECT1_1 (bv->signal INJECT1_1))])
        (list (cdr (or (assoc 'S0 out) (error "key not found")))
              (cdr (or (assoc 'S1 out) (error "key not found")))
              (cdr (or (assoc 'COUT out) (error "key not found")))))]
@@ -451,7 +451,8 @@
            [LUT4_0 (interpret-lut4-impl INIT0 INPUTS0)]
            ;;; LUT2 #(.INIT(INIT0[3:0])) lut2_0(.A(A0), .B(B0), .Z(LUT2_0));
            ; TODO: is this extract correct?
-           [LUT2_0 (interpret-lut2-impl (signal (extract 3 0 (signal-value INIT0)) state) (signal (extract 1 0 (signal-value INPUTS0)) state))]
+           [LUT2_0 (interpret-lut2-impl (signal (extract 3 0 (signal-value INIT0)) state)
+                                        (signal (extract 1 0 (signal-value INPUTS0)) state))]
            ;;; wire gated_cin_0 = (INJECT1_0 == "YES") ? 1'b0 : CIN;
            [gated_cin_0 (if (bveq (signal-value INJECT1_0) (bv 1 1)) (bv->signal (bv 0 1)) CIN)]
            ;;; assign S0 = LUT4_0 ^ gated_cin_0;
@@ -460,7 +461,9 @@
            ;;; wire gated_lut2_0 = (INJECT1_0 == "YES") ? 1'b0 : LUT2_0;
            [gated_lut2_0 (if (bveq (signal-value INJECT1_0) (bv 1 1)) (bv->signal (bv 0 1)) LUT2_0)]
            ;;; wire cout_0 = (~LUT4_0 & gated_lut2_0) | (LUT4_0 & CIN);
-           [cout_0 (signal (bvor (bvand (bvnot (signal-value LUT4_0)) (signal-value gated_lut2_0)) (bvand (signal-value LUT4_0) (signal-value CIN))) state)]
+           [cout_0 (signal (bvor (bvand (bvnot (signal-value LUT4_0)) (signal-value gated_lut2_0))
+                                 (bvand (signal-value LUT4_0) (signal-value CIN)))
+                           state)]
 
            ;;; // Second half
            ;;; wire LUT4_1, LUT2_1;
@@ -468,19 +471,22 @@
            [LUT4_1 (interpret-lut4-impl INIT1 INPUTS1)]
            ;;; LUT2 #(.INIT(INIT1[3:0])) lut2_1(.A(A1), .B(B1), .Z(LUT2_1));
            ; TODO: is this extract correct?
-           [LUT2_1 (interpret-lut2-impl (signal (extract 3 0 (signal-value INIT1)) state) (signal (extract 1 0 (signal-value INPUTS1)) state))]
+           [LUT2_1 (interpret-lut2-impl (signal (extract 3 0 (signal-value INIT1)) state)
+                                        (signal (extract 1 0 (signal-value INPUTS1)) state))]
            ;;;
            ;;; wire gated_cin_1 = (INJECT1_1 == "YES") ? 1'b0 : cout_0;
            [gated_cin_1 (if (bveq (signal-value INJECT1_1) (bv 1 1)) (bv->signal (bv 0 1)) cout_0)]
            ;;; assign S1 = LUT4_1 ^ gated_cin_1;
-           
+
            [S1 (signal (bvxor (signal-value LUT4_1) (signal-value gated_cin_1)) state)]
            ;;;
            ;;; wire gated_lut2_1 = (INJECT1_1 == "YES") ? 1'b0 : LUT2_1;
            [gated_lut2_1 (if (bveq (signal-value INJECT1_1) (bv 1 1)) (bv 0 1) LUT2_1)]
            ;;;  [debug (displayln gated_lut2_1)]
            ;;; assign COUT = (~LUT4_1 & gated_lut2_1) | (LUT4_1 & cout_0);
-           [COUT (signal (bvor (bvand (bvnot (signal-value LUT4_1)) (signal-value gated_lut2_1)) (bvand (signal-value LUT4_1) (signal-value cout_0))) state)])
+           [COUT (signal (bvor (bvand (bvnot (signal-value LUT4_1)) (signal-value gated_lut2_1))
+                               (bvand (signal-value LUT4_1) (signal-value cout_0)))
+                         state)])
       ;  (printf "\033[34;1mRESULT:\n\033[0m~a\n" (pretty-format (list S0 S1 COUT)))
       (list S0 S1 COUT))))
 
@@ -519,57 +525,66 @@
          [inputs-ds (make-list 8 (bv->signal (bv #xd 4)))]
          [inputs-es (make-list 8 (bv->signal (bv #xe 4)))]
          [inputs-fs (make-list 8 (bv->signal (bv #xf 4)))])
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-0s)) (bitvector->bits (bv #b00000001 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-1s)) (bitvector->bits (bv #b00000001 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-2s)) (bitvector->bits (bv #b00000010 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-3s)) (bitvector->bits (bv #b00000010 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-4s)) (bitvector->bits (bv #b00000100 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-5s)) (bitvector->bits (bv #b00000100 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-6s)) (bitvector->bits (bv #b00001000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-7s)) (bitvector->bits (bv #b00001000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-8s)) (bitvector->bits (bv #b00010000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-9s)) (bitvector->bits (bv #b00010000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-as)) (bitvector->bits (bv #b00100000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-bs)) (bitvector->bits (bv #b00100000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-cs)) (bitvector->bits (bv #b01000000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-ds)) (bitvector->bits (bv #b01000000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-es)) (bitvector->bits (bv #b10000000 8)))
-    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-fs)) (bitvector->bits (bv #b10000000 8)))))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-0s))
+                  (bitvector->bits (bv #b00000001 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-1s))
+                  (bitvector->bits (bv #b00000001 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-2s))
+                  (bitvector->bits (bv #b00000010 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-3s))
+                  (bitvector->bits (bv #b00000010 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-4s))
+                  (bitvector->bits (bv #b00000100 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-5s))
+                  (bitvector->bits (bv #b00000100 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-6s))
+                  (bitvector->bits (bv #b00001000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-7s))
+                  (bitvector->bits (bv #b00001000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-8s))
+                  (bitvector->bits (bv #b00010000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-9s))
+                  (bitvector->bits (bv #b00010000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-as))
+                  (bitvector->bits (bv #b00100000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-bs))
+                  (bitvector->bits (bv #b00100000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-cs))
+                  (bitvector->bits (bv #b01000000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-ds))
+                  (bitvector->bits (bv #b01000000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-es))
+                  (bitvector->bits (bv #b10000000 8)))
+    (check-equal? (map signal-value (interpret-ecp5-pfu-impl pfu inputs-fs))
+                  (bitvector->bits (bv #b10000000 8)))))
 
 (define (interpret-lut2-impl l inputs)
- (let* ([inputs-bv (signal-value inputs)]
-        [state (signal-state inputs)])
-  (lut l (signal (extract 1 0 inputs-bv) state))))
+  (let* ([inputs-bv (signal-value inputs)] [state (signal-state inputs)])
+    (lut l (signal (extract 1 0 inputs-bv) state))))
 
 (define (interpret-lut3-impl l inputs)
- (let* ([inputs-bv (signal-value inputs)]
-        [state (signal-state inputs)])
-  (lut l (signal (extract 2 0 inputs-bv) state))))
+  (let* ([inputs-bv (signal-value inputs)] [state (signal-state inputs)])
+    (lut l (signal (extract 2 0 inputs-bv) state))))
 
 (define (interpret-lut4-impl l inputs)
- (let* ([inputs-bv (signal-value inputs)]
-        [state (signal-state inputs)])
-  (lut l (signal (extract 3 0 inputs-bv) state))))
+  (let* ([inputs-bv (signal-value inputs)] [state (signal-state inputs)])
+    (lut l (signal (extract 3 0 inputs-bv) state))))
 
 (define (interpret-lut5-impl l inputs)
- (let* ([inputs-bv (signal-value inputs)]
-        [state (signal-state inputs)])
-  (lut l (signal (extract 4 0 inputs-bv) state))))
+  (let* ([inputs-bv (signal-value inputs)] [state (signal-state inputs)])
+    (lut l (signal (extract 4 0 inputs-bv) state))))
 
 (define (interpret-lut6-impl l inputs)
- (let* ([inputs-bv (signal-value inputs)]
-        [state (signal-state inputs)])
-  (lut l (signal (extract 5 0 inputs-bv) state))))
+  (let* ([inputs-bv (signal-value inputs)] [state (signal-state inputs)])
+    (lut l (signal (extract 5 0 inputs-bv) state))))
 
 (define (interpret-lut7-impl l inputs)
- (let* ([inputs-bv (signal-value inputs)]
-        [state (signal-state inputs)])
-  (lut l (signal (extract 6 0 inputs-bv) state))))
+  (let* ([inputs-bv (signal-value inputs)] [state (signal-state inputs)])
+    (lut l (signal (extract 6 0 inputs-bv) state))))
 
 (define (interpret-lut8-impl l inputs)
- (let* ([inputs-bv (signal-value inputs)]
-        [state (signal-state inputs)])
-  (lut l (signal (extract 7 0 inputs-bv) state))))
+  (let* ([inputs-bv (signal-value inputs)] [state (signal-state inputs)])
+    (lut l (signal (extract 7 0 inputs-bv) state))))
 
 (define (interpret-pfumx-impl alut blut co)
   (if (bveq co (bv 0 1)) alut blut))

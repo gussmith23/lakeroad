@@ -161,6 +161,26 @@
                [out-expr (lr:hash-ref carry-expr 'O)])
     (list out-expr internal-data)))
 
+;;; Using a DSP block, where "A" is the first logical input and "B" is the second logical input.
+;;; Essentially a wrapper for the DSP interface right now!
+;;; TODO(@ninehusky): ask about the bitwidth
+;;; (do we need to revisit this decision at the interface level?)
+;;; and, do we need to assert that there are exactly two logical inputs?
+(define (single-dsp-sketch-generator architecture-description
+                                     logical-inputs
+                                     num-logical-inputs
+                                     bitwidth
+                                     #:internal-data [internal-data #f])
+  (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+               [(list dsp-expr internal-data)
+                (construct-interface architecture-description
+                                     (interface-identifier "DSP" (hash "width" bitwidth))
+                                     (list (cons "A" (lr:list-ref logical-inputs (lr:integer 0)))
+                                           (cons "B" (lr:list-ref logical-inputs (lr:integer 1))))
+                                     #:internal-data internal-data)]
+               [out-expr (lr:hash-ref dsp-expr 'O)])
+    (list out-expr internal-data)))
+
 ;;; Bitwise with carry sketch generator.
 ;;;
 ;;; Suitable for arithmetic operations like addition and subtraction.
@@ -574,6 +594,7 @@
            "xilinx-ultrascale-plus-lut2.rkt"
            "generated/xilinx-ultrascale-plus-lut6.rkt"
            "generated/xilinx-ultrascale-plus-carry8.rkt"
+           "generated/xilinx-ultrascale-plus-dsp48e2.rkt"
            "generated/sofa-frac-lut4.rkt"
            rosette/solver/smt/boolector)
 
@@ -608,16 +629,15 @@
                            (- end-sketch-gen-time start-sketch-gen-time)))
 
         (define start-synthesis-time (current-inexact-milliseconds))
-        (interpret sketch
-                                                                    #:module-semantics
-                                                                    module-semantics)
+        (interpret sketch #:module-semantics module-semantics)
         (define result
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
                                            #:guarantee
                                            (assert (bveq bv-expr
-                                                         (signal-value (interpret sketch
-                                                                    #:module-semantics
-                                                                    module-semantics))))))))
+                                                         (signal-value
+                                                          (interpret sketch
+                                                                     #:module-semantics
+                                                                     module-semantics))))))))
 
         (define end-synthesis-time (current-inexact-milliseconds))
         (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))
@@ -640,6 +660,32 @@
                                              #:extra-verilator-args extra-verilator-args
                                              (list (to-simulate lr-expr bv-expr))
                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
+
+  (sketch-test
+   #:name "DSP for bvmul on Xilinx DSP48E2"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bvmul a b)
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator single-dsp-sketch-generator
+   #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
+                                  xilinx-ultrascale-plus-dsp48e2))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
+                        (build-path (get-lakeroad-directory) "verilator-unisims"))
+   #:extra-verilator-args
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT")
+
+  (sketch-test
+   #:name "DSP for bvmul and bvand on Xilinx DSP48E2"
+   #:defines (define-symbolic a b (bitvector 16))
+   #:bv-expr (bvand (bvmul a b) (bvmul a b))
+   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
+   #:sketch-generator single-dsp-sketch-generator
+   #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
+                                  xilinx-ultrascale-plus-dsp48e2))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
+                        (build-path (get-lakeroad-directory) "verilator-unisims"))
+   #:extra-verilator-args
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT")
 
   (sketch-test
    #:name "left shift on SOFA"
@@ -1474,9 +1520,6 @@
    #:extra-verilator-args
    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;; TODO(acheung8): This one's the long one.
-  ;;; interestingly, bveq with two bvs w/ width 4 is fast. this requires a LUT 8?
-  ;;; todo: explore if bwidth of 5 seems to exponentially explode # of symbolics
   (sketch-test
    #:name "shallow comparison sketch on SOFA"
    #:defines (define-symbolic a b (bitvector 4))

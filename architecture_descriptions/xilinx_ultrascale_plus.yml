@@ -44,3 +44,190 @@ implementations:
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
     outputs: { O: O, CO: (bit 7 CO) }
+  - interface: { name: DSP, parameters: { width: 16 } }
+    internal_data: {
+      ACASCREG: 32,
+      ADREG: 32,
+      ALUMODEREG: 32,
+      AREG: 32,
+      BCASCREG: 32,
+      BREG: 32,
+      CARRYINREG: 32,
+      CARRYINSELREG: 32,
+      CREG: 32,
+      DREG: 32,
+      INMODEREG: 32,
+      MREG: 32,
+      OPMODEREG: 32,
+      PREG: 32,
+
+      OPMODE: 9,
+      IS_OPMODE_INVERTED: 9,
+      A_INPUT: 5,
+      B_INPUT: 5,
+      PREADDINSEL: 5,
+      AMULTSEL: 5,
+      BMULTSEL: 5,
+      CARRYINSEL: 3,
+      USE_MULT: 5,
+      USE_SIMD: 5,
+      USE_WIDEXOR: 5,
+      XORSIMD: 5,
+      AUTORESET_PATDET: 5,
+      AUTORESET_PRIORITY: 5,
+      SEL_MASK: 5,
+      SEL_PATTERN: 5,
+      USE_PATTERN_DETECT: 5,
+    }
+    constraints: [
+      # TODO(@ninehusky): Right now, these constraints are commented out because we fix these parameters to specific values.
+      # When we extend the DSP primitive interface to support sequential functionality, we'll need to
+      # re-enable these constraints (and fix the parameter values accordingly).
+      # We will also need to convert these from lambdas to just the predicate that go inside an assert.
+
+      # The following are from ultrascale.rkt, interpret-ultrascale-dsp48e2-new:
+      # Commented out ones are unnecessary based on (assert bvzero?...)
+      # asserts present in synthesize.rkt/interpret-ultrascale-dsp48e2-new.
+      # ACASCREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32)) (bveq v (bv 2 32))))),
+      # ADREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # ALUMODEREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # AREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32)) (bveq v (bv 2 32))))),
+      # BCASCREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32)) (bveq v (bv 2 32))))),
+      # BREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32)) (bveq v (bv 2 32))))),
+      # CARRYINREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # CARRYINSELREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # CREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # DREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # INMODEREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # MREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # OPMODEREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+      # PREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
+
+      "(|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5)))",
+      "(|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5)))",
+      "(|| (bveq PREADDINSEL (bv 0 5)) (bveq PREADDINSEL (bv 1 5)))",
+      "(|| (bveq AMULTSEL (bv 0 5)) (bveq AMULTSEL (bv 2 5)))",
+      "(|| (bveq BMULTSEL (bv 1 5)) (bveq BMULTSEL (bv 2 5)))",
+      "(|| (bveq USE_MULT (bv 20 5)) (bveq USE_MULT (bv 10 5)) (bveq USE_MULT (bv 18 5)))",
+      "(|| (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 25 5)) (bveq USE_SIMD (bv 19 5)))",
+      "(|| (bveq USE_WIDEXOR (bv 24 5)) (bveq USE_WIDEXOR (bv 13 5)))",
+      "(|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5)))",
+      "(|| (bveq AUTORESET_PATDET (bv 3 5)) (bveq AUTORESET_PATDET (bv 4 5)) (bveq AUTORESET_PATDET (bv 5 5)))",
+      "(|| (bveq AUTORESET_PRIORITY (bv 6 5)) (bveq AUTORESET_PRIORITY (bv 16 5)))",
+      "(|| (bveq SEL_MASK (bv 8 5)) (bveq SEL_MASK (bv 17 5)) (bveq SEL_MASK (bv 22 5)) (bveq SEL_MASK (bv 23 5)))",
+      "(|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5)) (bveq SEL_PATTERN (bv 22 5)) (bveq SEL_PATTERN (bv 23 5)))",
+      "(|| (bveq USE_PATTERN_DETECT (bv 11 5)) (bveq USE_PATTERN_DETECT (bv 21 5)))",
+
+      "(=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
+                  (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2)))",
+      "(not (bveq (bvxor (extract 6 4 OPMODE) (extract 6 4 IS_OPMODE_INVERTED)) (bv #b111 3)))",
+      # ;;; Warning from DSP model:
+      # ;;;
+      # ;;; DRC warning : [Unisim DSP48E2-11] CARRYINSEL is set to 010 with OPMODEREG set to 0. This causes
+      # ;;; unknown values after reset occurs. It is suggested to use OPMODEREG = 1 when cascading large
+      # ;;; adders.
+      # (assert (not (&& (bveq CARRYINSEL (bv #b010 3)) (bvzero? OPMODEREG))))
+
+      # The following are from synthesize.rkt, synthesize-xilinx-ultrascale-plus-dsp
+      "(not (bveq (extract 5 4 OPMODE) (bv #b01 2)))",
+      "(not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3)))",
+    ]
+    modules:
+      - module_name: DSP48E2
+        filepath: ../verilator_unisims/DSP48E2.v
+        racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v
+        ports:
+          [
+            { name: A, direction: input, bitwidth: 16, value: (zero-extend A (bitvector 30)) },
+            { name: ACIN, direction: input, bitwidth: 30, value: (bv 0 30) },
+            { name: ALUMODE, direction: input, bitwidth: 4, value: (bv 0 4) },
+            { name: B, direction: input, bitwidth: 16, value: (zero-extend B (bitvector 18)) },
+            { name: BCIN, direction: input, bitwidth: 18, value: (bv 0 18) },
+            { name: C, direction: input, bitwidth: 48, value: (bv 0 48) },
+            { name: CARRYCASCIN, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CARRYIN, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CARRYINSEL, direction : input, bitwidth: 3, value: CARRYINSEL },
+
+            # Here, we set clock enable inputs to 1.
+            { name: CEA1, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEA2, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEAD, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEALUMODE, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEB1, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEB2, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEC, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CECARRYIN, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CECTRL, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CED, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEINMODE, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEM, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEP, direction: input, bitwidth: 1, value: (bv 1 1) },
+
+            { name: CLK, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: D, direction: input, bitwidth: 27, value: (bv 0 27) },
+            { name: INMODE, direction: input, bitwidth: 5, value: (bv 0 5) },
+            { name: MULTSIGNIN, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: OPMODE, direction: input, bitwidth: 9, value: OPMODE },
+            { name: PCIN, direction: input, bitwidth: 48, value: (bv 0 48) },
+            { name: RSTA, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTALLCARRYIN, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTALUMODE, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTB, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTC, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTCTRL, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTD, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTINMODE, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTM, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTP, direction: input, bitwidth: 1, value: (bv 0 1) },
+
+            { name: P, direction: output, bitwidth: 48, value: P },
+          ]
+        parameters: [
+          { name: ACASCREG, value: (bv 0 32) },
+          { name: ADREG, value: (bv 0 32) },
+          { name: ALUMODEREG, value: (bv 0 32) },
+          { name: AMULTSEL, value: AMULTSEL },
+          { name: AREG, value: (bv 0 32)},
+          { name: AUTORESET_PATDET, value: AUTORESET_PATDET },
+          { name: AUTORESET_PRIORITY, value: AUTORESET_PRIORITY },
+          { name: A_INPUT, value: A_INPUT },
+          { name: BCASCREG, value: (bv 0 32) },
+          { name: BMULTSEL, value: BMULTSEL },
+          { name: BREG, value: (bv 0 32) },
+          { name: B_INPUT, value: B_INPUT },
+          { name: CARRYINREG, value: (bv 0 32) },
+          { name: CARRYINSELREG, value: (bv 0 32) },
+          { name: CREG, value: (bv 0 32) },
+          { name: DREG, value: (bv 0 32) },
+          { name: INMODEREG, value: (bv 0 32) },
+          { name: IS_ALUMODE_INVERTED, value: (bv 0 4) },
+          { name: IS_CARRYIN_INVERTED, value: (bv 0 1) },
+          { name: IS_CLK_INVERTED, value: (bv 0 1) },
+          { name: IS_INMODE_INVERTED, value: (bv 0 5) },
+          { name: IS_OPMODE_INVERTED, value: IS_OPMODE_INVERTED },
+          { name: IS_RSTALLCARRYIN_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTALUMODE_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTA_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTB_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTCTRL_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTC_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTD_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTINMODE_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTM_INVERTED, value: (bv 0 1) },
+          { name: IS_RSTP_INVERTED, value: (bv 0 1) },
+          { name: MASK, value: (bv 0 48) },
+          { name: MREG, value: (bv 0 32) },
+          { name: OPMODEREG, value: (bv 0 32) },
+          { name: PATTERN, value: (bv 0 48) },
+          { name: PREADDINSEL, value: PREADDINSEL },
+          { name: PREG, value: (bv 0 32) },
+          { name: RND, value: (bv 0 48) },
+          { name: SEL_MASK, value: SEL_MASK },
+          { name: SEL_PATTERN, value: SEL_PATTERN },
+          { name: USE_MULT, value: USE_MULT },
+          { name: USE_PATTERN_DETECT, value: USE_PATTERN_DETECT },
+          { name: USE_SIMD, value: USE_SIMD },
+          { name: USE_WIDEXOR, value: USE_WIDEXOR },
+          { name: XORSIMD, value: XORSIMD },
+        ]
+    outputs: { O : (extract 15 0 P) }
