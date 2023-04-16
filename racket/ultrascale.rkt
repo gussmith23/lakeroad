@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (provide interpret-ultrascale-plus
          ultrascale-plus-clb
