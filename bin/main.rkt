@@ -349,9 +349,11 @@
           (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-"))) keywords))
         (for ([env envs])
           (when (not (equal? (length env) (length keywords-minus-unnamed)))
-            (error "Not passing all inputs to bv-expr, Missing "
-                   (set-subtract (apply set keywords-minus-unnamed)
-                                 (apply set (map (compose1 string->keyword car) env))))))
+            ;;; TODO(@gussmith23): Figure out how to use Racket logging...
+            (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a"
+                               (set-subtract (apply set keywords-minus-unnamed)
+                                             (apply set (map (compose1 string->keyword car) env))))
+                       (current-error-port))))
 
         (rosette-synthesize
          (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal)))) bv-expr)
