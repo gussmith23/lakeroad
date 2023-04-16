@@ -2378,8 +2378,8 @@
                        ;;; Tick the clock twice.
                        #:lr-sequential (list (make-env (bv 0 1) a b)
                                              (make-env (bv 1 1) a b)
-                                             (make-env (bv 0 1) (bv 0 8)(bv 0 8))
-                                             (make-env (bv 1 1) (bv 0 8)(bv 0 8)))
+                                             (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                             (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
                        #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
                                                       two-stage-adder))))
 
