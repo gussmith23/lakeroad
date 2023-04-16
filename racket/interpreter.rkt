@@ -314,12 +314,11 @@
               (for/all ([n (interpret-helper n) #:exhaustive]) (list-ref (interpret-helper l) n))]
              [(lr:map f lsts) (apply map f (interpret-helper lsts))]
              ;;; Rosette functions lifted to our language.
-            ;;;  [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
-             [(lr:zero-extend v bv) 
-              (let* (
-                [v (interpret-helper v)]
-                [bv (interpret-helper bv)]
-                [state (merge-state (list v))])
+             ;;;  [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
+             [(lr:zero-extend v bv)
+              (let* ([v (interpret-helper v)]
+                     [bv (interpret-helper bv)]
+                     [state (merge-state (list v))])
                 (signal (zero-extend (signal-value v) bv) state))]
              [(lr:sign-extend v bv)
               (let* ([v (interpret-helper v)]
