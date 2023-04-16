@@ -63,7 +63,7 @@ implementations:
             { name: INJECT1_1, value: (bv 0 1) },
           ]
     outputs: { O: (concat S1 S0), CO: COUT }
-  - interface: { name: DSP, parameters: { width: 16 } }
+  - interface: { name: DSP, parameters: { out-width: 36, a-width: 18, b-width: 18, c-width: 18 } }
     internal_data: { }
     modules:
       - module_name: MULT18X18D
@@ -89,8 +89,8 @@ implementations:
             { name: A13, direction: input, bitwidth: 1, value: (extract 13 13 A) },
             { name: A14, direction: input, bitwidth: 1, value: (extract 14 14 A) },
             { name: A15, direction: input, bitwidth: 1, value: (extract 15 15 A) },
-            { name: A16, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: A17, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: A16, direction: input, bitwidth: 1, value: (extract 16 16 A) },
+            { name: A17, direction: input, bitwidth: 1, value: (extract 17 17 A) },
 
             { name: B0, direction: input, bitwidth: 1, value: (extract 0 0 B) },
             { name: B1, direction: input, bitwidth: 1, value: (extract 1 1 B) },
@@ -108,27 +108,27 @@ implementations:
             { name: B13, direction: input, bitwidth: 1, value: (extract 13 13 B) },
             { name: B14, direction: input, bitwidth: 1, value: (extract 14 14 B) },
             { name: B15, direction: input, bitwidth: 1, value: (extract 15 15 B) },
-            { name: B16, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: B17, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: B16, direction: input, bitwidth: 1, value: (extract 16 16 B) },
+            { name: B17, direction: input, bitwidth: 1, value: (extract 17 17 B) },
 
-            { name: C0, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C1, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C2, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C3, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C4, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C5, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C6, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C7, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C8, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C9, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C10, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C11, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C12, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C13, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C14, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C15, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C16, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C17, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: C0, direction: input, bitwidth: 1, value: (extract 0 0 C) },
+            { name: C1, direction: input, bitwidth: 1, value: (extract 1 1 C) },
+            { name: C2, direction: input, bitwidth: 1, value: (extract 2 2 C) },
+            { name: C3, direction: input, bitwidth: 1, value: (extract 3 3 C) },
+            { name: C4, direction: input, bitwidth: 1, value: (extract 4 4 C) },
+            { name: C5, direction: input, bitwidth: 1, value: (extract 5 5 C) },
+            { name: C6, direction: input, bitwidth: 1, value: (extract 6 6 C) },
+            { name: C7, direction: input, bitwidth: 1, value: (extract 7 7 C) },
+            { name: C8, direction: input, bitwidth: 1, value: (extract 8 8 C) },
+            { name: C9, direction: input, bitwidth: 1, value: (extract 9 9 C) },
+            { name: C10, direction: input, bitwidth: 1, value: (extract 10 10 C) },
+            { name: C11, direction: input, bitwidth: 1, value: (extract 11 11 C) },
+            { name: C12, direction: input, bitwidth: 1, value: (extract 12 12 C) },
+            { name: C13, direction: input, bitwidth: 1, value: (extract 13 13 C) },
+            { name: C14, direction: input, bitwidth: 1, value: (extract 14 14 C) },
+            { name: C15, direction: input, bitwidth: 1, value: (extract 15 15 C) },
+            { name: C16, direction: input, bitwidth: 1, value: (extract 16 16 C) },
+            { name: C17, direction: input, bitwidth: 1, value: (extract 17 17 C) },
 
             { name: SIGNEDA, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: SIGNEDB, direction: input, bitwidth: 1, value: (bv 0 1) },
@@ -140,7 +140,7 @@ implementations:
             { name: CE2, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: CE3, direction: input, bitwidth: 1, value: (bv 1 1) },
 
-            { name: CLK0, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CLK0, direction: input, bitwidth: 1, value: clk },
             { name: CLK1, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: CLK2, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: CLK3, direction: input, bitwidth: 1, value: (bv 0 1) },
@@ -326,4 +326,4 @@ implementations:
         parameters: [
 
          ]
-    outputs: { O : (concat P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0) }
+    outputs: { O : (concat P35 P34 P33 P32 P31 P30 P29 P28 P27 P26 P25 P24 P23 P22 P21 P20 P19 P18 P17 P16 P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0) }
