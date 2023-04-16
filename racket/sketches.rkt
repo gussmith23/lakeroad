@@ -203,19 +203,20 @@
        [out-expr
         (choose
          (make-dsp-expr internal-data out-width (car clk-input) a-expr a-bw b-expr b-bw c-expr c-bw)
-         (make-dsp-expr internal-data out-width (car clk-input) a-expr a-bw c-expr c-bw b-expr b-bw)
-         (make-dsp-expr internal-data out-width (car clk-input) b-expr b-bw a-expr a-bw c-expr c-bw)
-         (make-dsp-expr internal-data out-width (car clk-input) b-expr b-bw c-expr c-bw a-expr a-bw)
-         (make-dsp-expr internal-data out-width (car clk-input) c-expr c-bw b-expr b-bw a-expr a-bw)
-         (make-dsp-expr internal-data
-                        out-width
-                        (car clk-input)
-                        c-expr
-                        c-bw
-                        a-expr
-                        a-bw
-                        b-expr
-                        b-bw))])
+         ;;(make-dsp-expr internal-data out-width (car clk-input) a-expr a-bw c-expr c-bw b-expr b-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) b-expr b-bw a-expr a-bw c-expr c-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) b-expr b-bw c-expr c-bw a-expr a-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) c-expr c-bw b-expr b-bw a-expr a-bw)
+         ;;;    (make-dsp-expr internal-data
+         ;;; out-width
+         ;;; (car clk-input)
+         ;;; c-expr
+         ;;; c-bw
+         ;;; a-expr
+         ;;; a-bw
+         ;;; b-expr
+         ;;; b-bw)
+         )])
     (list out-expr internal-data)))
 
 ;;; Bitwise with carry sketch generator.
