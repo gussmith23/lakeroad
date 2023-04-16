@@ -915,16 +915,25 @@
                                         their-b-width
                                         "c-width"
                                         their-c-width))
+            ;;; Either sign extend or zero extend the data inputs. Some multipliers handle signed
+            ;;; inputs, some multipliers take sign as a separate argument.
             (list (cons "A"
-                        (lr:sign-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
-                                        (lr:bitvector (bitvector their-a-width))))
+                        (choose (lr:zero-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
+                                                (lr:bitvector (bitvector their-a-width)))
+                                (lr:sign-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
+                                                (lr:bitvector (bitvector their-a-width)))))
                   (cons "B"
-                        (lr:sign-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
-                                        (lr:bitvector (bitvector their-b-width))))
+                        (choose (lr:zero-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
+                                                (lr:bitvector (bitvector their-b-width)))
+                                (lr:sign-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
+                                                (lr:bitvector (bitvector their-b-width)))))
                   (cons "C"
-                        (lr:sign-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
-                                        (lr:bitvector (bitvector their-c-width))))
-                  (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk")))))
+                        (choose (lr:zero-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
+                                                (lr:bitvector (bitvector their-c-width)))
+                                (lr:sign-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
+                                                (lr:bitvector (bitvector their-c-width)))))
+                  (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk"))))
+                  (cons "rst" (cdr (or (assoc "rst" port-map) (error "Expected rst")))))
             #:internal-data internal-data)])
        (list (lr:make-immutable-hash
               (lr:list (list (lr:cons (lr:symbol 'O)
