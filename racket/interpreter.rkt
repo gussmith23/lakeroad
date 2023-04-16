@@ -98,7 +98,7 @@
                      ;;; Interpret values.
                      [all-values (map interpret-helper all-values)]
                      ;;; Wrap in signal.
-                    ;;;  [all-values (map bv->signal all-values)]
+                     ;;;  [all-values (map bv->signal all-values)]
 
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
@@ -111,7 +111,7 @@
 
                      ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
                      ;;; interpreter, we have to unwrap the signal values.
-                    ;;;  [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)]
+                     ;;;  [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)]
                      )
                 out)]
              ;;; Lakeroad language.
