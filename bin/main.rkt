@@ -267,7 +267,8 @@
     ["lattice-ecp5"
      (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
            (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
-           (cons (cons "MULT18X18D" "") lattice-ecp5-mult18x18d)
+           (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
+                 lattice-ecp5-mult18x18d)
            (cons (cons "ALU24B" "") lattice-ecp5-alu24b))]
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
