@@ -131,8 +131,13 @@ def preprocess_flatten_convert_verilog(
             "prep",
             "proc",
             "flatten",
-            # TODO(@gussmith23) I'm unclear on whether we need clk2fflogic here or not.
-            # See https://github.com/uwsampl/lakeroad/issues/238.
+            # I've gone back and forth on whether to use clk2fflogic or
+            # async2sync here, and in the end, I'm 99% sure clk2fflogic is the
+            # correct choice. I had thought that we couldn't use clk2fflogic for
+            # importing the Intel DSP, but it turns out that was a mistake on my
+            # end. More specifically, there were other modif
+            # https://github.com/uwsampl/lakeroad/issues/238
+            # https://github.com/uwsampl/lakeroad/issues/170
             "clk2fflogic",
             #"async2sync",
             #"dffunmap",
