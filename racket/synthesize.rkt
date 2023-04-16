@@ -993,11 +993,11 @@
        (define-symbolic USE_SIMD (bitvector 5))
        (define-symbolic USE_WIDEXOR (bitvector 5))
        (define-symbolic XORSIMD (bitvector 5))
-       (define-symbolic unnamed-input-331 (bitvector 48))
-       (define-symbolic unnamed-input-488 (bitvector 48))
-       (define-symbolic unnamed-input-750 (bitvector 48))
-       (define-symbolic unnamed-input-806 (bitvector 48))
-       (define-symbolic unnamed-input-850 (bitvector 1))
+       (define-symbolic unnamed-input-300 (bitvector 48))
+       (define-symbolic unnamed-input-439 (bitvector 48))
+       (define-symbolic unnamed-input-677 (bitvector 48))
+       (define-symbolic unnamed-input-727 (bitvector 48))
+       (define-symbolic unnamed-input-771 (bitvector 1))
 
        ;;; For some reason I can't get this working for the full
        ;;; bitwidth. I expect it to work for 26x17 (because we do
@@ -1091,11 +1091,11 @@
                                   (lr:bv USE_SIMD)
                                   (lr:bv USE_WIDEXOR)
                                   (lr:bv XORSIMD)
-                                  (lr:bv unnamed-input-331)
-                                  (lr:bv unnamed-input-488)
-                                  (lr:bv unnamed-input-750)
-                                  (lr:bv unnamed-input-806)
-                                  (lr:bv unnamed-input-850)))
+                                  (lr:bv unnamed-input-300)
+                                  (lr:bv unnamed-input-439)
+                                  (lr:bv unnamed-input-677)
+                                  (lr:bv unnamed-input-727)
+                                  (lr:bv unnamed-input-771)))
 
        ;;; Force to DYNAMIC to avoid:
        ;;;
@@ -1191,11 +1191,11 @@
 
        ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
        ;;; assumes.
-       (assume (bvzero? unnamed-input-331))
-       (assume (bvzero? unnamed-input-488))
-       (assume (bvzero? unnamed-input-750))
-       (assume (bvzero? unnamed-input-806))
-       (assume (bvzero? unnamed-input-850))
+       (assume (bvzero? unnamed-input-300))
+       (assume (bvzero? unnamed-input-439))
+       (assume (bvzero? unnamed-input-677))
+       (assume (bvzero? unnamed-input-727))
+       (assume (bvzero? unnamed-input-771))
 
        dsp-expr)
 
@@ -1213,11 +1213,11 @@
      (rosette-synthesize bv-expr
                          lakeroad-expr
                          (append (symbolics bv-expr)
-                                 ;;;  (list unnamed-input-331
-                                 ;;;        unnamed-input-488
-                                 ;;;        unnamed-input-750
-                                 ;;;        unnamed-input-806
-                                 ;;;        unnamed-input-850)
+                                 ;;;  (list unnamed-input-300
+                                 ;;;        unnamed-input-439
+                                 ;;;        unnamed-input-677
+                                 ;;;        unnamed-input-727
+                                 ;;;        unnamed-input-771)
                                  )))))
 
 ;;; Attempt to synthesize expression using two chained DSPs.
@@ -1340,11 +1340,11 @@
        (define-symbolic USE_SIMD (bitvector 5))
        (define-symbolic USE_WIDEXOR (bitvector 5))
        (define-symbolic XORSIMD (bitvector 5))
-       (define-symbolic unnamed-input-331 (bitvector 48))
-       (define-symbolic unnamed-input-488 (bitvector 48))
-       (define-symbolic unnamed-input-750 (bitvector 48))
-       (define-symbolic unnamed-input-806 (bitvector 48))
-       (define-symbolic unnamed-input-850 (bitvector 1))
+       (define-symbolic unnamed-input-300 (bitvector 48))
+       (define-symbolic unnamed-input-439 (bitvector 48))
+       (define-symbolic unnamed-input-677 (bitvector 48))
+       (define-symbolic unnamed-input-727 (bitvector 48))
+       (define-symbolic unnamed-input-771 (bitvector 1))
 
        ;;; For some reason I can't get this working for the full
        ;;; bitwidth. I expect it to work for 26x17 (because we do
@@ -1438,11 +1438,11 @@
                                   (lr:bv USE_SIMD)
                                   (lr:bv USE_WIDEXOR)
                                   (lr:bv XORSIMD)
-                                  (lr:bv unnamed-input-331)
-                                  (lr:bv unnamed-input-488)
-                                  (lr:bv unnamed-input-750)
-                                  (lr:bv unnamed-input-806)
-                                  (lr:bv unnamed-input-850)))
+                                  (lr:bv unnamed-input-300)
+                                  (lr:bv unnamed-input-439)
+                                  (lr:bv unnamed-input-677)
+                                  (lr:bv unnamed-input-727)
+                                  (lr:bv unnamed-input-771)))
 
        ;;; Force to DYNAMIC to avoid:
        ;;;
@@ -1532,11 +1532,11 @@
 
        ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
        ;;; assumes.
-       (assume (bvzero? unnamed-input-331))
-       (assume (bvzero? unnamed-input-488))
-       (assume (bvzero? unnamed-input-750))
-       (assume (bvzero? unnamed-input-806))
-       (assume (bvzero? unnamed-input-850))
+       (assume (bvzero? unnamed-input-300))
+       (assume (bvzero? unnamed-input-439))
+       (assume (bvzero? unnamed-input-677))
+       (assume (bvzero? unnamed-input-727))
+       (assume (bvzero? unnamed-input-771))
 
        dsp-expr)
 
@@ -1565,11 +1565,11 @@
      (rosette-synthesize bv-expr
                          lakeroad-expr
                          (append (symbolics bv-expr)
-                                 ;;;  (list unnamed-input-331
-                                 ;;;        unnamed-input-488
-                                 ;;;        unnamed-input-750
-                                 ;;;        unnamed-input-806
-                                 ;;;        unnamed-input-850)
+                                 ;;;  (list unnamed-input-300
+                                 ;;;        unnamed-input-439
+                                 ;;;        unnamed-input-677
+                                 ;;;        unnamed-input-727
+                                 ;;;        unnamed-input-771)
                                  )))))
 
 ;;; Attempt to synthesize expression using a DSP.
@@ -1684,11 +1684,11 @@
      (define-symbolic USE_SIMD (bitvector 5))
      (define-symbolic USE_WIDEXOR (bitvector 5))
      (define-symbolic XORSIMD (bitvector 5))
-     (define-symbolic unnamed-input-331 (bitvector 48))
-     (define-symbolic unnamed-input-488 (bitvector 48))
-     (define-symbolic unnamed-input-750 (bitvector 48))
-     (define-symbolic unnamed-input-806 (bitvector 48))
-     (define-symbolic unnamed-input-850 (bitvector 1))
+     (define-symbolic unnamed-input-300 (bitvector 48))
+     (define-symbolic unnamed-input-439 (bitvector 48))
+     (define-symbolic unnamed-input-677 (bitvector 48))
+     (define-symbolic unnamed-input-727 (bitvector 48))
+     (define-symbolic unnamed-input-771 (bitvector 1))
 
      (define lakeroad-expr
        (lr:extract (lr:integer (sub1 (bvlen bv-expr)))
@@ -1777,11 +1777,11 @@
                                                       (lr:bv USE_SIMD)
                                                       (lr:bv USE_WIDEXOR)
                                                       (lr:bv XORSIMD)
-                                                      (lr:bv unnamed-input-331)
-                                                      (lr:bv unnamed-input-488)
-                                                      (lr:bv unnamed-input-750)
-                                                      (lr:bv unnamed-input-806)
-                                                      (lr:bv unnamed-input-850)))))
+                                                      (lr:bv unnamed-input-300)
+                                                      (lr:bv unnamed-input-439)
+                                                      (lr:bv unnamed-input-677)
+                                                      (lr:bv unnamed-input-727)
+                                                      (lr:bv unnamed-input-771)))))
 
      ;;; For some reason I can't get this working for the full
      ;;; bitwidth. I expect it to work for 26x17 (because we do
@@ -1878,20 +1878,20 @@
 
      ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
      ;;; assumes.
-     (assume (bvzero? unnamed-input-331))
-     (assume (bvzero? unnamed-input-488))
-     (assume (bvzero? unnamed-input-750))
-     (assume (bvzero? unnamed-input-806))
-     (assume (bvzero? unnamed-input-850))
+     (assume (bvzero? unnamed-input-300))
+     (assume (bvzero? unnamed-input-439))
+     (assume (bvzero? unnamed-input-677))
+     (assume (bvzero? unnamed-input-727))
+     (assume (bvzero? unnamed-input-771))
 
      (rosette-synthesize bv-expr
                          lakeroad-expr
                          (append (symbolics bv-expr)
-                                 (list unnamed-input-331
-                                       unnamed-input-488
-                                       unnamed-input-750
-                                       unnamed-input-806
-                                       unnamed-input-850))))))
+                                 (list unnamed-input-300
+                                       unnamed-input-439
+                                       unnamed-input-677
+                                       unnamed-input-727
+                                       unnamed-input-771))))))
 
 (module+ test
   (simple-test synthesize-xilinx-ultrascale-plus-dsp (define-symbolic a b (bitvector 8)) (bvmul a b)))
