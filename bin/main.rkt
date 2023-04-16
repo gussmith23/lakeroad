@@ -55,6 +55,7 @@
 (define verilog-module-out-bitwidth (make-parameter #f))
 (define initiation-interval (make-parameter #f))
 (define clock-name (make-parameter #f))
+(define reset-name (make-parameter #f))
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
 
@@ -107,6 +108,11 @@
   "Name of the clock signal of both modules. Currently assumes they're the same, but this need not be"
   " the case."
   (clock-name v)]
+ ["--reset-name"
+  v
+  "Name of the reset signal of both modules. Currently assumes they're the same, but this need not be"
+  " the case."
+  (reset-name v)]
  #:once-any
  #:multi
  [("--instruction")
@@ -285,6 +291,10 @@
              [_ (when (not (clock-name))
                   (error "Clock name not specified."))]
 
+             [rst-input (if (reset-name)
+                            (cons (lr:var (reset-name) 1) 1)
+                            (cons (lr:bv (bv->signal (bv 0 1))) 1))]
+
              ;;; Sketch generators should take richer input than just a list of logical inputs and a
              ;;; bitwidth. That interface is starting to be too weak.
              ;;; For example, it's currently implicitly expected that the clock is the first list
@@ -320,6 +330,7 @@
              [sketch (first (sketch-generator architecture-description
                                               #:out-width (verilog-module-out-bitwidth)
                                               #:clk-input clk-input
+                                              #:rst-input rst-input
                                               #:data-inputs data-inputs))]
 
              ;;; Environments for sequential synthesis. Each environment represents one set of input
@@ -335,8 +346,11 @@
                              (make-list
                               (sub1 (initiation-interval))
                               (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-zeroes)
-                                    (cons (cons (clock-name) (bv->signal (bv 1 1)))
-                                          input-zeroes)))))])
+                                    (cons (cons (clock-name) (bv->signal (bv 1 1))) input-zeroes)))))]
+             ;;; If there's a reset signal, set it to 0 in all envs.
+             [envs (if (reset-name)
+                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
+                       envs)])
 
         ;;; Throw error if we're not passing all values to the bv-expr.
         ;;; TODO(@gussmith23): This check would be better elsewhere, but the use of `compose` below
