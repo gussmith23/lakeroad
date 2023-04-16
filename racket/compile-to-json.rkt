@@ -138,26 +138,82 @@
                                 [23 "ROUNDING_MODE2"]
                                 [24 "TRUE"]
                                 [25 "TWO24"]
-                                [26 "XOR12"]))
-                            (if (and (equal? module-name "DSP48E2")
-                                     (member (module-instance-parameter-name param)
-                                             (list "AMULTSEL"
-                                                   "AUTORESET_PATDET"
-                                                   "AUTORESET_PRIORITY"
-                                                   "A_INPUT"
-                                                   "BMULTSEL"
-                                                   "B_INPUT"
-                                                   "PREADDINSEL"
-                                                   "SEL_MASK"
-                                                   "SEL_PATTERN"
-                                                   "USE_MULT"
-                                                   "USE_PATTERN_DETECT"
-                                                   "USE_SIMD"
-                                                   "USE_WIDEXOR"
-                                                   "XORSIMD")))
+                                [26 "XOR12"]
+                                [_ #f]))
 
-                                (dsp48e2-enum-val-to-str (module-instance-parameter-value param))
-                                #f))]
+                            (define (lattice-mult18x18d-enum-val-to-str v)
+                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                [0 "NONE"]
+                                [1 "CE0"]
+                                [2 "RST0"]
+                                [3 "ENABLED"]
+                                [4 "FALSE"]
+                                [5 "DISABLED"]
+                                [6 "SYNC"]
+                                [7 "B_SHIFT"]
+                                [8 "C_SHIFT"]
+                                [9 "B_C_DYNAMIC"]
+                                [10 "HIGHSPEED"]
+                                [11 "CLK0"]
+                                [12 "CLK1"]
+                                [13 "CLK2"]
+                                [14 "CLK3"]
+                                [15 "CE1"]
+                                [16 "CE2"]
+                                [17 "CE3"]
+                                [18 "RST1"]
+                                [19 "RST2"]
+                                [20 "RST3"]
+                                [21 "ASYNC"]
+                                [22 "TRUE"]
+                                [_ #f]))
+
+                            (cond [(and (equal? module-name "DSP48E2")
+                                        (member (module-instance-parameter-name param)
+                                                (list "AMULTSEL"
+                                                      "AUTORESET_PATDET"
+                                                      "AUTORESET_PRIORITY"
+                                                      "A_INPUT"
+                                                      "BMULTSEL"
+                                                      "B_INPUT"
+                                                      "PREADDINSEL"
+                                                      "SEL_MASK"
+                                                      "SEL_PATTERN"
+                                                      "USE_MULT"
+                                                      "USE_PATTERN_DETECT"
+                                                      "USE_SIMD"
+                                                      "USE_WIDEXOR"
+                                                      "XORSIMD")))
+                                   (dsp48e2-enum-val-to-str (module-instance-parameter-value param))]
+                              [(and (equal? module-name "MULT18X18D")
+                                    (member (module-instance-parameter-name param)
+                                            (list "CLK0_DIV"
+                                                  "CLK1_DIV"
+                                                  "CLK2_DIV"
+                                                  "CLK3_DIV"
+                                                  "GSR"
+                                                  "HIGHSPEED_CLK"
+                                                  "MULT_BYPASS"
+                                                  "CAS_MATCH_REG"
+                                                  "SOURCEB_MODE"
+                                                  "REG_INPUTA_CE"
+                                                  "REG_INPUTB_CE"
+                                                  "REG_INPUTC_CE"
+                                                  "REG_PIPELINE_CE"
+                                                  "REG_OUTPUT_CE"
+                                                  "REG_INPUTA_CLK"
+                                                  "REG_INPUTB_CLK"
+                                                  "REG_INPUTC_CLK"
+                                                  "REG_PIPELINE_CLK"
+                                                  "REG_OUTPUT_CLK"
+                                                  "REG_INPUTA_RST"
+                                                  "REG_INPUTB_RST"
+                                                  "REG_INPUTC_RST"
+                                                  "REG_PIPELINE_RST"
+                                                  "REG_OUTPUT_RST")))
+                               (lattice-mult18x18d-enum-val-to-str
+                                (module-instance-parameter-value param))]
+                              [else #f]))]
 
                          ;;; Pairs of parameter symbol with value.
                          [param-pairs
