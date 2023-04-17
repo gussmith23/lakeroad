@@ -153,27 +153,23 @@
          (unnamed-input-494 (constant (list 'unnamed-input-494 (index!)) (bitvector 1)))
          #:unnamed-input-496
          (unnamed-input-496 (constant (list 'unnamed-input-496 (index!)) (bitvector 1)))
-         #:unnamed-input-622
-         (unnamed-input-622 (constant (list 'unnamed-input-622 (index!)) (bitvector 36)))
-         #:unnamed-input-1115
-         (unnamed-input-1115 (constant (list 'unnamed-input-1115 (index!)) (bitvector 1)))
-         #:unnamed-input-1117
-         (unnamed-input-1117 (constant (list 'unnamed-input-1117 (index!)) (bitvector 35)))
-         #:unnamed-input-1122
-         (unnamed-input-1122 (constant (list 'unnamed-input-1122 (index!)) (bitvector 35)))
-         #:unnamed-input-1143
-         (unnamed-input-1143 (constant (list 'unnamed-input-1143 (index!)) (bitvector 1)))
-         #:unnamed-input-1147
-         (unnamed-input-1147 (constant (list 'unnamed-input-1147 (index!)) (bitvector 1)))
-         #:unnamed-input-1152
-         (unnamed-input-1152 (constant (list 'unnamed-input-1152 (index!)) (bitvector 35)))
-         #:unnamed-input-1159
-         (unnamed-input-1159 (constant (list 'unnamed-input-1159 (index!)) (bitvector 35)))
-         #:unnamed-input-1164
-         (unnamed-input-1164 (constant (list 'unnamed-input-1164 (index!)) (bitvector 1)))
-         #:unnamed-input-1171
-         (unnamed-input-1171 (constant (list 'unnamed-input-1171 (index!)) (bitvector 1)))
-         #:unnamed-input-1173 (unnamed-input-1173 (constant (list 'unnamed-input-1173 (index!))
+         #:unnamed-input-621
+         (unnamed-input-621 (constant (list 'unnamed-input-621 (index!)) (bitvector 36)))
+         #:unnamed-input-1014
+         (unnamed-input-1014 (constant (list 'unnamed-input-1014 (index!)) (bitvector 1)))
+         #:unnamed-input-1016
+         (unnamed-input-1016 (constant (list 'unnamed-input-1016 (index!)) (bitvector 36)))
+         #:unnamed-input-1019
+         (unnamed-input-1019 (constant (list 'unnamed-input-1019 (index!)) (bitvector 36)))
+         #:unnamed-input-1041
+         (unnamed-input-1041 (constant (list 'unnamed-input-1041 (index!)) (bitvector 1)))
+         #:unnamed-input-1050
+         (unnamed-input-1050 (constant (list 'unnamed-input-1050 (index!)) (bitvector 36)))
+         #:unnamed-input-1057
+         (unnamed-input-1057 (constant (list 'unnamed-input-1057 (index!)) (bitvector 36)))
+         #:unnamed-input-1068
+         (unnamed-input-1068 (constant (list 'unnamed-input-1068 (index!)) (bitvector 1)))
+         #:unnamed-input-1071 (unnamed-input-1071 (constant (list 'unnamed-input-1071 (index!))
                                                             (bitvector 1))))
 
   (assoc-ref (intel-altmult-accum
@@ -268,17 +264,15 @@
               #:sourceb (bv->signal sourceb)
               #:unnamed-input-494 (bv->signal unnamed-input-494)
               #:unnamed-input-496 (bv->signal unnamed-input-496)
-              #:unnamed-input-622 (bv->signal unnamed-input-622)
-              #:unnamed-input-1115 (bv->signal unnamed-input-1115)
-              #:unnamed-input-1117 (bv->signal unnamed-input-1117)
-              #:unnamed-input-1122 (bv->signal unnamed-input-1122)
-              #:unnamed-input-1143 (bv->signal unnamed-input-1143)
-              #:unnamed-input-1147 (bv->signal unnamed-input-1147)
-              #:unnamed-input-1152 (bv->signal unnamed-input-1152)
-              #:unnamed-input-1159 (bv->signal unnamed-input-1159)
-              #:unnamed-input-1164 (bv->signal unnamed-input-1164)
-              #:unnamed-input-1171 (bv->signal unnamed-input-1171)
-              #:unnamed-input-1173 (bv->signal unnamed-input-1173))
+              #:unnamed-input-621 (bv->signal unnamed-input-621)
+              #:unnamed-input-1014 (bv->signal unnamed-input-1014)
+              #:unnamed-input-1016 (bv->signal unnamed-input-1016)
+              #:unnamed-input-1019 (bv->signal unnamed-input-1019)
+              #:unnamed-input-1041 (bv->signal unnamed-input-1041)
+              #:unnamed-input-1050 (bv->signal unnamed-input-1050)
+              #:unnamed-input-1057 (bv->signal unnamed-input-1057)
+              #:unnamed-input-1068 (bv->signal unnamed-input-1068)
+              #:unnamed-input-1071 (bv->signal unnamed-input-1071))
              'result))
 
 ;;; We explicitly step the model through three clock cycles:
@@ -563,5 +557,6 @@
                     #:sign_reg_b (bv 6 5)))
              (check-true (sat? (synthesize #:forall (list a b)
                                            #:guarantee
-                                           (assert (bveq (bvmul a b)
-                                                         (extract 17 0 (signal-value o5)))))))))
+                                           (assert (bveq (bvmul (zero-extend a (bitvector 36))
+                                                                (zero-extend b (bitvector 36)))
+                                                         (signal-value o5))))))))
