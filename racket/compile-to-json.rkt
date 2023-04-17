@@ -110,6 +110,40 @@
                          ;;; For now, you can add logic here to override parameter compilation.
                          [compile-parameter-override
                           (lambda (module-name param)
+
+                            (define (intel-altmult-accum-enum-val-to-str v)
+                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                [0 "ACLR0"]
+                                [1 "ACLR1"]
+                                [2 "ACLR2"]
+                                [3 "ACLR3"]
+                                [4 "ADD"]
+                                [5 "AUTO"]
+                                [6 "CLOCK0"]
+                                [7 "CLOCK1"]
+                                [8 "CLOCK2"]
+                                [9 "CLOCK3"]
+                                [10 "DATAA"]
+                                [11 "DATAB"]
+                                [12 "NO"]
+                                [13 "NONE"]
+                                [14 "PORT_CONNECTIVITY"]
+                                [15 "PORT_UNUSED"]
+                                [16 "PORT_USED"]
+                                [17 "SCANA"]
+                                [18 "SCANB"]
+                                [19 "SIGNED"]
+                                [20 "SIMPLE"]
+                                [21 "SUB"]
+                                [22 "Stratix"]
+                                [23 "UNREGISTERED"]
+                                [24 "UNSIGNED"]
+                                [25 "UNUSED"]
+                                [26 "VARIABLE"]
+                                [27 "YES"]
+                                [28 "altmult_accum"]
+                                [_ #f]))
+
                             (define (dsp48e2-enum-val-to-str v)
                               (match (bitvector->natural (signal-value (lr:bv-v v)))
                                 [0 "A"]
@@ -168,23 +202,24 @@
                                 [22 "TRUE"]
                                 [_ #f]))
 
-                            (cond [(and (equal? module-name "DSP48E2")
-                                        (member (module-instance-parameter-name param)
-                                                (list "AMULTSEL"
-                                                      "AUTORESET_PATDET"
-                                                      "AUTORESET_PRIORITY"
-                                                      "A_INPUT"
-                                                      "BMULTSEL"
-                                                      "B_INPUT"
-                                                      "PREADDINSEL"
-                                                      "SEL_MASK"
-                                                      "SEL_PATTERN"
-                                                      "USE_MULT"
-                                                      "USE_PATTERN_DETECT"
-                                                      "USE_SIMD"
-                                                      "USE_WIDEXOR"
-                                                      "XORSIMD")))
-                                   (dsp48e2-enum-val-to-str (module-instance-parameter-value param))]
+                            (cond
+                              [(and (equal? module-name "DSP48E2")
+                                    (member (module-instance-parameter-name param)
+                                            (list "AMULTSEL"
+                                                  "AUTORESET_PATDET"
+                                                  "AUTORESET_PRIORITY"
+                                                  "A_INPUT"
+                                                  "BMULTSEL"
+                                                  "B_INPUT"
+                                                  "PREADDINSEL"
+                                                  "SEL_MASK"
+                                                  "SEL_PATTERN"
+                                                  "USE_MULT"
+                                                  "USE_PATTERN_DETECT"
+                                                  "USE_SIMD"
+                                                  "USE_WIDEXOR"
+                                                  "XORSIMD")))
+                               (dsp48e2-enum-val-to-str (module-instance-parameter-value param))]
                               [(and (equal? module-name "MULT18X18D")
                                     (member (module-instance-parameter-name param)
                                             (list "CLK0_DIV"
@@ -213,6 +248,66 @@
                                                   "REG_OUTPUT_RST")))
                                (lattice-mult18x18d-enum-val-to-str
                                 (module-instance-parameter-value param))]
+                              [(and (equal? module-name "altmult_accum")
+                                    (member (module-instance-parameter-name param)
+                                            (list "input_reg_a"
+                                                  "input_aclr_a"
+                                                  "multiplier1_direction"
+                                                  "multiplier3_direction"
+                                                  "input_reg_b"
+                                                  "input_aclr_b"
+                                                  "port_addnsub"
+                                                  "addnsub_reg"
+                                                  "addnsub_aclr"
+                                                  "addnsub_pipeline_reg"
+                                                  "addnsub_pipeline_aclr"
+                                                  "accum_direction"
+                                                  "accum_sload_reg"
+                                                  "accum_sload_aclr"
+                                                  "accum_sload_pipeline_reg"
+                                                  "accum_sload_pipeline_aclr"
+                                                  "representation_a"
+                                                  "port_signa"
+                                                  "sign_reg_a"
+                                                  "sign_aclr_a"
+                                                  "sign_pipeline_reg_a"
+                                                  "sign_pipeline_aclr_a"
+                                                  "port_signb"
+                                                  "representation_b"
+                                                  "sign_reg_b"
+                                                  "sign_aclr_b"
+                                                  "sign_pipeline_reg_b"
+                                                  "sign_pipeline_aclr_b"
+                                                  "multiplier_reg"
+                                                  "multiplier_aclr"
+                                                  "output_reg"
+                                                  "output_aclr"
+                                                  "lpm_type"
+                                                  "lpm_hint"
+                                                  "dedicated_multiplier_circuitry"
+                                                  "dsp_block_balancing"
+                                                  "intended_device_family"
+                                                  "accum_round_aclr"
+                                                  "accum_round_pipeline_aclr"
+                                                  "accum_round_pipeline_reg"
+                                                  "accum_round_reg"
+                                                  "accum_saturation_aclr"
+                                                  "accum_saturation_pipeline_aclr"
+                                                  "accum_saturation_pipeline_reg"
+                                                  "accum_saturation_reg"
+                                                  "accum_sload_upper_data_aclr"
+                                                  "accum_sload_upper_data_pipeline_aclr"
+                                                  "accum_sload_upper_data_pipeline_reg"
+                                                  "accum_sload_upper_data_reg"
+                                                  "mult_round_aclr"
+                                                  "mult_round_reg"
+                                                  "mult_saturation_aclr"
+                                                  "mult_saturation_reg"
+                                                  "input_source_a"
+                                                  "input_source_b")))
+                               (intel-altmult-accum-enum-val-to-str
+                                (module-instance-parameter-value param))]
+
                               [else #f]))]
 
                          ;;; Pairs of parameter symbol with value.
