@@ -998,7 +998,7 @@
        (define-symbolic unnamed-input-677 (bitvector 48))
        (define-symbolic unnamed-input-727 (bitvector 48))
        (define-symbolic unnamed-input-771 (bitvector 1))
-
+       (displayln "reached dsp expr")
        ;;; For some reason I can't get this working for the full
        ;;; bitwidth. I expect it to work for 26x17 (because we do
        ;;; unsigned mult, but DSP is signed, so we can't use all
@@ -1008,95 +1008,94 @@
 
        (define dsp-expr
          (ultrascale-plus-dsp48e2 A
-                                  (lr:bv ACASCREG)
-                                  (lr:bv ACIN)
-                                  (lr:bv ADREG)
-                                  (lr:bv ALUMODE)
-                                  (lr:bv ALUMODEREG)
-                                  (lr:bv AMULTSEL)
-                                  (lr:bv AREG)
-                                  (lr:bv AUTORESET_PATDET)
-                                  (lr:bv AUTORESET_PRIORITY)
-                                  (lr:bv A_INPUT)
+                                  (lr:bv (bv->signal ACASCREG))
+                                  (lr:bv (bv->signal ACIN))
+                                  (lr:bv (bv->signal ADREG))
+                                  (lr:bv (bv->signal ALUMODE))
+                                  (lr:bv (bv->signal ALUMODEREG))
+                                  (lr:bv (bv->signal AMULTSEL))
+                                  (lr:bv (bv->signal AREG))
+                                  (lr:bv (bv->signal AUTORESET_PATDET))
+                                  (lr:bv (bv->signal AUTORESET_PRIORITY))
+                                  (lr:bv (bv->signal A_INPUT))
                                   B
-                                  (lr:bv BCASCREG)
-                                  (lr:bv BCIN)
-                                  (lr:bv BMULTSEL)
-                                  (lr:bv BREG)
-                                  (lr:bv B_INPUT)
+                                  (lr:bv (bv->signal BCASCREG))
+                                  (lr:bv (bv->signal BCIN))
+                                  (lr:bv (bv->signal BMULTSEL))
+                                  (lr:bv (bv->signal BREG))
+                                  (lr:bv (bv->signal B_INPUT))
                                   C
-                                  (lr:bv CARRYCASCIN)
-                                  ;;; why was this not a bv?
-                                  (lr:bv (bv->signal CARRYIN))
-                                  (lr:bv CARRYINREG)
-                                  (lr:bv CARRYINSEL)
-                                  (lr:bv CARRYINSELREG)
-                                  (lr:bv CEA1)
-                                  (lr:bv CEA2)
-                                  (lr:bv CEAD)
-                                  (lr:bv CEALUMODE)
-                                  (lr:bv CEB1)
-                                  (lr:bv CEB2)
-                                  (lr:bv CEC)
-                                  (lr:bv CECARRYIN)
-                                  (lr:bv CECTRL)
-                                  (lr:bv CED)
-                                  (lr:bv CEINMODE)
-                                  (lr:bv CEM)
-                                  (lr:bv CEP)
-                                  (lr:bv CLK)
-                                  (lr:bv CREG)
+                                  (lr:bv (bv->signal CARRYCASCIN))
+                                  CARRYIN
+                                  (lr:bv (bv->signal CARRYINREG))
+                                  (lr:bv (bv->signal CARRYINSEL))
+                                  (lr:bv (bv->signal CARRYINSELREG))
+                                  (lr:bv (bv->signal CEA1))
+                                  (lr:bv (bv->signal CEA2))
+                                  (lr:bv (bv->signal CEAD))
+                                  (lr:bv (bv->signal CEALUMODE))
+                                  (lr:bv (bv->signal CEB1))
+                                  (lr:bv (bv->signal CEB2))
+                                  (lr:bv (bv->signal CEC))
+                                  (lr:bv (bv->signal CECARRYIN))
+                                  (lr:bv (bv->signal CECTRL))
+                                  (lr:bv (bv->signal CED))
+                                  (lr:bv (bv->signal CEINMODE))
+                                  (lr:bv (bv->signal CEM))
+                                  (lr:bv (bv->signal CEP))
+                                  (lr:bv (bv->signal CLK))
+                                  (lr:bv (bv->signal CREG))
                                   D
-                                  (lr:bv DREG)
-                                  (lr:bv INMODE)
-                                  (lr:bv INMODEREG)
-                                  (lr:bv IS_ALUMODE_INVERTED)
-                                  (lr:bv IS_CARRYIN_INVERTED)
-                                  (lr:bv IS_CLK_INVERTED)
-                                  (lr:bv IS_INMODE_INVERTED)
-                                  (lr:bv IS_OPMODE_INVERTED)
-                                  (lr:bv IS_RSTALLCARRYIN_INVERTED)
-                                  (lr:bv IS_RSTALUMODE_INVERTED)
-                                  (lr:bv IS_RSTA_INVERTED)
-                                  (lr:bv IS_RSTB_INVERTED)
-                                  (lr:bv IS_RSTCTRL_INVERTED)
-                                  (lr:bv IS_RSTC_INVERTED)
-                                  (lr:bv IS_RSTD_INVERTED)
-                                  (lr:bv IS_RSTINMODE_INVERTED)
-                                  (lr:bv IS_RSTM_INVERTED)
-                                  (lr:bv IS_RSTP_INVERTED)
-                                  (lr:bv MASK)
-                                  (lr:bv MREG)
-                                  (lr:bv MULTSIGNIN)
-                                  (lr:bv OPMODE)
-                                  (lr:bv OPMODEREG)
-                                  (lr:bv PATTERN)
-                                  (lr:bv PCIN)
-                                  (lr:bv PREADDINSEL)
-                                  (lr:bv PREG)
-                                  (lr:bv RND)
-                                  (lr:bv RSTA)
-                                  (lr:bv RSTALLCARRYIN)
-                                  (lr:bv RSTALUMODE)
-                                  (lr:bv RSTB)
-                                  (lr:bv RSTC)
-                                  (lr:bv RSTCTRL)
-                                  (lr:bv RSTD)
-                                  (lr:bv RSTINMODE)
-                                  (lr:bv RSTM)
-                                  (lr:bv RSTP)
-                                  (lr:bv SEL_MASK)
-                                  (lr:bv SEL_PATTERN)
-                                  (lr:bv USE_MULT)
-                                  (lr:bv USE_PATTERN_DETECT)
-                                  (lr:bv USE_SIMD)
-                                  (lr:bv USE_WIDEXOR)
-                                  (lr:bv XORSIMD)
-                                  (lr:bv unnamed-input-300)
-                                  (lr:bv unnamed-input-439)
-                                  (lr:bv unnamed-input-677)
-                                  (lr:bv unnamed-input-727)
-                                  (lr:bv unnamed-input-771)))
+                                  (lr:bv (bv->signal DREG))
+                                  (lr:bv (bv->signal INMODE))
+                                  (lr:bv (bv->signal INMODEREG))
+                                  (lr:bv (bv->signal IS_ALUMODE_INVERTED))
+                                  (lr:bv (bv->signal IS_CARRYIN_INVERTED))
+                                  (lr:bv (bv->signal IS_CLK_INVERTED))
+                                  (lr:bv (bv->signal IS_INMODE_INVERTED))
+                                  (lr:bv (bv->signal IS_OPMODE_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTALLCARRYIN_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTALUMODE_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTA_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTB_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTCTRL_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTC_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTD_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTINMODE_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTM_INVERTED))
+                                  (lr:bv (bv->signal IS_RSTP_INVERTED))
+                                  (lr:bv (bv->signal MASK))
+                                  (lr:bv (bv->signal MREG))
+                                  (lr:bv (bv->signal MULTSIGNIN))
+                                  (lr:bv (bv->signal OPMODE))
+                                  (lr:bv (bv->signal OPMODEREG))
+                                  (lr:bv (bv->signal PATTERN))
+                                  (lr:bv (bv->signal PCIN))
+                                  (lr:bv (bv->signal PREADDINSEL))
+                                  (lr:bv (bv->signal PREG))
+                                  (lr:bv (bv->signal RND))
+                                  (lr:bv (bv->signal RSTA))
+                                  (lr:bv (bv->signal RSTALLCARRYIN))
+                                  (lr:bv (bv->signal RSTALUMODE))
+                                  (lr:bv (bv->signal RSTB))
+                                  (lr:bv (bv->signal RSTC))
+                                  (lr:bv (bv->signal RSTCTRL))
+                                  (lr:bv (bv->signal RSTD))
+                                  (lr:bv (bv->signal RSTINMODE))
+                                  (lr:bv (bv->signal RSTM))
+                                  (lr:bv (bv->signal RSTP))
+                                  (lr:bv (bv->signal SEL_MASK))
+                                  (lr:bv (bv->signal SEL_PATTERN))
+                                  (lr:bv (bv->signal USE_MULT))
+                                  (lr:bv (bv->signal USE_PATTERN_DETECT))
+                                  (lr:bv (bv->signal USE_SIMD))
+                                  (lr:bv (bv->signal USE_WIDEXOR))
+                                  (lr:bv (bv->signal XORSIMD))
+                                  (lr:bv (bv->signal unnamed-input-300))
+                                  (lr:bv (bv->signal unnamed-input-439))
+                                  (lr:bv (bv->signal unnamed-input-677))
+                                  (lr:bv (bv->signal unnamed-input-727))
+                                  (lr:bv (bv->signal unnamed-input-771))))
 
        ;;; Force to DYNAMIC to avoid:
        ;;;
@@ -1114,12 +1113,12 @@
        ;;; connectivity or OPMODE value to allow for proper implementation.
        ;;;
        ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-       (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+      ;;;  (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
 
-       ;;; ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
-       ;;; has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
-       ;;; however the PCIN input is not properly connected to another DSP48E2 Block.  Please either
-       ;;; correct the connectivity or CARRYINSEL value to allow for proper implementation.
+      ;;;  ;;; ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
+      ;;;  ;;; has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
+      ;;;  ;;; however the PCIN input is not properly connected to another DSP48E2 Block.  Please either
+      ;;;  ;;; correct the connectivity or CARRYINSEL value to allow for proper implementation.
        (assert (not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3))))
 
        ;(assert (bvzero? CARRYIN))
@@ -1190,23 +1189,24 @@
        (assert (not (bvzero? CEM)))
        (assert (not (bvzero? CEP)))
 
-       ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
-       ;;; assumes.
-       (assume (bvzero? unnamed-input-300))
-       (assume (bvzero? unnamed-input-439))
-       (assume (bvzero? unnamed-input-677))
-       (assume (bvzero? unnamed-input-727))
-       (assume (bvzero? unnamed-input-771))
-
+      ;;;  ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
+      ;;;  ;;; assumes.
+      ;;;  (assume (bvzero? unnamed-input-300))
+      ;;;  (assume (bvzero? unnamed-input-439))
+      ;;;  (assume (bvzero? unnamed-input-677))
+      ;;;  (assume (bvzero? unnamed-input-727))
+      ;;;  (assume (bvzero? unnamed-input-771))
+      (displayln "vishal here")
        dsp-expr)
 
+     (displayln "dsp0")
      (match-define (list in0) (symbolics bv-expr))
      (define dsp-0-expr
-       (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv in0))
-                      (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv in0))
-                      (lr:extract (lr:integer 95) (lr:integer 48) (lr:bv in0))
-                      (lr:bv (bv 0 27))
-                      (lr:bv (choose (bv 0 1) (bv 1 1)))))
+       (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv (bv->signal in0)))
+                      (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv (bv->signal in0)))
+                      (lr:extract (lr:integer 95) (lr:integer 48) (lr:bv (bv->signal in0)))
+                      (lr:bv (bv->signal (bv 0 27)))
+                      (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1))))))
 
      (define lakeroad-expr
        (lr:extract (lr:integer 3) (lr:integer 3) (lr:list-ref dsp-0-expr (lr:integer 2))))
@@ -1357,7 +1357,7 @@
          (define dsp-expr
            ;;; TODO(@ninehusky): I've wrapped A in a bitvector, we will probably need to do the same
            ;;; for the remaining inputs.
-           (ultrascale-plus-dsp48e2 (lr:bv (bv->signal A))
+           (ultrascale-plus-dsp48e2 A
                                     (lr:bv (bv->signal ACASCREG))
                                     (lr:bv (bv->signal ACIN))
                                     (lr:bv (bv->signal ADREG))
@@ -1376,7 +1376,7 @@
                                     (lr:bv (bv->signal B_INPUT))
                                     C
                                     (lr:bv (bv->signal CARRYCASCIN))
-                                    (bv->signal CARRYIN)
+                                    CARRYIN
                                     (lr:bv (bv->signal CARRYINREG))
                                     (lr:bv (bv->signal CARRYINSEL))
                                     (lr:bv (bv->signal CARRYINSELREG))
@@ -1461,104 +1461,108 @@
          ;;; PCIN input is not properly connected to another DSP48E2 Block.  Please either correct the
          ;;; connectivity or OPMODE value to allow for proper implementation.
          ;;;
+        ;;;  (displayln CARRYCASCIN)
          ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-         ;;;  (assert (not (bveq (extract 5 4 (signal-value OPMODE)) (bv #b01 2))))
-         ;;;  ;(assert (bvzero? CARRYIN))
-         ;;;  (assert (bvzero? (signal-value CARRYCASCIN)))
-         ;;;  (assert (bvzero? (signal-value CLK)))
-         ;;;  (assert (bvzero? (signal-value PCIN)))
-         ;;;  (assert (bvzero? (signal-value ACIN)))
-         ;;;  (assert (bvzero? (signal-value BCIN)))
-         ;;;  (assert (bvzero? (signal-value MASK)))
-         ;;;  (assert (bvzero? (signal-value PATTERN)))
-         ;;;  (assert (bvzero? (signal-value RND)))
-         ;;;  (assert (bvzero? (signal-value RSTA)))
-         ;;;  (assert (bvzero? (signal-value RSTALLCARRYIN)))
-         ;;;  (assert (bvzero? (signal-value RSTALUMODE)))
-         ;;;  (assert (bvzero? (signal-value RSTB)))
-         ;;;  (assert (bvzero? (signal-value RSTC)))
-         ;;;  (assert (bvzero? (signal-value RSTCTRL)))
-         ;;;  (assert (bvzero? (signal-value RSTD)))
-         ;;;  (assert (bvzero? (signal-value RSTINMODE)))
-         ;;;  (assert (bvzero? (signal-value RSTM)))
-         ;;;  (assert (bvzero? (signal-value RSTP)))
-         ;;;  (assert (bvzero? (signal-value AREG)))
-         ;;;  (assert (bvzero? (signal-value ADREG)))
-         ;;;  (assert (bvzero? (signal-value ACASCREG)))
-         ;;;  (assert (bvzero? (signal-value BREG)))
-         ;;;  (assert (bvzero? (signal-value BCASCREG)))
-         ;;;  (assert (bvzero? (signal-value CREG)))
-         ;;;  (assert (bvzero? (signal-value DREG)))
-         ;;;  (assert (bvzero? (signal-value PREG)))
-         ;;;  (assert (bvzero? (signal-value MREG)))
-         ;;;  (assert (bvzero? (signal-value INMODEREG)))
-         ;;;  (assert (bvzero? (signal-value OPMODEREG)))
-         ;;;  (assert (bvzero? (signal-value ALUMODEREG)))
-         ;;;  (assert (bvzero? (signal-value CARRYINREG)))
-         ;;;  (assert (bvzero? (signal-value CARRYINSELREG)))
-         ;;;  ;(assert (bvzero? (signal-value CARRYINSEL)))
-         ;;;  (assert (bvzero? (signal-value MULTSIGNIN)))
-         ;;;  (assert (bvzero? (signal-value IS_ALUMODE_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_CARRYIN_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_CLK_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_INMODE_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_OPMODE_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTALLCARRYIN_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTALUMODE_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTA_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTB_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTCTRL_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTC_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTD_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTINMODE_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTM_INVERTED)))
-         ;;;  (assert (bvzero? (signal-value IS_RSTP_INVERTED)))
-         ;;;  (assert (not (bvzero? (signal-value CEA1))))
-         ;;;  (assert (not (bvzero? (signal-value CEA2))))
-         ;;;  (assert (not (bvzero? (signal-value CEAD))))
-         ;;;  (assert (not (bvzero? (signal-value CEALUMODE))))
-         ;;;  (assert (not (bvzero? (signal-value CEB1))))
-         ;;;  (assert (not (bvzero? (signal-value CEB2))))
-         ;;;  (assert (not (bvzero? (signal-value CEC))))
-         ;;;  (assert (not (bvzero? (signal-value CECARRYIN))))
-         ;;;  (assert (not (bvzero? (signal-value CECTRL))))
-         ;;;  (assert (not (bvzero? (signal-value CED))))
-         ;;;  (assert (not (bvzero? (signal-value CEINMODE))))
-         ;;;  (assert (not (bvzero? (signal-value CEM))))
-         ;;;  (assert (not (bvzero? (signal-value CEP))))
-         ;;;  ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
-         ;;;  ;;; assumes.
-         ;;;  (assume (bvzero? (signal-value unnamed-input-331)))
-         ;;;  (assume (bvzero? (signal-value unnamed-input-488)))
-         ;;;  (assume (bvzero? (signal-value unnamed-input-750)))
-         ;;;  (assume (bvzero? (signal-value unnamed-input-806)))
-         ;;;  (assume (bvzero? (signal-value unnamed-input-850)))
+          (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+          ;(assert (bvzero? CARRYIN))
+          (assert (bvzero? CARRYCASCIN))
+          (assert (bvzero? CLK))
+          (assert (bvzero? PCIN))
+          (assert (bvzero? ACIN))
+          (assert (bvzero? BCIN))
+          (assert (bvzero? MASK))
+          (assert (bvzero? PATTERN))
+          (assert (bvzero? RND))
+          (assert (bvzero? RSTA))
+          (assert (bvzero? RSTALLCARRYIN))
+          (assert (bvzero? RSTALUMODE))
+          (assert (bvzero? RSTB))
+          (assert (bvzero? RSTC))
+          (assert (bvzero? RSTCTRL))
+          (assert (bvzero? RSTD))
+          (assert (bvzero? RSTINMODE))
+          (assert (bvzero? RSTM))
+          (assert (bvzero? RSTP))
+          (assert (bvzero? AREG))
+          (assert (bvzero? ADREG))
+          (assert (bvzero? ACASCREG))
+          (assert (bvzero? BREG))
+          (assert (bvzero? BCASCREG))
+          (assert (bvzero? CREG))
+          (assert (bvzero? DREG))
+          (assert (bvzero? PREG))
+          (assert (bvzero? MREG))
+          (assert (bvzero? INMODEREG))
+          (assert (bvzero? OPMODEREG))
+          (assert (bvzero? ALUMODEREG))
+          (assert (bvzero? CARRYINREG))
+          (assert (bvzero? CARRYINSELREG))
+          ;(assert (bvzero? CARRYINSEL))
+          (assert (bvzero? MULTSIGNIN))
+          (assert (bvzero? IS_ALUMODE_INVERTED))
+          (assert (bvzero? IS_CARRYIN_INVERTED))
+          (assert (bvzero? IS_CLK_INVERTED))
+          (assert (bvzero? IS_INMODE_INVERTED))
+          (assert (bvzero? IS_OPMODE_INVERTED))
+          (assert (bvzero? IS_RSTALLCARRYIN_INVERTED))
+          (assert (bvzero? IS_RSTALUMODE_INVERTED))
+          (assert (bvzero? IS_RSTA_INVERTED))
+          (assert (bvzero? IS_RSTB_INVERTED))
+          (assert (bvzero? IS_RSTCTRL_INVERTED))
+          (assert (bvzero? IS_RSTC_INVERTED))
+          (assert (bvzero? IS_RSTD_INVERTED))
+          (assert (bvzero? IS_RSTINMODE_INVERTED))
+          (assert (bvzero? IS_RSTM_INVERTED))
+          (assert (bvzero? IS_RSTP_INVERTED))
+          (assert (not (bvzero? CEA1)))
+          (assert (not (bvzero? CEA2)))
+          (assert (not (bvzero? CEAD)))
+          (assert (not (bvzero? CEALUMODE)))
+          (assert (not (bvzero? CEB1)))
+          (assert (not (bvzero? CEB2)))
+          (assert (not (bvzero? CEC)))
+          (assert (not (bvzero? CECARRYIN)))
+          (assert (not (bvzero? CECTRL)))
+          (assert (not (bvzero? CED)))
+          (assert (not (bvzero? CEINMODE)))
+          (assert (not (bvzero? CEM)))
+          (assert (not (bvzero? CEP)))
+          ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
+          ;;; assumes.
+          ;;; (assume (bvzero? unnamed-input-331))
+          ;;; (assume (bvzero? unnamed-input-488))
+          ;;; (assume (bvzero? unnamed-input-750))
+          ;;; (assume (bvzero? unnamed-input-806))
+          ;;; (assume (bvzero? unnamed-input-850))
          (displayln "finished asserts")
+         (displayln "\n\n")
+        ;;;  (displayln dsp-expr)
          dsp-expr)))
    (displayln "DONE")
    (displayln "dsp0")
+   (displayln in1)
+   (displayln in0)
+   (displayln (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv (bv->signal in1))))
+   (displayln (lr:bv (bv->signal (extract 47 18 in1))))
    (define dsp-0-expr
-     (make-dsp-expr (lr:extract (lr:integer 47)
-                                (lr:integer 18)
-                                (lr:bv (bv->signal in1))
-                                (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv in1))
-                                (lr:extract (lr:integer 47) (lr:integer 0) (lr:bv in0))
-                                (lr:bv (bv->signal (bv 0 27)))
-                                (lr:bv (choose (bv->signal (bv 0 1)) (bv->signal (bv 1 1)))))))
+       (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv (bv->signal in1)))
+                      (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv (bv->signal in1)))
+                      (lr:extract (lr:integer 47) (lr:integer 0) (lr:bv (bv->signal in0)))
+                      (lr:bv (bv->signal (bv 0 27)))
+                      (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1))))))
+
    (define dsp-0-cout-expr (lr:list-ref dsp-0-expr (lr:integer 1)))
    (displayln "dsp1 started")
    (define dsp-1-expr
-     (make-dsp-expr (lr:extract (lr:integer 95) (lr:integer 66) (lr:bv in1))
-                    (lr:extract (lr:integer 65) (lr:integer 48) (lr:bv in1))
-                    (lr:extract (lr:integer 95) (lr:integer 48) (lr:bv in0))
-                    (lr:bv (bv 0 27))
+     (make-dsp-expr (lr:extract (lr:integer 95) (lr:integer 66) (lr:bv (bv->signal in1)))
+                    (lr:extract (lr:integer 65) (lr:integer 48) (lr:bv (bv->signal in1)))
+                    (lr:extract (lr:integer 95) (lr:integer 48) (lr:bv (bv->signal in0)))
+                    (lr:bv (bv->signal (bv 0 27)))
                     dsp-0-cout-expr))
    (define lakeroad-expr
      (lr:extract (lr:integer (sub1 (bvlen bv-expr)))
                  (lr:integer 0)
                  (lr:concat (lr:list (list (lr:first dsp-1-expr) (lr:first dsp-0-expr))))))
-   ;;;  (define lakeroad-expr
-   ;;;    (lr:extract (lr:integer (sub1 (bvlen bv-expr))) (lr:integer 0) (lr:first dsp-0-expr)))
    (displayln "defines passed")
    (rosette-synthesize bv-expr
                        lakeroad-expr
@@ -2225,7 +2229,7 @@
                             #:module-semantics [module-semantics '()])
 
   (displayln "interpreter result:")
-  (displayln (interpret lakeroad-expr #:module-semantics module-semantics))
+  ;;; (displayln (interpret lakeroad-expr #:module-semantics module-semantics))
   (displayln "done")
 
   (define soln
@@ -2400,14 +2404,14 @@
 
 (module+ test
   (require rackunit)
-  ;;;   (test-case "lattice dsp add"
-  ;;;              (begin
-  ;;;                (check-true
-  ;;;                 (normal? (with-vc (with-terms (begin
-  ;;;                                                 (define-symbolic a b (bitvector 18))
-  ;;;                                                 (check-not-equal? #f
-  ;;;                                                                   (synthesize-lattice-ecp5-dsp
-  ;;;                                                                    (bvadd a b))))))))))
+    ;;; (test-case "lattice dsp add"
+    ;;;            (begin
+    ;;;              (check-true
+    ;;;               (normal? (with-vc (with-terms (begin
+    ;;;                                               (define-symbolic a b (bitvector 18))
+    ;;;                                               (check-not-equal? #f
+    ;;;                                                                 (synthesize-lattice-ecp5-dsp
+    ;;;                                                                  (bvadd a b))))))))))
   ;;;   (test-case "lattice dsp mul"
   ;;;              (begin
   ;;;                (check-true
@@ -2457,14 +2461,14 @@
   ;;;                                                             #f
   ;;;                                                             (synthesize-lattice-ecp5-dsp
   ;;;                                                              (bvadd c (bvmul a b)))))))))))
-  ;;;   (test-case "lattice dsp mul-sub 16"
-  ;;;              (begin
-  ;;;                (check-true (normal? (with-vc (with-terms (begin
-  ;;;                                                            (define-symbolic a b c (bitvector 18))
-  ;;;                                                            (check-not-equal?
-  ;;;                                                             #f
-  ;;;                                                             (synthesize-lattice-ecp5-dsp
-  ;;;                                                              (bvsub c (bvmul a b)))))))))))
+    (test-case "lattice dsp mul-sub 16"
+               (begin
+                 (check-true (normal? (with-vc (with-terms (begin
+                                                             (define-symbolic a b c (bitvector 18))
+                                                             (check-not-equal?
+                                                              #f
+                                                              (synthesize-lattice-ecp5-dsp
+                                                               (bvsub c (bvmul a b)))))))))))
 
   ;;;   (for ([i (list 1 2 3 4 5 6 7 8 16)])
   ;;;     (test-case (format "lattice dsp mul~a" i)
@@ -2476,14 +2480,14 @@
   ;;;                                                               (synthesize-lattice-ecp5-dsp
   ;;;                                                                (bvmul a b)))))))))))
 
-  (test-case "ultrascale+ dsp 96-bit add"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 96))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
-                                                             (bvadd a b))))))))))
+  ;;; (test-case "ultrascale+ dsp 96-bit add"
+  ;;;            (begin
+  ;;;              (check-true (normal? (with-vc (with-terms (begin
+  ;;;                                                          (define-symbolic a b (bitvector 96))
+  ;;;                                                          (check-not-equal?
+  ;;;                                                           #f
+  ;;;                                                           (synthesize-xilinx-ultrascale-plus-2-dsps
+  ;;;                                                            (bvadd a b))))))))))
 
   ;;; (test-case "ultrascale+ dsp 96-bit and"
   ;;;            (begin
@@ -2502,13 +2506,12 @@
   ;;;                                                           (synthesize-xilinx-ultrascale-plus-2-dsps
   ;;;                                                            (bvsub a b))))))))))
 
-  ;;; (test-case "ultrascale+ dsp 96-bit xor reduction"
-  ;;;            (begin
-  ;;;              (check-true
-  ;;;               (normal? (with-vc (with-terms (begin
-  ;;;                                               (define-symbolic a (bitvector 96))
-  ;;;                                               (check-not-equal?
-  ;;;                                                #f
-  ;;;                                                (synthesize-xilinx-ultrascale-plus-dsp-xor
-  ;;;                                                 (apply bvxor (bitvector->bits a))))))))))))
-  )
+  (test-case "ultrascale+ dsp 96-bit xor reduction"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a (bitvector 96))
+                                                (check-not-equal?
+                                                 #f
+                                                 (synthesize-xilinx-ultrascale-plus-dsp-xor
+                                                  (apply bvxor (bitvector->bits a))))))))))))
