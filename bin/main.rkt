@@ -22,7 +22,8 @@
          rosette/solver/smt/boolector
          "../racket/signal.rkt"
          racket/hash
-         "../racket/btor.rkt")
+         "../racket/btor.rkt"
+         racket/sandbox)
 
 (define-namespace-anchor anc)
 
@@ -48,8 +49,7 @@
 (define json-filepath (make-parameter (make-temporary-file "rkttmp~a.json") identity))
 (define output-port
   (make-parameter (current-output-port) (lambda (v) (open-output-file v #:exists 'replace))))
-(define template-timeout
-  (make-parameter #f (lambda (to) (if (equal? "0" to) #f (string->number to)))))
+(define timeout (make-parameter #f string->number))
 (define template (make-parameter #f identity))
 (define verilog-module-filepath (make-parameter #f))
 (define top-module-name (make-parameter #f))
@@ -79,7 +79,7 @@
   "Specifies which template to synthesize with. When not set, the synthesis procedure will run"
   " through all relevant templates for the architecture until one works."
   (template v)]
- ["--timeout" timeout "Timeout in seconds for each template" (template-timeout timeout)]
+ ["--timeout" v "Timeout in seconds for synthesis" (timeout v)]
  ["--verilog-module-filepath"
   v
   "File containing the Verilog module to synthesize against."
@@ -373,19 +373,25 @@
                                              (apply set (map (compose1 string->keyword car) env))))
                        (current-error-port))))
 
-        (rosette-synthesize
-         (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal)))) bv-expr)
-         sketch
-         input-symbolic-constants
-         #:bv-sequential envs
-         #:lr-sequential envs
-         #:module-semantics module-semantics))
+        (call-with-limits
+         (timeout)
+         #f
+         (thunk (rosette-synthesize
+                 (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
+                          bv-expr)
+                 sketch
+                 input-symbolic-constants
+                 #:bv-sequential envs
+                 #:lr-sequential envs
+                 #:module-semantics module-semantics))))
 
       ;;; If initiation interval is #f, then do normal combinational synthesis.
-      (synthesize-with-sketch sketch-generator
-                              architecture-description
-                              bv-expr
-                              #:module-semantics module-semantics)))
+      (call-with-limits (timeout)
+                        #f
+                        (thunk (synthesize-with-sketch sketch-generator
+                                                       architecture-description
+                                                       bv-expr
+                                                       #:module-semantics module-semantics)))))
 
 (cond
   [(not lakeroad-expr) (error "Synthesis failed.")]
