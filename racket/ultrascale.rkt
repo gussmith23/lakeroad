@@ -995,12 +995,11 @@
                [unnamed-input-850 (interpreter unnamed-input-850)])
     ;;; Constrain the inputs based on the information in the DSP48E2 user manual. (see spec-sheets/.)
     ;;; Constrain #registers (usually to 0, 1, or 2).
-<<<<<<< HEAD
+
     ;;; TODO(@ninehusky): change the asserts to deal with signals, wrap ACASCREG, etc. in (bv->signal).
     ;;; Then, remove (bv->signal) in the arguments to interpret-xilinx-dsp48e2.
     ;;; Also, remove (signal-value) from the P arguments at the very end.
-=======
->>>>>>> 2b6e4fd59aaa8955ac4baf700c249d457e37aa58
+
     (assert (|| (bveq (signal-value ACASCREG) (bv 0 32))
                 (bveq (signal-value ACASCREG) (bv 1 32))
                 (bveq (signal-value ACASCREG) (bv 2 32))))
@@ -1063,11 +1062,7 @@
                 (bveq (signal-value SEL_MASK) (bv 17 5))
                 (bveq (signal-value SEL_MASK) (bv 22 5))
                 (bveq (signal-value SEL_MASK) (bv 23 5))))
-<<<<<<< HEAD
     ;;; PATTERN, C.
-=======
-    ;;; ;;; PATTERN, C.
->>>>>>> 2b6e4fd59aaa8955ac4baf700c249d457e37aa58
     (assert (|| (bveq (signal-value SEL_PATTERN) (bv 9 5))
                 (bveq (signal-value SEL_PATTERN) (bv 17 5))))
     ;;; NO_PATDET, PATDET.
@@ -1091,6 +1086,8 @@
     ;;; adders.
     (assert (not (&& (bveq (signal-value CARRYINSEL) (bv #b010 3))
                      (bvzero? (signal-value OPMODEREG)))))
+    
+    (displayln "ultrascale asserts finished ")
     (define dsp-expr
       (interpret-xilinx-ultrascale-plus-dsp48e2 #:A A
                                                 #:ACASCREG ACASCREG
@@ -1184,6 +1181,7 @@
     (define P (assoc-ref dsp-expr 'P))
     (define COUT (assoc-ref dsp-expr 'CARRYCASCOUT))
     (define XOROUT (assoc-ref dsp-expr 'XOROUT))
+    ;;; (displayln (list P COUT XOROUT))
     (list P COUT XOROUT)))
 
 (define (compile-ultrascale-plus-dsp48e2 dsp p-name clk-name a-name b-name c-name ce-name reset-name)
