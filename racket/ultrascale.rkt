@@ -1085,7 +1085,6 @@
     (assert (not (&& (bveq (signal-value CARRYINSEL) (bv #b010 3))
                      (bvzero? (signal-value OPMODEREG)))))
 
-    (displayln "ultrascale asserts finished ")
     (define dsp-expr
       (interpret-xilinx-ultrascale-plus-dsp48e2 #:A A
                                                 #:ACASCREG ACASCREG
@@ -1179,7 +1178,6 @@
     (define P (assoc-ref dsp-expr 'P))
     (define COUT (assoc-ref dsp-expr 'CARRYCASCOUT))
     (define XOROUT (assoc-ref dsp-expr 'XOROUT))
-    ;;; (displayln (list P COUT XOROUT))
     (list P COUT XOROUT)))
 
 (define (compile-ultrascale-plus-dsp48e2 dsp p-name clk-name a-name b-name c-name ce-name reset-name)

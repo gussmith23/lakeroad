@@ -40,10 +40,6 @@
                                (begin
                                  symbolic-define-etc-block
                                  (add-f (to-simulate lr-expr bv-expr))
-                                 ;;;  (displayln "\n\n")
-                                 ;;;  (displayln (interpret lr-expr))
-                                 ;;;  (displayln "\n\n")
-                                 ;;;  (displayln bv-expr)
                                  (test-true
                                   (string-append name ": verify lr-expr against bv-expr")
                                   (unsat? (let ([result (verify (assert (bveq (signal-value

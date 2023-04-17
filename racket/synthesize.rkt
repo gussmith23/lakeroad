@@ -1394,8 +1394,6 @@
          ;;(assume (bvult (interpret B) (bv (expt 2 16) 18)))
 
          (define dsp-expr
-           ;;; TODO(@ninehusky): I've wrapped A in a bitvector, we will probably need to do the same
-           ;;; for the remaining inputs.
            (ultrascale-plus-dsp48e2 A
                                     (lr:bv (bv->signal ACASCREG))
                                     (lr:bv (bv->signal ACIN))
@@ -1921,8 +1919,8 @@
                                        unnamed-input-727
                                        unnamed-input-771))))))
 
-;;; (module+ test
-;;;   (simple-test synthesize-xilinx-ultrascale-plus-dsp (define-symbolic a b (bitvector 8)) (bvmul a b)))
+(module+ test
+  (simple-test synthesize-xilinx-ultrascale-plus-dsp (define-symbolic a b (bitvector 8)) (bvmul a b)))
 
 ;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
 ;;; This is our original synthesis implementation, and remains our fallback.
@@ -2422,116 +2420,116 @@
      (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
        (check-not-false lrexpr)))))
 
-;;; (module+ test
-;;;   (require rackunit)
-;;;     (test-case "lattice dsp add"
-;;;                (begin
-;;;                  (check-true
-;;;                   (normal? (with-vc (with-terms (begin
-;;;                                                   (define-symbolic a b (bitvector 18))
-;;;                                                   (check-not-equal? #f
-;;;                                                                     (synthesize-lattice-ecp5-dsp
-;;;                                                                      (bvadd a b))))))))))
-;;;     (test-case "lattice dsp mul"
-;;;                (begin
-;;;                  (check-true
-;;;                   (normal? (with-vc (with-terms (begin
-;;;                                                   (define-symbolic a b (bitvector 18))
-;;;                                                   (check-not-equal? #f
-;;;                                                                     (synthesize-lattice-ecp5-dsp
-;;;                                                                      (bvmul a b))))))))))
-;;;     (test-case "lattice dsp mul-add"
-;;;                (begin
-;;;                  (check-true (normal? (with-vc (with-terms (begin
-;;;                                                              (define-symbolic a b c (bitvector 18))
-;;;                                                              (check-not-equal?
-;;;                                                               #f
-;;;                                                               (synthesize-lattice-ecp5-dsp
-;;;                                                                (bvadd c (bvmul a b)))))))))))
-;;;     (test-case "lattice dsp mul-sub"
-;;;                (begin
-;;;                  (check-true (normal? (with-vc (with-terms (begin
-;;;                                                              (define-symbolic a b c (bitvector 18))
-;;;                                                              (check-not-equal?
-;;;                                                               #f
-;;;                                                               (synthesize-lattice-ecp5-dsp
-;;;                                                                (bvsub c (bvmul a b)))))))))))
+(module+ test
+  (require rackunit)
+  (test-case "lattice dsp add"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 18))
+                                                (check-not-equal? #f
+                                                                  (synthesize-lattice-ecp5-dsp
+                                                                   (bvadd a b))))))))))
+  (test-case "lattice dsp mul"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 18))
+                                                (check-not-equal? #f
+                                                                  (synthesize-lattice-ecp5-dsp
+                                                                   (bvmul a b))))))))))
+  (test-case "lattice dsp mul-add"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b c (bitvector 18))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-lattice-ecp5-dsp
+                                                             (bvadd c (bvmul a b)))))))))))
+  (test-case "lattice dsp mul-sub"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b c (bitvector 18))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-lattice-ecp5-dsp
+                                                             (bvsub c (bvmul a b)))))))))))
 
-;;;     (test-case "lattice dsp add 16"
-;;;                (begin
-;;;                  (check-true
-;;;                   (normal? (with-vc (with-terms (begin
-;;;                                                   (define-symbolic a b (bitvector 18))
-;;;                                                   (check-not-equal? #f
-;;;                                                                     (synthesize-lattice-ecp5-dsp
-;;;                                                                      (bvadd a b))))))))))
-;;;     (test-case "lattice dsp mul 16"
-;;;                (begin
-;;;                  (check-true
-;;;                   (normal? (with-vc (with-terms (begin
-;;;                                                   (define-symbolic a b (bitvector 18))
-;;;                                                   (check-not-equal? #f
-;;;                                                                     (synthesize-lattice-ecp5-dsp
-;;;                                                                      (bvmul a b))))))))))
-;;;     (test-case "lattice dsp mul-add 16"
-;;;                (begin
-;;;                  (check-true (normal? (with-vc (with-terms (begin
-;;;                                                              (define-symbolic a b c (bitvector 18))
-;;;                                                              (check-not-equal?
-;;;                                                               #f
-;;;                                                               (synthesize-lattice-ecp5-dsp
-;;;                                                                (bvadd c (bvmul a b)))))))))))
-;;;     (test-case "lattice dsp mul-sub 16"
-;;;                (begin
-;;;                  (check-true (normal? (with-vc (with-terms (begin
-;;;                                                              (define-symbolic a b c (bitvector 18))
-;;;                                                              (check-not-equal?
-;;;                                                               #f
-;;;                                                               (synthesize-lattice-ecp5-dsp
-;;;                                                                (bvsub c (bvmul a b)))))))))))
+  (test-case "lattice dsp add 16"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 18))
+                                                (check-not-equal? #f
+                                                                  (synthesize-lattice-ecp5-dsp
+                                                                   (bvadd a b))))))))))
+  (test-case "lattice dsp mul 16"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 18))
+                                                (check-not-equal? #f
+                                                                  (synthesize-lattice-ecp5-dsp
+                                                                   (bvmul a b))))))))))
+  (test-case "lattice dsp mul-add 16"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b c (bitvector 18))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-lattice-ecp5-dsp
+                                                             (bvadd c (bvmul a b)))))))))))
+  (test-case "lattice dsp mul-sub 16"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b c (bitvector 18))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-lattice-ecp5-dsp
+                                                             (bvsub c (bvmul a b)))))))))))
 
-;;;     (for ([i (list 1 2 3 4 5 6 7 8 16)])
-;;;       (test-case (format "lattice dsp mul~a" i)
-;;;                  (begin
-;;;                    (check-true (normal? (with-vc (with-terms (begin
-;;;                                                                (define-symbolic a b (bitvector i))
-;;;                                                                (check-not-equal?
-;;;                                                                 #f
-;;;                                                                 (synthesize-lattice-ecp5-dsp
-;;;                                                                  (bvmul a b)))))))))))
+  (for ([i (list 1 2 3 4 5 6 7 8 16)])
+    (test-case (format "lattice dsp mul~a" i)
+               (begin
+                 (check-true (normal? (with-vc (with-terms (begin
+                                                             (define-symbolic a b (bitvector i))
+                                                             (check-not-equal?
+                                                              #f
+                                                              (synthesize-lattice-ecp5-dsp
+                                                               (bvmul a b)))))))))))
 
-;;;   (test-case "ultrascale+ dsp 96-bit add"
-;;;              (begin
-;;;                (check-true (normal? (with-vc (with-terms (begin
-;;;                                                            (define-symbolic a b (bitvector 96))
-;;;                                                            (check-not-equal?
-;;;                                                             #f
-;;;                                                             (synthesize-xilinx-ultrascale-plus-2-dsps
-;;;                                                              (bvadd a b))))))))))
+  (test-case "ultrascale+ dsp 96-bit add"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b (bitvector 96))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                             (bvadd a b))))))))))
 
-;;;   (test-case "ultrascale+ dsp 96-bit and"
-;;;              (begin
-;;;                (check-true (normal? (with-vc (with-terms (begin
-;;;                                                            (define-symbolic a b (bitvector 96))
-;;;                                                            (check-not-equal?
-;;;                                                             #f
-;;;                                                             (synthesize-xilinx-ultrascale-plus-2-dsps
-;;;                                                              (bvand a b))))))))))
-;;;   (test-case "ultrascale+ dsp 96-bit sub"
-;;;              (begin
-;;;                (check-true (normal? (with-vc (with-terms (begin
-;;;                                                            (define-symbolic a b (bitvector 96))
-;;;                                                            (check-not-equal?
-;;;                                                             #f
-;;;                                                             (synthesize-xilinx-ultrascale-plus-2-dsps
-;;;                                                              (bvsub a b))))))))))
+  (test-case "ultrascale+ dsp 96-bit and"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b (bitvector 96))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                             (bvand a b))))))))))
+  (test-case "ultrascale+ dsp 96-bit sub"
+             (begin
+               (check-true (normal? (with-vc (with-terms (begin
+                                                           (define-symbolic a b (bitvector 96))
+                                                           (check-not-equal?
+                                                            #f
+                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                             (bvsub a b))))))))))
 
-;;;   (test-case "ultrascale+ dsp 96-bit xor reduction"
-;;;              (begin
-;;;                (check-true
-;;;                 (normal? (with-vc (with-terms (begin
-;;;                                                 (define-symbolic a (bitvector 96))
-;;;                                                 (check-not-equal?
-;;;                                                  #f
-;;;                                                  (synthesize-xilinx-ultrascale-plus-dsp-xor
-;;;                                                   (apply bvxor (bitvector->bits a))))))))))))
+  (test-case "ultrascale+ dsp 96-bit xor reduction"
+             (begin
+               (check-true
+                (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a (bitvector 96))
+                                                (check-not-equal?
+                                                 #f
+                                                 (synthesize-xilinx-ultrascale-plus-dsp-xor
+                                                  (apply bvxor (bitvector->bits a))))))))))))
