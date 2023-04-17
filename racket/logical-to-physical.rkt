@@ -1,4 +1,4 @@
-#lang errortrace rosette/safe
+#lang rosette/safe
 
 ;;; Logical to physical (and vice versa) mapping tools for Lakeroad.
 ;;;
@@ -41,8 +41,6 @@
 ;; this is a function to help with operating on lists of signals. We take in a list of bitvectors
 ;; (extracted from the signal input) and return the list of bitvectors with the match arm's operatiosn applied.
 (define (signal-helper f inputs)
-  f
-  inputs)
   f
   inputs)
 
@@ -190,10 +188,8 @@
          [else (bvvs->signalvs transposed state)])))]
    ;;;  [(ltop-constant c) (bitvector->bits (interpreter c))] ;; question not sure about this one?
    [(ltop-constant c)
-    (let* ([inputs (interpreter inputs)]
-           [inputs-bv (map signal-value inputs)]
-           [state (merge-state inputs)])
-      (bvvs->signalvs (bitvector->bits inputs-bv) state))]
+    (let* ([inputs (interpreter c)])
+      (map (lambda (b) (signal b (signal-state inputs))) (bitvector->bits (signal-value inputs))))]
    ;;;
    ;;; Same as bitwise, but includes masks on the physical outputs.
    ;;;

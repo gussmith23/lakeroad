@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 
 (provide interpret-ultrascale-plus
          ultrascale-plus-clb
@@ -1084,7 +1084,7 @@
     ;;; adders.
     (assert (not (&& (bveq (signal-value CARRYINSEL) (bv #b010 3))
                      (bvzero? (signal-value OPMODEREG)))))
-    
+
     (displayln "ultrascale asserts finished ")
     (define dsp-expr
       (interpret-xilinx-ultrascale-plus-dsp48e2 #:A A

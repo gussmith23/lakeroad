@@ -1,4 +1,4 @@
-#lang errortrace racket
+#lang racket
 ;;; Synthesis routines for the various architectures.
 ;;;
 ;;; TODO provide a top-level synthesis procedure?
@@ -282,11 +282,14 @@
 
      ;;; Main input ports.
      (define A
-       (lr:zero-extend (lr:bv (choose in0 in1 in2 (bv 0 1) (bv 1 1))) (lr:bitvector (bitvector 18))))
+       (lr:zero-extend (lr:bv (bv->signal (choose in0 in1 in2 (bv 0 1) (bv 1 1))))
+                       (lr:bitvector (bitvector 18))))
      (define B
-       (lr:zero-extend (lr:bv (choose in0 in1 in2 (bv 0 1) (bv 1 1))) (lr:bitvector (bitvector 18))))
+       (lr:zero-extend (lr:bv (bv->signal (choose in0 in1 in2 (bv 0 1) (bv 1 1))))
+                       (lr:bitvector (bitvector 18))))
      (define C
-       (lr:zero-extend (lr:bv (choose in0 in1 in2 (bv 0 1) (bv 1 1))) (lr:bitvector (bitvector 18))))
+       (lr:zero-extend (lr:bv (bv->signal (choose in0 in1 in2 (bv 0 1) (bv 1 1))))
+                       (lr:bitvector (bitvector 18))))
 
      ;;; Input ports.
      (define-symbolic SIGNEDA (bitvector 1))
@@ -421,167 +424,203 @@
          (module-instance-port "C15" (lr:extract (lr:integer 15) (lr:integer 15) C) 'input 1)
          (module-instance-port "C16" (lr:extract (lr:integer 16) (lr:integer 16) C) 'input 1)
          (module-instance-port "C17" (lr:extract (lr:integer 17) (lr:integer 17) C) 'input 1)
-         (module-instance-port "SIGNEDA" (lr:bv SIGNEDA) 'input 1)
-         (module-instance-port "SIGNEDB" (lr:bv SIGNEDB) 'input 1)
-         (module-instance-port "SOURCEA" (lr:bv SOURCEA) 'input 1)
-         (module-instance-port "SOURCEB" (lr:bv SOURCEB) 'input 1)
-         (module-instance-port "CE0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv CE)) 'input 1)
-         (module-instance-port "CE1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv CE)) 'input 1)
-         (module-instance-port "CE2" (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv CE)) 'input 1)
-         (module-instance-port "CE3" (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv CE)) 'input 1)
-         (module-instance-port "CLK0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv CLK)) 'input 1)
-         (module-instance-port "CLK1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv CLK)) 'input 1)
-         (module-instance-port "CLK2" (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv CLK)) 'input 1)
-         (module-instance-port "CLK3" (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv CLK)) 'input 1)
-         (module-instance-port "RST0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv RST)) 'input 1)
-         (module-instance-port "RST1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv RST)) 'input 1)
-         (module-instance-port "RST2" (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv RST)) 'input 1)
-         (module-instance-port "RST3" (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv RST)) 'input 1)
+         (module-instance-port "SIGNEDA" (lr:bv (bv->signal SIGNEDA)) 'input 1)
+         (module-instance-port "SIGNEDB" (lr:bv (bv->signal SIGNEDB)) 'input 1)
+         (module-instance-port "SOURCEA" (lr:bv (bv->signal SOURCEA)) 'input 1)
+         (module-instance-port "SOURCEB" (lr:bv (bv->signal SOURCEB)) 'input 1)
+         (module-instance-port "CE0"
+                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv (bv->signal CE)))
+                               'input
+                               1)
+         (module-instance-port "CE1"
+                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv (bv->signal CE)))
+                               'input
+                               1)
+         (module-instance-port "CE2"
+                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv (bv->signal CE)))
+                               'input
+                               1)
+         (module-instance-port "CE3"
+                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv (bv->signal CE)))
+                               'input
+                               1)
+         (module-instance-port "CLK0"
+                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv (bv->signal CLK)))
+                               'input
+                               1)
+         (module-instance-port "CLK1"
+                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv (bv->signal CLK)))
+                               'input
+                               1)
+         (module-instance-port "CLK2"
+                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv (bv->signal CLK)))
+                               'input
+                               1)
+         (module-instance-port "CLK3"
+                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv (bv->signal CLK)))
+                               'input
+                               1)
+         (module-instance-port "RST0"
+                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv (bv->signal RST)))
+                               'input
+                               1)
+         (module-instance-port "RST1"
+                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv (bv->signal RST)))
+                               'input
+                               1)
+         (module-instance-port "RST2"
+                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv (bv->signal RST)))
+                               'input
+                               1)
+         (module-instance-port "RST3"
+                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv (bv->signal RST)))
+                               'input
+                               1)
          (module-instance-port "SRIA0"
-                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv SRIA))
+                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA1"
-                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv SRIA))
+                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA2"
-                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv SRIA))
+                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA3"
-                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv SRIA))
+                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA4"
-                               (lr:extract (lr:integer 4) (lr:integer 4) (lr:bv SRIA))
+                               (lr:extract (lr:integer 4) (lr:integer 4) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA5"
-                               (lr:extract (lr:integer 5) (lr:integer 5) (lr:bv SRIA))
+                               (lr:extract (lr:integer 5) (lr:integer 5) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA6"
-                               (lr:extract (lr:integer 6) (lr:integer 6) (lr:bv SRIA))
+                               (lr:extract (lr:integer 6) (lr:integer 6) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA7"
-                               (lr:extract (lr:integer 7) (lr:integer 7) (lr:bv SRIA))
+                               (lr:extract (lr:integer 7) (lr:integer 7) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA8"
-                               (lr:extract (lr:integer 8) (lr:integer 8) (lr:bv SRIA))
+                               (lr:extract (lr:integer 8) (lr:integer 8) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA9"
-                               (lr:extract (lr:integer 9) (lr:integer 9) (lr:bv SRIA))
+                               (lr:extract (lr:integer 9) (lr:integer 9) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA10"
-                               (lr:extract (lr:integer 10) (lr:integer 10) (lr:bv SRIA))
+                               (lr:extract (lr:integer 10) (lr:integer 10) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA11"
-                               (lr:extract (lr:integer 11) (lr:integer 11) (lr:bv SRIA))
+                               (lr:extract (lr:integer 11) (lr:integer 11) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA12"
-                               (lr:extract (lr:integer 12) (lr:integer 12) (lr:bv SRIA))
+                               (lr:extract (lr:integer 12) (lr:integer 12) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA13"
-                               (lr:extract (lr:integer 13) (lr:integer 13) (lr:bv SRIA))
+                               (lr:extract (lr:integer 13) (lr:integer 13) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA14"
-                               (lr:extract (lr:integer 14) (lr:integer 14) (lr:bv SRIA))
+                               (lr:extract (lr:integer 14) (lr:integer 14) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA15"
-                               (lr:extract (lr:integer 15) (lr:integer 15) (lr:bv SRIA))
+                               (lr:extract (lr:integer 15) (lr:integer 15) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA16"
-                               (lr:extract (lr:integer 16) (lr:integer 16) (lr:bv SRIA))
+                               (lr:extract (lr:integer 16) (lr:integer 16) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIA17"
-                               (lr:extract (lr:integer 17) (lr:integer 17) (lr:bv SRIA))
+                               (lr:extract (lr:integer 17) (lr:integer 17) (lr:bv (bv->signal SRIA)))
                                'input
                                1)
          (module-instance-port "SRIB0"
-                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv SRIB))
+                               (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB1"
-                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv SRIB))
+                               (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB2"
-                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv SRIB))
+                               (lr:extract (lr:integer 2) (lr:integer 2) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB3"
-                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv SRIB))
+                               (lr:extract (lr:integer 3) (lr:integer 3) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB4"
-                               (lr:extract (lr:integer 4) (lr:integer 4) (lr:bv SRIB))
+                               (lr:extract (lr:integer 4) (lr:integer 4) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB5"
-                               (lr:extract (lr:integer 5) (lr:integer 5) (lr:bv SRIB))
+                               (lr:extract (lr:integer 5) (lr:integer 5) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB6"
-                               (lr:extract (lr:integer 6) (lr:integer 6) (lr:bv SRIB))
+                               (lr:extract (lr:integer 6) (lr:integer 6) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB7"
-                               (lr:extract (lr:integer 7) (lr:integer 7) (lr:bv SRIB))
+                               (lr:extract (lr:integer 7) (lr:integer 7) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB8"
-                               (lr:extract (lr:integer 8) (lr:integer 8) (lr:bv SRIB))
+                               (lr:extract (lr:integer 8) (lr:integer 8) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB9"
-                               (lr:extract (lr:integer 9) (lr:integer 9) (lr:bv SRIB))
+                               (lr:extract (lr:integer 9) (lr:integer 9) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB10"
-                               (lr:extract (lr:integer 10) (lr:integer 10) (lr:bv SRIB))
+                               (lr:extract (lr:integer 10) (lr:integer 10) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB11"
-                               (lr:extract (lr:integer 11) (lr:integer 11) (lr:bv SRIB))
+                               (lr:extract (lr:integer 11) (lr:integer 11) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB12"
-                               (lr:extract (lr:integer 12) (lr:integer 12) (lr:bv SRIB))
+                               (lr:extract (lr:integer 12) (lr:integer 12) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB13"
-                               (lr:extract (lr:integer 13) (lr:integer 13) (lr:bv SRIB))
+                               (lr:extract (lr:integer 13) (lr:integer 13) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB14"
-                               (lr:extract (lr:integer 14) (lr:integer 14) (lr:bv SRIB))
+                               (lr:extract (lr:integer 14) (lr:integer 14) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB15"
-                               (lr:extract (lr:integer 15) (lr:integer 15) (lr:bv SRIB))
+                               (lr:extract (lr:integer 15) (lr:integer 15) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB16"
-                               (lr:extract (lr:integer 16) (lr:integer 16) (lr:bv SRIB))
+                               (lr:extract (lr:integer 16) (lr:integer 16) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
          (module-instance-port "SRIB17"
-                               (lr:extract (lr:integer 17) (lr:integer 17) (lr:bv SRIB))
+                               (lr:extract (lr:integer 17) (lr:integer 17) (lr:bv (bv->signal SRIB)))
                                'input
                                1)
-         (module-instance-port "unnamed-input-624" (lr:bv unnamed-input-624) 'input 1)
+         (module-instance-port "unnamed-input-624" (lr:bv (bv->signal unnamed-input-624)) 'input 1)
          ;;; TODO(@gussmith23): Will need to add the rest of the outputs when needed.
          (module-instance-port "P0" 'unused 'output 1)
          (module-instance-port "P1" 'unused 'output 1)
@@ -619,31 +658,31 @@
          (module-instance-port "P33" 'unused 'output 1)
          (module-instance-port "P34" 'unused 'output 1)
          (module-instance-port "P35" 'unused 'output 1))
-        (list (module-instance-parameter "REG_INPUTA_CLK" (lr:bv REG_INPUTA_CLK))
-              (module-instance-parameter "REG_INPUTA_CE" (lr:bv REG_INPUTA_CE))
-              (module-instance-parameter "REG_INPUTA_RST" (lr:bv REG_INPUTA_RST))
-              (module-instance-parameter "REG_INPUTB_CLK" (lr:bv REG_INPUTB_CLK))
-              (module-instance-parameter "REG_INPUTB_CE" (lr:bv REG_INPUTB_CE))
-              (module-instance-parameter "REG_INPUTB_RST" (lr:bv REG_INPUTB_RST))
-              (module-instance-parameter "REG_INPUTC_CLK" (lr:bv REG_INPUTC_CLK))
-              (module-instance-parameter "REG_INPUTC_CE" (lr:bv REG_INPUTC_CE))
-              (module-instance-parameter "REG_INPUTC_RST" (lr:bv REG_INPUTC_RST))
-              (module-instance-parameter "REG_PIPELINE_CLK" (lr:bv REG_PIPELINE_CLK))
-              (module-instance-parameter "REG_PIPELINE_CE" (lr:bv REG_PIPELINE_CE))
-              (module-instance-parameter "REG_PIPELINE_RST" (lr:bv REG_PIPELINE_RST))
-              (module-instance-parameter "REG_OUTPUT_CLK" (lr:bv REG_OUTPUT_CLK))
-              (module-instance-parameter "REG_OUTPUT_CE" (lr:bv REG_OUTPUT_CE))
-              (module-instance-parameter "REG_OUTPUT_RST" (lr:bv REG_OUTPUT_RST))
-              (module-instance-parameter "CLK0_DIV" (lr:bv CLK0_DIV))
-              (module-instance-parameter "CLK1_DIV" (lr:bv CLK1_DIV))
-              (module-instance-parameter "CLK2_DIV" (lr:bv CLK2_DIV))
-              (module-instance-parameter "CLK3_DIV" (lr:bv CLK3_DIV))
-              (module-instance-parameter "HIGHSPEED_CLK" (lr:bv HIGHSPEED_CLK))
-              (module-instance-parameter "GSR" (lr:bv GSR))
-              (module-instance-parameter "CAS_MATCH_REG" (lr:bv CAS_MATCH_REG))
-              (module-instance-parameter "SOURCEB_MODE" (lr:bv SOURCEB_MODE))
-              (module-instance-parameter "MULT_BYPASS" (lr:bv MULT_BYPASS))
-              (module-instance-parameter "RESETMODE" (lr:bv RESETMODE)))
+        (list (module-instance-parameter "REG_INPUTA_CLK" (lr:bv (bv->signal REG_INPUTA_CLK)))
+              (module-instance-parameter "REG_INPUTA_CE" (lr:bv (bv->signal REG_INPUTA_CE)))
+              (module-instance-parameter "REG_INPUTA_RST" (lr:bv (bv->signal REG_INPUTA_RST)))
+              (module-instance-parameter "REG_INPUTB_CLK" (lr:bv (bv->signal REG_INPUTB_CLK)))
+              (module-instance-parameter "REG_INPUTB_CE" (lr:bv (bv->signal REG_INPUTB_CE)))
+              (module-instance-parameter "REG_INPUTB_RST" (lr:bv (bv->signal REG_INPUTB_RST)))
+              (module-instance-parameter "REG_INPUTC_CLK" (lr:bv (bv->signal REG_INPUTC_CLK)))
+              (module-instance-parameter "REG_INPUTC_CE" (lr:bv (bv->signal REG_INPUTC_CE)))
+              (module-instance-parameter "REG_INPUTC_RST" (lr:bv (bv->signal REG_INPUTC_RST)))
+              (module-instance-parameter "REG_PIPELINE_CLK" (lr:bv (bv->signal REG_PIPELINE_CLK)))
+              (module-instance-parameter "REG_PIPELINE_CE" (lr:bv (bv->signal REG_PIPELINE_CE)))
+              (module-instance-parameter "REG_PIPELINE_RST" (lr:bv (bv->signal REG_PIPELINE_RST)))
+              (module-instance-parameter "REG_OUTPUT_CLK" (lr:bv (bv->signal REG_OUTPUT_CLK)))
+              (module-instance-parameter "REG_OUTPUT_CE" (lr:bv (bv->signal REG_OUTPUT_CE)))
+              (module-instance-parameter "REG_OUTPUT_RST" (lr:bv (bv->signal REG_OUTPUT_RST)))
+              (module-instance-parameter "CLK0_DIV" (lr:bv (bv->signal CLK0_DIV)))
+              (module-instance-parameter "CLK1_DIV" (lr:bv (bv->signal CLK1_DIV)))
+              (module-instance-parameter "CLK2_DIV" (lr:bv (bv->signal CLK2_DIV)))
+              (module-instance-parameter "CLK3_DIV" (lr:bv (bv->signal CLK3_DIV)))
+              (module-instance-parameter "HIGHSPEED_CLK" (lr:bv (bv->signal HIGHSPEED_CLK)))
+              (module-instance-parameter "GSR" (lr:bv (bv->signal GSR)))
+              (module-instance-parameter "CAS_MATCH_REG" (lr:bv (bv->signal CAS_MATCH_REG)))
+              (module-instance-parameter "SOURCEB_MODE" (lr:bv (bv->signal SOURCEB_MODE)))
+              (module-instance-parameter "MULT_BYPASS" (lr:bv (bv->signal MULT_BYPASS)))
+              (module-instance-parameter "RESETMODE" (lr:bv (bv->signal RESETMODE))))
         ""))
 
      (define P-expr
@@ -689,13 +728,21 @@
 
      ;;; Choosing the ALU inputs.
      (define alu-A
-       (lr:zero-extend
-        (choose (lr:bv in0) (lr:bv in1) (lr:bv in2) mult-out (lr:bv (bv 0 1)) (lr:bv (bv 1 1)))
-        (lr:bitvector (bitvector 18))))
+       (lr:zero-extend (choose (lr:bv (bv->signal in0))
+                               (lr:bv (bv->signal in1))
+                               (lr:bv (bv->signal in2))
+                               mult-out
+                               (lr:bv (bv->signal (bv 0 1)))
+                               (lr:bv (bv->signal (bv 1 1))))
+                       (lr:bitvector (bitvector 18))))
      (define alu-B
-       (lr:zero-extend
-        (choose (lr:bv in0) (lr:bv in1) (lr:bv in2) mult-out (lr:bv (bv 0 1)) (lr:bv (bv 1 1)))
-        (lr:bitvector (bitvector 18))))
+       (lr:zero-extend (choose (lr:bv (bv->signal in0))
+                               (lr:bv (bv->signal in1))
+                               (lr:bv (bv->signal in2))
+                               mult-out
+                               (lr:bv (bv->signal (bv 0 1)))
+                               (lr:bv (bv->signal (bv 1 1))))
+                       (lr:bitvector (bitvector 18))))
 
      (define-symbolic OPADDNSUB (bitvector 1))
 
@@ -703,70 +750,70 @@
        (lr:hw-module-instance
         "ALU24B"
         (list
-         (module-instance-port "OPADDNSUB" (lr:bv OPADDNSUB) 'input 1)
-         (module-instance-port "OPCINSEL" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "SIGNEDIA" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "SIGNEDIB" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CE0" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CE1" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CE2" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CE3" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CLK0" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CLK1" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CLK2" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CLK3" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "RST0" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "RST1" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "RST2" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "RST3" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB0" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB1" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB2" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB3" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB4" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB5" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB6" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB7" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB8" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB9" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB10" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB11" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB12" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB13" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB14" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB15" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB16" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB17" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB18" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB19" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB20" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB21" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB22" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CFB23" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN0" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN1" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN2" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN3" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN4" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN5" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN6" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN7" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN8" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN9" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN10" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN11" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN12" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN13" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN14" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN15" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN16" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN17" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN18" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN19" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN20" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN21" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN22" (lr:bv (bv 0 1)) 'input 1)
-         (module-instance-port "CIN23" (lr:bv (bv 0 1)) 'input 1)
+         (module-instance-port "OPADDNSUB" (lr:bv (bv->signal OPADDNSUB)) 'input 1)
+         (module-instance-port "OPCINSEL" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "SIGNEDIA" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "SIGNEDIB" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CE0" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CE1" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CE2" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CE3" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CLK0" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CLK1" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CLK2" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CLK3" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "RST0" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "RST1" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "RST2" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "RST3" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB0" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB1" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB2" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB3" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB4" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB5" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB6" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB7" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB8" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB9" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB10" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB11" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB12" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB13" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB14" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB15" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB16" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB17" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB18" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB19" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB20" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB21" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB22" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CFB23" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN0" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN1" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN2" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN3" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN4" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN5" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN6" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN7" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN8" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN9" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN10" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN11" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN12" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN13" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN14" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN15" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN16" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN17" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN18" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN19" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN20" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN21" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN22" (lr:bv (bv->signal (bv 0 1))) 'input 1)
+         (module-instance-port "CIN23" (lr:bv (bv->signal (bv 0 1))) 'input 1)
          (module-instance-port "MA0" (lr:extract (lr:integer 0) (lr:integer 0) alu-A) 'input 1)
          (module-instance-port "MA1" (lr:extract (lr:integer 1) (lr:integer 1) alu-A) 'input 1)
          (module-instance-port "MA2" (lr:extract (lr:integer 2) (lr:integer 2) alu-A) 'input 1)
@@ -821,24 +868,24 @@
          (module-instance-port "R15" 'unused 'output 1)
          (module-instance-port "R16" 'unused 'output 1)
          (module-instance-port "R17" 'unused 'output 1))
-        (list (module-instance-parameter "REG_OUTPUT_CLK" (lr:bv (bv 0 5)))
-              (module-instance-parameter "REG_OUTPUT_CE" (lr:bv (bv 1 5)))
-              (module-instance-parameter "REG_OUTPUT_RST" (lr:bv (bv 2 5)))
-              (module-instance-parameter "REG_OPCODE_0_CLK" (lr:bv (bv 0 5)))
-              (module-instance-parameter "REG_OPCODE_0_CE" (lr:bv (bv 1 5)))
-              (module-instance-parameter "REG_OPCODE_0_RST" (lr:bv (bv 2 5)))
-              (module-instance-parameter "REG_OPCODE_1_CLK" (lr:bv (bv 0 5)))
-              (module-instance-parameter "REG_OPCODE_1_CE" (lr:bv (bv 1 5)))
-              (module-instance-parameter "REG_OPCODE_1_RST" (lr:bv (bv 2 5)))
-              (module-instance-parameter "REG_INPUTCFB_CLK" (lr:bv (bv 0 5)))
-              (module-instance-parameter "REG_INPUTCFB_CE" (lr:bv (bv 1 5)))
-              (module-instance-parameter "REG_INPUTCFB_RST" (lr:bv (bv 2 5)))
-              (module-instance-parameter "CLK0_DIV" (lr:bv (bv 5 5)))
-              (module-instance-parameter "CLK1_DIV" (lr:bv (bv 5 5)))
-              (module-instance-parameter "CLK2_DIV" (lr:bv (bv 5 5)))
-              (module-instance-parameter "CLK3_DIV" (lr:bv (bv 5 5)))
-              (module-instance-parameter "GSR" (lr:bv (bv 3 5)))
-              (module-instance-parameter "RESETMODE" (lr:bv (bv 6 5))))
+        (list (module-instance-parameter "REG_OUTPUT_CLK" (lr:bv (bv->signal (bv 0 5))))
+              (module-instance-parameter "REG_OUTPUT_CE" (lr:bv (bv->signal (bv 1 5))))
+              (module-instance-parameter "REG_OUTPUT_RST" (lr:bv (bv->signal (bv 2 5))))
+              (module-instance-parameter "REG_OPCODE_0_CLK" (lr:bv (bv->signal (bv 0 5))))
+              (module-instance-parameter "REG_OPCODE_0_CE" (lr:bv (bv->signal (bv 1 5))))
+              (module-instance-parameter "REG_OPCODE_0_RST" (lr:bv (bv->signal (bv 2 5))))
+              (module-instance-parameter "REG_OPCODE_1_CLK" (lr:bv (bv->signal (bv 0 5))))
+              (module-instance-parameter "REG_OPCODE_1_CE" (lr:bv (bv->signal (bv 1 5))))
+              (module-instance-parameter "REG_OPCODE_1_RST" (lr:bv (bv->signal (bv 2 5))))
+              (module-instance-parameter "REG_INPUTCFB_CLK" (lr:bv (bv->signal (bv 0 5))))
+              (module-instance-parameter "REG_INPUTCFB_CE" (lr:bv (bv->signal (bv 1 5))))
+              (module-instance-parameter "REG_INPUTCFB_RST" (lr:bv (bv->signal (bv 2 5))))
+              (module-instance-parameter "CLK0_DIV" (lr:bv (bv->signal (bv 5 5))))
+              (module-instance-parameter "CLK1_DIV" (lr:bv (bv->signal (bv 5 5))))
+              (module-instance-parameter "CLK2_DIV" (lr:bv (bv->signal (bv 5 5))))
+              (module-instance-parameter "CLK3_DIV" (lr:bv (bv->signal (bv 5 5))))
+              (module-instance-parameter "GSR" (lr:bv (bv->signal (bv 3 5))))
+              (module-instance-parameter "RESETMODE" (lr:bv (bv->signal (bv 6 5)))))
         ""))
 
      (define R-expr
@@ -998,7 +1045,7 @@
        (define-symbolic unnamed-input-677 (bitvector 48))
        (define-symbolic unnamed-input-727 (bitvector 48))
        (define-symbolic unnamed-input-771 (bitvector 1))
-       (displayln "reached dsp expr")
+
        ;;; For some reason I can't get this working for the full
        ;;; bitwidth. I expect it to work for 26x17 (because we do
        ;;; unsigned mult, but DSP is signed, so we can't use all
@@ -1113,12 +1160,12 @@
        ;;; connectivity or OPMODE value to allow for proper implementation.
        ;;;
        ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-      ;;;  (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+       ;;;  (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
 
-      ;;;  ;;; ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
-      ;;;  ;;; has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
-      ;;;  ;;; however the PCIN input is not properly connected to another DSP48E2 Block.  Please either
-      ;;;  ;;; correct the connectivity or CARRYINSEL value to allow for proper implementation.
+       ;;;  ;;; ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
+       ;;;  ;;; has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
+       ;;;  ;;; however the PCIN input is not properly connected to another DSP48E2 Block.  Please either
+       ;;;  ;;; correct the connectivity or CARRYINSEL value to allow for proper implementation.
        (assert (not (bveq (extract 2 0 CARRYINSEL) (bv #b011 3))))
 
        ;(assert (bvzero? CARRYIN))
@@ -1189,17 +1236,15 @@
        (assert (not (bvzero? CEM)))
        (assert (not (bvzero? CEP)))
 
-      ;;;  ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
-      ;;;  ;;; assumes.
-      ;;;  (assume (bvzero? unnamed-input-300))
-      ;;;  (assume (bvzero? unnamed-input-439))
-      ;;;  (assume (bvzero? unnamed-input-677))
-      ;;;  (assume (bvzero? unnamed-input-727))
-      ;;;  (assume (bvzero? unnamed-input-771))
-      (displayln "vishal here")
+       ;;;  ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
+       ;;;  ;;; assumes.
+       ;;;  (assume (bvzero? unnamed-input-300))
+       ;;;  (assume (bvzero? unnamed-input-439))
+       ;;;  (assume (bvzero? unnamed-input-677))
+       ;;;  (assume (bvzero? unnamed-input-727))
+       ;;;  (assume (bvzero? unnamed-input-771))
        dsp-expr)
 
-     (displayln "dsp0")
      (match-define (list in0) (symbolics bv-expr))
      (define dsp-0-expr
        (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv (bv->signal in0)))
@@ -1226,11 +1271,9 @@
   (let/ec
    return
    (begin
-     (displayln "HI 0")
      ;;; Only supporting 2 inputs.
      (when (> (length (symbolics bv-expr)) 2)
        (error "Only supporting 2 inputs."))
-     (displayln "HI 1")
      ;;; Only supporting max bws of 2*48 using 2 DSPs.
      (when (> (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))) 96)
        (error "Only supporting max bitwidth 96."))
@@ -1254,10 +1297,8 @@
      ;;;  (match-define (list Bh Bl) (f 18))
      ;;;  (match-define (list Ch Cl) (f 48))
      ;;;  (match-define (list Dh Dl) (f 27))
-     (displayln "HI 2")
      (define (make-dsp-expr A B C D CARRYIN)
        (begin
-         (displayln "IN DSP EXPR")
 
          (define-symbolic ACASCREG (bitvector 32))
          (define-symbolic ACIN (bitvector 30))
@@ -1351,8 +1392,6 @@
          ;;; 27/18 bits.) 16x16 seems to be the most I can get.
          ;;(assume (bvult (interpret A) (bv (expt 2 16) 30)))
          ;;(assume (bvult (interpret B) (bv (expt 2 16) 18)))
-
-         (displayln "HI 3")
 
          (define dsp-expr
            ;;; TODO(@ninehusky): I've wrapped A in a bitvector, we will probably need to do the same
@@ -1455,104 +1494,92 @@
          ;;; of each group. (A or B) and (M or P) will satisfy the
          ;;; requirement. Instance TOP.top.DSP48E2_0
          ;(assert (bveq USE_MULT (bv 18 5)))
-         (displayln "GOING INTO ASSERTS")
          ;;; ERROR: [DRC DSPS-2] Invalid PCIN Connection for OPMODE value: DSP48E2 cell DSP48E2_0 has
          ;;; OPMODE[5:4] set to 01 which uses the input of the PCIN bus for its computation, however the
          ;;; PCIN input is not properly connected to another DSP48E2 Block.  Please either correct the
          ;;; connectivity or OPMODE value to allow for proper implementation.
          ;;;
-        ;;;  (displayln CARRYCASCIN)
          ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-          (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
-          ;(assert (bvzero? CARRYIN))
-          (assert (bvzero? CARRYCASCIN))
-          (assert (bvzero? CLK))
-          (assert (bvzero? PCIN))
-          (assert (bvzero? ACIN))
-          (assert (bvzero? BCIN))
-          (assert (bvzero? MASK))
-          (assert (bvzero? PATTERN))
-          (assert (bvzero? RND))
-          (assert (bvzero? RSTA))
-          (assert (bvzero? RSTALLCARRYIN))
-          (assert (bvzero? RSTALUMODE))
-          (assert (bvzero? RSTB))
-          (assert (bvzero? RSTC))
-          (assert (bvzero? RSTCTRL))
-          (assert (bvzero? RSTD))
-          (assert (bvzero? RSTINMODE))
-          (assert (bvzero? RSTM))
-          (assert (bvzero? RSTP))
-          (assert (bvzero? AREG))
-          (assert (bvzero? ADREG))
-          (assert (bvzero? ACASCREG))
-          (assert (bvzero? BREG))
-          (assert (bvzero? BCASCREG))
-          (assert (bvzero? CREG))
-          (assert (bvzero? DREG))
-          (assert (bvzero? PREG))
-          (assert (bvzero? MREG))
-          (assert (bvzero? INMODEREG))
-          (assert (bvzero? OPMODEREG))
-          (assert (bvzero? ALUMODEREG))
-          (assert (bvzero? CARRYINREG))
-          (assert (bvzero? CARRYINSELREG))
-          ;(assert (bvzero? CARRYINSEL))
-          (assert (bvzero? MULTSIGNIN))
-          (assert (bvzero? IS_ALUMODE_INVERTED))
-          (assert (bvzero? IS_CARRYIN_INVERTED))
-          (assert (bvzero? IS_CLK_INVERTED))
-          (assert (bvzero? IS_INMODE_INVERTED))
-          (assert (bvzero? IS_OPMODE_INVERTED))
-          (assert (bvzero? IS_RSTALLCARRYIN_INVERTED))
-          (assert (bvzero? IS_RSTALUMODE_INVERTED))
-          (assert (bvzero? IS_RSTA_INVERTED))
-          (assert (bvzero? IS_RSTB_INVERTED))
-          (assert (bvzero? IS_RSTCTRL_INVERTED))
-          (assert (bvzero? IS_RSTC_INVERTED))
-          (assert (bvzero? IS_RSTD_INVERTED))
-          (assert (bvzero? IS_RSTINMODE_INVERTED))
-          (assert (bvzero? IS_RSTM_INVERTED))
-          (assert (bvzero? IS_RSTP_INVERTED))
-          (assert (not (bvzero? CEA1)))
-          (assert (not (bvzero? CEA2)))
-          (assert (not (bvzero? CEAD)))
-          (assert (not (bvzero? CEALUMODE)))
-          (assert (not (bvzero? CEB1)))
-          (assert (not (bvzero? CEB2)))
-          (assert (not (bvzero? CEC)))
-          (assert (not (bvzero? CECARRYIN)))
-          (assert (not (bvzero? CECTRL)))
-          (assert (not (bvzero? CED)))
-          (assert (not (bvzero? CEINMODE)))
-          (assert (not (bvzero? CEM)))
-          (assert (not (bvzero? CEP)))
-          ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
-          ;;; assumes.
-          ;;; (assume (bvzero? unnamed-input-331))
-          ;;; (assume (bvzero? unnamed-input-488))
-          ;;; (assume (bvzero? unnamed-input-750))
-          ;;; (assume (bvzero? unnamed-input-806))
-          ;;; (assume (bvzero? unnamed-input-850))
-         (displayln "finished asserts")
-         (displayln "\n\n")
-        ;;;  (displayln dsp-expr)
+         (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+         ;(assert (bvzero? CARRYIN))
+         (assert (bvzero? CARRYCASCIN))
+         (assert (bvzero? CLK))
+         (assert (bvzero? PCIN))
+         (assert (bvzero? ACIN))
+         (assert (bvzero? BCIN))
+         (assert (bvzero? MASK))
+         (assert (bvzero? PATTERN))
+         (assert (bvzero? RND))
+         (assert (bvzero? RSTA))
+         (assert (bvzero? RSTALLCARRYIN))
+         (assert (bvzero? RSTALUMODE))
+         (assert (bvzero? RSTB))
+         (assert (bvzero? RSTC))
+         (assert (bvzero? RSTCTRL))
+         (assert (bvzero? RSTD))
+         (assert (bvzero? RSTINMODE))
+         (assert (bvzero? RSTM))
+         (assert (bvzero? RSTP))
+         (assert (bvzero? AREG))
+         (assert (bvzero? ADREG))
+         (assert (bvzero? ACASCREG))
+         (assert (bvzero? BREG))
+         (assert (bvzero? BCASCREG))
+         (assert (bvzero? CREG))
+         (assert (bvzero? DREG))
+         (assert (bvzero? PREG))
+         (assert (bvzero? MREG))
+         (assert (bvzero? INMODEREG))
+         (assert (bvzero? OPMODEREG))
+         (assert (bvzero? ALUMODEREG))
+         (assert (bvzero? CARRYINREG))
+         (assert (bvzero? CARRYINSELREG))
+         ;(assert (bvzero? CARRYINSEL))
+         (assert (bvzero? MULTSIGNIN))
+         (assert (bvzero? IS_ALUMODE_INVERTED))
+         (assert (bvzero? IS_CARRYIN_INVERTED))
+         (assert (bvzero? IS_CLK_INVERTED))
+         (assert (bvzero? IS_INMODE_INVERTED))
+         (assert (bvzero? IS_OPMODE_INVERTED))
+         (assert (bvzero? IS_RSTALLCARRYIN_INVERTED))
+         (assert (bvzero? IS_RSTALUMODE_INVERTED))
+         (assert (bvzero? IS_RSTA_INVERTED))
+         (assert (bvzero? IS_RSTB_INVERTED))
+         (assert (bvzero? IS_RSTCTRL_INVERTED))
+         (assert (bvzero? IS_RSTC_INVERTED))
+         (assert (bvzero? IS_RSTD_INVERTED))
+         (assert (bvzero? IS_RSTINMODE_INVERTED))
+         (assert (bvzero? IS_RSTM_INVERTED))
+         (assert (bvzero? IS_RSTP_INVERTED))
+         (assert (not (bvzero? CEA1)))
+         (assert (not (bvzero? CEA2)))
+         (assert (not (bvzero? CEAD)))
+         (assert (not (bvzero? CEALUMODE)))
+         (assert (not (bvzero? CEB1)))
+         (assert (not (bvzero? CEB2)))
+         (assert (not (bvzero? CEC)))
+         (assert (not (bvzero? CECARRYIN)))
+         (assert (not (bvzero? CECTRL)))
+         (assert (not (bvzero? CED)))
+         (assert (not (bvzero? CEINMODE)))
+         (assert (not (bvzero? CEM)))
+         (assert (not (bvzero? CEP)))
+         ;;; Forcing these to zero to see what happens. If stuff starts to break, remove these
+         ;;; assumes.
+         ;;; (assume (bvzero? unnamed-input-331))
+         ;;; (assume (bvzero? unnamed-input-488))
+         ;;; (assume (bvzero? unnamed-input-750))
+         ;;; (assume (bvzero? unnamed-input-806))
+         ;;; (assume (bvzero? unnamed-input-850))
+         ;;;  (displayln dsp-expr)
          dsp-expr)))
-   (displayln "DONE")
-   (displayln "dsp0")
-   (displayln in1)
-   (displayln in0)
-   (displayln (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv (bv->signal in1))))
-   (displayln (lr:bv (bv->signal (extract 47 18 in1))))
    (define dsp-0-expr
-       (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv (bv->signal in1)))
-                      (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv (bv->signal in1)))
-                      (lr:extract (lr:integer 47) (lr:integer 0) (lr:bv (bv->signal in0)))
-                      (lr:bv (bv->signal (bv 0 27)))
-                      (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1))))))
-
+     (make-dsp-expr (lr:extract (lr:integer 47) (lr:integer 18) (lr:bv (bv->signal in1)))
+                    (lr:extract (lr:integer 17) (lr:integer 0) (lr:bv (bv->signal in1)))
+                    (lr:extract (lr:integer 47) (lr:integer 0) (lr:bv (bv->signal in0)))
+                    (lr:bv (bv->signal (bv 0 27)))
+                    (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1))))))
    (define dsp-0-cout-expr (lr:list-ref dsp-0-expr (lr:integer 1)))
-   (displayln "dsp1 started")
    (define dsp-1-expr
      (make-dsp-expr (lr:extract (lr:integer 95) (lr:integer 66) (lr:bv (bv->signal in1)))
                     (lr:extract (lr:integer 65) (lr:integer 48) (lr:bv (bv->signal in1)))
@@ -1563,7 +1590,6 @@
      (lr:extract (lr:integer (sub1 (bvlen bv-expr)))
                  (lr:integer 0)
                  (lr:concat (lr:list (list (lr:first dsp-1-expr) (lr:first dsp-0-expr))))))
-   (displayln "defines passed")
    (rosette-synthesize bv-expr
                        lakeroad-expr
                        (append (symbolics bv-expr)
@@ -1901,7 +1927,6 @@
 ;;; Throw the kitchen sink at it -- try synthesizing with full CLBs, using LUT6_2s and carry chains.
 ;;; This is our original synthesis implementation, and remains our fallback.
 (define (synthesize-xilinx-ultrascale-plus-impl-kitchen-sink bv-expr)
-  (displayln "WE MADE IT")
   (when (> (length (symbolics bv-expr)) 6)
     (error "Only 6 inputs supported"))
 
@@ -2228,10 +2253,6 @@
                             #:multi-cycle [multi-cycle #f]
                             #:module-semantics [module-semantics '()])
 
-  (displayln "interpreter result:")
-  ;;; (displayln (interpret lakeroad-expr #:module-semantics module-semantics))
-  (displayln "done")
-
   (define soln
     (synthesize #:forall inputs
                 #:guarantee (assert (bveq bv-expr
@@ -2347,7 +2368,6 @@
 ;;; + shift (logical shifting the input wires to the left or right by a constant
 ;;;   statically know amount)
 (define (synthesize-wire bv-expr #:shift-by [shift-by '()])
-  (displayln "Synthesizing wire...")
   (define out-bw (bvlen bv-expr))
   (when (not (concrete? out-bw))
     (error "Out bitwidth must be statically known."))
@@ -2379,139 +2399,139 @@
   (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
-;;; (module+ test
-;;;   (require rosette/solver/smt/boolector
-;;;            rosette
-;;;            rackunit)
-;;;   (current-solver (boolector))
-;;;   (with-terms
-;;;    (begin
-;;;      (define-symbolic a (bitvector 4))
-;;;      (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bv #xff 8))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bv #x12 8))]) (check-not-false lrexpr))
-;;;      (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
-;;;        (check-not-false lrexpr)))))
-
 (module+ test
-  (require rackunit)
-    ;;; (test-case "lattice dsp add"
-    ;;;            (begin
-    ;;;              (check-true
-    ;;;               (normal? (with-vc (with-terms (begin
-    ;;;                                               (define-symbolic a b (bitvector 18))
-    ;;;                                               (check-not-equal? #f
-    ;;;                                                                 (synthesize-lattice-ecp5-dsp
-    ;;;                                                                  (bvadd a b))))))))))
-  ;;;   (test-case "lattice dsp mul"
-  ;;;              (begin
-  ;;;                (check-true
-  ;;;                 (normal? (with-vc (with-terms (begin
-  ;;;                                                 (define-symbolic a b (bitvector 18))
-  ;;;                                                 (check-not-equal? #f
-  ;;;                                                                   (synthesize-lattice-ecp5-dsp
-  ;;;                                                                    (bvmul a b))))))))))
-  ;;;   (test-case "lattice dsp mul-add"
-  ;;;              (begin
-  ;;;                (check-true (normal? (with-vc (with-terms (begin
-  ;;;                                                            (define-symbolic a b c (bitvector 18))
-  ;;;                                                            (check-not-equal?
-  ;;;                                                             #f
-  ;;;                                                             (synthesize-lattice-ecp5-dsp
-  ;;;                                                              (bvadd c (bvmul a b)))))))))))
-  ;;;   (test-case "lattice dsp mul-sub"
-  ;;;              (begin
-  ;;;                (check-true (normal? (with-vc (with-terms (begin
-  ;;;                                                            (define-symbolic a b c (bitvector 18))
-  ;;;                                                            (check-not-equal?
-  ;;;                                                             #f
-  ;;;                                                             (synthesize-lattice-ecp5-dsp
-  ;;;                                                              (bvsub c (bvmul a b)))))))))))
+  (require rosette/solver/smt/boolector
+           rosette
+           rackunit)
+  (current-solver (boolector))
+  (with-terms
+   (begin
+     (define-symbolic a (bitvector 4))
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bv #xff 8))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bv #x12 8))]) (check-not-false lrexpr))
+     (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
+       (check-not-false lrexpr)))))
 
-  ;;;   (test-case "lattice dsp add 16"
-  ;;;              (begin
-  ;;;                (check-true
-  ;;;                 (normal? (with-vc (with-terms (begin
-  ;;;                                                 (define-symbolic a b (bitvector 18))
-  ;;;                                                 (check-not-equal? #f
-  ;;;                                                                   (synthesize-lattice-ecp5-dsp
-  ;;;                                                                    (bvadd a b))))))))))
-  ;;;   (test-case "lattice dsp mul 16"
-  ;;;              (begin
-  ;;;                (check-true
-  ;;;                 (normal? (with-vc (with-terms (begin
-  ;;;                                                 (define-symbolic a b (bitvector 18))
-  ;;;                                                 (check-not-equal? #f
-  ;;;                                                                   (synthesize-lattice-ecp5-dsp
-  ;;;                                                                    (bvmul a b))))))))))
-  ;;;   (test-case "lattice dsp mul-add 16"
-  ;;;              (begin
-  ;;;                (check-true (normal? (with-vc (with-terms (begin
-  ;;;                                                            (define-symbolic a b c (bitvector 18))
-  ;;;                                                            (check-not-equal?
-  ;;;                                                             #f
-  ;;;                                                             (synthesize-lattice-ecp5-dsp
-  ;;;                                                              (bvadd c (bvmul a b)))))))))))
-    (test-case "lattice dsp mul-sub 16"
-               (begin
-                 (check-true (normal? (with-vc (with-terms (begin
-                                                             (define-symbolic a b c (bitvector 18))
-                                                             (check-not-equal?
-                                                              #f
-                                                              (synthesize-lattice-ecp5-dsp
-                                                               (bvsub c (bvmul a b)))))))))))
+;;; (module+ test
+;;;   (require rackunit)
+;;;     (test-case "lattice dsp add"
+;;;                (begin
+;;;                  (check-true
+;;;                   (normal? (with-vc (with-terms (begin
+;;;                                                   (define-symbolic a b (bitvector 18))
+;;;                                                   (check-not-equal? #f
+;;;                                                                     (synthesize-lattice-ecp5-dsp
+;;;                                                                      (bvadd a b))))))))))
+;;;     (test-case "lattice dsp mul"
+;;;                (begin
+;;;                  (check-true
+;;;                   (normal? (with-vc (with-terms (begin
+;;;                                                   (define-symbolic a b (bitvector 18))
+;;;                                                   (check-not-equal? #f
+;;;                                                                     (synthesize-lattice-ecp5-dsp
+;;;                                                                      (bvmul a b))))))))))
+;;;     (test-case "lattice dsp mul-add"
+;;;                (begin
+;;;                  (check-true (normal? (with-vc (with-terms (begin
+;;;                                                              (define-symbolic a b c (bitvector 18))
+;;;                                                              (check-not-equal?
+;;;                                                               #f
+;;;                                                               (synthesize-lattice-ecp5-dsp
+;;;                                                                (bvadd c (bvmul a b)))))))))))
+;;;     (test-case "lattice dsp mul-sub"
+;;;                (begin
+;;;                  (check-true (normal? (with-vc (with-terms (begin
+;;;                                                              (define-symbolic a b c (bitvector 18))
+;;;                                                              (check-not-equal?
+;;;                                                               #f
+;;;                                                               (synthesize-lattice-ecp5-dsp
+;;;                                                                (bvsub c (bvmul a b)))))))))))
 
-  ;;;   (for ([i (list 1 2 3 4 5 6 7 8 16)])
-  ;;;     (test-case (format "lattice dsp mul~a" i)
-  ;;;                (begin
-  ;;;                  (check-true (normal? (with-vc (with-terms (begin
-  ;;;                                                              (define-symbolic a b (bitvector i))
-  ;;;                                                              (check-not-equal?
-  ;;;                                                               #f
-  ;;;                                                               (synthesize-lattice-ecp5-dsp
-  ;;;                                                                (bvmul a b)))))))))))
+;;;     (test-case "lattice dsp add 16"
+;;;                (begin
+;;;                  (check-true
+;;;                   (normal? (with-vc (with-terms (begin
+;;;                                                   (define-symbolic a b (bitvector 18))
+;;;                                                   (check-not-equal? #f
+;;;                                                                     (synthesize-lattice-ecp5-dsp
+;;;                                                                      (bvadd a b))))))))))
+;;;     (test-case "lattice dsp mul 16"
+;;;                (begin
+;;;                  (check-true
+;;;                   (normal? (with-vc (with-terms (begin
+;;;                                                   (define-symbolic a b (bitvector 18))
+;;;                                                   (check-not-equal? #f
+;;;                                                                     (synthesize-lattice-ecp5-dsp
+;;;                                                                      (bvmul a b))))))))))
+;;;     (test-case "lattice dsp mul-add 16"
+;;;                (begin
+;;;                  (check-true (normal? (with-vc (with-terms (begin
+;;;                                                              (define-symbolic a b c (bitvector 18))
+;;;                                                              (check-not-equal?
+;;;                                                               #f
+;;;                                                               (synthesize-lattice-ecp5-dsp
+;;;                                                                (bvadd c (bvmul a b)))))))))))
+;;;     (test-case "lattice dsp mul-sub 16"
+;;;                (begin
+;;;                  (check-true (normal? (with-vc (with-terms (begin
+;;;                                                              (define-symbolic a b c (bitvector 18))
+;;;                                                              (check-not-equal?
+;;;                                                               #f
+;;;                                                               (synthesize-lattice-ecp5-dsp
+;;;                                                                (bvsub c (bvmul a b)))))))))))
 
-  ;;; (test-case "ultrascale+ dsp 96-bit add"
-  ;;;            (begin
-  ;;;              (check-true (normal? (with-vc (with-terms (begin
-  ;;;                                                          (define-symbolic a b (bitvector 96))
-  ;;;                                                          (check-not-equal?
-  ;;;                                                           #f
-  ;;;                                                           (synthesize-xilinx-ultrascale-plus-2-dsps
-  ;;;                                                            (bvadd a b))))))))))
+;;;     (for ([i (list 1 2 3 4 5 6 7 8 16)])
+;;;       (test-case (format "lattice dsp mul~a" i)
+;;;                  (begin
+;;;                    (check-true (normal? (with-vc (with-terms (begin
+;;;                                                                (define-symbolic a b (bitvector i))
+;;;                                                                (check-not-equal?
+;;;                                                                 #f
+;;;                                                                 (synthesize-lattice-ecp5-dsp
+;;;                                                                  (bvmul a b)))))))))))
 
-  ;;; (test-case "ultrascale+ dsp 96-bit and"
-  ;;;            (begin
-  ;;;              (check-true (normal? (with-vc (with-terms (begin
-  ;;;                                                          (define-symbolic a b (bitvector 96))
-  ;;;                                                          (check-not-equal?
-  ;;;                                                           #f
-  ;;;                                                           (synthesize-xilinx-ultrascale-plus-2-dsps
-  ;;;                                                            (bvand a b))))))))))
-  ;;; (test-case "ultrascale+ dsp 96-bit sub"
-  ;;;            (begin
-  ;;;              (check-true (normal? (with-vc (with-terms (begin
-  ;;;                                                          (define-symbolic a b (bitvector 96))
-  ;;;                                                          (check-not-equal?
-  ;;;                                                           #f
-  ;;;                                                           (synthesize-xilinx-ultrascale-plus-2-dsps
-  ;;;                                                            (bvsub a b))))))))))
+;;;   (test-case "ultrascale+ dsp 96-bit add"
+;;;              (begin
+;;;                (check-true (normal? (with-vc (with-terms (begin
+;;;                                                            (define-symbolic a b (bitvector 96))
+;;;                                                            (check-not-equal?
+;;;                                                             #f
+;;;                                                             (synthesize-xilinx-ultrascale-plus-2-dsps
+;;;                                                              (bvadd a b))))))))))
 
-  (test-case "ultrascale+ dsp 96-bit xor reduction"
-             (begin
-               (check-true
-                (normal? (with-vc (with-terms (begin
-                                                (define-symbolic a (bitvector 96))
-                                                (check-not-equal?
-                                                 #f
-                                                 (synthesize-xilinx-ultrascale-plus-dsp-xor
-                                                  (apply bvxor (bitvector->bits a))))))))))))
+;;;   (test-case "ultrascale+ dsp 96-bit and"
+;;;              (begin
+;;;                (check-true (normal? (with-vc (with-terms (begin
+;;;                                                            (define-symbolic a b (bitvector 96))
+;;;                                                            (check-not-equal?
+;;;                                                             #f
+;;;                                                             (synthesize-xilinx-ultrascale-plus-2-dsps
+;;;                                                              (bvand a b))))))))))
+;;;   (test-case "ultrascale+ dsp 96-bit sub"
+;;;              (begin
+;;;                (check-true (normal? (with-vc (with-terms (begin
+;;;                                                            (define-symbolic a b (bitvector 96))
+;;;                                                            (check-not-equal?
+;;;                                                             #f
+;;;                                                             (synthesize-xilinx-ultrascale-plus-2-dsps
+;;;                                                              (bvsub a b))))))))))
+
+;;;   (test-case "ultrascale+ dsp 96-bit xor reduction"
+;;;              (begin
+;;;                (check-true
+;;;                 (normal? (with-vc (with-terms (begin
+;;;                                                 (define-symbolic a (bitvector 96))
+;;;                                                 (check-not-equal?
+;;;                                                  #f
+;;;                                                  (synthesize-xilinx-ultrascale-plus-dsp-xor
+;;;                                                   (apply bvxor (bitvector->bits a))))))))))))
