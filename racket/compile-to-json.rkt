@@ -565,7 +565,7 @@
                   (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) state ))
+                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) state))
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
@@ -594,7 +594,7 @@
                   ;;; Return the bits.
                   (hash-ref port-details 'bits)]
                  ;;; Concrete bitvectors become constants.
-                 [(lr:bv (signal (? bv? (? concrete? s)) state ))
+                 [(lr:bv (signal (? bv? (? concrete? s)) state))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
 
                  [(lr:integer v) v]
