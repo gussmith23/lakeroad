@@ -18,6 +18,7 @@
          "../racket/generated/sofa-frac-lut4.rkt"
          "../racket/generated/lattice-ecp5-mult18x18d.rkt"
          "../racket/generated/lattice-ecp5-alu24b.rkt"
+         "../racket/generated/intel-altmult-accum.rkt"
          rosette/solver/smt/boolector
          "../racket/signal.rkt"
          racket/hash
@@ -34,6 +35,7 @@
                       [(or "xilinx-ultrascale-plus") v]
                       [(or "lattice-ecp5") v]
                       [(or "sofa") v]
+                      ["intel" v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -259,6 +261,7 @@
     ["xilinx-ultrascale-plus" (xilinx-ultrascale-plus-architecture-description)]
     ["lattice-ecp5" (lattice-ecp5-architecture-description)]
     ["sofa" (sofa-architecture-description)]
+    ["intel" (intel-architecture-description)]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -278,6 +281,7 @@
            (cons (cons "ALU24B" "") lattice-ecp5-alu24b))]
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
+    ["intel" (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
