@@ -122,11 +122,11 @@
                           keywords))
                 (when (not (equal? (length pairs) (length keywords-minus-unnamed)))
                   ;;; TODO(@gussmith23): Figure out how to use Racket logging...
-                  (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a"
-                                     (set-subtract
-                                      (apply set keywords-minus-unnamed)
-                                      (apply set (map car pairs))))
-                             (current-error-port)))
+                  (displayln
+                   (format
+                    "WARNING: Not passing all inputs to module's semantics function, Missing ~a"
+                    (set-subtract (apply set keywords-minus-unnamed) (apply set (map car pairs))))
+                   (current-error-port)))
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
