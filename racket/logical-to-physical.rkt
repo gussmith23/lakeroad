@@ -32,12 +32,6 @@
 (struct logical-to-physical-mapping (f inputs) #:transparent)
 (struct physical-to-logical-mapping (f outputs) #:transparent)
 
-;;; (define (transpose inputs)
-;;;   (let*
-;;;    ([inputs-bv (map signal-value inputs)]
-;;;     [state (merge-state inputs)])
-;;;   (map (lambda (bv) (signal bv state)) (apply map concat (map bitvector->bits (reverse inputs-bv))))))
-
 ;; this is a function to help with operating on lists of signals. We take in a list of bitvectors
 ;; (extracted from the signal input) and return the list of bitvectors with the match arm's operatiosn applied.
 (define (signal-helper f inputs)
@@ -141,7 +135,6 @@
    ;;;
    ;;; Returns: A list of  Rosette bitvectors with bits mapped according to the bitwise pattern
    ;;;   described above.
-   ;;;  [(ltop-bitwise) (transpose (interpreter inputs))]
    [(ltop-bitwise)
     (let* ([inputs (interpreter inputs)]
            [inputs-bv (map signal-value inputs)]
@@ -159,18 +152,6 @@
    ;;; Since bits are grouped from least significant to most significant, a
    ;;; 'left shift' actually of the underlying number corresponds to a 'right
    ;;; shift' of our list and vice versa.
-   ;;;  [(ltop-shift n)
-   ;;;   ;;; TODO(@gussmith23): Do we need for/all here?
-   ;;;   (for/all ([n n #:exhaustive])
-   ;;;            (let* ([transposed (transpose (interpreter inputs))]
-   ;;;                   [num-cols (length transposed)]
-   ;;;                   [pad-col (bv #x0 (length (interpreter inputs)))]
-   ;;;                   [num-pads (min (abs n) num-cols)]
-   ;;;                   [pads (make-list num-pads pad-col)])
-   ;;;              (cond
-   ;;;                [(> n 0) (append pads (take transposed (- num-cols num-pads)))]
-   ;;;                [(< n 0) (append (drop transposed num-pads) pads)]
-   ;;;                [else transposed])))]
    [(ltop-shift n)
     (for/all
      ([n n #:exhaustive])
@@ -186,7 +167,6 @@
          [(> n 0) (bvvs->signalvs (append pads (take transposed (- num-cols num-pads))) state)]
          [(< n 0) (bvvs->signalvs (append (drop transposed num-pads) pads) state)]
          [else (bvvs->signalvs transposed state)])))]
-   ;;;  [(ltop-constant c) (bitvector->bits (interpreter c))] ;; question not sure about this one?
    [(ltop-constant c)
     (let* ([inputs (interpreter c)])
       (map (lambda (b) (signal b (signal-state inputs))) (bitvector->bits (signal-value inputs))))]
@@ -206,8 +186,6 @@
       (bvvs->signalvs (map bvor (transpose inputs-bv) masks-bv) state))]
    ;;;
    ;;; Same as bitwise, but reverse.
-   ;;;  [(ltop-bitwise-reverse)
-   ;;;   (transpose (map (lambda (v) (apply concat (bitvector->bits v))) (interpreter inputs)))]
    [(ltop-bitwise-reverse)
     (let* ([inputs (interpreter inputs)]
            [inputs-bv (map signal-value inputs)]

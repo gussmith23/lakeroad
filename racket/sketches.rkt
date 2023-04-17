@@ -629,7 +629,6 @@
                            (- end-sketch-gen-time start-sketch-gen-time)))
 
         (define start-synthesis-time (current-inexact-milliseconds))
-        (interpret sketch #:module-semantics module-semantics)
         (define result
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
                                            #:guarantee

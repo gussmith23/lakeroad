@@ -118,7 +118,7 @@
     (map (lambda (v)
            (choose* (lr:zero-extend (lr:bv v) (lr:bitvector (bitvector expected-bw)))
                     (lr:dup-extend (lr:bv v) (lr:bitvector (bitvector expected-bw)))))
-         (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw))))))
+         (map bv->signal (append symbs (make-list (- num-inputs (length symbs)) (bv -1 out-bw)))))))
 
 (define (make-lattice-lut4-expr logical-inputs #:INIT [INIT #f])
   (lattice-ecp5-lut4 (or INIT (lr:bv (??* (bitvector 16)))) logical-inputs))

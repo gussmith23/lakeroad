@@ -1,5 +1,5 @@
 ;;; Interpreter for the Lakeroad FPGA modeling DSL.
-#lang errortrace racket
+#lang racket
 
 (provide interpret
          report-memoization)
@@ -36,10 +36,6 @@
   (set! interp-memoization-misses 0)
   (define interpreter-memo-hash (make-hasheq))
   (define (interpret-helper expr)
-    ;;; (displayln "EXPR:")
-    ;;; (displayln expr)
-    ;;; (displayln (~a (string (expr)) #:max-width 30))
-    ;;; (let-values ([(struct-type skipped) (struct-info expr)]) (displayln struct-type))
     (if (hash-has-key? interpreter-memo-hash expr)
         (begin
           (set! interp-memoization-hits (add1 interp-memoization-hits))
@@ -97,7 +93,6 @@
                      ;;; Interpret values.
                      [all-values (map interpret-helper all-values)]
                      ;;; Wrap in signal.
-                     ;;;  [all-values (map bv->signal all-values)]
 
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
@@ -110,7 +105,6 @@
 
                      ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
                      ;;; interpreter, we have to unwrap the signal values.
-                     ;;;  [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)]
                      )
                 out)]
              ;;; Lakeroad language.
@@ -236,9 +230,7 @@
                                        unnamed-input-750
                                        unnamed-input-806
                                        unnamed-input-850)
-              (begin
-                (displayln "interpreting the big ass thing")
-                (interpret-ultrascale-plus interpret-helper expr))]
+              (interpret-ultrascale-plus interpret-helper expr)]
              [(lattice-ecp5-pfu lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h inputs)
               (interpret-lattice-ecp5 interpret-helper expr)]
              [(lattice-ecp5-lut2 INIT inputs) (interpret-lattice-ecp5 interpret-helper expr)]
@@ -315,7 +307,6 @@
               (for/all ([n (interpret-helper n) #:exhaustive]) (list-ref (interpret-helper l) n))]
              [(lr:map f lsts) (apply map f (interpret-helper lsts))]
              ;;; Rosette functions lifted to our language.
-             ;;;  [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
              [(lr:zero-extend v bv)
               (let* ([v (interpret-helper v)]
                      [bv (interpret-helper bv)]
@@ -327,7 +318,6 @@
              ;;; The latter is a lot harder to deal with in the interpreter. How to stop this?
              ;;; [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv)
              ;;; (dup-extend (interpret-helper v) bv)]
-             ;;;  [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
              [(lr:dup-extend v bv)
               (let* ([v (interpret-helper v)]
                      [bv (interpret-helper bv)]
@@ -349,8 +339,6 @@
                            (for/all ([l (interpret-helper l) #:exhaustive])
                                     (signal (extract h l (signal-value v))
                                             (merge-state (list v)))))))]
-             ;;;  [(lr:concat vs) (apply concat (interpret-helper vs))]
-             ;;; (for ([e (lr:list-v vs)]) (let-values ([(struct-type skipped) (struct-info e)]) (displayln struct-type)))
              [(lr:concat vs)
               (let* ([vs (interpret-helper vs)]
                      [state (merge-state vs)]

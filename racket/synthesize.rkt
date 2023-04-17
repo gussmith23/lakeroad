@@ -1,4 +1,4 @@
-#lang racket
+#lang errortrace racket
 ;;; Synthesis routines for the various architectures.
 ;;;
 ;;; TODO provide a top-level synthesis procedure?
@@ -180,10 +180,10 @@
                    timeout))
 
 (module+ test
-  ;;; (simple-test synthesize-lattice-ecp5-impl (define-symbolic a b (bitvector 8)) (bvand a b))
-  ;;; (simple-test synthesize-lattice-ecp5-for-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
-  ;;; (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
-  ;;; (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvadd a b))
+  (simple-test synthesize-lattice-ecp5-impl (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvand a b))
+  (simple-test synthesize-lattice-ecp5-for-ripple-pfu (define-symbolic a b (bitvector 8)) (bvadd a b))
   ;;; It's unclear whether CCU2C template is supposed to work. Assuming it's broken for now. Same with
   ;;; tri.
   ;;; (simple-test synthesize-lattice-ecp5-for-ccu2c (define-symbolic a b (bitvector 8)) (bvand a b))
@@ -1160,7 +1160,7 @@
        ;;; connectivity or OPMODE value to allow for proper implementation.
        ;;;
        ;;; TODO(@gussmith23): deal with this when we support multiple DSPs.
-       ;;;  (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
+       (assert (not (bveq (extract 5 4 OPMODE) (bv #b01 2))))
 
        ;;;  ;;; ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
        ;;;  ;;; has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
@@ -2218,14 +2218,14 @@
                                      #:out-bw logical-input-width
                                      #:inputs (lr:list logical-inputs)
                                      #:CIN previous-cout
-                                     #:INIT0 (lr:bv lutmem)
-                                     #:INIT1 (lr:bv lutmem)
-                                     #:INIT2 (lr:bv lutmem)
-                                     #:INIT3 (lr:bv lutmem)
-                                     #:INIT4 (lr:bv lutmem)
-                                     #:INIT5 (lr:bv lutmem)
-                                     #:INIT6 (lr:bv lutmem)
-                                     #:INIT7 (lr:bv lutmem)
+                                     #:INIT0 (lr:bv (bv->signal lutmem))
+                                     #:INIT1 (lr:bv (bv->signal lutmem))
+                                     #:INIT2 (lr:bv (bv->signal lutmem))
+                                     #:INIT3 (lr:bv (bv->signal lutmem))
+                                     #:INIT4 (lr:bv (bv->signal lutmem))
+                                     #:INIT5 (lr:bv (bv->signal lutmem))
+                                     #:INIT6 (lr:bv (bv->signal lutmem))
+                                     #:INIT7 (lr:bv (bv->signal lutmem))
                                      #:MAPPING (choose (ltop-bitwise) (ltop-bitwise-reverse)))])
 
                        (list (lr:take pfu-out (lr:integer 8)) (lr:list-ref pfu-out (lr:integer 8))))]
@@ -2236,7 +2236,7 @@
                                                    this-pfu-physical-outputs))))])
                  (list accumulated-physical-output this-cout)))
              ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
-             (list 'first (lr:bv cin))
+             (list 'first (lr:bv (bv->signal cin)))
              logical-inputs-per-pfu)))
 
   (define lakeroad-expr
@@ -2303,16 +2303,16 @@
     (let ([cin (?? (bitvector 1))] [lutmem (?? (bitvector 16))])
       (foldl
        (lambda (logical-inputs previous-out)
-         (match-let* ([accumulated-logical-output previous-out]
-                      [this-pfu-logical-outputs
-                       (let ([pfu-out (make-lattice-pfu-expr (lr:list logical-inputs))])
-                         (lr:first (physical-to-logical-mapping (ptol-bitwise)
-                                                                (lr:take pfu-out (lr:integer 8)))))]
-                      [accumulated-logical-output
-                       (if (equal? accumulated-logical-output 'first-iter)
-                           this-pfu-logical-outputs
-                           (lr:concat (lr:list (list this-pfu-logical-outputs
-                                                     accumulated-logical-output))))])
+         (match-let*
+             ([accumulated-logical-output previous-out]
+              [this-pfu-logical-outputs
+               (let ([pfu-out (make-lattice-pfu-expr (lr:list logical-inputs))] [debug "here we are"])
+                 (lr:first (physical-to-logical-mapping (ptol-bitwise)
+                                                        (lr:take pfu-out (lr:integer 8)))))]
+              [accumulated-logical-output
+               (if (equal? accumulated-logical-output 'first-iter)
+                   this-pfu-logical-outputs
+                   (lr:concat (lr:list (list this-pfu-logical-outputs accumulated-logical-output))))])
            accumulated-logical-output))
        ;;; It would be cleaner if we could use (bv 0 0) instead of 'first, but it's not allowed.
        'first-iter
