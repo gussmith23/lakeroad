@@ -32,9 +32,6 @@
 (struct logical-to-physical-mapping (f inputs) #:transparent)
 (struct physical-to-logical-mapping (f outputs) #:transparent)
 
-;; this is a function to help with operating on lists of signals. We take in a list of bitvectors
-;; (extracted from the signal input) and return the list of bitvectors with the match arm's operations applied.
-
 (define (bvvs->signalvs inputs state)
   (map (lambda (bv) (signal bv state)) inputs))
 
