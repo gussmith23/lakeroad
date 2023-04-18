@@ -1,5 +1,5 @@
 implementations:
-  - interface: { name: DSP, parameters: { out-width: 36, a-width: 18, b-width: 18, c-width: 18 } }
+  - interface: { name: DSP, parameters: { out-width: 36, a-width: 18, b-width: 18, c-width: 36 } }
     internal_data: 
       input_reg_a: 5
       input_aclr_a: 5
@@ -90,7 +90,7 @@ implementations:
           { name: dataa, direction: input, bitwidth: 18, value: A },
           { name: datab, direction: input, bitwidth: 18, value: B },
           { name: result, direction: output, bitwidth: 36, value: unused },
-          { name: datac, direction: input, bitwidth: 22, value: (bv 0 22) },
+          { name: datac, direction: input, bitwidth: 36, value: C },
           { name: scanina, direction: input, bitwidth: 18, value: (bv 0 18) },
           { name: scaninb, direction: input, bitwidth: 18, value: (bv 0 18) },
           { name: sourcea, direction: input, bitwidth: 1, value: sourcea },
