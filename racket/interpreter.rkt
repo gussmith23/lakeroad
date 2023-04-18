@@ -103,8 +103,6 @@
                      ;;; Call the function.
                      [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())]
 
-                     ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
-                     ;;; interpreter, we have to unwrap the signal values.
                      )
                 out)]
              ;;; Lakeroad language.
