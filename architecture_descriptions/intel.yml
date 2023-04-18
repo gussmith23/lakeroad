@@ -67,6 +67,17 @@ implementations:
       mult_saturation: 1
       accum_round: 1
       accum_saturation: 1
+      signa: 1
+      signb: 1
+    constraints: [
+      "(|| (bveq accum_round_aclr (bv 0 5)) (bveq accum_round_aclr (bv 1 5))  (bveq accum_round_aclr (bv 2 5)) (bveq accum_round_aclr (bv 3 5)))",
+      "(|| (bveq addnsub_pipeline_aclr (bv 0 5)) (bveq addnsub_pipeline_aclr (bv 1 5))  (bveq addnsub_pipeline_aclr (bv 2 5)) (bveq addnsub_pipeline_aclr (bv 3 5)))",
+      "(|| (bveq accum_sload_pipeline_aclr (bv 0 5)) (bveq accum_sload_pipeline_aclr (bv 1 5))  (bveq accum_sload_pipeline_aclr (bv 2 5)) (bveq accum_sload_pipeline_aclr (bv 3 5)))",
+      "(|| (bveq sign_pipeline_aclr_a (bv 0 5)) (bveq sign_pipeline_aclr_a (bv 1 5))  (bveq sign_pipeline_aclr_a (bv 2 5)) (bveq sign_pipeline_aclr_a (bv 3 5)))",
+      "(|| (bveq sign_pipeline_aclr_b (bv 0 5)) (bveq sign_pipeline_aclr_b (bv 1 5))  (bveq sign_pipeline_aclr_b (bv 2 5)) (bveq sign_pipeline_aclr_b (bv 3 5)))",
+      "(|| (bveq multiplier_aclr (bv 0 5)) (bveq multiplier_aclr (bv 1 5))  (bveq multiplier_aclr (bv 2 5)) (bveq multiplier_aclr (bv 3 5)))",
+
+    ]
     modules:
       - module_name: altmult_accum
         filepath: unused
@@ -87,8 +98,8 @@ implementations:
           { name: accum_sload_upper_data, direction: input, bitwidth: 1, value: (bv 0 1) },
           { name: addnsub,  direction: input, bitwidth: 1, value: addnsub },
           { name: accum_sload,  direction: input, bitwidth: 1, value: accum_sload },
-          { name: signa,  direction: input, bitwidth: 1, value: (bv 0 1) },
-          { name: signb, direction: input, bitwidth: 1, value: (bv 0 1) },
+          { name: signa, direction: input, bitwidth: 1, value: (choose (bit 17 A) signa) },
+          { name: signb, direction: input, bitwidth: 1, value: (choose (bit 17 B) signb) },
           { name: ena0, direction: input, bitwidth: 1, value: (bv 1 1) },
           { name: ena1, direction: input, bitwidth: 1, value: (bv 1 1) },
           { name: ena2, direction: input, bitwidth: 1, value: (bv 1 1) },

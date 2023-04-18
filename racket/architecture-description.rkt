@@ -29,6 +29,7 @@
          racket/symbol
          (prefix-in lr: "language.rkt")
          rosette/lib/synthax
+         rosette/lib/angelic
          "signal.rkt")
 
 ;;; Part 1: defining an interface.
@@ -370,6 +371,7 @@
             (define expr (read (open-input-string expr-str)))
             (define (recursive-helper expr)
               (match expr
+                [`(choose ,exprs ...) (apply choose* (map recursive-helper exprs))]
                 [`(extract ,i ,j ,expr)
                  (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
                 [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
