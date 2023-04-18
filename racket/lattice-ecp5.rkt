@@ -482,7 +482,6 @@
            ;;;
            ;;; wire gated_lut2_1 = (INJECT1_1 == "YES") ? 1'b0 : LUT2_1;
            [gated_lut2_1 (if (bveq (signal-value INJECT1_1) (bv 1 1)) (bv 0 1) LUT2_1)]
-           ;;;  [debug (displayln gated_lut2_1)]
            ;;; assign COUT = (~LUT4_1 & gated_lut2_1) | (LUT4_1 & cout_0);
            [COUT (signal (bvor (bvand (bvnot (signal-value LUT4_1)) (signal-value gated_lut2_1))
                                (bvand (signal-value LUT4_1) (signal-value cout_0)))
