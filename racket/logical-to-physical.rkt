@@ -34,9 +34,6 @@
 
 ;; this is a function to help with operating on lists of signals. We take in a list of bitvectors
 ;; (extracted from the signal input) and return the list of bitvectors with the match arm's operations applied.
-(define (signal-helper f inputs)
-  f
-  inputs)
 
 (define (bvvs->signalvs inputs state)
   (map (lambda (bv) (signal bv state)) inputs))
@@ -293,6 +290,7 @@
      (define pttn (map bv->signal (list (?? (bitvector 2)) (?? (bitvector 2)) (?? (bitvector 2)))))
      (match-define (list o0 o1 o2)
        (interpret-logical-to-physical-mapping identity (ltop-bitwise-with-mask pttn) (list x y)))
+     ;;; Simple case: none should be masked.
      (define soln0
        (synthesize #:forall (list x y)
                    #:guarantee (begin
@@ -304,6 +302,7 @@
                                  (assert (bveq (bit 1 (signal-value o2)) (bit 2 (signal-value y)))))))
      (check-equal? (list (bv #b00 2) (bv #b00 2) (bv #b00 2))
                    (map signal-value (evaluate pttn soln0)))
+     ;;; More complex case: some should be masked.
      (define soln1
        (synthesize #:forall (list x y)
                    #:guarantee (begin
@@ -514,7 +513,6 @@
    ;;; outputs.
    ;;;
    ;;; For now, this is nearly the same as the logical-to-physical bitwise mapping.
-   ;;;  [(ptol-bitwise) (transpose (interpreter logical-outputs))]
    [(ptol-bitwise)
     (let* ([outputs (interpreter logical-outputs)]
            [state (merge-state outputs)]
