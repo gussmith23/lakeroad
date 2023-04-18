@@ -96,7 +96,7 @@
          [state (merge-state (list memory inputs))]
          [len (length (bitvector->bits memory-bv))]
          [inputs-bv (zero-extend inputs-bv (bitvector len))])
-    (signal (bit 0 (bvlshr memory-bv inputs-bv)) state))) ;;question LUTs should now return a signal
+    (signal (bit 0 (bvlshr memory-bv inputs-bv)) state)))
 
 (module+ test
   (require rackunit)

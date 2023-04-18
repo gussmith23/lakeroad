@@ -321,14 +321,7 @@
                      [bv (interpret-helper bv)]
                      [state (merge-state (list v))])
                 (signal (dup-extend (signal-value v) bv) state))]
-             ;;;  [(lr:extract h l v) ;; TODO
-             ;;;   (begin
-             ;;;     ;;; We need these for/alls to decompose h and l in weird situations where the indices
-             ;;;     ;;; are concrete but there are multiple possible values.
-             ;;;     (for/all ([h (interpret-helper h) #:exhaustive])
-             ;;;              (for/all ([l (interpret-helper l) #:exhaustive])
-             ;;;                       (extract h l (interpret-helper v)))))]
-             [(lr:extract h l v) ;; TODO
+             [(lr:extract h l v)
               (begin
                 ;;; We need these for/alls to decompose h and l in weird situations where the indices
                 ;;; are concrete but there are multiple possible values.

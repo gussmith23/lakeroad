@@ -252,7 +252,7 @@
                                            (lr:integer 0))
                               (lut (signal-value lut-init-2) (concat D C B A)))))))))
 
-  ;;; ;;; Simulate with Verilator.
+  ;;; Simulate with Verilator.
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
   (when (not (getenv "LAKEROAD_DIR"))

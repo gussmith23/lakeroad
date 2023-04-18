@@ -358,7 +358,6 @@
                  (lr:zero-extend (recursive-helper val) (recursive-helper bv))]
                 [`(bit ,i ,expr) (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
                 [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
-                ;;; [`(bv->signal (concat ,v ...)) (lr:concat (lr:list (map recursive-helper v)))]
                 [(? symbol? s) (lookup-symbol s)]))
             (recursive-helper expr))]
 

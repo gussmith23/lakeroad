@@ -91,7 +91,7 @@
    ;;; add-to-simulate
    )
 
-  ;;; ;;; Add some simulation tasks for LUT6 using concrete lut-init values.
+  ;;; Add some simulation tasks for LUT6 using concrete lut-init values.
   (test-true
    "normal return"
    (normal?
@@ -152,7 +152,7 @@
    ;;; add-to-simulate
    )
 
-  ;;; ;;; Add some simulation tasks for LUT6_2 using concrete lut-init values.
+  ;;; Add some simulation tasks for LUT6_2 using concrete lut-init values.
   (test-true "normal return"
              (normal? (with-vc (with-terms (begin
                                              (define-symbolic i0 (bitvector 1))
@@ -185,10 +185,10 @@
                                              (add-test lut-init-1 lut-init-2)
                                              (add-test lut-init-2 lut-init-0))))))
 
-  ;;; ;;; This one's 4 bits because 16 bits takes too long in simulation. 4 variables, each one getting
-  ;;; ;;; 256 random values --> 2^32 sample points. Far too many!
-  ;;; ;;;
-  ;;; ;;; TODO(@gussmith23): give more control over how many points are sampled in random simulation.
+  ;;; This one's 4 bits because 16 bits takes too long in simulation. 4 variables, each one getting
+  ;;; 256 random values --> 2^32 sample points. Far too many!
+  ;;;
+  ;;; TODO(@gussmith23): give more control over how many points are sampled in random simulation.
   (verify-lakeroad-expression
    "Xilinx UltraScale+ DSP48E2 P output, 0 cycle 4bit mul-add-mul"
    (begin

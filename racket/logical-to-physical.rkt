@@ -33,7 +33,7 @@
 (struct physical-to-logical-mapping (f outputs) #:transparent)
 
 ;; this is a function to help with operating on lists of signals. We take in a list of bitvectors
-;; (extracted from the signal input) and return the list of bitvectors with the match arm's operatiosn applied.
+;; (extracted from the signal input) and return the list of bitvectors with the match arm's operations applied.
 (define (signal-helper f inputs)
   f
   inputs)
@@ -116,7 +116,7 @@
    [(ltop-identity) inputs]
    ;;; Variant which uses a Rosette uninterpreted function.
    [(ltop-uf uf bw bits-per-group)
-    (helper uf bw bits-per-group inputs)] ;; question: I dont think I need to change this
+    (helper uf bw bits-per-group inputs)]
    ;;;
    ;;; Uses an uninterpreted function plus a mask.
    ;;;[`(uf-with-mask ,uf ,bw ,bits-per-group ,masks)
@@ -176,12 +176,11 @@
    ;;; `masks` is a list of masks, one for each of the physical output bitvectors. Each mask is a
    ;;; bitvector of the same length as its corresponding physical output. The mask is ORed with the
    ;;; physical outputs before being returned.
-   ;;;  [(ltop-bitwise-with-mask masks) (map bvor (transpose (interpreter inputs)) (interpreter masks))]
    [(ltop-bitwise-with-mask masks)
     (let* ([inputs (interpreter inputs)]
            [inputs-bv (map signal-value inputs)]
            [state (merge-state inputs)]
-           [masks-bv (map signal-value masks)] ;; question: I think I have to dothis?
+           [masks-bv (map signal-value masks)]
            )
       (bvvs->signalvs (map bvor (transpose inputs-bv) masks-bv) state))]
    ;;;
@@ -261,7 +260,6 @@
          [state (merge-state inputs)]
          [inputs-bv (map signal-value inputs)]
          [inputs (apply concat (reverse inputs-bv))]
-         ;;;  [inputs (apply concat (reverse inputs))]
          [inputs-length (length (bitvector->bits inputs))]
          ;;; 0..inputs-length-1
          [indices (map (lambda (v) (integer->bitvector v (bitvector bw))) (range inputs-length))]
@@ -526,7 +524,6 @@
       (bvvs->signalvs (transpose outputs-bv) state))]
    ;;;
    ;;; Same as bitwise, but reverse.
-   ;;;  [(ptol-bitwise-reverse) (transpose (reverse (interpreter logical-outputs)))]
    [(ptol-bitwise-reverse)
     (let* ([outputs (interpreter logical-outputs)]
            [state (merge-state outputs)]

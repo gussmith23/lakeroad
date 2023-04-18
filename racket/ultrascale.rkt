@@ -995,9 +995,6 @@
                [unnamed-input-850 (interpreter unnamed-input-850)])
     ;;; Constrain the inputs based on the information in the DSP48E2 user manual. (see spec-sheets/.)
     ;;; Constrain #registers (usually to 0, 1, or 2).
-    ;;; TODO(@ninehusky): change the asserts to deal with signals, wrap ACASCREG, etc. in (bv->signal).
-    ;;; Then, remove (bv->signal) in the arguments to interpret-xilinx-dsp48e2.
-    ;;; Also, remove (signal-value) from the P arguments at the very end.
     (assert (|| (bveq (signal-value ACASCREG) (bv 0 32))
                 (bveq (signal-value ACASCREG) (bv 1 32))
                 (bveq (signal-value ACASCREG) (bv 2 32))))
