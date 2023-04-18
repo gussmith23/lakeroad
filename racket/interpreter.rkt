@@ -47,7 +47,6 @@
           (define out
             (destruct
              expr
-             [(list l) (error "hi")]
              [(lr:var name bw)
               (cdr (or (assoc name environment) (error "variable " name " not found")))]
              [(lr:symbol s) s]
@@ -98,7 +97,6 @@
                      ;;; Interpret values.
                      [all-values (map interpret-helper all-values)]
                      ;;; Wrap in signal.
-                     ;;;  [all-values (map bv->signal all-values)]
 
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
@@ -328,7 +326,6 @@
               (for/all ([n (interpret-helper n) #:exhaustive]) (list-ref (interpret-helper l) n))]
              [(lr:map f lsts) (apply map f (interpret-helper lsts))]
              ;;; Rosette functions lifted to our language.
-             ;;;  [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
              [(lr:zero-extend v bv)
               (let* ([v (interpret-helper v)]
                      [bv (interpret-helper bv)]
@@ -345,20 +342,12 @@
              ;;; The latter is a lot harder to deal with in the interpreter. How to stop this?
              ;;; [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv)
              ;;; (dup-extend (interpret-helper v) bv)]
-             ;;;  [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
              [(lr:dup-extend v bv)
               (let* ([v (interpret-helper v)]
                      [bv (interpret-helper bv)]
                      [state (merge-state (list v))])
                 (signal (dup-extend (signal-value v) bv) state))]
-             ;;;  [(lr:extract h l v) ;; TODO
-             ;;;   (begin
-             ;;;     ;;; We need these for/alls to decompose h and l in weird situations where the indices
-             ;;;     ;;; are concrete but there are multiple possible values.
-             ;;;     (for/all ([h (interpret-helper h) #:exhaustive])
-             ;;;              (for/all ([l (interpret-helper l) #:exhaustive])
-             ;;;                       (extract h l (interpret-helper v)))))]
-             [(lr:extract h l v) ;; TODO
+             [(lr:extract h l v)
               (begin
                 ;;; We need these for/alls to decompose h and l in weird situations where the indices
                 ;;; are concrete but there are multiple possible values.
@@ -367,8 +356,6 @@
                            (for/all ([l (interpret-helper l) #:exhaustive])
                                     (signal (extract h l (signal-value v))
                                             (merge-state (list v)))))))]
-             ;;;  [(lr:concat vs) (apply concat (interpret-helper vs))]
-             ;;; (for ([e (lr:list-v vs)]) (let-values ([(struct-type skipped) (struct-info e)]) (displayln struct-type)))
              [(lr:concat vs)
               (let* ([vs (interpret-helper vs)]
                      [state (merge-state vs)]

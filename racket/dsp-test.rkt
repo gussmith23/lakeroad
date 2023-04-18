@@ -7,8 +7,14 @@
 (require "synthesize.rkt")
 (require "verilator.rkt")
 (require "utils.rkt")
+<<<<<<<
+ours
 (require "interpreter.rkt")
 (require "generated/intel-altmult-accum.rkt")
+||||||| base
+=======
+(require "signal.rkt")
+>>>>>>> theirs
 (require "generated/xilinx-ultrascale-plus-dsp48e2.rkt")
 (require "generated/lattice-ecp5-mult18x18d.rkt")
 
@@ -77,7 +83,8 @@
    #:dsp-sketch (lr:hash-ref (first (construct-interface
                                      xilinx-architecture-description
                                      (interface-identifier "DSP" (hash "width" 16))
-                                     (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
+                                     (list (cons "A" (lr:bv (bv->signal a)))
+                                           (cons "B" (lr:bv (bv->signal b))))
                                      #:internal-data #f))
                              'O)
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
@@ -93,16 +100,17 @@
    #:defines (define-symbolic a b (bitvector 8))
    #:bv-expr (bvmul a b)
    #:dsp-sketch
-   (lr:extract (lr:integer 7)
-               (lr:integer 0)
-               (lr:hash-ref
-                (first (construct-interface
-                        lattice-architecture-description
-                        (interface-identifier "DSP" (hash "width" 16))
-                        (list (cons "A" (lr:zero-extend (lr:bv a) (lr:bitvector (bitvector 16))))
-                              (cons "B" (lr:zero-extend (lr:bv b) (lr:bitvector (bitvector 16)))))
-                        #:internal-data #f))
-                'O))
+   (lr:extract
+    (lr:integer 7)
+    (lr:integer 0)
+    (lr:hash-ref
+     (first (construct-interface
+             lattice-architecture-description
+             (interface-identifier "DSP" (hash "width" 16))
+             (list (cons "A" (lr:zero-extend (lr:bv (bv->signal a)) (lr:bitvector (bitvector 16))))
+                   (cons "B" (lr:zero-extend (lr:bv (bv->signal b)) (lr:bitvector (bitvector 16)))))
+             #:internal-data #f))
+     'O))
    #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
                                   lattice-ecp5-mult18x18d))
    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
@@ -117,7 +125,8 @@
    #:dsp-sketch (lr:hash-ref (first (construct-interface
                                      lattice-architecture-description
                                      (interface-identifier "DSP" (hash "width" 16))
-                                     (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
+                                     (list (cons "A" (lr:bv (bv->signal a)))
+                                           (cons "B" (lr:bv (bv->signal b))))
                                      #:internal-data #f))
                              'O)
    #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
@@ -203,7 +212,8 @@
    #:dsp-sketch (lr:hash-ref (first (construct-interface
                                      xilinx-architecture-description
                                      (interface-identifier "DSP" (hash "width" 16))
-                                     (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
+                                     (list (cons "A" (lr:bv (bv->signal a)))
+                                           (cons "B" (lr:bv (bv->signal b))))
                                      #:internal-data #f))
                              'O)
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")

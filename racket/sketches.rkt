@@ -181,14 +181,26 @@
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
        [make-dsp-expr
-        (lambda (internal-data out-width clk-expr rst-expr a-expr a-width b-expr b-width c-expr c-width)
+        (lambda (internal-data out-width
+                               clk-expr
+                               rst-expr
+                               a-expr
+                               a-width
+                               b-expr
+                               b-width
+                               c-expr
+                               c-width)
           (match-define (list dsp-expr ignored-internal-data)
             (construct-interface
              architecture-description
              (interface-identifier
               "DSP"
               (hash "out-width" out-width "a-width" a-width "b-width" b-width "c-width" c-width))
-             (list (cons "clk" clk-expr) (cons "rst" rst-expr) (cons "A" a-expr) (cons "B" b-expr) (cons "C" c-expr))
+             (list (cons "clk" clk-expr)
+                   (cons "rst" rst-expr)
+                   (cons "A" a-expr)
+                   (cons "B" b-expr)
+                   (cons "C" c-expr))
              #:internal-data internal-data))
           ;;; Ignoring internal data for now, but we could use it in the future.
           ;(list (lr:hash-ref dsp-expr 'O) internal-data)
@@ -203,7 +215,16 @@
 
        [out-expr
         (choose
-         (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) a-expr a-bw b-expr b-bw c-expr c-bw)
+         (make-dsp-expr internal-data
+                        out-width
+                        (car clk-input)
+                        (car rst-input)
+                        a-expr
+                        a-bw
+                        b-expr
+                        b-bw
+                        c-expr
+                        c-bw)
          ;;(make-dsp-expr internal-data out-width (car clk-input) (car rst-input) a-expr a-bw c-expr c-bw b-expr b-bw)
          ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw a-expr a-bw c-expr c-bw)
          ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw c-expr c-bw a-expr a-bw)
@@ -668,7 +689,6 @@
                            (- end-sketch-gen-time start-sketch-gen-time)))
 
         (define start-synthesis-time (current-inexact-milliseconds))
-        (interpret sketch #:module-semantics module-semantics)
         (define result
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
                                            #:guarantee

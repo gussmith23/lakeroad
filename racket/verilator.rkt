@@ -8,6 +8,7 @@
          "compile-to-json.rkt"
          rosette
          "utils.rkt"
+         "signal.rkt"
          (prefix-in lr: "language.rkt")
          racket/future)
 
@@ -303,12 +304,13 @@ here-string-delimiter
     (raise "VERILATOR_INCLUDE_DIR not set"))
   (test-case "Simple multi-design Verilator test"
              (check-true
-              (normal? (with-vc (with-terms (begin
-                                              (define-symbolic a b (bitvector 8))
-                                              (check-true (simulate-with-verilator
-                                                           (list (to-simulate (lr:bv a) a)
-                                                                 (to-simulate (lr:bv b) b))
-                                                           (getenv "VERILATOR_INCLUDE_DIR")))))))))
+              (normal? (with-vc (with-terms
+                                 (begin
+                                   (define-symbolic a b (bitvector 8))
+                                   (check-true (simulate-with-verilator
+                                                (list (to-simulate (lr:bv (bv->signal a)) a)
+                                                      (to-simulate (lr:bv (bv->signal b)) b))
+                                                (getenv "VERILATOR_INCLUDE_DIR")))))))))
 
   ;;; TODO(@gussmith23): Capture the output of this so that we don't print an assertion failure during
   ;;; testing.
@@ -317,10 +319,11 @@ here-string-delimiter
               (normal? (with-vc (with-terms (begin
                                               (define-symbolic a b (bitvector 8))
                                               (displayln "Note: expecting an assertion failure:")
-                                              (check-false (simulate-with-verilator
-                                                            (list (to-simulate (lr:bv a) a)
-                                                                  (to-simulate (lr:bv b) (bvnot b)))
-                                                            (getenv "VERILATOR_INCLUDE_DIR"))))))))))
+                                              (check-false
+                                               (simulate-with-verilator
+                                                (list (to-simulate (lr:bv (bv->signal a)) a)
+                                                      (to-simulate (lr:bv (bv->signal b)) (bvnot b)))
+                                                (getenv "VERILATOR_INCLUDE_DIR"))))))))))
 
 ;;; Test a Lakeroad expression using a simple testbench.
 ;;;

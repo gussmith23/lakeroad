@@ -64,8 +64,6 @@
   ;;; "Blocks" like physical-to-logical mappings or CLBs return lists of signals (so, a list of lists
   ;;; of integers).
   (define (compile expr)
-    ;;; (displayln expr)
-    ;;; (let-values ([(struct-type skipped) (struct-info expr)]) (displayln struct-type))
     (if (hash-has-key? memo expr)
         (hash-ref memo expr)
         (let ([out

@@ -54,14 +54,14 @@
        (error "SOFA LUT4 should have a LUT memory of length 16."))
      (interpret-sofa-lut sram (interpreter inputs))]
     [(sofa-frac-lut4 in mode mode-inv sram sram-inv)
-     (let* ([out (interpret-sofa-frac-lut4 #:in (bv->signal (interpreter in))
-                                           #:mode (bv->signal (interpreter mode))
-                                           #:mode_inv (bv->signal (interpreter mode-inv))
-                                           #:sram (bv->signal (interpreter sram))
-                                           #:sram_inv (bv->signal (interpreter sram-inv)))]
-            [lut2-out (signal-value (assoc-ref out 'lut2_out))]
-            [lut3-out (signal-value (assoc-ref out 'lut3_out))]
-            [lut4-out (signal-value (assoc-ref out 'lut4_out))])
+     (let* ([out (interpret-sofa-frac-lut4 #:in (interpreter in)
+                                           #:mode (interpreter mode)
+                                           #:mode_inv (interpreter mode-inv)
+                                           #:sram (interpreter sram)
+                                           #:sram_inv (interpreter sram-inv))]
+            [lut2-out (assoc-ref out 'lut2_out)]
+            [lut3-out (assoc-ref out 'lut3_out)]
+            [lut4-out (assoc-ref out 'lut4_out)])
        (list lut2-out lut3-out lut4-out))]))
 
 (define (compile-sofa compile get-bits add-cell add-netname add-parameter-default-value expr)
