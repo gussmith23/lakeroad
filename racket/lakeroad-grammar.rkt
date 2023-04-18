@@ -7,7 +7,8 @@
          "sketches.rkt"
          (prefix-in lr: "language.rkt")
          "utils.rkt"
-         "architecture-description.rkt")
+         "architecture-description.rkt"
+         "signal.rkt")
 
 ;;; Grammar that mixes multiple sketches.
 (define-grammar
@@ -52,7 +53,7 @@
 
 (define (apply-lakeroad-grammar architecture-description bv-expr #:depth [depth 0])
   (lakeroad-grammar architecture-description
-                    (lr:list (map lr:bv (symbolics bv-expr)))
+                    (lr:list (map lr:bv (map bv->signal (symbolics bv-expr))))
                     (length (symbolics bv-expr))
                     (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr)))
                     #:depth depth))
@@ -86,9 +87,10 @@
           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
                                            #:guarantee
                                            (assert (bveq bv-expr
-                                                         (interpret sketch
-                                                                    #:module-semantics
-                                                                    module-semantics)))))))
+                                                         (signal-value
+                                                          (interpret sketch
+                                                                     #:module-semantics
+                                                                     module-semantics))))))))
 
         (check-true (normal? result))
         (define soln (result-value result))

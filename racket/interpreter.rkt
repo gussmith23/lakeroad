@@ -45,7 +45,6 @@
           (define out
             (destruct
              expr
-             [(list l) (error "hi")]
              [(lr:symbol s) s]
              [(lr:make-immutable-hash list-expr) (interpret-helper list-expr)]
              [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]
@@ -94,7 +93,6 @@
                      ;;; Interpret values.
                      [all-values (map interpret-helper all-values)]
                      ;;; Wrap in signal.
-                     [all-values (map bv->signal all-values)]
 
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
@@ -103,11 +101,7 @@
                      [pairs (sort pairs keyword<? #:key car)]
 
                      ;;; Call the function.
-                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())]
-
-                     ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
-                     ;;; interpreter, we have to unwrap the signal values.
-                     [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)])
+                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())])
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
@@ -309,22 +303,36 @@
               (for/all ([n (interpret-helper n) #:exhaustive]) (list-ref (interpret-helper l) n))]
              [(lr:map f lsts) (apply map f (interpret-helper lsts))]
              ;;; Rosette functions lifted to our language.
-             [(lr:zero-extend v bv) (zero-extend (interpret-helper v) (interpret-helper bv))]
+             [(lr:zero-extend v bv)
+              (let* ([v (interpret-helper v)]
+                     [bv (interpret-helper bv)]
+                     [state (merge-state (list v))])
+                (signal (zero-extend (signal-value v) bv) state))]
              ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
              ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
              ;;; ((union zero-extend dup-extend) v b) instead of (union (zero-extend v b) (dup-extend v b)).
              ;;; The latter is a lot harder to deal with in the interpreter. How to stop this?
              ;;; [`(dup-extend this-is-a-hack-for-dup-extend ,v ,bv)
              ;;; (dup-extend (interpret-helper v) bv)]
-             [(lr:dup-extend v bv) (dup-extend (interpret-helper v) (interpret-helper bv))]
+             [(lr:dup-extend v bv)
+              (let* ([v (interpret-helper v)]
+                     [bv (interpret-helper bv)]
+                     [state (merge-state (list v))])
+                (signal (dup-extend (signal-value v) bv) state))]
              [(lr:extract h l v)
               (begin
                 ;;; We need these for/alls to decompose h and l in weird situations where the indices
                 ;;; are concrete but there are multiple possible values.
-                (for/all ([h (interpret-helper h) #:exhaustive])
-                         (for/all ([l (interpret-helper l) #:exhaustive])
-                                  (extract h l (interpret-helper v)))))]
-             [(lr:concat vs) (apply concat (interpret-helper vs))]
+                (let ([v (interpret-helper v)])
+                  (for/all ([h (interpret-helper h) #:exhaustive])
+                           (for/all ([l (interpret-helper l) #:exhaustive])
+                                    (signal (extract h l (signal-value v))
+                                            (merge-state (list v)))))))]
+             [(lr:concat vs)
+              (let* ([vs (interpret-helper vs)]
+                     [state (merge-state vs)]
+                     [bv-list (map signal-value vs)])
+                (signal (apply concat bv-list) state))]
              ;;; Datatypes.
              [(lr:bv v) v]
              [(lr:bitvector v) v]
@@ -342,40 +350,45 @@
   (require rackunit
            rosette)
 
-  (check-equal? (interpret (physical-to-logical-mapping
-                            (ptol-bitwise)
-                            (lr:list (list (lr:bv (bv #b1 1)) (lr:bv (bv #b0 1))))))
+  (check-equal? (map signal-value
+                     (interpret (physical-to-logical-mapping
+                                 (ptol-bitwise)
+                                 (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
+                                                (lr:bv (bv->signal (bv #b0 1))))))))
                 (list (bv #b01 2)))
 
-  (check-equal? (interpret (logical-to-physical-mapping
-                            (ltop-bitwise)
-                            (lr:list (list (lr:bv (bv 1 1)) (lr:bv (bv 0 1))))))
+  (check-equal? (map signal-value
+                     (interpret (logical-to-physical-mapping
+                                 (ltop-bitwise)
+                                 (lr:list (list (lr:bv (bv->signal (bv 1 1)))
+                                                (lr:bv (bv->signal (bv 0 1))))))))
                 (list (bv #b01 2)))
 
   (check-equal?
-   (interpret (ultrascale-plus-clb (lr:bv (bv 0 1))
-                                   (lr:bv (bv 0 64))
-                                   (lr:bv (bv 0 64))
-                                   (lr:bv (bv 0 64))
-                                   (lr:bv (bv 0 64))
-                                   (lr:bv (bv 0 64))
-                                   (lr:bv (bv 0 64))
-                                   (lr:bv (bv 0 64))
-                                   (lr:bv (bv 0 64))
-                                   (lr:bv (bv 0 2))
-                                   (lr:bv (bv 0 2))
-                                   (lr:bv (bv 0 2))
-                                   (lr:bv (bv 0 2))
-                                   (lr:bv (bv 0 2))
-                                   (lr:bv (bv 0 2))
-                                   (lr:bv (bv 0 2))
-                                   (lr:bv (bv 0 2))
-                                   (lr:list (list (lr:bv (bv 0 6))
-                                                  (lr:bv (bv 0 6))
-                                                  (lr:bv (bv 0 6))
-                                                  (lr:bv (bv 0 6))
-                                                  (lr:bv (bv 0 6))
-                                                  (lr:bv (bv 0 6))
-                                                  (lr:bv (bv 0 6))
-                                                  (lr:bv (bv 0 6))))))
+   (map signal-value
+        (interpret (ultrascale-plus-clb (lr:bv (bv->signal (bv 0 1)))
+                                        (lr:bv (bv->signal (bv 0 64)))
+                                        (lr:bv (bv->signal (bv 0 64)))
+                                        (lr:bv (bv->signal (bv 0 64)))
+                                        (lr:bv (bv->signal (bv 0 64)))
+                                        (lr:bv (bv->signal (bv 0 64)))
+                                        (lr:bv (bv->signal (bv 0 64)))
+                                        (lr:bv (bv->signal (bv 0 64)))
+                                        (lr:bv (bv->signal (bv 0 64)))
+                                        (lr:bv (bv->signal (bv 0 2)))
+                                        (lr:bv (bv->signal (bv 0 2)))
+                                        (lr:bv (bv->signal (bv 0 2)))
+                                        (lr:bv (bv->signal (bv 0 2)))
+                                        (lr:bv (bv->signal (bv 0 2)))
+                                        (lr:bv (bv->signal (bv 0 2)))
+                                        (lr:bv (bv->signal (bv 0 2)))
+                                        (lr:bv (bv->signal (bv 0 2)))
+                                        (lr:list (list (lr:bv (bv->signal (bv 0 6)))
+                                                       (lr:bv (bv->signal (bv 0 6)))
+                                                       (lr:bv (bv->signal (bv 0 6)))
+                                                       (lr:bv (bv->signal (bv 0 6)))
+                                                       (lr:bv (bv->signal (bv 0 6)))
+                                                       (lr:bv (bv->signal (bv 0 6)))
+                                                       (lr:bv (bv->signal (bv 0 6)))
+                                                       (lr:bv (bv->signal (bv 0 6))))))))
    (list (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1) (bv 0 1))))

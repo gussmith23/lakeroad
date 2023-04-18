@@ -27,7 +27,8 @@
          "utils.rkt"
          racket/symbol
          (prefix-in lr: "language.rkt")
-         rosette/lib/synthax)
+         rosette/lib/synthax
+         "signal.rkt")
 
 ;;; Part 1: defining an interface.
 
@@ -184,7 +185,7 @@
        ; this handles cases where either our number of inputs isn't a divisor of
        ; biggest-lut-size OR when we have leftover bits (yum!)
 
-       [symbolic-bit (lr:bv (?? (bitvector 1)))]
+       [symbolic-bit (lr:bv (bv->signal (?? (bitvector 1))))]
        [inputs (for/list ([w windowed-inputs])
                  (let* ([diff (- biggest-lut-size (length w))]
                         [right-pads (make-list diff symbolic-bit)])
@@ -275,7 +276,7 @@
            (hash-set! name-to-internal-data
                       (string->symbol (car internal-data-definition-pair))
                       internal-data)
-           (cons (car internal-data-definition-pair) (lr:bv internal-data)))
+           (cons (car internal-data-definition-pair) (lr:bv (bv->signal internal-data))))
          (hash->list internal-data-definition)))
 
   ;;; Iterate over each constraint, replacing variable names with their corresponding internal data
@@ -350,7 +351,7 @@
                         (match expr
                           [`(extract ,i ,j ,expr)
                            (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
-                          [`(bv ,val ,width) (lr:bv (bv val width))]
+                          [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
                           [`(bitvector ,val) (lr:bitvector (bitvector val))]
                           [`(zero-extend ,val ,bv)
                            (lr:zero-extend (recursive-helper val) (recursive-helper bv))]
@@ -424,7 +425,7 @@
           [internal-data (second out)])
      (check-true (match internal-data
                    [(list (cons "init" (lr:bv v)))
-                    (check-true ((bitvector 16) v))
+                    (check-true ((bitvector 16) (signal-value v)))
                     #t]
                    [else #f]))
      (check-true
@@ -513,7 +514,7 @@
           ;;; to set them to 1 on Xilinx. We should perhaps allow this to be configurable.
           [new-port-map (append port-map
                                 (for/list ([i (range requested-lut-size larger-lut-size)])
-                                  (cons (format "I~a" i) (lr:bv (bv 1 1)))))]
+                                  (cons (format "I~a" i) (lr:bv (bv->signal (bv 1 1))))))]
           [(list out-lut-expr internal-data)
            (construct-interface-internal architecture-description
                                          larger-lut-interface-identifier
@@ -664,8 +665,9 @@
                        (if (equal? padding 0)
                            extract-expr
                            (lr:concat
-                            (lr:list (list (lr:bv (apply concat (make-list padding pad-val)))
-                                           extract-expr))))))]
+                            (lr:list
+                             (list (lr:bv (bv->signal (apply concat (make-list padding pad-val))))
+                                   extract-expr))))))]
                   [this-di (extract-fn di-expr di-padding-val)]
                   [this-s (extract-fn s-expr s-padding-val)]
                   [this-carry (first (construct-interface-internal
@@ -841,9 +843,9 @@
                    [(list (list (cons "init" (lr:bv v0)))
                           (list (cons "init" (lr:bv v1)))
                           (list (cons "init" (lr:bv v2))))
-                    (check-true ((bitvector 16) v0))
-                    (check-true ((bitvector 16) v1))
-                    (check-true ((bitvector 16) v2))
+                    (check-true ((bitvector 16) (signal-value v0)))
+                    (check-true ((bitvector 16) (signal-value v1)))
+                    (check-true ((bitvector 16) (signal-value v2)))
                     #t]
                    [else #f]))
      (check-true
@@ -1171,13 +1173,13 @@
   (test-begin
    "Construct a LUT2 on Lattice from a LUT4."
    (match-let* ([(list expr internal-data)
-                 (construct-interface
-                  (lattice-ecp5-architecture-description)
-                  (interface-identifier "LUT" (hash "num_inputs" 2))
-                  (list (cons "I0" (lr:bv (bv 0 1))) (cons "I1" (lr:bv (bv 0 1)))))])
+                 (construct-interface (lattice-ecp5-architecture-description)
+                                      (interface-identifier "LUT" (hash "num_inputs" 2))
+                                      (list (cons "I0" (lr:bv (bv->signal (bv 0 1))))
+                                            (cons "I1" (lr:bv (bv->signal (bv 0 1))))))])
      (check-true (match internal-data
                    [(list (cons "init" (lr:bv v)))
-                    (check-true ((bitvector 16) v))
+                    (check-true ((bitvector 16) (signal-value v)))
                     #t]
                    [else #f]))
      (check-true
@@ -1194,8 +1196,8 @@
                                                 (list (module-instance-parameter "init" (lr:bv s0)))
                                                 filepath-unchecked)
                                                'Z)))))
-         (check-equal? v0 (bv 0 1))
-         (check-equal? v1 (bv 1 1))
+         (check-equal? (signal-value v0) (bv 0 1))
+         (check-equal? (signal-value v1) (bv 1 1))
          #t]
         [else #f])))))
 
@@ -1206,13 +1208,14 @@
   (test-begin
    "Construct a CCU2C on Lattice."
    (match-define (list expr internal-data)
-     (construct-interface
-      (lattice-ecp5-architecture-description)
-      (interface-identifier "carry" (hash "width" 2))
-      (list (cons "CI" (lr:bv (bv 0 1))) (cons "DI" (lr:bv (bv 0 2))) (cons "S" (lr:bv (bv 0 2))))))
+     (construct-interface (lattice-ecp5-architecture-description)
+                          (interface-identifier "carry" (hash "width" 2))
+                          (list (cons "CI" (lr:bv (bv->signal (bv 0 1))))
+                                (cons "DI" (lr:bv (bv->signal (bv 0 2))))
+                                (cons "S" (lr:bv (bv->signal (bv 0 2)))))))
    (check-true (match internal-data
-                 [(list (cons "INIT0" (lr:bv (? (bitvector 16) _)))
-                        (cons "INIT1" (lr:bv (? (bitvector 16) _))))
+                 [(list (cons "INIT0" (lr:bv (signal (? (bitvector 16) _) _)))
+                        (cons "INIT1" (lr:bv (signal (? (bitvector 16) _) _))))
                   #t]
                  [else #f]))
    (match-define (lr:make-immutable-hash
@@ -1231,17 +1234,17 @@
          (module-instance-port "A1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
          (module-instance-port "B0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv v0)) 'input 1)
          (module-instance-port "B1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
-         (module-instance-port "C0" (lr:bv (? bv? _)) 'input 1)
-         (module-instance-port "C1" (lr:bv (? bv? _)) 'input 1)
-         (module-instance-port "D0" (lr:bv (? bv? _)) 'input 1)
-         (module-instance-port "D1" (lr:bv (? bv? _)) 'input 1)
+         (module-instance-port "C0" (lr:bv (signal (? bv? _) _)) 'input 1)
+         (module-instance-port "C1" (lr:bv (signal (? bv? _) _)) 'input 1)
+         (module-instance-port "D0" (lr:bv (signal (? bv? _) _)) 'input 1)
+         (module-instance-port "D1" (lr:bv (signal (? bv? _) _)) 'input 1)
          (module-instance-port "S0" "unused" 'output 1)
          (module-instance-port "S1" "unused" 'output 1)
          (module-instance-port "COUT" "unused" 'output 1))
         list
         filepath-unchecked)
-       (check-equal? v0 (bv 0 2))
-       (check-equal? v1 (bv 0 1))
+       (check-equal? (signal-value v0) (bv 0 2))
+       (check-equal? (signal-value v1) (bv 0 1))
        #t]
 
       [else #f])))
@@ -1251,12 +1254,12 @@
    (match-define (list expr internal-data)
      (construct-interface (sofa-architecture-description)
                           (interface-identifier "LUT" (hash "num_inputs" 4))
-                          (list (cons "I0" (lr:bv (bv 0 1)))
-                                (cons "I1" (lr:bv (bv 0 1)))
-                                (cons "I2" (lr:bv (bv 0 1)))
-                                (cons "I3" (lr:bv (bv 0 1))))))
+                          (list (cons "I0" (lr:bv (bv->signal (bv 0 1))))
+                                (cons "I1" (lr:bv (bv->signal (bv 0 1))))
+                                (cons "I2" (lr:bv (bv->signal (bv 0 1))))
+                                (cons "I3" (lr:bv (bv->signal (bv 0 1)))))))
    (check-true (match internal-data
-                 [(list (cons "sram" (lr:bv (? (bitvector 16) _)))) #t]
+                 [(list (cons "sram" (lr:bv (signal (? (bitvector 16) _) _)))) #t]
                  [else #f]))
    (match-define (lr:make-immutable-hash
                   (lr:list (list (lr:cons (lr:symbol 'O) (lr:hash-ref mod-expr 'lut4_out)))))
