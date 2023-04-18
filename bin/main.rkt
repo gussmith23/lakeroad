@@ -133,7 +133,7 @@
       (error (format "Invalid input signal specification: ~a" v)))
     (when (assoc name (inputs))
       (error "Signal " name " already present; did you duplicate an --input?"))
-    (inputs (cons (cons name bw) (inputs))))])
+    (inputs (append (inputs) (list (cons name bw)))))])
 
 ;;; Parse instruction.
 ;;;
