@@ -115,8 +115,7 @@
    f
    [(ltop-identity) inputs]
    ;;; Variant which uses a Rosette uninterpreted function.
-   [(ltop-uf uf bw bits-per-group)
-    (helper uf bw bits-per-group inputs)]
+   [(ltop-uf uf bw bits-per-group) (helper uf bw bits-per-group inputs)]
    ;;;
    ;;; Uses an uninterpreted function plus a mask.
    ;;;[`(uf-with-mask ,uf ,bw ,bits-per-group ,masks)
@@ -180,8 +179,7 @@
     (let* ([inputs (interpreter inputs)]
            [inputs-bv (map signal-value inputs)]
            [state (merge-state inputs)]
-           [masks-bv (map signal-value masks)]
-           )
+           [masks-bv (map signal-value masks)])
       (bvvs->signalvs (map bvor (transpose inputs-bv) masks-bv) state))]
    ;;;
    ;;; Same as bitwise, but reverse.

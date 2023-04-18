@@ -345,21 +345,21 @@
          ;;; Parse an expression in our small DSL.
          ;;;
          ;;; - lookup-symbol: a function which takes a symbol and maps it to an expression.
-         [parse-dsl
-          (λ (expr-str lookup-symbol)
-            (define expr (read (open-input-string expr-str)))
-            (define (recursive-helper expr)
-              (match expr
-                [`(extract ,i ,j ,expr)
-                 (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
-                [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
-                [`(bitvector ,val) (lr:bitvector (bitvector val))]
-                [`(zero-extend ,val ,bv)
-                 (lr:zero-extend (recursive-helper val) (recursive-helper bv))]
-                [`(bit ,i ,expr) (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
-                [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
-                [(? symbol? s) (lookup-symbol s)]))
-            (recursive-helper expr))]
+         [parse-dsl (λ (expr-str lookup-symbol)
+                      (define expr (read (open-input-string expr-str)))
+                      (define (recursive-helper expr)
+                        (match expr
+                          [`(extract ,i ,j ,expr)
+                           (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
+                          [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
+                          [`(bitvector ,val) (lr:bitvector (bitvector val))]
+                          [`(zero-extend ,val ,bv)
+                           (lr:zero-extend (recursive-helper val) (recursive-helper bv))]
+                          [`(bit ,i ,expr)
+                           (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
+                          [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
+                          [(? symbol? s) (lookup-symbol s)]))
+                      (recursive-helper expr))]
 
          ;;; Construct the list of new ports, by mapping in the values provided in the port-map for
          ;;; the inputs and leaving the outputs alone.

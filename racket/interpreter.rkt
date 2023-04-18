@@ -101,9 +101,7 @@
                      [pairs (sort pairs keyword<? #:key car)]
 
                      ;;; Call the function.
-                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())]
-
-                     )
+                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())])
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
