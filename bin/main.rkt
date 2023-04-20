@@ -289,17 +289,16 @@
 
 (define lakeroad-expr
   (cond
-  [(and (equal? (initiation-interval) 0) (equal? (template) "dsp"))
-      (let* ([_ "this line prevents autoformatter from messing up comments"]
-          ;;; This whole section is a hack!
+    [(and (equal? (initiation-interval) 0) (equal? (template) "dsp"))
+     (let* ([_ "this line prevents autoformatter from messing up comments"]
+            ;;; This whole section is a hack!
 
-          ;;; TODO(@gussmith) Ignoring --inputs, this will not work for things other than mult.
-          [input-symbolic-constants (symbolics bv-expr)]
-          [_ (when (not (equal? 2 (length input-symbolic-constants)))
-               (error "Expected exactly two symbolic constants."))]
-          [data-inputs (map (λ (v)
-                                  (cons (lr:bv (bv->signal v))
-                                        (bvlen v))) input-symbolic-constants)]
+            ;;; TODO(@gussmith) Ignoring --inputs, this will not work for things other than mult.
+            [input-symbolic-constants (symbolics bv-expr)]
+            [_ (when (not (equal? 2 (length input-symbolic-constants)))
+                 (error "Expected exactly two symbolic constants."))]
+            [data-inputs (map (λ (v) (cons (lr:bv (bv->signal v)) (bvlen v)))
+                              input-symbolic-constants)]
 
             [_ (when (not (verilog-module-out-bitwidth))
                  (error "Verilog module out bitwidth not specified."))]
@@ -309,7 +308,7 @@
                                              #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)
                                              #:data-inputs data-inputs))])
 
-        (call-with-limits (timeout)
+       (call-with-limits (timeout)
                          #f
                          (thunk (rosette-synthesize bv-expr
                                                     sketch
@@ -317,109 +316,109 @@
                                                     #:module-semantics module-semantics))))]
     [(initiation-interval)
      ;;; If initiation interval is set (and is > 0), then we do sequential synthesis.
-      (let* ([_ "this line prevents autoformatter from messing up comments"]
+     (let* ([_ "this line prevents autoformatter from messing up comments"]
 
-             [_ (when (not (clock-name))
-                  (error "Clock name not specified."))]
+            [_ (when (not (clock-name))
+                 (error "Clock name not specified."))]
 
-             [rst-input (if (reset-name)
-                            (cons (lr:var (reset-name) 1) 1)
-                            (cons (lr:bv (bv->signal (bv 0 1))) 1))]
+            [rst-input (if (reset-name)
+                           (cons (lr:var (reset-name) 1) 1)
+                           (cons (lr:bv (bv->signal (bv 0 1))) 1))]
 
-             ;;; Sketch generators should take richer input than just a list of logical inputs and a
-             ;;; bitwidth. That interface is starting to be too weak.
-             ;;; For example, it's currently implicitly expected that the clock is the first list
-             ;;; item.
+            ;;; Sketch generators should take richer input than just a list of logical inputs and a
+            ;;; bitwidth. That interface is starting to be too weak.
+            ;;; For example, it's currently implicitly expected that the clock is the first list
+            ;;; item.
 
-             ;;; Generate the inputs to sketch: a lr:var for each input signal.
-             [data-inputs (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))]
-             [clk-input (cons (lr:var (clock-name) 1) 1)]
+            ;;; Generate the inputs to sketch: a lr:var for each input signal.
+            [data-inputs (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))]
+            [clk-input (cons (lr:var (clock-name) 1) 1)]
 
-             ;;; Generate the input values: an association list mapping name to value, where the value
-             ;;; is a signal whose value is a symbolic bitvector.
-             ;;;
-             ;;; We'll use this as input to both the #:bv-sequential and #:lr-sequential args.
-             [input-values
-              (map (λ (p)
-                     (match p
-                       [(cons name bw)
-                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                   (inputs))]
+            ;;; Generate the input values: an association list mapping name to value, where the value
+            ;;; is a signal whose value is a symbolic bitvector.
+            ;;;
+            ;;; We'll use this as input to both the #:bv-sequential and #:lr-sequential args.
+            [input-values
+             (map (λ (p)
+                    (match p
+                      [(cons name bw)
+                       (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                  (inputs))]
 
-             ;;; The same environments, but with everything set to zero.
-             [input-zeroes (map (λ (p)
-                                  (match p
-                                    [(cons name bw) (cons name (bv->signal (bv 0 bw)))]))
-                                (inputs))]
+            ;;; The same environments, but with everything set to zero.
+            [input-zeroes (map (λ (p)
+                                 (match p
+                                   [(cons name bw) (cons name (bv->signal (bv 0 bw)))]))
+                               (inputs))]
 
-             [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
+            [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
 
-             ;;; TODO(@gussmith23): This will actually only work with the DSP sketch generator(s).
-             ;;; Should be fixed.
-             [_ (when (not (verilog-module-out-bitwidth))
-                  (error "Verilog module out bitwidth not specified."))]
-             [sketch (first (sketch-generator architecture-description
-                                              #:out-width (verilog-module-out-bitwidth)
-                                              #:clk-input clk-input
-                                              #:rst-input rst-input
-                                              #:data-inputs data-inputs))]
+            ;;; TODO(@gussmith23): This will actually only work with the DSP sketch generator(s).
+            ;;; Should be fixed.
+            [_ (when (not (verilog-module-out-bitwidth))
+                 (error "Verilog module out bitwidth not specified."))]
+            [sketch (first (sketch-generator architecture-description
+                                             #:out-width (verilog-module-out-bitwidth)
+                                             #:clk-input clk-input
+                                             #:rst-input rst-input
+                                             #:data-inputs data-inputs))]
 
-             ;;; Environments for sequential synthesis. Each environment represents one set of input
-             ;;; states. For each set of input states, we run the interpreter with the given inputs,
-             ;;; get the output (including all of the internal state), and then pass that state on to
-             ;;; the next iteration. See `rosette-synthesize`.
-             ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
-             [envs ;;; First, we tick the clock with the inputs set to their input values.
-              (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
-                            (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
-                      ;;; then, we tick the clock with the inputs set to zero.
-                      (apply append
-                             (make-list
-                              (sub1 (initiation-interval))
-                              (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-zeroes)
-                                    (cons (cons (clock-name) (bv->signal (bv 1 1))) input-zeroes)))))]
-             ;;; If there's a reset signal, set it to 0 in all envs.
-             [envs (if (reset-name)
-                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
-                       envs)])
+            ;;; Environments for sequential synthesis. Each environment represents one set of input
+            ;;; states. For each set of input states, we run the interpreter with the given inputs,
+            ;;; get the output (including all of the internal state), and then pass that state on to
+            ;;; the next iteration. See `rosette-synthesize`.
+            ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
+            [envs ;;; First, we tick the clock with the inputs set to their input values.
+             (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
+                           (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
+                     ;;; then, we tick the clock with the inputs set to zero.
+                     (apply append
+                            (make-list
+                             (sub1 (initiation-interval))
+                             (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-zeroes)
+                                   (cons (cons (clock-name) (bv->signal (bv 1 1))) input-zeroes)))))]
+            ;;; If there's a reset signal, set it to 0 in all envs.
+            [envs (if (reset-name)
+                      (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
+                      envs)])
 
-        ;;; Throw error if we're not passing all values to the bv-expr.
-        ;;; TODO(@gussmith23): This check would be better elsewhere, but the use of `compose` below
-        ;;; makes it not possible to use `procedure-keywords` in `rosette-synthesize` itself.
-        ;;; TODO(@gussmith23): Even better would be to end the headache of using keyword arguments
-        ;;; altogether.
-        (match-define-values (_ keywords) (procedure-keywords bv-expr))
-        ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer.
-        (define keywords-minus-unnamed
-          (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-"))) keywords))
-        (for ([env envs])
-          (when (not (equal? (length env) (length keywords-minus-unnamed)))
-            ;;; TODO(@gussmith23): Figure out how to use Racket logging...
-            (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a"
-                               (set-subtract (apply set keywords-minus-unnamed)
-                                             (apply set (map (compose1 string->keyword car) env))))
-                       (current-error-port))))
+       ;;; Throw error if we're not passing all values to the bv-expr.
+       ;;; TODO(@gussmith23): This check would be better elsewhere, but the use of `compose` below
+       ;;; makes it not possible to use `procedure-keywords` in `rosette-synthesize` itself.
+       ;;; TODO(@gussmith23): Even better would be to end the headache of using keyword arguments
+       ;;; altogether.
+       (match-define-values (_ keywords) (procedure-keywords bv-expr))
+       ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer.
+       (define keywords-minus-unnamed
+         (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-"))) keywords))
+       (for ([env envs])
+         (when (not (equal? (length env) (length keywords-minus-unnamed)))
+           ;;; TODO(@gussmith23): Figure out how to use Racket logging...
+           (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a"
+                              (set-subtract (apply set keywords-minus-unnamed)
+                                            (apply set (map (compose1 string->keyword car) env))))
+                      (current-error-port))))
 
-        (call-with-limits
-         (timeout)
-         #f
-         (thunk (rosette-synthesize
-                 (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
-                          bv-expr)
-                 sketch
-                 input-symbolic-constants
-                 #:bv-sequential envs
-                 #:lr-sequential envs
-                 #:module-semantics module-semantics))))]
+       (call-with-limits
+        (timeout)
+        #f
+        (thunk (rosette-synthesize
+                (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
+                         bv-expr)
+                sketch
+                input-symbolic-constants
+                #:bv-sequential envs
+                #:lr-sequential envs
+                #:module-semantics module-semantics))))]
 
     [else
-      ;;; If initiation interval is #f, then do normal combinational synthesis.
-      (call-with-limits (timeout)
-                        #f
-                        (thunk (synthesize-with-sketch sketch-generator
-                                                       architecture-description
-                                                       bv-expr
-                                                       #:module-semantics module-semantics)))]))
+     ;;; If initiation interval is #f, then do normal combinational synthesis.
+     (call-with-limits (timeout)
+                       #f
+                       (thunk (synthesize-with-sketch sketch-generator
+                                                      architecture-description
+                                                      bv-expr
+                                                      #:module-semantics module-semantics)))]))
 
 (cond
   [(not lakeroad-expr) (error "Synthesis failed.")]
