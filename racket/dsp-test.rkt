@@ -7,14 +7,9 @@
 (require "synthesize.rkt")
 (require "verilator.rkt")
 (require "utils.rkt")
-<<<<<<<
-ours
 (require "interpreter.rkt")
-(require "generated/intel-altmult-accum.rkt")
-||||||| base
-=======
 (require "signal.rkt")
->>>>>>> theirs
+(require "generated/intel-altmult-accum.rkt")
 (require "generated/xilinx-ultrascale-plus-dsp48e2.rkt")
 (require "generated/lattice-ecp5-mult18x18d.rkt")
 
@@ -50,31 +45,30 @@ ours
                                    #:run-with-verilator run-with-verilator)
     (test-case
      name
-     (begin
-       (displayln "--------------------------------------------------------------------------------")
-       (displayln (format "running test ~a" name))
-       defines ...
-       (interpret dsp-sketch #:module-semantics module-semantics)
+     (with-terms
+      (begin
+        (displayln "--------------------------------------------------------------------------------")
+        (displayln (format "running test ~a" name))
+        defines ...
 
-       (define result
-         (with-vc (with-terms (rosette-synthesize bv-expr
-                                                  dsp-sketch
-                                                  (symbolics bv-expr)
-                                                  #:module-semantics module-semantics))))
+        (define result
+          (with-vc (with-terms (rosette-synthesize bv-expr
+                                                   dsp-sketch
+                                                   (symbolics bv-expr)
+                                                   #:module-semantics module-semantics))))
+        (check-true (normal? result))
+        (define soln (result-value result))
+        (check-true (not (equal? soln #f)))
 
-       (check-true (normal? result))
-       (define soln (result-value result))
-       (check-true (not (equal? soln #f)))
+        (when run-with-verilator
+          (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+            (raise "VERILATOR_INCLUDE_DIR not set"))
 
-       (when run-with-verilator
-         (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-           (raise "VERILATOR_INCLUDE_DIR not set"))
-
-         (displayln "simulating with verilator...")
-         (check-true (simulate-with-verilator #:include-dirs include-dirs
-                                              #:extra-verilator-args extra-verilator-args
-                                              (list (to-simulate soln bv-expr))
-                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
+          (displayln "simulating with verilator...")
+          (check-true (simulate-with-verilator #:include-dirs include-dirs
+                                               #:extra-verilator-args extra-verilator-args
+                                               (list (to-simulate soln bv-expr))
+                                               (getenv "VERILATOR_INCLUDE_DIR"))))))))
 
   (sketch-test
    #:name "bvmul 16 on Xilinx DSP48E2"

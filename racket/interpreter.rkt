@@ -96,7 +96,6 @@
                      [all-values (append port-values param-values)]
                      ;;; Interpret values.
                      [all-values (map interpret-helper all-values)]
-                     ;;; Wrap in signal.
 
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
@@ -105,12 +104,7 @@
                      [pairs (sort pairs keyword<? #:key car)]
 
                      ;;; Call the function.
-                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())]
-
-                     ;;; TODO(@gussmith23): As long as `signal`s are not integrated fully into our
-                     ;;; interpreter, we have to unwrap the signal values.
-                     ;;;  [out (map (λ (p) (cons (car p) (signal-value (cdr p)))) out)]
-                     )
+                     [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())])
                 ;;; Warn if we didn't pass all arguments (except for unnamed inputs).
                 ;;; TODO(@gussmith23): handle unnammed inputs more intelligently, maybe in yml?
                 (match-define-values (_ keywords) (procedure-keywords module-semantics-fn))
