@@ -1207,7 +1207,9 @@
                (check-true (match (intel-architecture-description)
                              [(architecture-description
                                (list (interface-implementation
-                                      (interface-identifier "DSP" (hash-table ("width" 16)))
+                                      (interface-identifier
+                                       "DSP"
+                                       (hash-table ("out-width" 36) ("a-width" 18) ("b-width" 18)))
                                       module-instance
                                       internal-data
                                       output-map
@@ -1264,11 +1266,14 @@
                  (hash-table)
                  (hash-table ("CO" "(bit 7 CO)") ("O" "O"))
                  (list))
-                (interface-implementation (interface-identifier "DSP" (hash-table ("width" 16)))
-                                          module-instance
-                                          internal-data
-                                          (hash-table ("O" "(extract 15 0 P)"))
-                                          constraints)))
+                (interface-implementation
+                 (interface-identifier
+                  "DSP"
+                  (hash-table ("out-width" 48) ("a-width" 30) ("b-width" 18) ("c-width" 48)))
+                 module-instance
+                 internal-data
+                 (hash-table ("O" "P"))
+                 constraints)))
 
          (check-true
           (not
@@ -1296,66 +1301,67 @@
      (check-true
       (match (lattice-ecp5-architecture-description)
         [(architecture-description
-          (list (interface-implementation
-                 (interface-identifier "LUT" (hash-table ("num_inputs" 4)))
-                 (module-instance "LUT4"
-                                  (list (module-instance-port "A" "I0" 'input 1)
-                                        (module-instance-port "B" "I1" 'input 1)
-                                        (module-instance-port "C" "I2" 'input 1)
-                                        (module-instance-port "D" "I3" 'input 1)
-                                        (module-instance-port "Z" "O" 'output 1))
-                                  (list (module-instance-parameter "init" "init"))
-                                  "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
-                                  "../modules_for_importing/lattice_ecp5/LUT4.v")
-                 (hash-table ("init" 16))
-                 (hash-table ("O" "Z"))
-                 (list))
-                ;;; (interface-implementation
-                ;;;  (interface-identifier "MUX" (hash "num_inputs" 2))
-                ;;;  (module-instance "L6MUX21"
-                ;;;                   (list (module-instance-port "D0" "I0" 'input 1)
-                ;;;                         (module-instance-port "D1" "I1" 'input 1)
-                ;;;                         (module-instance-port "SD" "S" 'input 1)
-                ;;;                         (module-instance-port "Z" "O" 'output 1))
-                ;;;                   (list)
-                ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
-                ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
-                ;;;  (hash)
-                ;;;  (hash "O" "Z"))
-                (interface-implementation
-                 (interface-identifier "carry" (hash-table ("width" 2)))
-                 (module-instance "CCU2C"
-                                  (list (module-instance-port "CIN" "CI" 'input 1)
-                                        (module-instance-port "A0" "(bit 0 DI)" 'input 1)
-                                        (module-instance-port "A1" "(bit 1 DI)" 'input 1)
-                                        (module-instance-port "B0" "(bit 0 S)" 'input 1)
-                                        (module-instance-port "B1" "(bit 1 S)" 'input 1)
-                                        (module-instance-port "C0" "(bv 1 1)" 'input 1)
-                                        (module-instance-port "C1" "(bv 1 1)" 'input 1)
-                                        (module-instance-port "D0" "(bv 1 1)" 'input 1)
-                                        (module-instance-port "D1" "(bv 1 1)" 'input 1)
-                                        (module-instance-port "S0" "unused" 'output 1)
-                                        (module-instance-port "S1" "unused" 'output 1)
-                                        (module-instance-port "COUT" "unused" 'output 1))
-                                  (list (module-instance-parameter "INIT0" "INIT0")
-                                        (module-instance-parameter "INIT1" "INIT1")
-                                        (module-instance-parameter "INJECT1_0" "(bv 0 1)")
-                                        (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
-                                  "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
-                                  "../modules_for_importing/lattice_ecp5/CCU2C.v")
-                 (hash-table ("INIT0" 16) ("INIT1" 16))
-                 (hash-table ("CO" "COUT") ("O" "(concat S1 S0)"))
-                 (list))
-                (interface-implementation
-                 (interface-identifier "DSP" (hash-table ("width" 16)))
-                 (module-instance "MULT18X18D"
-                                  ports
-                                  params
-                                  "../lakeroad-private/lattice_ecp5/MULT18X18D.v"
-                                  "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
-                 (hash-table)
-                 (hash-table ("O" "(concat P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0)"))
-                 constraints)))
+          (list
+           (interface-implementation
+            (interface-identifier "LUT" (hash-table ("num_inputs" 4)))
+            (module-instance "LUT4"
+                             (list (module-instance-port "A" "I0" 'input 1)
+                                   (module-instance-port "B" "I1" 'input 1)
+                                   (module-instance-port "C" "I2" 'input 1)
+                                   (module-instance-port "D" "I3" 'input 1)
+                                   (module-instance-port "Z" "O" 'output 1))
+                             (list (module-instance-parameter "init" "init"))
+                             "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
+                             "../modules_for_importing/lattice_ecp5/LUT4.v")
+            (hash-table ("init" 16))
+            (hash-table ("O" "Z"))
+            (list))
+           ;;; (interface-implementation
+           ;;;  (interface-identifier "MUX" (hash "num_inputs" 2))
+           ;;;  (module-instance "L6MUX21"
+           ;;;                   (list (module-instance-port "D0" "I0" 'input 1)
+           ;;;                         (module-instance-port "D1" "I1" 'input 1)
+           ;;;                         (module-instance-port "SD" "S" 'input 1)
+           ;;;                         (module-instance-port "Z" "O" 'output 1))
+           ;;;                   (list)
+           ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
+           ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
+           ;;;  (hash)
+           ;;;  (hash "O" "Z"))
+           (interface-implementation
+            (interface-identifier "carry" (hash-table ("width" 2)))
+            (module-instance "CCU2C"
+                             (list (module-instance-port "CIN" "CI" 'input 1)
+                                   (module-instance-port "A0" "(bit 0 DI)" 'input 1)
+                                   (module-instance-port "A1" "(bit 1 DI)" 'input 1)
+                                   (module-instance-port "B0" "(bit 0 S)" 'input 1)
+                                   (module-instance-port "B1" "(bit 1 S)" 'input 1)
+                                   (module-instance-port "C0" "(bv 1 1)" 'input 1)
+                                   (module-instance-port "C1" "(bv 1 1)" 'input 1)
+                                   (module-instance-port "D0" "(bv 1 1)" 'input 1)
+                                   (module-instance-port "D1" "(bv 1 1)" 'input 1)
+                                   (module-instance-port "S0" "unused" 'output 1)
+                                   (module-instance-port "S1" "unused" 'output 1)
+                                   (module-instance-port "COUT" "unused" 'output 1))
+                             (list (module-instance-parameter "INIT0" "INIT0")
+                                   (module-instance-parameter "INIT1" "INIT1")
+                                   (module-instance-parameter "INJECT1_0" "(bv 0 1)")
+                                   (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
+                             "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
+                             "../modules_for_importing/lattice_ecp5/CCU2C.v")
+            (hash-table ("INIT0" 16) ("INIT1" 16))
+            (hash-table ("CO" "COUT") ("O" "(concat S1 S0)"))
+            (list))
+           (interface-implementation
+            (interface-identifier
+             "DSP"
+             (hash-table ("out-width" 36) ("a-width" 18) ("b-width" 18) ("c-width" 18)))
+            (module-instance "MULT18X18D" ports params path path)
+            internal-data
+            (hash-table
+             ("O"
+              "(concat P35 P34 P33 P32 P31 P30 P29 P28 P27 P26 P25 P24 P23 P22 P21 P20 P19 P18 P17 P16 P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0)"))
+            constraints)))
          #t]
         [else #f]))))
 
