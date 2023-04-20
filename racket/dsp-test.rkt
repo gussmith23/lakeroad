@@ -17,16 +17,6 @@
 (define lattice-architecture-description (lattice-ecp5-architecture-description))
 (define the-intel-architecture-description (intel-architecture-description))
 
-(displayln the-intel-architecture-description)
-
-(define-symbolic a b (bitvector 16))
-(displayln
- (interpret (lr:hash-ref (first (construct-interface the-intel-architecture-description
-                                                     (interface-identifier "DSP" (hash "width" 16))
-                                                     (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
-                                                     #:internal-data #f))
-                         'O)
-            #:module-semantics (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))))
 
 (module+ test
   (require rackunit

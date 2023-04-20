@@ -2246,7 +2246,7 @@
 ;;; Returns a concrete Lakeroad expression, or #f if synthesis failed.
 ;;;
 ;;; Args:
-;;; - bv-sequential: Same as lr-sequuential, but for the input bitvector expression. See the
+;;; - bv-sequential: Same as lr-sequential, but for the input bitvector expression. See the
 ;;;     documentation for lr-sequential. If #f, `bv-expr` is a Rosette bitvector expression (likely
 ;;;     symbolic, but can also be concrete). If not #f, it must be a function with keyword args
 ;;;     matching the args in the `bv-sequential` association lists.

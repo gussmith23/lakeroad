@@ -315,7 +315,7 @@
                              (cons
                               (string->symbol (module-instance-parameter-name p))
                               ;;; Here, we allow for overrides on parameter compilation. This is
-                              ;;; because we've had to manually ;;; convert string parameters to
+                              ;;; because we've had to manually convert string parameters to
                               ;;; bitvectors, and so we need to convert them back for some modules.
                               (or (compile-parameter-override module-name p)
                                   (match (module-instance-parameter-value p)
