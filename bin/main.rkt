@@ -3,6 +3,7 @@
 
 (require rosette
          (prefix-in lr: "../racket/language.rkt")
+         "../racket/utils.rkt"
          "../racket/synthesize.rkt"
          "../racket/compile-to-json.rkt"
          "../racket/circt-comb-operators.rkt"
@@ -196,7 +197,7 @@
      (define f (eval (first (btor->racket btor)) ns))
      ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
      ;;; path expects a bvexpr, which we can get by just calling the function.
-     (if (initiation-interval)
+     (if (and (not (equal? #f (initiation-interval))) (> (initiation-interval) 0))
          f
          (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal)))))]))
 
@@ -287,9 +288,35 @@
                     other))]))
 
 (define lakeroad-expr
+  (cond
+  [(and (equal? (initiation-interval) 0) (equal? (template) "dsp"))
+      (let* ([_ "this line prevents autoformatter from messing up comments"]
+          ;;; This whole section is a hack!
 
-  (if (initiation-interval)
-      ;;; If initiation interval is set, then we do sequential synthesis.
+          ;;; TODO(@gussmith) Ignoring --inputs, this will not work for things other than mult.
+          [input-symbolic-constants (symbolics bv-expr)]
+          [_ (when (not (equal? 2 (length input-symbolic-constants)))
+               (error "Expected exactly two symbolic constants."))]
+          [data-inputs (map (λ (v)
+                                  (cons (lr:bv (bv->signal v))
+                                        (bvlen v))) input-symbolic-constants)]
+
+            [_ (when (not (verilog-module-out-bitwidth))
+                 (error "Verilog module out bitwidth not specified."))]
+            [sketch (first (sketch-generator architecture-description
+                                             #:out-width (verilog-module-out-bitwidth)
+                                             #:clk-input (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                                             #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                                             #:data-inputs data-inputs))])
+
+        (call-with-limits (timeout)
+                         #f
+                         (thunk (rosette-synthesize bv-expr
+                                                    sketch
+                                                    input-symbolic-constants
+                                                    #:module-semantics module-semantics))))]
+    [(initiation-interval)
+     ;;; If initiation interval is set (and is > 0), then we do sequential synthesis.
       (let* ([_ "this line prevents autoformatter from messing up comments"]
 
              [_ (when (not (clock-name))
@@ -383,15 +410,16 @@
                  input-symbolic-constants
                  #:bv-sequential envs
                  #:lr-sequential envs
-                 #:module-semantics module-semantics))))
+                 #:module-semantics module-semantics))))]
 
+    [else
       ;;; If initiation interval is #f, then do normal combinational synthesis.
       (call-with-limits (timeout)
                         #f
                         (thunk (synthesize-with-sketch sketch-generator
                                                        architecture-description
                                                        bv-expr
-                                                       #:module-semantics module-semantics)))))
+                                                       #:module-semantics module-semantics)))]))
 
 (cond
   [(not lakeroad-expr) (error "Synthesis failed.")]
