@@ -26,7 +26,6 @@
 (require rosette
          yaml
          "utils.rkt"
-         racket/symbol
          (prefix-in lr: "language.rkt")
          rosette/lib/synthax
          rosette/lib/angelic
