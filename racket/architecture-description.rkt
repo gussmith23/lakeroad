@@ -959,45 +959,45 @@
   (test-case
    "Construct smaller DSP from larger DSP"
    (match-let* ([(list expr internal-data)
-                 (construct-interface
-                  (xilinx-ultrascale-plus-architecture-description)
-                  (interface-identifier "DSP" (hash "width" 8))
-                  (list (cons "A" 'a-input-expr) (cons "B" 'b-input-expr) (cons "clk" 'clk-expr)))])
+                 (construct-interface (xilinx-ultrascale-plus-architecture-description)
+                                      (interface-identifier
+                                       "DSP"
+                                       (hash "out-width" 8 "a-width" 8 "b-width" 8 "c-width" 8))
+                                      (list (cons "A" 'a-input-expr)
+                                            (cons "B" 'b-input-expr)
+                                            (cons "C" 'c-input-expr)
+                                            (cons "rst" 'rst-expr)
+                                            (cons "clk" 'clk-expr)))])
      (check-true
       (match expr
         [(lr:make-immutable-hash
           (lr:list
-           (list (lr:cons (lr:symbol 'O)
-                          (lr:extract
-                           (lr:integer 15)
-                           (lr:integer 0)
-                           (lr:hash-ref
-                            (lr:hw-module-instance
-                             "DSP48E2"
-                             (list stuff ...
-                                   (module-instance-port
-                                    "A"
-                                    (lr:zero-extend
-                                     (lr:zero-extend 'a-input-expr (lr:bitvector (bitvector 16)))
-                                     (lr:bitvector (bitvector 30)))
-                                    'input
-                                    16)
-                                   stuff2 ...
-                                   (module-instance-port
-                                    "B"
-                                    (lr:zero-extend
-                                     (lr:zero-extend 'b-input-expr (lr:bitvector (bitvector 16)))
-                                     (lr:bitvector (bitvector 18)))
-                                    'input
-                                    16)
-                                   stuff3 ...
-                                   (module-instance-port "CLK" 'clk-expr 'input 1)
-                                   stuff4 ...
-                                   (module-instance-port "P" "P" 'output 48)
-                                   others ...)
-                             params
-                             filepath)
-                            'P)))
+           (list (lr:cons
+                  (lr:symbol 'O)
+                  (lr:extract
+                   (lr:integer 7)
+                   (lr:integer 0)
+                   (lr:hash-ref
+                    (lr:make-immutable-hash
+                     (lr:list (list (lr:cons (lr:symbol 'O)
+                                             (lr:hash-ref
+                                              (lr:hw-module-instance
+                                               "DSP48E2"
+                                               (list stuff ...
+                                                     (module-instance-port "A" a-expr 'input 30)
+                                                     stuff2 ...
+                                                     (module-instance-port "B" b-expr 'input 18)
+                                                     stuff3 ...
+                                                     (module-instance-port "C" c-expr 'input 48)
+                                                     stuff4 ...
+                                                     (module-instance-port "CLK" 'clk-expr 'input 1)
+                                                     stuff5 ...
+                                                     (module-instance-port "P" "P" 'output 48)
+                                                     others ...)
+                                               params
+                                               filepath)
+                                              'P)))))
+                    'O)))
                  others ...)))
          #t]
         [else #f]))))
