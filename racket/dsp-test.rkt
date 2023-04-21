@@ -17,7 +17,6 @@
 (define lattice-architecture-description (lattice-ecp5-architecture-description))
 (define the-intel-architecture-description (intel-architecture-description))
 
-
 (module+ test
   (require rackunit
            rosette/solver/smt/boolector)
