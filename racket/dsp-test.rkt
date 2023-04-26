@@ -7,15 +7,10 @@
 (require "synthesize.rkt")
 (require "verilator.rkt")
 (require "utils.rkt")
-(require "interpreter.rkt")
 (require "signal.rkt")
-(require "generated/intel-altmult-accum.rkt")
 (require "generated/xilinx-ultrascale-plus-dsp48e2.rkt")
-(require "generated/lattice-ecp5-mult18x18d.rkt")
-
-(define xilinx-architecture-description (xilinx-ultrascale-plus-architecture-description))
-(define lattice-architecture-description (lattice-ecp5-architecture-description))
-(define the-intel-architecture-description (intel-architecture-description))
+;(require "generated/intel-altmult-accum.rkt")
+;(require "generated/lattice-ecp5-mult18x18d.rkt")
 
 (module+ test
   (require rackunit
@@ -64,10 +59,15 @@
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvmul a b)
    #:dsp-sketch (lr:hash-ref (first (construct-interface
-                                     xilinx-architecture-description
-                                     (interface-identifier "DSP" (hash "width" 16))
+                                     (xilinx-ultrascale-plus-architecture-description)
+                                     (interface-identifier
+                                      "DSP"
+                                      (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
                                      (list (cons "A" (lr:bv (bv->signal a)))
-                                           (cons "B" (lr:bv (bv->signal b))))
+                                           (cons "B" (lr:bv (bv->signal b)))
+                                           (cons "C" (lr:bv (bv->signal (bv 0 16))))
+                                           (cons "clk" (lr:bv (bv->signal (bv 0 1))))
+                                           (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
                                      #:internal-data #f))
                              'O)
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
@@ -78,62 +78,80 @@
    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
    #:run-with-verilator #t)
 
-  (sketch-test
-   #:name "bvmul 8 on Lattice ECP5"
-   #:defines (define-symbolic a b (bitvector 8))
-   #:bv-expr (bvmul a b)
-   #:dsp-sketch
-   (lr:extract
-    (lr:integer 7)
-    (lr:integer 0)
-    (lr:hash-ref
-     (first (construct-interface
-             lattice-architecture-description
-             (interface-identifier "DSP" (hash "width" 16))
-             (list (cons "A" (lr:zero-extend (lr:bv (bv->signal a)) (lr:bitvector (bitvector 16))))
-                   (cons "B" (lr:zero-extend (lr:bv (bv->signal b)) (lr:bitvector (bitvector 16)))))
-             #:internal-data #f))
-     'O))
-   #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
-                                  lattice-ecp5-mult18x18d))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-   #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
-   #:run-with-verilator #f)
+;;; TODO(@gussmith23): Currently these tests only test combinational DSP usage, which is actually
+;;; unsupported by Lattice and Intel (I think).
 
-  (sketch-test
-   #:name "bvmul 16 on Lattice ECP5"
-   #:defines (define-symbolic a b (bitvector 16))
-   #:bv-expr (bvmul a b)
-   #:dsp-sketch (lr:hash-ref (first (construct-interface
-                                     lattice-architecture-description
-                                     (interface-identifier "DSP" (hash "width" 16))
-                                     (list (cons "A" (lr:bv (bv->signal a)))
-                                           (cons "B" (lr:bv (bv->signal b))))
-                                     #:internal-data #f))
-                             'O)
-   #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
-                                  lattice-ecp5-mult18x18d))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-   #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
-   #:run-with-verilator #f)
+;;;   (sketch-test
+;;;    #:name "bvmul 8 on Lattice ECP5"
+;;;    #:defines (define-symbolic a b (bitvector 8))
+;;;    #:bv-expr (bvmul a b)
+;;;    #:dsp-sketch
+;;;    (lr:extract
+;;;     (lr:integer 7)
+;;;     (lr:integer 0)
+;;;     (lr:hash-ref
+;;;      (first
+;;;       (construct-interface
+;;;        (lattice-ecp5-architecture-description)
+;;;        (interface-identifier "DSP" (hash "out-width" 8 "a-width" 8 "b-width" 8 "c-width" 8))
+;;;        (list (cons "A" (lr:zero-extend (lr:bv (bv->signal a)) (lr:bitvector (bitvector 8))))
+;;;              (cons "B" (lr:zero-extend (lr:bv (bv->signal b)) (lr:bitvector (bitvector 8))))
+;;;              (cons "C" (lr:zero-extend (lr:bv (bv->signal (bv 0 8))) (lr:bitvector (bitvector 8))))
+;;;              (cons "clk" (lr:bv (bv->signal (bv 0 1))))
+;;;              (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
+;;;        #:internal-data #f))
+;;;      'O))
+;;;    #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
+;;;                                   lattice-ecp5-mult18x18d))
+;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+;;;    #:extra-verilator-args
+;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+;;;    #:run-with-verilator #f)
 
-  (sketch-test
-   #:name "bvmul 16 on Intel"
-   #:defines (define-symbolic a b (bitvector 16))
-   #:bv-expr (bvmul a b)
-   #:dsp-sketch (lr:hash-ref (first (construct-interface
-                                     the-intel-architecture-description
-                                     (interface-identifier "DSP" (hash "width" 16))
-                                     (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
-                                     #:internal-data #f))
-                             'O)
-   #:module-semantics (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))
-   #:include-dirs (list)
-   #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
-   #:run-with-verilator #f)
+;;;   (sketch-test
+;;;    #:name "bvmul 16 on Lattice ECP5"
+;;;    #:defines (define-symbolic a b (bitvector 16))
+;;;    #:bv-expr (bvmul a b)
+;;;    #:dsp-sketch (lr:hash-ref (first (construct-interface
+;;;                                      (lattice-ecp5-architecture-description)
+;;;                                      (interface-identifier
+;;;                                       "DSP"
+;;;                                       (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
+;;;                                      (list (cons "A" (lr:bv (bv->signal a)))
+;;;                                            (cons "B" (lr:bv (bv->signal b)))
+;;;                                            (cons "C" (lr:bv (bv->signal (bv 0 16))))
+;;;                                            (cons "clk" (lr:bv (bv->signal (bv 0 1))))
+;;;                                            (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
+;;;                                      #:internal-data #f))
+;;;                              'O)
+;;;    #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
+;;;                                   lattice-ecp5-mult18x18d))
+;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+;;;    #:extra-verilator-args
+;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+;;;    #:run-with-verilator #f)
+
+;;;   (sketch-test
+;;;    #:name "bvmul 16 on Intel"
+;;;    #:defines (define-symbolic a b (bitvector 16))
+;;;    #:bv-expr (bvmul a b)
+;;;    #:dsp-sketch (lr:hash-ref (first (construct-interface
+;;;                                      (intel-architecture-description)
+;;;                                      (interface-identifier
+;;;                                       "DSP"
+;;;                                       (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
+;;;                                      (list (cons "A" (lr:bv (bv->signal a)))
+;;;                                            (cons "B" (lr:bv (bv->signal b)))
+;;;                                            (cons "C" (lr:bv (bv->signal (bv 0 16))))
+;;;                                            (cons "clk" (lr:bv (bv->signal (bv 0 1))))
+;;;                                            (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
+;;;                                      #:internal-data #f))
+;;;                              'O)
+;;;    #:module-semantics (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))
+;;;    #:include-dirs (list)
+;;;    #:extra-verilator-args
+;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+;;;    #:run-with-verilator #f)
 
   ;;; TODO(@ninehusky): find out why these aren't working by going through the DSP48E2 manual
 
@@ -193,10 +211,15 @@
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvand (bvmul a b) (bvmul a b))
    #:dsp-sketch (lr:hash-ref (first (construct-interface
-                                     xilinx-architecture-description
-                                     (interface-identifier "DSP" (hash "width" 16))
+                                     (xilinx-ultrascale-plus-architecture-description)
+                                     (interface-identifier
+                                      "DSP"
+                                      (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
                                      (list (cons "A" (lr:bv (bv->signal a)))
-                                           (cons "B" (lr:bv (bv->signal b))))
+                                           (cons "B" (lr:bv (bv->signal b)))
+                                           (cons "C" (lr:bv (bv->signal (bv 0 16))))
+                                           (cons "clk" (lr:bv (bv->signal (bv 0 1))))
+                                           (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
                                      #:internal-data #f))
                              'O)
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
