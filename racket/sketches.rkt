@@ -725,7 +725,17 @@
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvmul a b)
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   #:sketch-generator single-dsp-sketch-generator
+   ;;; TODO(@gussmith23): Resolve this hack. Make sketch generators have the same signature.
+   ;;;
+   ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
+   #:sketch-generator
+   (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+     (single-dsp-sketch-generator architecture-description
+                                  #:out-width bitwidth
+                                  #:clk-input (cons (lr:bv (bv->signal (bv 1 1))) 1)
+                                  #:data-inputs (list (cons (lr:bv (bv->signal a)) 16)
+                                                      (cons (lr:bv (bv->signal b)) 16))
+                                  #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)))
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
@@ -738,7 +748,15 @@
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvand (bvmul a b) (bvmul a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   #:sketch-generator single-dsp-sketch-generator
+   ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
+   #:sketch-generator
+   (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+     (single-dsp-sketch-generator architecture-description
+                                  #:out-width bitwidth
+                                  #:clk-input (cons (lr:bv (bv->signal (bv 1 1))) 1)
+                                  #:data-inputs (list (cons (lr:bv (bv->signal a)) 16)
+                                                      (cons (lr:bv (bv->signal b)) 16))
+                                  #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)))
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
