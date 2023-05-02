@@ -2373,7 +2373,7 @@
                      "two-stage-adder"
                      (list (module-instance-port "a" (lr:bv (bv->signal a)) 'input 8)
                            (module-instance-port "b" (lr:bv (bv->signal b)) 'input 8)
-                           (module-instance-port "clk" (lr:var "clk") 'input 1)
+                           (module-instance-port "clk" (lr:var "clk" 1) 'input 1)
                            (module-instance-port "O" "O" 'output 8))
                      '()
                      "unused filepath")
