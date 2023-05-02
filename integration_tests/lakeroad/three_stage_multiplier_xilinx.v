@@ -4,7 +4,7 @@
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name three_stage_multiplier \
-// RUN:  --verilog-module-out-signal p \
+// RUN:  --verilog-module-out-signal p:16 \
 // RUN:  --initiation-interval 3 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
