@@ -39,7 +39,7 @@ jobs:
       run: |
         export TAG=lakeroad:$(date +%s)
         echo "Docker image tag: $TAG"
-        echo "::set-output name=tag::$TAG"
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
 
     - name: Build Docker image
       run: |
