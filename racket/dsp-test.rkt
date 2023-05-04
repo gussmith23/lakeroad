@@ -27,32 +27,32 @@
                                    #:include-dirs include-dirs
                                    #:extra-verilator-args extra-verilator-args
                                    #:run-with-verilator run-with-verilator)
-    (test-case
-     name
-     (with-terms
-      (begin
-        (displayln "--------------------------------------------------------------------------------")
-        (displayln (format "running test ~a" name))
-        defines ...
+    (test-case name
+      (with-terms
+       (begin
+         (displayln
+          "--------------------------------------------------------------------------------")
+         (displayln (format "running test ~a" name))
+         defines ...
 
-        (define result
-          (with-vc (with-terms (rosette-synthesize bv-expr
-                                                   dsp-sketch
-                                                   (symbolics bv-expr)
-                                                   #:module-semantics module-semantics))))
-        (check-true (normal? result))
-        (define soln (result-value result))
-        (check-true (not (equal? soln #f)))
+         (define result
+           (with-vc (with-terms (rosette-synthesize bv-expr
+                                                    dsp-sketch
+                                                    (symbolics bv-expr)
+                                                    #:module-semantics module-semantics))))
+         (check-true (normal? result))
+         (define soln (result-value result))
+         (check-true (not (equal? soln #f)))
 
-        (when run-with-verilator
-          (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-            (raise "VERILATOR_INCLUDE_DIR not set"))
+         (when run-with-verilator
+           (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+             (raise "VERILATOR_INCLUDE_DIR not set"))
 
-          (displayln "simulating with verilator...")
-          (check-true (simulate-with-verilator #:include-dirs include-dirs
-                                               #:extra-verilator-args extra-verilator-args
-                                               (list (to-simulate soln bv-expr))
-                                               (getenv "VERILATOR_INCLUDE_DIR"))))))))
+           (displayln "simulating with verilator...")
+           (check-true (simulate-with-verilator #:include-dirs include-dirs
+                                                #:extra-verilator-args extra-verilator-args
+                                                (list (to-simulate soln bv-expr))
+                                                (getenv "VERILATOR_INCLUDE_DIR"))))))))
 
   (sketch-test
    #:name "bvmul 16 on Xilinx DSP48E2"

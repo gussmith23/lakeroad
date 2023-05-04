@@ -670,55 +670,55 @@
                                    #:module-semantics module-semantics
                                    #:include-dirs include-dirs
                                    #:extra-verilator-args extra-verilator-args)
-    (test-case
-     name
-     (with-terms
-      (begin
-        (displayln "--------------------------------------------------------------------------------")
-        (displayln (format "running test ~a" name))
-        defines ...
+    (test-case name
+      (with-terms
+       (begin
+         (displayln
+          "--------------------------------------------------------------------------------")
+         (displayln (format "running test ~a" name))
+         defines ...
 
-        (define start-sketch-gen-time (current-inexact-milliseconds))
-        (define sketch (generate-sketch sketch-generator architecture-description bv-expr))
-        ;;; (displayln sketch)
+         (define start-sketch-gen-time (current-inexact-milliseconds))
+         (define sketch (generate-sketch sketch-generator architecture-description bv-expr))
+         ;;; (displayln sketch)
 
-        (define end-sketch-gen-time (current-inexact-milliseconds))
+         (define end-sketch-gen-time (current-inexact-milliseconds))
 
-        (displayln (format "number of symbolics in sketch: ~a" (length (symbolics sketch))))
-        (displayln (format "sketch generation time: ~ams"
-                           (- end-sketch-gen-time start-sketch-gen-time)))
+         (displayln (format "number of symbolics in sketch: ~a" (length (symbolics sketch))))
+         (displayln (format "sketch generation time: ~ams"
+                            (- end-sketch-gen-time start-sketch-gen-time)))
 
-        (define start-synthesis-time (current-inexact-milliseconds))
-        (define result
-          (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
-                                           #:guarantee
-                                           (assert (bveq bv-expr
-                                                         (signal-value
-                                                          (interpret sketch
-                                                                     #:module-semantics
-                                                                     module-semantics))))))))
+         (define start-synthesis-time (current-inexact-milliseconds))
+         (define result
+           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
+                                            #:guarantee
+                                            (assert (bveq bv-expr
+                                                          (signal-value
+                                                           (interpret sketch
+                                                                      #:module-semantics
+                                                                      module-semantics))))))))
 
-        (define end-synthesis-time (current-inexact-milliseconds))
-        (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))
+         (define end-synthesis-time (current-inexact-milliseconds))
+         (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))
 
-        (check-true (normal? result))
-        (define soln (result-value result))
-        (check-true (sat? soln))
+         (check-true (normal? result))
+         (define soln (result-value result))
+         (check-true (sat? soln))
 
-        (define lr-expr
-          (evaluate
-           sketch
-           ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-           (complete-solution soln
-                              (set->list (set-subtract (list->set (symbolics sketch))
-                                                       (list->set (symbolics bv-expr)))))))
+         (define lr-expr
+           (evaluate
+            sketch
+            ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+            (complete-solution soln
+                               (set->list (set-subtract (list->set (symbolics sketch))
+                                                        (list->set (symbolics bv-expr)))))))
 
-        (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-          (raise "VERILATOR_INCLUDE_DIR not set"))
-        (check-true (simulate-with-verilator #:include-dirs include-dirs
-                                             #:extra-verilator-args extra-verilator-args
-                                             (list (to-simulate lr-expr bv-expr))
-                                             (getenv "VERILATOR_INCLUDE_DIR")))))))
+         (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+           (raise "VERILATOR_INCLUDE_DIR not set"))
+         (check-true (simulate-with-verilator #:include-dirs include-dirs
+                                              #:extra-verilator-args extra-verilator-args
+                                              (list (to-simulate lr-expr bv-expr))
+                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
 
   (sketch-test
    #:name "DSP for bvmul on Xilinx DSP48E2"

@@ -2342,121 +2342,120 @@
 (module+ test
   (require rackunit)
 
-  (test-case
-   "sequential synthesis test"
-   (begin
+  (test-case "sequential synthesis test"
+    (begin
 
-     ;;; Two-stage adder, taking two clock ticks to produce an output.
-     (define (two-stage-adder #:a a #:b b #:clk clk)
-       (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
-              [clk (signal-value clk)]
-              [a (signal-value a)]
-              [b (signal-value b)]
-              [old-clk (cdr (or (assoc 'clk state) (cons 'unused (bv 0 1))))]
-              [old-a (cdr (or (assoc 'a state) (cons 'unused (bv 0 8))))]
-              [old-b (cdr (or (assoc 'b state) (cons 'unused (bv 0 8))))]
-              [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
-              [new-a (if clk-ticked a old-a)]
-              [new-b (if clk-ticked b old-b)]
-              [out (bvadd old-a old-b)])
-         (list (cons 'O (signal out (list (cons 'a new-a) (cons 'b new-b) (cons 'clk clk)))))))
+      ;;; Two-stage adder, taking two clock ticks to produce an output.
+      (define (two-stage-adder #:a a #:b b #:clk clk)
+        (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
+               [clk (signal-value clk)]
+               [a (signal-value a)]
+               [b (signal-value b)]
+               [old-clk (cdr (or (assoc 'clk state) (cons 'unused (bv 0 1))))]
+               [old-a (cdr (or (assoc 'a state) (cons 'unused (bv 0 8))))]
+               [old-b (cdr (or (assoc 'b state) (cons 'unused (bv 0 8))))]
+               [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
+               [new-a (if clk-ticked a old-a)]
+               [new-b (if clk-ticked b old-b)]
+               [out (bvadd old-a old-b)])
+          (list (cons 'O (signal out (list (cons 'a new-a) (cons 'b new-b) (cons 'clk clk)))))))
 
-     ;;; Helper function used by the below tests.
-     (define (make-env clk a b)
-       (list (cons "a" (bv->signal a)) (cons "b" (bv->signal b)) (cons "clk" (bv->signal clk))))
+      ;;; Helper function used by the below tests.
+      (define (make-env clk a b)
+        (list (cons "a" (bv->signal a)) (cons "b" (bv->signal b)) (cons "clk" (bv->signal clk))))
 
-     (define-symbolic a b (bitvector 8))
+      (define-symbolic a b (bitvector 8))
 
-     ;;; The Lakeroad program just calls the two-stage adder and gets the O output.
-     (define lr-expr
-       (lr:hash-ref (lr:hw-module-instance
-                     "two-stage-adder"
-                     (list (module-instance-port "a" (lr:bv (bv->signal a)) 'input 8)
-                           (module-instance-port "b" (lr:bv (bv->signal b)) 'input 8)
-                           (module-instance-port "clk" (lr:var "clk" 1) 'input 1)
-                           (module-instance-port "O" "O" 'output 8))
-                     '()
-                     "unused filepath")
-                    'O))
+      ;;; The Lakeroad program just calls the two-stage adder and gets the O output.
+      (define lr-expr
+        (lr:hash-ref (lr:hw-module-instance
+                      "two-stage-adder"
+                      (list (module-instance-port "a" (lr:bv (bv->signal a)) 'input 8)
+                            (module-instance-port "b" (lr:bv (bv->signal b)) 'input 8)
+                            (module-instance-port "clk" (lr:var "clk" 1) 'input 1)
+                            (module-instance-port "O" "O" 'output 8))
+                      '()
+                      "unused filepath")
+                     'O))
 
-     ;;; The next two checks test the `lr-sequential` argument to `rosette-synthesize`.
+      ;;; The next two checks test the `lr-sequential` argument to `rosette-synthesize`.
 
-     ;;; Check: we *can't* synthesize an add with a single clock cycle.
-     (check-false (rosette-synthesize
-                   (bvadd a b)
-                   lr-expr
-                   (list a b)
-                   ;;; Tick the clock once (eval with clk=0, eval with clk=1).
-                   #:lr-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
-                   #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
-                                                  two-stage-adder))))
+      ;;; Check: we *can't* synthesize an add with a single clock cycle.
+      (check-false (rosette-synthesize
+                    (bvadd a b)
+                    lr-expr
+                    (list a b)
+                    ;;; Tick the clock once (eval with clk=0, eval with clk=1).
+                    #:lr-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
+                    #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                   two-stage-adder))))
 
-     ;;; Check: we *can* successfully synthesize an add with two clock cycles.
-     ;;;
-     ;;; Note that "synthesis" here is actually equivalent to `verify` in Rosette, because there are
-     ;;; no free symbolics to be solved for. So `rosette-synthesize` actually just verifies whether
-     ;;; bv-expr == lr-expr for all inputs.
-     (check-not-false (rosette-synthesize
-                       (bvadd a b)
-                       lr-expr
-                       (list a b)
-                       ;;; Tick the clock twice.
-                       #:lr-sequential (list (make-env (bv 0 1) a b)
-                                             (make-env (bv 1 1) a b)
-                                             (make-env (bv 0 1) (bv 0 8) (bv 0 8))
-                                             (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
-                       #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
-                                                      two-stage-adder))))
+      ;;; Check: we *can* successfully synthesize an add with two clock cycles.
+      ;;;
+      ;;; Note that "synthesis" here is actually equivalent to `verify` in Rosette, because there are
+      ;;; no free symbolics to be solved for. So `rosette-synthesize` actually just verifies whether
+      ;;; bv-expr == lr-expr for all inputs.
+      (check-not-false (rosette-synthesize
+                        (bvadd a b)
+                        lr-expr
+                        (list a b)
+                        ;;; Tick the clock twice.
+                        #:lr-sequential (list (make-env (bv 0 1) a b)
+                                              (make-env (bv 1 1) a b)
+                                              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                        #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                       two-stage-adder))))
 
-     ;;; The next check tests the `bv-sequential` argument to `rosette-synthesize`.
+      ;;; The next check tests the `bv-sequential` argument to `rosette-synthesize`.
 
-     ;;; Two-stage adder that does its add on the first clock tick. This will serve as our `bv-expr`
-     ;;; input to synthesis. It's just a different way to implement the same adder. We could have also
-     ;;; made it one stage or three stages.
-     (define (two-stage-adder-2 #:a a #:b b #:clk clk)
-       (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
-              [clk (signal-value clk)]
-              [a (signal-value a)]
-              [b (signal-value b)]
-              [sum (bvadd a b)]
-              [old-clk (cdr (or (assoc 'clk state) (cons 'unused (bv 0 1))))]
-              [old-sum (cdr (or (assoc 'sum state) (cons 'unused (bv 0 8))))]
-              [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
-              [new-sum (if clk-ticked sum old-sum)]
-              [out old-sum])
-         (signal out (list (cons 'sum new-sum) (cons 'clk clk)))))
+      ;;; Two-stage adder that does its add on the first clock tick. This will serve as our `bv-expr`
+      ;;; input to synthesis. It's just a different way to implement the same adder. We could have also
+      ;;; made it one stage or three stages.
+      (define (two-stage-adder-2 #:a a #:b b #:clk clk)
+        (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
+               [clk (signal-value clk)]
+               [a (signal-value a)]
+               [b (signal-value b)]
+               [sum (bvadd a b)]
+               [old-clk (cdr (or (assoc 'clk state) (cons 'unused (bv 0 1))))]
+               [old-sum (cdr (or (assoc 'sum state) (cons 'unused (bv 0 8))))]
+               [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
+               [new-sum (if clk-ticked sum old-sum)]
+               [out old-sum])
+          (signal out (list (cons 'sum new-sum) (cons 'clk clk)))))
 
-     ;;; Check that we can successfully "synthesize" (same note as above re: "synthesis" being
-     ;;; equivalent to verification in this case) a Lakeroad expression that implements our
-     ;;; `two-stage-adder-2` spec.
-     (check-not-false (rosette-synthesize
-                       two-stage-adder-2
-                       lr-expr
-                       (list a b)
-                       ;;; Tick the clock twice, on both designs.
-                       #:bv-sequential (list (make-env (bv 0 1) a b)
-                                             (make-env (bv 1 1) a b)
-                                             (make-env (bv 0 1) (bv 0 8) (bv 0 8))
-                                             (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
-                       #:lr-sequential (list (make-env (bv 0 1) a b)
-                                             (make-env (bv 1 1) a b)
-                                             (make-env (bv 0 1) (bv 0 8) (bv 0 8))
-                                             (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
-                       #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
-                                                      two-stage-adder))))
+      ;;; Check that we can successfully "synthesize" (same note as above re: "synthesis" being
+      ;;; equivalent to verification in this case) a Lakeroad expression that implements our
+      ;;; `two-stage-adder-2` spec.
+      (check-not-false (rosette-synthesize
+                        two-stage-adder-2
+                        lr-expr
+                        (list a b)
+                        ;;; Tick the clock twice, on both designs.
+                        #:bv-sequential (list (make-env (bv 0 1) a b)
+                                              (make-env (bv 1 1) a b)
+                                              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                        #:lr-sequential (list (make-env (bv 0 1) a b)
+                                              (make-env (bv 1 1) a b)
+                                              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                        #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                       two-stage-adder))))
 
-     ;;; If you don't tick the clock twice on the `bv-expr`, then the synthesis will fail.
-     (check-false (rosette-synthesize
-                   two-stage-adder-2
-                   lr-expr
-                   (list a b)
-                   #:bv-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
-                   #:lr-sequential (list (make-env (bv 0 1) a b)
-                                         (make-env (bv 1 1) a b)
-                                         (make-env (bv 0 1) (bv 0 8) (bv 0 8))
-                                         (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
-                   #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
-                                                  two-stage-adder)))))))
+      ;;; If you don't tick the clock twice on the `bv-expr`, then the synthesis will fail.
+      (check-false (rosette-synthesize
+                    two-stage-adder-2
+                    lr-expr
+                    (list a b)
+                    #:bv-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
+                    #:lr-sequential (list (make-env (bv 0 1) a b)
+                                          (make-env (bv 1 1) a b)
+                                          (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                          (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                    #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                   two-stage-adder)))))))
 
 (define (synthesize-lattice-ecp5-for-pfu bv-expr)
 
@@ -2615,37 +2614,36 @@
   (require rackunit)
 
   (test-case "ultrascale+ dsp 96-bit add"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 96))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
-                                                             (bvadd a b))))))))))
+    (begin
+      (check-true (normal? (with-vc (with-terms (begin
+                                                  (define-symbolic a b (bitvector 96))
+                                                  (check-not-equal?
+                                                   #f
+                                                   (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                    (bvadd a b))))))))))
 
   (test-case "ultrascale+ dsp 96-bit and"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 96))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
-                                                             (bvand a b))))))))))
+    (begin
+      (check-true (normal? (with-vc (with-terms (begin
+                                                  (define-symbolic a b (bitvector 96))
+                                                  (check-not-equal?
+                                                   #f
+                                                   (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                    (bvand a b))))))))))
   (test-case "ultrascale+ dsp 96-bit sub"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 96))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
-                                                             (bvsub a b))))))))))
+    (begin
+      (check-true (normal? (with-vc (with-terms (begin
+                                                  (define-symbolic a b (bitvector 96))
+                                                  (check-not-equal?
+                                                   #f
+                                                   (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                    (bvsub a b))))))))))
 
   (test-case "ultrascale+ dsp 96-bit xor reduction"
-             (begin
-               (check-true
-                (normal? (with-vc (with-terms (begin
-                                                (define-symbolic a (bitvector 96))
-                                                (check-not-equal?
-                                                 #f
-                                                 (synthesize-xilinx-ultrascale-plus-dsp-xor
-                                                  (apply bvxor (bitvector->bits a))))))))))))
+    (begin
+      (check-true (normal? (with-vc (with-terms (begin
+                                                  (define-symbolic a (bitvector 96))
+                                                  (check-not-equal?
+                                                   #f
+                                                   (synthesize-xilinx-ultrascale-plus-dsp-xor
+                                                    (apply bvxor (bitvector->bits a))))))))))))

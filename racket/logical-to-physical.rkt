@@ -279,38 +279,38 @@
 
   (current-solver (boolector))
 
-  (test-case
-   "bitwise with mask"
-   (begin
-     (define x (bv->signal (?? (bitvector 3))))
-     (define y (bv->signal (?? (bitvector 3))))
-     (define pttn (map bv->signal (list (?? (bitvector 2)) (?? (bitvector 2)) (?? (bitvector 2)))))
-     (match-define (list o0 o1 o2)
-       (interpret-logical-to-physical-mapping identity (ltop-bitwise-with-mask pttn) (list x y)))
-     ;;; Simple case: none should be masked.
-     (define soln0
-       (synthesize #:forall (list x y)
-                   #:guarantee (begin
-                                 (assert (bveq (bit 0 (signal-value o0)) (bit 0 (signal-value x))))
-                                 (assert (bveq (bit 1 (signal-value o0)) (bit 0 (signal-value y))))
-                                 (assert (bveq (bit 0 (signal-value o1)) (bit 1 (signal-value x))))
-                                 (assert (bveq (bit 1 (signal-value o1)) (bit 1 (signal-value y))))
-                                 (assert (bveq (bit 0 (signal-value o2)) (bit 2 (signal-value x))))
-                                 (assert (bveq (bit 1 (signal-value o2)) (bit 2 (signal-value y)))))))
-     (check-equal? (list (bv #b00 2) (bv #b00 2) (bv #b00 2))
-                   (map signal-value (evaluate pttn soln0)))
-     ;;; More complex case: some should be masked.
-     (define soln1
-       (synthesize #:forall (list x y)
-                   #:guarantee (begin
-                                 (assert (bveq (bit 0 (signal-value o0)) (bv 1 1)))
-                                 (assert (bveq (bit 1 (signal-value o0)) (bit 0 (signal-value y))))
-                                 (assert (bveq (bit 0 (signal-value o1)) (bit 1 (signal-value x))))
-                                 (assert (bveq (bit 1 (signal-value o1)) (bit 1 (signal-value y))))
-                                 (assert (bveq (bit 0 (signal-value o2)) (bv 1 1)))
-                                 (assert (bveq (bit 1 (signal-value o2)) (bv 1 1))))))
-     (check-equal? (list (bv #b01 2) (bv #b00 2) (bv #b11 2))
-                   (map signal-value (evaluate pttn soln1))))))
+  (test-case "bitwise with mask"
+    (begin
+      (define x (bv->signal (?? (bitvector 3))))
+      (define y (bv->signal (?? (bitvector 3))))
+      (define pttn (map bv->signal (list (?? (bitvector 2)) (?? (bitvector 2)) (?? (bitvector 2)))))
+      (match-define (list o0 o1 o2)
+        (interpret-logical-to-physical-mapping identity (ltop-bitwise-with-mask pttn) (list x y)))
+      ;;; Simple case: none should be masked.
+      (define soln0
+        (synthesize #:forall (list x y)
+                    #:guarantee
+                    (begin
+                      (assert (bveq (bit 0 (signal-value o0)) (bit 0 (signal-value x))))
+                      (assert (bveq (bit 1 (signal-value o0)) (bit 0 (signal-value y))))
+                      (assert (bveq (bit 0 (signal-value o1)) (bit 1 (signal-value x))))
+                      (assert (bveq (bit 1 (signal-value o1)) (bit 1 (signal-value y))))
+                      (assert (bveq (bit 0 (signal-value o2)) (bit 2 (signal-value x))))
+                      (assert (bveq (bit 1 (signal-value o2)) (bit 2 (signal-value y)))))))
+      (check-equal? (list (bv #b00 2) (bv #b00 2) (bv #b00 2))
+                    (map signal-value (evaluate pttn soln0)))
+      ;;; More complex case: some should be masked.
+      (define soln1
+        (synthesize #:forall (list x y)
+                    #:guarantee (begin
+                                  (assert (bveq (bit 0 (signal-value o0)) (bv 1 1)))
+                                  (assert (bveq (bit 1 (signal-value o0)) (bit 0 (signal-value y))))
+                                  (assert (bveq (bit 0 (signal-value o1)) (bit 1 (signal-value x))))
+                                  (assert (bveq (bit 1 (signal-value o1)) (bit 1 (signal-value y))))
+                                  (assert (bveq (bit 0 (signal-value o2)) (bv 1 1)))
+                                  (assert (bveq (bit 1 (signal-value o2)) (bv 1 1))))))
+      (check-equal? (list (bv #b01 2) (bv #b00 2) (bv #b11 2))
+                    (map signal-value (evaluate pttn soln1))))))
 
 (module+ test
   (require rackunit
@@ -552,63 +552,64 @@
                 (list (bv->signal (bv #b10 2))))
 
   ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
-  (test-begin (define logical-out-a (bv->signal (?? (bitvector 1))))
-              (define logical-out-b (bv->signal (?? (bitvector 1))))
-              (define logical-out-c (bv->signal (?? (bitvector 1))))
-              (define logical-out-d (bv->signal (?? (bitvector 1))))
-              (define logical-out-e (bv->signal (?? (bitvector 1))))
-              (define logical-out-f (bv->signal (?? (bitvector 1))))
-              (define logical-out-g (bv->signal (?? (bitvector 1))))
-              (define logical-out-h (bv->signal (?? (bitvector 1))))
-              (define pttn (?? (~> (bitvector 3) (bitvector 3))))
-              (match-define (list physical-out)
-                (interpret-physical-to-logical-mapping identity
-                                                       (ptol-uf pttn 3 8)
-                                                       (list logical-out-a
-                                                             logical-out-b
-                                                             logical-out-c
-                                                             logical-out-d
-                                                             logical-out-e
-                                                             logical-out-f
-                                                             logical-out-g
-                                                             logical-out-h)))
-              (define soln
-                (synthesize #:forall (list logical-out-a
-                                           logical-out-b
-                                           logical-out-c
-                                           logical-out-d
-                                           logical-out-e
-                                           logical-out-f
-                                           logical-out-g
-                                           logical-out-h)
-                            #:guarantee (begin
-                                          ;;; Make up some random constraints...
-                                          (assert (bveq (signal-value logical-out-a)
-                                                        (bit 0 (signal-value physical-out))))
-                                          (assert (bveq (concat (signal-value logical-out-e)
-                                                                (signal-value logical-out-d)
-                                                                (signal-value logical-out-c)
-                                                                (signal-value logical-out-b))
-                                                        (extract 4 1 (signal-value physical-out))))
-                                          (assert (bveq (concat (signal-value logical-out-f)
-                                                                (signal-value logical-out-g)
-                                                                (signal-value logical-out-h))
-                                                        (extract 7 5 (signal-value physical-out)))))))
-              (check-true (sat? soln)))
   (test-begin
-   (check-equal?
-    (list (bv 0 1))
-    (map signal-value
-         (interpret-physical-to-logical-mapping
-          identity
-          (ptol-choose-one (bv 0 3))
-          (map bv->signal
-               (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))))
-   (check-equal?
-    (list (bv 1 1))
-    (map signal-value
-         (interpret-physical-to-logical-mapping
-          identity
-          (ptol-choose-one (bv 7 3))
-          (map bv->signal
-               (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))))))
+    (define logical-out-a (bv->signal (?? (bitvector 1))))
+    (define logical-out-b (bv->signal (?? (bitvector 1))))
+    (define logical-out-c (bv->signal (?? (bitvector 1))))
+    (define logical-out-d (bv->signal (?? (bitvector 1))))
+    (define logical-out-e (bv->signal (?? (bitvector 1))))
+    (define logical-out-f (bv->signal (?? (bitvector 1))))
+    (define logical-out-g (bv->signal (?? (bitvector 1))))
+    (define logical-out-h (bv->signal (?? (bitvector 1))))
+    (define pttn (?? (~> (bitvector 3) (bitvector 3))))
+    (match-define (list physical-out)
+      (interpret-physical-to-logical-mapping identity
+                                             (ptol-uf pttn 3 8)
+                                             (list logical-out-a
+                                                   logical-out-b
+                                                   logical-out-c
+                                                   logical-out-d
+                                                   logical-out-e
+                                                   logical-out-f
+                                                   logical-out-g
+                                                   logical-out-h)))
+    (define soln
+      (synthesize #:forall (list logical-out-a
+                                 logical-out-b
+                                 logical-out-c
+                                 logical-out-d
+                                 logical-out-e
+                                 logical-out-f
+                                 logical-out-g
+                                 logical-out-h)
+                  #:guarantee (begin
+                                ;;; Make up some random constraints...
+                                (assert (bveq (signal-value logical-out-a)
+                                              (bit 0 (signal-value physical-out))))
+                                (assert (bveq (concat (signal-value logical-out-e)
+                                                      (signal-value logical-out-d)
+                                                      (signal-value logical-out-c)
+                                                      (signal-value logical-out-b))
+                                              (extract 4 1 (signal-value physical-out))))
+                                (assert (bveq (concat (signal-value logical-out-f)
+                                                      (signal-value logical-out-g)
+                                                      (signal-value logical-out-h))
+                                              (extract 7 5 (signal-value physical-out)))))))
+    (check-true (sat? soln)))
+  (test-begin
+    (check-equal?
+     (list (bv 0 1))
+     (map signal-value
+          (interpret-physical-to-logical-mapping
+           identity
+           (ptol-choose-one (bv 0 3))
+           (map bv->signal
+                (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))))
+    (check-equal?
+     (list (bv 1 1))
+     (map signal-value
+          (interpret-physical-to-logical-mapping
+           identity
+           (ptol-choose-one (bv 7 3))
+           (map bv->signal
+                (list (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 1 1) (bv 0 1))))))))
