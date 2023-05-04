@@ -59,10 +59,10 @@ jobs:
       #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@dc7b9719a96d48369863986a06765841d7ea23f6
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
