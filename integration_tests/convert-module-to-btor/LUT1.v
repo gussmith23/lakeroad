@@ -6,8 +6,10 @@
 // RUN: tmpfile=$(mktemp)
 // RUN: sed -E 's/^[[:space:]]*x_lut1_mux2/x_lut1_mux2 inst/' %s > $tmpfile
 // Run through our tool.
-// RUN: python3 $LAKEROAD_DIR/bin/convert_module_to_btor.py \
-// RUN:   --infile $tmpfile --top LUT1 2>&1 | FileCheck %s
+// We expect the command to fail.
+// RUN: ! python3 $LAKEROAD_DIR/bin/convert_module_to_btor.py \
+// RUN:   --infile $tmpfile --top LUT1 2>&1 \
+// RUN: || error "Expected command to fail"
 // Remove tmpfile.
 // RUN: rm $tmpfile
 
