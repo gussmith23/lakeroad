@@ -26,27 +26,29 @@ module three_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
 
 endmodule
 
-// CHECK: module out(a, b, p);
+// CHECK: module out(a, b, clk, p);
 // CHECK:   wire [47:0] P_0;
 // CHECK:   input [15:0] a;
 // CHECK:   wire [15:0] a;
 // CHECK:   input [15:0] b;
 // CHECK:   wire [15:0] b;
+// CHECK:   input clk;
+// CHECK:   wire clk;
 // CHECK:   output [15:0] p;
 // CHECK:   wire [15:0] p;
 // CHECK:   DSP48E2 #(
-// CHECK:     .ACASCREG(32'd0),
+// CHECK:     .ACASCREG(32'd2),
 // CHECK:     .ADREG(32'd0),
 // CHECK:     .ALUMODEREG(32'd0),
-// CHECK:     .AMULTSEL(5'h00),
-// CHECK:     .AREG(32'd0),
-// CHECK:     .AUTORESET_PATDET(5'h03),
-// CHECK:     .AUTORESET_PRIORITY(5'h10),
-// CHECK:     .A_INPUT(5'h07),
-// CHECK:     .BCASCREG(32'd0),
-// CHECK:     .BMULTSEL(5'h01),
-// CHECK:     .BREG(32'd1),
-// CHECK:     .B_INPUT(5'h07),
+// CHECK:     .AMULTSEL("A"),
+// CHECK:     .AREG(32'd2),
+// CHECK:     .AUTORESET_PATDET("NO_RESET"),
+// CHECK:     .AUTORESET_PRIORITY("CEP"),
+// CHECK:     .A_INPUT("DIRECT"),
+// CHECK:     .BCASCREG(32'd2),
+// CHECK:     .BMULTSEL("AD"),
+// CHECK:     .BREG(32'd2),
+// CHECK:     .B_INPUT("DIRECT"),
 // CHECK:     .CARRYINREG(32'd0),
 // CHECK:     .CARRYINSELREG(32'd0),
 // CHECK:     .CREG(32'd0),
@@ -56,7 +58,7 @@ endmodule
 // CHECK:     .IS_CARRYIN_INVERTED(1'h0),
 // CHECK:     .IS_CLK_INVERTED(1'h0),
 // CHECK:     .IS_INMODE_INVERTED(5'h00),
-// CHECK:     .IS_OPMODE_INVERTED(9'h0d1),
+// CHECK:     .IS_OPMODE_INVERTED(9'h055),
 // CHECK:     .IS_RSTALLCARRYIN_INVERTED(1'h0),
 // CHECK:     .IS_RSTALUMODE_INVERTED(1'h0),
 // CHECK:     .IS_RSTA_INVERTED(1'h0),
@@ -71,23 +73,23 @@ endmodule
 // CHECK:     .MREG(32'd0),
 // CHECK:     .OPMODEREG(32'd0),
 // CHECK:     .PATTERN(48'h000000000000),
-// CHECK:     .PREADDINSEL(5'h01),
+// CHECK:     .PREADDINSEL("B"),
 // CHECK:     .PREG(32'd1),
 // CHECK:     .RND(48'h000000000000),
-// CHECK:     .SEL_MASK(5'h11),
-// CHECK:     .SEL_PATTERN(5'h09),
-// CHECK:     .USE_MULT(5'h0a),
-// CHECK:     .USE_PATTERN_DETECT(5'h15),
-// CHECK:     .USE_SIMD(5'h0c),
-// CHECK:     .USE_WIDEXOR(5'h18),
-// CHECK:     .XORSIMD(5'h1a)
+// CHECK:     .SEL_MASK("MASK"),
+// CHECK:     .SEL_PATTERN("PATTERN"),
+// CHECK:     .USE_MULT("MULTIPLY"),
+// CHECK:     .USE_PATTERN_DETECT("NO_PATDET"),
+// CHECK:     .USE_SIMD("ONE48"),
+// CHECK:     .USE_WIDEXOR("FALSE"),
+// CHECK:     .XORSIMD("XOR24_48_96")
 // CHECK:   ) DSP48E2_0 (
-// CHECK:     .A({ 14'h0000, b }),
+// CHECK:     .A({ 14'h0000, a }),
 // CHECK:     .ACIN(30'h00000000),
 // CHECK:     .ALUMODE(4'h0),
-// CHECK:     .B({ 2'h0, a }),
+// CHECK:     .B({ b[15], b[15], b }),
 // CHECK:     .BCIN(18'h00000),
-// CHECK:     .C(48'h000000000000),
+// CHECK:     .C(48'hffffffffffff),
 // CHECK:     .CARRYCASCIN(1'h0),
 // CHECK:     .CARRYIN(1'h0),
 // CHECK:     .CARRYINSEL(3'h7),
@@ -104,11 +106,11 @@ endmodule
 // CHECK:     .CEINMODE(1'h1),
 // CHECK:     .CEM(1'h1),
 // CHECK:     .CEP(1'h1),
-// CHECK:     .CLK(1'h0),
+// CHECK:     .CLK(clk),
 // CHECK:     .D(27'h0000000),
 // CHECK:     .INMODE(5'h00),
 // CHECK:     .MULTSIGNIN(1'h0),
-// CHECK:     .OPMODE(9'h064),
+// CHECK:     .OPMODE(9'h000),
 // CHECK:     .P({ P_0[47:16], p }),
 // CHECK:     .PCIN(48'h000000000000),
 // CHECK:     .RSTA(1'h0),
