@@ -27,3 +27,19 @@ Given a description
 Please see the [Dockerfile](./Dockerfile)
   for a complete listing of all
   dependencies.
+
+## Writing Integration Tests
+
+Ideally, we should aim to do most of our testing
+  via *integration tests:*
+  tests which test Lakeroad from the outside,
+  only running commands that users can run.
+
+We use the LLVM testing tool `FileCheck`
+  to build our integration tests, and another LLVM tool,
+  `lit`,
+  to run them.
+
+```verilog
+// RUN: | awk '{print "// CHECK: " $0}' >> %s
+```
