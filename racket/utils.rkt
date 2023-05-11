@@ -151,101 +151,100 @@
                                      ...
                                      #:bv-expr bv-expr
                                      #:c-expr c-expr)
-    (test-case
-     name
-     (with-terms
-      (begin
-        defines ...
-        (define cexpr (bvexpr->cexpr bv-expr))
-        (define bv-symbolics (symbolics bv-expr))
-        (define fuzzing-space-size 4096)
+    (test-case name
+      (with-terms
+       (begin
+         defines ...
+         (define cexpr (bvexpr->cexpr bv-expr))
+         (define bv-symbolics (symbolics bv-expr))
+         (define fuzzing-space-size 4096)
 
-        ;;; Helper function for generating testing input.
-        ;;; Given a list of n symbols, generate a list of n-tuples. The ith value in the tuple
-        ;;; is a bitvector value that the ith symbolic constant will be set to.
-        (define (generate-values symbols)
-          (let* ([iteration-space-size (expt 2 (apply + (map bvlen symbols)))])
-            ;;; We choose to exhaustively test by looking at the iteration space of bv-expr's symbolics.
-            ;;; If the space is smaller than fuzzing-space-size, then we use exhaustive testing -
-            ;;; otherwise, we generate a random subset of the iteration space.
-            (if (<= iteration-space-size fuzzing-space-size)
-                (apply cartesian-product
-                       (for/list ([symbol bv-symbolics])
-                         (for/list ([i (range 0 (expt 2 (bvlen symbol)))])
-                           (bv i (bvlen symbol)))))
-                ;;; randomly select tuples of values, each value ranging from
-                ;;; 1 to min(2^bvlen - 1, max_random_int)
-                (build-list fuzzing-space-size
-                            (lambda (i)
-                              (let ([random-max-int 4294967087])
-                                (map (lambda (curr-bv)
-                                       (bv (random (min (expt 2 (bvlen curr-bv)) random-max-int))
-                                           (bvlen curr-bv)))
-                                     bv-symbolics)))))))
+         ;;; Helper function for generating testing input.
+         ;;; Given a list of n symbols, generate a list of n-tuples. The ith value in the tuple
+         ;;; is a bitvector value that the ith symbolic constant will be set to.
+         (define (generate-values symbols)
+           (let* ([iteration-space-size (expt 2 (apply + (map bvlen symbols)))])
+             ;;; We choose to exhaustively test by looking at the iteration space of bv-expr's symbolics.
+             ;;; If the space is smaller than fuzzing-space-size, then we use exhaustive testing -
+             ;;; otherwise, we generate a random subset of the iteration space.
+             (if (<= iteration-space-size fuzzing-space-size)
+                 (apply cartesian-product
+                        (for/list ([symbol bv-symbolics])
+                          (for/list ([i (range 0 (expt 2 (bvlen symbol)))])
+                            (bv i (bvlen symbol)))))
+                 ;;; randomly select tuples of values, each value ranging from
+                 ;;; 1 to min(2^bvlen - 1, max_random_int)
+                 (build-list fuzzing-space-size
+                             (lambda (i)
+                               (let ([random-max-int 4294967087])
+                                 (map (lambda (curr-bv)
+                                        (bv (random (min (expt 2 (bvlen curr-bv)) random-max-int))
+                                            (bvlen curr-bv)))
+                                      bv-symbolics)))))))
 
-        ;;; Optional syntactic test.
-        (when c-expr
-          (check-equal? cexpr c-expr))
+         ;;; Optional syntactic test.
+         (when c-expr
+           (check-equal? cexpr c-expr))
 
-        ;;; Generate values to test over.
-        (define bv-tuples (generate-values bv-symbolics))
+         ;;; Generate values to test over.
+         (define bv-tuples (generate-values bv-symbolics))
 
-        ;;; Save arguments to file.
-        (define args-filename (make-temporary-file "~a.txt"))
-        (define args-file (open-output-file args-filename #:exists 'replace))
-        (for ([bv-tuple bv-tuples])
-          (let* ([number-tuple (map bitvector->natural bv-tuple)])
-            (displayln number-tuple args-file)))
-        (close-output-port args-file)
+         ;;; Save arguments to file.
+         (define args-filename (make-temporary-file "~a.txt"))
+         (define args-file (open-output-file args-filename #:exists 'replace))
+         (for ([bv-tuple bv-tuples])
+           (let* ([number-tuple (map bitvector->natural bv-tuple)])
+             (displayln number-tuple args-file)))
+         (close-output-port args-file)
 
-        ;;; Save C code to file
-        (define cfile-filename (make-temporary-file "~a.c"))
+         ;;; Save C code to file
+         (define cfile-filename (make-temporary-file "~a.c"))
 
-        (with-output-to-file
-         cfile-filename
-         #:exists 'replace
-         (lambda ()
-           (displayln "#include <stdint.h>")
-           (displayln "#include <stdio.h>")
-           (displayln "#include <stdlib.h>")
-           (displayln "int main(int argc, char* argv[]) {")
-           (displayln (format "FILE *fp = fopen(\"~a\", \"r\");" args-filename))
-           (displayln "if (!fp) { return 1; }")
-           (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)))
-           (displayln (format "uint64_t values[~a];" (length bv-symbolics)))
-           (displayln "if (fgetc(fp) != '(') { return 1; }")
-           (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))))
-           (displayln "fscanf(fp, \"%lu\", &values[j]);")
-           (displayln "}")
-           (displayln "if (fgetc(fp) != ')') { return 1; }")
-           (displayln "if (fgetc(fp) != '\\n') { return 1; }")
-           (for ([(bv-name idx) (in-indexed (symbolics bv-expr))])
-             (displayln (format "uint64_t ~a = values[~a];" bv-name idx)))
-           (displayln (format "printf(\"%llu\\n\", ~a);" cexpr))
-           (displayln "}")
-           (displayln "return 0;")
-           (displayln "}")))
+         (with-output-to-file
+          cfile-filename
+          #:exists 'replace
+          (lambda ()
+            (displayln "#include <stdint.h>")
+            (displayln "#include <stdio.h>")
+            (displayln "#include <stdlib.h>")
+            (displayln "int main(int argc, char* argv[]) {")
+            (displayln (format "FILE *fp = fopen(\"~a\", \"r\");" args-filename))
+            (displayln "if (!fp) { return 1; }")
+            (displayln (format "for (int i = 0; i < ~a; i++) {" (length bv-tuples)))
+            (displayln (format "uint64_t values[~a];" (length bv-symbolics)))
+            (displayln "if (fgetc(fp) != '(') { return 1; }")
+            (displayln (format "for (int j = 0; j < ~a; j++) {" (length (car bv-tuples))))
+            (displayln "fscanf(fp, \"%lu\", &values[j]);")
+            (displayln "}")
+            (displayln "if (fgetc(fp) != ')') { return 1; }")
+            (displayln "if (fgetc(fp) != '\\n') { return 1; }")
+            (for ([(bv-name idx) (in-indexed (symbolics bv-expr))])
+              (displayln (format "uint64_t ~a = values[~a];" bv-name idx)))
+            (displayln (format "printf(\"%llu\\n\", ~a);" cexpr))
+            (displayln "}")
+            (displayln "return 0;")
+            (displayln "}")))
 
-        (define executable-filename (make-temporary-file "~a.out"))
-        (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
+         (define executable-filename (make-temporary-file "~a.out"))
+         (check-true (system (format "gcc -o ~a ~a" executable-filename cfile-filename)))
 
-        (define c-result
-          (map string->number
-               (string-split (with-output-to-string (thunk (system* executable-filename))) "\n")))
+         (define c-result
+           (map string->number
+                (string-split (with-output-to-string (thunk (system* executable-filename))) "\n")))
 
-        (for ([bv-tuple bv-tuples] [current-c-result c-result])
-          (begin
-            (define rosette-result
-              (with-vc
-               (evaluate bv-expr (sat (make-immutable-hash (map cons bv-symbolics bv-tuple))))))
-            (check-true (normal? rosette-result))
-            (check-equal? current-c-result
-                          (let ([rosette-value-num (result-value rosette-result)])
-                            (bitvector->natural (if (boolean? rosette-value-num)
-                                                    (bool->bitvector rosette-value-num)
-                                                    rosette-value-num))))))
+         (for ([bv-tuple bv-tuples] [current-c-result c-result])
+           (begin
+             (define rosette-result
+               (with-vc
+                (evaluate bv-expr (sat (make-immutable-hash (map cons bv-symbolics bv-tuple))))))
+             (check-true (normal? rosette-result))
+             (check-equal? current-c-result
+                           (let ([rosette-value-num (result-value rosette-result)])
+                             (bitvector->natural (if (boolean? rosette-value-num)
+                                                     (bool->bitvector rosette-value-num)
+                                                     rosette-value-num))))))
 
-        (clear-terms! (symbolics bv-expr))))))
+         (clear-terms! (symbolics bv-expr))))))
 
   ;;; Basic cases that do not work. (GitHub issue #171)
   ;;;   (for ([sz (list 1 2 3 4 5 6 7 8 12 16 32 64)])

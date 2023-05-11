@@ -28,10 +28,12 @@
 ;;; module-semantics: association list of functions mapping (cons module-name filepath) to a function
 ;;; implementing the semantics for that module.
 ;;;
+;;; environment: association list of (cons var-name (string) value (signal)).
+;;;
 ;;; TODO(@gussmith23): This might be better as an argument to interpret, but I'm implementing this
 ;;; during crunch time, so this is easier.
 ;;;(define module-semantics (make-parameter '()))
-(define (interpret expr #:module-semantics [module-semantics '()])
+(define (interpret expr #:module-semantics [module-semantics '()] #:environment [environment '()])
   (set! interp-memoization-hits 0)
   (set! interp-memoization-misses 0)
   (define interpreter-memo-hash (make-hasheq))
@@ -45,6 +47,8 @@
           (define out
             (destruct
              expr
+             [(lr:var name bw)
+              (cdr (or (assoc name environment) (error "variable " name " not found")))]
              [(lr:symbol s) s]
              [(lr:make-immutable-hash list-expr) (interpret-helper list-expr)]
              [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]
@@ -92,7 +96,6 @@
                      [all-values (append port-values param-values)]
                      ;;; Interpret values.
                      [all-values (map interpret-helper all-values)]
-                     ;;; Wrap in signal.
 
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
@@ -102,6 +105,20 @@
 
                      ;;; Call the function.
                      [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())])
+                ;;; Warn if we didn't pass all arguments (except for unnamed inputs).
+                ;;; TODO(@gussmith23): handle unnammed inputs more intelligently, maybe in yml?
+                (match-define-values (_ keywords) (procedure-keywords module-semantics-fn))
+                ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer.
+                (define keywords-minus-unnamed
+                  (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-")))
+                          keywords))
+                (when (not (equal? (length pairs) (length keywords-minus-unnamed)))
+                  ;;; TODO(@gussmith23): Figure out how to use Racket logging...
+                  (displayln
+                   (format
+                    "WARNING: Not passing all inputs to module's semantics function, Missing ~a"
+                    (set-subtract (apply set keywords-minus-unnamed) (apply set (map car pairs))))
+                   (current-error-port)))
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
@@ -308,6 +325,11 @@
                      [bv (interpret-helper bv)]
                      [state (merge-state (list v))])
                 (signal (zero-extend (signal-value v) bv) state))]
+             [(lr:sign-extend v bv)
+              (let* ([v (interpret-helper v)]
+                     [bv (interpret-helper bv)]
+                     [state (merge-state (list v))])
+                (signal (sign-extend (signal-value v) bv) state))]
              ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
              ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
              ;;; ((union zero-extend dup-extend) v b) instead of (union (zero-extend v b) (dup-extend v b)).

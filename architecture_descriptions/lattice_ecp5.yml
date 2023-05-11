@@ -63,8 +63,53 @@ implementations:
             { name: INJECT1_1, value: (bv 0 1) },
           ]
     outputs: { O: (concat S1 S0), CO: COUT }
-  - interface: { name: DSP, parameters: { width: 16 } }
-    internal_data: { }
+  - interface: { name: DSP, parameters: { out-width: 36, a-width: 18, b-width: 18, c-width: 18 } }
+    internal_data: { 
+      SOURCEA: 1,
+      SOURCEB: 1,
+      SIGNEDA: 1,
+      SIGNEDB: 1,
+      REG_INPUTA_CLK: 5,
+      REG_INPUTA_CE: 5,
+      REG_INPUTA_RST: 5,
+      REG_INPUTB_CLK: 5,
+      REG_INPUTB_CE: 5,
+      REG_INPUTB_RST: 5,
+      REG_INPUTC_CLK: 5,
+      REG_INPUTC_CE: 5,
+      REG_INPUTC_RST: 5,
+      REG_PIPELINE_CLK: 5,
+      REG_PIPELINE_CE: 5,
+      REG_PIPELINE_RST: 5,
+      REG_OUTPUT_CLK: 5,
+      REG_OUTPUT_CE: 5,
+      REG_OUTPUT_RST: 5,
+      SOURCEB_MODE: 5,
+      CAS_MATCH_REG: 5,
+    }
+    constraints: [
+      "(|| (bveq REG_INPUTA_CE (bv 1 5)) (bveq REG_INPUTA_CE (bv 15 5)) (bveq REG_INPUTA_CE (bv 16 5)) (bveq REG_INPUTA_CE (bv 17 5)))",
+      "(|| (bveq REG_INPUTB_CE (bv 1 5)) (bveq REG_INPUTB_CE (bv 15 5)) (bveq REG_INPUTB_CE (bv 16 5)) (bveq REG_INPUTB_CE (bv 17 5)))",
+      "(|| (bveq REG_INPUTC_CE (bv 1 5)) (bveq REG_INPUTC_CE (bv 15 5)) (bveq REG_INPUTC_CE (bv 16 5)) (bveq REG_INPUTC_CE (bv 17 5)))",
+      "(|| (bveq REG_PIPELINE_CE (bv 1 5)) (bveq REG_PIPELINE_CE (bv 15 5)) (bveq REG_PIPELINE_CE (bv 16 5)) (bveq REG_PIPELINE_CE (bv 17 5)))",
+      "(|| (bveq REG_OUTPUT_CE (bv 1 5)) (bveq REG_OUTPUT_CE (bv 15 5)) (bveq REG_OUTPUT_CE (bv 16 5)) (bveq REG_OUTPUT_CE (bv 17 5)))",
+
+      "(|| (bveq REG_INPUTA_CLK (bv 11 5)) (bveq REG_INPUTA_CLK (bv 12 5)) (bveq REG_INPUTA_CLK (bv 13 5)) (bveq REG_INPUTA_CLK (bv 14 5)))",
+      "(|| (bveq REG_INPUTB_CLK (bv 11 5)) (bveq REG_INPUTB_CLK (bv 12 5)) (bveq REG_INPUTB_CLK (bv 13 5)) (bveq REG_INPUTB_CLK (bv 14 5)))",
+      "(|| (bveq REG_INPUTC_CLK (bv 11 5)) (bveq REG_INPUTC_CLK (bv 12 5)) (bveq REG_INPUTC_CLK (bv 13 5)) (bveq REG_INPUTC_CLK (bv 14 5)))",
+      "(|| (bveq REG_PIPELINE_CLK (bv 11 5)) (bveq REG_PIPELINE_CLK (bv 12 5)) (bveq REG_PIPELINE_CLK (bv 13 5)) (bveq REG_PIPELINE_CLK (bv 14 5)))",
+      "(|| (bveq REG_OUTPUT_CLK (bv 11 5)) (bveq REG_OUTPUT_CLK (bv 12 5)) (bveq REG_OUTPUT_CLK (bv 13 5)) (bveq REG_OUTPUT_CLK (bv 14 5)))",
+
+      "(|| (bveq REG_INPUTA_RST (bv 2 5)) (bveq REG_INPUTA_RST (bv 18 5)) (bveq REG_INPUTA_RST (bv 19 5)) (bveq REG_INPUTA_RST (bv 20 5)))",
+      "(|| (bveq REG_INPUTB_RST (bv 2 5)) (bveq REG_INPUTB_RST (bv 18 5)) (bveq REG_INPUTB_RST (bv 19 5)) (bveq REG_INPUTB_RST (bv 20 5)))",
+      "(|| (bveq REG_INPUTC_RST (bv 2 5)) (bveq REG_INPUTC_RST (bv 18 5)) (bveq REG_INPUTC_RST (bv 19 5)) (bveq REG_INPUTC_RST (bv 20 5)))",
+      "(|| (bveq REG_PIPELINE_RST (bv 2 5)) (bveq REG_PIPELINE_RST (bv 18 5)) (bveq REG_PIPELINE_RST (bv 19 5)) (bveq REG_PIPELINE_RST (bv 20 5)))",
+      "(|| (bveq REG_OUTPUT_RST (bv 2 5)) (bveq REG_OUTPUT_RST (bv 18 5)) (bveq REG_OUTPUT_RST (bv 19 5)) (bveq REG_OUTPUT_RST (bv 20 5)))",
+
+      "(|| (bveq SOURCEB_MODE (bv 7 5)) (bveq SOURCEB_MODE (bv 8 5)) (bveq SOURCEB_MODE (bv 9 5)) (bveq SOURCEB_MODE (bv 10 5)))",
+
+      "(|| (bveq CAS_MATCH_REG (bv 22 5)) (bveq CAS_MATCH_REG (bv 4 5)))",
+    ]
     modules:
       - module_name: MULT18X18D
         filepath: ../lakeroad-private/lattice_ecp5/MULT18X18D.v
@@ -89,8 +134,8 @@ implementations:
             { name: A13, direction: input, bitwidth: 1, value: (extract 13 13 A) },
             { name: A14, direction: input, bitwidth: 1, value: (extract 14 14 A) },
             { name: A15, direction: input, bitwidth: 1, value: (extract 15 15 A) },
-            { name: A16, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: A17, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: A16, direction: input, bitwidth: 1, value: (extract 16 16 A) },
+            { name: A17, direction: input, bitwidth: 1, value: (extract 17 17 A) },
 
             { name: B0, direction: input, bitwidth: 1, value: (extract 0 0 B) },
             { name: B1, direction: input, bitwidth: 1, value: (extract 1 1 B) },
@@ -108,47 +153,47 @@ implementations:
             { name: B13, direction: input, bitwidth: 1, value: (extract 13 13 B) },
             { name: B14, direction: input, bitwidth: 1, value: (extract 14 14 B) },
             { name: B15, direction: input, bitwidth: 1, value: (extract 15 15 B) },
-            { name: B16, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: B17, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: B16, direction: input, bitwidth: 1, value: (extract 16 16 B) },
+            { name: B17, direction: input, bitwidth: 1, value: (extract 17 17 B) },
 
-            { name: C0, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C1, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C2, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C3, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C4, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C5, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C6, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C7, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C8, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C9, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C10, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C11, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C12, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C13, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C14, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C15, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C16, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C17, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: C0, direction: input, bitwidth: 1, value: (extract 0 0 C) },
+            { name: C1, direction: input, bitwidth: 1, value: (extract 1 1 C) },
+            { name: C2, direction: input, bitwidth: 1, value: (extract 2 2 C) },
+            { name: C3, direction: input, bitwidth: 1, value: (extract 3 3 C) },
+            { name: C4, direction: input, bitwidth: 1, value: (extract 4 4 C) },
+            { name: C5, direction: input, bitwidth: 1, value: (extract 5 5 C) },
+            { name: C6, direction: input, bitwidth: 1, value: (extract 6 6 C) },
+            { name: C7, direction: input, bitwidth: 1, value: (extract 7 7 C) },
+            { name: C8, direction: input, bitwidth: 1, value: (extract 8 8 C) },
+            { name: C9, direction: input, bitwidth: 1, value: (extract 9 9 C) },
+            { name: C10, direction: input, bitwidth: 1, value: (extract 10 10 C) },
+            { name: C11, direction: input, bitwidth: 1, value: (extract 11 11 C) },
+            { name: C12, direction: input, bitwidth: 1, value: (extract 12 12 C) },
+            { name: C13, direction: input, bitwidth: 1, value: (extract 13 13 C) },
+            { name: C14, direction: input, bitwidth: 1, value: (extract 14 14 C) },
+            { name: C15, direction: input, bitwidth: 1, value: (extract 15 15 C) },
+            { name: C16, direction: input, bitwidth: 1, value: (extract 16 16 C) },
+            { name: C17, direction: input, bitwidth: 1, value: (extract 17 17 C) },
 
-            { name: SIGNEDA, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: SIGNEDB, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: SOURCEA, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: SOURCEB, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: SIGNEDA, direction: input, bitwidth: 1, value: SIGNEDA },
+            { name: SIGNEDB, direction: input, bitwidth: 1, value: SIGNEDB },
+            { name: SOURCEA, direction: input, bitwidth: 1, value: SOURCEA },
+            { name: SOURCEB, direction: input, bitwidth: 1, value: SOURCEB },
 
             { name: CE0, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: CE1, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: CE2, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: CE3, direction: input, bitwidth: 1, value: (bv 1 1) },
 
-            { name: CLK0, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: CLK1, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: CLK2, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: CLK3, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CLK0, direction: input, bitwidth: 1, value: clk },
+            { name: CLK1, direction: input, bitwidth: 1, value: clk },
+            { name: CLK2, direction: input, bitwidth: 1, value: clk },
+            { name: CLK3, direction: input, bitwidth: 1, value: clk },
 
-            { name: RST0, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: RST1, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: RST2, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: RST3, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RST0, direction: input, bitwidth: 1, value: rst },
+            { name: RST1, direction: input, bitwidth: 1, value: rst },
+            { name: RST2, direction: input, bitwidth: 1, value: rst },
+            { name: RST3, direction: input, bitwidth: 1, value: rst },
 
             { name: SRIA0, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: SRIA1, direction: input, bitwidth: 1, value: (bv 0 1) },
@@ -324,6 +369,32 @@ implementations:
             { name: SIGNEDP, direction: output, bitwidth: 1, value: (bv 0 1)}
          ]
         parameters: [
+            { name: CLK0_DIV, value: (bv 5 5) },
+            { name: CLK1_DIV, value: (bv 5 5) },
+            { name: CLK2_DIV, value: (bv 5 5) },
+            { name: CLK3_DIV, value: (bv 5 5) },
+            { name: GSR, value: (bv 5 5) },
+            { name: HIGHSPEED_CLK, value: (bv 0 5) },
+            { name: MULT_BYPASS, value: (bv 5 5) },
+            { name: CAS_MATCH_REG, value: CAS_MATCH_REG },
 
+            { name: SOURCEB_MODE, value: SOURCEB_MODE },
+            { name: REG_INPUTA_CE, value: REG_INPUTA_CE },
+            { name: REG_INPUTB_CE, value: REG_INPUTB_CE },
+            { name: REG_INPUTC_CE, value: REG_INPUTC_CE },
+            { name: REG_PIPELINE_CE, value: REG_PIPELINE_CE },
+            { name: REG_OUTPUT_CE, value: REG_OUTPUT_CE },
+
+            { name: REG_INPUTA_CLK, value: REG_INPUTA_CLK },
+            { name: REG_INPUTB_CLK, value: REG_INPUTB_CLK },
+            { name: REG_INPUTC_CLK, value: REG_INPUTC_CLK },
+            { name: REG_PIPELINE_CLK, value: REG_PIPELINE_CLK },
+            { name: REG_OUTPUT_CLK, value: REG_OUTPUT_CLK },
+
+            { name: REG_INPUTA_RST, value: REG_INPUTA_RST },
+            { name: REG_INPUTB_RST, value: REG_INPUTB_RST },
+            { name: REG_INPUTC_RST, value: REG_INPUTC_RST },
+            { name: REG_PIPELINE_RST, value: REG_PIPELINE_RST },
+            { name: REG_OUTPUT_RST, value: REG_OUTPUT_RST },
          ]
-    outputs: { O : (concat P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0) }
+    outputs: { O : (concat P35 P34 P33 P32 P31 P30 P29 P28 P27 P26 P25 P24 P23 P22 P21 P20 P19 P18 P17 P16 P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0) }

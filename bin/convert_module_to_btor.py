@@ -72,13 +72,14 @@ for filename in args.infile:
 
 
 def yosys(script):
-    subprocess.call(
+    subprocess.run(
         [
             "yosys",
             "-p",
             script,
         ],
         stdout=sys.stderr,
+        check=True,
     )
 
 

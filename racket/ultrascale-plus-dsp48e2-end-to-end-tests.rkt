@@ -13,15 +13,14 @@
 
   (define to-simulate-list (list))
   (define (end-to-end-test bv-expr)
-    (test-case
-     (format "~a-bit ~a" (bvlen bv-expr) bv-expr)
-     (begin
-       (define with-vc-result (with-vc (with-terms (synthesize-xilinx-ultrascale-plus-dsp bv-expr))))
-       (when (failed? with-vc-result)
-         (raise (result-value with-vc-result)))
-       (define lakeroad-expr (result-value with-vc-result))
-       (check-not-equal? lakeroad-expr #f)
-       (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
+    (test-case (format "~a-bit ~a" (bvlen bv-expr) bv-expr)
+      (begin
+        (define with-vc-result (with-vc (with-terms (synthesize-xilinx-ultrascale-plus-dsp bv-expr))))
+        (when (failed? with-vc-result)
+          (raise (result-value with-vc-result)))
+        (define lakeroad-expr (result-value with-vc-result))
+        (check-not-equal? lakeroad-expr #f)
+        (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
 
   (for ([sz (list 1 2 3 4 5 6 7 8 16)])
     (after

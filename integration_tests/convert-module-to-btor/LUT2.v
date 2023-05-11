@@ -6,8 +6,10 @@
 // RUN: tmpfile=$(mktemp)
 // RUN: sed -E 's/^[[:space:]]*x_lut2_mux4/x_lut2_mux4 inst/' %s > $tmpfile
 // Run through our tool.
-// RUN: python3 $LAKEROAD_DIR/bin/convert_module_to_btor.py \
-// RUN:   --infile $tmpfile --top LUT2 2>&1 | FileCheck %s
+// We expect the command to fail.
+// RUN: ! python3 $LAKEROAD_DIR/bin/convert_module_to_btor.py \
+// RUN:   --infile $tmpfile --top LUT2 2>&1 \
+// RUN: || error "Expected command to fail"
 // Remove tmpfile.
 // RUN: rm $tmpfile
 
@@ -121,16 +123,3 @@ primitive x_lut2_mux4 (o, d3, d2, d1, d0, s1, s0);
   endtable
 
 endprimitive
-
-// CHECK: -- Running command `
-// CHECK: read -sv {{.*}}
-// CHECK: hierarchy -top LUT2
-// CHECK: prep
-// CHECK: proc
-// CHECK: flatten
-// CHECK: clk2fflogic
-// CHECK: write_verilog /dev/null
-// CHECK: hierarchy -top LUT2
-// CHECK: write_btor
-// CHECK: 1. Executing Verilog-2005 frontend: {{.*}}
-// CHECK: {{.*}}: ERROR: syntax error, unexpected TOK_ID

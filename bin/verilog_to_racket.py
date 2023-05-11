@@ -139,6 +139,8 @@ def preprocess_flatten_convert_verilog(
             # https://github.com/uwsampl/lakeroad/issues/238
             # https://github.com/uwsampl/lakeroad/issues/170
             "clk2fflogic",
+            #"async2sync",
+            #"dffunmap",
             f"write_btor {btorfile.name}",
             f"write_verilog -sv {vfile.name}",
         ]

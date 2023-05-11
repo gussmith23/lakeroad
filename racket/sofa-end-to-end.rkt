@@ -15,28 +15,27 @@
   (define to-simulate-list (list))
 
   (define (synthesize test-name bv-expr)
-    (test-case
-     test-name
-     (begin
-       (log-info "synthesizing: ~a" bv-expr)
+    (test-case test-name
+      (begin
+        (log-info "synthesizing: ~a" bv-expr)
 
-       (define with-vc-result
-         (with-vc (with-terms (synthesize-any
-                               (sofa-architecture-description)
-                               bv-expr
-                               #:module-semantics
-                               (list (cons (cons "frac_lut4"
-                                                 "../modules_for_importing/SOFA/frac_lut4.v")
-                                           sofa-frac-lut4))))))
-       (check-false (failed? with-vc-result))
-       ;;; (when (failed? with-vc-result)
-       ;;;   (raise (result-value with-vc-result)))
+        (define with-vc-result
+          (with-vc (with-terms (synthesize-any
+                                (sofa-architecture-description)
+                                bv-expr
+                                #:module-semantics
+                                (list (cons (cons "frac_lut4"
+                                                  "../modules_for_importing/SOFA/frac_lut4.v")
+                                            sofa-frac-lut4))))))
+        (check-false (failed? with-vc-result))
+        ;;; (when (failed? with-vc-result)
+        ;;;   (raise (result-value with-vc-result)))
 
-       (define lakeroad-expr (result-value with-vc-result))
+        (define lakeroad-expr (result-value with-vc-result))
 
-       (check-not-equal? lakeroad-expr #f)
+        (check-not-equal? lakeroad-expr #f)
 
-       (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
+        (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
 
   ;;; How I reverse engineered SOFA LUT4:
   ;;; (for* ([i (range 16)] [j (range 16)])

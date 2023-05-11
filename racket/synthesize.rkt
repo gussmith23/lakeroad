@@ -2244,18 +2244,91 @@
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 ;;; Returns a concrete Lakeroad expression, or #f if synthesis failed.
+;;;
+;;; Args:
+;;; - bv-sequential: Same as lr-sequential, but for the input bitvector expression. See the
+;;;     documentation for lr-sequential. If #f, `bv-expr` is a Rosette bitvector expression (likely
+;;;     symbolic, but can also be concrete). If not #f, it must be a function with keyword args
+;;;     matching the args in the `bv-sequential` association lists.
+;;; - lr-sequential: Determines whether synthesis treats the Lakeroad expression as a combinational or
+;;;     a sequential expression. If #f, the expression is treated as combinational. Otherwise, it is
+;;;     expected to be a list of association lists. Each association list is the environment for one
+;;;     call to the interpreter. The interpreter is called once for each association list, and the
+;;;     state from each call is passed to the next call. The final bitvector expression is used for
+;;;     synthesis.
+;;; - module-semantics: The semantics of hardware modules. See the corresponding interpreter argument.
 (define (rosette-synthesize bv-expr
                             lakeroad-expr
                             inputs
-                            #:multi-cycle [multi-cycle #f]
+                            #:bv-sequential [bv-sequential #f]
+                            #:lr-sequential [lr-sequential #f]
                             #:module-semantics [module-semantics '()])
 
+  ;;; Evaluate the bv-expr. If it's already a bitvector expression, nothing needs to be done with it.
+  (define bv-expr-evaluated
+    (match bv-sequential
+      ;;; If the bv-sequential argument is #f, it indicates that the expression is combinational. We
+      ;;; take the expression as-is.
+      [#f bv-expr]
+      ;;; Otherwise, we have to symbolically execute the expression a number of iterations, as
+      ;;; determined by `env`.
+      [(list envs ...)
+       (when (not (procedure? bv-expr))
+         (error "bv-expr must be a procedure if bv-sequential is not #f"))
+       (let* ([interpret-one-iter
+               ;;; Interpret the expression once, using the environment for this iteration.
+               (lambda (this-iter-env prev-value)
+                 (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
+
+                        ;;; Attach the state generated last iteration to the environment for this iteration.
+                        [this-iter-env
+                         (map (lambda (pair)
+                                (match pair
+                                  [(cons k (signal v state))
+                                   (cons k (signal v (append (signal-state prev-value) state)))]))
+                              this-iter-env)]
+
+                        ;;; Convert to keywords.
+                        [this-iter-env (map (lambda (pair)
+                                              (match pair
+                                                [(cons k v) (cons (string->keyword k) v)]))
+                                            this-iter-env)]
+
+                        ;;; Sort keywords.
+                        [this-iter-env (sort this-iter-env keyword<? #:key car)])
+                   (keyword-apply bv-expr (map car this-iter-env) (map cdr this-iter-env) '())))])
+         (signal-value (foldl interpret-one-iter (signal 'unused '()) envs)))]))
+
+  ;;; This block of code should be restructured. Instead of running synthesis in here, this `define`
+  ;;; should interpret the Lakeroad expression, and then synthesis should be moved to another define.
   (define soln
-    (synthesize #:forall inputs
-                #:guarantee (assert (bveq bv-expr
-                                          (signal-value (interpret lakeroad-expr
-                                                                   #:module-semantics
-                                                                   module-semantics))))))
+    (match lr-sequential
+      [#f
+       (synthesize #:forall inputs
+                   #:guarantee (assert (bveq bv-expr-evaluated
+                                             (signal-value (interpret lakeroad-expr
+                                                                      #:module-semantics
+                                                                      module-semantics)))))]
+      [(list envs ...)
+       (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
+              ;;; Interpret the Lakeroad expression once, using one of the environments from `envs` (stored
+              ;;; in `this-iter-env`). `prev-value` is the value from the previous call to the interpreter.
+              [interpret-one-iter
+               (lambda (this-iter-env prev-value)
+                 (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
+                        ;;; Attach the state generated last iteration to the environment for this iteration.
+                        [this-iter-env
+                         (map (lambda (pair)
+                                (match pair
+                                  [(cons k (signal v state))
+                                   (cons k (signal v (append (signal-state prev-value) state)))]))
+                              this-iter-env)])
+                   (interpret lakeroad-expr
+                              #:module-semantics module-semantics
+                              #:environment this-iter-env)))]
+              [final-value (foldl interpret-one-iter (signal 'unused '()) envs)])
+         (synthesize #:forall inputs
+                     #:guarantee (assert (bveq bv-expr-evaluated (signal-value final-value)))))]))
 
   (if (sat? soln)
       (evaluate
@@ -2263,8 +2336,126 @@
        ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
        (complete-solution soln
                           (set->list (set-subtract (list->set (symbolics lakeroad-expr))
-                                                   (list->set (symbolics bv-expr))))))
+                                                   (list->set (symbolics bv-expr-evaluated))))))
       #f))
+
+(module+ test
+  (require rackunit)
+
+  (test-case "sequential synthesis test"
+    (begin
+
+      ;;; Two-stage adder, taking two clock ticks to produce an output.
+      (define (two-stage-adder #:a a #:b b #:clk clk)
+        (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
+               [clk (signal-value clk)]
+               [a (signal-value a)]
+               [b (signal-value b)]
+               [old-clk (cdr (or (assoc 'clk state) (cons 'unused (bv 0 1))))]
+               [old-a (cdr (or (assoc 'a state) (cons 'unused (bv 0 8))))]
+               [old-b (cdr (or (assoc 'b state) (cons 'unused (bv 0 8))))]
+               [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
+               [new-a (if clk-ticked a old-a)]
+               [new-b (if clk-ticked b old-b)]
+               [out (bvadd old-a old-b)])
+          (list (cons 'O (signal out (list (cons 'a new-a) (cons 'b new-b) (cons 'clk clk)))))))
+
+      ;;; Helper function used by the below tests.
+      (define (make-env clk a b)
+        (list (cons "a" (bv->signal a)) (cons "b" (bv->signal b)) (cons "clk" (bv->signal clk))))
+
+      (define-symbolic a b (bitvector 8))
+
+      ;;; The Lakeroad program just calls the two-stage adder and gets the O output.
+      (define lr-expr
+        (lr:hash-ref (lr:hw-module-instance
+                      "two-stage-adder"
+                      (list (module-instance-port "a" (lr:bv (bv->signal a)) 'input 8)
+                            (module-instance-port "b" (lr:bv (bv->signal b)) 'input 8)
+                            (module-instance-port "clk" (lr:var "clk" 1) 'input 1)
+                            (module-instance-port "O" "O" 'output 8))
+                      '()
+                      "unused filepath")
+                     'O))
+
+      ;;; The next two checks test the `lr-sequential` argument to `rosette-synthesize`.
+
+      ;;; Check: we *can't* synthesize an add with a single clock cycle.
+      (check-false (rosette-synthesize
+                    (bvadd a b)
+                    lr-expr
+                    (list a b)
+                    ;;; Tick the clock once (eval with clk=0, eval with clk=1).
+                    #:lr-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
+                    #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                   two-stage-adder))))
+
+      ;;; Check: we *can* successfully synthesize an add with two clock cycles.
+      ;;;
+      ;;; Note that "synthesis" here is actually equivalent to `verify` in Rosette, because there are
+      ;;; no free symbolics to be solved for. So `rosette-synthesize` actually just verifies whether
+      ;;; bv-expr == lr-expr for all inputs.
+      (check-not-false (rosette-synthesize
+                        (bvadd a b)
+                        lr-expr
+                        (list a b)
+                        ;;; Tick the clock twice.
+                        #:lr-sequential (list (make-env (bv 0 1) a b)
+                                              (make-env (bv 1 1) a b)
+                                              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                        #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                       two-stage-adder))))
+
+      ;;; The next check tests the `bv-sequential` argument to `rosette-synthesize`.
+
+      ;;; Two-stage adder that does its add on the first clock tick. This will serve as our `bv-expr`
+      ;;; input to synthesis. It's just a different way to implement the same adder. We could have also
+      ;;; made it one stage or three stages.
+      (define (two-stage-adder-2 #:a a #:b b #:clk clk)
+        (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
+               [clk (signal-value clk)]
+               [a (signal-value a)]
+               [b (signal-value b)]
+               [sum (bvadd a b)]
+               [old-clk (cdr (or (assoc 'clk state) (cons 'unused (bv 0 1))))]
+               [old-sum (cdr (or (assoc 'sum state) (cons 'unused (bv 0 8))))]
+               [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
+               [new-sum (if clk-ticked sum old-sum)]
+               [out old-sum])
+          (signal out (list (cons 'sum new-sum) (cons 'clk clk)))))
+
+      ;;; Check that we can successfully "synthesize" (same note as above re: "synthesis" being
+      ;;; equivalent to verification in this case) a Lakeroad expression that implements our
+      ;;; `two-stage-adder-2` spec.
+      (check-not-false (rosette-synthesize
+                        two-stage-adder-2
+                        lr-expr
+                        (list a b)
+                        ;;; Tick the clock twice, on both designs.
+                        #:bv-sequential (list (make-env (bv 0 1) a b)
+                                              (make-env (bv 1 1) a b)
+                                              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                        #:lr-sequential (list (make-env (bv 0 1) a b)
+                                              (make-env (bv 1 1) a b)
+                                              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                        #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                       two-stage-adder))))
+
+      ;;; If you don't tick the clock twice on the `bv-expr`, then the synthesis will fail.
+      (check-false (rosette-synthesize
+                    two-stage-adder-2
+                    lr-expr
+                    (list a b)
+                    #:bv-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
+                    #:lr-sequential (list (make-env (bv 0 1) a b)
+                                          (make-env (bv 1 1) a b)
+                                          (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                                          (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                    #:module-semantics (list (cons (cons "two-stage-adder" "unused filepath")
+                                                   two-stage-adder)))))))
 
 (define (synthesize-lattice-ecp5-for-pfu bv-expr)
 
@@ -2421,114 +2612,38 @@
 
 (module+ test
   (require rackunit)
-  (test-case "lattice dsp add"
-             (begin
-               (check-true
-                (normal? (with-vc (with-terms (begin
-                                                (define-symbolic a b (bitvector 18))
-                                                (check-not-equal? #f
-                                                                  (synthesize-lattice-ecp5-dsp
-                                                                   (bvadd a b))))))))))
-  (test-case "lattice dsp mul"
-             (begin
-               (check-true
-                (normal? (with-vc (with-terms (begin
-                                                (define-symbolic a b (bitvector 18))
-                                                (check-not-equal? #f
-                                                                  (synthesize-lattice-ecp5-dsp
-                                                                   (bvmul a b))))))))))
-  (test-case "lattice dsp mul-add"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b c (bitvector 18))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-lattice-ecp5-dsp
-                                                             (bvadd c (bvmul a b)))))))))))
-  (test-case "lattice dsp mul-sub"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b c (bitvector 18))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-lattice-ecp5-dsp
-                                                             (bvsub c (bvmul a b)))))))))))
-
-  (test-case "lattice dsp add 16"
-             (begin
-               (check-true
-                (normal? (with-vc (with-terms (begin
-                                                (define-symbolic a b (bitvector 18))
-                                                (check-not-equal? #f
-                                                                  (synthesize-lattice-ecp5-dsp
-                                                                   (bvadd a b))))))))))
-  (test-case "lattice dsp mul 16"
-             (begin
-               (check-true
-                (normal? (with-vc (with-terms (begin
-                                                (define-symbolic a b (bitvector 18))
-                                                (check-not-equal? #f
-                                                                  (synthesize-lattice-ecp5-dsp
-                                                                   (bvmul a b))))))))))
-  (test-case "lattice dsp mul-add 16"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b c (bitvector 18))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-lattice-ecp5-dsp
-                                                             (bvadd c (bvmul a b)))))))))))
-  (test-case "lattice dsp mul-sub 16"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b c (bitvector 18))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-lattice-ecp5-dsp
-                                                             (bvsub c (bvmul a b)))))))))))
-
-  (for ([i (list 1 2 3 4 5 6 7 8 16)])
-    (test-case (format "lattice dsp mul~a" i)
-               (begin
-                 (check-true (normal? (with-vc (with-terms (begin
-                                                             (define-symbolic a b (bitvector i))
-                                                             (check-not-equal?
-                                                              #f
-                                                              (synthesize-lattice-ecp5-dsp
-                                                               (bvmul a b)))))))))))
 
   (test-case "ultrascale+ dsp 96-bit add"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 96))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
-                                                             (bvadd a b))))))))))
+    (begin
+      (check-true (normal? (with-vc (with-terms (begin
+                                                  (define-symbolic a b (bitvector 96))
+                                                  (check-not-equal?
+                                                   #f
+                                                   (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                    (bvadd a b))))))))))
 
   (test-case "ultrascale+ dsp 96-bit and"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 96))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
-                                                             (bvand a b))))))))))
+    (begin
+      (check-true (normal? (with-vc (with-terms (begin
+                                                  (define-symbolic a b (bitvector 96))
+                                                  (check-not-equal?
+                                                   #f
+                                                   (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                    (bvand a b))))))))))
   (test-case "ultrascale+ dsp 96-bit sub"
-             (begin
-               (check-true (normal? (with-vc (with-terms (begin
-                                                           (define-symbolic a b (bitvector 96))
-                                                           (check-not-equal?
-                                                            #f
-                                                            (synthesize-xilinx-ultrascale-plus-2-dsps
-                                                             (bvsub a b))))))))))
+    (begin
+      (check-true (normal? (with-vc (with-terms (begin
+                                                  (define-symbolic a b (bitvector 96))
+                                                  (check-not-equal?
+                                                   #f
+                                                   (synthesize-xilinx-ultrascale-plus-2-dsps
+                                                    (bvsub a b))))))))))
 
   (test-case "ultrascale+ dsp 96-bit xor reduction"
-             (begin
-               (check-true
-                (normal? (with-vc (with-terms (begin
-                                                (define-symbolic a (bitvector 96))
-                                                (check-not-equal?
-                                                 #f
-                                                 (synthesize-xilinx-ultrascale-plus-dsp-xor
-                                                  (apply bvxor (bitvector->bits a))))))))))))
+    (begin
+      (check-true (normal? (with-vc (with-terms (begin
+                                                  (define-symbolic a (bitvector 96))
+                                                  (check-not-equal?
+                                                   #f
+                                                   (synthesize-xilinx-ultrascale-plus-dsp-xor
+                                                    (apply bvxor (bitvector->bits a))))))))))))

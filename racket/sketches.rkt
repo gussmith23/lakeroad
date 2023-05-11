@@ -27,7 +27,8 @@
          comparison-sketch-generator
          shallow-comparison-sketch-generator
          multiplication-sketch-generator
-         shift-sketch-generator)
+         shift-sketch-generator
+         single-dsp-sketch-generator)
 
 (require "architecture-description.rkt"
          "logical-to-physical.rkt"
@@ -166,19 +167,78 @@
 ;;; TODO(@ninehusky): ask about the bitwidth
 ;;; (do we need to revisit this decision at the interface level?)
 ;;; and, do we need to assert that there are exactly two logical inputs?
+;;;
+;;; The first 2 inputs are data inputs. The clock input is assumed to be the first of the inputs.
+;;;
+;;; clk-input: (list lr-expr int): the expr and bitwidth of the clock.
+;;; data-inputs: (listof (list lr-expr int)): the exprs and bitwidths of the data inputs.
 (define (single-dsp-sketch-generator architecture-description
-                                     logical-inputs
-                                     num-logical-inputs
-                                     bitwidth
+                                     #:out-width out-width
+                                     #:clk-input clk-input
+                                     #:data-inputs data-inputs
+                                     #:rst-input rst-input
                                      #:internal-data [internal-data #f])
-  (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
-               [(list dsp-expr internal-data)
-                (construct-interface architecture-description
-                                     (interface-identifier "DSP" (hash "width" bitwidth))
-                                     (list (cons "A" (lr:list-ref logical-inputs (lr:integer 0)))
-                                           (cons "B" (lr:list-ref logical-inputs (lr:integer 1))))
-                                     #:internal-data internal-data)]
-               [out-expr (lr:hash-ref dsp-expr 'O)])
+  (match-let*
+      ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+       [make-dsp-expr
+        (lambda (internal-data out-width
+                               clk-expr
+                               rst-expr
+                               a-expr
+                               a-width
+                               b-expr
+                               b-width
+                               c-expr
+                               c-width)
+          (match-define (list dsp-expr ignored-internal-data)
+            (construct-interface
+             architecture-description
+             (interface-identifier
+              "DSP"
+              (hash "out-width" out-width "a-width" a-width "b-width" b-width "c-width" c-width))
+             (list (cons "clk" clk-expr)
+                   (cons "rst" rst-expr)
+                   (cons "A" a-expr)
+                   (cons "B" b-expr)
+                   (cons "C" c-expr))
+             #:internal-data internal-data))
+          ;;; Ignoring internal data for now, but we could use it in the future.
+          ;(list (lr:hash-ref dsp-expr 'O) internal-data)
+          (lr:hash-ref dsp-expr 'O))]
+       ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
+       ;;; give C.
+       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw))
+        (match data-inputs
+          [(list a-tuple b-tuple c-tuple) (list a-tuple b-tuple c-tuple)]
+          [(list a-tuple b-tuple)
+           (list a-tuple b-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
+
+       [out-expr
+        (choose
+         (make-dsp-expr internal-data
+                        out-width
+                        (car clk-input)
+                        (car rst-input)
+                        a-expr
+                        a-bw
+                        b-expr
+                        b-bw
+                        c-expr
+                        c-bw)
+         ;;(make-dsp-expr internal-data out-width (car clk-input) (car rst-input) a-expr a-bw c-expr c-bw b-expr b-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw a-expr a-bw c-expr c-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw c-expr c-bw a-expr a-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) c-expr c-bw b-expr b-bw a-expr a-bw)
+         ;;;    (make-dsp-expr internal-data
+         ;;; out-width
+         ;;; (car clk-input)
+         ;;; (car rst-input) c-expr
+         ;;; c-bw
+         ;;; a-expr
+         ;;; a-bw
+         ;;; b-expr
+         ;;; b-bw)
+         )])
     (list out-expr internal-data)))
 
 ;;; Bitwise with carry sketch generator.
@@ -610,62 +670,72 @@
                                    #:module-semantics module-semantics
                                    #:include-dirs include-dirs
                                    #:extra-verilator-args extra-verilator-args)
-    (test-case
-     name
-     (with-terms
-      (begin
-        (displayln "--------------------------------------------------------------------------------")
-        (displayln (format "running test ~a" name))
-        defines ...
+    (test-case name
+      (with-terms
+       (begin
+         (displayln
+          "--------------------------------------------------------------------------------")
+         (displayln (format "running test ~a" name))
+         defines ...
 
-        (define start-sketch-gen-time (current-inexact-milliseconds))
-        (define sketch (generate-sketch sketch-generator architecture-description bv-expr))
-        ;;; (displayln sketch)
+         (define start-sketch-gen-time (current-inexact-milliseconds))
+         (define sketch (generate-sketch sketch-generator architecture-description bv-expr))
+         ;;; (displayln sketch)
 
-        (define end-sketch-gen-time (current-inexact-milliseconds))
+         (define end-sketch-gen-time (current-inexact-milliseconds))
 
-        (displayln (format "number of symbolics in sketch: ~a" (length (symbolics sketch))))
-        (displayln (format "sketch generation time: ~ams"
-                           (- end-sketch-gen-time start-sketch-gen-time)))
+         (displayln (format "number of symbolics in sketch: ~a" (length (symbolics sketch))))
+         (displayln (format "sketch generation time: ~ams"
+                            (- end-sketch-gen-time start-sketch-gen-time)))
 
-        (define start-synthesis-time (current-inexact-milliseconds))
-        (define result
-          (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
-                                           #:guarantee
-                                           (assert (bveq bv-expr
-                                                         (signal-value
-                                                          (interpret sketch
-                                                                     #:module-semantics
-                                                                     module-semantics))))))))
+         (define start-synthesis-time (current-inexact-milliseconds))
+         (define result
+           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
+                                            #:guarantee
+                                            (assert (bveq bv-expr
+                                                          (signal-value
+                                                           (interpret sketch
+                                                                      #:module-semantics
+                                                                      module-semantics))))))))
 
-        (define end-synthesis-time (current-inexact-milliseconds))
-        (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))
+         (define end-synthesis-time (current-inexact-milliseconds))
+         (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))
 
-        (check-true (normal? result))
-        (define soln (result-value result))
-        (check-true (sat? soln))
+         (check-true (normal? result))
+         (define soln (result-value result))
+         (check-true (sat? soln))
 
-        (define lr-expr
-          (evaluate
-           sketch
-           ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-           (complete-solution soln
-                              (set->list (set-subtract (list->set (symbolics sketch))
-                                                       (list->set (symbolics bv-expr)))))))
+         (define lr-expr
+           (evaluate
+            sketch
+            ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+            (complete-solution soln
+                               (set->list (set-subtract (list->set (symbolics sketch))
+                                                        (list->set (symbolics bv-expr)))))))
 
-        (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-          (raise "VERILATOR_INCLUDE_DIR not set"))
-        (check-true (simulate-with-verilator #:include-dirs include-dirs
-                                             #:extra-verilator-args extra-verilator-args
-                                             (list (to-simulate lr-expr bv-expr))
-                                             (getenv "VERILATOR_INCLUDE_DIR")))))))
+         (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+           (raise "VERILATOR_INCLUDE_DIR not set"))
+         (check-true (simulate-with-verilator #:include-dirs include-dirs
+                                              #:extra-verilator-args extra-verilator-args
+                                              (list (to-simulate lr-expr bv-expr))
+                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
 
   (sketch-test
    #:name "DSP for bvmul on Xilinx DSP48E2"
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvmul a b)
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   #:sketch-generator single-dsp-sketch-generator
+   ;;; TODO(@gussmith23): Resolve this hack. Make sketch generators have the same signature.
+   ;;;
+   ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
+   #:sketch-generator
+   (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+     (single-dsp-sketch-generator architecture-description
+                                  #:out-width bitwidth
+                                  #:clk-input (cons (lr:bv (bv->signal (bv 1 1))) 1)
+                                  #:data-inputs (list (cons (lr:bv (bv->signal a)) 16)
+                                                      (cons (lr:bv (bv->signal b)) 16))
+                                  #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)))
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
@@ -678,7 +748,15 @@
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvand (bvmul a b) (bvmul a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   #:sketch-generator single-dsp-sketch-generator
+   ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
+   #:sketch-generator
+   (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+     (single-dsp-sketch-generator architecture-description
+                                  #:out-width bitwidth
+                                  #:clk-input (cons (lr:bv (bv->signal (bv 1 1))) 1)
+                                  #:data-inputs (list (cons (lr:bv (bv->signal a)) 16)
+                                                      (cons (lr:bv (bv->signal b)) 16))
+                                  #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)))
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")

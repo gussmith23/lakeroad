@@ -75,41 +75,40 @@
                                     #:module-semantics module-semantics
                                     #:include-dirs include-dirs
                                     #:extra-verilator-args extra-verilator-args)
-    (test-case
-     name
-     (with-terms
-      (begin
-        defines ...
+    (test-case name
+      (with-terms
+       (begin
+         defines ...
 
-        (define sketch (apply-lakeroad-grammar architecture-description bv-expr #:depth 3))
+         (define sketch (apply-lakeroad-grammar architecture-description bv-expr #:depth 3))
 
-        (define result
-          (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
-                                           #:guarantee
-                                           (assert (bveq bv-expr
-                                                         (signal-value
-                                                          (interpret sketch
-                                                                     #:module-semantics
-                                                                     module-semantics))))))))
+         (define result
+           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
+                                            #:guarantee
+                                            (assert (bveq bv-expr
+                                                          (signal-value
+                                                           (interpret sketch
+                                                                      #:module-semantics
+                                                                      module-semantics))))))))
 
-        (check-true (normal? result))
-        (define soln (result-value result))
-        (check-true (sat? soln))
+         (check-true (normal? result))
+         (define soln (result-value result))
+         (check-true (sat? soln))
 
-        (define lr-expr
-          (evaluate
-           sketch
-           ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-           (complete-solution soln
-                              (set->list (set-subtract (list->set (symbolics sketch))
-                                                       (list->set (symbolics bv-expr)))))))
+         (define lr-expr
+           (evaluate
+            sketch
+            ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+            (complete-solution soln
+                               (set->list (set-subtract (list->set (symbolics sketch))
+                                                        (list->set (symbolics bv-expr)))))))
 
-        (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-          (raise "VERILATOR_INCLUDE_DIR not set"))
-        (check-true (simulate-with-verilator #:include-dirs include-dirs
-                                             #:extra-verilator-args extra-verilator-args
-                                             (list (to-simulate lr-expr bv-expr))
-                                             (getenv "VERILATOR_INCLUDE_DIR")))))))
+         (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+           (raise "VERILATOR_INCLUDE_DIR not set"))
+         (check-true (simulate-with-verilator #:include-dirs include-dirs
+                                              #:extra-verilator-args extra-verilator-args
+                                              (list (to-simulate lr-expr bv-expr))
+                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
 
   (grammar-test
    #:name "add"
