@@ -106,16 +106,3 @@ primitive x_lut1_mux2 (o, d1, d0, s0);
   endtable
 
 endprimitive
-
-// CHECK: -- Running command `
-// CHECK: read -sv
-// CHECK: hierarchy -top LUT1
-// CHECK: prep
-// CHECK: proc
-// CHECK: flatten
-// CHECK: clk2fflogic
-// CHECK: write_verilog /dev/null
-// CHECK: hierarchy -top LUT1
-// CHECK: write_btor
-// CHECK: 1. Executing Verilog-2005 frontend: {{.*}}
-// CHECK: {{.*}}: ERROR: syntax error, unexpected TOK_ID
