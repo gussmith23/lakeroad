@@ -28,7 +28,8 @@
          shallow-comparison-sketch-generator
          multiplication-sketch-generator
          shift-sketch-generator
-         single-dsp-sketch-generator)
+         single-dsp-sketch-generator
+         make-sketch-inputs)
 
 (require "architecture-description.rkt"
          "logical-to-physical.rkt"
@@ -48,6 +49,21 @@
         bitwise-with-carry-sketch-generator
         comparison-sketch-generator
         multiplication-sketch-generator))
+
+;;; A struct which captures all of the Lakeroad expression inputs and metadata used by sketch
+;;; generators.
+;;;
+;;; Note: it's useful to use `make-sketch-inputs` to construct these structs, rather
+;;; than the default constructor, especially when you don't have a clock or reset.
+;;;
+;;; - output-width: int: the bitwidth of the output. In the future, we'll likely want to support
+;;;     multiple outputs here.
+;;; - clk: (cons lr-expr int) or #f: the expr and bitwidth of the clock, if one exists.
+;;; - rst: (cons lr-expr int) or #f: the expr and bitwidth of the reset, if one exists.
+;;; - data: (listof (cons lr-expr int)): the exprs and bitwidths of the data inputs.
+(struct sketch-inputs (output-width clk rst data))
+(define (make-sketch-inputs #:output-width output-width #:data data #:clk [clk #f] #:rst [rst #f])
+  (sketch-inputs output-width clk rst data))
 
 ;;; Simple helper to generate an architecture-specific sketch for the given bitvector expression.
 (define (generate-sketch sketch-generator architecture-description bv-expr)
@@ -168,18 +184,22 @@
 ;;; (do we need to revisit this decision at the interface level?)
 ;;; and, do we need to assert that there are exactly two logical inputs?
 ;;;
-;;; The first 2 inputs are data inputs. The clock input is assumed to be the first of the inputs.
-;;;
-;;; clk-input: (list lr-expr int): the expr and bitwidth of the clock.
-;;; data-inputs: (listof (list lr-expr int)): the exprs and bitwidths of the data inputs.
+;;; - architecture-description: the architecture description of the architecture to generate the
+;;;     sketch for.
+;;; - inputs: a sketch-inputs struct.
 (define (single-dsp-sketch-generator architecture-description
-                                     #:out-width out-width
-                                     #:clk-input clk-input
-                                     #:data-inputs data-inputs
-                                     #:rst-input rst-input
+                                     inputs
                                      #:internal-data [internal-data #f])
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+       ;;; Unpack clk and rst signals; default to 0 if neither is set.
+       [clk-expr (if (sketch-inputs-clk inputs)
+                     (car (sketch-inputs-clk inputs))
+                     (lr:bv (bv->signal (bv 0 1))))]
+       [rst-expr (if (sketch-inputs-rst inputs)
+                     (car (sketch-inputs-rst inputs))
+                     (lr:bv (bv->signal (bv 0 1))))]
+
        [make-dsp-expr
         (lambda (internal-data out-width
                                clk-expr
@@ -208,7 +228,7 @@
        ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
        ;;; give C.
        [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw))
-        (match data-inputs
+        (match (sketch-inputs-data inputs)
           [(list a-tuple b-tuple c-tuple) (list a-tuple b-tuple c-tuple)]
           [(list a-tuple b-tuple)
            (list a-tuple b-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
@@ -216,9 +236,9 @@
        [out-expr
         (choose
          (make-dsp-expr internal-data
-                        out-width
-                        (car clk-input)
-                        (car rst-input)
+                        (sketch-inputs-output-width inputs)
+                        clk-expr
+                        rst-expr
                         a-expr
                         a-bw
                         b-expr
@@ -728,14 +748,14 @@
    ;;; TODO(@gussmith23): Resolve this hack. Make sketch generators have the same signature.
    ;;;
    ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
-   #:sketch-generator
-   (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-     (single-dsp-sketch-generator architecture-description
-                                  #:out-width bitwidth
-                                  #:clk-input (cons (lr:bv (bv->signal (bv 1 1))) 1)
-                                  #:data-inputs (list (cons (lr:bv (bv->signal a)) 16)
-                                                      (cons (lr:bv (bv->signal b)) 16))
-                                  #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)))
+   #:sketch-generator (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+                        (single-dsp-sketch-generator
+                         architecture-description
+                         (make-sketch-inputs #:output-width bitwidth
+                                             #:clk (cons (lr:bv (bv->signal (bv 1 1))) 1)
+                                             #:data (list (cons (lr:bv (bv->signal a)) 16)
+                                                          (cons (lr:bv (bv->signal b)) 16))
+                                             #:rst (cons (lr:bv (bv->signal (bv 0 1))) 1))))
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
@@ -749,14 +769,14 @@
    #:bv-expr (bvand (bvmul a b) (bvmul a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
-   #:sketch-generator
-   (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-     (single-dsp-sketch-generator architecture-description
-                                  #:out-width bitwidth
-                                  #:clk-input (cons (lr:bv (bv->signal (bv 1 1))) 1)
-                                  #:data-inputs (list (cons (lr:bv (bv->signal a)) 16)
-                                                      (cons (lr:bv (bv->signal b)) 16))
-                                  #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)))
+   #:sketch-generator (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
+                        (single-dsp-sketch-generator
+                         architecture-description
+                         (make-sketch-inputs #:output-width bitwidth
+                                             #:clk (cons (lr:bv (bv->signal (bv 1 1))) 1)
+                                             #:data (list (cons (lr:bv (bv->signal a)) 16)
+                                                          (cons (lr:bv (bv->signal b)) 16))
+                                             #:rst (cons (lr:bv (bv->signal (bv 0 1))) 1))))
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")

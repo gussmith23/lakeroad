@@ -303,10 +303,11 @@
             [_ (when (not (verilog-module-out-bitwidth))
                  (error "Verilog module out bitwidth not specified."))]
             [sketch (first (sketch-generator architecture-description
-                                             #:out-width (verilog-module-out-bitwidth)
-                                             #:clk-input (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                                             #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                                             #:data-inputs data-inputs))])
+                                             (make-sketch-inputs
+                                              #:output-width (verilog-module-out-bitwidth)
+                                              #:clk (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                                              #:rst (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                                              #:data data-inputs)))])
 
        (call-with-limits (timeout)
                          #f
@@ -358,10 +359,11 @@
             [_ (when (not (verilog-module-out-bitwidth))
                  (error "Verilog module out bitwidth not specified."))]
             [sketch (first (sketch-generator architecture-description
-                                             #:out-width (verilog-module-out-bitwidth)
-                                             #:clk-input clk-input
-                                             #:rst-input rst-input
-                                             #:data-inputs data-inputs))]
+                                             (make-sketch-inputs
+                                              #:output-width (verilog-module-out-bitwidth)
+                                              #:clk clk-input
+                                              #:rst rst-input
+                                              #:data data-inputs)))]
 
             ;;; Environments for sequential synthesis. Each environment represents one set of input
             ;;; states. For each set of input states, we run the interpreter with the given inputs,
