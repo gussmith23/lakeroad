@@ -36,9 +36,7 @@
          (prefix-in lr: "language.rkt")
          "signal.rkt"
          rosette
-         rosette/lib/angelic
          rosette/lib/synthax
-         racket/pretty
          "verilator.rkt"
          "utils.rkt")
 
