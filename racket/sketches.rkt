@@ -334,11 +334,6 @@
             (error "Bitwise sketches do not support clocks."))]
        [_ (when (sketch-inputs-rst sketch-inputs)
             (error "Bitwise sketches do not support resets."))]
-       ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
-       ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
-       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
-       [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
-       [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
        ;;; Unpack the internal data.
        [bitwise-sketch-0-internal-data (if internal-data (first internal-data) #f)]
@@ -358,12 +353,13 @@
 
        ;;; Construct a carry, which will effectively do the reduction operation for the comparison.
        [(list carry-expr carry-internal-data)
-        (construct-interface architecture-description
-                             (interface-identifier "carry" (hash "width" bitwidth))
-                             (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
-                                   (cons "DI" bitwise-sketch-0)
-                                   (cons "S" bitwise-sketch-1))
-                             #:internal-data carry-internal-data)]
+        (construct-interface
+         architecture-description
+         (interface-identifier "carry" (hash "width" (sketch-inputs-output-width sketch-inputs)))
+         (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
+               (cons "DI" bitwise-sketch-0)
+               (cons "S" bitwise-sketch-1))
+         #:internal-data carry-internal-data)]
 
        ;;; Return the carry out signal.
        [out-expr (lr:hash-ref carry-expr 'CO)])
