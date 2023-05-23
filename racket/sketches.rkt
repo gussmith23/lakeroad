@@ -17,7 +17,7 @@
 ;;;   the two sketches should be the same (e.g. they're both performing addition), then you can pass
 ;;;   this internal data to the second invocation of the sketch generator.
 
-#lang racket/base
+#lang errortrace racket/base
 
 (provide generate-sketch
          all-sketch-generators
@@ -180,38 +180,52 @@
                                      #:internal-data [internal-data #f])
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
-       [make-dsp-expr
-        (lambda (internal-data out-width
-                               clk-expr
-                               rst-expr
-                               a-expr
-                               a-width
-                               b-expr
-                               b-width
-                               c-expr
-                               c-width)
-          (match-define (list dsp-expr ignored-internal-data)
-            (construct-interface
-             architecture-description
-             (interface-identifier
-              "DSP"
-              (hash "out-width" out-width "a-width" a-width "b-width" b-width "c-width" c-width))
-             (list (cons "clk" clk-expr)
-                   (cons "rst" rst-expr)
-                   (cons "A" a-expr)
-                   (cons "B" b-expr)
-                   (cons "C" c-expr))
-             #:internal-data internal-data))
-          ;;; Ignoring internal data for now, but we could use it in the future.
-          ;(list (lr:hash-ref dsp-expr 'O) internal-data)
-          (lr:hash-ref dsp-expr 'O))]
+       [make-dsp-expr (lambda (internal-data out-width
+                                             clk-expr
+                                             rst-expr
+                                             a-expr
+                                             a-width
+                                             b-expr
+                                             b-width
+                                             c-expr
+                                             c-width
+                                             d-expr
+                                             d-width)
+                        (match-define (list dsp-expr ignored-internal-data)
+                          (construct-interface architecture-description
+                                               (interface-identifier "DSP"
+                                                                     (hash "out-width"
+                                                                           out-width
+                                                                           "a-width"
+                                                                           a-width
+                                                                           "b-width"
+                                                                           b-width
+                                                                           "c-width"
+                                                                           c-width
+                                                                           "d-width"
+                                                                           d-width))
+                                               (list (cons "clk" clk-expr)
+                                                     (cons "rst" rst-expr)
+                                                     (cons "A" a-expr)
+                                                     (cons "B" b-expr)
+                                                     (cons "C" c-expr)
+                                                     (cons "D" d-expr))
+                                               #:internal-data internal-data))
+                        ;;; Ignoring internal data for now, but we could use it in the future.
+                        ;(list (lr:hash-ref dsp-expr 'O) internal-data)
+                        (lr:hash-ref dsp-expr 'O))]
        ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
        ;;; give C.
-       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw))
+       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw) (cons d-expr d-bw))
         (match data-inputs
-          [(list a-tuple b-tuple c-tuple) (list a-tuple b-tuple c-tuple)]
+          [(list a-tuple b-tuple c-tuple d-tuple) (list a-tuple b-tuple c-tuple d-tuple)]
+          [(list a-tuple b-tuple c-tuple)
+           (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))]
           [(list a-tuple b-tuple)
-           (list a-tuple b-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
+           (list a-tuple
+                 b-tuple
+                 (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1)
+                 (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
 
        [out-expr
         (choose
@@ -224,7 +238,9 @@
                         b-expr
                         b-bw
                         c-expr
-                        c-bw)
+                        c-bw
+                        d-expr
+                        d-bw)
          ;;(make-dsp-expr internal-data out-width (car clk-input) (car rst-input) a-expr a-bw c-expr c-bw b-expr b-bw)
          ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw a-expr a-bw c-expr c-bw)
          ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw c-expr c-bw a-expr a-bw)
@@ -670,55 +686,55 @@
                                    #:module-semantics module-semantics
                                    #:include-dirs include-dirs
                                    #:extra-verilator-args extra-verilator-args)
-    (test-case name
-      (with-terms
-       (begin
-         (displayln
-          "--------------------------------------------------------------------------------")
-         (displayln (format "running test ~a" name))
-         defines ...
+    (test-case
+     name
+     (with-terms
+      (begin
+        (displayln "--------------------------------------------------------------------------------")
+        (displayln (format "running test ~a" name))
+        defines ...
 
-         (define start-sketch-gen-time (current-inexact-milliseconds))
-         (define sketch (generate-sketch sketch-generator architecture-description bv-expr))
-         ;;; (displayln sketch)
+        (define start-sketch-gen-time (current-inexact-milliseconds))
+        (define sketch (generate-sketch sketch-generator architecture-description bv-expr))
+        ;;; (displayln sketch)
 
-         (define end-sketch-gen-time (current-inexact-milliseconds))
+        (define end-sketch-gen-time (current-inexact-milliseconds))
 
-         (displayln (format "number of symbolics in sketch: ~a" (length (symbolics sketch))))
-         (displayln (format "sketch generation time: ~ams"
-                            (- end-sketch-gen-time start-sketch-gen-time)))
+        (displayln (format "number of symbolics in sketch: ~a" (length (symbolics sketch))))
+        (displayln (format "sketch generation time: ~ams"
+                           (- end-sketch-gen-time start-sketch-gen-time)))
 
-         (define start-synthesis-time (current-inexact-milliseconds))
-         (define result
-           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
-                                            #:guarantee
-                                            (assert (bveq bv-expr
-                                                          (signal-value
-                                                           (interpret sketch
-                                                                      #:module-semantics
-                                                                      module-semantics))))))))
+        (define start-synthesis-time (current-inexact-milliseconds))
+        (define result
+          (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
+                                           #:guarantee
+                                           (assert (bveq bv-expr
+                                                         (signal-value
+                                                          (interpret sketch
+                                                                     #:module-semantics
+                                                                     module-semantics))))))))
 
-         (define end-synthesis-time (current-inexact-milliseconds))
-         (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))
+        (define end-synthesis-time (current-inexact-milliseconds))
+        (displayln (format "synthesis time: ~ams" (- end-synthesis-time start-synthesis-time)))
 
-         (check-true (normal? result))
-         (define soln (result-value result))
-         (check-true (sat? soln))
+        (check-true (normal? result))
+        (define soln (result-value result))
+        (check-true (sat? soln))
 
-         (define lr-expr
-           (evaluate
-            sketch
-            ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-            (complete-solution soln
-                               (set->list (set-subtract (list->set (symbolics sketch))
-                                                        (list->set (symbolics bv-expr)))))))
+        (define lr-expr
+          (evaluate
+           sketch
+           ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+           (complete-solution soln
+                              (set->list (set-subtract (list->set (symbolics sketch))
+                                                       (list->set (symbolics bv-expr)))))))
 
-         (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-           (raise "VERILATOR_INCLUDE_DIR not set"))
-         (check-true (simulate-with-verilator #:include-dirs include-dirs
-                                              #:extra-verilator-args extra-verilator-args
-                                              (list (to-simulate lr-expr bv-expr))
-                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
+        (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+          (raise "VERILATOR_INCLUDE_DIR not set"))
+        (check-true (simulate-with-verilator #:include-dirs include-dirs
+                                             #:extra-verilator-args extra-verilator-args
+                                             (list (to-simulate lr-expr bv-expr))
+                                             (getenv "VERILATOR_INCLUDE_DIR")))))))
 
   (sketch-test
    #:name "DSP for bvmul on Xilinx DSP48E2"
