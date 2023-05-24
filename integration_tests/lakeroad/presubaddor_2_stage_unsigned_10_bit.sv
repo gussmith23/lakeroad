@@ -1,3 +1,4 @@
+// RUN: outfile=$(mktemp)
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
@@ -7,12 +8,31 @@
 // RUN:  --verilog-module-out-signal out:10 \
 // RUN:  --initiation-interval 2 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name out \
+// RUN:  --module-name presubaddor_2_stage_unsigned_10_bit \
 // RUN:  --input-signal a:10 \
 // RUN:  --input-signal b:10 \
 // RUN:  --input-signal c:10 \
-// RUN:  --input-signal d:10 \
-// RUN: | FileCheck %s
+// RUN:  --input-signal d:10 > $outfile
+// RUN: FileCheck %s < $outfile
+// RUN: python $LAKEROAD_DIR/bin/simulate_with_verilator.py \
+// RUN:  --test_module_filepath %s \
+// RUN:  --ground_truth_module_filepath $outfile \
+// RUN:  --clock_name clk \
+// RUN:  --initiation_interval 2 \
+// RUN:  --output_signal out:10 \
+// RUN:  --input a:10 \
+// RUN:  --input b:10 \
+// RUN:  --input c:10 \
+// RUN:  --input d:10 \
+// RUN:  --verilator_include_dir /Users/gus/lakeroad-private/DSP48E2/ \
+// RUN:  --verilator_extra_arg='-DXIL_XECLIB' \
+// RUN:  --verilator_extra_arg='-Wno-UNOPTFLAT' \
+// RUN:  --verilator_extra_arg='-Wno-LATCH' \
+// RUN:  --verilator_extra_arg='-Wno-WIDTH' \
+// RUN:  --verilator_extra_arg='-Wno-STMTDLY' \
+// RUN:  --verilator_extra_arg='-Wno-CASEX' \
+// RUN:  --verilator_extra_arg='-Wno-TIMESCALEMOD' \
+// RUN:  --verilator_extra_arg='-Wno-PINMISSING'
 
 module presubaddor_2_stage_unsigned_10_bit(
 	input  [9:0] a,
@@ -33,7 +53,7 @@ module presubaddor_2_stage_unsigned_10_bit(
 	assign out = stage1;
 endmodule
 
-// CHECK: module out(a, b, c, clk, d, out);
+// CHECK: module presubaddor_2_stage_unsigned_10_bit(a, b, c, clk, d, out);
 // CHECK:   wire [47:0] P_0;
 // CHECK:   input [9:0] a;
 // CHECK:   wire [9:0] a;
