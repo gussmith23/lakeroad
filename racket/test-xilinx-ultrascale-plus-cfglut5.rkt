@@ -1,10 +1,120 @@
 #lang racket/base
 
-(require "generated/xilinx-ultrascale-plus-cfglut5-init.rkt"
+(require "generated/xilinx-ultrascale-plus-cfglut5-modified.rkt"
          rackunit
          rosette
          rosette/lib/synthax
          "signal.rkt")
+
+
+
+(define-symbolic i0 (bitvector 1))
+(define-symbolic i1 (bitvector 1))
+(define-symbolic init (bitvector 32))
+
+(define c1 (xilinx-ultrascale-plus-cfglut5 
+      #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
+      #:CE (bv->signal (bv 1 1)) ; this is just whether we are "turning on" this module
+      #:CLK (bv->signal (bv 0 1))
+      #:I0 (bv->signal i0) ; this is the one that is an actual input
+      #:I1 (bv->signal i1)
+      #:I2 (bv->signal (bv 0 1))
+      #:I3 (bv->signal (bv 0 1))
+      #:I4 (bv->signal (bv 0 1))
+      #:INIT (bv->signal init)
+      ))
+(define output1 (assoc-ref c1 'O6))
+;;; (displayln output1)
+;;; (verify (assert (bveq (signal-value output1) (bvand i0 i1))))
+;;; (synthesize 
+;;;       #:forall (list i0)
+;;;       #:guarantee (assert (bveq 
+;;;             (signal-value (assoc-ref (xilinx-ultrascale-plus-cfglut5 
+;;;             #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
+;;;             #:CE (bv->signal (bv 0 1)) ; this is just whether we are "turning on" this module
+;;;             #:CLK (bv->signal (bv 0 1))
+;;;             #:I0 (bv->signal i0) ; this is the one that is an actual input
+;;;             #:I1 (bv->signal (bv 0 1))
+;;;             #:I2 (bv->signal (bv 0 1))
+;;;             #:I3 (bv->signal (bv 0 1))
+;;;             #:I4 (bv->signal (bv 0 1))
+;;;             #:INIT (bv->signal init)) 'O6))
+;;;             (bvnot i0)
+;;;        )))
+;;; (displayln (extract 0 0 (bv 1 32)))
+
+;;; (synthesize 
+;;;       #:forall (list i0 i1)
+;;;       #:guarantee (assert (bveq (bit 0 (bvlshr init (zero-extend i0 (bitvector 32)))) (bvand i0 i1))))
+
+
+;;; a stack of cfglut5s with the same input, but different INIT vlaues.
+(define (cfglut5-stack CE CDI CLK I0 I1 I2 I3)
+      
+      (let*
+            ([cfglut5-1 (xilinx-ultrascale-plus-cfglut5 
+                  #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
+                  #:CE (bv->signal CE) ; this is just whether we are "turning on" this module
+                  #:CLK (bv->signal CLK)
+                  #:I0 (bv->signal I0) ; this is the one that is an actual input
+                  #:I1 (bv->signal I1)
+                  #:I2 (bv->signal I2)
+                  #:I3 (bv->signal I3)
+                  #:I4 (bv->signal (bv 1 1))
+                  #:INIT (bv->signal (bv 0 32))
+                  )]
+              [answer (concat (signal-value (assoc-ref cfglut5-1 'O6)) (signal-value (assoc-ref cfglut5-1 'O5)))]
+              [cfglut5-2 (xilinx-ultrascale-plus-cfglut5 
+                  #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
+                  #:CE (bv->signal CE) ; this is just whether we are "turning on" this module
+                  #:CLK (bv->signal CLK)
+                  #:I0 (bv->signal I0) ; this is the one that is an actual input
+                  #:I1 (bv->signal I1)
+                  #:I2 (bv->signal I2)
+                  #:I3 (bv->signal I3)
+                  #:I4 (bv->signal (bv 1 1))
+                  #:INIT (bv->signal (bv 0 32))
+                  )]
+              [answer (concat (signal-value (assoc-ref cfglut5-2 'O6)) (signal-value (assoc-ref cfglut5-2 'O5)) answer)]
+              [cfglut5-3 (xilinx-ultrascale-plus-cfglut5 
+                  #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
+                  #:CE (bv->signal CE) ; this is just whether we are "turning on" this module
+                  #:CLK (bv->signal CLK)
+                  #:I0 (bv->signal I0) ; this is the one that is an actual input
+                  #:I1 (bv->signal I1)
+                  #:I2 (bv->signal I2)
+                  #:I3 (bv->signal I3)
+                  #:I4 (bv->signal (bv 1 1))
+                  #:INIT (bv->signal (bv 0 32))
+                  )] 
+               [answer (concat (signal-value (assoc-ref cfglut5-3 'O6)) (signal-value (assoc-ref cfglut5-3 'O5)) answer)]
+              )
+            answer))
+(define INIT1 (bv 6 32))
+(define stack1 (cfglut5-stack (bv 1 1) (bv 0 1) (bv 1 1) (bv 0 1) (bv 1 1) (bv 0 1) (bv 127 32) (bv 125 32) (bv 100 32)))
+(define stack2 (cfglut5-stack (bv 1 1) (bv 0 1) (bv 1 1) (bv 0 1) (bv 1 1) (bv 0 1) (bv 6 32) (bv 2 32) (bv 5 32)))
+(displayln (bvadd stack1 stack2))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ;; 1 input: 2 slot or 2^1 01
@@ -61,38 +171,38 @@
 
 
 
-(define-symbolic i0 (bitvector 1))
-(define-symbolic i1 (bitvector 1))
-(define-symbolic i2 (bitvector 1))
+;;; (define-symbolic i0 (bitvector 1))
+;;; (define-symbolic i1 (bitvector 1))
+;;; (define-symbolic i2 (bitvector 1))
 
-(define notc1 (xilinx-ultrascale-plus-cfglut5 
-      #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
-      #:CE (bv->signal (bv 1 1)) ; this is just whether we are "turning on" this module
-      #:CLK (bv->signal (bv 0 1))
-      #:I0 (bv->signal (bv 0 1)) ; this is the one that is an actual input
-      #:I1 (bv->signal (bv 0 1))
-      #:I2 (bv->signal (bv 0 1))
-      #:I3 (bv->signal (bv 0 1))
-      #:I4 (bv->signal (bv 0 1))
-      #:INIT (bv->signal (bv 0 32))
-      ))
-;;; (displayln c1)
-;;; (displayln "\n\n")
-(define output (assoc-ref notc1 'O6))
-(define notc2 (xilinx-ultrascale-plus-cfglut5 
-      #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
-      #:CE (bv->signal (bv 1 1)) ; this is just whether we are "turning on" this module
-      #:CLK (bv->signal (bv 1 1))
-      #:I0 (bv->signal (bv 1 1) output) ; this is the one that is an actual input
-      #:I1 (bv->signal (bv 0 1))
-      #:I2 (bv->signal (bv 0 1))
-      #:I3 (bv->signal (bv 0 1))
-      #:I4 (bv->signal (bv 0 1))
-      #:INIT (bv->signal (bv 0 32))
-      ))
+;;; (define notc1 (xilinx-ultrascale-plus-cfglut5 
+;;;       #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
+;;;       #:CE (bv->signal (bv 1 1)) ; this is just whether we are "turning on" this module
+;;;       #:CLK (bv->signal (bv 0 1))
+;;;       #:I0 (bv->signal (bv 0 1)) ; this is the one that is an actual input
+;;;       #:I1 (bv->signal (bv 0 1))
+;;;       #:I2 (bv->signal (bv 0 1))
+;;;       #:I3 (bv->signal (bv 0 1))
+;;;       #:I4 (bv->signal (bv 0 1))
+;;;       #:INIT (bv->signal (bv 0 32))
+;;;       ))
+;;; ;;; (displayln c1)
+;;; ;;; (displayln "\n\n")
+;;; (define output (assoc-ref notc1 'O6))
+;;; (define notc2 (xilinx-ultrascale-plus-cfglut5 
+;;;       #:CDI (bv->signal (bv 1 1)) ; what is the cfglut shifting in. In this case its 1
+;;;       #:CE (bv->signal (bv 1 1)) ; this is just whether we are "turning on" this module
+;;;       #:CLK (bv->signal (bv 1 1))
+;;;       #:I0 (bv->signal (bv 1 1) output) ; this is the one that is an actual input
+;;;       #:I1 (bv->signal (bv 0 1))
+;;;       #:I2 (bv->signal (bv 0 1))
+;;;       #:I3 (bv->signal (bv 0 1))
+;;;       #:I4 (bv->signal (bv 0 1))
+;;;       #:INIT (bv->signal (bv 0 32))
+;;;       ))
 
-(displayln notc2)
-(define output2 (assoc-ref notc2 'O6))
+;;; (displayln notc2)
+;;; (define output2 (assoc-ref notc2 'O6))
 ;;; (check-equal? (signal-value output2) (bv 0 1))
 ;;; (displayln "\n\n")
 ;;; (displayln output2)
