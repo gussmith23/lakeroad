@@ -159,7 +159,7 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
-        "--input",
+        "--input_signal",
         type=str,
         help="Data input to the module we're testing, in the form <name>:<bitwidth>, e.g. a:16.",
         action="append",
@@ -180,42 +180,42 @@ if __name__ == "__main__":
         "--testbench_cc_filepath",
         type=Path,
         help="Filepath to write the testbench C++ code to.",
-        default=tempfile.mkstemp()[1],
+        default=tempfile.mkstemp(suffix=".cc")[1],
     )
     parser.add_argument(
         "--testbench_exe_filepath",
         type=Path,
         help="Filepath to write the testbench executable to.",
-        default=tempfile.mkstemp()[1],
+        default=tempfile.mkstemp(suffix=".out")[1],
     )
     parser.add_argument(
         "--testbench_inputs_filepath",
         type=Path,
         help="Filepath to write the testbench inputs to.",
-        default=tempfile.mkstemp()[1],
+        default=tempfile.mkstemp(suffix=".txt")[1],
     )
     parser.add_argument(
         "--testbench_stdout_log_filepath",
         type=Path,
         help="Filepath to write the testbench stdout to.",
-        default=tempfile.mkstemp()[1],
+        default=tempfile.mkstemp(suffix=".stdout.log")[1],
     )
     parser.add_argument(
         "--testbench_stderr_log_filepath",
         type=Path,
         help="Filepath to write the testbench stderr to.",
-        default=tempfile.mkstemp()[1],
+        default=tempfile.mkstemp(suffix=".stderr.log")[1],
     )
     parser.add_argument(
         "--makefile_filepath",
         type=Path,
         help="Filepath to write the makefile to.",
-        default=tempfile.mkstemp()[1],
+        default=tempfile.mkstemp(suffix=".mk")[1],
     )
     parser.add_argument(
-        "--output_signal",
+        "--output_signal_name",
         type=str,
-        help="Name of the output signal of the module we're testing. In the form <name>:<bitwidth>, e.g. out:16.",
+        help="Name of the output signal of the module we're testing.",
         required=True,
     )
     parser.add_argument(
@@ -236,13 +236,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Parse something like <signal_name>:<bitwidth> into a tuple.
-    parse_signal_str = lambda x: (str(x.split(":")), int(x.split(":")[1]))
+    parse_signal_str = lambda x: (str(x.split(":")[0]), int(x.split(":")[1]))
 
     simulate_with_verilator(
         obj_dir_dir=args.obj_dir_dir,
         test_module_filepath=args.test_module_filepath,
         ground_truth_module_filepath=args.ground_truth_module_filepath,
-        module_inputs=[parse_signal_str(i) for i in args.input],
+        module_inputs=[parse_signal_str(i) for i in args.input_signal],
         clock_name=args.clock_name,
         initiation_interval=args.initiation_interval,
         testbench_cc_filepath=args.testbench_cc_filepath,
@@ -251,7 +251,7 @@ if __name__ == "__main__":
         testbench_stdout_log_filepath=args.testbench_stdout_log_filepath,
         testbench_stderr_log_filepath=args.testbench_stderr_log_filepath,
         makefile_filepath=args.makefile_filepath,
-        output_signal=parse_signal_str(args.output_signal),
+        output_signal=args.output_signal_name,
         include_dirs=args.verilator_include_dir,
         extra_args=args.verilator_extra_arg,
     )

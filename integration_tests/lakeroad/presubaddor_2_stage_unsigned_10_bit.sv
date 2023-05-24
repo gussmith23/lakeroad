@@ -19,11 +19,11 @@
 // RUN:  --ground_truth_module_filepath $outfile \
 // RUN:  --clock_name clk \
 // RUN:  --initiation_interval 2 \
-// RUN:  --output_signal out:10 \
-// RUN:  --input a:10 \
-// RUN:  --input b:10 \
-// RUN:  --input c:10 \
-// RUN:  --input d:10 \
+// RUN:  --output_signal_name out \
+// RUN:  --input_signal a:10 \
+// RUN:  --input_signal b:10 \
+// RUN:  --input_signal c:10 \
+// RUN:  --input_signal d:10 \
 // RUN:  --verilator_include_dir /Users/gus/lakeroad-private/DSP48E2/ \
 // RUN:  --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:  --verilator_extra_arg='-Wno-UNOPTFLAT' \
