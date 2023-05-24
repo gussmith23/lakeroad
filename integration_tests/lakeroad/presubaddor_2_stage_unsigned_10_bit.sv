@@ -22,8 +22,8 @@ module presubaddor_2_stage_unsigned_10_bit(
 	output [9:0] out,
 	input clk);
 
-	logic  [19:0] stage0;
-	logic  [19:0] stage1;
+	logic  [9:0] stage0;
+	logic  [9:0] stage1;
 
 	always @(posedge clk) begin
 	stage0 <= ((d - a) * b) + c;
