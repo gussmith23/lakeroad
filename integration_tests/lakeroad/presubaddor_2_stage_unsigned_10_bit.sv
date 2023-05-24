@@ -24,7 +24,7 @@
 // RUN:  --input_signal b:10 \
 // RUN:  --input_signal c:10 \
 // RUN:  --input_signal d:10 \
-// RUN:  --verilator_include_dir /Users/gus/lakeroad-private/DSP48E2/ \
+// RUN:  --verilator_include_dir /home/gus/lakeroad-private/DSP48E2/ \
 // RUN:  --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:  --verilator_extra_arg='-Wno-UNOPTFLAT' \
 // RUN:  --verilator_extra_arg='-Wno-LATCH' \
