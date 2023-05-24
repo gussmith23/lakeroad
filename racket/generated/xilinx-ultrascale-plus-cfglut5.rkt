@@ -27,11 +27,11 @@
     (let* ((merged-input-state-hash (list))
            (init-hash
             (append
-             (list (cons (string->symbol (string-append name 'state18)) (bv 1 (bitvector 1))))
+             (list (cons (string->symbol (string-append name "state18")) (bv 1 (bitvector 1))))
              (append
-              (list (cons (string->symbol (string-append name 'state15)) (signal-value INIT)))
+              (list (cons (string->symbol (string-append name "state15")) (signal-value INIT)))
               (append
-               (list (cons (string->symbol (string-append name 'state13)) (signal-value INIT)))
+               (list (cons (string->symbol (string-append name "state13")) (signal-value INIT)))
                (list)))))
            (btor1 (bitvector 1))
            (btor2 CDI)
@@ -66,11 +66,11 @@
            (btor13
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash (string->symbol (string-append name 'state13)))
+                     ((assoc-has-key? merged-input-state-hash (string->symbol (string-append name "state13")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash (string->symbol (string-append name 'state13)))))
-                     ((assoc-has-key? init-hash (string->symbol (string-append name 'state13)))
-                      (bv->signal (assoc-ref init-hash (string->symbol (string-append name 'state13)))))
+                       (assoc-ref merged-input-state-hash (string->symbol (string-append name "state13")))))
+                     ((assoc-has-key? init-hash (string->symbol (string-append name "state13")))
+                      (bv->signal (assoc-ref init-hash (string->symbol (string-append name "state13")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -82,11 +82,11 @@
            (btor15
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash (string->symbol (string-append name 'state15)))
+                     ((assoc-has-key? merged-input-state-hash (string->symbol (string-append name "state15")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash (string->symbol (string-append name 'state15)))))
-                     ((assoc-has-key? init-hash (string->symbol (string-append name 'state15)))
-                      (bv->signal (assoc-ref init-hash (string->symbol (string-append name 'state15)))))
+                       (assoc-ref merged-input-state-hash (string->symbol (string-append name "state15")))))
+                     ((assoc-has-key? init-hash (string->symbol (string-append name "state15")))
+                      (bv->signal (assoc-ref init-hash (string->symbol (string-append name "state15")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -99,11 +99,11 @@
            (btor18
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash (string->symbol (string-append name 'state18)))
+                     ((assoc-has-key? merged-input-state-hash (string->symbol (string-append name "state18")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash (string->symbol (string-append name 'state18)))))
-                     ((assoc-has-key? init-hash (string->symbol (string-append name 'state18)))
-                      (bv->signal (assoc-ref init-hash (string->symbol (string-append name 'state18)))))
+                       (assoc-ref merged-input-state-hash (string->symbol (string-append name "state18")))))
+                     ((assoc-has-key? init-hash (string->symbol (string-append name "state18")))
+                      (bv->signal (assoc-ref init-hash (string->symbol (string-append name "state18")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -195,25 +195,25 @@
         (signal
          (signal-value btor34)
          (append
-          (list (cons (string->symbol (string-append name 'state18)) (signal-value btor4)))
+          (list (cons (string->symbol (string-append name "state18")) (signal-value btor4)))
           (append
-           (list (cons (string->symbol (string-append name 'state15)) (signal-value btor50)))
-           (append (list (cons (string->symbol (string-append name 'state13)) (signal-value btor24))) (list))))))
+           (list (cons (string->symbol (string-append name "state15")) (signal-value btor50)))
+           (append (list (cons (string->symbol (string-append name "state13")) (signal-value btor24))) (list))))))
        (cons
         'CDO
         (signal
          (signal-value btor25)
          (append
-          (list (cons (string->symbol (string-append name 'state18)) (signal-value btor4)))
+          (list (cons (string->symbol (string-append name "state18")) (signal-value btor4)))
           (append
-           (list (cons (string->symbol (string-append name 'state15)) (signal-value btor50)))
-           (append (list (cons (string->symbol (string-append name 'state13)) (signal-value btor24))) (list))))))
+           (list (cons (string->symbol (string-append name "state15")) (signal-value btor50)))
+           (append (list (cons (string->symbol (string-append name "state13")) (signal-value btor24))) (list))))))
        (cons
         'O6
         (signal
          (signal-value btor43)
          (append
-          (list (cons (string->symbol (string-append name 'state18)) (signal-value btor4)))
+          (list (cons (string->symbol (string-append name "state18")) (signal-value btor4)))
           (append
-           (list (cons (string->symbol (string-append name 'state15)) (signal-value btor50)))
-           (append (list (cons (string->symbol (string-append name 'state13)) (signal-value btor24))) (list))))))))))
+           (list (cons (string->symbol (string-append name "state15")) (signal-value btor50)))
+           (append (list (cons (string->symbol (string-append name "state13")) (signal-value btor24))) (list))))))))))
