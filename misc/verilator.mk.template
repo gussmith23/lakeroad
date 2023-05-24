@@ -19,4 +19,4 @@ simulate: {testbench_exe_filepath} {testbench_inputs_filepath}
 	$(VERILATOR) --no-timing --Mdir {ground_truth_module_obj_dirpath} --cc {ground_truth_module_verilog_filepath} --prefix Vground_truth_module {ground_truth_module_extra_verilator_args}
 	make -C {test_module_obj_dirpath} -f Vtest_module.mk
 	make -C {ground_truth_module_obj_dirpath} -f Vground_truth_module.mk
-	$(CXX) -o {testbench_exe_filepath} -I{verilator_include_dir} {testbench_filepath} {ground_truth_module_obj_dirpath}/Vground_truth_module__ALL.a {test_module_obj_dirpath}/Vtest_module__ALL.a {verilator_include_dir}/verilated.cpp {verilator_include_dir}/verilated_threads.cpp
+	$(CXX) -o {testbench_exe_filepath} -I{verilator_include_dir} {testbench_filepath} {ground_truth_module_obj_dirpath}/Vground_truth_module__ALL.a {test_module_obj_dirpath}/Vtest_module__ALL.a {verilator_include_dir}/verilated.cpp {verilator_include_dir}/verilated_threads.cpp -lpthread
