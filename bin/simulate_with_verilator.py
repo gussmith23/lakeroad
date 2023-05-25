@@ -180,37 +180,41 @@ if __name__ == "__main__":
         "--testbench_cc_filepath",
         type=Path,
         help="Filepath to write the testbench C++ code to.",
-        default=tempfile.mkstemp(suffix=".cc")[1],
+        # Note that mkstemp here will keep the file open, and thus not writeable
+        # (e.g. when our Makefile tries to write the executable after
+        # compilation.) So we use NamedTemporaryFile, get the name, and then
+        # immediately drop the file so that the file gets deleted.
+        default=tempfile.NamedTemporaryFile(suffix=".cc").name,
     )
     parser.add_argument(
         "--testbench_exe_filepath",
         type=Path,
         help="Filepath to write the testbench executable to.",
-        default=tempfile.mkstemp(suffix=".out")[1],
+        default=tempfile.NamedTemporaryFile(suffix=".out").name,
     )
     parser.add_argument(
         "--testbench_inputs_filepath",
         type=Path,
         help="Filepath to write the testbench inputs to.",
-        default=tempfile.mkstemp(suffix=".txt")[1],
+        default=tempfile.NamedTemporaryFile(suffix=".txt").name,
     )
     parser.add_argument(
         "--testbench_stdout_log_filepath",
         type=Path,
         help="Filepath to write the testbench stdout to.",
-        default=tempfile.mkstemp(suffix=".stdout.log")[1],
+        default=tempfile.NamedTemporaryFile(suffix=".stdout.log").name,
     )
     parser.add_argument(
         "--testbench_stderr_log_filepath",
         type=Path,
         help="Filepath to write the testbench stderr to.",
-        default=tempfile.mkstemp(suffix=".stderr.log")[1],
+        default=tempfile.NamedTemporaryFile(suffix=".stderr.log").name,
     )
     parser.add_argument(
         "--makefile_filepath",
         type=Path,
         help="Filepath to write the makefile to.",
-        default=tempfile.mkstemp(suffix=".mk")[1],
+        default=tempfile.NamedTemporaryFile(suffix=".mk").name,
     )
     parser.add_argument(
         "--output_signal_name",
