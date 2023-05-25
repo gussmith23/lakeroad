@@ -9,6 +9,8 @@ import sys
 from typing import List, Tuple, Union
 import subprocess
 
+MAX_NUM_TESTS = 2**18
+
 
 def simulate_with_verilator(
     obj_dir_dir: Union[str, Path],
@@ -26,6 +28,7 @@ def simulate_with_verilator(
     output_signal: str,
     include_dirs: List[Union[str, Path]] = [],
     extra_args: List[str] = [],
+    max_num_tests=MAX_NUM_TESTS,
 ):
     """
 
@@ -103,8 +106,7 @@ def simulate_with_verilator(
     with testbench_inputs_filepath.open("w") as f:
         # We can expose this as an argument. You can use this to tune how long
         # the tests take, at the cost of test coverage.
-        MAX_NUM_TESTS = 2**18
-        if 2 ** (sum([width for _, width in module_inputs])) > MAX_NUM_TESTS:
+        if 2 ** (sum([width for _, width in module_inputs])) > max_num_tests:
             logging.warning(
                 "Exhaustive testing space is too large, doing random testing."
             )
@@ -112,7 +114,7 @@ def simulate_with_verilator(
             def generate_one():
                 return [random.randint(0, 2**width - 1) for _, width in module_inputs]
 
-            all_inputs = [generate_one() for _ in range(MAX_NUM_TESTS)]
+            all_inputs = [generate_one() for _ in range(max_num_tests)]
         else:
             # Do exhaustive testing.
             all_inputs = list(
@@ -236,6 +238,12 @@ if __name__ == "__main__":
         action="append",
         default=[],
     )
+    parser.add_argument(
+        "--max_num_tests",
+        type=int,
+        help="Maximum number of tests to run. If this number is greater than the space of all points, testing will be non-exhaustive.",
+        default=MAX_NUM_TESTS,
+    )
 
     args = parser.parse_args()
 
@@ -258,4 +266,5 @@ if __name__ == "__main__":
         output_signal=args.output_signal_name,
         include_dirs=args.verilator_include_dir,
         extra_args=args.verilator_extra_arg,
+        max_num_tests=args.max_num_tests,
     )
