@@ -17,7 +17,7 @@
 ;;;   the two sketches should be the same (e.g. they're both performing addition), then you can pass
 ;;;   this internal data to the second invocation of the sketch generator.
 
-#lang errortrace racket/base
+#lang racket/base
 
 (provide generate-sketch
          all-sketch-generators
