@@ -15,6 +15,7 @@
 // RUN:  --input-signal d:10 > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: python $LAKEROAD_DIR/bin/simulate_with_verilator.py \
+// RUN:  --max_num_tests=10000 \
 // RUN:  --test_module_filepath $outfile \
 // RUN:  --ground_truth_module_filepath %s \
 // RUN:  --clock_name clk \
