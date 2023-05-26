@@ -608,7 +608,7 @@
 (define (shift-sketch-generator architecture-description
                                 sketch-inputs
                                 #:internal-data [internal-data #f])
-  (when (not (equal? (sketch-inputs-output-width sketch-inputs) 2))
+  (when (not (equal? (length (sketch-inputs-data sketch-inputs)) 2))
     (error "Shift sketch should take 2 inputs."))
   (match-let*
       ([_ 0] ;;; Dummy line to prevent formatter from messing up my comments.
