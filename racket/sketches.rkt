@@ -353,13 +353,12 @@
 
        ;;; Construct a carry, which will effectively do the reduction operation for the comparison.
        [(list carry-expr carry-internal-data)
-        (construct-interface
-         architecture-description
-         (interface-identifier "carry" (hash "width" (sketch-inputs-output-width sketch-inputs)))
-         (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
-               (cons "DI" bitwise-sketch-0)
-               (cons "S" bitwise-sketch-1))
-         #:internal-data carry-internal-data)]
+        (construct-interface architecture-description
+                             (interface-identifier "carry" (hash "width" input-bitwidth))
+                             (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
+                                   (cons "DI" bitwise-sketch-0)
+                                   (cons "S" bitwise-sketch-1))
+                             #:internal-data carry-internal-data)]
 
        ;;; Return the carry out signal.
        [out-expr (lr:hash-ref carry-expr 'CO)])
