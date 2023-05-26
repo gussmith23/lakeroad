@@ -335,6 +335,14 @@
        [_ (when (sketch-inputs-rst sketch-inputs)
             (error "Bitwise sketches do not support resets."))]
 
+       ;;; Bitwidth of the data inputs. Check that they are all the same.
+       [input-bitwidth
+        (begin
+          (for ([bw (map cdr (sketch-inputs-data sketch-inputs))])
+            (unless (equal? bw (cdr (first (sketch-inputs-data sketch-inputs))))
+              (error "Comparison sketches require all inputs to have the same bitwidth.")))
+          (cdr (first (sketch-inputs-data sketch-inputs))))]
+
        ;;; Unpack the internal data.
        [bitwise-sketch-0-internal-data (if internal-data (first internal-data) #f)]
        [bitwise-sketch-1-internal-data (if internal-data (second internal-data) #f)]
@@ -400,7 +408,13 @@
                ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
                [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
                [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
-               [bitwidth (sketch-inputs-output-width sketch-inputs)]
+               ;;; Bitwidth of the data inputs. Check that they are all the same.
+               [bitwidth
+                (begin
+                  (for ([bw (map cdr (sketch-inputs-data sketch-inputs))])
+                    (unless (equal? bw (cdr (first (sketch-inputs-data sketch-inputs))))
+                      (error "Comparison sketches require all inputs to have the same bitwidth.")))
+                  (cdr (first (sketch-inputs-data sketch-inputs))))]
 
                ;;; Unpack the internal data.
                [(list first-row-internal-data lut-tree-internal-data)
