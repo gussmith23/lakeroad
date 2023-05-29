@@ -22,7 +22,6 @@
          "../racket/generated/intel-altmult-accum.rkt"
          rosette/solver/smt/boolector
          "../racket/signal.rkt"
-         racket/hash
          "../racket/btor.rkt"
          racket/sandbox)
 
