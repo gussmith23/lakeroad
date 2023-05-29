@@ -1,0 +1,182 @@
+RUN: racket $LAKEROAD_DIR/bin/main.rkt \
+RUN:  --instruction '(bvadd (var a 16) (var b 16))' \
+RUN:  --architecture xilinx-ultrascale-plus \
+RUN:  --template bitwise-with-carry \
+RUN:  --out-format verilog \
+RUN:  --top-module-name add16_2 \
+RUN:  --verilog-module-out-signal out:16 \
+RUN:  --module-name add16_2 \
+RUN:  --input-signal a:16 \
+RUN:  --input-signal b:16 \
+RUN: | FileCheck %s
+
+CHECK: module add16_2(a, b, out);
+CHECK:   wire [7:0] CO_16;
+CHECK:   wire [7:0] CO_18;
+CHECK:   wire O_0;
+CHECK:   wire O_1;
+CHECK:   wire O_10;
+CHECK:   wire O_11;
+CHECK:   wire O_12;
+CHECK:   wire O_13;
+CHECK:   wire O_14;
+CHECK:   wire O_15;
+CHECK:   wire [7:0] O_17;
+CHECK:   wire [7:0] O_19;
+CHECK:   wire O_2;
+CHECK:   wire O_3;
+CHECK:   wire O_4;
+CHECK:   wire O_5;
+CHECK:   wire O_6;
+CHECK:   wire O_7;
+CHECK:   wire O_8;
+CHECK:   wire O_9;
+CHECK:   input [15:0] a;
+CHECK:   wire [15:0] a;
+CHECK:   input [15:0] b;
+CHECK:   wire [15:0] b;
+CHECK:   output [15:0] out;
+CHECK:   wire [15:0] out;
+CHECK:   CARRY8 CARRY8_16 (
+CHECK:     .CI(1'h0),
+CHECK:     .CO(CO_16),
+CHECK:     .DI(a[7:0]),
+CHECK:     .O(out[7:0]),
+CHECK:     .S({ O_7, O_6, O_5, O_4, O_3, O_2, O_1, O_0 })
+CHECK:   );
+CHECK:   CARRY8 CARRY8_17 (
+CHECK:     .CI(CO_16[7]),
+CHECK:     .CO(CO_18),
+CHECK:     .DI(a[15:8]),
+CHECK:     .O(out[15:8]),
+CHECK:     .S({ O_15, O_14, O_13, O_12, O_11, O_10, O_9, O_8 })
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_0 (
+CHECK:     .I0(a[0]),
+CHECK:     .I1(b[0]),
+CHECK:     .O(O_0)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_1 (
+CHECK:     .I0(a[1]),
+CHECK:     .I1(b[1]),
+CHECK:     .O(O_1)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_10 (
+CHECK:     .I0(a[10]),
+CHECK:     .I1(b[10]),
+CHECK:     .O(O_10)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_11 (
+CHECK:     .I0(a[11]),
+CHECK:     .I1(b[11]),
+CHECK:     .O(O_11)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_12 (
+CHECK:     .I0(a[12]),
+CHECK:     .I1(b[12]),
+CHECK:     .O(O_12)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_13 (
+CHECK:     .I0(a[13]),
+CHECK:     .I1(b[13]),
+CHECK:     .O(O_13)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_14 (
+CHECK:     .I0(a[14]),
+CHECK:     .I1(b[14]),
+CHECK:     .O(O_14)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_15 (
+CHECK:     .I0(a[15]),
+CHECK:     .I1(b[15]),
+CHECK:     .O(O_15)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_2 (
+CHECK:     .I0(a[2]),
+CHECK:     .I1(b[2]),
+CHECK:     .O(O_2)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_3 (
+CHECK:     .I0(a[3]),
+CHECK:     .I1(b[3]),
+CHECK:     .O(O_3)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_4 (
+CHECK:     .I0(a[4]),
+CHECK:     .I1(b[4]),
+CHECK:     .O(O_4)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_5 (
+CHECK:     .I0(a[5]),
+CHECK:     .I1(b[5]),
+CHECK:     .O(O_5)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_6 (
+CHECK:     .I0(a[6]),
+CHECK:     .I1(b[6]),
+CHECK:     .O(O_6)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_7 (
+CHECK:     .I0(a[7]),
+CHECK:     .I1(b[7]),
+CHECK:     .O(O_7)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_8 (
+CHECK:     .I0(a[8]),
+CHECK:     .I1(b[8]),
+CHECK:     .O(O_8)
+CHECK:   );
+CHECK:   LUT2 #(
+CHECK:     .INIT(4'h6)
+CHECK:   ) LUT2_9 (
+CHECK:     .I0(a[9]),
+CHECK:     .I1(b[9]),
+CHECK:     .O(O_9)
+CHECK:   );
+CHECK:   assign O_17[7] = out[7];
+CHECK:   assign O_17[6] = out[6];
+CHECK:   assign O_17[5] = out[5];
+CHECK:   assign O_17[4] = out[4];
+CHECK:   assign O_17[3] = out[3];
+CHECK:   assign O_17[2] = out[2];
+CHECK:   assign O_17[1] = out[1];
+CHECK:   assign O_17[0] = out[0];
+CHECK:   assign O_19[7] = out[15];
+CHECK:   assign O_19[6] = out[14];
+CHECK:   assign O_19[5] = out[13];
+CHECK:   assign O_19[4] = out[12];
+CHECK:   assign O_19[3] = out[11];
+CHECK:   assign O_19[2] = out[10];
+CHECK:   assign O_19[1] = out[9];
+CHECK:   assign O_19[0] = out[8];
+CHECK: endmodule
