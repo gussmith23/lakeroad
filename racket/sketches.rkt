@@ -350,13 +350,15 @@
 
        ;;; Generate a bitwise sketch over the inputs. We do this twice, one per carry input (DI and
        ;;; S). It may be the case that these can share internal data, but I'm not sure.
+       [bitwise-sketch-inputs (make-sketch-inputs #:data (sketch-inputs-data sketch-inputs)
+                                                  #:output-width input-bitwidth)]
        [(list bitwise-sketch-0 bitwise-sketch-0-internal-data)
         (bitwise-sketch-generator architecture-description
-                                  sketch-inputs
+                                  bitwise-sketch-inputs
                                   #:internal-data bitwise-sketch-0-internal-data)]
        [(list bitwise-sketch-1 bitwise-sketch-1-internal-data)
         (bitwise-sketch-generator architecture-description
-                                  sketch-inputs
+                                  bitwise-sketch-inputs
                                   #:internal-data bitwise-sketch-1-internal-data)]
 
        ;;; Construct a carry, which will effectively do the reduction operation for the comparison.
