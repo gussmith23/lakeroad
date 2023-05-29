@@ -28,16 +28,15 @@
          shallow-comparison-sketch-generator
          multiplication-sketch-generator
          shift-sketch-generator
-         single-dsp-sketch-generator)
+         single-dsp-sketch-generator
+         make-sketch-inputs)
 
 (require "architecture-description.rkt"
          "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt")
          "signal.rkt"
          rosette
-         rosette/lib/angelic
          rosette/lib/synthax
-         racket/pretty
          "verilator.rkt"
          "utils.rkt")
 
@@ -49,12 +48,28 @@
         comparison-sketch-generator
         multiplication-sketch-generator))
 
+;;; A struct which captures all of the Lakeroad expression inputs and metadata used by sketch
+;;; generators.
+;;;
+;;; Note: it's useful to use `make-sketch-inputs` to construct these structs, rather
+;;; than the default constructor, especially when you don't have a clock or reset.
+;;;
+;;; - output-width: int: the bitwidth of the output. In the future, we'll likely want to support
+;;;     multiple outputs here.
+;;; - clk: (cons lr-expr int) or #f: the expr and bitwidth of the clock, if one exists.
+;;; - rst: (cons lr-expr int) or #f: the expr and bitwidth of the reset, if one exists.
+;;; - data: (listof (cons lr-expr int)): the exprs and bitwidths of the data inputs.
+(struct sketch-inputs (output-width clk rst data))
+(define (make-sketch-inputs #:output-width output-width #:data data #:clk [clk #f] #:rst [rst #f])
+  (sketch-inputs output-width clk rst data))
+
 ;;; Simple helper to generate an architecture-specific sketch for the given bitvector expression.
 (define (generate-sketch sketch-generator architecture-description bv-expr)
   (first (sketch-generator architecture-description
-                           (lr:list (map lr:bv (map bv->signal (symbolics bv-expr))))
-                           (length (symbolics bv-expr))
-                           (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr))))))
+                           (make-sketch-inputs
+                            #:data (map (lambda (symb) (cons (lr:bv (bv->signal symb)) (bvlen symb)))
+                                        (symbolics bv-expr))
+                            #:output-width (bvlen bv-expr)))))
 
 ;;; Generates a "bitwise" sketch, for operations like AND and OR.
 ;;;
@@ -62,18 +77,22 @@
 ;;; paired together and put into a LUT, bit 1 of i0 and bit 1 of i1 are paired together and put into a
 ;;; LUT, and so on. This simple pattern is able to implement many useful operations.
 ;;;
-;;; - logical-inputs: A Lakeroad list expression, representing a list of logical inputs. Each logical
-;;;   input should have the same bitwidth.
-;;; - num-logical-inputs: The number of logical inputs. This is used to determine the size of the LUTs
-;;;   to be used.
-;;; - bitwidth: The bitwidth of the inputs, which will also be the bitwidth of the output.
+;;; - sketch-inputs: a `sketch-inputs` struct describing the inputs to the sketch.
 (define (bitwise-sketch-generator architecture-description
-                                  logical-inputs
-                                  num-logical-inputs
-                                  bitwidth
+                                  sketch-inputs
                                   #:internal-data [internal-data #f])
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+
+       [_ (when (sketch-inputs-clk sketch-inputs)
+            (error "Bitwise sketches do not support clocks."))]
+       [_ (when (sketch-inputs-rst sketch-inputs)
+            (error "Bitwise sketches do not support resets."))]
+       ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs` instead.
+       ;;; Reconstruct the old `logical-inputs`, plus some other legacy inputs.
+       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+       [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
+       [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
        ;;; Unpack the internal data.
        [lut-internal-data (if internal-data (first internal-data) #f)]
@@ -147,11 +166,20 @@
 ;;; Try using _only_ a carry chain! Pass the first logical input to DI
 ;;; and the second logical input to S.
 (define (carry-sketch-generator architecture-description
-                                logical-inputs
-                                num-logical-inputs
-                                bitwidth
+                                sketch-inputs
                                 #:internal-data [internal-data #f])
   (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+
+               [_ (when (sketch-inputs-clk sketch-inputs)
+                    (error "Bitwise sketches do not support clocks."))]
+               [_ (when (sketch-inputs-rst sketch-inputs)
+                    (error "Bitwise sketches do not support resets."))]
+               ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
+               ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
+               [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+               [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
+               [bitwidth (sketch-inputs-output-width sketch-inputs)]
+
                [(list carry-expr internal-data)
                 (construct-interface architecture-description
                                      (interface-identifier "carry" (hash "width" bitwidth))
@@ -168,18 +196,22 @@
 ;;; (do we need to revisit this decision at the interface level?)
 ;;; and, do we need to assert that there are exactly two logical inputs?
 ;;;
-;;; The first 2 inputs are data inputs. The clock input is assumed to be the first of the inputs.
-;;;
-;;; clk-input: (list lr-expr int): the expr and bitwidth of the clock.
-;;; data-inputs: (listof (list lr-expr int)): the exprs and bitwidths of the data inputs.
+;;; - architecture-description: the architecture description of the architecture to generate the
+;;;     sketch for.
+;;; - inputs: a sketch-inputs struct.
 (define (single-dsp-sketch-generator architecture-description
-                                     #:out-width out-width
-                                     #:clk-input clk-input
-                                     #:data-inputs data-inputs
-                                     #:rst-input rst-input
+                                     inputs
                                      #:internal-data [internal-data #f])
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+       ;;; Unpack clk and rst signals; default to 0 if neither is set.
+       [clk-expr (if (sketch-inputs-clk inputs)
+                     (car (sketch-inputs-clk inputs))
+                     (lr:bv (bv->signal (bv 0 1))))]
+       [rst-expr (if (sketch-inputs-rst inputs)
+                     (car (sketch-inputs-rst inputs))
+                     (lr:bv (bv->signal (bv 0 1))))]
+
        [make-dsp-expr
         (lambda (internal-data out-width
                                clk-expr
@@ -208,7 +240,7 @@
        ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
        ;;; give C.
        [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw))
-        (match data-inputs
+        (match (sketch-inputs-data inputs)
           [(list a-tuple b-tuple c-tuple) (list a-tuple b-tuple c-tuple)]
           [(list a-tuple b-tuple)
            (list a-tuple b-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
@@ -216,9 +248,9 @@
        [out-expr
         (choose
          (make-dsp-expr internal-data
-                        out-width
-                        (car clk-input)
-                        (car rst-input)
+                        (sketch-inputs-output-width inputs)
+                        clk-expr
+                        rst-expr
                         a-expr
                         a-bw
                         b-expr
@@ -245,12 +277,20 @@
 ;;;
 ;;; Suitable for arithmetic operations like addition and subtraction.
 (define (bitwise-with-carry-sketch-generator architecture-description
-                                             logical-inputs
-                                             num-logical-inputs
-                                             bitwidth
+                                             sketch-inputs
                                              #:internal-data [internal-data #f])
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+
+       [_ (when (sketch-inputs-clk sketch-inputs)
+            (error "Bitwise sketches do not support clocks."))]
+       [_ (when (sketch-inputs-rst sketch-inputs)
+            (error "Bitwise sketches do not support resets."))]
+       ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs` instead.
+       ;;; Reconstruct the old `logical-inputs`, plus some other legacy inputs.
+       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+       [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
+       [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
        ;;; Unpack the internal data.
        [bitwise-sketch-internal-data (if internal-data (first internal-data) #f)]
@@ -259,9 +299,7 @@
        ;;; Generate a bitwise sketch over the inputs. We use this to generate the S signal.
        [(list bitwise-sketch bitwise-sketch-internal-data)
         (bitwise-sketch-generator architecture-description
-                                  logical-inputs
-                                  num-logical-inputs
-                                  bitwidth
+                                  sketch-inputs
                                   #:internal-data bitwise-sketch-internal-data)]
 
        ;;; Pass the results into a carry. We populate the DI signal with one of the logical inputs.
@@ -287,12 +325,23 @@
 ;;; Note that we can adjust these sketches so that they return hashmaps, so both outputs are
 ;;; accessible.
 (define (comparison-sketch-generator architecture-description
-                                     logical-inputs
-                                     num-logical-inputs
-                                     bitwidth
+                                     sketch-inputs
                                      #:internal-data [internal-data #f])
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+
+       [_ (when (sketch-inputs-clk sketch-inputs)
+            (error "Bitwise sketches do not support clocks."))]
+       [_ (when (sketch-inputs-rst sketch-inputs)
+            (error "Bitwise sketches do not support resets."))]
+
+       ;;; Bitwidth of the data inputs. Check that they are all the same.
+       [input-bitwidth
+        (begin
+          (for ([bw (map cdr (sketch-inputs-data sketch-inputs))])
+            (unless (equal? bw (cdr (first (sketch-inputs-data sketch-inputs))))
+              (error "Comparison sketches require all inputs to have the same bitwidth.")))
+          (cdr (first (sketch-inputs-data sketch-inputs))))]
 
        ;;; Unpack the internal data.
        [bitwise-sketch-0-internal-data (if internal-data (first internal-data) #f)]
@@ -301,23 +350,21 @@
 
        ;;; Generate a bitwise sketch over the inputs. We do this twice, one per carry input (DI and
        ;;; S). It may be the case that these can share internal data, but I'm not sure.
+       [bitwise-sketch-inputs (make-sketch-inputs #:data (sketch-inputs-data sketch-inputs)
+                                                  #:output-width input-bitwidth)]
        [(list bitwise-sketch-0 bitwise-sketch-0-internal-data)
         (bitwise-sketch-generator architecture-description
-                                  logical-inputs
-                                  num-logical-inputs
-                                  bitwidth
+                                  bitwise-sketch-inputs
                                   #:internal-data bitwise-sketch-0-internal-data)]
        [(list bitwise-sketch-1 bitwise-sketch-1-internal-data)
         (bitwise-sketch-generator architecture-description
-                                  logical-inputs
-                                  num-logical-inputs
-                                  bitwidth
+                                  bitwise-sketch-inputs
                                   #:internal-data bitwise-sketch-1-internal-data)]
 
        ;;; Construct a carry, which will effectively do the reduction operation for the comparison.
        [(list carry-expr carry-internal-data)
         (construct-interface architecture-description
-                             (interface-identifier "carry" (hash "width" bitwidth))
+                             (interface-identifier "carry" (hash "width" input-bitwidth))
                              (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
                                    (cons "DI" bitwise-sketch-0)
                                    (cons "S" bitwise-sketch-1))
@@ -338,9 +385,7 @@
 ;;; of LUTs, which then is passed into a third row of LUTs etc, until only a
 ;;; single LUT remains. This has log depth in the size of the the input
 (define (shallow-comparison-sketch-generator architecture-description
-                                             logical-inputs
-                                             num-logical-inputs
-                                             bitwidth
+                                             sketch-inputs
                                              #:internal-data [internal-data #f])
   ;; Recursive helper function that builds the 'tree' portion of our circuit
   ;; (not including the top row)
@@ -356,6 +401,23 @@
          (helper outputs shared-internal-data))]))
 
   (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+
+               [_ (when (sketch-inputs-clk sketch-inputs)
+                    (error "Bitwise sketches do not support clocks."))]
+               [_ (when (sketch-inputs-rst sketch-inputs)
+                    (error "Bitwise sketches do not support resets."))]
+               ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
+               ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
+               [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+               [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
+               ;;; Bitwidth of the data inputs. Check that they are all the same.
+               [bitwidth
+                (begin
+                  (for ([bw (map cdr (sketch-inputs-data sketch-inputs))])
+                    (unless (equal? bw (cdr (first (sketch-inputs-data sketch-inputs))))
+                      (error "Comparison sketches require all inputs to have the same bitwidth.")))
+                  (cdr (first (sketch-inputs-data sketch-inputs))))]
+
                ;;; Unpack the internal data.
                [(list first-row-internal-data lut-tree-internal-data)
                 (if internal-data internal-data (list #f #f))]
@@ -391,9 +453,7 @@
 ;;;
 ;;; NOTE: This is currently not functioning properly and is not exported
 (define (double-shallow-comparison-sketch-generator architecture-description
-                                                    logical-inputs
-                                                    num-logical-inputs
-                                                    bitwidth
+                                                    sketch-inputs
                                                     #:internal-data [internal-data #f])
   ;; Recursive helper function that builds the 'tree' portion of our circuit
   ;; (not including the top row)
@@ -409,6 +469,17 @@
          (helper outputs shared-internal-data))]))
 
   (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up my comment structure.
+
+               [_ (when (sketch-inputs-clk sketch-inputs)
+                    (error "Bitwise sketches do not support clocks."))]
+               [_ (when (sketch-inputs-rst sketch-inputs)
+                    (error "Bitwise sketches do not support resets."))]
+               ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
+               ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
+               [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+               [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
+               [bitwidth (sketch-inputs-output-width sketch-inputs)]
+
                ;;; Unpack the internal data.
                [(list first-row-a-internal-data first-row-b-internal-data lut-tree-internal-data)
                 (if internal-data internal-data (list #f #f #f))]
@@ -465,12 +536,20 @@
 ;;; bitwidth as the inputs. I don't think this will work for "correct" multiplication, where the
 ;;; result is twice the bitwidth of the inputs.
 (define (multiplication-sketch-generator architecture-description
-                                         logical-inputs
-                                         num-logical-inputs
-                                         bitwidth
+                                         sketch-inputs
                                          #:internal-data [internal-data #f])
   (match-let*
       ([_ 0] ;;; Dummy line to prevent formatter from messing up my comments.
+
+       [_ (when (sketch-inputs-clk sketch-inputs)
+            (error "Bitwise sketches do not support clocks."))]
+       [_ (when (sketch-inputs-rst sketch-inputs)
+            (error "Bitwise sketches do not support resets."))]
+       ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
+       ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
+       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+       [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
+       [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
        ;;; Unpack the internal data.
        [and-lut-internal-data (if internal-data (first internal-data) #f)]
@@ -519,19 +598,22 @@
        ;;; Generate the internal data that will be shared across all of the sketches used to compute
        ;;; the additions.
        [(list _ bitwise-with-carry-internal-data)
-        (bitwise-with-carry-sketch-generator architecture-description
-                                             'unused
-                                             2
-                                             bitwidth
-                                             #:internal-data bitwise-with-carry-internal-data)]
+        (bitwise-with-carry-sketch-generator
+         architecture-description
+         ;;; TODO(@gussmith23): Resolve this hack. We are just calling the sketch generator to get the
+         ;;; internal data, so we don't actually need to provide valid inputs, but we do need to
+         ;;; indicate that there are two inputs.
+         (make-sketch-inputs #:data (list (cons 'unused 'unused) (cons 'unused 'unused))
+                             #:output-width bitwidth)
+         #:internal-data bitwise-with-carry-internal-data)]
 
        ;;; TODO(@gussmith23): support more than 2 inputs on bitwise/bitwise-with-carry.
        [fold-fn (lambda (next-to-add-expr acc-expr)
                   (first (bitwise-with-carry-sketch-generator
                           architecture-description
-                          (lr:list (list next-to-add-expr acc-expr))
-                          2
-                          bitwidth
+                          (make-sketch-inputs #:data (list (cons next-to-add-expr bitwidth)
+                                                           (cons acc-expr bitwidth))
+                                              #:output-width bitwidth)
                           #:internal-data bitwise-with-carry-internal-data)))]
 
        [out-expr (foldl fold-fn (lr:bv (bv->signal (bv 0 bitwidth))) to-be-added-exprs)])
@@ -539,14 +621,22 @@
     (list out-expr (list and-lut-internal-data bitwise-with-carry-internal-data))))
 
 (define (shift-sketch-generator architecture-description
-                                logical-inputs
-                                num-logical-inputs
-                                bitwidth
+                                sketch-inputs
                                 #:internal-data [internal-data #f])
-  (when (not (equal? num-logical-inputs 2))
+  (when (not (equal? (length (sketch-inputs-data sketch-inputs)) 2))
     (error "Shift sketch should take 2 inputs."))
   (match-let*
       ([_ 0] ;;; Dummy line to prevent formatter from messing up my comments.
+
+       [_ (when (sketch-inputs-clk sketch-inputs)
+            (error "Bitwise sketches do not support clocks."))]
+       [_ (when (sketch-inputs-rst sketch-inputs)
+            (error "Bitwise sketches do not support resets."))]
+       ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
+       ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
+       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+       [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
+       [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
        ;;; a is the value we're shifting, b is the value we're shifting it by.
        [a-expr (lr:list-ref logical-inputs (lr:integer 0))]
@@ -728,14 +818,7 @@
    ;;; TODO(@gussmith23): Resolve this hack. Make sketch generators have the same signature.
    ;;;
    ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
-   #:sketch-generator
-   (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-     (single-dsp-sketch-generator architecture-description
-                                  #:out-width bitwidth
-                                  #:clk-input (cons (lr:bv (bv->signal (bv 1 1))) 1)
-                                  #:data-inputs (list (cons (lr:bv (bv->signal a)) 16)
-                                                      (cons (lr:bv (bv->signal b)) 16))
-                                  #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)))
+   #:sketch-generator single-dsp-sketch-generator
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
@@ -749,14 +832,7 @@
    #:bv-expr (bvand (bvmul a b) (bvmul a b))
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
-   #:sketch-generator
-   (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-     (single-dsp-sketch-generator architecture-description
-                                  #:out-width bitwidth
-                                  #:clk-input (cons (lr:bv (bv->signal (bv 1 1))) 1)
-                                  #:data-inputs (list (cons (lr:bv (bv->signal a)) 16)
-                                                      (cons (lr:bv (bv->signal b)) 16))
-                                  #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)))
+   #:sketch-generator single-dsp-sketch-generator
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
