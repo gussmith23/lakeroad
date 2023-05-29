@@ -22,7 +22,6 @@
          "../racket/generated/intel-altmult-accum.rkt"
          rosette/solver/smt/boolector
          "../racket/signal.rkt"
-         racket/hash
          "../racket/btor.rkt"
          racket/sandbox)
 
@@ -56,7 +55,7 @@
 (define top-module-name (make-parameter #f))
 (define verilog-module-out-signal (make-parameter #f))
 (define verilog-module-out-bitwidth (make-parameter #f))
-(define initiation-interval (make-parameter #f))
+(define initiation-interval (make-parameter 0))
 (define clock-name (make-parameter #f))
 (define reset-name (make-parameter #f))
 ;;; inputs is an association list mapping input name to an integer bitwidth.
@@ -197,7 +196,7 @@
      (define f (eval (first (btor->racket btor)) ns))
      ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
      ;;; path expects a bvexpr, which we can get by just calling the function.
-     (if (and (not (equal? #f (initiation-interval))) (> (initiation-interval) 0))
+     (if (> (initiation-interval) 0)
          f
          (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal)))))]))
 
@@ -208,6 +207,13 @@
     bv-expr)))
 (when (not (or (bv? bv-expr) (procedure? bv-expr)))
   (error (format "Expected a bitvector expression or procedure but found ~a" bv-expr)))
+
+(define output-bitwidth
+  (cond
+    [(verilog-module-out-bitwidth) (verilog-module-out-bitwidth)]
+    [(bv? bv-expr) (bvlen bv-expr)]
+    [else (error "Something's wrong!")]))
+
 (define sketch-generator
   (match (template)
     ["dsp" single-dsp-sketch-generator]
@@ -287,53 +293,18 @@
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
 
+(define sketch-inputs
+  (make-sketch-inputs #:output-width output-bitwidth
+                      #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
+                      #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
+                      #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
+(define sketch (first (sketch-generator architecture-description sketch-inputs)))
+
+;;; Either a valid LR expression or #f.
 (define lakeroad-expr
   (cond
-    [(and (equal? (initiation-interval) 0) (equal? (template) "dsp"))
+    [(> (initiation-interval) 0)
      (let* ([_ "this line prevents autoformatter from messing up comments"]
-            ;;; This whole section is a hack!
-
-            ;;; TODO(@gussmith) Ignoring --inputs, this will not work for things other than mult.
-            [input-symbolic-constants (symbolics bv-expr)]
-            [_ (when (not (equal? 2 (length input-symbolic-constants)))
-                 (error "Expected exactly two symbolic constants."))]
-            [data-inputs (map (λ (v) (cons (lr:bv (bv->signal v)) (bvlen v)))
-                              input-symbolic-constants)]
-
-            [_ (when (not (verilog-module-out-bitwidth))
-                 (error "Verilog module out bitwidth not specified."))]
-            [sketch (first (sketch-generator architecture-description
-                                             (make-sketch-inputs
-                                              #:output-width (verilog-module-out-bitwidth)
-                                              #:clk (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                                              #:rst (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                                              #:data data-inputs)))])
-
-       (call-with-limits (timeout)
-                         #f
-                         (thunk (rosette-synthesize bv-expr
-                                                    sketch
-                                                    input-symbolic-constants
-                                                    #:module-semantics module-semantics))))]
-    [(initiation-interval)
-     ;;; If initiation interval is set (and is > 0), then we do sequential synthesis.
-     (let* ([_ "this line prevents autoformatter from messing up comments"]
-
-            [_ (when (not (clock-name))
-                 (error "Clock name not specified."))]
-
-            [rst-input (if (reset-name)
-                           (cons (lr:var (reset-name) 1) 1)
-                           (cons (lr:bv (bv->signal (bv 0 1))) 1))]
-
-            ;;; Sketch generators should take richer input than just a list of logical inputs and a
-            ;;; bitwidth. That interface is starting to be too weak.
-            ;;; For example, it's currently implicitly expected that the clock is the first list
-            ;;; item.
-
-            ;;; Generate the inputs to sketch: a lr:var for each input signal.
-            [data-inputs (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))]
-            [clk-input (cons (lr:var (clock-name) 1) 1)]
 
             ;;; Generate the input values: an association list mapping name to value, where the value
             ;;; is a signal whose value is a symbolic bitvector.
@@ -353,17 +324,6 @@
                                (inputs))]
 
             [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
-
-            ;;; TODO(@gussmith23): This will actually only work with the DSP sketch generator(s).
-            ;;; Should be fixed.
-            [_ (when (not (verilog-module-out-bitwidth))
-                 (error "Verilog module out bitwidth not specified."))]
-            [sketch (first (sketch-generator architecture-description
-                                             (make-sketch-inputs
-                                              #:output-width (verilog-module-out-bitwidth)
-                                              #:clk clk-input
-                                              #:rst rst-input
-                                              #:data data-inputs)))]
 
             ;;; Environments for sequential synthesis. Each environment represents one set of input
             ;;; states. For each set of input states, we run the interpreter with the given inputs,
