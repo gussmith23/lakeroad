@@ -43,6 +43,7 @@
                   (lambda (v)
                     (match v
                       [(or "verilog") v]
+                      [(or "yosys-techmap") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
 (define instruction (make-parameter #f identity))
 (define module-name (make-parameter #f identity))
@@ -64,7 +65,12 @@
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
- ["--out-format" fmt "Output format. Supported: 'verilog'" (out-format fmt)]
+ ["--out-format"
+  fmt
+  "Output format. Supported: 'verilog' for outputting to raw Verilog,"
+  " 'yosys-techmap' to output to Yosys's techmapping pattern format described here:"
+  " https://github.com/YosysHQ/yosys/blob/c2285b3460083afbd8f2dd21d81d7f726e8c93d2/passes/techmap/techmap.cc#L1129"
+  (out-format fmt)]
  ["--json-filepath"
   v
   "JSON file to output to. JSON is our intermediate representation. Defaults to a temporary file; set"
@@ -391,11 +397,12 @@
    (define json-source
      (lakeroad->jsexpr lakeroad-expr
                        #:module-name (module-name)
-                       #:output-signal-name (verilog-module-out-signal)))
+                       #:output-signal-name (verilog-module-out-signal)
+                       #:yosys-techmap-format (equal? (out-format) "yosys-techmap")))
    (display-to-file (jsexpr->string json-source) (json-filepath) #:exists 'replace)
 
    (match (out-format)
-     ["verilog"
+     [(or "verilog" "yosys-techmap")
       (display (with-output-to-string
                 (lambda ()
                   (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
