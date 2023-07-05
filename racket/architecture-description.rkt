@@ -149,10 +149,13 @@
 ;;;   Verilog simulation.)
 ;;; - racket-import-filepath: Filepath of the Verilog file modified for Racket importing. Ideally, the
 ;;;   Racket importer would be good enough to not need this, but there are still untested edge cases.
+;;; - instance-name: String or #f, giving an optional name for this instance. Currently, instance
+;;;   names are needed when one module instance references the output of another module instance.
 ;;;
 ;;; TODO(@gussmith23): module-instance is a bad name for this. Too similar to lr:hw-module-instance,
 ;;; which is completely different.
-(struct module-instance (module-name ports params filepath racket-import-filepath) #:transparent)
+(struct module-instance (module-name ports params filepath racket-import-filepath instance-name)
+  #:transparent)
 
 ;;; - identifier: an interface-identifier, e.g., (interface-identifier "LUT" (hash "num_inputs" 2))
 ;;; - module-instance: Module, representing how this interface is implemented. For now, we only
@@ -1130,7 +1133,9 @@
     ;;; racket-import-filepath is optional, defaults to filepath if not specified.
     (define racket-import-filepath
       (or (hash-ref module-instance-yaml "racket_import_filepath" #f) filepath))
-    (module-instance module-name ports parameters filepath racket-import-filepath))
+    ;;; instance-name is optional, defaults to #f.
+    (define instance-name (hash-ref module-instance-yaml "instance_name" #f))
+    (module-instance module-name ports parameters filepath racket-import-filepath instance-name))
 
   ;;; Parse list of modules.
   (define (parse-modules modules-yaml interface-definition)
@@ -1230,7 +1235,8 @@
                                          (module-instance-port "O" "O" 'output 1))
                                    (list (module-instance-parameter "INIT" "INIT"))
                                    "../verilator_xilinx/LUT2.v"
-                                   "../verilator_xilinx/LUT2.v")
+                                   "../verilator_xilinx/LUT2.v"
+                                   #f)
                   (hash-table ("INIT" 4))
                   (hash-table ("O" "O"))
                   (list))
@@ -1246,7 +1252,8 @@
                                          (module-instance-port "O" "O" 'output 1))
                                    (list (module-instance-parameter "INIT" "INIT"))
                                    "../verilator_xilinx/LUT6.v"
-                                   "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v")
+                                   "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v"
+                                   #f)
                   (hash-table ("INIT" 64))
                   (hash-table ("O" "O"))
                   (list))
@@ -1260,7 +1267,8 @@
                                          (module-instance-port "O" "O" 'output 8))
                                    (list)
                                    "../verilator_xilinx/CARRY8.v"
-                                   "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v")
+                                   "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v"
+                                   #f)
                   (hash-table)
                   (hash-table ("CO" "(bit 7 CO)") ("O" "O"))
                   (list))
@@ -1309,7 +1317,8 @@
                                     (module-instance-port "Z" "O" 'output 1))
                               (list (module-instance-parameter "init" "init"))
                               "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
-                              "../modules_for_importing/lattice_ecp5/LUT4.v")
+                              "../modules_for_importing/lattice_ecp5/LUT4.v"
+                              #f)
              (hash-table ("init" 16))
              (hash-table ("O" "Z"))
              (list))
@@ -1322,7 +1331,8 @@
             ;;;                         (module-instance-port "Z" "O" 'output 1))
             ;;;                   (list)
             ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
-            ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v")
+            ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
+            ;;;                   #f)
             ;;;  (hash)
             ;;;  (hash "O" "Z"))
             (interface-implementation
@@ -1345,7 +1355,8 @@
                                     (module-instance-parameter "INJECT1_0" "(bv 0 1)")
                                     (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
                               "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
-                              "../modules_for_importing/lattice_ecp5/CCU2C.v")
+                              "../modules_for_importing/lattice_ecp5/CCU2C.v"
+                              #f)
              (hash-table ("INIT0" 16) ("INIT1" 16))
              (hash-table ("CO" "COUT") ("O" "(concat S1 S0)"))
              (list))
@@ -1353,7 +1364,7 @@
              (interface-identifier
               "DSP"
               (hash-table ("out-width" 36) ("a-width" 18) ("b-width" 18) ("c-width" 18)))
-             (module-instance "MULT18X18D" ports params path path)
+             (module-instance "MULT18X18D" ports params path path #f)
              internal-data
              (hash-table
               ("O"
