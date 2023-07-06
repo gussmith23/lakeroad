@@ -397,4 +397,9 @@ implementations:
             { name: REG_PIPELINE_RST, value: REG_PIPELINE_RST },
             { name: REG_OUTPUT_RST, value: REG_OUTPUT_RST },
          ]
+      - module_name: ALU54B
+        filepath: ../lakeroad-private/lattice_ecp5/ALU54B.v
+        racket_import_filepath: ../lakeroad-private/lattice_ecp5/ALU54B.v
+        ports: []
+        parameters: []
     outputs: { O : (concat P35 P34 P33 P32 P31 P30 P29 P28 P27 P26 P25 P24 P23 P22 P21 P20 P19 P18 P17 P16 P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0) }
