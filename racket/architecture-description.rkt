@@ -341,59 +341,35 @@
 ;;; ks, which maps old keys to new keys.
 (struct lr:hash-remap-keys (h ks) #:transparent)
 
-;;; Internal implementation of construct-interface, which fails if the interface is not found.
-;;; External users should use construct-interface.
+;;; Parse an expression in our small architecture description DSL.
 ;;;
-;;; - port-map: Maps string port identifiers to expressions.
-;;; - internal-data: Internal state constructed using construct-internal-data.
+;;; This DSL is used within the YAML architecture description. It mimics Lakeroad syntax and semantics
+;;; in a simplified form.
 ;;;
-;;; Returns a Lakeroad expression representing the result of the interface, and the internal data
-;;; constructed while generating the interface.
+;;; - lookup-symbol: a function which takes a symbol and maps it to an expression. This allows
+;;;   parse-dsl to be used in various ways, where you might want to use a different function to look
+;;;   up a symbol.
+(define (parse-dsl expr-str lookup-symbol)
+  (define expr (read (open-input-string expr-str)))
+  (define (recursive-helper expr)
+    (match expr
+      [`(choose ,exprs ...) (apply choose* (map recursive-helper exprs))]
+      [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
+      [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
+      [`(bitvector ,val) (lr:bitvector (bitvector val))]
+      [`(zero-extend ,val ,bv) (lr:zero-extend (recursive-helper val) (recursive-helper bv))]
+      [`(bit ,i ,expr) (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
+      [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
+      [(? symbol? s) (lookup-symbol s)]))
+  (recursive-helper expr))
+
+;;; Construct a Lakeroad expression (lr:hw-module-instance) for a module.
 ;;;
-;;; (list lr:hash internal-data)
-(define (construct-interface-internal architecture-description
-                                      interface-id
-                                      port-map
-                                      #:internal-data [internal-data #f])
-
-  (let* ([internal-data (if (not internal-data)
-                            (construct-internal-data architecture-description interface-id)
-                            internal-data)]
-         [interface-implementation
-          (or (find-interface-implementation architecture-description interface-id)
-              (error "No implementation for interface "
-                     interface-id
-                     " on architecture "
-                     architecture-description))]
-         [module-instance
-          (begin
-            (when (> (length (interface-implementation-module-instances interface-implementation)) 1)
-              (error "Interface implementation has more than one module instance"))
-            (first (interface-implementation-module-instances interface-implementation)))]
-         [name (module-instance-module-name module-instance)]
-         [interface-definition (or (find-interface-definition interface-id)
-                                   (error "Interface definition not found"))]
-
-         ;;; Parse an expression in our small DSL.
-         ;;;
-         ;;; - lookup-symbol: a function which takes a symbol and maps it to an expression.
-         [parse-dsl (λ (expr-str lookup-symbol)
-                      (define expr (read (open-input-string expr-str)))
-                      (define (recursive-helper expr)
-                        (match expr
-                          [`(choose ,exprs ...) (apply choose* (map recursive-helper exprs))]
-                          [`(extract ,i ,j ,expr)
-                           (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
-                          [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
-                          [`(bitvector ,val) (lr:bitvector (bitvector val))]
-                          [`(zero-extend ,val ,bv)
-                           (lr:zero-extend (recursive-helper val) (recursive-helper bv))]
-                          [`(bit ,i ,expr)
-                           (lr:extract (lr:integer i) (lr:integer i) (recursive-helper expr))]
-                          [`(concat ,v ...) (lr:concat (lr:list (map recursive-helper v)))]
-                          [(? symbol? s) (lookup-symbol s)]))
-                      (recursive-helper expr))]
-
+;;; - module-instance: a `module-instance` describing the module to be constructed.
+;;; - internal-data: the internal data; used when looking up values for ports and parameters.
+;;; - port-map: used when looking up values for ports.
+(define (construct-module module-instance internal-data port-map)
+  (let* ([name (module-instance-module-name module-instance)]
          ;;; Construct the list of new ports, by mapping in the values provided in the port-map for
          ;;; the inputs and leaving the outputs alone.
          [ports
@@ -434,7 +410,43 @@
 
          ;;; Start building the expression. First, we put in an expression representing the hardware
          ;;; module.
-         [expr (lr:hw-module-instance name ports parameters filepath)]
+         [expr (lr:hw-module-instance name ports parameters filepath)])
+    expr))
+
+;;; Internal implementation of construct-interface, which fails if the interface is not found.
+;;; External users should use construct-interface.
+;;;
+;;; - port-map: Maps string port identifiers to expressions.
+;;; - internal-data: Internal state constructed using construct-internal-data.
+;;;
+;;; Returns a Lakeroad expression representing the result of the interface, and the internal data
+;;; constructed while generating the interface.
+;;;
+;;; (list lr:hash internal-data)
+(define (construct-interface-internal architecture-description
+                                      interface-id
+                                      port-map
+                                      #:internal-data [internal-data #f])
+
+  (let* ([internal-data (if (not internal-data)
+                            (construct-internal-data architecture-description interface-id)
+                            internal-data)]
+         [interface-implementation
+          (or (find-interface-implementation architecture-description interface-id)
+              (error "No implementation for interface "
+                     interface-id
+                     " on architecture "
+                     architecture-description))]
+         [module-instance
+          (begin
+            (when (> (length (interface-implementation-module-instances interface-implementation)) 1)
+              (error "Interface implementation has more than one module instance"))
+            (first (interface-implementation-module-instances interface-implementation)))]
+         [interface-definition (or (find-interface-definition interface-id)
+                                   (error "Interface definition not found"))]
+
+         [expr (construct-module module-instance internal-data port-map)]
+
          ;;; Next, we remap the keys to the keys expected by the interface.
          [expr (lr:make-immutable-hash
                 (lr:list (for/list ([p (hash->list (interface-implementation-output-map
