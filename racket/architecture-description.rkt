@@ -158,15 +158,13 @@
   #:transparent)
 
 ;;; - identifier: an interface-identifier, e.g., (interface-identifier "LUT" (hash "num_inputs" 2))
-;;; - module-instance: Module, representing how this interface is implemented. For now, we only
-;;;   support a single module, but we should figure out how to support multiple. We can likely just
-;;;   make this an association list of string module names to module instances.
+;;; - module-instances: list of `module-instance`s, representing how this interface is implemented.
 ;;; - internal-data: List of internal state variable defintions. Each internal state variable
 ;;;   definition is a immutable hash, mapping a string variable name to an integer representing the
 ;;;   bitwidth of that variable.
 ;;; - output-map: hash map mapping interface outputs to expressions.
 ;;; - constraints: list of Rosette functions as strings serving as the argument to an (assert).
-(struct interface-implementation (identifier module-instance internal-data output-map constraints)
+(struct interface-implementation (identifier module-instances internal-data output-map constraints)
   #:transparent)
 
 ;;; Architecture description.
@@ -367,7 +365,11 @@
                      interface-id
                      " on architecture "
                      architecture-description))]
-         [module-instance (interface-implementation-module-instance interface-implementation)]
+         [module-instance
+          (begin
+            (when (> (length (interface-implementation-module-instances interface-implementation)) 1)
+              (error "Interface implementation has more than one module instance"))
+            (first (interface-implementation-module-instances interface-implementation)))]
          [name (module-instance-module-name module-instance)]
          [interface-definition (or (find-interface-definition interface-id)
                                    (error "Interface definition not found"))]
@@ -1158,16 +1160,13 @@
       (parse-modules (or (hash-ref impl-yaml "modules" #f) (error "modules not found"))
                      interface-definition))
 
-    (when (not (equal? (length modules) 1))
-      (error "Only one implementing module is currently supported."))
-
     (define output-map (or (hash-ref impl-yaml "outputs" #f) (error "outputs not found")))
 
     (define constraints (hash-ref impl-yaml "constraints" (list)))
 
     (interface-implementation
      interface-identifier
-     (first modules)
+     modules
      (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))
      (convert-to-immutable output-map)
      constraints))
@@ -1229,46 +1228,46 @@
          [(architecture-description
            (list (interface-implementation
                   (interface-identifier "LUT" (hash-table ("num_inputs" 2)))
-                  (module-instance "LUT2"
-                                   (list (module-instance-port "I0" "I0" 'input 1)
-                                         (module-instance-port "I1" "I1" 'input 1)
-                                         (module-instance-port "O" "O" 'output 1))
-                                   (list (module-instance-parameter "INIT" "INIT"))
-                                   "../verilator_xilinx/LUT2.v"
-                                   "../verilator_xilinx/LUT2.v"
-                                   #f)
+                  (list (module-instance "LUT2"
+                                         (list (module-instance-port "I0" "I0" 'input 1)
+                                               (module-instance-port "I1" "I1" 'input 1)
+                                               (module-instance-port "O" "O" 'output 1))
+                                         (list (module-instance-parameter "INIT" "INIT"))
+                                         "../verilator_xilinx/LUT2.v"
+                                         "../verilator_xilinx/LUT2.v"
+                                         #f))
                   (hash-table ("INIT" 4))
                   (hash-table ("O" "O"))
                   (list))
                  (interface-implementation
                   (interface-identifier "LUT" (hash-table ("num_inputs" 6)))
-                  (module-instance "LUT6"
-                                   (list (module-instance-port "I0" "I0" 'input 1)
-                                         (module-instance-port "I1" "I1" 'input 1)
-                                         (module-instance-port "I2" "I2" 'input 1)
-                                         (module-instance-port "I3" "I3" 'input 1)
-                                         (module-instance-port "I4" "I4" 'input 1)
-                                         (module-instance-port "I5" "I5" 'input 1)
-                                         (module-instance-port "O" "O" 'output 1))
-                                   (list (module-instance-parameter "INIT" "INIT"))
-                                   "../verilator_xilinx/LUT6.v"
-                                   "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v"
-                                   #f)
+                  (list (module-instance "LUT6"
+                                         (list (module-instance-port "I0" "I0" 'input 1)
+                                               (module-instance-port "I1" "I1" 'input 1)
+                                               (module-instance-port "I2" "I2" 'input 1)
+                                               (module-instance-port "I3" "I3" 'input 1)
+                                               (module-instance-port "I4" "I4" 'input 1)
+                                               (module-instance-port "I5" "I5" 'input 1)
+                                               (module-instance-port "O" "O" 'output 1))
+                                         (list (module-instance-parameter "INIT" "INIT"))
+                                         "../verilator_xilinx/LUT6.v"
+                                         "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v"
+                                         #f))
                   (hash-table ("INIT" 64))
                   (hash-table ("O" "O"))
                   (list))
                  (interface-implementation
                   (interface-identifier "carry" (hash-table ("width" 8)))
-                  (module-instance "CARRY8"
-                                   (list (module-instance-port "CI" "CI" 'input 1)
-                                         (module-instance-port "DI" "DI" 'input 8)
-                                         (module-instance-port "S" "S" 'input 8)
-                                         (module-instance-port "CO" "CO" 'output 8)
-                                         (module-instance-port "O" "O" 'output 8))
-                                   (list)
-                                   "../verilator_xilinx/CARRY8.v"
-                                   "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v"
-                                   #f)
+                  (list (module-instance "CARRY8"
+                                         (list (module-instance-port "CI" "CI" 'input 1)
+                                               (module-instance-port "DI" "DI" 'input 8)
+                                               (module-instance-port "S" "S" 'input 8)
+                                               (module-instance-port "CO" "CO" 'output 8)
+                                               (module-instance-port "O" "O" 'output 8))
+                                         (list)
+                                         "../verilator_xilinx/CARRY8.v"
+                                         "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v"
+                                         #f))
                   (hash-table)
                   (hash-table ("CO" "(bit 7 CO)") ("O" "O"))
                   (list))
@@ -1276,7 +1275,7 @@
                   (interface-identifier
                    "DSP"
                    (hash-table ("out-width" 48) ("a-width" 30) ("b-width" 18) ("c-width" 48)))
-                  module-instance
+                  module-instances
                   internal-data
                   (hash-table ("O" "P"))
                   constraints)))
@@ -1309,16 +1308,16 @@
            (list
             (interface-implementation
              (interface-identifier "LUT" (hash-table ("num_inputs" 4)))
-             (module-instance "LUT4"
-                              (list (module-instance-port "A" "I0" 'input 1)
-                                    (module-instance-port "B" "I1" 'input 1)
-                                    (module-instance-port "C" "I2" 'input 1)
-                                    (module-instance-port "D" "I3" 'input 1)
-                                    (module-instance-port "Z" "O" 'output 1))
-                              (list (module-instance-parameter "init" "init"))
-                              "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
-                              "../modules_for_importing/lattice_ecp5/LUT4.v"
-                              #f)
+             (list (module-instance "LUT4"
+                                    (list (module-instance-port "A" "I0" 'input 1)
+                                          (module-instance-port "B" "I1" 'input 1)
+                                          (module-instance-port "C" "I2" 'input 1)
+                                          (module-instance-port "D" "I3" 'input 1)
+                                          (module-instance-port "Z" "O" 'output 1))
+                                    (list (module-instance-parameter "init" "init"))
+                                    "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
+                                    "../modules_for_importing/lattice_ecp5/LUT4.v"
+                                    #f))
              (hash-table ("init" 16))
              (hash-table ("O" "Z"))
              (list))
@@ -1337,26 +1336,26 @@
             ;;;  (hash "O" "Z"))
             (interface-implementation
              (interface-identifier "carry" (hash-table ("width" 2)))
-             (module-instance "CCU2C"
-                              (list (module-instance-port "CIN" "CI" 'input 1)
-                                    (module-instance-port "A0" "(bit 0 DI)" 'input 1)
-                                    (module-instance-port "A1" "(bit 1 DI)" 'input 1)
-                                    (module-instance-port "B0" "(bit 0 S)" 'input 1)
-                                    (module-instance-port "B1" "(bit 1 S)" 'input 1)
-                                    (module-instance-port "C0" "(bv 1 1)" 'input 1)
-                                    (module-instance-port "C1" "(bv 1 1)" 'input 1)
-                                    (module-instance-port "D0" "(bv 1 1)" 'input 1)
-                                    (module-instance-port "D1" "(bv 1 1)" 'input 1)
-                                    (module-instance-port "S0" "unused" 'output 1)
-                                    (module-instance-port "S1" "unused" 'output 1)
-                                    (module-instance-port "COUT" "unused" 'output 1))
-                              (list (module-instance-parameter "INIT0" "INIT0")
-                                    (module-instance-parameter "INIT1" "INIT1")
-                                    (module-instance-parameter "INJECT1_0" "(bv 0 1)")
-                                    (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
-                              "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
-                              "../modules_for_importing/lattice_ecp5/CCU2C.v"
-                              #f)
+             (list (module-instance "CCU2C"
+                                    (list (module-instance-port "CIN" "CI" 'input 1)
+                                          (module-instance-port "A0" "(bit 0 DI)" 'input 1)
+                                          (module-instance-port "A1" "(bit 1 DI)" 'input 1)
+                                          (module-instance-port "B0" "(bit 0 S)" 'input 1)
+                                          (module-instance-port "B1" "(bit 1 S)" 'input 1)
+                                          (module-instance-port "C0" "(bv 1 1)" 'input 1)
+                                          (module-instance-port "C1" "(bv 1 1)" 'input 1)
+                                          (module-instance-port "D0" "(bv 1 1)" 'input 1)
+                                          (module-instance-port "D1" "(bv 1 1)" 'input 1)
+                                          (module-instance-port "S0" "unused" 'output 1)
+                                          (module-instance-port "S1" "unused" 'output 1)
+                                          (module-instance-port "COUT" "unused" 'output 1))
+                                    (list (module-instance-parameter "INIT0" "INIT0")
+                                          (module-instance-parameter "INIT1" "INIT1")
+                                          (module-instance-parameter "INJECT1_0" "(bv 0 1)")
+                                          (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
+                                    "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
+                                    "../modules_for_importing/lattice_ecp5/CCU2C.v"
+                                    #f))
              (hash-table ("INIT0" 16) ("INIT1" 16))
              (hash-table ("CO" "COUT") ("O" "(concat S1 S0)"))
              (list))
@@ -1364,7 +1363,8 @@
              (interface-identifier
               "DSP"
               (hash-table ("out-width" 36) ("a-width" 18) ("b-width" 18) ("c-width" 18)))
-             (module-instance "MULT18X18D" ports params path path #f)
+             (list (module-instance "MULT18X18D" ports params path path #f)
+                   (module-instance "ALU54B" '() '() alu-path alu-path #f))
              internal-data
              (hash-table
               ("O"
