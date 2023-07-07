@@ -1333,19 +1333,6 @@
              (hash-table ("init" 16))
              (hash-table ("O" "Z"))
              (list))
-            ;;; (interface-implementation
-            ;;;  (interface-identifier "MUX" (hash "num_inputs" 2))
-            ;;;  (module-instance "L6MUX21"
-            ;;;                   (list (module-instance-port "D0" "I0" 'input 1)
-            ;;;                         (module-instance-port "D1" "I1" 'input 1)
-            ;;;                         (module-instance-port "SD" "S" 'input 1)
-            ;;;                         (module-instance-port "Z" "O" 'output 1))
-            ;;;                   (list)
-            ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
-            ;;;                   "../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v"
-            ;;;                   #f)
-            ;;;  (hash)
-            ;;;  (hash "O" "Z"))
             (interface-implementation
              (interface-identifier "carry" (hash-table ("width" 2)))
              (list (module-instance "CCU2C"
