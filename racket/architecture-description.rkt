@@ -149,8 +149,8 @@
 ;;;   Verilog simulation.)
 ;;; - racket-import-filepath: Filepath of the Verilog file modified for Racket importing. Ideally, the
 ;;;   Racket importer would be good enough to not need this, but there are still untested edge cases.
-;;; - instance-name: String or #f, giving an optional name for this instance. Currently, instance
-;;;   names are needed when one module instance references the output of another module instance.
+;;; - instance-name: String: name for this instance. Names are needed when one module instance
+;;;   references the output of another module instance.
 ;;;
 ;;; TODO(@gussmith23): module-instance is a bad name for this. Too similar to lr:hw-module-instance,
 ;;; which is completely different.
@@ -353,6 +353,7 @@
   (define expr (read (open-input-string expr-str)))
   (define (recursive-helper expr)
     (match expr
+      [`(get ,module ,key) (lr:hash-ref (recursive-helper module) key)]
       [`(choose ,exprs ...) (apply choose* (map recursive-helper exprs))]
       [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
       [`(bv ,val ,width) (lr:bv (bv->signal (bv val width)))]
@@ -368,7 +369,9 @@
 ;;; - module-instance: a `module-instance` describing the module to be constructed.
 ;;; - internal-data: the internal data; used when looking up values for ports and parameters.
 ;;; - port-map: used when looking up values for ports.
-(define (construct-module module-instance internal-data port-map)
+;;; - module-exprs: association list mapping module instance name to an expression. Used to look up
+;;;   the expressions when we encounter a reference to a module.
+(define (construct-module module-instance internal-data port-map module-exprs)
   (let* ([name (module-instance-module-name module-instance)]
          ;;; Construct the list of new ports, by mapping in the values provided in the port-map for
          ;;; the inputs and leaving the outputs alone.
@@ -382,14 +385,17 @@
                    (module-instance-port-value p)
                    (λ (s)
                      (cdr
-                      (or (assoc (symbol->string s) port-map)
-                          (assoc (symbol->string s) internal-data)
-                          (error
-                           (format
-                            "No value provided for port ~a in port map\n~a\nor internal data list\n~a"
-                            s
-                            port-map
-                            internal-data))))))
+                      (or
+                       (assoc (symbol->string s) port-map)
+                       (assoc (symbol->string s) internal-data)
+                       (assoc (symbol->string s) module-exprs)
+                       (error
+                        (format
+                         "No value provided for port ~a in port map\n~a\nnor internal data list\n~a\nnor module expressions\n~a"
+                         s
+                         port-map
+                         internal-data
+                         module-exprs))))))
                   (module-instance-port-value p))
               (module-instance-port-direction p)
               (module-instance-port-bitwidth p)))
@@ -435,23 +441,38 @@
                      interface-id
                      " on architecture "
                      architecture-description))]
-         [module-instance
-          (begin
-            (when (> (length (interface-implementation-module-instances interface-implementation)) 1)
-              (error "Interface implementation has more than one module instance"))
-            (first (interface-implementation-module-instances interface-implementation)))]
+
          [interface-definition (or (find-interface-definition interface-id)
                                    (error "Interface definition not found"))]
 
-         [expr (construct-module module-instance internal-data port-map)]
+         ;;; Association list: (module instance name . expr)
+         ;;;
+         ;;; We construct the modules in the order they're listed, which means that modules can only
+         ;;; reference modules that come before them in the YAML list.
+         [module-exprs
+          (foldl
+           (lambda (module-instance module-exprs)
+             (append
+              module-exprs
+              (list (cons (module-instance-instance-name module-instance)
+                          (construct-module module-instance internal-data port-map module-exprs)))))
+           '()
+           (interface-implementation-module-instances interface-implementation))]
 
          ;;; Next, we remap the keys to the keys expected by the interface.
          [expr (lr:make-immutable-hash
-                (lr:list (for/list ([p (hash->list (interface-implementation-output-map
-                                                    interface-implementation))])
+                (lr:list
+                 (for/list ([p (hash->list (interface-implementation-output-map
+                                            interface-implementation))])
 
-                           (lr:cons (lr:symbol (string->symbol (car p)))
-                                    (parse-dsl (cdr p) (λ (s) (lr:hash-ref expr s)))))))])
+                   (lr:cons (lr:symbol (string->symbol (car p)))
+                            (parse-dsl
+                             (cdr p)
+                             (lambda (s)
+                               (cdr (or (assoc (symbol->string s) module-exprs)
+                                        (error (format "Couldn't find ~a in module expressions\n~a"
+                                                       s
+                                                       module-exprs))))))))))])
     (list expr internal-data)))
 
 (module+ test
@@ -1145,8 +1166,7 @@
     ;;; racket-import-filepath is optional, defaults to filepath if not specified.
     (define racket-import-filepath
       (or (hash-ref module-instance-yaml "racket_import_filepath" #f) filepath))
-    ;;; instance-name is optional, defaults to #f.
-    (define instance-name (hash-ref module-instance-yaml "instance_name" #f))
+    (define instance-name (hash-ref module-instance-yaml "instance_name"))
     (module-instance module-name ports parameters filepath racket-import-filepath instance-name))
 
   ;;; Parse list of modules.
@@ -1245,9 +1265,9 @@
                                          (list (module-instance-parameter "INIT" "INIT"))
                                          "../verilator_xilinx/LUT2.v"
                                          "../verilator_xilinx/LUT2.v"
-                                         #f))
+                                         "LUT2"))
                   (hash-table ("INIT" 4))
-                  (hash-table ("O" "O"))
+                  (hash-table ("O" "(get LUT2 O)"))
                   (list))
                  (interface-implementation
                   (interface-identifier "LUT" (hash-table ("num_inputs" 6)))
@@ -1262,9 +1282,9 @@
                                          (list (module-instance-parameter "INIT" "INIT"))
                                          "../verilator_xilinx/LUT6.v"
                                          "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v"
-                                         #f))
+                                         "LUT6"))
                   (hash-table ("INIT" 64))
-                  (hash-table ("O" "O"))
+                  (hash-table ("O" "(get LUT6 O)"))
                   (list))
                  (interface-implementation
                   (interface-identifier "carry" (hash-table ("width" 8)))
@@ -1277,9 +1297,9 @@
                                          (list)
                                          "../verilator_xilinx/CARRY8.v"
                                          "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v"
-                                         #f))
+                                         "CARRY8"))
                   (hash-table)
-                  (hash-table ("CO" "(bit 7 CO)") ("O" "O"))
+                  (hash-table ("CO" "(bit 7 (get CARRY8 CO))") ("O" "(get CARRY8 O)"))
                   (list))
                  (interface-implementation
                   (interface-identifier
@@ -1287,7 +1307,7 @@
                    (hash-table ("out-width" 48) ("a-width" 30) ("b-width" 18) ("c-width" 48)))
                   module-instances
                   internal-data
-                  (hash-table ("O" "P"))
+                  (hash-table ("O" "(get DSP48E2 P)"))
                   constraints)))
 
           (check-true
@@ -1327,9 +1347,9 @@
                                     (list (module-instance-parameter "init" "init"))
                                     "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
                                     "../modules_for_importing/lattice_ecp5/LUT4.v"
-                                    #f))
+                                    "lut"))
              (hash-table ("init" 16))
-             (hash-table ("O" "Z"))
+             (hash-table ("O" "(get lut Z)"))
              (list))
             (interface-implementation
              (interface-identifier "carry" (hash-table ("width" 2)))
@@ -1352,20 +1372,18 @@
                                           (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
                                     "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
                                     "../modules_for_importing/lattice_ecp5/CCU2C.v"
-                                    #f))
+                                    "ccu2c"))
              (hash-table ("INIT0" 16) ("INIT1" 16))
-             (hash-table ("CO" "COUT") ("O" "(concat S1 S0)"))
+             (hash-table ("CO" "(get ccu2c COUT)") ("O" "(concat (get ccu2c S1) (get ccu2c S0))"))
              (list))
             (interface-implementation
              (interface-identifier
               "DSP"
               (hash-table ("out-width" 36) ("a-width" 18) ("b-width" 18) ("c-width" 18)))
-             (list (module-instance "MULT18X18D" ports params path path #f)
-                   (module-instance "ALU54B" '() '() alu-path alu-path #f))
+             (list (module-instance "MULT18X18D" ports params path path "mult0")
+                   (module-instance "ALU54B" alu-ports alu-params alu-path alu-path "alu"))
              internal-data
-             (hash-table
-              ("O"
-               "(concat P35 P34 P33 P32 P31 P30 P29 P28 P27 P26 P25 P24 P23 P22 P21 P20 P19 P18 P17 P16 P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0)"))
+             (hash-table ("O" dsp-out-str))
              constraints)))
           #t]
          [else #f]))))

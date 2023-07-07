@@ -3,6 +3,7 @@ implementations:
     internal_data: { init: 16 }
     modules:
       - module_name: LUT4
+        instance_name: lut
         filepath: ../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v
         racket_import_filepath: ../modules_for_importing/lattice_ecp5/LUT4.v
         ports:
@@ -14,7 +15,7 @@ implementations:
             { name: Z, direction: output, bitwidth: 1, value: O },
           ]
         parameters: [{ name: init, value: init }]
-    outputs: { O: Z }
+    outputs: { O: (get lut Z) }
  # We don't actually have semantics for this right now!
  # - interface: { name: MUX, parameters: { num_inputs: 2 } }
  #   modules:
@@ -33,6 +34,7 @@ implementations:
     internal_data: { INIT0: 16, INIT1: 16 }
     modules:
       - module_name: CCU2C
+        instance_name: ccu2c
         filepath: ../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v
         racket_import_filepath: ../modules_for_importing/lattice_ecp5/CCU2C.v
         ports: [
@@ -62,7 +64,7 @@ implementations:
             { name: INJECT1_0, value: (bv 0 1) },
             { name: INJECT1_1, value: (bv 0 1) },
           ]
-    outputs: { O: (concat S1 S0), CO: COUT }
+    outputs: { O: (concat (get ccu2c S1) (get ccu2c S0)), CO: (get ccu2c COUT) }
   - interface: { name: DSP, parameters: { out-width: 36, a-width: 18, b-width: 18, c-width: 18 } }
     internal_data: { 
       SOURCEA: 1,
@@ -112,6 +114,7 @@ implementations:
     ]
     modules:
       - module_name: MULT18X18D
+        instance_name: mult0
         filepath: ../lakeroad-private/lattice_ecp5/MULT18X18D.v
         racket_import_filepath: ../lakeroad-private/lattice_ecp5/MULT18X18D.v
         ports: [
@@ -398,8 +401,83 @@ implementations:
             { name: REG_OUTPUT_RST, value: REG_OUTPUT_RST },
          ]
       - module_name: ALU54B
+        instance_name: alu
         filepath: ../lakeroad-private/lattice_ecp5/ALU54B.v
         racket_import_filepath: ../lakeroad-private/lattice_ecp5/ALU54B.v
-        ports: []
+        ports: [
+            { name: A0, direction: input, bitwidth: 1, value: (get mult0 P0) },
+            { name: A1, direction: input, bitwidth: 1, value: (get mult0 P1) },
+            { name: A2, direction: input, bitwidth: 1, value: (get mult0 P2) },
+            { name: A3, direction: input, bitwidth: 1, value: (get mult0 P3) },
+            { name: A4, direction: input, bitwidth: 1, value: (get mult0 P4) },
+            { name: A5, direction: input, bitwidth: 1, value: (get mult0 P5) },
+            { name: A6, direction: input, bitwidth: 1, value: (get mult0 P6) },
+            { name: A7, direction: input, bitwidth: 1, value: (get mult0 P7) },
+            { name: A8, direction: input, bitwidth: 1, value: (get mult0 P8) },
+            { name: A9, direction: input, bitwidth: 1, value: (get mult0 P9) },
+            { name: A10, direction: input, bitwidth: 1, value: (get mult0 P10) },
+            { name: A11, direction: input, bitwidth: 1, value: (get mult0 P11) },
+            { name: A12, direction: input, bitwidth: 1, value: (get mult0 P12) },
+            { name: A13, direction: input, bitwidth: 1, value: (get mult0 P13) },
+            { name: A14, direction: input, bitwidth: 1, value: (get mult0 P14) },
+            { name: A15, direction: input, bitwidth: 1, value: (get mult0 P15) },
+            { name: A16, direction: input, bitwidth: 1, value: (get mult0 P16) },
+            { name: A17, direction: input, bitwidth: 1, value: (get mult0 P17) },
+            { name: A18, direction: input, bitwidth: 1, value: (get mult0 P18) },
+            { name: A19, direction: input, bitwidth: 1, value: (get mult0 P19) },
+            { name: A20, direction: input, bitwidth: 1, value: (get mult0 P20) },
+            { name: A21, direction: input, bitwidth: 1, value: (get mult0 P21) },
+            { name: A22, direction: input, bitwidth: 1, value: (get mult0 P22) },
+            { name: A23, direction: input, bitwidth: 1, value: (get mult0 P23) },
+            { name: A24, direction: input, bitwidth: 1, value: (get mult0 P24) },
+            { name: A25, direction: input, bitwidth: 1, value: (get mult0 P25) },
+            { name: A26, direction: input, bitwidth: 1, value: (get mult0 P26) },
+            { name: A27, direction: input, bitwidth: 1, value: (get mult0 P27) },
+            { name: A28, direction: input, bitwidth: 1, value: (get mult0 P28) },
+            { name: A29, direction: input, bitwidth: 1, value: (get mult0 P29) },
+            { name: A30, direction: input, bitwidth: 1, value: (get mult0 P30) },
+            { name: A31, direction: input, bitwidth: 1, value: (get mult0 P31) },
+            { name: A32, direction: input, bitwidth: 1, value: (get mult0 P32) },
+            { name: A33, direction: input, bitwidth: 1, value: (get mult0 P33) },
+            { name: A34, direction: input, bitwidth: 1, value: (get mult0 P34) },
+            { name: A35, direction: input, bitwidth: 1, value: (get mult0 P35) },
+
+            { name: P0, direction: output, bitwidth: 1, value: P0 },
+            { name: P1, direction: output, bitwidth: 1, value: P1 },
+            { name: P2, direction: output, bitwidth: 1, value: P2 },
+            { name: P3, direction: output, bitwidth: 1, value: P3 },
+            { name: P4, direction: output, bitwidth: 1, value: P4 },
+            { name: P5, direction: output, bitwidth: 1, value: P5 },
+            { name: P6, direction: output, bitwidth: 1, value: P6 },
+            { name: P7, direction: output, bitwidth: 1, value: P7 },
+            { name: P8, direction: output, bitwidth: 1, value: P8 },
+            { name: P9, direction: output, bitwidth: 1, value: P9 },
+            { name: P10, direction: output, bitwidth: 1, value: P10 },
+            { name: P11, direction: output, bitwidth: 1, value: P11 },
+            { name: P12, direction: output, bitwidth: 1, value: P12 },
+            { name: P13, direction: output, bitwidth: 1, value: P13 },
+            { name: P14, direction: output, bitwidth: 1, value: P14 },
+            { name: P15, direction: output, bitwidth: 1, value: P15 },
+            { name: P16, direction: output, bitwidth: 1, value: P16 },
+            { name: P17, direction: output, bitwidth: 1, value: P17 },
+            { name: P18, direction: output, bitwidth: 1, value: P18 },
+            { name: P19, direction: output, bitwidth: 1, value: P19 },
+            { name: P20, direction: output, bitwidth: 1, value: P20 },
+            { name: P21, direction: output, bitwidth: 1, value: P21 },
+            { name: P22, direction: output, bitwidth: 1, value: P22 },
+            { name: P23, direction: output, bitwidth: 1, value: P23 },
+            { name: P24, direction: output, bitwidth: 1, value: P24 },
+            { name: P25, direction: output, bitwidth: 1, value: P25 },
+            { name: P26, direction: output, bitwidth: 1, value: P26 },
+            { name: P27, direction: output, bitwidth: 1, value: P27 },
+            { name: P28, direction: output, bitwidth: 1, value: P28 },
+            { name: P29, direction: output, bitwidth: 1, value: P29 },
+            { name: P30, direction: output, bitwidth: 1, value: P30 },
+            { name: P31, direction: output, bitwidth: 1, value: P31 },
+            { name: P32, direction: output, bitwidth: 1, value: P32 },
+            { name: P33, direction: output, bitwidth: 1, value: P33 },
+            { name: P34, direction: output, bitwidth: 1, value: P34 },
+            { name: P35, direction: output, bitwidth: 1, value: P35 },
+        ]
         parameters: []
-    outputs: { O : (concat P35 P34 P33 P32 P31 P30 P29 P28 P27 P26 P25 P24 P23 P22 P21 P20 P19 P18 P17 P16 P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0) }
+    outputs: { O : (concat (get alu P35) (get alu P34) (get alu P33) (get alu P32) (get alu P31) (get alu P30) (get alu P29) (get alu P28) (get alu P27) (get alu P26) (get alu P25) (get alu P24) (get alu P23) (get alu P22) (get alu P21) (get alu P20) (get alu P19) (get alu P18) (get alu P17) (get alu P16) (get alu P15) (get alu P14) (get alu P13) (get alu P12) (get alu P11) (get alu P10) (get alu P9) (get alu P8) (get alu P7) (get alu P6) (get alu P5) (get alu P4) (get alu P3) (get alu P2) (get alu P1) (get alu P0)) }

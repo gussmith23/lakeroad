@@ -2,6 +2,7 @@ implementations:
   - interface: { name: LUT, parameters: { num_inputs: 2 } }
     modules:
       - module_name: LUT2
+        instance_name: LUT2
         filepath: ../verilator_xilinx/LUT2.v
         parameters: [{ name: INIT, value: INIT }]
         ports:
@@ -11,10 +12,11 @@ implementations:
             { name: O, direction: output, bitwidth: 1, value: O },
           ]
     internal_data: { INIT: 4 }
-    outputs: { O: O }
+    outputs: { O: (get LUT2 O) }
   - interface: { name: LUT, parameters: { num_inputs: 6 } }
     modules:
       - module_name: LUT6
+        instance_name: LUT6
         filepath: ../verilator_xilinx/LUT6.v
         racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/LUT6.v
         parameters: [{ name: INIT, value: INIT }]
@@ -29,10 +31,11 @@ implementations:
             { name: O, direction: output, bitwidth: 1, value: O },
           ]
     internal_data: { INIT: 64 }
-    outputs: { O: O }
+    outputs: { O: (get LUT6 O) }
   - interface: { name: carry, parameters: { width: 8 } }
     modules:
       - module_name: CARRY8
+        instance_name: CARRY8
         filepath: ../verilator_xilinx/CARRY8.v
         racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v
         ports:
@@ -43,7 +46,7 @@ implementations:
             { name: CO, direction: output, bitwidth: 8, value: CO },
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
-    outputs: { O: O, CO: (bit 7 CO) }
+    outputs: { O: (get CARRY8 O), CO: (bit 7 (get CARRY8 CO)) }
   - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48 } }
     internal_data: {
       ACASCREG: 32,
@@ -168,6 +171,7 @@ implementations:
     ]
     modules:
       - module_name: DSP48E2
+        instance_name: DSP48E2
         filepath: ../verilator_unisims/DSP48E2.v
         racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v
         ports:
@@ -264,4 +268,4 @@ implementations:
           { name: USE_WIDEXOR, value: USE_WIDEXOR },
           { name: XORSIMD, value: XORSIMD },
         ]
-    outputs: { O : P }
+    outputs: { O : (get DSP48E2 P) }
