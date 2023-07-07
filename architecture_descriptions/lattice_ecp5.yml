@@ -3,6 +3,7 @@ implementations:
     internal_data: { init: 16 }
     modules:
       - module_name: LUT4
+        instance_name: lut
         filepath: ../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v
         racket_import_filepath: ../modules_for_importing/lattice_ecp5/LUT4.v
         ports:
@@ -14,7 +15,7 @@ implementations:
             { name: Z, direction: output, bitwidth: 1, value: O },
           ]
         parameters: [{ name: init, value: init }]
-    outputs: { O: Z }
+    outputs: { O: (get lut Z) }
  # We don't actually have semantics for this right now!
  # - interface: { name: MUX, parameters: { num_inputs: 2 } }
  #   modules:
@@ -33,6 +34,7 @@ implementations:
     internal_data: { INIT0: 16, INIT1: 16 }
     modules:
       - module_name: CCU2C
+        instance_name: ccu2c
         filepath: ../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v
         racket_import_filepath: ../modules_for_importing/lattice_ecp5/CCU2C.v
         ports: [
@@ -62,7 +64,7 @@ implementations:
             { name: INJECT1_0, value: (bv 0 1) },
             { name: INJECT1_1, value: (bv 0 1) },
           ]
-    outputs: { O: (concat S1 S0), CO: COUT }
+    outputs: { O: (concat (get ccu2c S1) (get ccu2c S0)), CO: (get ccu2c COUT) }
   - interface: { name: DSP, parameters: { out-width: 36, a-width: 18, b-width: 18, c-width: 18 } }
     internal_data: { 
       SOURCEA: 1,
@@ -112,6 +114,7 @@ implementations:
     ]
     modules:
       - module_name: MULT18X18D
+        instance_name: mult0
         filepath: ../lakeroad-private/lattice_ecp5/MULT18X18D.v
         racket_import_filepath: ../lakeroad-private/lattice_ecp5/MULT18X18D.v
         ports: [
@@ -397,4 +400,4 @@ implementations:
             { name: REG_PIPELINE_RST, value: REG_PIPELINE_RST },
             { name: REG_OUTPUT_RST, value: REG_OUTPUT_RST },
          ]
-    outputs: { O : (concat P35 P34 P33 P32 P31 P30 P29 P28 P27 P26 P25 P24 P23 P22 P21 P20 P19 P18 P17 P16 P15 P14 P13 P12 P11 P10 P9 P8 P7 P6 P5 P4 P3 P2 P1 P0) }
+    outputs: { O : (concat (get mult0 P35) (get mult0 P34) (get mult0 P33) (get mult0 P32) (get mult0 P31) (get mult0 P30) (get mult0 P29) (get mult0 P28) (get mult0 P27) (get mult0 P26) (get mult0 P25) (get mult0 P24) (get mult0 P23) (get mult0 P22) (get mult0 P21) (get mult0 P20) (get mult0 P19) (get mult0 P18) (get mult0 P17) (get mult0 P16) (get mult0 P15) (get mult0 P14) (get mult0 P13) (get mult0 P12) (get mult0 P11) (get mult0 P10) (get mult0 P9) (get mult0 P8) (get mult0 P7) (get mult0 P6) (get mult0 P5) (get mult0 P4) (get mult0 P3) (get mult0 P2) (get mult0 P1) (get mult0 P0)) }
