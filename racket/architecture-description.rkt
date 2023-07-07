@@ -53,8 +53,11 @@
 (struct interface-port (name direction bitwidth) #:transparent)
 
 (define interfaces
-  ;;; LUT2 definition.
-  (list (interface-definition (interface-identifier "LUT" (hash "num_inputs" 2))
+  ;;; LUT1 definition.
+  (list (interface-definition (interface-identifier "LUT" (hash "num_inputs" 1))
+                              (list (interface-port "I0" 'input 1) (interface-port "O" 'output 1)))
+        ;;; LUT2 definition.
+        (interface-definition (interface-identifier "LUT" (hash "num_inputs" 2))
                               (list (interface-port "I0" 'input 1)
                                     (interface-port "I1" 'input 1)
                                     (interface-port "O" 'output 1)))
@@ -1508,3 +1511,53 @@
         #t]
 
        [else #f]))))
+
+(module+ test
+
+  (test-equal?
+   "Using multiple modules to implement an interface"
+   (construct-interface
+    (architecture-description
+     (list (interface-implementation
+            (interface-identifier "LUT" (hash "num_inputs" 1))
+            (list (module-instance "module0"
+                                   (list (module-instance-port "in" "I0" 'input 1)
+                                         (module-instance-port "out" 'unused 'output 1))
+                                   (list)
+                                   'unused
+                                   'unused
+                                   "module0_inst")
+                  (module-instance "module1"
+                                   (list (module-instance-port "in" "(get module0_inst out)" 'input 1)
+                                         (module-instance-port "out" 'unused 'output 1))
+                                   (list)
+                                   'unused
+                                   'unused
+                                   "module1_inst"))
+            (hash)
+            (hash "O" "(get module1_inst out)")
+            (list))))
+    (interface-identifier "LUT" (hash "num_inputs" 1))
+    (list (cons "I0" 'i0-input)))
+   (list (lr:make-immutable-hash
+          (lr:list (list (lr:cons (lr:symbol 'O)
+                                  (lr:hash-ref
+                                   (lr:hw-module-instance
+                                    "module1"
+                                    (list (module-instance-port
+                                           "in"
+                                           (lr:hash-ref
+                                            (lr:hw-module-instance
+                                             "module0"
+                                             (list (module-instance-port "in" 'i0-input 'input 1)
+                                                   (module-instance-port "out" 'unused 'output 1))
+                                             '()
+                                             'unused)
+                                            'out)
+                                           'input
+                                           1)
+                                          (module-instance-port "out" 'unused 'output 1))
+                                    '()
+                                    'unused)
+                                   'out)))))
+         '())))
