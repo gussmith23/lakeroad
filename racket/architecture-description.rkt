@@ -408,8 +408,6 @@
                           (module-instance-params module-instance))]
          [filepath (module-instance-filepath module-instance)]
 
-         ;;; Start building the expression. First, we put in an expression representing the hardware
-         ;;; module.
          [expr (lr:hw-module-instance name ports parameters filepath)])
     expr))
 
