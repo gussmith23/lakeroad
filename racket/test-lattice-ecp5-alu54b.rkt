@@ -363,9 +363,9 @@
 (define o0
   (helper '()
           ;;; A
-          a-input
+          (bv 0 36)
           ;;; B
-          b-input
+          (bv 0 36)
           ;;; C
           c-input
           ;;; CE
@@ -379,18 +379,18 @@
           ;;; OP
           opcode
           ;;; MA
-          (bv 0 36)
+          a-input
           ;;; MB
-          (bv 0 36)
+          b-input
           ;;; RST
           (bv #b0000 4)))
 
 (define o1
   (helper (signal-state (cdr (assoc 'R0 o0)))
           ;;; A
-          a-input
+          (bv 0 36)
           ;;; B
-          b-input
+          (bv 0 36)
           ;;; C
           c-input
           ;;; CE
@@ -404,18 +404,18 @@
           ;;; OP
           opcode
           ;;; MA
-          (bv 0 36)
+          a-input
           ;;; MB
-          (bv 0 36)
+          b-input
           ;;; RST
           (bv #b0000 4)))
 
 (define o2
   (helper (signal-state (cdr (assoc 'R0 o1)))
           ;;; A
-          a-input
+          (bv 0 36)
           ;;; B
-          b-input
+          (bv 0 36)
           ;;; C
           c-input
           ;;; CE
@@ -429,18 +429,18 @@
           ;;; OP
           opcode
           ;;; MA
-          (bv 0 36)
+          a-input
           ;;; MB
-          (bv 0 36)
+          b-input
           ;;; RST
           (bv #b0000 4)))
 
 (define o3
   (helper (signal-state (cdr (assoc 'R0 o2)))
           ;;; A
-          a-input
+          (bv 0 36)
           ;;; B
-          b-input
+          (bv 0 36)
           ;;; C
           c-input
           ;;; CE
@@ -454,9 +454,9 @@
           ;;; OP
           opcode
           ;;; MA
-          (bv 0 36)
+          a-input
           ;;; MB
-          (bv 0 36)
+          b-input
           ;;; RST
           (bv #b0000 4)))
 
