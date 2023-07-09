@@ -78,3 +78,14 @@ out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   --function-name xilinx-ultrascale-plus-lut6 \
   | sed 's#(require (file.*#(require "../signal.rkt\")#' )
 echo "$out" > $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-lut6.rkt
+
+if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then 
+  echo "not importing module as LAKEROAD_PRIVATE_DIR is not set"
+else 
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+    --infile "$LAKEROAD_PRIVATE_DIR"/lattice_ecp5/modified_ALU54B.v \
+    --top ALU54B \
+    --function-name lattice-ecp5-alu54b \
+    | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+  echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-alu54b.rkt
+fi
