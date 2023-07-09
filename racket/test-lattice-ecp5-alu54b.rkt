@@ -520,8 +520,6 @@
                                            (bvadd (zero-extend a-input (bitvector 54))
                                                   (zero-extend b-input (bitvector 54))))))))
 
-(error-print-width 1000000)
-(signal-value (assoc-ref o3 'R0))
 (test-true "synthesize a + b + c"
            (sat? (synthesize #:forall (list a-input b-input c-input)
                              #:guarantee
