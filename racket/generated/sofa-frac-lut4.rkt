@@ -12,7 +12,9 @@
       #:sram
       (sram (bv->signal (constant 'sram (bitvector 16))))
       #:sram_inv
-      (sram_inv (bv->signal (constant 'sram_inv (bitvector 16)))))
+      (sram_inv (bv->signal (constant 'sram_inv (bitvector 16))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 4))

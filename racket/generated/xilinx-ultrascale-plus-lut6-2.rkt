@@ -202,7 +202,9 @@
        (bv->signal (constant 'unnamed-input-1169 (bitvector 8))))
       #:unnamed-input-1171
       (unnamed-input-1171
-       (bv->signal (constant 'unnamed-input-1171 (bitvector 3)))))
+       (bv->signal (constant 'unnamed-input-1171 (bitvector 3))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))

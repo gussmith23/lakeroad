@@ -12,7 +12,9 @@
       #:D
       (D (bv->signal (constant 'D (bitvector 1))))
       #:init
-      (init (bv->signal (constant 'init (bitvector 16)))))
+      (init (bv->signal (constant 'init (bitvector 16))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))

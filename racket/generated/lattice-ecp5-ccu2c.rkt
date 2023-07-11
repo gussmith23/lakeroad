@@ -28,7 +28,9 @@
       #:INJECT1_0
       (INJECT1_0 (bv->signal (constant 'INJECT1_0 (bitvector 1))))
       #:INJECT1_1
-      (INJECT1_1 (bv->signal (constant 'INJECT1_1 (bitvector 1)))))
+      (INJECT1_1 (bv->signal (constant 'INJECT1_1 (bitvector 1))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))

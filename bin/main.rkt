@@ -360,9 +360,13 @@
        ;;; TODO(@gussmith23): Even better would be to end the headache of using keyword arguments
        ;;; altogether.
        (match-define-values (_ keywords) (procedure-keywords bv-expr))
-       ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer.
+       ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer. Also
+       ;;; filter out #:name.
        (define keywords-minus-unnamed
-         (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-"))) keywords))
+         (filter (λ (k)
+                   (not (or (string-prefix? (keyword->string k) "unnamed-input-")
+                            (equal? (keyword->string k) "name"))))
+                 keywords))
        (for ([env envs])
          (when (not (equal? (length env) (length keywords-minus-unnamed)))
            ;;; TODO(@gussmith23): Figure out how to use Racket logging...

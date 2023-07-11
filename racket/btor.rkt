@@ -32,6 +32,11 @@
 ;;; - Keys should never be symbolic. They should always be concrete.
 (define (btor->racket str #:default-value [default-value 'symbolic])
 
+  ;;; Generates an expression that represents a key used for indexing the state hash. Keys are formed
+  ;;; by appending the `name` argument of the semantics function to a state name, e.g. "state10".
+  (define (make-state-key-expr state-symbol)
+    `(string->symbol (string-append name ,(symbol->string state-symbol))))
+
   ;;; Input signals.
   (define ins (list))
 
@@ -159,7 +164,8 @@
       (match tokens
         [`("init" ,sort-id-str ,state-id-str ,next-val-id-str)
          (set! init-hash
-               `(append (list (cons ',(string->symbol (format "state~a" state-id-str))
+               `(append (list (cons ,(make-state-key-expr
+                                      (string->symbol (format "state~a" state-id-str)))
                                     ,(simple-compile next-val-id-str)))
                         ,init-hash))]
         [_ (void)])))
@@ -253,15 +259,13 @@
             id-str
             `(let* ([state-value
                      (cond
-                       [(assoc-has-key? ,merged-input-state-hash-symbol ',state-symbol)
-                        (bv->signal (assoc-ref ,merged-input-state-hash-symbol ',state-symbol))]
-                       [(assoc-has-key? ,init-hash-symbol ',state-symbol)
-                        (bv->signal (assoc-ref ,init-hash-symbol ',state-symbol))]
-                       ;;;  [else
-                       ;;;   (log-warning
-                       ;;;    "state ~a with no initial value, init to 0, this may not be correct in the long term"
-                       ;;;    ',state-symbol)
-                       ;;;   (bv->signal (bv 0 ,(hash-ref sorts (string->number sort-id-str))))]
+                       [(assoc-has-key? ,merged-input-state-hash-symbol
+                                        ,(make-state-key-expr state-symbol))
+                        (bv->signal (assoc-ref ,merged-input-state-hash-symbol
+                                               ,(make-state-key-expr state-symbol)))]
+                       [(assoc-has-key? ,init-hash-symbol ,(make-state-key-expr state-symbol))
+                        (bv->signal (assoc-ref ,init-hash-symbol
+                                               ,(make-state-key-expr state-symbol)))]
                        [else
                         (bv->signal (,(hash-ref get-default-value-fn-hash
                                                 (string->number sort-id-str))))])])
@@ -422,7 +426,8 @@
                       (list (string->keyword (symbol->string input))
                             `[,input
                               ,(match default-value
-                                 ['symbolic `(bv->signal (constant ',input ,type))])])))))
+                                 ['symbolic `(bv->signal (constant ',input ,type))])]))))
+         #:name [name ""])
        (let* (,@let*-clauses)
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.

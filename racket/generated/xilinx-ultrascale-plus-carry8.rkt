@@ -12,7 +12,9 @@
       #:DI
       (DI (bv->signal (constant 'DI (bitvector 8))))
       #:S
-      (S (bv->signal (constant 'S (bitvector 8)))))
+      (S (bv->signal (constant 'S (bitvector 8))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))
