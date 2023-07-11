@@ -108,9 +108,12 @@
                 ;;; Warn if we didn't pass all arguments (except for unnamed inputs).
                 ;;; TODO(@gussmith23): handle unnammed inputs more intelligently, maybe in yml?
                 (match-define-values (_ keywords) (procedure-keywords module-semantics-fn))
-                ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer.
+                ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket
+                ;;; importer. Also filter out #:name.
                 (define keywords-minus-unnamed
-                  (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-")))
+                  (filter (λ (k)
+                            (not (or (string-prefix? (keyword->string k) "unnamed-input-")
+                                     (equal? (keyword->string k) "name"))))
                           keywords))
                 (when (not (equal? (length pairs) (length keywords-minus-unnamed)))
                   ;;; TODO(@gussmith23): Figure out how to use Racket logging...
