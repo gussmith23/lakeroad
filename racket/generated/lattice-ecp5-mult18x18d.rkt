@@ -273,70 +273,162 @@
       #:SRIB8
       (SRIB8 (bv->signal (constant 'SRIB8 (bitvector 1))))
       #:SRIB9
-      (SRIB9 (bv->signal (constant 'SRIB9 (bitvector 1)))))
+      (SRIB9 (bv->signal (constant 'SRIB9 (bitvector 1))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash
             (append
-             (list (cons 'state898 (bv 1 (bitvector 1))))
+             (list
+              (cons
+               (string->symbol (string-append name "state898"))
+               (bv 1 (bitvector 1))))
              (append
-              (list (cons 'state887 (bv 1 (bitvector 1))))
+              (list
+               (cons
+                (string->symbol (string-append name "state887"))
+                (bv 1 (bitvector 1))))
               (append
-               (list (cons 'state681 (bv 1 (bitvector 1))))
+               (list
+                (cons
+                 (string->symbol (string-append name "state681"))
+                 (bv 1 (bitvector 1))))
                (append
-                (list (cons 'state565 (bv 0 (bitvector 1))))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state565"))
+                  (bv 0 (bitvector 1))))
                 (append
-                 (list (cons 'state512 (bv 0 (bitvector 1))))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state512"))
+                   (bv 0 (bitvector 1))))
                  (append
-                  (list (cons 'state510 (bv 1 (bitvector 1))))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state510"))
+                    (bv 1 (bitvector 1))))
                   (append
-                   (list (cons 'state457 (bv 0 (bitvector 1))))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state457"))
+                     (bv 0 (bitvector 1))))
                    (append
-                    (list (cons 'state455 (bv 1 (bitvector 1))))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state455"))
+                      (bv 1 (bitvector 1))))
                     (append
-                     (list (cons 'state445 (bv 1 (bitvector 1))))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state445"))
+                       (bv 1 (bitvector 1))))
                      (append
-                      (list (cons 'state318 (bv 1 (bitvector 1))))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state318"))
+                        (bv 1 (bitvector 1))))
                       (append
-                       (list (cons 'state281 (bv 1 (bitvector 1))))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state281"))
+                         (bv 1 (bitvector 1))))
                        (append
-                        (list (cons 'state234 (bv 1 (bitvector 1))))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state234"))
+                          (bv 1 (bitvector 1))))
                         (append
-                         (list (cons 'state232 (bv 0 (bitvector 1))))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state232"))
+                           (bv 0 (bitvector 1))))
                          (append
-                          (list (cons 'state230 (bv 0 (bitvector 1))))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state230"))
+                            (bv 0 (bitvector 1))))
                           (append
-                           (list (cons 'state228 (bv 0 (bitvector 1))))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state228"))
+                             (bv 0 (bitvector 1))))
                            (append
-                            (list (cons 'state206 (bv 1 (bitvector 1))))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state206"))
+                              (bv 1 (bitvector 1))))
                             (append
-                             (list (cons 'state204 (bv 0 (bitvector 1))))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state204"))
+                               (bv 0 (bitvector 1))))
                              (append
-                              (list (cons 'state202 (bv 0 (bitvector 1))))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state202"))
+                                (bv 0 (bitvector 1))))
                               (append
-                               (list (cons 'state200 (bv 0 (bitvector 1))))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state200"))
+                                 (bv 0 (bitvector 1))))
                                (append
-                                (list (cons 'state177 (bv 1 (bitvector 1))))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state177"))
+                                  (bv 1 (bitvector 1))))
                                 (append
-                                 (list (cons 'state175 (bv 0 (bitvector 1))))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state175"))
+                                   (bv 0 (bitvector 1))))
                                  (append
-                                  (list (cons 'state173 (bv 0 (bitvector 1))))
+                                  (list
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state173"))
+                                    (bv 0 (bitvector 1))))
                                   (append
-                                   (list (cons 'state171 (bv 0 (bitvector 1))))
+                                   (list
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state171"))
+                                     (bv 0 (bitvector 1))))
                                    (append
                                     (list
-                                     (cons 'state148 (bv 1 (bitvector 1))))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state148"))
+                                      (bv 1 (bitvector 1))))
                                     (append
                                      (list
-                                      (cons 'state146 (bv 0 (bitvector 1))))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state146"))
+                                       (bv 0 (bitvector 1))))
                                      (append
                                       (list
-                                       (cons 'state144 (bv 0 (bitvector 1))))
+                                       (cons
+                                        (string->symbol
+                                         (string-append name "state144"))
+                                        (bv 0 (bitvector 1))))
                                       (append
                                        (list
-                                        (cons 'state142 (bv 0 (bitvector 1))))
+                                        (cons
+                                         (string->symbol
+                                          (string-append name "state142"))
+                                         (bv 0 (bitvector 1))))
                                        (append
                                         (list
-                                         (cons 'state138 (bv 1 (bitvector 1))))
+                                         (cons
+                                          (string->symbol
+                                           (string-append name "state138"))
+                                          (bv 1 (bitvector 1))))
                                         (list))))))))))))))))))))))))))))))
            (btor1 (bitvector 1))
            (btor2 A0)
@@ -735,11 +827,20 @@
            (btor135
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state135)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state135")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state135)))
-                     ((assoc-has-key? init-hash 'state135)
-                      (bv->signal (assoc-ref init-hash 'state135)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state135")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state135")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state135")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -751,11 +852,20 @@
            (btor136
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state136)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state136")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state136)))
-                     ((assoc-has-key? init-hash 'state136)
-                      (bv->signal (assoc-ref init-hash 'state136)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state136")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state136")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state136")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -768,11 +878,20 @@
            (btor138
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state138)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state138")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state138)))
-                     ((assoc-has-key? init-hash 'state138)
-                      (bv->signal (assoc-ref init-hash 'state138)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state138")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state138")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state138")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -784,11 +903,20 @@
            (btor140
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state140)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state140")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state140)))
-                     ((assoc-has-key? init-hash 'state140)
-                      (bv->signal (assoc-ref init-hash 'state140)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state140")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state140")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state140")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -801,11 +929,20 @@
            (btor142
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state142)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state142")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state142)))
-                     ((assoc-has-key? init-hash 'state142)
-                      (bv->signal (assoc-ref init-hash 'state142)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state142")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state142")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state142")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -817,11 +954,20 @@
            (btor144
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state144)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state144")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state144)))
-                     ((assoc-has-key? init-hash 'state144)
-                      (bv->signal (assoc-ref init-hash 'state144)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state144")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state144")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state144")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -833,11 +979,20 @@
            (btor146
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state146)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state146")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state146)))
-                     ((assoc-has-key? init-hash 'state146)
-                      (bv->signal (assoc-ref init-hash 'state146)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state146")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state146")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state146")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -849,11 +1004,20 @@
            (btor148
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state148)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state148")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state148)))
-                     ((assoc-has-key? init-hash 'state148)
-                      (bv->signal (assoc-ref init-hash 'state148)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state148")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state148")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state148")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -911,11 +1075,20 @@
            (btor167
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state167)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state167")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state167)))
-                     ((assoc-has-key? init-hash 'state167)
-                      (bv->signal (assoc-ref init-hash 'state167)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state167")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state167")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state167")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -934,11 +1107,20 @@
            (btor171
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state171)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state171")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state171)))
-                     ((assoc-has-key? init-hash 'state171)
-                      (bv->signal (assoc-ref init-hash 'state171)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state171")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state171")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state171")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -950,11 +1132,20 @@
            (btor173
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state173)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state173")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state173)))
-                     ((assoc-has-key? init-hash 'state173)
-                      (bv->signal (assoc-ref init-hash 'state173)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state173")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state173")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state173")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -966,11 +1157,20 @@
            (btor175
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state175)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state175")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state175)))
-                     ((assoc-has-key? init-hash 'state175)
-                      (bv->signal (assoc-ref init-hash 'state175)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state175")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state175")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state175")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -982,11 +1182,20 @@
            (btor177
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state177)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state177")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state177)))
-                     ((assoc-has-key? init-hash 'state177)
-                      (bv->signal (assoc-ref init-hash 'state177)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state177")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state177")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state177")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1039,11 +1248,20 @@
            (btor191
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state191)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state191")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state191)))
-                     ((assoc-has-key? init-hash 'state191)
-                      (bv->signal (assoc-ref init-hash 'state191)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state191")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state191")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state191")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1075,11 +1293,20 @@
            (btor200
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state200)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state200")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state200)))
-                     ((assoc-has-key? init-hash 'state200)
-                      (bv->signal (assoc-ref init-hash 'state200)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state200")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state200")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state200")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1091,11 +1318,20 @@
            (btor202
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state202)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state202")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state202)))
-                     ((assoc-has-key? init-hash 'state202)
-                      (bv->signal (assoc-ref init-hash 'state202)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state202")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state202")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state202")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1107,11 +1343,20 @@
            (btor204
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state204)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state204")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state204)))
-                     ((assoc-has-key? init-hash 'state204)
-                      (bv->signal (assoc-ref init-hash 'state204)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state204")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state204")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state204")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1123,11 +1368,20 @@
            (btor206
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state206)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state206")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state206)))
-                     ((assoc-has-key? init-hash 'state206)
-                      (bv->signal (assoc-ref init-hash 'state206)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state206")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state206")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state206")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1180,11 +1434,20 @@
            (btor220
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state220)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state220")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state220)))
-                     ((assoc-has-key? init-hash 'state220)
-                      (bv->signal (assoc-ref init-hash 'state220)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state220")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state220")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state220")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1215,11 +1478,20 @@
            (btor228
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state228)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state228")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state228)))
-                     ((assoc-has-key? init-hash 'state228)
-                      (bv->signal (assoc-ref init-hash 'state228)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state228")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state228")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state228")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1231,11 +1503,20 @@
            (btor230
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state230)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state230")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state230)))
-                     ((assoc-has-key? init-hash 'state230)
-                      (bv->signal (assoc-ref init-hash 'state230)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state230")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state230")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state230")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1247,11 +1528,20 @@
            (btor232
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state232)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state232")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state232)))
-                     ((assoc-has-key? init-hash 'state232)
-                      (bv->signal (assoc-ref init-hash 'state232)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state232")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state232")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state232")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1263,11 +1553,20 @@
            (btor234
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state234)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state234")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state234)))
-                     ((assoc-has-key? init-hash 'state234)
-                      (bv->signal (assoc-ref init-hash 'state234)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state234")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state234")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state234")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1320,11 +1619,20 @@
            (btor248
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state248)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state248")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state248)))
-                     ((assoc-has-key? init-hash 'state248)
-                      (bv->signal (assoc-ref init-hash 'state248)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state248")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state248")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state248")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1405,11 +1713,20 @@
            (btor272
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state272)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state272")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state272)))
-                     ((assoc-has-key? init-hash 'state272)
-                      (bv->signal (assoc-ref init-hash 'state272)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state272")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state272")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state272")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1439,11 +1756,20 @@
            (btor279
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state279)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state279")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state279)))
-                     ((assoc-has-key? init-hash 'state279)
-                      (bv->signal (assoc-ref init-hash 'state279)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state279")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state279")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state279")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1455,11 +1781,20 @@
            (btor280
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state280)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state280")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state280)))
-                     ((assoc-has-key? init-hash 'state280)
-                      (bv->signal (assoc-ref init-hash 'state280)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state280")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state280")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state280")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1471,11 +1806,20 @@
            (btor281
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state281)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state281")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state281)))
-                     ((assoc-has-key? init-hash 'state281)
-                      (bv->signal (assoc-ref init-hash 'state281)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state281")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state281")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state281")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1487,11 +1831,20 @@
            (btor283
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state283)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state283")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state283)))
-                     ((assoc-has-key? init-hash 'state283)
-                      (bv->signal (assoc-ref init-hash 'state283)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state283")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state283")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state283")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1585,11 +1938,20 @@
            (btor308
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state308)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state308")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state308)))
-                     ((assoc-has-key? init-hash 'state308)
-                      (bv->signal (assoc-ref init-hash 'state308)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state308")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state308")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state308")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1620,11 +1982,20 @@
            (btor316
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state316)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state316")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state316)))
-                     ((assoc-has-key? init-hash 'state316)
-                      (bv->signal (assoc-ref init-hash 'state316)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state316")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state316")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state316")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1636,11 +2007,20 @@
            (btor317
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state317)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state317")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state317)))
-                     ((assoc-has-key? init-hash 'state317)
-                      (bv->signal (assoc-ref init-hash 'state317)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state317")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state317")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state317")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1652,11 +2032,20 @@
            (btor318
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state318)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state318")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state318)))
-                     ((assoc-has-key? init-hash 'state318)
-                      (bv->signal (assoc-ref init-hash 'state318)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state318")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state318")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state318")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1668,11 +2057,20 @@
            (btor320
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state320)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state320")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state320)))
-                     ((assoc-has-key? init-hash 'state320)
-                      (bv->signal (assoc-ref init-hash 'state320)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state320")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state320")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state320")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1766,11 +2164,20 @@
            (btor345
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state345)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state345")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state345)))
-                     ((assoc-has-key? init-hash 'state345)
-                      (bv->signal (assoc-ref init-hash 'state345)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state345")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state345")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state345")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1800,11 +2207,20 @@
            (btor352
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state352)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state352")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state352)))
-                     ((assoc-has-key? init-hash 'state352)
-                      (bv->signal (assoc-ref init-hash 'state352)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state352")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state352")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state352")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1964,11 +2380,20 @@
            (btor400
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state400)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state400")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state400)))
-                     ((assoc-has-key? init-hash 'state400)
-                      (bv->signal (assoc-ref init-hash 'state400)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state400")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state400")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state400")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2135,11 +2560,20 @@
            (btor443
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state443)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state443")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state443)))
-                     ((assoc-has-key? init-hash 'state443)
-                      (bv->signal (assoc-ref init-hash 'state443)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state443")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state443")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state443")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2151,11 +2585,20 @@
            (btor444
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state444)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state444")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state444)))
-                     ((assoc-has-key? init-hash 'state444)
-                      (bv->signal (assoc-ref init-hash 'state444)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state444")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state444")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state444")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2167,11 +2610,20 @@
            (btor445
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state445)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state445")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state445)))
-                     ((assoc-has-key? init-hash 'state445)
-                      (bv->signal (assoc-ref init-hash 'state445)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state445")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state445")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state445")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2202,11 +2654,20 @@
            (btor453
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state453)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state453")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state453)))
-                     ((assoc-has-key? init-hash 'state453)
-                      (bv->signal (assoc-ref init-hash 'state453)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state453")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state453")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state453")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2218,11 +2679,20 @@
            (btor454
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state454)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state454")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state454)))
-                     ((assoc-has-key? init-hash 'state454)
-                      (bv->signal (assoc-ref init-hash 'state454)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state454")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state454")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state454")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2234,11 +2704,20 @@
            (btor455
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state455)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state455")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state455)))
-                     ((assoc-has-key? init-hash 'state455)
-                      (bv->signal (assoc-ref init-hash 'state455)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state455")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state455")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state455")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2250,11 +2729,20 @@
            (btor457
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state457)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state457")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state457)))
-                     ((assoc-has-key? init-hash 'state457)
-                      (bv->signal (assoc-ref init-hash 'state457)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state457")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state457")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state457")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2348,11 +2836,20 @@
            (btor483
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state483)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state483")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state483)))
-                     ((assoc-has-key? init-hash 'state483)
-                      (bv->signal (assoc-ref init-hash 'state483)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state483")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state483")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state483")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2382,11 +2879,20 @@
            (btor490
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state490)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state490")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state490)))
-                     ((assoc-has-key? init-hash 'state490)
-                      (bv->signal (assoc-ref init-hash 'state490)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state490")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state490")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state490")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2466,11 +2972,20 @@
            (btor508
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state508)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state508")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state508)))
-                     ((assoc-has-key? init-hash 'state508)
-                      (bv->signal (assoc-ref init-hash 'state508)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state508")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state508")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state508")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2482,11 +2997,20 @@
            (btor509
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state509)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state509")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state509)))
-                     ((assoc-has-key? init-hash 'state509)
-                      (bv->signal (assoc-ref init-hash 'state509)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state509")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state509")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state509")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2498,11 +3022,20 @@
            (btor510
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state510)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state510")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state510)))
-                     ((assoc-has-key? init-hash 'state510)
-                      (bv->signal (assoc-ref init-hash 'state510)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state510")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state510")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state510")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2514,11 +3047,20 @@
            (btor512
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state512)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state512")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state512)))
-                     ((assoc-has-key? init-hash 'state512)
-                      (bv->signal (assoc-ref init-hash 'state512)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state512")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state512")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state512")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2612,11 +3154,20 @@
            (btor538
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state538)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state538")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state538)))
-                     ((assoc-has-key? init-hash 'state538)
-                      (bv->signal (assoc-ref init-hash 'state538)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state538")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state538")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state538")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2721,11 +3272,20 @@
            (btor565
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state565)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state565")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state565)))
-                     ((assoc-has-key? init-hash 'state565)
-                      (bv->signal (assoc-ref init-hash 'state565)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state565")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state565")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state565")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2807,11 +3367,20 @@
            (btor590
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state590)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state590")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state590)))
-                     ((assoc-has-key? init-hash 'state590)
-                      (bv->signal (assoc-ref init-hash 'state590)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state590")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state590")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state590")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2968,11 +3537,20 @@
            (btor637
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state637)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state637")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state637)))
-                     ((assoc-has-key? init-hash 'state637)
-                      (bv->signal (assoc-ref init-hash 'state637)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state637")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state637")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state637")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3138,11 +3716,20 @@
            (btor679
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state679)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state679")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state679)))
-                     ((assoc-has-key? init-hash 'state679)
-                      (bv->signal (assoc-ref init-hash 'state679)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state679")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state679")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state679")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3154,11 +3741,20 @@
            (btor680
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state680)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state680")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state680)))
-                     ((assoc-has-key? init-hash 'state680)
-                      (bv->signal (assoc-ref init-hash 'state680)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state680")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state680")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state680")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3170,11 +3766,20 @@
            (btor681
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state681)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state681")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state681)))
-                     ((assoc-has-key? init-hash 'state681)
-                      (bv->signal (assoc-ref init-hash 'state681)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state681")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state681")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state681")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3610,11 +4215,20 @@
            (btor885
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state885)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state885")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state885)))
-                     ((assoc-has-key? init-hash 'state885)
-                      (bv->signal (assoc-ref init-hash 'state885)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state885")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state885")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state885")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3626,11 +4240,20 @@
            (btor886
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state886)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state886")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state886)))
-                     ((assoc-has-key? init-hash 'state886)
-                      (bv->signal (assoc-ref init-hash 'state886)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state886")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state886")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state886")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3642,11 +4265,20 @@
            (btor887
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state887)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state887")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state887)))
-                     ((assoc-has-key? init-hash 'state887)
-                      (bv->signal (assoc-ref init-hash 'state887)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state887")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state887")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state887")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3675,11 +4307,20 @@
            (btor895
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state895)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state895")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state895)))
-                     ((assoc-has-key? init-hash 'state895)
-                      (bv->signal (assoc-ref init-hash 'state895)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state895")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state895")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state895")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3691,11 +4332,20 @@
            (btor896
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state896)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state896")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state896)))
-                     ((assoc-has-key? init-hash 'state896)
-                      (bv->signal (assoc-ref init-hash 'state896)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state896")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state896")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state896")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3707,11 +4357,20 @@
            (btor897
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state897)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state897")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state897)))
-                     ((assoc-has-key? init-hash 'state897)
-                      (bv->signal (assoc-ref init-hash 'state897)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state897")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state897")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state897")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3723,11 +4382,20 @@
            (btor898
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state898)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state898")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state898)))
-                     ((assoc-has-key? init-hash 'state898)
-                      (bv->signal (assoc-ref init-hash 'state898)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state898")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state898")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state898")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3780,11 +4448,20 @@
            (btor914
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state914)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state914")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state914)))
-                     ((assoc-has-key? init-hash 'state914)
-                      (bv->signal (assoc-ref init-hash 'state914)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state914")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state914")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state914")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4047,11 +4724,20 @@
            (btor1015
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1015)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1015")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1015)))
-                     ((assoc-has-key? init-hash 'state1015)
-                      (bv->signal (assoc-ref init-hash 'state1015)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1015")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1015")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1015")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4140,11 +4826,20 @@
            (btor1041
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1041)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1041")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1041)))
-                     ((assoc-has-key? init-hash 'state1041)
-                      (bv->signal (assoc-ref init-hash 'state1041)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1041")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1041")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1041")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4171,11 +4866,20 @@
            (btor1047
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1047)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1047")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1047)))
-                     ((assoc-has-key? init-hash 'state1047)
-                      (bv->signal (assoc-ref init-hash 'state1047)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1047")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1047")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1047")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4260,11 +4964,20 @@
            (btor1072
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1072)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1072")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1072)))
-                     ((assoc-has-key? init-hash 'state1072)
-                      (bv->signal (assoc-ref init-hash 'state1072)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1072")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1072")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1072")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4291,11 +5004,20 @@
            (btor1078
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1078)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1078")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1078)))
-                     ((assoc-has-key? init-hash 'state1078)
-                      (bv->signal (assoc-ref init-hash 'state1078)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1078")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1078")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1078")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4381,11 +5103,20 @@
            (btor1101
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1101)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1101")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1101)))
-                     ((assoc-has-key? init-hash 'state1101)
-                      (bv->signal (assoc-ref init-hash 'state1101)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1101")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1101")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1101")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4412,11 +5143,20 @@
            (btor1107
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1107)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1107")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1107)))
-                     ((assoc-has-key? init-hash 'state1107)
-                      (bv->signal (assoc-ref init-hash 'state1107)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1107")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1107")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1107")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4498,11 +5238,20 @@
            (btor1129
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1129)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1129")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1129)))
-                     ((assoc-has-key? init-hash 'state1129)
-                      (bv->signal (assoc-ref init-hash 'state1129)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1129")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1129")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1129")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4529,11 +5278,20 @@
            (btor1135
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1135)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1135")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1135)))
-                     ((assoc-has-key? init-hash 'state1135)
-                      (bv->signal (assoc-ref init-hash 'state1135)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1135")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1135")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1135")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4619,11 +5377,20 @@
            (btor1158
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1158)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1158")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1158)))
-                     ((assoc-has-key? init-hash 'state1158)
-                      (bv->signal (assoc-ref init-hash 'state1158)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1158")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1158")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1158")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4650,11 +5417,20 @@
            (btor1164
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1164)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1164")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1164)))
-                     ((assoc-has-key? init-hash 'state1164)
-                      (bv->signal (assoc-ref init-hash 'state1164)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1164")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1164")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1164")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4736,11 +5512,20 @@
            (btor1186
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1186)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1186")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1186)))
-                     ((assoc-has-key? init-hash 'state1186)
-                      (bv->signal (assoc-ref init-hash 'state1186)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1186")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1186")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1186")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4767,11 +5552,20 @@
            (btor1192
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1192)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1192")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1192)))
-                     ((assoc-has-key? init-hash 'state1192)
-                      (bv->signal (assoc-ref init-hash 'state1192)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1192")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1192")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1192")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4857,11 +5651,20 @@
            (btor1215
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1215)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1215")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1215)))
-                     ((assoc-has-key? init-hash 'state1215)
-                      (bv->signal (assoc-ref init-hash 'state1215)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1215")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1215")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1215")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4888,11 +5691,20 @@
            (btor1221
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1221)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1221")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1221)))
-                     ((assoc-has-key? init-hash 'state1221)
-                      (bv->signal (assoc-ref init-hash 'state1221)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1221")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1221")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1221")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -4974,11 +5786,20 @@
            (btor1243
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1243)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1243")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1243)))
-                     ((assoc-has-key? init-hash 'state1243)
-                      (bv->signal (assoc-ref init-hash 'state1243)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1243")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1243")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1243")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -5037,11 +5858,20 @@
            (btor1257
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1257)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1257")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1257)))
-                     ((assoc-has-key? init-hash 'state1257)
-                      (bv->signal (assoc-ref init-hash 'state1257)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1257")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1257")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1257")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -5127,11 +5957,20 @@
            (btor1280
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1280)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1280")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1280)))
-                     ((assoc-has-key? init-hash 'state1280)
-                      (bv->signal (assoc-ref init-hash 'state1280)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1280")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1280")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1280")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -5158,11 +5997,20 @@
            (btor1286
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1286)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1286")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1286)))
-                     ((assoc-has-key? init-hash 'state1286)
-                      (bv->signal (assoc-ref init-hash 'state1286)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1286")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1286")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1286")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -5244,11 +6092,20 @@
            (btor1308
             (let* ((state-value
                     (cond
-                     ((assoc-has-key? merged-input-state-hash 'state1308)
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1308")))
                       (bv->signal
-                       (assoc-ref merged-input-state-hash 'state1308)))
-                     ((assoc-has-key? init-hash 'state1308)
-                      (bv->signal (assoc-ref init-hash 'state1308)))
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1308")))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state1308")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state1308")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -54923,4 +55780,3 @@
                                                                                                 (signal-value
                                                                                                  btor278)))
                                                                                               (list))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-
