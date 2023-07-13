@@ -194,7 +194,7 @@
                   ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
                   ;;; clk2fflogic is the correct thing to use. See
                   ;;; https://github.com/uwsampl/lakeroad/issues/238
-                  "yosys -q -p 'read_verilog ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                  "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
                   (verilog-module-filepath)
                   (top-module-name))))
            (error "Yosys failed.")))))

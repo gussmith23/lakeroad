@@ -7370,312 +7370,518 @@
         (signal
          (signal-value btor1255)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -7684,312 +7890,518 @@
         (signal
          (signal-value btor1173)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -7998,312 +8410,518 @@
         (signal
          (signal-value btor1159)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -8312,312 +8930,518 @@
         (signal
          (signal-value btor952)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -8626,312 +9450,518 @@
         (signal
          (signal-value btor1173)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -8940,312 +9970,518 @@
         (signal
          (signal-value btor981)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -9254,312 +10490,518 @@
         (signal
          (signal-value btor1187)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -9568,312 +11010,518 @@
         (signal
          (signal-value btor156)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -9882,312 +11530,518 @@
         (signal
          (signal-value btor991)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -10196,312 +12050,518 @@
         (signal
          (signal-value btor1171)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -10510,312 +12570,518 @@
         (signal
          (signal-value btor128)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
@@ -10824,312 +13090,518 @@
         (signal
          (signal-value btor1148)
          (append
-          (list (cons 'state1250 (signal-value btor100)))
+          (list
+           (cons
+            (string->symbol (string-append name "state1250"))
+            (signal-value btor100)))
           (append
-           (list (cons 'state1249 (signal-value btor1723)))
+           (list
+            (cons
+             (string->symbol (string-append name "state1249"))
+             (signal-value btor1723)))
            (append
-            (list (cons 'state1248 (signal-value btor1254)))
+            (list
+             (cons
+              (string->symbol (string-append name "state1248"))
+              (signal-value btor1254)))
             (append
-             (list (cons 'state1180 (signal-value btor100)))
+             (list
+              (cons
+               (string->symbol (string-append name "state1180"))
+               (signal-value btor100)))
              (append
-              (list (cons 'state1179 (signal-value btor1717)))
+              (list
+               (cons
+                (string->symbol (string-append name "state1179"))
+                (signal-value btor1717)))
               (append
-               (list (cons 'state1178 (signal-value btor1184)))
+               (list
+                (cons
+                 (string->symbol (string-append name "state1178"))
+                 (signal-value btor1184)))
                (append
-                (list (cons 'state1164 (signal-value btor100)))
+                (list
+                 (cons
+                  (string->symbol (string-append name "state1164"))
+                  (signal-value btor100)))
                 (append
-                 (list (cons 'state1163 (signal-value btor1712)))
+                 (list
+                  (cons
+                   (string->symbol (string-append name "state1163"))
+                   (signal-value btor1712)))
                  (append
-                  (list (cons 'state1162 (signal-value btor1168)))
+                  (list
+                   (cons
+                    (string->symbol (string-append name "state1162"))
+                    (signal-value btor1168)))
                   (append
-                   (list (cons 'state1154 (signal-value btor100)))
+                   (list
+                    (cons
+                     (string->symbol (string-append name "state1154"))
+                     (signal-value btor100)))
                    (append
-                    (list (cons 'state1153 (signal-value btor1707)))
+                    (list
+                     (cons
+                      (string->symbol (string-append name "state1153"))
+                      (signal-value btor1707)))
                     (append
-                     (list (cons 'state1152 (signal-value btor1158)))
+                     (list
+                      (cons
+                       (string->symbol (string-append name "state1152"))
+                       (signal-value btor1158)))
                      (append
-                      (list (cons 'state1143 (signal-value btor100)))
+                      (list
+                       (cons
+                        (string->symbol (string-append name "state1143"))
+                        (signal-value btor100)))
                       (append
-                       (list (cons 'state1142 (signal-value btor1702)))
+                       (list
+                        (cons
+                         (string->symbol (string-append name "state1142"))
+                         (signal-value btor1702)))
                        (append
-                        (list (cons 'state1141 (signal-value btor1147)))
+                        (list
+                         (cons
+                          (string->symbol (string-append name "state1141"))
+                          (signal-value btor1147)))
                         (append
-                         (list (cons 'state986 (signal-value btor100)))
+                         (list
+                          (cons
+                           (string->symbol (string-append name "state986"))
+                           (signal-value btor100)))
                          (append
-                          (list (cons 'state985 (signal-value btor1697)))
+                          (list
+                           (cons
+                            (string->symbol (string-append name "state985"))
+                            (signal-value btor1697)))
                           (append
-                           (list (cons 'state984 (signal-value btor990)))
+                           (list
+                            (cons
+                             (string->symbol (string-append name "state984"))
+                             (signal-value btor990)))
                            (append
-                            (list (cons 'state916 (signal-value btor100)))
+                            (list
+                             (cons
+                              (string->symbol (string-append name "state916"))
+                              (signal-value btor100)))
                             (append
-                             (list (cons 'state915 (signal-value btor1692)))
+                             (list
+                              (cons
+                               (string->symbol (string-append name "state915"))
+                               (signal-value btor1692)))
                              (append
-                              (list (cons 'state914 (signal-value btor920)))
+                              (list
+                               (cons
+                                (string->symbol
+                                 (string-append name "state914"))
+                                (signal-value btor920)))
                               (append
-                               (list (cons 'state891 (signal-value btor100)))
+                               (list
+                                (cons
+                                 (string->symbol
+                                  (string-append name "state891"))
+                                 (signal-value btor100)))
                                (append
-                                (list (cons 'state890 (signal-value btor1687)))
+                                (list
+                                 (cons
+                                  (string->symbol
+                                   (string-append name "state890"))
+                                  (signal-value btor1687)))
                                 (append
-                                 (list (cons 'state889 (signal-value btor895)))
+                                 (list
+                                  (cons
+                                   (string->symbol
+                                    (string-append name "state889"))
+                                   (signal-value btor895)))
                                  (append
                                   (list
-                                   (cons 'state884 (signal-value btor100)))
+                                   (cons
+                                    (string->symbol
+                                     (string-append name "state884"))
+                                    (signal-value btor100)))
                                   (append
                                    (list
-                                    (cons 'state883 (signal-value btor1682)))
+                                    (cons
+                                     (string->symbol
+                                      (string-append name "state883"))
+                                     (signal-value btor1682)))
                                    (append
                                     (list
-                                     (cons 'state882 (signal-value btor888)))
+                                     (cons
+                                      (string->symbol
+                                       (string-append name "state882"))
+                                      (signal-value btor888)))
                                     (append
                                      (list
-                                      (cons 'state870 (signal-value btor100)))
+                                      (cons
+                                       (string->symbol
+                                        (string-append name "state870"))
+                                       (signal-value btor100)))
                                      (append
                                       (list
                                        (cons
-                                        'state869
+                                        (string->symbol
+                                         (string-append name "state869"))
                                         (signal-value btor1519)))
                                       (append
                                        (list
                                         (cons
-                                         'state868
+                                         (string->symbol
+                                          (string-append name "state868"))
                                          (signal-value btor874)))
                                        (append
                                         (list
                                          (cons
-                                          'state855
+                                          (string->symbol
+                                           (string-append name "state855"))
                                           (signal-value btor100)))
                                         (append
                                          (list
                                           (cons
-                                           'state854
+                                           (string->symbol
+                                            (string-append name "state854"))
                                            (signal-value btor1674)))
                                          (append
                                           (list
                                            (cons
-                                            'state853
+                                            (string->symbol
+                                             (string-append name "state853"))
                                             (signal-value btor859)))
                                           (append
                                            (list
                                             (cons
-                                             'state764
+                                             (string->symbol
+                                              (string-append name "state764"))
                                              (signal-value btor100)))
                                            (append
                                             (list
                                              (cons
-                                              'state763
+                                              (string->symbol
+                                               (string-append name "state763"))
                                               (signal-value btor1669)))
                                             (append
                                              (list
                                               (cons
-                                               'state762
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state762"))
                                                (signal-value btor768)))
                                              (append
                                               (list
                                                (cons
-                                                'state723
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state723"))
                                                 (signal-value btor100)))
                                               (append
                                                (list
                                                 (cons
-                                                 'state722
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state722"))
                                                  (signal-value btor1664)))
                                                (append
                                                 (list
                                                  (cons
-                                                  'state721
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state721"))
                                                   (signal-value btor727)))
                                                 (append
                                                  (list
                                                   (cons
-                                                   'state612
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state612"))
                                                    (signal-value btor100)))
                                                  (append
                                                   (list
                                                    (cons
-                                                    'state611
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state611"))
                                                     (signal-value btor1657)))
                                                   (append
                                                    (list
                                                     (cons
-                                                     'state610
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state610"))
                                                      (signal-value btor616)))
                                                    (append
                                                     (list
                                                      (cons
-                                                      'state543
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state543"))
                                                       (signal-value btor100)))
                                                     (append
                                                      (list
                                                       (cons
-                                                       'state542
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state542"))
                                                        (signal-value
                                                         btor1652)))
                                                      (append
                                                       (list
                                                        (cons
-                                                        'state541
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state541"))
                                                         (signal-value
                                                          btor547)))
                                                       (append
                                                        (list
                                                         (cons
-                                                         'state519
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state519"))
                                                          (signal-value
                                                           btor100)))
                                                        (append
                                                         (list
                                                          (cons
-                                                          'state518
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state518"))
                                                           (signal-value
                                                            btor1645)))
                                                         (append
                                                          (list
                                                           (cons
-                                                           'state517
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state517"))
                                                            (signal-value
                                                             btor523)))
                                                          (append
                                                           (list
                                                            (cons
-                                                            'state470
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state470"))
                                                             (signal-value
                                                              btor100)))
                                                           (append
                                                            (list
                                                             (cons
-                                                             'state469
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state469"))
                                                              (signal-value
                                                               btor1637)))
                                                            (append
                                                             (list
                                                              (cons
-                                                              'state468
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state468"))
                                                               (signal-value
                                                                btor474)))
                                                             (append
                                                              (list
                                                               (cons
-                                                               'state411
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state411"))
                                                                (signal-value
                                                                 btor100)))
                                                              (append
                                                               (list
                                                                (cons
-                                                                'state410
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state410"))
                                                                 (signal-value
                                                                  btor1630)))
                                                               (append
                                                                (list
                                                                 (cons
-                                                                 'state409
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state409"))
                                                                  (signal-value
                                                                   btor415)))
                                                                (append
                                                                 (list
                                                                  (cons
-                                                                  'state334
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state334"))
                                                                   (signal-value
                                                                    btor100)))
                                                                 (append
                                                                  (list
                                                                   (cons
-                                                                   'state333
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state333"))
                                                                    (signal-value
                                                                     btor1624)))
                                                                  (append
                                                                   (list
                                                                    (cons
-                                                                    'state332
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state332"))
                                                                     (signal-value
                                                                      btor338)))
                                                                   (append
                                                                    (list
                                                                     (cons
-                                                                     'state175
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state175"))
                                                                      (signal-value
                                                                       btor100)))
                                                                    (append
                                                                     (list
                                                                      (cons
-                                                                      'state174
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state174"))
                                                                       (signal-value
                                                                        btor1617)))
                                                                     (append
                                                                      (list
                                                                       (cons
-                                                                       'state173
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state173"))
                                                                        (signal-value
                                                                         btor179)))
                                                                      (append
                                                                       (list
                                                                        (cons
-                                                                        'state146
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state146"))
                                                                         (signal-value
                                                                          btor100)))
                                                                       (append
                                                                        (list
                                                                         (cons
-                                                                         'state145
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state145"))
                                                                          (signal-value
                                                                           btor1611)))
                                                                        (append
                                                                         (list
                                                                          (cons
-                                                                          'state144
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state144"))
                                                                           (signal-value
                                                                            btor150)))
                                                                         (append
                                                                          (list
                                                                           (cons
-                                                                           'state132
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state132"))
                                                                            (signal-value
                                                                             btor100)))
                                                                          (append
                                                                           (list
                                                                            (cons
-                                                                            'state131
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state131"))
                                                                             (signal-value
                                                                              btor1604)))
                                                                           (append
                                                                            (list
                                                                             (cons
-                                                                             'state130
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state130"))
                                                                              (signal-value
                                                                               btor136)))
                                                                            (append
                                                                             (list
                                                                              (cons
-                                                                              'state118
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state118"))
                                                                               (signal-value
                                                                                btor100)))
                                                                             (append
                                                                              (list
                                                                               (cons
-                                                                               'state117
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state117"))
                                                                                (signal-value
                                                                                 btor1596)))
                                                                              (append
                                                                               (list
                                                                                (cons
-                                                                                'state116
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state116"))
                                                                                 (signal-value
                                                                                  btor122)))
                                                                               (append
                                                                                (list
                                                                                 (cons
-                                                                                 'state98
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state98"))
                                                                                  (signal-value
                                                                                   btor100)))
                                                                                (append
                                                                                 (list
                                                                                  (cons
-                                                                                  'state96
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state96"))
                                                                                   (signal-value
                                                                                    btor1589)))
                                                                                 (append
                                                                                  (list
                                                                                   (cons
-                                                                                   'state95
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state95"))
                                                                                    (signal-value
                                                                                     btor105)))
                                                                                  (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
