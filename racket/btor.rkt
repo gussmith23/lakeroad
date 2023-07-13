@@ -391,6 +391,11 @@
                       (string-split str #rx"\n+"))])
     (compile-line line))
 
+  ;;; The final output state hash will be all of the new states appended to all of the state data that
+  ;;; came in to the function.
+  ;;; TODO(@gussmith23): This may be slow/take up a lot of memory.
+  (set! output-state-hash `(append ,output-state-hash ,merged-input-state-hash-symbol))
+
   ;;; Makes a function which outputs the given expression.
   (define/contract (make-function out-symbol)
     (-> symbol? (list/c any/c any/c))

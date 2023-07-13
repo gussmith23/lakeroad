@@ -327,6 +327,14 @@
              (zero-extend (signal-value btor39) (bitvector 1))
              btor39)))
       (list
-       (cons 'COUT (signal (signal-value btor65) (list)))
-       (cons 'S0 (signal (signal-value btor68) (list)))
-       (cons 'S1 (signal (signal-value btor71) (list)))))))
+       (cons
+        'COUT
+        (signal (signal-value btor65) (append (list) merged-input-state-hash)))
+       (cons
+        'S0
+        (signal (signal-value btor68) (append (list) merged-input-state-hash)))
+       (cons
+        'S1
+        (signal
+         (signal-value btor71)
+         (append (list) merged-input-state-hash)))))))

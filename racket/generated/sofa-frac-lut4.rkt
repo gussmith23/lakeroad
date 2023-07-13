@@ -1859,6 +1859,14 @@
              (zero-extend (signal-value btor48) (bitvector 1))
              btor48)))
       (list
-       (cons 'lut3_out (signal (signal-value btor45) (list)))
-       (cons 'lut4_out (signal (signal-value btor49) (list)))
-       (cons 'lut2_out (signal (signal-value btor26) (list)))))))
+       (cons
+        'lut3_out
+        (signal (signal-value btor45) (append (list) merged-input-state-hash)))
+       (cons
+        'lut4_out
+        (signal (signal-value btor49) (append (list) merged-input-state-hash)))
+       (cons
+        'lut2_out
+        (signal
+         (signal-value btor26)
+         (append (list) merged-input-state-hash)))))))
