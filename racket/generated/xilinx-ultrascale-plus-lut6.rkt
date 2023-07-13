@@ -4145,10 +4145,11 @@
            (btor1086
             (bv->signal
              (zero-extend (signal-value btor23) (bitvector 1))
-             btor23)))
-      (list
-       (cons
-        'O
-        (signal
-         (signal-value btor1046)
-         (append (list) merged-input-state-hash)))))))
+             btor23))
+           (output-state
+            (remove-duplicates
+             (append (list) merged-input-state-hash)
+             equal?
+             #:key
+             car)))
+      (list (cons 'O (signal (signal-value btor1046) output-state))))))
