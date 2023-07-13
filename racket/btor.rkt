@@ -211,8 +211,8 @@
          ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
          ;;; the output value for the state.
          (set! output-state-hash
-               `(append (list (cons ',(make-state-key-expr
-                                       (hash-ref state-symbols (string->number state-id-str)))
+               `(append (list (cons ,(make-state-key-expr
+                                      (hash-ref state-symbols (string->number state-id-str)))
                                     (signal-value ,(get-expr-id-str next-val-id-str))))
                         ,output-state-hash))]
         ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
