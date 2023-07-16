@@ -100,3 +100,14 @@ else
     | sed 's#(require (file.*#(require "../signal.rkt\")#' )
   echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-alu54a.rkt
 fi
+
+if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then 
+  echo "not importing module as LAKEROAD_PRIVATE_DIR is not set"
+else 
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+    --infile "$LAKEROAD_PRIVATE_DIR"/lattice_ecp5/MULT18X18C_modified_for_racket_import.v \
+    --top MULT18X18C \
+    --function-name lattice-ecp5-mult18x18c \
+    | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+  echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-mult18x18c.rkt
+fi
