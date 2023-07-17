@@ -1390,8 +1390,9 @@
             (interface-implementation
              (interface-identifier
               "DSP"
-              (hash-table ("out-width" 36) ("a-width" 18) ("b-width" 18) ("c-width" 18)))
-             (list (module-instance "MULT18X18C" ports params path path "mult0"))
+              (hash-table ("out-width" 54) ("a-width" 18) ("b-width" 18) ("c-width" 54)))
+             (list (module-instance "MULT18X18C" ports params path path "mult0")
+                   (module-instance "ALU54A" alu-ports alu-params alu-path alu-path "alu"))
              internal-data
              (hash-table ("O" dsp-out-str))
              constraints)))
