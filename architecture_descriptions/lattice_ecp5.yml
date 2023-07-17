@@ -161,8 +161,8 @@ implementations:
 
             { name: SIGNEDA, direction: input, bitwidth: 1, value: SIGNEDA },
             { name: SIGNEDB, direction: input, bitwidth: 1, value: SIGNEDB },
-            { name: SOURCEA, direction: input, bitwidth: 1, value: SOURCEA },
-            { name: SOURCEB, direction: input, bitwidth: 1, value: SOURCEB },
+            { name: SOURCEA, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: SOURCEB, direction: input, bitwidth: 1, value: (bv 0 1) },
 
             { name: CE0, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: CE1, direction: input, bitwidth: 1, value: (bv 1 1) },
