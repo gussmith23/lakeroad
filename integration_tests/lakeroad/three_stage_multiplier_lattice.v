@@ -27,42 +27,42 @@ module three_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
 endmodule
 
 // CHECK: module out(a, b, clk, p);
-// CHECK:   wire P0_90;
-// CHECK:   wire P10_100;
-// CHECK:   wire P11_101;
-// CHECK:   wire P12_102;
-// CHECK:   wire P13_103;
-// CHECK:   wire P14_104;
-// CHECK:   wire P15_105;
-// CHECK:   wire P16_106;
-// CHECK:   wire P17_107;
-// CHECK:   wire P18_108;
-// CHECK:   wire P19_109;
-// CHECK:   wire P1_91;
-// CHECK:   wire P20_110;
-// CHECK:   wire P21_111;
-// CHECK:   wire P22_112;
-// CHECK:   wire P23_113;
-// CHECK:   wire P24_114;
-// CHECK:   wire P25_115;
-// CHECK:   wire P26_116;
-// CHECK:   wire P27_117;
-// CHECK:   wire P28_118;
-// CHECK:   wire P29_119;
-// CHECK:   wire P2_92;
-// CHECK:   wire P30_120;
-// CHECK:   wire P31_121;
-// CHECK:   wire P32_122;
-// CHECK:   wire P33_123;
-// CHECK:   wire P34_124;
-// CHECK:   wire P35_125;
-// CHECK:   wire P3_93;
-// CHECK:   wire P4_94;
-// CHECK:   wire P5_95;
-// CHECK:   wire P6_96;
-// CHECK:   wire P7_97;
-// CHECK:   wire P8_98;
-// CHECK:   wire P9_99;
+// CHECK:   wire P0_72;
+// CHECK:   wire P10_82;
+// CHECK:   wire P11_83;
+// CHECK:   wire P12_84;
+// CHECK:   wire P13_85;
+// CHECK:   wire P14_86;
+// CHECK:   wire P15_87;
+// CHECK:   wire P16_88;
+// CHECK:   wire P17_89;
+// CHECK:   wire P18_90;
+// CHECK:   wire P19_91;
+// CHECK:   wire P1_73;
+// CHECK:   wire P20_92;
+// CHECK:   wire P21_93;
+// CHECK:   wire P22_94;
+// CHECK:   wire P23_95;
+// CHECK:   wire P24_96;
+// CHECK:   wire P25_97;
+// CHECK:   wire P26_98;
+// CHECK:   wire P27_99;
+// CHECK:   wire P28_100;
+// CHECK:   wire P29_101;
+// CHECK:   wire P2_74;
+// CHECK:   wire P30_102;
+// CHECK:   wire P31_103;
+// CHECK:   wire P32_104;
+// CHECK:   wire P33_105;
+// CHECK:   wire P34_106;
+// CHECK:   wire P35_107;
+// CHECK:   wire P3_75;
+// CHECK:   wire P4_76;
+// CHECK:   wire P5_77;
+// CHECK:   wire P6_78;
+// CHECK:   wire P7_79;
+// CHECK:   wire P8_80;
+// CHECK:   wire P9_81;
 // CHECK:   wire ROA0_36;
 // CHECK:   wire ROA10_46;
 // CHECK:   wire ROA11_47;
@@ -99,25 +99,7 @@ endmodule
 // CHECK:   wire ROB7_61;
 // CHECK:   wire ROB8_62;
 // CHECK:   wire ROB9_63;
-// CHECK:   wire ROC0_72;
-// CHECK:   wire ROC10_82;
-// CHECK:   wire ROC11_83;
-// CHECK:   wire ROC12_84;
-// CHECK:   wire ROC13_85;
-// CHECK:   wire ROC14_86;
-// CHECK:   wire ROC15_87;
-// CHECK:   wire ROC16_88;
-// CHECK:   wire ROC17_89;
-// CHECK:   wire ROC1_73;
-// CHECK:   wire ROC2_74;
-// CHECK:   wire ROC3_75;
-// CHECK:   wire ROC4_76;
-// CHECK:   wire ROC5_77;
-// CHECK:   wire ROC6_78;
-// CHECK:   wire ROC7_79;
-// CHECK:   wire ROC8_80;
-// CHECK:   wire ROC9_81;
-// CHECK:   wire SIGNEDP_126;
+// CHECK:   wire SIGNEDP_108;
 // CHECK:   wire SROA0_0;
 // CHECK:   wire SROA10_10;
 // CHECK:   wire SROA11_11;
@@ -162,32 +144,22 @@ endmodule
 // CHECK:   wire clk;
 // CHECK:   output [15:0] p;
 // CHECK:   wire [15:0] p;
-// CHECK:   MULT18X18D #(
+// CHECK:   MULT18X18C #(
 // CHECK:     .CAS_MATCH_REG("FALSE"),
-// CHECK:     .CLK0_DIV("DISABLED"),
-// CHECK:     .CLK1_DIV("DISABLED"),
-// CHECK:     .CLK2_DIV("DISABLED"),
-// CHECK:     .CLK3_DIV("DISABLED"),
-// CHECK:     .GSR("DISABLED"),
-// CHECK:     .HIGHSPEED_CLK("NONE"),
 // CHECK:     .MULT_BYPASS("DISABLED"),
-// CHECK:     .REG_INPUTA_CE("CE3"),
-// CHECK:     .REG_INPUTA_CLK("CLK1"),
-// CHECK:     .REG_INPUTA_RST("RST3"),
-// CHECK:     .REG_INPUTB_CE("CE3"),
+// CHECK:     .REG_INPUTA_CE("CE0"),
+// CHECK:     .REG_INPUTA_CLK("CLK0"),
+// CHECK:     .REG_INPUTA_RST("RST0"),
+// CHECK:     .REG_INPUTB_CE("CE0"),
 // CHECK:     .REG_INPUTB_CLK("CLK0"),
-// CHECK:     .REG_INPUTB_RST("RST3"),
-// CHECK:     .REG_INPUTC_CE("CE3"),
-// CHECK:     .REG_INPUTC_CLK("CLK1"),
-// CHECK:     .REG_INPUTC_RST("RST3"),
-// CHECK:     .REG_OUTPUT_CE("CE3"),
+// CHECK:     .REG_INPUTB_RST("RST0"),
+// CHECK:     .REG_OUTPUT_CE("CE0"),
 // CHECK:     .REG_OUTPUT_CLK("CLK0"),
-// CHECK:     .REG_OUTPUT_RST("RST3"),
-// CHECK:     .REG_PIPELINE_CE("CE3"),
+// CHECK:     .REG_OUTPUT_RST("RST0"),
+// CHECK:     .REG_PIPELINE_CE("CE0"),
 // CHECK:     .REG_PIPELINE_CLK("CLK0"),
-// CHECK:     .REG_PIPELINE_RST("RST3"),
-// CHECK:     .SOURCEB_MODE("B_SHIFT")
-// CHECK:   ) MULT18X18D_0 (
+// CHECK:     .REG_PIPELINE_RST("RST0")
+// CHECK:   ) MULT18X18C_0 (
 // CHECK:     .A0(a[0]),
 // CHECK:     .A1(a[1]),
 // CHECK:     .A10(a[10]),
@@ -214,8 +186,8 @@ endmodule
 // CHECK:     .B13(b[13]),
 // CHECK:     .B14(b[14]),
 // CHECK:     .B15(b[15]),
-// CHECK:     .B16(b[15]),
-// CHECK:     .B17(b[15]),
+// CHECK:     .B16(1'h0),
+// CHECK:     .B17(1'h0),
 // CHECK:     .B2(b[2]),
 // CHECK:     .B3(b[3]),
 // CHECK:     .B4(b[4]),
@@ -224,24 +196,6 @@ endmodule
 // CHECK:     .B7(b[7]),
 // CHECK:     .B8(b[8]),
 // CHECK:     .B9(b[9]),
-// CHECK:     .C0(1'h1),
-// CHECK:     .C1(1'h1),
-// CHECK:     .C10(1'h1),
-// CHECK:     .C11(1'h1),
-// CHECK:     .C12(1'h1),
-// CHECK:     .C13(1'h1),
-// CHECK:     .C14(1'h1),
-// CHECK:     .C15(1'h1),
-// CHECK:     .C16(1'h1),
-// CHECK:     .C17(1'h1),
-// CHECK:     .C2(1'h1),
-// CHECK:     .C3(1'h1),
-// CHECK:     .C4(1'h1),
-// CHECK:     .C5(1'h1),
-// CHECK:     .C6(1'h1),
-// CHECK:     .C7(1'h1),
-// CHECK:     .C8(1'h1),
-// CHECK:     .C9(1'h1),
 // CHECK:     .CE0(1'h1),
 // CHECK:     .CE1(1'h1),
 // CHECK:     .CE2(1'h1),
@@ -258,28 +212,28 @@ endmodule
 // CHECK:     .P13(p[13]),
 // CHECK:     .P14(p[14]),
 // CHECK:     .P15(p[15]),
-// CHECK:     .P16(P16_106),
-// CHECK:     .P17(P17_107),
-// CHECK:     .P18(P18_108),
-// CHECK:     .P19(P19_109),
+// CHECK:     .P16(P16_88),
+// CHECK:     .P17(P17_89),
+// CHECK:     .P18(P18_90),
+// CHECK:     .P19(P19_91),
 // CHECK:     .P2(p[2]),
-// CHECK:     .P20(P20_110),
-// CHECK:     .P21(P21_111),
-// CHECK:     .P22(P22_112),
-// CHECK:     .P23(P23_113),
-// CHECK:     .P24(P24_114),
-// CHECK:     .P25(P25_115),
-// CHECK:     .P26(P26_116),
-// CHECK:     .P27(P27_117),
-// CHECK:     .P28(P28_118),
-// CHECK:     .P29(P29_119),
+// CHECK:     .P20(P20_92),
+// CHECK:     .P21(P21_93),
+// CHECK:     .P22(P22_94),
+// CHECK:     .P23(P23_95),
+// CHECK:     .P24(P24_96),
+// CHECK:     .P25(P25_97),
+// CHECK:     .P26(P26_98),
+// CHECK:     .P27(P27_99),
+// CHECK:     .P28(P28_100),
+// CHECK:     .P29(P29_101),
 // CHECK:     .P3(p[3]),
-// CHECK:     .P30(P30_120),
-// CHECK:     .P31(P31_121),
-// CHECK:     .P32(P32_122),
-// CHECK:     .P33(P33_123),
-// CHECK:     .P34(P34_124),
-// CHECK:     .P35(P35_125),
+// CHECK:     .P30(P30_102),
+// CHECK:     .P31(P31_103),
+// CHECK:     .P32(P32_104),
+// CHECK:     .P33(P33_105),
+// CHECK:     .P34(P34_106),
+// CHECK:     .P35(P35_107),
 // CHECK:     .P4(p[4]),
 // CHECK:     .P5(p[5]),
 // CHECK:     .P6(p[6]),
@@ -322,31 +276,13 @@ endmodule
 // CHECK:     .ROB7(ROB7_61),
 // CHECK:     .ROB8(ROB8_62),
 // CHECK:     .ROB9(ROB9_63),
-// CHECK:     .ROC0(ROC0_72),
-// CHECK:     .ROC1(ROC1_73),
-// CHECK:     .ROC10(ROC10_82),
-// CHECK:     .ROC11(ROC11_83),
-// CHECK:     .ROC12(ROC12_84),
-// CHECK:     .ROC13(ROC13_85),
-// CHECK:     .ROC14(ROC14_86),
-// CHECK:     .ROC15(ROC15_87),
-// CHECK:     .ROC16(ROC16_88),
-// CHECK:     .ROC17(ROC17_89),
-// CHECK:     .ROC2(ROC2_74),
-// CHECK:     .ROC3(ROC3_75),
-// CHECK:     .ROC4(ROC4_76),
-// CHECK:     .ROC5(ROC5_77),
-// CHECK:     .ROC6(ROC6_78),
-// CHECK:     .ROC7(ROC7_79),
-// CHECK:     .ROC8(ROC8_80),
-// CHECK:     .ROC9(ROC9_81),
 // CHECK:     .RST0(1'h0),
 // CHECK:     .RST1(1'h0),
 // CHECK:     .RST2(1'h0),
 // CHECK:     .RST3(1'h0),
 // CHECK:     .SIGNEDA(1'h1),
 // CHECK:     .SIGNEDB(1'h1),
-// CHECK:     .SIGNEDP(SIGNEDP_126),
+// CHECK:     .SIGNEDP(SIGNEDP_108),
 // CHECK:     .SOURCEA(1'h0),
 // CHECK:     .SOURCEB(1'h0),
 // CHECK:     .SRIA0(1'h0),
@@ -422,20 +358,20 @@ endmodule
 // CHECK:     .SROB8(SROB8_26),
 // CHECK:     .SROB9(SROB9_27)
 // CHECK:   );
-// CHECK:   assign P0_90 = p[0];
-// CHECK:   assign P10_100 = p[10];
-// CHECK:   assign P11_101 = p[11];
-// CHECK:   assign P12_102 = p[12];
-// CHECK:   assign P13_103 = p[13];
-// CHECK:   assign P14_104 = p[14];
-// CHECK:   assign P15_105 = p[15];
-// CHECK:   assign P1_91 = p[1];
-// CHECK:   assign P2_92 = p[2];
-// CHECK:   assign P3_93 = p[3];
-// CHECK:   assign P4_94 = p[4];
-// CHECK:   assign P5_95 = p[5];
-// CHECK:   assign P6_96 = p[6];
-// CHECK:   assign P7_97 = p[7];
-// CHECK:   assign P8_98 = p[8];
-// CHECK:   assign P9_99 = p[9];
+// CHECK:   assign P0_72 = p[0];
+// CHECK:   assign P10_82 = p[10];
+// CHECK:   assign P11_83 = p[11];
+// CHECK:   assign P12_84 = p[12];
+// CHECK:   assign P13_85 = p[13];
+// CHECK:   assign P14_86 = p[14];
+// CHECK:   assign P15_87 = p[15];
+// CHECK:   assign P1_73 = p[1];
+// CHECK:   assign P2_74 = p[2];
+// CHECK:   assign P3_75 = p[3];
+// CHECK:   assign P4_76 = p[4];
+// CHECK:   assign P5_77 = p[5];
+// CHECK:   assign P6_78 = p[6];
+// CHECK:   assign P7_79 = p[7];
+// CHECK:   assign P8_80 = p[8];
+// CHECK:   assign P9_81 = p[9];
 // CHECK: endmodule

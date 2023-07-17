@@ -226,7 +226,8 @@
                                                   "USE_WIDEXOR"
                                                   "XORSIMD")))
                                (dsp48e2-enum-val-to-str (module-instance-parameter-value param))]
-                              [(and (equal? module-name "MULT18X18D")
+                              [(and (or (equal? module-name "MULT18X18C")
+                                        (equal? module-name "MULT18X18D"))
                                     (member (module-instance-parameter-name param)
                                             (list "CLK0_DIV"
                                                   "CLK1_DIV"
