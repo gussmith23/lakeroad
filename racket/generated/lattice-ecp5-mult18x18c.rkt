@@ -1,6 +1,6 @@
 #lang racket/base
 (provide lattice-ecp5-mult18x18c)
-(require (file "/home/gus/lakeroad/racket/signal.rkt"))
+(require (file "../signal.rkt"))
 (require rosette)
 (define lattice-ecp5-mult18x18c
   (λ (#:A0
