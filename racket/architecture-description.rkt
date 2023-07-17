@@ -52,6 +52,7 @@
 ;;; - bitwidth: integer bitwidth of the port.
 (struct interface-port (name direction bitwidth) #:transparent)
 
+;;; TODO(@gussmith23): There's no reason these all need to be written out! Remove this.
 (define interfaces
   ;;; LUT1 definition.
   (list (interface-definition (interface-identifier "LUT" (hash "num_inputs" 1))
@@ -125,7 +126,14 @@
                (interface-port "B" 'input 18)
                (interface-port "C" 'input 18)
                (interface-port "clk" 'input 1)
-               (interface-port "O" 'output 36)))))
+               (interface-port "O" 'output 36)))
+        (interface-definition
+         (interface-identifier "DSP" (hash "out-width" 54 "a-width" 18 "b-width" 18 "c-width" 54))
+         (list (interface-port "A" 'input 18)
+               (interface-port "B" 'input 18)
+               (interface-port "C" 'input 54)
+               (interface-port "clk" 'input 1)
+               (interface-port "O" 'output 54)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 
