@@ -1,4 +1,4 @@
-// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture lattice-ecp5 \
 // RUN:  --template dsp \
@@ -11,8 +11,8 @@
 // RUN:  --input-signal a:16 \
 // RUN:  --input-signal b:16 \
 // RUN:  --input-signal c:16 \
-// RUN: &2>1 \
-// RUN: || true \
+// RUN: || true) \
+// RUN: 2>&1 \
 // RUN: | FileCheck %s
 
 module top(input clk, input [15:0] a, b, c, output [15:0] p);
