@@ -2284,8 +2284,8 @@
                         [this-iter-env
                          (map (lambda (pair)
                                 (match pair
-                                  [(cons k (signal v state))
-                                   (cons k (signal v (append (signal-state prev-value) state)))]))
+                                  [(cons k (signal v n state))
+                                   (cons k (signal v n (append (signal-state prev-value) state)))]))
                               this-iter-env)]
 
                         ;;; Convert to keywords.
@@ -2297,7 +2297,7 @@
                         ;;; Sort keywords.
                         [this-iter-env (sort this-iter-env keyword<? #:key car)])
                    (keyword-apply bv-expr (map car this-iter-env) (map cdr this-iter-env) '())))])
-         (signal-value (foldl interpret-one-iter (signal 'unused '()) envs)))]))
+         (signal-value (foldl interpret-one-iter (signal 'unused 'unused '()) envs)))]))
 
   ;;; This block of code should be restructured. Instead of running synthesis in here, this `define`
   ;;; should interpret the Lakeroad expression, and then synthesis should be moved to another define.
@@ -2320,13 +2320,13 @@
                         [this-iter-env
                          (map (lambda (pair)
                                 (match pair
-                                  [(cons k (signal v state))
-                                   (cons k (signal v (append (signal-state prev-value) state)))]))
+                                  [(cons k (signal v n state))
+                                   (cons k (signal v n (append (signal-state prev-value) state)))]))
                               this-iter-env)])
                    (interpret lakeroad-expr
                               #:module-semantics module-semantics
                               #:environment this-iter-env)))]
-              [final-value (foldl interpret-one-iter (signal 'unused '()) envs)])
+              [final-value (foldl interpret-one-iter (signal 'unused 'unused '()) envs)])
          (synthesize #:forall inputs
                      #:guarantee (assert (bveq bv-expr-evaluated (signal-value final-value)))))]))
 

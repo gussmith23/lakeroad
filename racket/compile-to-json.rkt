@@ -328,7 +328,7 @@
                               ;;; bitvectors, and so we need to convert them back for some modules.
                               (or (compile-parameter-override module-name p)
                                   (match (module-instance-parameter-value p)
-                                    [(lr:bv (signal v _)) (make-literal-value-from-bv v)]))))
+                                    [(lr:bv (signal v _ _)) (make-literal-value-from-bv v)]))))
                            params)]
                          ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
                          ;;; parameters. We will need to figure out a way around this hack especially
@@ -667,7 +667,8 @@
                   (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) state))
+                 ;;; TODO(@gussmith23): Use `signal-value` here? Or `signal-next`? I think value.
+                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) _ state))
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
@@ -696,7 +697,8 @@
                   ;;; Return the bits.
                   (hash-ref port-details 'bits)]
                  ;;; Concrete bitvectors become constants.
-                 [(lr:bv (signal (? bv? (? concrete? s)) state))
+                 ;;; TODO(@gussmith23): Use `signal-value` here? Or `signal-next`? I think value.
+                 [(lr:bv (signal (? bv? (? concrete? s)) _ state))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
 
                  [(lr:integer v) v]

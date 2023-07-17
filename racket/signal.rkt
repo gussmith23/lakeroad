@@ -27,11 +27,16 @@
 ;;; of a pipelined multiplier module might be an bitvector v. The signal representing the multiplier's
 ;;; output might then look like (signal v { internal-register-0: (bv #x0a 8), internal-register-1: (bv
 ;;; #x0b 8) }), where the internal registers represent some state internal to the multiplier module.
-(struct signal (value state) #:transparent)
+;;;
+;;; - next: the next value of the signal. See #284. This is just a hack for now, and needs to be
+;;;   fleshed out.
+;;; - value: in the context of this new hack (#284), value is now the "previous" value.
+(struct signal (value next state) #:transparent)
 
 ;;; Creates a signal from a bitvector, optionally taking the state from an existing signal.
-(define (bv->signal bv [with-state-from (signal '() (list))])
-  (signal bv (signal-state with-state-from)))
+(define (bv->signal v [with-state-from (signal '() 'unused (list))])
+  ;;; TODO(@gussmith23): What to use for `next` here?
+  (signal v (bv 0 (length (bitvector->bits v))) (signal-state with-state-from)))
 
 ;;; Gets state from a signal.
 (define (signal-state-value signal k)

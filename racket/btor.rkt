@@ -82,7 +82,9 @@
 
   ;;; Reduction op builder helper.
   (define (redop-call-builder op signal-expr)
-    `(signal (apply ,op (bitvector->bits (signal-value ,signal-expr))) (signal-state ,signal-expr)))
+    `(signal (apply ,op (bitvector->bits (signal-value ,signal-expr)))
+             'TODO-hack-unused
+             (signal-state ,signal-expr)))
 
   ;;; Comparison op builder helper.
   (define (compop-call-builder op . signal-exprs)
@@ -179,20 +181,21 @@
                  [(cons id-str tokens) (string-split line)]
                  [id (string->number id-str)])
       (match tokens
-        [`("read" ,sort-id-str ,array-id-str ,index-id-str)
-         (let ([array (get-expr-id-str array-id-str)] [index (get-expr-id-str index-id-str)])
-           (add-expr-id-str id-str
-                            `(signal (vector-ref-bv (signal-value ,array) (signal-value ,index))
-                                     (merge-state (list ,array ,index)))))]
-        [`("write" ,sort-id-str ,array-id-str ,index-id-str ,value-id-str)
-         (let ([array (get-expr-id-str array-id-str)]
-               [index (get-expr-id-str index-id-str)]
-               [value (get-expr-id-str value-id-str)])
-           (add-expr-id-str
-            id-str
-            `(begin
-               (vector-set!-bv (signal-value ,array) (signal-value ,index) (signal-value ,value))
-               (signal (signal-value ,array) (merge-state (list ,array ,index ,value))))))]
+        ;;; TODO(@gussmith23): Not updating these with hack.
+        ;;; [`("read" ,sort-id-str ,array-id-str ,index-id-str)
+        ;;;  (let ([array (get-expr-id-str array-id-str)] [index (get-expr-id-str index-id-str)])
+        ;;;    (add-expr-id-str id-str
+        ;;;                     `(signal (vector-ref-bv (signal-value ,array) (signal-value ,index))
+        ;;;                              (merge-state (list ,array ,index)))))]
+        ;;; [`("write" ,sort-id-str ,array-id-str ,index-id-str ,value-id-str)
+        ;;;  (let ([array (get-expr-id-str array-id-str)]
+        ;;;        [index (get-expr-id-str index-id-str)]
+        ;;;        [value (get-expr-id-str value-id-str)])
+        ;;;    (add-expr-id-str
+        ;;;     id-str
+        ;;;     `(begin
+        ;;;        (vector-set!-bv (signal-value ,array) (signal-value ,index) (signal-value ,value))
+        ;;;        (signal (signal-value ,array) (merge-state (list ,array ,index ,value))))))]
         ;;; `next` can optionally have a name associated with it.
         [`("next" ,sort-id-str ,state-id-str ,next-val-id-str ,maybe-name-str ...)
          ;;; Check that there's at most one name.
@@ -326,6 +329,7 @@
            (add-expr-id-str
             id-str
             `(signal (extract ,(string->number u-str) ,(string->number l-str) (signal-value ,s))
+                     'TODO-hack-unused
                      (signal-state ,s))))]
         [`("output" ,id-str ,name) (hash-set! outs (string->symbol name) (get-expr-id-str id-str))]
         [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
@@ -416,7 +420,9 @@
          (list ,@(map (lambda (k v) `(cons ,k ,v))
                       (map (λ (s) `(quote ,s)) (hash-keys outs))
                       (map (lambda (out-symbol)
-                             `(signal (signal-value ,(hash-ref outs out-symbol)) output-state))
+                             `(signal (signal-value ,(hash-ref outs out-symbol))
+                                      'TODO-hack-unused
+                                      output-state))
                            (hash-keys outs)))))))
 
   (define requires

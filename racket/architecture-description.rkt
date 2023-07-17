@@ -1445,8 +1445,8 @@
                                  (cons "DI" (lr:bv (bv->signal (bv 0 2))))
                                  (cons "S" (lr:bv (bv->signal (bv 0 2)))))))
     (check-true (match internal-data
-                  [(list (cons "INIT0" (lr:bv (signal (? (bitvector 16) _) _)))
-                         (cons "INIT1" (lr:bv (signal (? (bitvector 16) _) _))))
+                  [(list (cons "INIT0" (lr:bv (signal (? (bitvector 16) _) (? (bitvector 16) _) _)))
+                         (cons "INIT1" (lr:bv (signal (? (bitvector 16) _) (? (bitvector 16) _) _))))
                    #t]
                   [else #f]))
     (match-define (lr:make-immutable-hash
@@ -1465,10 +1465,10 @@
           (module-instance-port "A1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
           (module-instance-port "B0" (lr:extract (lr:integer 0) (lr:integer 0) (lr:bv v0)) 'input 1)
           (module-instance-port "B1" (lr:extract (lr:integer 1) (lr:integer 1) (lr:bv v0)) 'input 1)
-          (module-instance-port "C0" (lr:bv (signal (? bv? _) _)) 'input 1)
-          (module-instance-port "C1" (lr:bv (signal (? bv? _) _)) 'input 1)
-          (module-instance-port "D0" (lr:bv (signal (? bv? _) _)) 'input 1)
-          (module-instance-port "D1" (lr:bv (signal (? bv? _) _)) 'input 1)
+          (module-instance-port "C0" (lr:bv (signal (? bv? _) (? bv? _) _)) 'input 1)
+          (module-instance-port "C1" (lr:bv (signal (? bv? _) (? bv? _) _)) 'input 1)
+          (module-instance-port "D0" (lr:bv (signal (? bv? _) (? bv? _) _)) 'input 1)
+          (module-instance-port "D1" (lr:bv (signal (? bv? _) (? bv? _) _)) 'input 1)
           (module-instance-port "S0" "unused" 'output 1)
           (module-instance-port "S1" "unused" 'output 1)
           (module-instance-port "COUT" "unused" 'output 1))
@@ -1489,9 +1489,10 @@
                                  (cons "I1" (lr:bv (bv->signal (bv 0 1))))
                                  (cons "I2" (lr:bv (bv->signal (bv 0 1))))
                                  (cons "I3" (lr:bv (bv->signal (bv 0 1)))))))
-    (check-true (match internal-data
-                  [(list (cons "sram" (lr:bv (signal (? (bitvector 16) _) _)))) #t]
-                  [else #f]))
+    (check-true
+     (match internal-data
+       [(list (cons "sram" (lr:bv (signal (? (bitvector 16) _) (? (bitvector 16) _) _)))) #t]
+       [else #f]))
     (match-define (lr:make-immutable-hash
                    (lr:list (list (lr:cons (lr:symbol 'O) (lr:hash-ref mod-expr 'lut4_out)))))
       expr)
