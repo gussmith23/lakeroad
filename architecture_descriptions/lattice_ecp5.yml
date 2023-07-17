@@ -666,10 +666,10 @@ implementations:
             # TODO(@gussmith23): Need to set this to `clk`.
             #
             # See #265.
-            { name: CLK0, direction: input, bitwidth: 1, value: ALUCLK },
-            { name: CLK1, direction: input, bitwidth: 1, value: ALUCLK },
-            { name: CLK2, direction: input, bitwidth: 1, value: ALUCLK },
-            { name: CLK3, direction: input, bitwidth: 1, value: ALUCLK },
+            { name: CLK0, direction: input, bitwidth: 1, value: clk },
+            { name: CLK1, direction: input, bitwidth: 1, value: clk },
+            { name: CLK2, direction: input, bitwidth: 1, value: clk },
+            { name: CLK3, direction: input, bitwidth: 1, value: clk },
 
             { name: LEGACY, direction: input, bitwidth: 5, value: LEGACY },
             { name: MASK01, direction: input, bitwidth: 56, value: MASK01 },
