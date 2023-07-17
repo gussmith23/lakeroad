@@ -700,3 +700,212 @@
                                            (bvadd (bvadd (zero-extend a-input (bitvector 54))
                                                          (zero-extend b-input (bitvector 54)))
                                                   c-input))))))
+
+(test-case "get an input on the second cycle and return it on the third"
+
+  (define-symbolic input (bitvector 54))
+  (define-symbolic opcode (bitvector 11))
+
+  (define o0
+    (helper '()
+            ;;; A
+            (bv 0 36)
+            ;;; B
+            (bv 0 36)
+            ;;; C
+            (bv 0 54)
+            ;;; CE
+            (bv #b1111 4)
+            ;;; CFB
+            (bv 0 54)
+            ;;; CIN
+            (bv 0 54)
+            ;;; CLK
+            (bv #b0000 4)
+            ;;; OP
+            opcode
+            ;;; MA
+            (bv 0 36)
+            ;;; MB
+            (bv 0 36)
+            ;;; RST
+            (bv #b0000 4)))
+
+  (define o1
+    (helper (signal-state (cdr (assoc 'R0 o0)))
+            ;;; A
+            (bv 0 36)
+            ;;; B
+            (bv 0 36)
+            ;;; C
+            (bv 0 54)
+            ;;; CE
+            (bv #b1111 4)
+            ;;; CFB
+            (bv 0 54)
+            ;;; CIN
+            (bv 0 54)
+            ;;; CLK
+            (bv #b1111 4)
+            ;;; OP
+            opcode
+            ;;; MA
+            (bv 0 36)
+            ;;; MB
+            (bv 0 36)
+            ;;; RST
+            (bv #b0000 4)))
+
+  (define o2
+    (helper (signal-state (cdr (assoc 'R0 o1)))
+            ;;; A
+            (bv 0 36)
+            ;;; B
+            (bv 0 36)
+            ;;; C
+            input
+            ;;; CE
+            (bv #b1111 4)
+            ;;; CFB
+            (bv 0 54)
+            ;;; CIN
+            (bv 0 54)
+            ;;; CLK
+            (bv #b0000 4)
+            ;;; OP
+            opcode
+            ;;; MA
+            (bv 0 36)
+            ;;; MB
+            (bv 0 36)
+            ;;; RST
+            (bv #b0000 4)))
+  (define o3
+    (helper (signal-state (cdr (assoc 'R0 o2)))
+            ;;; A
+            (bv 0 36)
+            ;;; B
+            (bv 0 36)
+            ;;; C
+            input
+            ;;; CE
+            (bv #b1111 4)
+            ;;; CFB
+            (bv 0 54)
+            ;;; CIN
+            (bv 0 54)
+            ;;; CLK
+            (bv #b1111 4)
+            ;;; OP
+            opcode
+            ;;; MA
+            (bv 0 36)
+            ;;; MB
+            (bv 0 36)
+            ;;; RST
+            (bv #b0000 4)))
+  (define o4
+    (helper (signal-state (cdr (assoc 'R0 o3)))
+            ;;; A
+            (bv 0 36)
+            ;;; B
+            (bv 0 36)
+            ;;; C
+            (bv 0 54)
+            ;;; CE
+            (bv #b1111 4)
+            ;;; CFB
+            (bv 0 54)
+            ;;; CIN
+            (bv 0 54)
+            ;;; CLK
+            (bv #b0000 4)
+            ;;; OP
+            opcode
+            ;;; MA
+            (bv 0 36)
+            ;;; MB
+            (bv 0 36)
+            ;;; RST
+            (bv #b0000 4)))
+  (define o5
+    (helper (signal-state (cdr (assoc 'R0 o4)))
+            ;;; A
+            (bv 0 36)
+            ;;; B
+            (bv 0 36)
+            ;;; C
+            (bv 0 54)
+            ;;; CE
+            (bv #b1111 4)
+            ;;; CFB
+            (bv 0 54)
+            ;;; CIN
+            (bv 0 54)
+            ;;; CLK
+            (bv #b1111 4)
+            ;;; OP
+            opcode
+            ;;; MA
+            (bv 0 36)
+            ;;; MB
+            (bv 0 36)
+            ;;; RST
+            (bv #b0000 4)))
+
+  (check-true (sat? (synthesize #:forall (list input)
+                                #:guarantee (assert (bveq (concat (signal-value (assoc-ref o5 'R53))
+                                                                  (signal-value (assoc-ref o5 'R52))
+                                                                  (signal-value (assoc-ref o5 'R51))
+                                                                  (signal-value (assoc-ref o5 'R50))
+                                                                  (signal-value (assoc-ref o5 'R49))
+                                                                  (signal-value (assoc-ref o5 'R48))
+                                                                  (signal-value (assoc-ref o5 'R47))
+                                                                  (signal-value (assoc-ref o5 'R46))
+                                                                  (signal-value (assoc-ref o5 'R45))
+                                                                  (signal-value (assoc-ref o5 'R44))
+                                                                  (signal-value (assoc-ref o5 'R43))
+                                                                  (signal-value (assoc-ref o5 'R42))
+                                                                  (signal-value (assoc-ref o5 'R41))
+                                                                  (signal-value (assoc-ref o5 'R40))
+                                                                  (signal-value (assoc-ref o5 'R39))
+                                                                  (signal-value (assoc-ref o5 'R38))
+                                                                  (signal-value (assoc-ref o5 'R37))
+                                                                  (signal-value (assoc-ref o5 'R36))
+                                                                  (signal-value (assoc-ref o5 'R35))
+                                                                  (signal-value (assoc-ref o5 'R34))
+                                                                  (signal-value (assoc-ref o5 'R33))
+                                                                  (signal-value (assoc-ref o5 'R32))
+                                                                  (signal-value (assoc-ref o5 'R31))
+                                                                  (signal-value (assoc-ref o5 'R30))
+                                                                  (signal-value (assoc-ref o5 'R29))
+                                                                  (signal-value (assoc-ref o5 'R28))
+                                                                  (signal-value (assoc-ref o5 'R27))
+                                                                  (signal-value (assoc-ref o5 'R26))
+                                                                  (signal-value (assoc-ref o5 'R25))
+                                                                  (signal-value (assoc-ref o5 'R24))
+                                                                  (signal-value (assoc-ref o5 'R23))
+                                                                  (signal-value (assoc-ref o5 'R22))
+                                                                  (signal-value (assoc-ref o5 'R21))
+                                                                  (signal-value (assoc-ref o5 'R20))
+                                                                  (signal-value (assoc-ref o5 'R19))
+                                                                  (signal-value (assoc-ref o5 'R18))
+                                                                  (signal-value (assoc-ref o5 'R17))
+                                                                  (signal-value (assoc-ref o5 'R16))
+                                                                  (signal-value (assoc-ref o5 'R15))
+                                                                  (signal-value (assoc-ref o5 'R14))
+                                                                  (signal-value (assoc-ref o5 'R13))
+                                                                  (signal-value (assoc-ref o5 'R12))
+                                                                  (signal-value (assoc-ref o5 'R11))
+                                                                  (signal-value (assoc-ref o5 'R10))
+                                                                  (signal-value (assoc-ref o5 'R9))
+                                                                  (signal-value (assoc-ref o5 'R8))
+                                                                  (signal-value (assoc-ref o5 'R7))
+                                                                  (signal-value (assoc-ref o5 'R6))
+                                                                  (signal-value (assoc-ref o5 'R5))
+                                                                  (signal-value (assoc-ref o5 'R4))
+                                                                  (signal-value (assoc-ref o5 'R3))
+                                                                  (signal-value (assoc-ref o5 'R2))
+                                                                  (signal-value (assoc-ref o5 'R1))
+                                                                  (signal-value (assoc-ref o5 'R0)))
+                                                          input))))))
