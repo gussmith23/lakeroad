@@ -65,10 +65,8 @@ implementations:
             { name: INJECT1_1, value: (bv 0 1) },
           ]
     outputs: { O: (concat (get ccu2c S1) (get ccu2c S0)), CO: (get ccu2c COUT) }
-  - interface: { name: DSP, parameters: { out-width: 36, a-width: 18, b-width: 18, c-width: 18 } }
+  - interface: { name: DSP, parameters: { out-width: 54, a-width: 18, b-width: 18, c-width: 54 } }
     internal_data: { 
-      SOURCEA: 1,
-      SOURCEB: 1,
       SIGNEDA: 1,
       SIGNEDB: 1,
       REG_INPUTA_CLK: 5,
@@ -220,8 +218,8 @@ implementations:
 
             { name: SIGNEDA, direction: input, bitwidth: 1, value: SIGNEDA },
             { name: SIGNEDB, direction: input, bitwidth: 1, value: SIGNEDB },
-            { name: SOURCEA, direction: input, bitwidth: 1, value: SOURCEA },
-            { name: SOURCEB, direction: input, bitwidth: 1, value: SOURCEB },
+            { name: SOURCEA, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: SOURCEB, direction: input, bitwidth: 1, value: (bv 0 1) },
 
             { name: CE0, direction: input, bitwidth: 1, value: (bv 1 1) },
             { name: CE1, direction: input, bitwidth: 1, value: (bv 1 1) },
@@ -422,23 +420,23 @@ implementations:
             { name: CAS_MATCH_REG, value: CAS_MATCH_REG },
 
             { name: SOURCEB_MODE, value: SOURCEB_MODE },
-            { name: REG_INPUTA_CE, value: REG_INPUTA_CE },
-            { name: REG_INPUTB_CE, value: REG_INPUTB_CE },
-            { name: REG_INPUTC_CE, value: REG_INPUTC_CE },
-            { name: REG_PIPELINE_CE, value: REG_PIPELINE_CE },
-            { name: REG_OUTPUT_CE, value: REG_OUTPUT_CE },
+            { name: REG_INPUTA_CE, value: (bv 1 5) },
+            { name: REG_INPUTB_CE, value: (bv 1 5) },
+            { name: REG_INPUTC_CE, value: (bv 1 5) },
+            { name: REG_PIPELINE_CE, value: (bv 1 5) },
+            { name: REG_OUTPUT_CE, value: (bv 1 5) },
 
-            { name: REG_INPUTA_CLK, value: REG_INPUTA_CLK },
-            { name: REG_INPUTB_CLK, value: REG_INPUTB_CLK },
-            { name: REG_INPUTC_CLK, value: REG_INPUTC_CLK },
-            { name: REG_PIPELINE_CLK, value: REG_PIPELINE_CLK },
-            { name: REG_OUTPUT_CLK, value: REG_OUTPUT_CLK },
+            { name: REG_INPUTA_CLK, value: (bv 11 5) },
+            { name: REG_INPUTB_CLK, value: (bv 11 5) },
+            { name: REG_INPUTC_CLK, value: (bv 11 5) },
+            { name: REG_PIPELINE_CLK, value: (bv 11 5) },
+            { name: REG_OUTPUT_CLK, value: (bv 11 5) },
 
-            { name: REG_INPUTA_RST, value: REG_INPUTA_RST },
-            { name: REG_INPUTB_RST, value: REG_INPUTB_RST },
-            { name: REG_INPUTC_RST, value: REG_INPUTC_RST },
-            { name: REG_PIPELINE_RST, value: REG_PIPELINE_RST },
-            { name: REG_OUTPUT_RST, value: REG_OUTPUT_RST },
+            { name: REG_INPUTA_RST, value: (bv 2 5) },
+            { name: REG_INPUTB_RST, value: (bv 2 5) },
+            { name: REG_INPUTC_RST, value: (bv 2 5) },
+            { name: REG_PIPELINE_RST, value: (bv 2 5) },
+            { name: REG_OUTPUT_RST, value: (bv 2 5) },
          ]
       - module_name: ALU54A
         instance_name: alu
