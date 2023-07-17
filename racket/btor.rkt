@@ -410,8 +410,7 @@
                               ,(match default-value
                                  ['symbolic `(bv->signal (constant ',input ,type))])]))))
          #:name [name ""])
-       (let* (,@let*-clauses
-              [output-state ,output-state-hash])
+       (let* (,@let*-clauses [output-state ,output-state-hash])
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.
          (list ,@(map (lambda (k v) `(cons ,k ,v))
