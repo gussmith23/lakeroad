@@ -150,10 +150,10 @@ implementations:
       "(|| (bveq CAS_MATCH_REG (bv 22 5)) (bveq CAS_MATCH_REG (bv 4 5)))",
     ]
     modules:
-      - module_name: MULT18X18D
+      - module_name: MULT18X18C
         instance_name: mult0
-        filepath: ../lakeroad-private/lattice_ecp5/MULT18X18D.v
-        racket_import_filepath: ../lakeroad-private/lattice_ecp5/MULT18X18D.v
+        filepath: ../lakeroad-private/lattice_ecp5/MULT18X18C.v
+        racket_import_filepath: ../lakeroad-private/lattice_ecp5/MULT18X18C.v
         ports: [
             # TODO(@ninehusky): we need to cut down search space by specifying
             # all ports and parameters, will need this for more complicated
@@ -195,25 +195,6 @@ implementations:
             { name: B15, direction: input, bitwidth: 1, value: (extract 15 15 B) },
             { name: B16, direction: input, bitwidth: 1, value: (extract 16 16 B) },
             { name: B17, direction: input, bitwidth: 1, value: (extract 17 17 B) },
-
-            { name: C0, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C1, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C2, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C3, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C4, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C5, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C6, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C7, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C8, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C9, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C10, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C11, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C12, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C13, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C14, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C15, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C16, direction: input, bitwidth: 1, value: (bv 0 1) },
-            { name: C17, direction: input, bitwidth: 1, value: (bv 0 1) },
 
             { name: SIGNEDA, direction: input, bitwidth: 1, value: SIGNEDA },
             { name: SIGNEDB, direction: input, bitwidth: 1, value: SIGNEDB },
@@ -349,25 +330,6 @@ implementations:
             { name: ROB16, direction: output, bitwidth: 1, value: (bv 0 1) },
             { name: ROB17, direction: output, bitwidth: 1, value: (bv 0 1) },
 
-            { name: ROC0, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC1, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC2, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC3, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC4, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC5, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC6, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC7, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC8, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC9, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC10, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC11, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC12, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC13, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC14, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC15, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC16, direction: output, bitwidth: 1, value: (bv 0 1) },
-            { name: ROC17, direction: output, bitwidth: 1, value: (bv 0 1) },
-
             { name: P0, direction: output, bitwidth: 1, value: P0 },
             { name: P1, direction: output, bitwidth: 1, value: P1 },
             { name: P2, direction: output, bitwidth: 1, value: P2 },
@@ -409,31 +371,21 @@ implementations:
             { name: SIGNEDP, direction: output, bitwidth: 1, value: (bv 0 1)}
          ]
         parameters: [
-            { name: CLK0_DIV, value: (bv 5 5) },
-            { name: CLK1_DIV, value: (bv 5 5) },
-            { name: CLK2_DIV, value: (bv 5 5) },
-            { name: CLK3_DIV, value: (bv 5 5) },
-            { name: GSR, value: (bv 5 5) },
-            { name: HIGHSPEED_CLK, value: (bv 0 5) },
             { name: MULT_BYPASS, value: (bv 5 5) },
             { name: CAS_MATCH_REG, value: CAS_MATCH_REG },
 
-            { name: SOURCEB_MODE, value: SOURCEB_MODE },
             { name: REG_INPUTA_CE, value: (bv 1 5) },
             { name: REG_INPUTB_CE, value: (bv 1 5) },
-            { name: REG_INPUTC_CE, value: (bv 1 5) },
             { name: REG_PIPELINE_CE, value: (bv 1 5) },
             { name: REG_OUTPUT_CE, value: (bv 1 5) },
 
             { name: REG_INPUTA_CLK, value: (bv 11 5) },
             { name: REG_INPUTB_CLK, value: (bv 11 5) },
-            { name: REG_INPUTC_CLK, value: (bv 11 5) },
             { name: REG_PIPELINE_CLK, value: (bv 11 5) },
             { name: REG_OUTPUT_CLK, value: (bv 11 5) },
 
             { name: REG_INPUTA_RST, value: (bv 2 5) },
             { name: REG_INPUTB_RST, value: (bv 2 5) },
-            { name: REG_INPUTC_RST, value: (bv 2 5) },
             { name: REG_PIPELINE_RST, value: (bv 2 5) },
             { name: REG_OUTPUT_RST, value: (bv 2 5) },
          ]
