@@ -1391,7 +1391,7 @@
              (interface-identifier
               "DSP"
               (hash-table ("out-width" 36) ("a-width" 18) ("b-width" 18) ("c-width" 18)))
-             (list (module-instance "MULT18X18D" ports params path path "mult0"))
+             (list (module-instance "MULT18X18C" ports params path path "mult0"))
              internal-data
              (hash-table ("O" dsp-out-str))
              constraints)))
