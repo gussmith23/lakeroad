@@ -131,18 +131,18 @@
       (define-symbolic clock-ticks (bitvector bw))
 
       ;;; To get the counter to 0, we need 0 clock ticks.
-      (check-equal?
-       (evaluate clock-ticks
-                 (solve (begin
-                          (assert (bveq (bv 0 8) (signal-value (tick-counter clock-ticks)))))))
-       (bv 0 bw))
+      (check-equal? (evaluate clock-ticks
+                              (solve (begin
+                                       (assert (bveq (bv 0 8)
+                                                     (signal-value (tick-counter clock-ticks)))))))
+                    (bv 0 bw))
 
       ;;; To get the counter to 9, we need 9 clock ticks.
-      (check-equal?
-       (evaluate clock-ticks
-                 (solve (begin
-                          (assert (bveq (bv 9 8) (signal-value (tick-counter clock-ticks)))))))
-       (bv 9 bw))))
+      (check-equal? (evaluate clock-ticks
+                              (solve (begin
+                                       (assert (bveq (bv 9 8)
+                                                     (signal-value (tick-counter clock-ticks)))))))
+                    (bv 9 bw))))
 
   ;;; (Simulated) pipelined multiplier, that gives its output in 3 cycles.
   (define (pipelined-multiplier clk a b)
@@ -226,10 +226,10 @@
       (check-equal?
        (evaluate clock-ticks
                  (synthesize #:forall (list a b)
-                             #:guarantee (begin
-                                           (assert (bveq (bvmul a b)
-                                                         (signal-value
-                                                          (tick-clock clock-ticks a b)))))))
+                             #:guarantee
+                             (begin
+                               (assert (bveq (bvmul a b)
+                                             (signal-value (tick-clock clock-ticks a b)))))))
        (bv 3 bw))))
 
   ;; (Simulated) Bit Serial Adder

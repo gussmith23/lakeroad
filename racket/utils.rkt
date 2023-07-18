@@ -235,8 +235,8 @@
          (for ([bv-tuple bv-tuples] [current-c-result c-result])
            (begin
              (define rosette-result
-               (with-vc
-                (evaluate bv-expr (sat (make-immutable-hash (map cons bv-symbolics bv-tuple))))))
+               (with-vc (evaluate bv-expr
+                                  (sat (make-immutable-hash (map cons bv-symbolics bv-tuple))))))
              (check-true (normal? rosette-result))
              (check-equal? current-c-result
                            (let ([rosette-value-num (result-value rosette-result)])

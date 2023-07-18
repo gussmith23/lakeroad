@@ -344,8 +344,8 @@
                                            (interface-port "O" 'output 1))))
 
   (test-false "find-interface-definition returns #f"
-              (find-interface-definition
-               (interface-identifier "NotARealInterface" (hash "num_inputs" 4)))))
+              (find-interface-definition (interface-identifier "NotARealInterface"
+                                                               (hash "num_inputs" 4)))))
 
 (struct lr:hash-ref (h k) #:transparent)
 ;;; Remap the keys in h (a Lakeroad expression which produces a hashmap) using the association list
@@ -446,12 +446,12 @@
   (let* ([internal-data (if (not internal-data)
                             (construct-internal-data architecture-description interface-id)
                             internal-data)]
-         [interface-implementation
-          (or (find-interface-implementation architecture-description interface-id)
-              (error "No implementation for interface "
-                     interface-id
-                     " on architecture "
-                     architecture-description))]
+         [interface-implementation (or (find-interface-implementation architecture-description
+                                                                      interface-id)
+                                       (error "No implementation for interface "
+                                              interface-id
+                                              " on architecture "
+                                              architecture-description))]
 
          [interface-definition (or (find-interface-definition interface-id)
                                    (error "Interface definition not found"))]
@@ -460,15 +460,15 @@
          ;;;
          ;;; We construct the modules in the order they're listed, which means that modules can only
          ;;; reference modules that come before them in the YAML list.
-         [module-exprs
-          (foldl
-           (lambda (module-instance module-exprs)
-             (append
-              module-exprs
-              (list (cons (module-instance-instance-name module-instance)
-                          (construct-module module-instance internal-data port-map module-exprs)))))
-           '()
-           (interface-implementation-module-instances interface-implementation))]
+         [module-exprs (foldl (lambda (module-instance module-exprs)
+                                (append module-exprs
+                                        (list (cons (module-instance-instance-name module-instance)
+                                                    (construct-module module-instance
+                                                                      internal-data
+                                                                      port-map
+                                                                      module-exprs)))))
+                              '()
+                              (interface-implementation-module-instances interface-implementation))]
 
          ;;; Next, we remap the keys to the keys expected by the interface.
          [expr (lr:make-immutable-hash
@@ -552,9 +552,9 @@
            (lambda (impl)
              (and (equal? "LUT"
                           (interface-identifier-name (interface-implementation-identifier impl)))
-                  (> (hash-ref (interface-identifier-parameters
-                                (interface-implementation-identifier impl))
-                               "num_inputs")
+                  (> (hash-ref
+                      (interface-identifier-parameters (interface-implementation-identifier impl))
+                      "num_inputs")
                      (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
            (architecture-description-interface-implementations architecture-description)))
 
@@ -568,22 +568,22 @@
           ;;; smaller LUT. Currently, we just take the first thing that works.
           [larger-lut-interface-identifier
            (interface-implementation-identifier
-            (or (findf
-                 (lambda (impl)
-                   (and
-                    (equal? "LUT"
-                            (interface-identifier-name (interface-implementation-identifier impl)))
-                    (> (hash-ref (interface-identifier-parameters
-                                  (interface-implementation-identifier impl))
-                                 "num_inputs")
-                       (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
-                 (architecture-description-interface-implementations architecture-description))
+            (or (findf (lambda (impl)
+                         (and (equal? "LUT"
+                                      (interface-identifier-name (interface-implementation-identifier
+                                                                  impl)))
+                              (> (hash-ref (interface-identifier-parameters
+                                            (interface-implementation-identifier impl))
+                                           "num_inputs")
+                                 (hash-ref (interface-identifier-parameters interface-id)
+                                           "num_inputs"))))
+                       (architecture-description-interface-implementations architecture-description))
                 (error)))]
           ;;; Size of the LUT requested by the user.
           [requested-lut-size (hash-ref (interface-identifier-parameters interface-id) "num_inputs")]
           ;;; Size of the larger LUT that we'll use to satisfy the request.
-          [larger-lut-size
-           (hash-ref (interface-identifier-parameters larger-lut-interface-identifier) "num_inputs")]
+          [larger-lut-size (hash-ref (interface-identifier-parameters larger-lut-interface-identifier)
+                                     "num_inputs")]
           ;;; The new port map is the old port map, with the extra inputs set to 1'b1. Note: the
           ;;; decision to set them to high is arbitrary, based on the fact that it's helpful when
           ;;; to set them to 1 on Xilinx. We should perhaps allow this to be configurable.
@@ -606,19 +606,19 @@
     ;;; In this case, we can construct the bigger LUT out of smaller LUTs by recursive calls to this
     ;;; function.
     [;;; Check: They're asking for a LUT.
-     (and (equal? "LUT" (interface-identifier-name interface-id))
-          ;;; Check: The architecture description implements a smaller LUT.
-          (findf
-           (lambda (impl)
-             (and (equal? "LUT"
-                          (interface-identifier-name (interface-implementation-identifier impl)))
-                  (< (hash-ref (interface-identifier-parameters
-                                (interface-implementation-identifier impl))
-                               "num_inputs")
-                     (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
-           (architecture-description-interface-implementations architecture-description))
-          ;;; TODO: Check that the architecture description implements MUX2.
-          )
+     (and
+      (equal? "LUT" (interface-identifier-name interface-id))
+      ;;; Check: The architecture description implements a smaller LUT.
+      (findf (lambda (impl)
+               (and (equal? "LUT"
+                            (interface-identifier-name (interface-implementation-identifier impl)))
+                    (< (hash-ref
+                        (interface-identifier-parameters (interface-implementation-identifier impl))
+                        "num_inputs")
+                       (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))
+             (architecture-description-interface-implementations architecture-description))
+      ;;; TODO: Check that the architecture description implements MUX2.
+      )
 
      ;;; In this case, we recursively construct a LUT out of 2 LUTs of a smaller size, and mux them
      ;;; together. Note that we should probably also check that the arch description implements
@@ -632,10 +632,10 @@
 
           ;;; the name of the lut which is 1 smaller than the one we're trying to construct.
           [smaller-lut-interface-identifier
-           (interface-identifier
-            "LUT"
-            (hash "num_inputs"
-                  (sub1 (hash-ref (interface-identifier-parameters interface-id) "num_inputs"))))]
+           (interface-identifier "LUT"
+                                 (hash "num_inputs"
+                                       (sub1 (hash-ref (interface-identifier-parameters interface-id)
+                                                       "num_inputs"))))]
 
           ;;; The ports that should be passed to the smaller LUTs. This is easy to figure out: we just
           ;;; drop one of the inputs to the larger LUT! Then, we'll use that dropped input as the
@@ -643,17 +643,17 @@
           [smaller-lut-ports (take port-map (sub1 (length port-map)))]
           [mux-selector (cdr (list-ref port-map (sub1 (length port-map))))]
 
-          [(list lut-expr0 lut-0-internal-data)
-           (construct-interface architecture-description
-                                smaller-lut-interface-identifier
-                                smaller-lut-ports
-                                #:internal-data lut-0-internal-data)]
+          [(list lut-expr0 lut-0-internal-data) (construct-interface architecture-description
+                                                                     smaller-lut-interface-identifier
+                                                                     smaller-lut-ports
+                                                                     #:internal-data
+                                                                     lut-0-internal-data)]
           [lut-O-expr0 (lr:hash-ref lut-expr0 'O)]
-          [(list lut-expr1 lut-1-internal-data)
-           (construct-interface architecture-description
-                                smaller-lut-interface-identifier
-                                smaller-lut-ports
-                                #:internal-data lut-1-internal-data)]
+          [(list lut-expr1 lut-1-internal-data) (construct-interface architecture-description
+                                                                     smaller-lut-interface-identifier
+                                                                     smaller-lut-ports
+                                                                     #:internal-data
+                                                                     lut-1-internal-data)]
           [lut-O-expr1 (lr:hash-ref lut-expr1 'O)]
           ;;; TODO(@gussmith23): IT just so happens that the output of the mux and the output of the
           ;;; LUT are both named O. In the future, we will need to add support for remapping names.
@@ -671,10 +671,10 @@
           ;;; Check: The architecture description implements any carry. Note that we have already
           ;;; checked whether the architecture description implements the exact carry requested, so we
           ;;; know this carry is not the correct size.
-          (findf
-           (lambda (impl)
-             (equal? "carry" (interface-identifier-name (interface-implementation-identifier impl))))
-           (architecture-description-interface-implementations architecture-description)))
+          (findf (lambda (impl)
+                   (equal? "carry"
+                           (interface-identifier-name (interface-implementation-identifier impl))))
+                 (architecture-description-interface-implementations architecture-description)))
 
      (match-let*
          ([_ 0] ;;; Dummy line to stop formatter from moving my comments.
@@ -739,10 +739,10 @@
                             [extract-expr (lr:extract (lr:integer h) (lr:integer l) expr)])
                        (if (equal? padding 0)
                            extract-expr
-                           (lr:concat
-                            (lr:list
-                             (list (lr:bv (bv->signal (apply concat (make-list padding pad-val))))
-                                   extract-expr))))))]
+                           (lr:concat (lr:list (list (lr:bv (bv->signal (apply concat
+                                                                               (make-list padding
+                                                                                          pad-val))))
+                                                     extract-expr))))))]
                   [this-di (extract-fn di-expr di-padding-val)]
                   [this-s (extract-fn s-expr s-padding-val)]
                   [this-carry (first (construct-interface-internal
@@ -785,10 +785,10 @@
      (and (equal? "carry" (interface-identifier-name interface-id))
           ;;; Check: The architecture description implements any LUT. TODO: actually, it needs to
           ;;; implement a LUT of size 2 or greater...
-          (findf
-           (lambda (impl)
-             (equal? "LUT" (interface-identifier-name (interface-implementation-identifier impl))))
-           (architecture-description-interface-implementations architecture-description))
+          (findf (lambda (impl)
+                   (equal? "LUT"
+                           (interface-identifier-name (interface-implementation-identifier impl))))
+                 (architecture-description-interface-implementations architecture-description))
           ;;; Check: the architecture doesn't implement a carry (otherwise we'll just implement this
           ;;; with a carry).
           (equal?
@@ -903,15 +903,15 @@
     ;;; one supports, then it's fine. Also, if their requested input sizes are smaller than what the
     ;;; output supports, then it's also fine.
     [(let* ([their-dsp-impl
-             (findf
-              (lambda (impl)
-                (equal? "DSP" (interface-identifier-name (interface-implementation-identifier impl))))
-              (architecture-description-interface-implementations architecture-description))]
+             (findf (lambda (impl)
+                      (equal? "DSP"
+                              (interface-identifier-name (interface-implementation-identifier impl))))
+                    (architecture-description-interface-implementations architecture-description))]
             [their-out-width (hash-ref (interface-identifier-parameters
                                         (interface-implementation-identifier their-dsp-impl))
                                        "out-width")]
-            [requested-out-width
-             (hash-ref (interface-identifier-parameters interface-id) "out-width")]
+            [requested-out-width (hash-ref (interface-identifier-parameters interface-id)
+                                           "out-width")]
             [their-a-width (hash-ref (interface-identifier-parameters
                                       (interface-implementation-identifier their-dsp-impl))
                                      "a-width")]
@@ -937,10 +937,10 @@
 
      (match-let*
          ([their-dsp-impl
-           (findf
-            (lambda (impl)
-              (equal? "DSP" (interface-identifier-name (interface-implementation-identifier impl))))
-            (architecture-description-interface-implementations architecture-description))]
+           (findf (lambda (impl)
+                    (equal? "DSP"
+                            (interface-identifier-name (interface-implementation-identifier impl))))
+                  (architecture-description-interface-implementations architecture-description))]
           [their-out-width (hash-ref (interface-identifier-parameters
                                       (interface-implementation-identifier their-dsp-impl))
                                      "out-width")]
@@ -1005,15 +1005,15 @@
 (module+ test
   (test-case "Construct smaller DSP from larger DSP"
     (match-let* ([(list expr internal-data)
-                  (construct-interface (xilinx-ultrascale-plus-architecture-description)
-                                       (interface-identifier
-                                        "DSP"
-                                        (hash "out-width" 8 "a-width" 8 "b-width" 8 "c-width" 8))
-                                       (list (cons "A" 'a-input-expr)
-                                             (cons "B" 'b-input-expr)
-                                             (cons "C" 'c-input-expr)
-                                             (cons "rst" 'rst-expr)
-                                             (cons "clk" 'clk-expr)))])
+                  (construct-interface
+                   (xilinx-ultrascale-plus-architecture-description)
+                   (interface-identifier "DSP"
+                                         (hash "out-width" 8 "a-width" 8 "b-width" 8 "c-width" 8))
+                   (list (cons "A" 'a-input-expr)
+                         (cons "B" 'b-input-expr)
+                         (cons "C" 'c-input-expr)
+                         (cons "rst" 'rst-expr)
+                         (cons "clk" 'clk-expr)))])
       (check-true
        (match expr
          [(lr:make-immutable-hash
@@ -1205,12 +1205,12 @@
 
     (define constraints (hash-ref impl-yaml "constraints" (list)))
 
-    (interface-implementation
-     interface-identifier
-     modules
-     (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f) (hash)))
-     (convert-to-immutable output-map)
-     constraints))
+    (interface-implementation interface-identifier
+                              modules
+                              (convert-to-immutable (or (hash-ref impl-yaml "internal_data" #f)
+                                                        (hash)))
+                              (convert-to-immutable output-map)
+                              constraints))
 
   (define implementations
     (for/list ([impl-yaml impls-yaml])
@@ -1346,56 +1346,56 @@
       (check-true
        (match (lattice-ecp5-architecture-description)
          [(architecture-description
-           (list
-            (interface-implementation
-             (interface-identifier "LUT" (hash-table ("num_inputs" 4)))
-             (list (module-instance "LUT4"
-                                    (list (module-instance-port "A" "I0" 'input 1)
-                                          (module-instance-port "B" "I1" 'input 1)
-                                          (module-instance-port "C" "I2" 'input 1)
-                                          (module-instance-port "D" "I3" 'input 1)
-                                          (module-instance-port "Z" "O" 'output 1))
-                                    (list (module-instance-parameter "init" "init"))
-                                    "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
-                                    "../modules_for_importing/lattice_ecp5/LUT4.v"
-                                    "lut"))
-             (hash-table ("init" 16))
-             (hash-table ("O" "(get lut Z)"))
-             (list))
-            (interface-implementation
-             (interface-identifier "carry" (hash-table ("width" 2)))
-             (list (module-instance "CCU2C"
-                                    (list (module-instance-port "CIN" "CI" 'input 1)
-                                          (module-instance-port "A0" "(bit 0 DI)" 'input 1)
-                                          (module-instance-port "A1" "(bit 1 DI)" 'input 1)
-                                          (module-instance-port "B0" "(bit 0 S)" 'input 1)
-                                          (module-instance-port "B1" "(bit 1 S)" 'input 1)
-                                          (module-instance-port "C0" "(bv 1 1)" 'input 1)
-                                          (module-instance-port "C1" "(bv 1 1)" 'input 1)
-                                          (module-instance-port "D0" "(bv 1 1)" 'input 1)
-                                          (module-instance-port "D1" "(bv 1 1)" 'input 1)
-                                          (module-instance-port "S0" "unused" 'output 1)
-                                          (module-instance-port "S1" "unused" 'output 1)
-                                          (module-instance-port "COUT" "unused" 'output 1))
-                                    (list (module-instance-parameter "INIT0" "INIT0")
-                                          (module-instance-parameter "INIT1" "INIT1")
-                                          (module-instance-parameter "INJECT1_0" "(bv 0 1)")
-                                          (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
-                                    "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
-                                    "../modules_for_importing/lattice_ecp5/CCU2C.v"
-                                    "ccu2c"))
-             (hash-table ("INIT0" 16) ("INIT1" 16))
-             (hash-table ("CO" "(get ccu2c COUT)") ("O" "(concat (get ccu2c S1) (get ccu2c S0))"))
-             (list))
-            (interface-implementation
-             (interface-identifier
-              "DSP"
-              (hash-table ("out-width" 54) ("a-width" 18) ("b-width" 18) ("c-width" 54)))
-             (list (module-instance "MULT18X18C" ports params path path "mult0")
-                   (module-instance "ALU54A" alu-ports alu-params alu-path alu-path "alu"))
-             internal-data
-             (hash-table ("O" dsp-out-str))
-             constraints)))
+           (list (interface-implementation
+                  (interface-identifier "LUT" (hash-table ("num_inputs" 4)))
+                  (list (module-instance "LUT4"
+                                         (list (module-instance-port "A" "I0" 'input 1)
+                                               (module-instance-port "B" "I1" 'input 1)
+                                               (module-instance-port "C" "I2" 'input 1)
+                                               (module-instance-port "D" "I3" 'input 1)
+                                               (module-instance-port "Z" "O" 'output 1))
+                                         (list (module-instance-parameter "init" "init"))
+                                         "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
+                                         "../modules_for_importing/lattice_ecp5/LUT4.v"
+                                         "lut"))
+                  (hash-table ("init" 16))
+                  (hash-table ("O" "(get lut Z)"))
+                  (list))
+                 (interface-implementation
+                  (interface-identifier "carry" (hash-table ("width" 2)))
+                  (list (module-instance "CCU2C"
+                                         (list (module-instance-port "CIN" "CI" 'input 1)
+                                               (module-instance-port "A0" "(bit 0 DI)" 'input 1)
+                                               (module-instance-port "A1" "(bit 1 DI)" 'input 1)
+                                               (module-instance-port "B0" "(bit 0 S)" 'input 1)
+                                               (module-instance-port "B1" "(bit 1 S)" 'input 1)
+                                               (module-instance-port "C0" "(bv 1 1)" 'input 1)
+                                               (module-instance-port "C1" "(bv 1 1)" 'input 1)
+                                               (module-instance-port "D0" "(bv 1 1)" 'input 1)
+                                               (module-instance-port "D1" "(bv 1 1)" 'input 1)
+                                               (module-instance-port "S0" "unused" 'output 1)
+                                               (module-instance-port "S1" "unused" 'output 1)
+                                               (module-instance-port "COUT" "unused" 'output 1))
+                                         (list (module-instance-parameter "INIT0" "INIT0")
+                                               (module-instance-parameter "INIT1" "INIT1")
+                                               (module-instance-parameter "INJECT1_0" "(bv 0 1)")
+                                               (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
+                                         "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
+                                         "../modules_for_importing/lattice_ecp5/CCU2C.v"
+                                         "ccu2c"))
+                  (hash-table ("INIT0" 16) ("INIT1" 16))
+                  (hash-table ("CO" "(get ccu2c COUT)")
+                              ("O" "(concat (get ccu2c S1) (get ccu2c S0))"))
+                  (list))
+                 (interface-implementation
+                  (interface-identifier
+                   "DSP"
+                   (hash-table ("out-width" 54) ("a-width" 18) ("b-width" 18) ("c-width" 54)))
+                  (list (module-instance "MULT18X18C" ports params path path "mult0")
+                        (module-instance "ALU54A" alu-ports alu-params alu-path alu-path "alu"))
+                  internal-data
+                  (hash-table ("O" dsp-out-str))
+                  constraints)))
           #t]
          [else #f]))))
 
@@ -1493,8 +1493,8 @@
     (check-true (match internal-data
                   [(list (cons "sram" (lr:bv (signal (? (bitvector 16) _) _)))) #t]
                   [else #f]))
-    (match-define (lr:make-immutable-hash
-                   (lr:list (list (lr:cons (lr:symbol 'O) (lr:hash-ref mod-expr 'lut4_out)))))
+    (match-define (lr:make-immutable-hash (lr:list (list (lr:cons (lr:symbol 'O)
+                                                                  (lr:hash-ref mod-expr 'lut4_out)))))
       expr)
     (check-true
      (match mod-expr
@@ -1548,24 +1548,24 @@
     (interface-identifier "LUT" (hash "num_inputs" 1))
     (list (cons "I0" 'i0-input)))
    (list (lr:make-immutable-hash
-          (lr:list (list (lr:cons (lr:symbol 'O)
-                                  (lr:hash-ref
-                                   (lr:hw-module-instance
-                                    "module1"
-                                    (list (module-instance-port
-                                           "in"
-                                           (lr:hash-ref
-                                            (lr:hw-module-instance
-                                             "module0"
-                                             (list (module-instance-port "in" 'i0-input 'input 1)
-                                                   (module-instance-port "out" 'unused 'output 1))
-                                             '()
-                                             'unused)
-                                            'out)
-                                           'input
-                                           1)
-                                          (module-instance-port "out" 'unused 'output 1))
-                                    '()
-                                    'unused)
-                                   'out)))))
+          (lr:list
+           (list (lr:cons (lr:symbol 'O)
+                          (lr:hash-ref
+                           (lr:hw-module-instance
+                            "module1"
+                            (list (module-instance-port
+                                   "in"
+                                   (lr:hash-ref (lr:hw-module-instance
+                                                 "module0"
+                                                 (list (module-instance-port "in" 'i0-input 'input 1)
+                                                       (module-instance-port "out" 'unused 'output 1))
+                                                 '()
+                                                 'unused)
+                                                'out)
+                                   'input
+                                   1)
+                                  (module-instance-port "out" 'unused 'output 1))
+                            '()
+                            'unused)
+                           'out)))))
          '())))

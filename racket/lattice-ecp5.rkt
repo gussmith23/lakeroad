@@ -764,34 +764,34 @@
                                  S1
                                  COUT
                                  #:attrs [attrs (hasheq)])
-  (make-cell
-   "CCU2C"
-   (make-cell-port-directions (list 'A0 'B0 'C0 'D0 'A1 'B1 'C1 'D1 'CIN) (list 'S0 'S1 'COUT))
-   (make-cell-connections 'A0
-                          A0
-                          'B0
-                          B0
-                          'C0
-                          C0
-                          'D0
-                          D0
-                          'A1
-                          A1
-                          'B1
-                          B1
-                          'C1
-                          C1
-                          'D1
-                          D1
-                          'CIN
-                          CIN
-                          'S0
-                          S0
-                          'S1
-                          S1
-                          'COUT
-                          COUT)
-   #:params (hasheq 'INIT0 INIT0 'INIT1 INIT1 'INJECT1_0 INJECT1_0 'INJECT1_1 INJECT1_1)))
+  (make-cell "CCU2C"
+             (make-cell-port-directions (list 'A0 'B0 'C0 'D0 'A1 'B1 'C1 'D1 'CIN)
+                                        (list 'S0 'S1 'COUT))
+             (make-cell-connections 'A0
+                                    A0
+                                    'B0
+                                    B0
+                                    'C0
+                                    C0
+                                    'D0
+                                    D0
+                                    'A1
+                                    A1
+                                    'B1
+                                    B1
+                                    'C1
+                                    C1
+                                    'D1
+                                    D1
+                                    'CIN
+                                    CIN
+                                    'S0
+                                    S0
+                                    'S1
+                                    S1
+                                    'COUT
+                                    COUT)
+             #:params (hasheq 'INIT0 INIT0 'INIT1 INIT1 'INJECT1_0 INJECT1_0 'INJECT1_1 INJECT1_1)))
 
 (define (compile-lattice-ripple-pfu compiler
                                     get-unique-bit-ids
@@ -816,7 +816,8 @@
                                          INJECT1_6
                                          INJECT1_7
                                          CIN
-                                         inputs) expr]
+                                         inputs)
+                expr]
                [(list i0 i1 i2 i3 i4 i5 i6 i7) (compiler inputs)]
                [`(,CIN) (compiler CIN)]
                [sum-bits (get-unique-bit-ids 8)]

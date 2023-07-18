@@ -164,8 +164,8 @@
       (match tokens
         [`("init" ,sort-id-str ,state-id-str ,next-val-id-str)
          (set! init-hash
-               `(append (list (cons ,(make-state-key-expr
-                                      (string->symbol (format "state~a" state-id-str)))
+               `(append (list (cons ,(make-state-key-expr (string->symbol (format "state~a"
+                                                                                  state-id-str)))
                                     ,(simple-compile next-val-id-str)))
                         ,init-hash))]
         [_ (void)])))
@@ -211,8 +211,8 @@
          ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
          ;;; the output value for the state.
          (set! output-state-hash
-               `(append (list (cons ,(make-state-key-expr
-                                      (hash-ref state-symbols (string->number state-id-str)))
+               `(append (list (cons ,(make-state-key-expr (hash-ref state-symbols
+                                                                    (string->number state-id-str)))
                                     (signal-value ,(get-expr-id-str next-val-id-str))))
                         ,output-state-hash))]
         ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
@@ -258,18 +258,18 @@
            ;;; value by name and convert it to a signal.
            (add-expr-id-str
             id-str
-            `(let* ([state-value
-                     (cond
-                       [(assoc-has-key? ,merged-input-state-hash-symbol
-                                        ,(make-state-key-expr state-symbol))
-                        (bv->signal (assoc-ref ,merged-input-state-hash-symbol
-                                               ,(make-state-key-expr state-symbol)))]
-                       [(assoc-has-key? ,init-hash-symbol ,(make-state-key-expr state-symbol))
-                        (bv->signal (assoc-ref ,init-hash-symbol
-                                               ,(make-state-key-expr state-symbol)))]
-                       [else
-                        (bv->signal (,(hash-ref get-default-value-fn-hash
-                                                (string->number sort-id-str))))])])
+            `(let* ([state-value (cond
+                                   [(assoc-has-key? ,merged-input-state-hash-symbol
+                                                    ,(make-state-key-expr state-symbol))
+                                    (bv->signal (assoc-ref ,merged-input-state-hash-symbol
+                                                           ,(make-state-key-expr state-symbol)))]
+                                   [(assoc-has-key? ,init-hash-symbol
+                                                    ,(make-state-key-expr state-symbol))
+                                    (bv->signal (assoc-ref ,init-hash-symbol
+                                                           ,(make-state-key-expr state-symbol)))]
+                                   [else
+                                    (bv->signal (,(hash-ref get-default-value-fn-hash
+                                                            (string->number sort-id-str))))])])
                (when (not (signal? state-value))
                  (error "Expected signal"))
                ;;; TODO(@gussmith23): Signals don't just have to contain bvs, now that we've enabled
@@ -280,12 +280,12 @@
         [`("sort" "bitvec" ,width-str)
          (hash-set! sorts (string->number id-str) (bitvector (string->number width-str)))
          (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))
-         (hash-set! get-default-value-fn-hash
-                    (string->number id-str)
-                    `(lambda ()
-                       (log-warning
-                        "Getting default value of 0 for bitvector, this may be a bad idea!")
-                       (bv 0 ,(string->number width-str))))]
+         (hash-set!
+          get-default-value-fn-hash
+          (string->number id-str)
+          `(lambda ()
+             (log-warning "Getting default value of 0 for bitvector, this may be a bad idea!")
+             (bv 0 ,(string->number width-str))))]
         [`("sort" "array" ,index-sort-id-str ,element-sort-id-str)
          (hash-set! sorts (string->number id-str) vector?)
          (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))
@@ -330,18 +330,18 @@
         [`("output" ,id-str ,name) (hash-set! outs (string->symbol name) (get-expr-id-str id-str))]
         [`("uext" ,out-type-id-str ,in-id-str ,_ ...)
          (let ([s (get-expr-id-str in-id-str)])
-           (add-expr-id-str
-            id-str
-            `(bv->signal (zero-extend (signal-value ,s)
-                                      ,(hash-ref sorts (string->number out-type-id-str)))
-                         ,s)))]
+           (add-expr-id-str id-str
+                            `(bv->signal (zero-extend (signal-value ,s)
+                                                      ,(hash-ref sorts
+                                                                 (string->number out-type-id-str)))
+                                         ,s)))]
         [`("sext" ,out-type-id-str ,in-id-str ,_ ...)
          (let ([s (get-expr-id-str in-id-str)])
-           (add-expr-id-str
-            id-str
-            `(bv->signal (sign-extend (signal-value ,s)
-                                      ,(hash-ref sorts (string->number out-type-id-str)))
-                         ,s)))]
+           (add-expr-id-str id-str
+                            `(bv->signal (sign-extend (signal-value ,s)
+                                                      ,(hash-ref sorts
+                                                                 (string->number out-type-id-str)))
+                                         ,s)))]
         [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
            (add-expr-id-str id-str (op-call-builder concat a b)))]

@@ -57,18 +57,18 @@
                      [_ (when (not (list? h))
                           (error "hash-remap-keys: expected h to be assoc list, got: " h))]
                      [new-h
-                      (map (λ (pair)
-                             (let ([k (car pair)] [v (cdr pair)])
-                               (cons
-                                (cdr (or (assoc k ks)
-                                         (error
-                                          (format
-                                           "old key ~a not found in list: ~a. original hash map: ~a"
-                                           k
-                                           ks
-                                           h))))
-                                v)))
-                           h)])
+                      (map
+                       (λ (pair)
+                         (let ([k (car pair)] [v (cdr pair)])
+                           (cons
+                            (cdr (or (assoc k ks)
+                                     (error (format
+                                             "old key ~a not found in list: ~a. original hash map: ~a"
+                                             k
+                                             ks
+                                             h))))
+                            v)))
+                       h)])
                 new-h)]
              [(lr:hash-ref h-expr k)
               (let* ([h (interpret-helper h-expr)]
@@ -385,19 +385,19 @@
   (require rackunit
            rosette)
 
-  (check-equal? (map signal-value
-                     (interpret (physical-to-logical-mapping
-                                 (ptol-bitwise)
-                                 (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
-                                                (lr:bv (bv->signal (bv #b0 1))))))))
-                (list (bv #b01 2)))
+  (check-equal?
+   (map signal-value
+        (interpret (physical-to-logical-mapping (ptol-bitwise)
+                                                (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
+                                                               (lr:bv (bv->signal (bv #b0 1))))))))
+   (list (bv #b01 2)))
 
-  (check-equal? (map signal-value
-                     (interpret (logical-to-physical-mapping
-                                 (ltop-bitwise)
-                                 (lr:list (list (lr:bv (bv->signal (bv 1 1)))
-                                                (lr:bv (bv->signal (bv 0 1))))))))
-                (list (bv #b01 2)))
+  (check-equal?
+   (map signal-value
+        (interpret (logical-to-physical-mapping (ltop-bitwise)
+                                                (lr:list (list (lr:bv (bv->signal (bv 1 1)))
+                                                               (lr:bv (bv->signal (bv 0 1))))))))
+   (list (bv #b01 2)))
 
   (check-equal?
    (map signal-value
