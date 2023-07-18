@@ -926,7 +926,11 @@
             [their-c-width (hash-ref (interface-identifier-parameters
                                       (interface-implementation-identifier their-dsp-impl))
                                      "c-width")]
-            [requested-c-width (hash-ref (interface-identifier-parameters interface-id) "c-width")])
+            [requested-c-width (hash-ref (interface-identifier-parameters interface-id) "c-width")]
+            [their-d-width (hash-ref (interface-identifier-parameters
+                                      (interface-implementation-identifier their-dsp-impl))
+                                     "d-width")]
+            [requested-d-width (hash-ref (interface-identifier-parameters interface-id) "d-width")])
 
        ;;; Check: They're asking for a DSP.
        (and (equal? "DSP" (interface-identifier-name interface-id))
@@ -936,7 +940,8 @@
             (>= their-out-width requested-out-width)
             (>= their-a-width requested-a-width)
             (>= their-b-width requested-b-width)
-            (>= their-c-width requested-c-width)))
+            (>= their-c-width requested-c-width)
+            (>= their-d-width requested-d-width)))
 
      (match-let*
          ([their-dsp-impl
@@ -960,6 +965,10 @@
                                     (interface-implementation-identifier their-dsp-impl))
                                    "c-width")]
           [requested-c-width (hash-ref (interface-identifier-parameters interface-id) "c-width")]
+          [their-d-width (hash-ref (interface-identifier-parameters
+                                    (interface-implementation-identifier their-dsp-impl))
+                                   "d-width")]
+          [requested-d-width (hash-ref (interface-identifier-parameters interface-id) "d-width")]
 
           [(list dsp-expr internal-data)
            (construct-interface
@@ -972,7 +981,9 @@
                                         "b-width"
                                         their-b-width
                                         "c-width"
-                                        their-c-width))
+                                        their-c-width
+                                        "d-width"
+                                        their-d-width))
             ;;; Either sign extend or zero extend the data inputs. Some multipliers handle signed
             ;;; inputs, some multipliers take sign as a separate argument.
             (list (cons "A"
@@ -990,6 +1001,11 @@
                                                 (lr:bitvector (bitvector their-c-width)))
                                 (lr:sign-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
                                                 (lr:bitvector (bitvector their-c-width)))))
+                  (cons "D"
+                        (choose (lr:zero-extend (cdr (or (assoc "D" port-map) (error "Expected D")))
+                                                (lr:bitvector (bitvector their-d-width)))
+                                (lr:sign-extend (cdr (or (assoc "D" port-map) (error "Expected D")))
+                                                (lr:bitvector (bitvector their-d-width)))))
                   (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk"))))
                   (cons "rst" (cdr (or (assoc "rst" port-map) (error "Expected rst")))))
             #:internal-data internal-data)])
