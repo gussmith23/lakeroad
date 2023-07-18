@@ -12,7 +12,9 @@
       #:DI
       (DI (bv->signal (constant 'DI (bitvector 8))))
       #:S
-      (S (bv->signal (constant 'S (bitvector 8)))))
+      (S (bv->signal (constant 'S (bitvector 8))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))
@@ -172,7 +174,13 @@
            (btor64
             (bv->signal
              (zero-extend (signal-value btor32) (bitvector 1))
-             btor32)))
+             btor32))
+           (output-state
+            (remove-duplicates
+             (append (list) merged-input-state-hash)
+             equal?
+             #:key
+             car)))
       (list
-       (cons 'CO (signal (signal-value btor45) (list)))
-       (cons 'O (signal (signal-value btor54) (list)))))))
+       (cons 'CO (signal (signal-value btor45) output-state))
+       (cons 'O (signal (signal-value btor54) output-state))))))

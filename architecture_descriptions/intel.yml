@@ -80,6 +80,7 @@ implementations:
     ]
     modules:
       - module_name: altmult_accum
+        instance_name: altmult_accum
         filepath: unused
         racket_import_filepath: unused
         ports: [
@@ -184,4 +185,4 @@ implementations:
           {name: port_mult_is_saturated, value: port_mult_is_saturated},
           {name: port_accum_is_saturated, value: port_accum_is_saturated},
         ]
-    outputs: { O : result }
+    outputs: { O : (get altmult_accum result) }

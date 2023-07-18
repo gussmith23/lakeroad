@@ -100,6 +100,16 @@
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
 
+                     ;;; Append #:name argument.
+                     ;;;
+                     ;;; NOTE: We currently give each module a unique name based on the hash code of
+                     ;;; its expression. There's really no reason why this is correct, and we should
+                     ;;; definitely have a smarter solution! This was just a quick solution for giving
+                     ;;; each module a unique name.
+                     [pairs (cons (cons (string->keyword "name")
+                                        (number->string (equal-hash-code expr)))
+                                  pairs)]
+
                      ;;; Sort them by keyword<.
                      [pairs (sort pairs keyword<? #:key car)]
 
@@ -108,9 +118,12 @@
                 ;;; Warn if we didn't pass all arguments (except for unnamed inputs).
                 ;;; TODO(@gussmith23): handle unnammed inputs more intelligently, maybe in yml?
                 (match-define-values (_ keywords) (procedure-keywords module-semantics-fn))
-                ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer.
+                ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket
+                ;;; importer. Also filter out #:name.
                 (define keywords-minus-unnamed
-                  (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-")))
+                  (filter (λ (k)
+                            (not (or (string-prefix? (keyword->string k) "unnamed-input-")
+                                     (equal? (keyword->string k) "name"))))
                           keywords))
                 (when (not (equal? (length pairs) (length keywords-minus-unnamed)))
                   ;;; TODO(@gussmith23): Figure out how to use Racket logging...

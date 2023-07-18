@@ -32,6 +32,11 @@
 ;;; - Keys should never be symbolic. They should always be concrete.
 (define (btor->racket str #:default-value [default-value 'symbolic])
 
+  ;;; Generates an expression that represents a key used for indexing the state hash. Keys are formed
+  ;;; by appending the `name` argument of the semantics function to a state name, e.g. "state10".
+  (define (make-state-key-expr state-symbol)
+    `(string->symbol (string-append name ,(symbol->string state-symbol))))
+
   ;;; Input signals.
   (define ins (list))
 
@@ -159,7 +164,8 @@
       (match tokens
         [`("init" ,sort-id-str ,state-id-str ,next-val-id-str)
          (set! init-hash
-               `(append (list (cons ',(string->symbol (format "state~a" state-id-str))
+               `(append (list (cons ,(make-state-key-expr
+                                      (string->symbol (format "state~a" state-id-str)))
                                     ,(simple-compile next-val-id-str)))
                         ,init-hash))]
         [_ (void)])))
@@ -205,7 +211,8 @@
          ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
          ;;; the output value for the state.
          (set! output-state-hash
-               `(append (list (cons ',(hash-ref state-symbols (string->number state-id-str))
+               `(append (list (cons ,(make-state-key-expr
+                                      (hash-ref state-symbols (string->number state-id-str)))
                                     (signal-value ,(get-expr-id-str next-val-id-str))))
                         ,output-state-hash))]
         ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
@@ -253,15 +260,13 @@
             id-str
             `(let* ([state-value
                      (cond
-                       [(assoc-has-key? ,merged-input-state-hash-symbol ',state-symbol)
-                        (bv->signal (assoc-ref ,merged-input-state-hash-symbol ',state-symbol))]
-                       [(assoc-has-key? ,init-hash-symbol ',state-symbol)
-                        (bv->signal (assoc-ref ,init-hash-symbol ',state-symbol))]
-                       ;;;  [else
-                       ;;;   (log-warning
-                       ;;;    "state ~a with no initial value, init to 0, this may not be correct in the long term"
-                       ;;;    ',state-symbol)
-                       ;;;   (bv->signal (bv 0 ,(hash-ref sorts (string->number sort-id-str))))]
+                       [(assoc-has-key? ,merged-input-state-hash-symbol
+                                        ,(make-state-key-expr state-symbol))
+                        (bv->signal (assoc-ref ,merged-input-state-hash-symbol
+                                               ,(make-state-key-expr state-symbol)))]
+                       [(assoc-has-key? ,init-hash-symbol ,(make-state-key-expr state-symbol))
+                        (bv->signal (assoc-ref ,init-hash-symbol
+                                               ,(make-state-key-expr state-symbol)))]
                        [else
                         (bv->signal (,(hash-ref get-default-value-fn-hash
                                                 (string->number sort-id-str))))])])
@@ -386,36 +391,16 @@
                       (string-split str #rx"\n+"))])
     (compile-line line))
 
-  ;;; Makes a function which outputs the given expression.
-  (define/contract
-   (make-function out-symbol)
-   (-> symbol? (list/c any/c any/c))
-   ;;; The contract for our function
-   (define contract
-     `(->* ()
-           ;;; apply append == flatten1 (flatten flattens recursively)
-           (,@(apply append
-                     (for/list ([input ins])
-                       (let* ([type (hash-ref input-types input)])
-                         (list (string->keyword (symbol->string input))
-                               `(struct/c signal ,type (hash/c symbol? bv?)))))))
-           (struct/c signal bv? hash?)))
-   (define function
-     `(λ (,@(apply append
-                   (for/list ([input ins])
-                     (let* ([type (hash-ref input-types input)])
-                       (list (string->keyword (symbol->string input))
-                             `[,input
-                               ,(match default-value
-                                  ['symbolic `(bv->signal (constant ',input ,type))])])))))
-        (let* (,@let*-clauses)
-          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
-          ;;; with the updated state.
-          (signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))))
-   (list function contract))
+  ;;; The final output state hash will be all of the new states appended to all of the state data that
+  ;;; came in to the function.
+  ;;; TODO(@gussmith23): This may be slow/take up a lot of memory.
+  ;;;
+  ;;; It IS slow! Trying to mitigate by removing duplicates.
+  (set!
+   output-state-hash
+   `(remove-duplicates (append ,output-state-hash ,merged-input-state-hash-symbol) equal? #:key car))
 
-  ;;; Instead of using make-function to make a function for each output, we make a single function
-  ;;; which returns all outputs in a map.
+  ;;; Generate output function.
   (define out-function
     `(λ (,@(apply append
                   (for/list ([input ins])
@@ -423,14 +408,15 @@
                       (list (string->keyword (symbol->string input))
                             `[,input
                               ,(match default-value
-                                 ['symbolic `(bv->signal (constant ',input ,type))])])))))
-       (let* (,@let*-clauses)
+                                 ['symbolic `(bv->signal (constant ',input ,type))])]))))
+         #:name [name ""])
+       (let* (,@let*-clauses [output-state ,output-state-hash])
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.
          (list ,@(map (lambda (k v) `(cons ,k ,v))
                       (map (λ (s) `(quote ,s)) (hash-keys outs))
                       (map (lambda (out-symbol)
-                             `(signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))
+                             `(signal (signal-value ,(hash-ref outs out-symbol)) output-state))
                            (hash-keys outs)))))))
 
   (define requires

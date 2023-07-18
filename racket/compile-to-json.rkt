@@ -7,9 +7,7 @@
          "lattice-ecp5.rkt"
          "sofa.rkt"
          "logical-to-physical.rkt"
-         "utils.rkt"
          "interpreter.rkt"
-         racket/pretty
          rosette
          (prefix-in lr: "language.rkt")
          "signal.rkt"
@@ -18,9 +16,13 @@
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
 ;;;
 ;;; TODO Write helper function to convert Yosys JSON to Verilog.
+;;;
+;;; - yosys-techmap-format: Whether or not to output in Yosys techmapping format, as described here:
+;;;   https://github.com/YosysHQ/yosys/blob/c2285b3460083afbd8f2dd21d81d7f726e8c93d2/passes/techmap/techmap.cc#L1129
 (define (lakeroad->jsexpr expr
                           #:module-name [module-name "top"]
-                          #:output-signal-name [output-signal-name "out0"])
+                          #:output-signal-name [output-signal-name "out0"]
+                          #:yosys-techmap-format [yosys-techmap-format #f])
 
   ;;; The next available bit id. Starts at 2, as Yosys reserves 0 and 1 for the literals 0 and 1.
   (define next-bit-id 2)
@@ -38,9 +40,15 @@
   (define next-cell-id 0)
   (define cells (hasheq-helper))
   (define (add-cell k v)
-    (hasheq-helper #:base cells
-                   (string->symbol (string-append (symbol->string k) (format "_~a" next-cell-id)))
-                   v)
+    (hasheq-helper
+     #:base cells
+     (string->symbol
+      (format "~a~a_~a"
+              ;;; Prefix with `TECHMAP_REPLACE.` if we're outputting in Yosys techmapping format.
+              (if yosys-techmap-format "TECHMAP_REPLACE." "")
+              (symbol->string k)
+              next-cell-id))
+     v)
     (set! next-cell-id (add1 next-cell-id))
     (void))
 
@@ -218,7 +226,8 @@
                                                   "USE_WIDEXOR"
                                                   "XORSIMD")))
                                (dsp48e2-enum-val-to-str (module-instance-parameter-value param))]
-                              [(and (equal? module-name "MULT18X18D")
+                              [(and (or (equal? module-name "MULT18X18C")
+                                        (equal? module-name "MULT18X18D"))
                                     (member (module-instance-parameter-name param)
                                             (list "CLK0_DIV"
                                                   "CLK1_DIV"

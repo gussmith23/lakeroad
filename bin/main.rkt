@@ -18,11 +18,12 @@
          "../racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt"
          "../racket/generated/sofa-frac-lut4.rkt"
          "../racket/generated/lattice-ecp5-mult18x18d.rkt"
+         "../racket/generated/lattice-ecp5-mult18x18c.rkt"
          "../racket/generated/lattice-ecp5-alu24b.rkt"
+         "../racket/generated/lattice-ecp5-alu54a.rkt"
          "../racket/generated/intel-altmult-accum.rkt"
          rosette/solver/smt/boolector
          "../racket/signal.rkt"
-         racket/hash
          "../racket/btor.rkt"
          racket/sandbox)
 
@@ -44,6 +45,7 @@
                   (lambda (v)
                     (match v
                       [(or "verilog") v]
+                      [(or "yosys-techmap") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
 (define instruction (make-parameter #f identity))
 (define module-name (make-parameter #f identity))
@@ -56,7 +58,7 @@
 (define top-module-name (make-parameter #f))
 (define verilog-module-out-signal (make-parameter #f))
 (define verilog-module-out-bitwidth (make-parameter #f))
-(define initiation-interval (make-parameter #f))
+(define initiation-interval (make-parameter 0))
 (define clock-name (make-parameter #f))
 (define reset-name (make-parameter #f))
 ;;; inputs is an association list mapping input name to an integer bitwidth.
@@ -65,7 +67,12 @@
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
- ["--out-format" fmt "Output format. Supported: 'verilog'" (out-format fmt)]
+ ["--out-format"
+  fmt
+  "Output format. Supported: 'verilog' for outputting to raw Verilog,"
+  " 'yosys-techmap' to output to Yosys's techmapping pattern format described here:"
+  " https://github.com/YosysHQ/yosys/blob/c2285b3460083afbd8f2dd21d81d7f726e8c93d2/passes/techmap/techmap.cc#L1129"
+  (out-format fmt)]
  ["--json-filepath"
   v
   "JSON file to output to. JSON is our intermediate representation. Defaults to a temporary file; set"
@@ -197,7 +204,7 @@
      (define f (eval (first (btor->racket btor)) ns))
      ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
      ;;; path expects a bvexpr, which we can get by just calling the function.
-     (if (and (not (equal? #f (initiation-interval))) (> (initiation-interval) 0))
+     (if (> (initiation-interval) 0)
          f
          (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal)))))]))
 
@@ -208,6 +215,13 @@
     bv-expr)))
 (when (not (or (bv? bv-expr) (procedure? bv-expr)))
   (error (format "Expected a bitvector expression or procedure but found ~a" bv-expr)))
+
+(define output-bitwidth
+  (cond
+    [(verilog-module-out-bitwidth) (verilog-module-out-bitwidth)]
+    [(bv? bv-expr) (bvlen bv-expr)]
+    [else (error "Something's wrong!")]))
+
 (define sketch-generator
   (match (template)
     ["dsp" single-dsp-sketch-generator]
@@ -275,11 +289,16 @@
            (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8)
            (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v") xilinx-ultrascale-plus-dsp48e2))]
     ["lattice-ecp5"
-     (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
-           (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
-                 lattice-ecp5-mult18x18d)
-           (cons (cons "ALU24B" "") lattice-ecp5-alu24b))]
+     (list
+      (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
+      (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
+      (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
+            lattice-ecp5-mult18x18d)
+      (cons (cons "MULT18X18C" "../lakeroad-private/lattice_ecp5/MULT18X18C.v")
+            lattice-ecp5-mult18x18c)
+      (cons (cons "ALU24B" "") lattice-ecp5-alu24b)
+      (cons (cons "ALU54A" "../lakeroad-private/lattice_ecp5/ALU54A_modified_for_racket_import.v")
+            lattice-ecp5-alu54a))]
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     ["intel" (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))]
@@ -287,52 +306,18 @@
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
 
+(define sketch-inputs
+  (make-sketch-inputs #:output-width output-bitwidth
+                      #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
+                      #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
+                      #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
+(define sketch (first (sketch-generator architecture-description sketch-inputs)))
+
+;;; Either a valid LR expression or #f.
 (define lakeroad-expr
   (cond
-    [(and (equal? (initiation-interval) 0) (equal? (template) "dsp"))
+    [(> (initiation-interval) 0)
      (let* ([_ "this line prevents autoformatter from messing up comments"]
-            ;;; This whole section is a hack!
-
-            ;;; TODO(@gussmith) Ignoring --inputs, this will not work for things other than mult.
-            [input-symbolic-constants (symbolics bv-expr)]
-            [_ (when (not (equal? 2 (length input-symbolic-constants)))
-                 (error "Expected exactly two symbolic constants."))]
-            [data-inputs (map (λ (v) (cons (lr:bv (bv->signal v)) (bvlen v)))
-                              input-symbolic-constants)]
-
-            [_ (when (not (verilog-module-out-bitwidth))
-                 (error "Verilog module out bitwidth not specified."))]
-            [sketch (first (sketch-generator architecture-description
-                                             #:out-width (verilog-module-out-bitwidth)
-                                             #:clk-input (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                                             #:rst-input (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                                             #:data-inputs data-inputs))])
-
-       (call-with-limits (timeout)
-                         #f
-                         (thunk (rosette-synthesize bv-expr
-                                                    sketch
-                                                    input-symbolic-constants
-                                                    #:module-semantics module-semantics))))]
-    [(initiation-interval)
-     ;;; If initiation interval is set (and is > 0), then we do sequential synthesis.
-     (let* ([_ "this line prevents autoformatter from messing up comments"]
-
-            [_ (when (not (clock-name))
-                 (error "Clock name not specified."))]
-
-            [rst-input (if (reset-name)
-                           (cons (lr:var (reset-name) 1) 1)
-                           (cons (lr:bv (bv->signal (bv 0 1))) 1))]
-
-            ;;; Sketch generators should take richer input than just a list of logical inputs and a
-            ;;; bitwidth. That interface is starting to be too weak.
-            ;;; For example, it's currently implicitly expected that the clock is the first list
-            ;;; item.
-
-            ;;; Generate the inputs to sketch: a lr:var for each input signal.
-            [data-inputs (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))]
-            [clk-input (cons (lr:var (clock-name) 1) 1)]
 
             ;;; Generate the input values: an association list mapping name to value, where the value
             ;;; is a signal whose value is a symbolic bitvector.
@@ -352,16 +337,6 @@
                                (inputs))]
 
             [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
-
-            ;;; TODO(@gussmith23): This will actually only work with the DSP sketch generator(s).
-            ;;; Should be fixed.
-            [_ (when (not (verilog-module-out-bitwidth))
-                 (error "Verilog module out bitwidth not specified."))]
-            [sketch (first (sketch-generator architecture-description
-                                             #:out-width (verilog-module-out-bitwidth)
-                                             #:clk-input clk-input
-                                             #:rst-input rst-input
-                                             #:data-inputs data-inputs))]
 
             ;;; Environments for sequential synthesis. Each environment represents one set of input
             ;;; states. For each set of input states, we run the interpreter with the given inputs,
@@ -388,9 +363,13 @@
        ;;; TODO(@gussmith23): Even better would be to end the headache of using keyword arguments
        ;;; altogether.
        (match-define-values (_ keywords) (procedure-keywords bv-expr))
-       ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer.
+       ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer. Also
+       ;;; filter out #:name.
        (define keywords-minus-unnamed
-         (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-"))) keywords))
+         (filter (λ (k)
+                   (not (or (string-prefix? (keyword->string k) "unnamed-input-")
+                            (equal? (keyword->string k) "name"))))
+                 keywords))
        (for ([env envs])
          (when (not (equal? (length env) (length keywords-minus-unnamed)))
            ;;; TODO(@gussmith23): Figure out how to use Racket logging...
@@ -429,11 +408,12 @@
    (define json-source
      (lakeroad->jsexpr lakeroad-expr
                        #:module-name (module-name)
-                       #:output-signal-name (verilog-module-out-signal)))
+                       #:output-signal-name (verilog-module-out-signal)
+                       #:yosys-techmap-format (equal? (out-format) "yosys-techmap")))
    (display-to-file (jsexpr->string json-source) (json-filepath) #:exists 'replace)
 
    (match (out-format)
-     ["verilog"
+     [(or "verilog" "yosys-techmap")
       (display (with-output-to-string
                 (lambda ()
                   (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"

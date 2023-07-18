@@ -145,7 +145,9 @@
        (bv->signal (constant 'unnamed-input-1082 (bitvector 8))))
       #:unnamed-input-1084
       (unnamed-input-1084
-       (bv->signal (constant 'unnamed-input-1084 (bitvector 3)))))
+       (bv->signal (constant 'unnamed-input-1084 (bitvector 3))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))
@@ -4143,5 +4145,11 @@
            (btor1086
             (bv->signal
              (zero-extend (signal-value btor23) (bitvector 1))
-             btor23)))
-      (list (cons 'O (signal (signal-value btor1046) (list)))))))
+             btor23))
+           (output-state
+            (remove-duplicates
+             (append (list) merged-input-state-hash)
+             equal?
+             #:key
+             car)))
+      (list (cons 'O (signal (signal-value btor1046) output-state))))))

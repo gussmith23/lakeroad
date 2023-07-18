@@ -27,42 +27,96 @@ module three_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
 endmodule
 
 // CHECK: module out(a, b, clk, p);
-// CHECK:   wire P0_90;
-// CHECK:   wire P10_100;
-// CHECK:   wire P11_101;
-// CHECK:   wire P12_102;
-// CHECK:   wire P13_103;
-// CHECK:   wire P14_104;
-// CHECK:   wire P15_105;
-// CHECK:   wire P16_106;
-// CHECK:   wire P17_107;
-// CHECK:   wire P18_108;
-// CHECK:   wire P19_109;
-// CHECK:   wire P1_91;
-// CHECK:   wire P20_110;
-// CHECK:   wire P21_111;
-// CHECK:   wire P22_112;
-// CHECK:   wire P23_113;
-// CHECK:   wire P24_114;
-// CHECK:   wire P25_115;
-// CHECK:   wire P26_116;
-// CHECK:   wire P27_117;
-// CHECK:   wire P28_118;
-// CHECK:   wire P29_119;
-// CHECK:   wire P2_92;
-// CHECK:   wire P30_120;
-// CHECK:   wire P31_121;
-// CHECK:   wire P32_122;
-// CHECK:   wire P33_123;
-// CHECK:   wire P34_124;
-// CHECK:   wire P35_125;
-// CHECK:   wire P3_93;
-// CHECK:   wire P4_94;
-// CHECK:   wire P5_95;
-// CHECK:   wire P6_96;
-// CHECK:   wire P7_97;
-// CHECK:   wire P8_98;
-// CHECK:   wire P9_99;
+// CHECK:   wire P0_72;
+// CHECK:   wire P10_82;
+// CHECK:   wire P11_83;
+// CHECK:   wire P12_84;
+// CHECK:   wire P13_85;
+// CHECK:   wire P14_86;
+// CHECK:   wire P15_87;
+// CHECK:   wire P16_88;
+// CHECK:   wire P17_89;
+// CHECK:   wire P18_90;
+// CHECK:   wire P19_91;
+// CHECK:   wire P1_73;
+// CHECK:   wire P20_92;
+// CHECK:   wire P21_93;
+// CHECK:   wire P22_94;
+// CHECK:   wire P23_95;
+// CHECK:   wire P24_96;
+// CHECK:   wire P25_97;
+// CHECK:   wire P26_98;
+// CHECK:   wire P27_99;
+// CHECK:   wire P28_100;
+// CHECK:   wire P29_101;
+// CHECK:   wire P2_74;
+// CHECK:   wire P30_102;
+// CHECK:   wire P31_103;
+// CHECK:   wire P32_104;
+// CHECK:   wire P33_105;
+// CHECK:   wire P34_106;
+// CHECK:   wire P35_107;
+// CHECK:   wire P3_75;
+// CHECK:   wire P4_76;
+// CHECK:   wire P5_77;
+// CHECK:   wire P6_78;
+// CHECK:   wire P7_79;
+// CHECK:   wire P8_80;
+// CHECK:   wire P9_81;
+// CHECK:   wire R0_109;
+// CHECK:   wire R10_119;
+// CHECK:   wire R11_120;
+// CHECK:   wire R12_121;
+// CHECK:   wire R13_122;
+// CHECK:   wire R14_123;
+// CHECK:   wire R15_124;
+// CHECK:   wire R16_125;
+// CHECK:   wire R17_126;
+// CHECK:   wire R18_127;
+// CHECK:   wire R19_128;
+// CHECK:   wire R1_110;
+// CHECK:   wire R20_129;
+// CHECK:   wire R21_130;
+// CHECK:   wire R22_131;
+// CHECK:   wire R23_132;
+// CHECK:   wire R24_133;
+// CHECK:   wire R25_134;
+// CHECK:   wire R26_135;
+// CHECK:   wire R27_136;
+// CHECK:   wire R28_137;
+// CHECK:   wire R29_138;
+// CHECK:   wire R2_111;
+// CHECK:   wire R30_139;
+// CHECK:   wire R31_140;
+// CHECK:   wire R32_141;
+// CHECK:   wire R33_142;
+// CHECK:   wire R34_143;
+// CHECK:   wire R35_144;
+// CHECK:   wire R36_145;
+// CHECK:   wire R37_146;
+// CHECK:   wire R38_147;
+// CHECK:   wire R39_148;
+// CHECK:   wire R3_112;
+// CHECK:   wire R40_149;
+// CHECK:   wire R41_150;
+// CHECK:   wire R42_151;
+// CHECK:   wire R43_152;
+// CHECK:   wire R44_153;
+// CHECK:   wire R45_154;
+// CHECK:   wire R46_155;
+// CHECK:   wire R47_156;
+// CHECK:   wire R48_157;
+// CHECK:   wire R49_158;
+// CHECK:   wire R4_113;
+// CHECK:   wire R50_159;
+// CHECK:   wire R51_160;
+// CHECK:   wire R52_161;
+// CHECK:   wire R53_162;
+// CHECK:   wire R5_114;
+// CHECK:   wire R6_115;
+// CHECK:   wire R7_116;
+// CHECK:   wire R8_117;
+// CHECK:   wire R9_118;
 // CHECK:   wire ROA0_36;
 // CHECK:   wire ROA10_46;
 // CHECK:   wire ROA11_47;
@@ -99,25 +153,7 @@ endmodule
 // CHECK:   wire ROB7_61;
 // CHECK:   wire ROB8_62;
 // CHECK:   wire ROB9_63;
-// CHECK:   wire ROC0_72;
-// CHECK:   wire ROC10_82;
-// CHECK:   wire ROC11_83;
-// CHECK:   wire ROC12_84;
-// CHECK:   wire ROC13_85;
-// CHECK:   wire ROC14_86;
-// CHECK:   wire ROC15_87;
-// CHECK:   wire ROC16_88;
-// CHECK:   wire ROC17_89;
-// CHECK:   wire ROC1_73;
-// CHECK:   wire ROC2_74;
-// CHECK:   wire ROC3_75;
-// CHECK:   wire ROC4_76;
-// CHECK:   wire ROC5_77;
-// CHECK:   wire ROC6_78;
-// CHECK:   wire ROC7_79;
-// CHECK:   wire ROC8_80;
-// CHECK:   wire ROC9_81;
-// CHECK:   wire SIGNEDP_126;
+// CHECK:   wire SIGNEDP_108;
 // CHECK:   wire SROA0_0;
 // CHECK:   wire SROA10_10;
 // CHECK:   wire SROA11_11;
@@ -162,32 +198,393 @@ endmodule
 // CHECK:   wire clk;
 // CHECK:   output [15:0] p;
 // CHECK:   wire [15:0] p;
-// CHECK:   MULT18X18D #(
+// CHECK:   ALU54A ALU54A_1 (
+// CHECK:     .A0(1'h0),
+// CHECK:     .A1(1'h0),
+// CHECK:     .A10(1'h0),
+// CHECK:     .A11(1'h0),
+// CHECK:     .A12(1'h0),
+// CHECK:     .A13(1'h0),
+// CHECK:     .A14(1'h0),
+// CHECK:     .A15(1'h0),
+// CHECK:     .A16(1'h0),
+// CHECK:     .A17(1'h0),
+// CHECK:     .A18(1'h0),
+// CHECK:     .A19(1'h0),
+// CHECK:     .A2(1'h0),
+// CHECK:     .A20(1'h0),
+// CHECK:     .A21(1'h0),
+// CHECK:     .A22(1'h0),
+// CHECK:     .A23(1'h0),
+// CHECK:     .A24(1'h0),
+// CHECK:     .A25(1'h0),
+// CHECK:     .A26(1'h0),
+// CHECK:     .A27(1'h0),
+// CHECK:     .A28(1'h0),
+// CHECK:     .A29(1'h0),
+// CHECK:     .A3(1'h0),
+// CHECK:     .A30(1'h0),
+// CHECK:     .A31(1'h0),
+// CHECK:     .A32(1'h0),
+// CHECK:     .A33(1'h0),
+// CHECK:     .A34(1'h0),
+// CHECK:     .A35(1'h0),
+// CHECK:     .A4(1'h0),
+// CHECK:     .A5(1'h0),
+// CHECK:     .A6(1'h0),
+// CHECK:     .A7(1'h0),
+// CHECK:     .A8(1'h0),
+// CHECK:     .A9(1'h0),
+// CHECK:     .B0(1'h0),
+// CHECK:     .B1(1'h0),
+// CHECK:     .B10(1'h0),
+// CHECK:     .B11(1'h0),
+// CHECK:     .B12(1'h0),
+// CHECK:     .B13(1'h0),
+// CHECK:     .B14(1'h0),
+// CHECK:     .B15(1'h0),
+// CHECK:     .B16(1'h0),
+// CHECK:     .B17(1'h0),
+// CHECK:     .B18(1'h0),
+// CHECK:     .B19(1'h0),
+// CHECK:     .B2(1'h0),
+// CHECK:     .B20(1'h0),
+// CHECK:     .B21(1'h0),
+// CHECK:     .B22(1'h0),
+// CHECK:     .B23(1'h0),
+// CHECK:     .B24(1'h0),
+// CHECK:     .B25(1'h0),
+// CHECK:     .B26(1'h0),
+// CHECK:     .B27(1'h0),
+// CHECK:     .B28(1'h0),
+// CHECK:     .B29(1'h0),
+// CHECK:     .B3(1'h0),
+// CHECK:     .B30(1'h0),
+// CHECK:     .B31(1'h0),
+// CHECK:     .B32(1'h0),
+// CHECK:     .B33(1'h0),
+// CHECK:     .B34(1'h0),
+// CHECK:     .B35(1'h0),
+// CHECK:     .B4(1'h0),
+// CHECK:     .B5(1'h0),
+// CHECK:     .B6(1'h0),
+// CHECK:     .B7(1'h0),
+// CHECK:     .B8(1'h0),
+// CHECK:     .B9(1'h0),
+// CHECK:     .C0(1'h1),
+// CHECK:     .C1(1'h1),
+// CHECK:     .C10(1'h1),
+// CHECK:     .C11(1'h1),
+// CHECK:     .C12(1'h1),
+// CHECK:     .C13(1'h1),
+// CHECK:     .C14(1'h1),
+// CHECK:     .C15(1'h1),
+// CHECK:     .C16(1'h1),
+// CHECK:     .C17(1'h1),
+// CHECK:     .C18(1'h1),
+// CHECK:     .C19(1'h1),
+// CHECK:     .C2(1'h1),
+// CHECK:     .C20(1'h1),
+// CHECK:     .C21(1'h1),
+// CHECK:     .C22(1'h1),
+// CHECK:     .C23(1'h1),
+// CHECK:     .C24(1'h1),
+// CHECK:     .C25(1'h1),
+// CHECK:     .C26(1'h1),
+// CHECK:     .C27(1'h1),
+// CHECK:     .C28(1'h1),
+// CHECK:     .C29(1'h1),
+// CHECK:     .C3(1'h1),
+// CHECK:     .C30(1'h1),
+// CHECK:     .C31(1'h1),
+// CHECK:     .C32(1'h1),
+// CHECK:     .C33(1'h1),
+// CHECK:     .C34(1'h1),
+// CHECK:     .C35(1'h1),
+// CHECK:     .C36(1'h1),
+// CHECK:     .C37(1'h1),
+// CHECK:     .C38(1'h1),
+// CHECK:     .C39(1'h1),
+// CHECK:     .C4(1'h1),
+// CHECK:     .C40(1'h1),
+// CHECK:     .C41(1'h1),
+// CHECK:     .C42(1'h1),
+// CHECK:     .C43(1'h1),
+// CHECK:     .C44(1'h1),
+// CHECK:     .C45(1'h1),
+// CHECK:     .C46(1'h1),
+// CHECK:     .C47(1'h1),
+// CHECK:     .C48(1'h1),
+// CHECK:     .C49(1'h1),
+// CHECK:     .C5(1'h1),
+// CHECK:     .C50(1'h1),
+// CHECK:     .C51(1'h1),
+// CHECK:     .C52(1'h1),
+// CHECK:     .C53(1'h1),
+// CHECK:     .C6(1'h1),
+// CHECK:     .C7(1'h1),
+// CHECK:     .C8(1'h1),
+// CHECK:     .C9(1'h1),
+// CHECK:     .CE0(1'h1),
+// CHECK:     .CE1(1'h1),
+// CHECK:     .CE2(1'h1),
+// CHECK:     .CE3(1'h1),
+// CHECK:     .CIN0(1'h0),
+// CHECK:     .CIN1(1'h0),
+// CHECK:     .CIN10(1'h0),
+// CHECK:     .CIN11(1'h0),
+// CHECK:     .CIN12(1'h0),
+// CHECK:     .CIN13(1'h0),
+// CHECK:     .CIN14(1'h0),
+// CHECK:     .CIN15(1'h0),
+// CHECK:     .CIN16(1'h0),
+// CHECK:     .CIN17(1'h0),
+// CHECK:     .CIN18(1'h0),
+// CHECK:     .CIN19(1'h0),
+// CHECK:     .CIN2(1'h0),
+// CHECK:     .CIN20(1'h0),
+// CHECK:     .CIN21(1'h0),
+// CHECK:     .CIN22(1'h0),
+// CHECK:     .CIN23(1'h0),
+// CHECK:     .CIN24(1'h0),
+// CHECK:     .CIN25(1'h0),
+// CHECK:     .CIN26(1'h0),
+// CHECK:     .CIN27(1'h0),
+// CHECK:     .CIN28(1'h0),
+// CHECK:     .CIN29(1'h0),
+// CHECK:     .CIN3(1'h0),
+// CHECK:     .CIN30(1'h0),
+// CHECK:     .CIN31(1'h0),
+// CHECK:     .CIN32(1'h0),
+// CHECK:     .CIN33(1'h0),
+// CHECK:     .CIN34(1'h0),
+// CHECK:     .CIN35(1'h0),
+// CHECK:     .CIN36(1'h0),
+// CHECK:     .CIN37(1'h0),
+// CHECK:     .CIN38(1'h0),
+// CHECK:     .CIN39(1'h0),
+// CHECK:     .CIN4(1'h0),
+// CHECK:     .CIN40(1'h0),
+// CHECK:     .CIN41(1'h0),
+// CHECK:     .CIN42(1'h0),
+// CHECK:     .CIN43(1'h0),
+// CHECK:     .CIN44(1'h0),
+// CHECK:     .CIN45(1'h0),
+// CHECK:     .CIN46(1'h0),
+// CHECK:     .CIN47(1'h0),
+// CHECK:     .CIN48(1'h0),
+// CHECK:     .CIN49(1'h0),
+// CHECK:     .CIN5(1'h0),
+// CHECK:     .CIN50(1'h0),
+// CHECK:     .CIN51(1'h0),
+// CHECK:     .CIN52(1'h0),
+// CHECK:     .CIN53(1'h0),
+// CHECK:     .CIN6(1'h0),
+// CHECK:     .CIN7(1'h0),
+// CHECK:     .CIN8(1'h0),
+// CHECK:     .CIN9(1'h0),
+// CHECK:     .CLK0(1'h0),
+// CHECK:     .CLK1(1'h0),
+// CHECK:     .CLK2(1'h0),
+// CHECK:     .CLK3(1'h0),
+// CHECK:     .LEGACY(5'h00),
+// CHECK:     .MA0(P0_72),
+// CHECK:     .MA1(P1_73),
+// CHECK:     .MA10(P10_82),
+// CHECK:     .MA11(P11_83),
+// CHECK:     .MA12(P12_84),
+// CHECK:     .MA13(P13_85),
+// CHECK:     .MA14(P14_86),
+// CHECK:     .MA15(P15_87),
+// CHECK:     .MA16(P16_88),
+// CHECK:     .MA17(P17_89),
+// CHECK:     .MA18(P18_90),
+// CHECK:     .MA19(P19_91),
+// CHECK:     .MA2(P2_74),
+// CHECK:     .MA20(P20_92),
+// CHECK:     .MA21(P21_93),
+// CHECK:     .MA22(P22_94),
+// CHECK:     .MA23(P23_95),
+// CHECK:     .MA24(P24_96),
+// CHECK:     .MA25(P25_97),
+// CHECK:     .MA26(P26_98),
+// CHECK:     .MA27(P27_99),
+// CHECK:     .MA28(P28_100),
+// CHECK:     .MA29(P29_101),
+// CHECK:     .MA3(P3_75),
+// CHECK:     .MA30(P30_102),
+// CHECK:     .MA31(P31_103),
+// CHECK:     .MA32(P32_104),
+// CHECK:     .MA33(P33_105),
+// CHECK:     .MA34(P34_106),
+// CHECK:     .MA35(P35_107),
+// CHECK:     .MA4(P4_76),
+// CHECK:     .MA5(P5_77),
+// CHECK:     .MA6(P6_78),
+// CHECK:     .MA7(P7_79),
+// CHECK:     .MA8(P8_80),
+// CHECK:     .MA9(P9_81),
+// CHECK:     .MASK01(56'h00000000000000),
+// CHECK:     .MASKPAT(56'h00000000000000),
+// CHECK:     .MASKPAT_SOURCE(5'h00),
+// CHECK:     .MB0(1'h0),
+// CHECK:     .MB1(1'h0),
+// CHECK:     .MB10(1'h0),
+// CHECK:     .MB11(1'h0),
+// CHECK:     .MB12(1'h0),
+// CHECK:     .MB13(1'h0),
+// CHECK:     .MB14(1'h0),
+// CHECK:     .MB15(1'h0),
+// CHECK:     .MB16(1'h0),
+// CHECK:     .MB17(1'h0),
+// CHECK:     .MB18(1'h0),
+// CHECK:     .MB19(1'h0),
+// CHECK:     .MB2(1'h0),
+// CHECK:     .MB20(1'h0),
+// CHECK:     .MB21(1'h0),
+// CHECK:     .MB22(1'h0),
+// CHECK:     .MB23(1'h0),
+// CHECK:     .MB24(1'h0),
+// CHECK:     .MB25(1'h0),
+// CHECK:     .MB26(1'h0),
+// CHECK:     .MB27(1'h0),
+// CHECK:     .MB28(1'h0),
+// CHECK:     .MB29(1'h0),
+// CHECK:     .MB3(1'h0),
+// CHECK:     .MB30(1'h0),
+// CHECK:     .MB31(1'h0),
+// CHECK:     .MB32(1'h0),
+// CHECK:     .MB33(1'h0),
+// CHECK:     .MB34(1'h0),
+// CHECK:     .MB35(1'h0),
+// CHECK:     .MB4(1'h0),
+// CHECK:     .MB5(1'h0),
+// CHECK:     .MB6(1'h0),
+// CHECK:     .MB7(1'h0),
+// CHECK:     .MB8(1'h0),
+// CHECK:     .MB9(1'h0),
+// CHECK:     .MCPAT(56'h00000000000000),
+// CHECK:     .MCPAT_SOURCE(5'h00),
+// CHECK:     .MULT9_MODE(5'h03),
+// CHECK:     .OP0(1'h1),
+// CHECK:     .OP1(1'h0),
+// CHECK:     .OP10(1'h0),
+// CHECK:     .OP2(1'h0),
+// CHECK:     .OP3(1'h0),
+// CHECK:     .OP4(1'h1),
+// CHECK:     .OP5(1'h1),
+// CHECK:     .OP6(1'h0),
+// CHECK:     .OP7(1'h1),
+// CHECK:     .OP8(1'h1),
+// CHECK:     .OP9(1'h1),
+// CHECK:     .R0(p[0]),
+// CHECK:     .R1(p[1]),
+// CHECK:     .R10(p[10]),
+// CHECK:     .R11(p[11]),
+// CHECK:     .R12(p[12]),
+// CHECK:     .R13(p[13]),
+// CHECK:     .R14(p[14]),
+// CHECK:     .R15(p[15]),
+// CHECK:     .R16(R16_125),
+// CHECK:     .R17(R17_126),
+// CHECK:     .R18(R18_127),
+// CHECK:     .R19(R19_128),
+// CHECK:     .R2(p[2]),
+// CHECK:     .R20(R20_129),
+// CHECK:     .R21(R21_130),
+// CHECK:     .R22(R22_131),
+// CHECK:     .R23(R23_132),
+// CHECK:     .R24(R24_133),
+// CHECK:     .R25(R25_134),
+// CHECK:     .R26(R26_135),
+// CHECK:     .R27(R27_136),
+// CHECK:     .R28(R28_137),
+// CHECK:     .R29(R29_138),
+// CHECK:     .R3(p[3]),
+// CHECK:     .R30(R30_139),
+// CHECK:     .R31(R31_140),
+// CHECK:     .R32(R32_141),
+// CHECK:     .R33(R33_142),
+// CHECK:     .R34(R34_143),
+// CHECK:     .R35(R35_144),
+// CHECK:     .R36(R36_145),
+// CHECK:     .R37(R37_146),
+// CHECK:     .R38(R38_147),
+// CHECK:     .R39(R39_148),
+// CHECK:     .R4(p[4]),
+// CHECK:     .R40(R40_149),
+// CHECK:     .R41(R41_150),
+// CHECK:     .R42(R42_151),
+// CHECK:     .R43(R43_152),
+// CHECK:     .R44(R44_153),
+// CHECK:     .R45(R45_154),
+// CHECK:     .R46(R46_155),
+// CHECK:     .R47(R47_156),
+// CHECK:     .R48(R48_157),
+// CHECK:     .R49(R49_158),
+// CHECK:     .R5(p[5]),
+// CHECK:     .R50(R50_159),
+// CHECK:     .R51(R51_160),
+// CHECK:     .R52(R52_161),
+// CHECK:     .R53(R53_162),
+// CHECK:     .R6(p[6]),
+// CHECK:     .R7(p[7]),
+// CHECK:     .R8(p[8]),
+// CHECK:     .R9(p[9]),
+// CHECK:     .REG_FLAG_CE(5'h00),
+// CHECK:     .REG_FLAG_CLK(5'h00),
+// CHECK:     .REG_FLAG_RST(5'h00),
+// CHECK:     .REG_INPUTC0_CE(5'h00),
+// CHECK:     .REG_INPUTC0_CLK(5'h10),
+// CHECK:     .REG_INPUTC0_RST(5'h00),
+// CHECK:     .REG_INPUTC1_CE(5'h00),
+// CHECK:     .REG_INPUTC1_CLK(5'h00),
+// CHECK:     .REG_INPUTC1_RST(5'h00),
+// CHECK:     .REG_OPCODEIN_0_CE(5'h00),
+// CHECK:     .REG_OPCODEIN_0_CLK(5'h00),
+// CHECK:     .REG_OPCODEIN_0_RST(5'h00),
+// CHECK:     .REG_OPCODEIN_1_CE(5'h00),
+// CHECK:     .REG_OPCODEIN_1_CLK(5'h00),
+// CHECK:     .REG_OPCODEIN_1_RST(5'h00),
+// CHECK:     .REG_OPCODEOP0_0_CE(5'h00),
+// CHECK:     .REG_OPCODEOP0_0_CLK(5'h00),
+// CHECK:     .REG_OPCODEOP0_0_RST(5'h00),
+// CHECK:     .REG_OPCODEOP0_1_CE(5'h00),
+// CHECK:     .REG_OPCODEOP0_1_CLK(5'h00),
+// CHECK:     .REG_OPCODEOP0_1_RST(5'h00),
+// CHECK:     .REG_OPCODEOP1_0_CLK(5'h00),
+// CHECK:     .REG_OPCODEOP1_1_CLK(5'h00),
+// CHECK:     .REG_OUTPUT0_CE(5'h00),
+// CHECK:     .REG_OUTPUT0_CLK(5'h00),
+// CHECK:     .REG_OUTPUT0_RST(5'h00),
+// CHECK:     .REG_OUTPUT1_CE(5'h00),
+// CHECK:     .REG_OUTPUT1_CLK(5'h00),
+// CHECK:     .REG_OUTPUT1_RST(5'h00),
+// CHECK:     .RNDPAT(56'h00000000000000),
+// CHECK:     .RST0(1'h0),
+// CHECK:     .RST1(1'h0),
+// CHECK:     .RST2(1'h0),
+// CHECK:     .RST3(1'h0),
+// CHECK:     .SIGNEDCIN(1'h0),
+// CHECK:     .SIGNEDIA(1'h0),
+// CHECK:     .SIGNEDIB(1'h0)
+// CHECK:   );
+// CHECK:   MULT18X18C #(
 // CHECK:     .CAS_MATCH_REG("FALSE"),
-// CHECK:     .CLK0_DIV("DISABLED"),
-// CHECK:     .CLK1_DIV("DISABLED"),
-// CHECK:     .CLK2_DIV("DISABLED"),
-// CHECK:     .CLK3_DIV("DISABLED"),
-// CHECK:     .GSR("DISABLED"),
-// CHECK:     .HIGHSPEED_CLK("NONE"),
 // CHECK:     .MULT_BYPASS("DISABLED"),
-// CHECK:     .REG_INPUTA_CE("CE3"),
-// CHECK:     .REG_INPUTA_CLK("CLK1"),
-// CHECK:     .REG_INPUTA_RST("RST3"),
-// CHECK:     .REG_INPUTB_CE("CE3"),
+// CHECK:     .REG_INPUTA_CE("CE0"),
+// CHECK:     .REG_INPUTA_CLK("CLK0"),
+// CHECK:     .REG_INPUTA_RST("RST0"),
+// CHECK:     .REG_INPUTB_CE("CE0"),
 // CHECK:     .REG_INPUTB_CLK("CLK0"),
-// CHECK:     .REG_INPUTB_RST("RST3"),
-// CHECK:     .REG_INPUTC_CE("CE3"),
-// CHECK:     .REG_INPUTC_CLK("CLK1"),
-// CHECK:     .REG_INPUTC_RST("RST3"),
-// CHECK:     .REG_OUTPUT_CE("CE3"),
+// CHECK:     .REG_INPUTB_RST("RST0"),
+// CHECK:     .REG_OUTPUT_CE("CE0"),
 // CHECK:     .REG_OUTPUT_CLK("CLK0"),
-// CHECK:     .REG_OUTPUT_RST("RST3"),
-// CHECK:     .REG_PIPELINE_CE("CE3"),
+// CHECK:     .REG_OUTPUT_RST("RST0"),
+// CHECK:     .REG_PIPELINE_CE("CE0"),
 // CHECK:     .REG_PIPELINE_CLK("CLK0"),
-// CHECK:     .REG_PIPELINE_RST("RST3"),
-// CHECK:     .SOURCEB_MODE("B_SHIFT")
-// CHECK:   ) MULT18X18D_0 (
+// CHECK:     .REG_PIPELINE_RST("RST0")
+// CHECK:   ) MULT18X18C_0 (
 // CHECK:     .A0(a[0]),
 // CHECK:     .A1(a[1]),
 // CHECK:     .A10(a[10]),
@@ -196,8 +593,8 @@ endmodule
 // CHECK:     .A13(a[13]),
 // CHECK:     .A14(a[14]),
 // CHECK:     .A15(a[15]),
-// CHECK:     .A16(1'h0),
-// CHECK:     .A17(1'h0),
+// CHECK:     .A16(a[15]),
+// CHECK:     .A17(a[15]),
 // CHECK:     .A2(a[2]),
 // CHECK:     .A3(a[3]),
 // CHECK:     .A4(a[4]),
@@ -224,24 +621,6 @@ endmodule
 // CHECK:     .B7(b[7]),
 // CHECK:     .B8(b[8]),
 // CHECK:     .B9(b[9]),
-// CHECK:     .C0(1'h1),
-// CHECK:     .C1(1'h1),
-// CHECK:     .C10(1'h1),
-// CHECK:     .C11(1'h1),
-// CHECK:     .C12(1'h1),
-// CHECK:     .C13(1'h1),
-// CHECK:     .C14(1'h1),
-// CHECK:     .C15(1'h1),
-// CHECK:     .C16(1'h1),
-// CHECK:     .C17(1'h1),
-// CHECK:     .C2(1'h1),
-// CHECK:     .C3(1'h1),
-// CHECK:     .C4(1'h1),
-// CHECK:     .C5(1'h1),
-// CHECK:     .C6(1'h1),
-// CHECK:     .C7(1'h1),
-// CHECK:     .C8(1'h1),
-// CHECK:     .C9(1'h1),
 // CHECK:     .CE0(1'h1),
 // CHECK:     .CE1(1'h1),
 // CHECK:     .CE2(1'h1),
@@ -250,42 +629,42 @@ endmodule
 // CHECK:     .CLK1(clk),
 // CHECK:     .CLK2(clk),
 // CHECK:     .CLK3(clk),
-// CHECK:     .P0(p[0]),
-// CHECK:     .P1(p[1]),
-// CHECK:     .P10(p[10]),
-// CHECK:     .P11(p[11]),
-// CHECK:     .P12(p[12]),
-// CHECK:     .P13(p[13]),
-// CHECK:     .P14(p[14]),
-// CHECK:     .P15(p[15]),
-// CHECK:     .P16(P16_106),
-// CHECK:     .P17(P17_107),
-// CHECK:     .P18(P18_108),
-// CHECK:     .P19(P19_109),
-// CHECK:     .P2(p[2]),
-// CHECK:     .P20(P20_110),
-// CHECK:     .P21(P21_111),
-// CHECK:     .P22(P22_112),
-// CHECK:     .P23(P23_113),
-// CHECK:     .P24(P24_114),
-// CHECK:     .P25(P25_115),
-// CHECK:     .P26(P26_116),
-// CHECK:     .P27(P27_117),
-// CHECK:     .P28(P28_118),
-// CHECK:     .P29(P29_119),
-// CHECK:     .P3(p[3]),
-// CHECK:     .P30(P30_120),
-// CHECK:     .P31(P31_121),
-// CHECK:     .P32(P32_122),
-// CHECK:     .P33(P33_123),
-// CHECK:     .P34(P34_124),
-// CHECK:     .P35(P35_125),
-// CHECK:     .P4(p[4]),
-// CHECK:     .P5(p[5]),
-// CHECK:     .P6(p[6]),
-// CHECK:     .P7(p[7]),
-// CHECK:     .P8(p[8]),
-// CHECK:     .P9(p[9]),
+// CHECK:     .P0(P0_72),
+// CHECK:     .P1(P1_73),
+// CHECK:     .P10(P10_82),
+// CHECK:     .P11(P11_83),
+// CHECK:     .P12(P12_84),
+// CHECK:     .P13(P13_85),
+// CHECK:     .P14(P14_86),
+// CHECK:     .P15(P15_87),
+// CHECK:     .P16(P16_88),
+// CHECK:     .P17(P17_89),
+// CHECK:     .P18(P18_90),
+// CHECK:     .P19(P19_91),
+// CHECK:     .P2(P2_74),
+// CHECK:     .P20(P20_92),
+// CHECK:     .P21(P21_93),
+// CHECK:     .P22(P22_94),
+// CHECK:     .P23(P23_95),
+// CHECK:     .P24(P24_96),
+// CHECK:     .P25(P25_97),
+// CHECK:     .P26(P26_98),
+// CHECK:     .P27(P27_99),
+// CHECK:     .P28(P28_100),
+// CHECK:     .P29(P29_101),
+// CHECK:     .P3(P3_75),
+// CHECK:     .P30(P30_102),
+// CHECK:     .P31(P31_103),
+// CHECK:     .P32(P32_104),
+// CHECK:     .P33(P33_105),
+// CHECK:     .P34(P34_106),
+// CHECK:     .P35(P35_107),
+// CHECK:     .P4(P4_76),
+// CHECK:     .P5(P5_77),
+// CHECK:     .P6(P6_78),
+// CHECK:     .P7(P7_79),
+// CHECK:     .P8(P8_80),
+// CHECK:     .P9(P9_81),
 // CHECK:     .ROA0(ROA0_36),
 // CHECK:     .ROA1(ROA1_37),
 // CHECK:     .ROA10(ROA10_46),
@@ -322,31 +701,13 @@ endmodule
 // CHECK:     .ROB7(ROB7_61),
 // CHECK:     .ROB8(ROB8_62),
 // CHECK:     .ROB9(ROB9_63),
-// CHECK:     .ROC0(ROC0_72),
-// CHECK:     .ROC1(ROC1_73),
-// CHECK:     .ROC10(ROC10_82),
-// CHECK:     .ROC11(ROC11_83),
-// CHECK:     .ROC12(ROC12_84),
-// CHECK:     .ROC13(ROC13_85),
-// CHECK:     .ROC14(ROC14_86),
-// CHECK:     .ROC15(ROC15_87),
-// CHECK:     .ROC16(ROC16_88),
-// CHECK:     .ROC17(ROC17_89),
-// CHECK:     .ROC2(ROC2_74),
-// CHECK:     .ROC3(ROC3_75),
-// CHECK:     .ROC4(ROC4_76),
-// CHECK:     .ROC5(ROC5_77),
-// CHECK:     .ROC6(ROC6_78),
-// CHECK:     .ROC7(ROC7_79),
-// CHECK:     .ROC8(ROC8_80),
-// CHECK:     .ROC9(ROC9_81),
 // CHECK:     .RST0(1'h0),
 // CHECK:     .RST1(1'h0),
 // CHECK:     .RST2(1'h0),
 // CHECK:     .RST3(1'h0),
 // CHECK:     .SIGNEDA(1'h1),
 // CHECK:     .SIGNEDB(1'h1),
-// CHECK:     .SIGNEDP(SIGNEDP_126),
+// CHECK:     .SIGNEDP(SIGNEDP_108),
 // CHECK:     .SOURCEA(1'h0),
 // CHECK:     .SOURCEB(1'h0),
 // CHECK:     .SRIA0(1'h0),
@@ -422,20 +783,20 @@ endmodule
 // CHECK:     .SROB8(SROB8_26),
 // CHECK:     .SROB9(SROB9_27)
 // CHECK:   );
-// CHECK:   assign P0_90 = p[0];
-// CHECK:   assign P10_100 = p[10];
-// CHECK:   assign P11_101 = p[11];
-// CHECK:   assign P12_102 = p[12];
-// CHECK:   assign P13_103 = p[13];
-// CHECK:   assign P14_104 = p[14];
-// CHECK:   assign P15_105 = p[15];
-// CHECK:   assign P1_91 = p[1];
-// CHECK:   assign P2_92 = p[2];
-// CHECK:   assign P3_93 = p[3];
-// CHECK:   assign P4_94 = p[4];
-// CHECK:   assign P5_95 = p[5];
-// CHECK:   assign P6_96 = p[6];
-// CHECK:   assign P7_97 = p[7];
-// CHECK:   assign P8_98 = p[8];
-// CHECK:   assign P9_99 = p[9];
+// CHECK:   assign R0_109 = p[0];
+// CHECK:   assign R10_119 = p[10];
+// CHECK:   assign R11_120 = p[11];
+// CHECK:   assign R12_121 = p[12];
+// CHECK:   assign R13_122 = p[13];
+// CHECK:   assign R14_123 = p[14];
+// CHECK:   assign R15_124 = p[15];
+// CHECK:   assign R1_110 = p[1];
+// CHECK:   assign R2_111 = p[2];
+// CHECK:   assign R3_112 = p[3];
+// CHECK:   assign R4_113 = p[4];
+// CHECK:   assign R5_114 = p[5];
+// CHECK:   assign R6_115 = p[6];
+// CHECK:   assign R7_116 = p[7];
+// CHECK:   assign R8_117 = p[8];
+// CHECK:   assign R9_118 = p[9];
 // CHECK: endmodule
