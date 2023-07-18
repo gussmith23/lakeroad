@@ -34,12 +34,12 @@
                                           #:force-random-values [force-random-values #f])
   (->* ((listof to-simulate?) path-string?)
        (#:additional-files-to-build (listof path-string?)
-        #:include-dirs (listof path-string?)
-        #:extra-verilator-args string?
-        #:extra-cc-args string?
-        #:num-make-jobs integer?
-        #:max-loop-bound integer?
-        #:force-random-values boolean?)
+                                    #:include-dirs (listof path-string?)
+                                    #:extra-verilator-args string?
+                                    #:extra-cc-args string?
+                                    #:num-make-jobs integer?
+                                    #:max-loop-bound integer?
+                                    #:force-random-values boolean?)
        boolean?)
   (begin
     (define working-directory (make-temporary-file "rkttmp~a" 'directory))
@@ -291,7 +291,8 @@ here-string-delimiter
     ;;;
     ;;; Throw away stdout, keep stderr. If anything is printed on stderr, we should likely be failing anyway.
 
-    (parameterize ([current-output-port (open-output-bytes)]) (system make-invocation))))
+    (parameterize ([current-output-port (open-output-bytes)])
+      (system make-invocation))))
 
 (module+ test
 
@@ -312,15 +313,15 @@ here-string-delimiter
   ;;; TODO(@gussmith23): Capture the output of this so that we don't print an assertion failure during
   ;;; testing.
   (test-case "Simple multi-design Verilator test 2"
-    (check-true
-     (normal? (with-vc (with-terms (begin
-                                     (define-symbolic a b (bitvector 8))
-                                     (displayln "Note: expecting an assertion failure:")
-                                     (check-false
-                                      (simulate-with-verilator
-                                       (list (to-simulate (lr:bv (bv->signal a)) a)
-                                             (to-simulate (lr:bv (bv->signal b)) (bvnot b)))
-                                       (getenv "VERILATOR_INCLUDE_DIR"))))))))))
+    (check-true (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 8))
+                                                (displayln "Note: expecting an assertion failure:")
+                                                (check-false
+                                                 (simulate-with-verilator
+                                                  (list (to-simulate (lr:bv (bv->signal a)) a)
+                                                        (to-simulate (lr:bv (bv->signal b))
+                                                                     (bvnot b)))
+                                                  (getenv "VERILATOR_INCLUDE_DIR"))))))))))
 
 ;;; Test a Lakeroad expression using a simple testbench.
 ;;;

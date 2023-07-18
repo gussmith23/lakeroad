@@ -207,55 +207,55 @@
                  ;;; Once again, note the use of all ones (and not zeros) when
                  ;;; padding the inputs to the ripple PFUs.
                  (lr:list
-                  (list
-                   (lr:concat
-                    (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
-                                   (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                          (lr:integer 0))
-                                                             (lr:list-ref ripple-pfu-1-output
-                                                                          (lr:integer 0))))))))
-                   (lr:concat
-                    (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
-                                   (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                          (lr:integer 1))
-                                                             (lr:list-ref ripple-pfu-1-output
-                                                                          (lr:integer 1))))))))
-                   (lr:concat
-                    (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
-                                   (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                          (lr:integer 2))
-                                                             (lr:list-ref ripple-pfu-1-output
-                                                                          (lr:integer 2))))))))
-                   (lr:concat
-                    (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
-                                   (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                          (lr:integer 3))
-                                                             (lr:list-ref ripple-pfu-1-output
-                                                                          (lr:integer 3))))))))
-                   (lr:concat
-                    (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
-                                   (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                          (lr:integer 4))
-                                                             (lr:list-ref ripple-pfu-1-output
-                                                                          (lr:integer 4))))))))
-                   (lr:concat
-                    (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
-                                   (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                          (lr:integer 5))
-                                                             (lr:list-ref ripple-pfu-1-output
-                                                                          (lr:integer 5))))))))
-                   (lr:concat
-                    (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
-                                   (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
-                                                                          (lr:integer 6))
-                                                             (lr:list-ref ripple-pfu-1-output
-                                                                          (lr:integer 6))))))))
-                   (lr:concat
-                    (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
-                                   (lr:concat
-                                    (lr:list (list (lr:list-ref ripple-pfu-0-output (lr:integer 7))
-                                                   (lr:list-ref ripple-pfu-1-output
-                                                                (lr:integer 7)))))))))))]
+                  (list (lr:concat
+                         (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
+                                        (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
+                                                                               (lr:integer 0))
+                                                                  (lr:list-ref ripple-pfu-1-output
+                                                                               (lr:integer 0))))))))
+                        (lr:concat
+                         (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
+                                        (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
+                                                                               (lr:integer 1))
+                                                                  (lr:list-ref ripple-pfu-1-output
+                                                                               (lr:integer 1))))))))
+                        (lr:concat
+                         (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
+                                        (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
+                                                                               (lr:integer 2))
+                                                                  (lr:list-ref ripple-pfu-1-output
+                                                                               (lr:integer 2))))))))
+                        (lr:concat
+                         (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
+                                        (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
+                                                                               (lr:integer 3))
+                                                                  (lr:list-ref ripple-pfu-1-output
+                                                                               (lr:integer 3))))))))
+                        (lr:concat
+                         (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
+                                        (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
+                                                                               (lr:integer 4))
+                                                                  (lr:list-ref ripple-pfu-1-output
+                                                                               (lr:integer 4))))))))
+                        (lr:concat
+                         (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
+                                        (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
+                                                                               (lr:integer 5))
+                                                                  (lr:list-ref ripple-pfu-1-output
+                                                                               (lr:integer 5))))))))
+                        (lr:concat
+                         (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
+                                        (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
+                                                                               (lr:integer 6))
+                                                                  (lr:list-ref ripple-pfu-1-output
+                                                                               (lr:integer 6))))))))
+                        (lr:concat
+                         (lr:list (list (lr:bv (bv->signal (bv #b11 2)))
+                                        (lr:concat (lr:list (list (lr:list-ref ripple-pfu-0-output
+                                                                               (lr:integer 7))
+                                                                  (lr:list-ref
+                                                                   ripple-pfu-1-output
+                                                                   (lr:integer 7)))))))))))]
 
                ;;; Our output is the carry out of ripple PFU 2.
                [cout (lr:list-ref ripple-pfu-2-output (lr:integer 8))])

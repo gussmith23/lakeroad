@@ -32,35 +32,35 @@
            [cins (apply concat (drop couts-list 1))])
       (list (apply concat (take couts-list 8)) (bvxor cins s))))
 
-  (verify-lakeroad-expression "Xilinx UltraScale+ CARRY8 CO output"
-                              (begin
-                                (define-symbolic cin (bitvector 1))
-                                (define-symbolic di (bitvector 8))
-                                (define-symbolic s (bitvector 8)))
-                              (lr:list-ref (xilinx-ultrascale-plus-carry8
-                                            (lr:bv (bv->signal (bv 0 1)))
-                                            (lr:bv (bv->signal cin))
-                                            (lr:bv (bv->signal (bv 0 1)))
-                                            (lr:bv (bv->signal di))
-                                            (lr:bv (bv->signal s)))
-                                           (lr:integer 0))
-                              (list-ref (carry8-semantics cin di s) 0)
-                              add-to-simulate)
+  (verify-lakeroad-expression
+   "Xilinx UltraScale+ CARRY8 CO output"
+   (begin
+     (define-symbolic cin (bitvector 1))
+     (define-symbolic di (bitvector 8))
+     (define-symbolic s (bitvector 8)))
+   (lr:list-ref (xilinx-ultrascale-plus-carry8 (lr:bv (bv->signal (bv 0 1)))
+                                               (lr:bv (bv->signal cin))
+                                               (lr:bv (bv->signal (bv 0 1)))
+                                               (lr:bv (bv->signal di))
+                                               (lr:bv (bv->signal s)))
+                (lr:integer 0))
+   (list-ref (carry8-semantics cin di s) 0)
+   add-to-simulate)
 
-  (verify-lakeroad-expression "Xilinx UltraScale+ CARRY8 O output"
-                              (begin
-                                (define-symbolic cin (bitvector 1))
-                                (define-symbolic di (bitvector 8))
-                                (define-symbolic s (bitvector 8)))
-                              (lr:list-ref (xilinx-ultrascale-plus-carry8
-                                            (lr:bv (bv->signal (bv 0 1)))
-                                            (lr:bv (bv->signal cin))
-                                            (lr:bv (bv->signal (bv 0 1)))
-                                            (lr:bv (bv->signal di))
-                                            (lr:bv (bv->signal s)))
-                                           (lr:integer 1))
-                              (list-ref (carry8-semantics cin di s) 1)
-                              add-to-simulate)
+  (verify-lakeroad-expression
+   "Xilinx UltraScale+ CARRY8 O output"
+   (begin
+     (define-symbolic cin (bitvector 1))
+     (define-symbolic di (bitvector 8))
+     (define-symbolic s (bitvector 8)))
+   (lr:list-ref (xilinx-ultrascale-plus-carry8 (lr:bv (bv->signal (bv 0 1)))
+                                               (lr:bv (bv->signal cin))
+                                               (lr:bv (bv->signal (bv 0 1)))
+                                               (lr:bv (bv->signal di))
+                                               (lr:bv (bv->signal s)))
+                (lr:integer 1))
+   (list-ref (carry8-semantics cin di s) 1)
+   add-to-simulate)
 
   (verify-lakeroad-expression
    "Xilinx UltraScale+ LUT6"

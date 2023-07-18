@@ -47,21 +47,21 @@
 
 ;;; Compiles logical-to-physical mapping.
 (define (compile-logical-to-physical-mapping compile f logical-expr)
-  (destruct
-   f
-   [(ltop-bitwise) (apply map list (compile logical-expr))]
-   [(ltop-bitwise-reverse) (apply map list (map reverse (compile logical-expr)))]
-   [(ltop-identity) (compile logical-expr)]
-   [(ltop-shift n)
-    (let* ([compiled (apply map list (compile logical-expr))]
-           [num-bits (length compiled)]
-           [shift-amount (min (abs n) num-bits)]
-           [num-pads (max 0 (- num-bits shift-amount))]
-           [shifted (if (> n 0)
-                        (append (make-list shift-amount (list "0")) (take compiled num-pads))
-                        (append (drop compiled shift-amount) (make-list shift-amount (list "0"))))])
-      shifted)]
-   [(ltop-constant n) (map list (compile n))]))
+  (destruct f
+            [(ltop-bitwise) (apply map list (compile logical-expr))]
+            [(ltop-bitwise-reverse) (apply map list (map reverse (compile logical-expr)))]
+            [(ltop-identity) (compile logical-expr)]
+            [(ltop-shift n)
+             (let* ([compiled (apply map list (compile logical-expr))]
+                    [num-bits (length compiled)]
+                    [shift-amount (min (abs n) num-bits)]
+                    [num-pads (max 0 (- num-bits shift-amount))]
+                    [shifted (if (> n 0)
+                                 (append (make-list shift-amount (list "0")) (take compiled num-pads))
+                                 (append (drop compiled shift-amount)
+                                         (make-list shift-amount (list "0"))))])
+               shifted)]
+            [(ltop-constant n) (map list (compile n))]))
 
 (module+ test
   (require rackunit)
@@ -289,14 +289,14 @@
       ;;; Simple case: none should be masked.
       (define soln0
         (synthesize #:forall (list x y)
-                    #:guarantee
-                    (begin
-                      (assert (bveq (bit 0 (signal-value o0)) (bit 0 (signal-value x))))
-                      (assert (bveq (bit 1 (signal-value o0)) (bit 0 (signal-value y))))
-                      (assert (bveq (bit 0 (signal-value o1)) (bit 1 (signal-value x))))
-                      (assert (bveq (bit 1 (signal-value o1)) (bit 1 (signal-value y))))
-                      (assert (bveq (bit 0 (signal-value o2)) (bit 2 (signal-value x))))
-                      (assert (bveq (bit 1 (signal-value o2)) (bit 2 (signal-value y)))))))
+                    #:guarantee (begin
+                                  (assert (bveq (bit 0 (signal-value o0)) (bit 0 (signal-value x))))
+                                  (assert (bveq (bit 1 (signal-value o0)) (bit 0 (signal-value y))))
+                                  (assert (bveq (bit 0 (signal-value o1)) (bit 1 (signal-value x))))
+                                  (assert (bveq (bit 1 (signal-value o1)) (bit 1 (signal-value y))))
+                                  (assert (bveq (bit 0 (signal-value o2)) (bit 2 (signal-value x))))
+                                  (assert (bveq (bit 1 (signal-value o2))
+                                                (bit 2 (signal-value y)))))))
       (check-equal? (list (bv #b00 2) (bv #b00 2) (bv #b00 2))
                     (map signal-value (evaluate pttn soln0)))
       ;;; More complex case: some should be masked.
@@ -361,10 +361,10 @@
 
 (module+ test
   (require rackunit)
-  (check-equal? (interpret-logical-to-physical-mapping
-                 identity
-                 (ltop-bitwise)
-                 (list (bv->signal (bv #b01 2)) (bv->signal (bv #b10 2))))
+  (check-equal? (interpret-logical-to-physical-mapping identity
+                                                       (ltop-bitwise)
+                                                       (list (bv->signal (bv #b01 2))
+                                                             (bv->signal (bv #b10 2))))
                 (list (bv->signal (bv #b01 2)) (bv->signal (bv #b10 2))))
   (check-equal?
    (interpret-logical-to-physical-mapping identity (ltop-bitwise) (list (bv->signal (bv #b01 2))))
@@ -490,10 +490,9 @@
    (regexp
     "map: all lists must have same size\n  first list length: 1\n  other list length: 2\n  procedure: concat")
    (lambda ()
-     (interpret-logical-to-physical-mapping
-      identity
-      (ltop-bitwise)
-      (list (bv->signal (bv #b01 2)) (bv->signal (bv #b1 1)))))))
+     (interpret-logical-to-physical-mapping identity
+                                            (ltop-bitwise)
+                                            (list (bv->signal (bv #b01 2)) (bv->signal (bv #b1 1)))))))
 
 ;;; Interprets physical-to-logical mappings.
 ;;; Expects a list of logical outputs in least significant->most significant order.
@@ -539,16 +538,16 @@
 
 (module+ test
   (require rackunit)
-  (check-equal? (interpret-physical-to-logical-mapping
-                 identity
-                 (ptol-bitwise)
-                 (list (bv->signal (bv #b1 1)) (bv->signal (bv #b0 1))))
+  (check-equal? (interpret-physical-to-logical-mapping identity
+                                                       (ptol-bitwise)
+                                                       (list (bv->signal (bv #b1 1))
+                                                             (bv->signal (bv #b0 1))))
                 (list (bv->signal (bv #b01 2))))
 
-  (check-equal? (interpret-physical-to-logical-mapping
-                 identity
-                 (ptol-bitwise-reverse)
-                 (list (bv->signal (bv #b1 1)) (bv->signal (bv #b0 1))))
+  (check-equal? (interpret-physical-to-logical-mapping identity
+                                                       (ptol-bitwise-reverse)
+                                                       (list (bv->signal (bv #b1 1))
+                                                             (bv->signal (bv #b0 1))))
                 (list (bv->signal (bv #b10 2))))
 
   ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
@@ -582,19 +581,19 @@
                                  logical-out-f
                                  logical-out-g
                                  logical-out-h)
-                  #:guarantee (begin
-                                ;;; Make up some random constraints...
-                                (assert (bveq (signal-value logical-out-a)
-                                              (bit 0 (signal-value physical-out))))
-                                (assert (bveq (concat (signal-value logical-out-e)
-                                                      (signal-value logical-out-d)
-                                                      (signal-value logical-out-c)
-                                                      (signal-value logical-out-b))
-                                              (extract 4 1 (signal-value physical-out))))
-                                (assert (bveq (concat (signal-value logical-out-f)
-                                                      (signal-value logical-out-g)
-                                                      (signal-value logical-out-h))
-                                              (extract 7 5 (signal-value physical-out)))))))
+                  #:guarantee
+                  (begin
+                    ;;; Make up some random constraints...
+                    (assert (bveq (signal-value logical-out-a) (bit 0 (signal-value physical-out))))
+                    (assert (bveq (concat (signal-value logical-out-e)
+                                          (signal-value logical-out-d)
+                                          (signal-value logical-out-c)
+                                          (signal-value logical-out-b))
+                                  (extract 4 1 (signal-value physical-out))))
+                    (assert (bveq (concat (signal-value logical-out-f)
+                                          (signal-value logical-out-g)
+                                          (signal-value logical-out-h))
+                                  (extract 7 5 (signal-value physical-out)))))))
     (check-true (sat? soln)))
   (test-begin
     (check-equal?
