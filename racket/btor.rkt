@@ -391,35 +391,16 @@
                       (string-split str #rx"\n+"))])
     (compile-line line))
 
-  ;;; Makes a function which outputs the given expression.
-  (define/contract (make-function out-symbol)
-    (-> symbol? (list/c any/c any/c))
-    ;;; The contract for our function
-    (define contract
-      `(->* ()
-            ;;; apply append == flatten1 (flatten flattens recursively)
-            (,@(apply append
-                      (for/list ([input ins])
-                        (let* ([type (hash-ref input-types input)])
-                          (list (string->keyword (symbol->string input))
-                                `(struct/c signal ,type (hash/c symbol? bv?)))))))
-            (struct/c signal bv? hash?)))
-    (define function
-      `(λ (,@(apply append
-                    (for/list ([input ins])
-                      (let* ([type (hash-ref input-types input)])
-                        (list (string->keyword (symbol->string input))
-                              `[,input
-                                ,(match default-value
-                                   ['symbolic `(bv->signal (constant ',input ,type))])])))))
-         (let* (,@let*-clauses)
-           ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
-           ;;; with the updated state.
-           (signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))))
-    (list function contract))
+  ;;; The final output state hash will be all of the new states appended to all of the state data that
+  ;;; came in to the function.
+  ;;; TODO(@gussmith23): This may be slow/take up a lot of memory.
+  ;;;
+  ;;; It IS slow! Trying to mitigate by removing duplicates.
+  (set!
+   output-state-hash
+   `(remove-duplicates (append ,output-state-hash ,merged-input-state-hash-symbol) equal? #:key car))
 
-  ;;; Instead of using make-function to make a function for each output, we make a single function
-  ;;; which returns all outputs in a map.
+  ;;; Generate output function.
   (define out-function
     `(λ (,@(apply append
                   (for/list ([input ins])
@@ -429,13 +410,13 @@
                               ,(match default-value
                                  ['symbolic `(bv->signal (constant ',input ,type))])]))))
          #:name [name ""])
-       (let* (,@let*-clauses)
+       (let* (,@let*-clauses [output-state ,output-state-hash])
          ;;; We output the expression corresponding to out-symbol, but we wrap it in a new signal
          ;;; with the updated state.
          (list ,@(map (lambda (k v) `(cons ,k ,v))
                       (map (λ (s) `(quote ,s)) (hash-keys outs))
                       (map (lambda (out-symbol)
-                             `(signal (signal-value ,(hash-ref outs out-symbol)) ,output-state-hash))
+                             `(signal (signal-value ,(hash-ref outs out-symbol)) output-state))
                            (hash-keys outs)))))))
 
   (define requires

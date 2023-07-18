@@ -100,6 +100,16 @@
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
 
+                     ;;; Append #:name argument.
+                     ;;;
+                     ;;; NOTE: We currently give each module a unique name based on the hash code of
+                     ;;; its expression. There's really no reason why this is correct, and we should
+                     ;;; definitely have a smarter solution! This was just a quick solution for giving
+                     ;;; each module a unique name.
+                     [pairs (cons (cons (string->keyword "name")
+                                        (number->string (equal-hash-code expr)))
+                                  pairs)]
+
                      ;;; Sort them by keyword<.
                      [pairs (sort pairs keyword<? #:key car)]
 

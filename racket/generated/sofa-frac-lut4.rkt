@@ -1857,8 +1857,14 @@
            (btor495
             (bv->signal
              (zero-extend (signal-value btor48) (bitvector 1))
-             btor48)))
+             btor48))
+           (output-state
+            (remove-duplicates
+             (append (list) merged-input-state-hash)
+             equal?
+             #:key
+             car)))
       (list
-       (cons 'lut3_out (signal (signal-value btor45) (list)))
-       (cons 'lut4_out (signal (signal-value btor49) (list)))
-       (cons 'lut2_out (signal (signal-value btor26) (list)))))))
+       (cons 'lut3_out (signal (signal-value btor45) output-state))
+       (cons 'lut4_out (signal (signal-value btor49) output-state))
+       (cons 'lut2_out (signal (signal-value btor26) output-state))))))

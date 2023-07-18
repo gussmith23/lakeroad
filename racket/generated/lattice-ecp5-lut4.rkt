@@ -68,5 +68,11 @@
            (btor26
             (bv->signal
              (zero-extend (signal-value btor11) (bitvector 8))
-             btor11)))
-      (list (cons 'Z (signal (signal-value btor22) (list)))))))
+             btor11))
+           (output-state
+            (remove-duplicates
+             (append (list) merged-input-state-hash)
+             equal?
+             #:key
+             car)))
+      (list (cons 'Z (signal (signal-value btor22) output-state))))))
