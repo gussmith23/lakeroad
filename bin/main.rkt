@@ -18,6 +18,7 @@
          "../racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt"
          "../racket/generated/sofa-frac-lut4.rkt"
          "../racket/generated/lattice-ecp5-mult18x18d.rkt"
+         "../racket/generated/lattice-ecp5-mult18x18c.rkt"
          "../racket/generated/lattice-ecp5-alu24b.rkt"
          "../racket/generated/lattice-ecp5-alu54a.rkt"
          "../racket/generated/intel-altmult-accum.rkt"
@@ -293,6 +294,8 @@
       (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
       (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
             lattice-ecp5-mult18x18d)
+      (cons (cons "MULT18X18C" "../lakeroad-private/lattice_ecp5/MULT18X18C.v")
+            lattice-ecp5-mult18x18c)
       (cons (cons "ALU24B" "") lattice-ecp5-alu24b)
       (cons (cons "ALU54A" "../lakeroad-private/lattice_ecp5/ALU54A_modified_for_racket_import.v")
             lattice-ecp5-alu54a))]
