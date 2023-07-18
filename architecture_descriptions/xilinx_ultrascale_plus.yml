@@ -47,7 +47,7 @@ implementations:
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
     outputs: { O: (get CARRY8 O), CO: (bit 7 (get CARRY8 CO)) }
-  - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48 } }
+  - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48, d-width: 27 } }
     internal_data: {
       ACASCREG: 32,
       ADREG: 32,
@@ -202,7 +202,7 @@ implementations:
             { name: CEP, direction: input, bitwidth: 1, value: (bv 1 1) },
 
             { name: CLK, direction: input, bitwidth: 1, value: clk },
-            { name: D, direction: input, bitwidth: 27, value: (bv 0 27) },
+            { name: D, direction: input, bitwidth: 27, value: D },
             { name: INMODE, direction: input, bitwidth: 5, value: (bv 0 5) },
             { name: MULTSIGNIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: OPMODE, direction: input, bitwidth: 9, value: OPMODE },

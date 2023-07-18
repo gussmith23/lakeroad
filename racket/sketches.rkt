@@ -212,38 +212,52 @@
                      (car (sketch-inputs-rst inputs))
                      (lr:bv (bv->signal (bv 0 1))))]
 
-       [make-dsp-expr
-        (lambda (internal-data out-width
-                               clk-expr
-                               rst-expr
-                               a-expr
-                               a-width
-                               b-expr
-                               b-width
-                               c-expr
-                               c-width)
-          (match-define (list dsp-expr ignored-internal-data)
-            (construct-interface
-             architecture-description
-             (interface-identifier
-              "DSP"
-              (hash "out-width" out-width "a-width" a-width "b-width" b-width "c-width" c-width))
-             (list (cons "clk" clk-expr)
-                   (cons "rst" rst-expr)
-                   (cons "A" a-expr)
-                   (cons "B" b-expr)
-                   (cons "C" c-expr))
-             #:internal-data internal-data))
-          ;;; Ignoring internal data for now, but we could use it in the future.
-          ;(list (lr:hash-ref dsp-expr 'O) internal-data)
-          (lr:hash-ref dsp-expr 'O))]
+       [make-dsp-expr (lambda (internal-data out-width
+                                             clk-expr
+                                             rst-expr
+                                             a-expr
+                                             a-width
+                                             b-expr
+                                             b-width
+                                             c-expr
+                                             c-width
+                                             d-expr
+                                             d-width)
+                        (match-define (list dsp-expr ignored-internal-data)
+                          (construct-interface architecture-description
+                                               (interface-identifier "DSP"
+                                                                     (hash "out-width"
+                                                                           out-width
+                                                                           "a-width"
+                                                                           a-width
+                                                                           "b-width"
+                                                                           b-width
+                                                                           "c-width"
+                                                                           c-width
+                                                                           "d-width"
+                                                                           d-width))
+                                               (list (cons "clk" clk-expr)
+                                                     (cons "rst" rst-expr)
+                                                     (cons "A" a-expr)
+                                                     (cons "B" b-expr)
+                                                     (cons "C" c-expr)
+                                                     (cons "D" d-expr))
+                                               #:internal-data internal-data))
+                        ;;; Ignoring internal data for now, but we could use it in the future.
+                        ;(list (lr:hash-ref dsp-expr 'O) internal-data)
+                        (lr:hash-ref dsp-expr 'O))]
        ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
        ;;; give C.
-       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw))
+       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw) (cons d-expr d-bw))
         (match (sketch-inputs-data inputs)
-          [(list a-tuple b-tuple c-tuple) (list a-tuple b-tuple c-tuple)]
+          [(list a-tuple b-tuple c-tuple d-tuple) (list a-tuple b-tuple c-tuple d-tuple)]
+          [(list a-tuple b-tuple c-tuple)
+           (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))]
           [(list a-tuple b-tuple)
-           (list a-tuple b-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
+           (list a-tuple
+                 b-tuple
+                 (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1)
+                 (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
 
        [out-expr
         (choose
@@ -256,7 +270,9 @@
                         b-expr
                         b-bw
                         c-expr
-                        c-bw)
+                        c-bw
+                        d-expr
+                        d-bw)
          ;;(make-dsp-expr internal-data out-width (car clk-input) (car rst-input) a-expr a-bw c-expr c-bw b-expr b-bw)
          ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw a-expr a-bw c-expr c-bw)
          ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw c-expr c-bw a-expr a-bw)

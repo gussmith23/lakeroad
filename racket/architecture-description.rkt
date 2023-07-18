@@ -55,85 +55,88 @@
 ;;; TODO(@gussmith23): There's no reason these all need to be written out! Remove this.
 (define interfaces
   ;;; LUT1 definition.
-  (list (interface-definition (interface-identifier "LUT" (hash "num_inputs" 1))
-                              (list (interface-port "I0" 'input 1) (interface-port "O" 'output 1)))
-        ;;; LUT2 definition.
-        (interface-definition (interface-identifier "LUT" (hash "num_inputs" 2))
-                              (list (interface-port "I0" 'input 1)
-                                    (interface-port "I1" 'input 1)
-                                    (interface-port "O" 'output 1)))
-        ;;; LUT4 definition.
-        (interface-definition (interface-identifier "LUT" (hash "num_inputs" 4))
-                              (list (interface-port "I0" 'input 1)
-                                    (interface-port "I1" 'input 1)
-                                    (interface-port "I2" 'input 1)
-                                    (interface-port "I3" 'input 1)
-                                    (interface-port "O" 'output 1)))
-        ;;; LUT6 definition.
-        (interface-definition (interface-identifier "LUT" (hash "num_inputs" 6))
-                              (list (interface-port "I0" 'input 1)
-                                    (interface-port "I1" 'input 1)
-                                    (interface-port "I2" 'input 1)
-                                    (interface-port "I3" 'input 1)
-                                    (interface-port "I4" 'input 1)
-                                    (interface-port "I5" 'input 1)
-                                    (interface-port "O" 'output 1)))
-        ;;; MUX2 definition.
-        (interface-definition (interface-identifier "MUX" (hash "num_inputs" 2))
-                              (list (interface-port "I0" 'input 1)
-                                    (interface-port "I1" 'input 1)
-                                    (interface-port "S" 'input 1)
-                                    (interface-port "O" 'output 1)))
-        ;;; carry 2 definition.
-        (interface-definition (interface-identifier "carry" (hash "width" 2))
-                              (list (interface-port "CI" 'input 1)
-                                    (interface-port "DI" 'input 2)
-                                    (interface-port "S" 'input 2)
-                                    (interface-port "CO" 'output 1)
-                                    (interface-port "O" 'output 2)))
-        ;;; CARRY8 definition.
-        (interface-definition (interface-identifier "carry" (hash "width" 8))
-                              (list (interface-port "CI" 'input 1)
-                                    (interface-port "DI" 'input 8)
-                                    (interface-port "S" 'input 8)
-                                    (interface-port "CO" 'output 1)
-                                    (interface-port "O" 'output 8)))
-        ;;; DSP definition.
-        (interface-definition
-         (interface-identifier "DSP" (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
-         (list (interface-port "A" 'input 16)
-               (interface-port "B" 'input 16)
-               (interface-port "C" 'input 16)
-               (interface-port "clk" 'input 1)
-               (interface-port "O" 'output 16)))
-        (interface-definition
-         (interface-identifier "DSP" (hash "out-width" 48 "a-width" 30 "b-width" 18 "c-width" 48))
-         (list (interface-port "A" 'input 30)
-               (interface-port "B" 'input 18)
-               (interface-port "C" 'input 48)
-               (interface-port "clk" 'input 1)
-               (interface-port "O" 'output 48)))
-        (interface-definition
-         (interface-identifier "DSP" (hash "out-width" 36 "a-width" 18 "b-width" 18 "c-width" 36))
-         (list (interface-port "A" 'input 36)
-               (interface-port "B" 'input 18)
-               (interface-port "C" 'input 36)
-               (interface-port "clk" 'input 1)
-               (interface-port "O" 'output 36)))
-        (interface-definition
-         (interface-identifier "DSP" (hash "out-width" 36 "a-width" 18 "b-width" 18 "c-width" 18))
-         (list (interface-port "A" 'input 18)
-               (interface-port "B" 'input 18)
-               (interface-port "C" 'input 18)
-               (interface-port "clk" 'input 1)
-               (interface-port "O" 'output 36)))
-        (interface-definition
-         (interface-identifier "DSP" (hash "out-width" 54 "a-width" 18 "b-width" 18 "c-width" 54))
-         (list (interface-port "A" 'input 18)
-               (interface-port "B" 'input 18)
-               (interface-port "C" 'input 54)
-               (interface-port "clk" 'input 1)
-               (interface-port "O" 'output 54)))))
+  (list
+   (interface-definition (interface-identifier "LUT" (hash "num_inputs" 1))
+                         (list (interface-port "I0" 'input 1) (interface-port "O" 'output 1)))
+   ;;; LUT2 definition.
+   (interface-definition (interface-identifier "LUT" (hash "num_inputs" 2))
+                         (list (interface-port "I0" 'input 1)
+                               (interface-port "I1" 'input 1)
+                               (interface-port "O" 'output 1)))
+   ;;; LUT4 definition.
+   (interface-definition (interface-identifier "LUT" (hash "num_inputs" 4))
+                         (list (interface-port "I0" 'input 1)
+                               (interface-port "I1" 'input 1)
+                               (interface-port "I2" 'input 1)
+                               (interface-port "I3" 'input 1)
+                               (interface-port "O" 'output 1)))
+   ;;; LUT6 definition.
+   (interface-definition (interface-identifier "LUT" (hash "num_inputs" 6))
+                         (list (interface-port "I0" 'input 1)
+                               (interface-port "I1" 'input 1)
+                               (interface-port "I2" 'input 1)
+                               (interface-port "I3" 'input 1)
+                               (interface-port "I4" 'input 1)
+                               (interface-port "I5" 'input 1)
+                               (interface-port "O" 'output 1)))
+   ;;; MUX2 definition.
+   (interface-definition (interface-identifier "MUX" (hash "num_inputs" 2))
+                         (list (interface-port "I0" 'input 1)
+                               (interface-port "I1" 'input 1)
+                               (interface-port "S" 'input 1)
+                               (interface-port "O" 'output 1)))
+   ;;; carry 2 definition.
+   (interface-definition (interface-identifier "carry" (hash "width" 2))
+                         (list (interface-port "CI" 'input 1)
+                               (interface-port "DI" 'input 2)
+                               (interface-port "S" 'input 2)
+                               (interface-port "CO" 'output 1)
+                               (interface-port "O" 'output 2)))
+   ;;; CARRY8 definition.
+   (interface-definition (interface-identifier "carry" (hash "width" 8))
+                         (list (interface-port "CI" 'input 1)
+                               (interface-port "DI" 'input 8)
+                               (interface-port "S" 'input 8)
+                               (interface-port "CO" 'output 1)
+                               (interface-port "O" 'output 8)))
+   ;;; DSP definition.
+   (interface-definition
+    (interface-identifier "DSP" (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
+    (list (interface-port "A" 'input 16)
+          (interface-port "B" 'input 16)
+          (interface-port "C" 'input 16)
+          (interface-port "clk" 'input 1)
+          (interface-port "O" 'output 16)))
+   (interface-definition
+    (interface-identifier "DSP"
+                          (hash "out-width" 48 "a-width" 30 "b-width" 18 "c-width" 48 "d-width" 27))
+    (list (interface-port "A" 'input 30)
+          (interface-port "B" 'input 18)
+          (interface-port "C" 'input 48)
+          (interface-port "D" 'input 27)
+          (interface-port "clk" 'input 1)
+          (interface-port "O" 'output 48)))
+   (interface-definition
+    (interface-identifier "DSP" (hash "out-width" 36 "a-width" 18 "b-width" 18 "c-width" 36))
+    (list (interface-port "A" 'input 36)
+          (interface-port "B" 'input 18)
+          (interface-port "C" 'input 36)
+          (interface-port "clk" 'input 1)
+          (interface-port "O" 'output 36)))
+   (interface-definition
+    (interface-identifier "DSP" (hash "out-width" 36 "a-width" 18 "b-width" 18 "c-width" 18))
+    (list (interface-port "A" 'input 18)
+          (interface-port "B" 'input 18)
+          (interface-port "C" 'input 18)
+          (interface-port "clk" 'input 1)
+          (interface-port "O" 'output 36)))
+   (interface-definition
+    (interface-identifier "DSP" (hash "out-width" 54 "a-width" 18 "b-width" 18 "c-width" 54))
+    (list (interface-port "A" 'input 18)
+          (interface-port "B" 'input 18)
+          (interface-port "C" 'input 54)
+          (interface-port "clk" 'input 1)
+          (interface-port "O" 'output 54)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 
