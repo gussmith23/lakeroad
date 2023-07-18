@@ -5,7 +5,7 @@
 ;;; - Definitions of Lakeroad's supported interfaces.
 ;;; - Functions for parsing architecture descriptions from files.
 ;;; - Functions for instantiating instances of interfaces, given an architecture description.
-#lang errortrace racket/base
+#lang racket/base
 
 (provide construct-interface
          (struct-out interface-identifier)
