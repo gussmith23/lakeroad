@@ -86,10 +86,6 @@ implementations:
       REG_OUTPUT_RST: 5,
       SOURCEB_MODE: 5,
       CAS_MATCH_REG: 5,
-<<<<<<< HEAD
-      ALU_C: 54,
-=======
->>>>>>> main
       LEGACY: 5,
       MASK01: 56,
       MASKPAT: 56,
