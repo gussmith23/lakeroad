@@ -166,26 +166,26 @@
                 (define lut-init-2 (bv->signal (bv #x2 4)))
 
                 (add-to-simulate
-                 (to-simulate (lr:list-ref (lattice-ecp5-lut2
-                                            (lr:bv lut-init-0)
-                                            (lr:concat (lr:list (list (lr:bv (bv->signal B))
-                                                                      (lr:bv (bv->signal A))))))
-                                           (lr:integer 0))
-                              (lut (signal-value lut-init-0) (concat B A))))
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut2 (lr:bv lut-init-0)
+                                                  (lr:concat (lr:list (list (lr:bv (bv->signal B))
+                                                                            (lr:bv (bv->signal A))))))
+                               (lr:integer 0))
+                  (lut (signal-value lut-init-0) (concat B A))))
                 (add-to-simulate
-                 (to-simulate (lr:list-ref (lattice-ecp5-lut2
-                                            (lr:bv lut-init-1)
-                                            (lr:concat (lr:list (list (lr:bv (bv->signal B))
-                                                                      (lr:bv (bv->signal A))))))
-                                           (lr:integer 0))
-                              (lut (signal-value lut-init-1) (concat B A))))
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut2 (lr:bv lut-init-1)
+                                                  (lr:concat (lr:list (list (lr:bv (bv->signal B))
+                                                                            (lr:bv (bv->signal A))))))
+                               (lr:integer 0))
+                  (lut (signal-value lut-init-1) (concat B A))))
                 (add-to-simulate
-                 (to-simulate (lr:list-ref (lattice-ecp5-lut2
-                                            (lr:bv lut-init-2)
-                                            (lr:concat (lr:list (list (lr:bv (bv->signal B))
-                                                                      (lr:bv (bv->signal A))))))
-                                           (lr:integer 0))
-                              (lut (signal-value lut-init-2) (concat B A)))))))))
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut2 (lr:bv lut-init-2)
+                                                  (lr:concat (lr:list (list (lr:bv (bv->signal B))
+                                                                            (lr:bv (bv->signal A))))))
+                               (lr:integer 0))
+                  (lut (signal-value lut-init-2) (concat B A)))))))))
 
   (verify-lakeroad-expression
    "Lattice ECP5 LUT4"
@@ -195,10 +195,10 @@
      (define B (bv->signal (?? (bitvector 1))))
      (define C (bv->signal (?? (bitvector 1))))
      (define D (bv->signal (?? (bitvector 1)))))
-   (lr:list-ref (lattice-ecp5-lut4
-                 (lr:bv INIT)
-                 (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
-                (lr:integer 0))
+   (lr:list-ref
+    (lattice-ecp5-lut4 (lr:bv INIT)
+                       (lr:concat (lr:list (list (lr:bv D) (lr:bv C) (lr:bv B) (lr:bv A)))))
+    (lr:integer 0))
    (lut (signal-value INIT)
         (concat (signal-value D) (signal-value C) (signal-value B) (signal-value A)))
    ;;; We don't have `verify-lakeroad-expression` add this to the list of things to simulate, as
@@ -225,32 +225,32 @@
                 (define lut-init-2 (bv->signal (bv #x2323 16)))
 
                 (add-to-simulate
-                 (to-simulate (lr:list-ref (lattice-ecp5-lut4
-                                            (lr:bv lut-init-0)
-                                            (lr:concat (lr:list (list (lr:bv (bv->signal D))
-                                                                      (lr:bv (bv->signal C))
-                                                                      (lr:bv (bv->signal B))
-                                                                      (lr:bv (bv->signal A))))))
-                                           (lr:integer 0))
-                              (lut (signal-value lut-init-0) (concat D C B A))))
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut4 (lr:bv lut-init-0)
+                                                  (lr:concat (lr:list (list (lr:bv (bv->signal D))
+                                                                            (lr:bv (bv->signal C))
+                                                                            (lr:bv (bv->signal B))
+                                                                            (lr:bv (bv->signal A))))))
+                               (lr:integer 0))
+                  (lut (signal-value lut-init-0) (concat D C B A))))
                 (add-to-simulate
-                 (to-simulate (lr:list-ref (lattice-ecp5-lut4
-                                            (lr:bv lut-init-1)
-                                            (lr:concat (lr:list (list (lr:bv (bv->signal D))
-                                                                      (lr:bv (bv->signal C))
-                                                                      (lr:bv (bv->signal B))
-                                                                      (lr:bv (bv->signal A))))))
-                                           (lr:integer 0))
-                              (lut (signal-value lut-init-1) (concat D C B A))))
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut4 (lr:bv lut-init-1)
+                                                  (lr:concat (lr:list (list (lr:bv (bv->signal D))
+                                                                            (lr:bv (bv->signal C))
+                                                                            (lr:bv (bv->signal B))
+                                                                            (lr:bv (bv->signal A))))))
+                               (lr:integer 0))
+                  (lut (signal-value lut-init-1) (concat D C B A))))
                 (add-to-simulate
-                 (to-simulate (lr:list-ref (lattice-ecp5-lut4
-                                            (lr:bv lut-init-2)
-                                            (lr:concat (lr:list (list (lr:bv (bv->signal D))
-                                                                      (lr:bv (bv->signal C))
-                                                                      (lr:bv (bv->signal B))
-                                                                      (lr:bv (bv->signal A))))))
-                                           (lr:integer 0))
-                              (lut (signal-value lut-init-2) (concat D C B A)))))))))
+                 (to-simulate
+                  (lr:list-ref (lattice-ecp5-lut4 (lr:bv lut-init-2)
+                                                  (lr:concat (lr:list (list (lr:bv (bv->signal D))
+                                                                            (lr:bv (bv->signal C))
+                                                                            (lr:bv (bv->signal B))
+                                                                            (lr:bv (bv->signal A))))))
+                               (lr:integer 0))
+                  (lut (signal-value lut-init-2) (concat D C B A)))))))))
 
   ;;; Simulate with Verilator.
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))

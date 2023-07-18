@@ -23,16 +23,16 @@
     (test-case test-name
       (begin
         (define with-vc-result
-          (with-vc (with-terms (synthesize-any
-                                (xilinx-ultrascale-plus-architecture-description)
-                                bv-expr
-                                #:module-semantics
-                                (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v")
-                                            xilinx-ultrascale-plus-lut2)
-                                      (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
-                                            xilinx-ultrascale-plus-lut6)
-                                      (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v")
-                                            xilinx-ultrascale-plus-carry8))))))
+          (with-vc (with-terms (synthesize-any (xilinx-ultrascale-plus-architecture-description)
+                                               bv-expr
+                                               #:module-semantics
+                                               (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v")
+                                                           xilinx-ultrascale-plus-lut2)
+                                                     (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
+                                                           xilinx-ultrascale-plus-lut6)
+                                                     (cons (cons "CARRY8"
+                                                                 "../verilator_xilinx/CARRY8.v")
+                                                           xilinx-ultrascale-plus-carry8))))))
         (when (failed? with-vc-result)
           (raise (result-value with-vc-result)))
         (check-false (failed? with-vc-result))

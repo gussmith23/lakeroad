@@ -36,20 +36,20 @@
              (lr:list-ref logical-inputs (lr:integer 4)))]
     [_ (error "Not implemented")])]
  [bitwise
-  (first (bitwise-sketch-generator
-          architecture-description
-          (make-sketch-inputs #:data (list (cons (input) bitwidth) (cons (expr) bitwidth))
-                              #:output-width bitwidth)))]
+  (first (bitwise-sketch-generator architecture-description
+                                   (make-sketch-inputs #:data (list (cons (input) bitwidth)
+                                                                    (cons (expr) bitwidth))
+                                                       #:output-width bitwidth)))]
  [bitwise-with-carry
-  (first (bitwise-with-carry-sketch-generator
-          architecture-description
-          (make-sketch-inputs #:data (list (cons (input) bitwidth) (cons (expr) bitwidth))
-                              #:output-width bitwidth)))]
+  (first (bitwise-with-carry-sketch-generator architecture-description
+                                              (make-sketch-inputs #:data (list (cons (input) bitwidth)
+                                                                               (cons (expr) bitwidth))
+                                                                  #:output-width bitwidth)))]
  [comparison
-  (first (comparison-sketch-generator
-          architecture-description
-          (make-sketch-inputs #:data (list (cons (input) bitwidth) (cons (expr) bitwidth))
-                              #:output-width bitwidth)))])
+  (first (comparison-sketch-generator architecture-description
+                                      (make-sketch-inputs #:data (list (cons (input) bitwidth)
+                                                                       (cons (expr) bitwidth))
+                                                          #:output-width bitwidth)))])
 
 (define (apply-lakeroad-grammar architecture-description bv-expr #:depth [depth 0])
   (lakeroad-grammar architecture-description
