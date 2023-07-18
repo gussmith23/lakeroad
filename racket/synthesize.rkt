@@ -2346,7 +2346,7 @@
     (begin
 
       ;;; Two-stage adder, taking two clock ticks to produce an output.
-      (define (two-stage-adder #:a a #:b b #:clk clk)
+      (define (two-stage-adder #:a a #:b b #:clk clk #:name [name ""])
         (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
                [clk (signal-value clk)]
                [a (signal-value a)]
