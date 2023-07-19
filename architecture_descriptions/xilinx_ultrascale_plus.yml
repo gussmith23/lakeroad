@@ -116,6 +116,7 @@ implementations:
       "(|| (bveq MREG (bv 0 32)) (bveq MREG (bv 1 32)))",
       "(|| (bveq OPMODEREG (bv 0 32)) (bveq OPMODEREG (bv 1 32)))",
       "(|| (bveq INMODEREG (bv 0 32)) (bveq INMODEREG (bv 1 32)))",
+      "(|| (bveq CARRYINSELREG (bv 0 32)) (bveq CARRYINSELREG (bv 1 32)))",
 
       "(|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5)))",
       "(|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5)))",
@@ -244,7 +245,7 @@ implementations:
           { name: BREG, value: BREG },
           { name: B_INPUT, value: B_INPUT },
           { name: CARRYINREG, value: (bv 0 32) },
-          { name: CARRYINSELREG, value: (bv 0 32) },
+          { name: CARRYINSELREG, value: CARRYINSELREG },
           { name: CREG, value: CREG },
           { name: DREG, value: DREG },
           { name: INMODEREG, value: INMODEREG },
