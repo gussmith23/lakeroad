@@ -252,12 +252,12 @@
         (match (sketch-inputs-data inputs)
           [(list a-tuple b-tuple c-tuple d-tuple) (list a-tuple b-tuple c-tuple d-tuple)]
           [(list a-tuple b-tuple c-tuple)
-           (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))]
+           (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (bv 0 1))) 1))]
           [(list a-tuple b-tuple)
            (list a-tuple
                  b-tuple
-                 (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1)
-                 (cons (lr:bv (bv->signal (?? (bitvector 1)))) 1))])]
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
 
        [out-expr
         (choose
