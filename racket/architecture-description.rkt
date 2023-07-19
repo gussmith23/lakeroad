@@ -131,7 +131,9 @@
           (interface-port "clk" 'input 1)
           (interface-port "O" 'output 36)))
    (interface-definition
-    (interface-identifier "DSP" (hash "out-width" 54 "a-width" 18 "b-width" 18 "c-width" 54))
+    ;;; TODO(@gussmith23): d-width=1 indicates no D input. This is a hack, make it optional.
+    (interface-identifier "DSP"
+                          (hash "out-width" 54 "a-width" 18 "b-width" 18 "c-width" 54 "d-width" 1))
     (list (interface-port "A" 'input 18)
           (interface-port "B" 'input 18)
           (interface-port "C" 'input 54)

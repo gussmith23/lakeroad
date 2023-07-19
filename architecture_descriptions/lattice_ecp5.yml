@@ -65,7 +65,9 @@ implementations:
             { name: INJECT1_1, value: (bv 0 1) },
           ]
     outputs: { O: (concat (get ccu2c S1) (get ccu2c S0)), CO: (get ccu2c COUT) }
-  - interface: { name: DSP, parameters: { out-width: 54, a-width: 18, b-width: 18, c-width: 54 } }
+    # TODO(@gussmith23): Currently, there isn't actually a D input; figure out
+    # how to get away with not having the parameter set to at least 1.
+  - interface: { name: DSP, parameters: { out-width: 54, a-width: 18, b-width: 18, c-width: 54, d-width: 1 } }
     internal_data: { 
       SIGNEDA: 1,
       SIGNEDB: 1,
