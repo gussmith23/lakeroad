@@ -1027,11 +1027,13 @@
     (match-let* ([(list expr internal-data)
                   (construct-interface
                    (xilinx-ultrascale-plus-architecture-description)
-                   (interface-identifier "DSP"
-                                         (hash "out-width" 8 "a-width" 8 "b-width" 8 "c-width" 8))
+                   (interface-identifier
+                    "DSP"
+                    (hash "out-width" 8 "a-width" 8 "b-width" 8 "c-width" 8 "d-width" 8))
                    (list (cons "A" 'a-input-expr)
                          (cons "B" 'b-input-expr)
                          (cons "C" 'c-input-expr)
+                         (cons "D" 'd-input-expr)
                          (cons "rst" 'rst-expr)
                          (cons "clk" 'clk-expr)))])
       (check-true
@@ -1058,6 +1060,8 @@
                                                       stuff4 ...
                                                       (module-instance-port "CLK" 'clk-expr 'input 1)
                                                       stuff5 ...
+                                                      (module-instance-port "D" d-expr 'input 27)
+                                                      stuff6 ...
                                                       (module-instance-port "P" "P" 'output 48)
                                                       others ...)
                                                 params
