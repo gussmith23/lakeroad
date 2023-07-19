@@ -256,7 +256,7 @@ implementations:
           { name: IS_CARRYIN_INVERTED, value: (bv 0 1) },
           { name: IS_CLK_INVERTED, value: (bv 0 1) },
           { name: IS_INMODE_INVERTED, value: (bv 0 5) },
-          { name: IS_OPMODE_INVERTED, value: IS_OPMODE_INVERTED },
+          { name: IS_OPMODE_INVERTED, value: (bv 0 9) },
           { name: IS_RSTALLCARRYIN_INVERTED, value: (bv 0 1) },
           { name: IS_RSTALUMODE_INVERTED, value: (bv 0 1) },
           { name: IS_RSTA_INVERTED, value: (bv 0 1) },
