@@ -132,3 +132,9 @@ CXX=/usr/local/Cellar/llvm/16.0.3/bin/clang++ lit -v integration_tests/lakeroad/
 ```
 
 TODO(@gussmith23): this is unintuitive and not user-friendly.
+
+### Use of GNU sed
+
+The [./import_all_primitives.sh](./import_all_primitives.sh) script uses sed, which it expects to be GNU sed. On Mac, you can install GNU sed via Homebrew and add it to your PATH temporarily or permanently.
+
+TODO(@gussmith23): Find better cross-platform regex. I thought Perl might be the answer.
