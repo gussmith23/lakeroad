@@ -57,13 +57,15 @@ out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   | sed 's#(require (file.*#(require "../signal.rkt\")#' )
 echo "$out" > $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-carry8.rkt
 
-out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
-  --infile $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v \
+# Note: requires GNU sed. Install with Brew on Mac.
+out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+  --infile "$LAKEROAD_DIR"/modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v \
   --top DSP48E2 \
   --define XIL_XECLIB \
   --function-name xilinx-ultrascale-plus-dsp48e2 \
-  | sed 's#(require (file.*#(require "../signal.rkt\")#' )
-echo "$out" > $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt
+  | sed 's#(require (file.*#(require "../signal.rkt\")#' \
+  | sed "s/constant 'unnamed-input-[[:digit:]]\+ (bitvector \([[:digit:]]\+\))/bv 0 \1/" )
+echo "$out" > "$LAKEROAD_DIR"/racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt
 
 out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   --infile $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/LUT6_2.v \
@@ -102,11 +104,7 @@ else
     --function-name lattice-ecp5-mult18x18d \
     | sed 's#(require (file.*#(require "../signal.rkt\")#' )
   echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-mult18x18d.rkt
-fi
 
-if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then 
-  echo "not importing module as LAKEROAD_PRIVATE_DIR is not set"
-else 
   out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
     --infile "$LAKEROAD_PRIVATE_DIR"/lattice_ecp5/MULT18X18C_modified_for_racket_import.v \
     --top MULT18X18C \

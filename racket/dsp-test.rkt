@@ -59,17 +59,19 @@
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvmul a b)
    #:dsp-sketch
-   (lr:hash-ref
-    (first (construct-interface
-            (xilinx-ultrascale-plus-architecture-description)
-            (interface-identifier "DSP" (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
-            (list (cons "A" (lr:bv (bv->signal a)))
-                  (cons "B" (lr:bv (bv->signal b)))
-                  (cons "C" (lr:bv (bv->signal (bv 0 16))))
-                  (cons "clk" (lr:bv (bv->signal (bv 0 1))))
-                  (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
-            #:internal-data #f))
-    'O)
+   (lr:hash-ref (first (construct-interface
+                        (xilinx-ultrascale-plus-architecture-description)
+                        (interface-identifier
+                         "DSP"
+                         (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16 "d-width" 16))
+                        (list (cons "A" (lr:bv (bv->signal a)))
+                              (cons "B" (lr:bv (bv->signal b)))
+                              (cons "C" (lr:bv (bv->signal (bv 0 16))))
+                              (cons "D" (lr:bv (bv->signal (bv 0 16))))
+                              (cons "clk" (lr:bv (bv->signal (bv 0 1))))
+                              (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
+                        #:internal-data #f))
+                'O)
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
@@ -211,17 +213,19 @@
    #:defines (define-symbolic a b (bitvector 16))
    #:bv-expr (bvand (bvmul a b) (bvmul a b))
    #:dsp-sketch
-   (lr:hash-ref
-    (first (construct-interface
-            (xilinx-ultrascale-plus-architecture-description)
-            (interface-identifier "DSP" (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16))
-            (list (cons "A" (lr:bv (bv->signal a)))
-                  (cons "B" (lr:bv (bv->signal b)))
-                  (cons "C" (lr:bv (bv->signal (bv 0 16))))
-                  (cons "clk" (lr:bv (bv->signal (bv 0 1))))
-                  (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
-            #:internal-data #f))
-    'O)
+   (lr:hash-ref (first (construct-interface
+                        (xilinx-ultrascale-plus-architecture-description)
+                        (interface-identifier
+                         "DSP"
+                         (hash "out-width" 16 "a-width" 16 "b-width" 16 "c-width" 16 "d-width" 16))
+                        (list (cons "A" (lr:bv (bv->signal a)))
+                              (cons "B" (lr:bv (bv->signal b)))
+                              (cons "C" (lr:bv (bv->signal (bv 0 16))))
+                              (cons "D" (lr:bv (bv->signal (bv 0 16))))
+                              (cons "clk" (lr:bv (bv->signal (bv 0 1))))
+                              (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
+                        #:internal-data #f))
+                'O)
    #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
                                   xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
