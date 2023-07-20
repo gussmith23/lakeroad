@@ -3,55 +3,70 @@
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
-// RUN:  --top-module-name two_stage_multiplier \
-// RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 2 \
+// RUN:  --top-module-name test \
+// RUN:  --verilog-module-out-signal out:9 \
+// RUN:  --initiation-interval 3 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:16 \
-// RUN:  --input-signal b:16 \
+// RUN:  --input-signal a:9 \
+// RUN:  --input-signal b:9 \
+// RUN:  --input-signal c:9 \
+// RUN:  --input-signal d:9 \
 // RUN: | FileCheck %s
 
-module two_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
+module test (
+    input [8:0] a,
+    input [8:0] b,
+    input [8:0] c,
+    input [8:0] d,
+    output [8:0] out,
+    input clk
+);
 
-  reg [15:0] tmp, out;
+  logic [8:0] stage0;
+  logic [8:0] stage1;
+  logic [8:0] stage2;
 
-  always @ (posedge clk) begin
-    tmp <= a * b;
-    out <= tmp;
+  always @(posedge clk) begin
+    stage0 <= ((d + a) * b) & c;
+    stage1 <= stage0;
+    stage2 <= stage1;
   end
 
-  assign p = out;
-
+  assign out = stage2;
 endmodule
 
-// CHECK: module out(a, b, clk, p);
+// CHECK: module out(a, b, c, clk, d, out);
 // CHECK:   wire [47:0] P_0;
-// CHECK:   input [15:0] a;
-// CHECK:   wire [15:0] a;
-// CHECK:   input [15:0] b;
-// CHECK:   wire [15:0] b;
+// CHECK:   input [8:0] a;
+// CHECK:   wire [8:0] a;
+// CHECK:   input [8:0] b;
+// CHECK:   wire [8:0] b;
+// CHECK:   input [8:0] c;
+// CHECK:   wire [8:0] c;
 // CHECK:   input clk;
 // CHECK:   wire clk;
-// CHECK:   output [15:0] p;
-// CHECK:   wire [15:0] p;
+// CHECK:   input [8:0] d;
+// CHECK:   wire [8:0] d;
+// CHECK:   output [8:0] out;
+// CHECK:   wire [8:0] out;
 // CHECK:   DSP48E2 #(
-// CHECK:     .ACASCREG(32'd2),
-// CHECK:     .ADREG(32'd1),
+// CHECK:     .ACASCREG(32'd0),
+// CHECK:     .ADREG(32'd0),
 // CHECK:     .ALUMODEREG(32'd1),
-// CHECK:     .AMULTSEL("A"),
-// CHECK:     .AREG(32'd2),
-// CHECK:     .AUTORESET_PATDET("RESET_NOT_MATCH"),
+// CHECK:     .AMULTSEL("AD"),
+// CHECK:     .AREG(32'd0),
+// CHECK:     .AUTORESET_PATDET("NO_RESET"),
 // CHECK:     .AUTORESET_PRIORITY("CEP"),
 // CHECK:     .A_INPUT("DIRECT"),
-// CHECK:     .BCASCREG(32'd1),
+// CHECK:     .BCASCREG(32'd0),
 // CHECK:     .BMULTSEL("B"),
-// CHECK:     .BREG(32'd1),
+// CHECK:     .BREG(32'd0),
 // CHECK:     .B_INPUT("DIRECT"),
 // CHECK:     .CARRYINREG(32'd0),
 // CHECK:     .CARRYINSELREG(32'd0),
 // CHECK:     .CREG(32'd1),
-// CHECK:     .DREG(32'd1),
+// CHECK:     .DREG(32'd0),
 // CHECK:     .INMODEREG(32'd0),
 // CHECK:     .IS_ALUMODE_INVERTED(4'h0),
 // CHECK:     .IS_CARRYIN_INVERTED(1'h0),
@@ -73,9 +88,9 @@ endmodule
 // CHECK:     .OPMODEREG(32'd1),
 // CHECK:     .PATTERN(48'h000000000000),
 // CHECK:     .PREADDINSEL("A"),
-// CHECK:     .PREG(32'd0),
+// CHECK:     .PREG(32'd1),
 // CHECK:     .RND(48'h000000000000),
-// CHECK:     .SEL_MASK("MASK"),
+// CHECK:     .SEL_MASK("C"),
 // CHECK:     .SEL_PATTERN("ROUNDING_MODE2"),
 // CHECK:     .USE_MULT("DYNAMIC"),
 // CHECK:     .USE_PATTERN_DETECT("PATDET"),
@@ -83,15 +98,15 @@ endmodule
 // CHECK:     .USE_WIDEXOR("FALSE"),
 // CHECK:     .XORSIMD("XOR24_48_96")
 // CHECK:   ) DSP48E2_0 (
-// CHECK:     .A({ 14'h0000, a }),
+// CHECK:     .A({ 21'h000000, a }),
 // CHECK:     .ACIN(30'h00000000),
-// CHECK:     .ALUMODE(4'hd),
-// CHECK:     .B({ b[15], b[15], b }),
+// CHECK:     .ALUMODE(4'he),
+// CHECK:     .B({ b[8], b[8], b[8], b[8], b[8], b[8], b[8], b[8], b[8], b }),
 // CHECK:     .BCIN(18'h00000),
-// CHECK:     .C(48'h000000000000),
+// CHECK:     .C({ 39'h0000000000, c }),
 // CHECK:     .CARRYCASCIN(1'h0),
 // CHECK:     .CARRYIN(1'h0),
-// CHECK:     .CARRYINSEL(3'h1),
+// CHECK:     .CARRYINSEL(3'h6),
 // CHECK:     .CEA1(1'h1),
 // CHECK:     .CEA2(1'h1),
 // CHECK:     .CEAD(1'h1),
@@ -106,11 +121,11 @@ endmodule
 // CHECK:     .CEM(1'h1),
 // CHECK:     .CEP(1'h1),
 // CHECK:     .CLK(clk),
-// CHECK:     .D(27'h0000000),
-// CHECK:     .INMODE(5'h1d),
+// CHECK:     .D({ 18'h00000, d }),
+// CHECK:     .INMODE(5'h04),
 // CHECK:     .MULTSIGNIN(1'h0),
-// CHECK:     .OPMODE(9'h1f5),
-// CHECK:     .P({ P_0[47:16], p }),
+// CHECK:     .OPMODE(9'h0b5),
+// CHECK:     .P({ P_0[47:9], out }),
 // CHECK:     .PCIN(48'h000000000000),
 // CHECK:     .RSTA(1'h0),
 // CHECK:     .RSTALLCARRYIN(1'h0),
@@ -123,20 +138,13 @@ endmodule
 // CHECK:     .RSTM(1'h0),
 // CHECK:     .RSTP(1'h0)
 // CHECK:   );
-// CHECK:   assign P_0[15] = p[15];
-// CHECK:   assign P_0[14] = p[14];
-// CHECK:   assign P_0[13] = p[13];
-// CHECK:   assign P_0[12] = p[12];
-// CHECK:   assign P_0[11] = p[11];
-// CHECK:   assign P_0[10] = p[10];
-// CHECK:   assign P_0[9] = p[9];
-// CHECK:   assign P_0[8] = p[8];
-// CHECK:   assign P_0[7] = p[7];
-// CHECK:   assign P_0[6] = p[6];
-// CHECK:   assign P_0[5] = p[5];
-// CHECK:   assign P_0[4] = p[4];
-// CHECK:   assign P_0[3] = p[3];
-// CHECK:   assign P_0[2] = p[2];
-// CHECK:   assign P_0[1] = p[1];
-// CHECK:   assign P_0[0] = p[0];
+// CHECK:   assign P_0[8] = out[8];
+// CHECK:   assign P_0[7] = out[7];
+// CHECK:   assign P_0[6] = out[6];
+// CHECK:   assign P_0[5] = out[5];
+// CHECK:   assign P_0[4] = out[4];
+// CHECK:   assign P_0[3] = out[3];
+// CHECK:   assign P_0[2] = out[2];
+// CHECK:   assign P_0[1] = out[1];
+// CHECK:   assign P_0[0] = out[0];
 // CHECK: endmodule

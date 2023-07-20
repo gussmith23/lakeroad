@@ -93,8 +93,8 @@
                  [(lr:hw-module-instance module-name ports params filepath)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
-                         [input-port-symbols
-                          (map string->symbol (map module-instance-port-name input-ports))]
+                         [input-port-symbols (map string->symbol
+                                                  (map module-instance-port-name input-ports))]
                          ;;; Pairs of input symbol with compiled expression.
                          [input-pairs (map (λ (p)
                                              (cons (string->symbol (module-instance-port-name p))
@@ -102,8 +102,8 @@
                                            input-ports)]
                          [output-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'output)) ports)]
-                         [output-port-symbols
-                          (map string->symbol (map module-instance-port-name output-ports))]
+                         [output-port-symbols (map string->symbol
+                                                   (map module-instance-port-name output-ports))]
                          ;;; Pairs of output symbol with allocated bit ids.
                          [output-pairs
                           (map (λ (p)
@@ -338,11 +338,11 @@
                                                   (list (cons 'INJECT1_0 "NO")
                                                         (cons 'INJECT1_1 "NO")))
                                           param-pairs)]
-                         [cell (make-cell
-                                module-name
-                                (make-cell-port-directions input-port-symbols output-port-symbols)
-                                (make-immutable-hash (append input-pairs output-pairs))
-                                #:params (make-immutable-hash param-pairs))])
+                         [cell (make-cell module-name
+                                          (make-cell-port-directions input-port-symbols
+                                                                     output-port-symbols)
+                                          (make-immutable-hash (append input-pairs output-pairs))
+                                          #:params (make-immutable-hash param-pairs))])
 
                     (add-cell (string->symbol module-name) cell)
 

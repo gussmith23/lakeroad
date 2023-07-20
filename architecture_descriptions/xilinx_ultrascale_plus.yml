@@ -47,7 +47,7 @@ implementations:
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
     outputs: { O: (get CARRY8 O), CO: (bit 7 (get CARRY8 CO)) }
-  - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48 } }
+  - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48, d-width: 27 } }
     internal_data: {
       ACASCREG: 32,
       ADREG: 32,
@@ -81,6 +81,9 @@ implementations:
       SEL_MASK: 5,
       SEL_PATTERN: 5,
       USE_PATTERN_DETECT: 5,
+
+      ALUMODE: 4,
+      INMODE: 5,
     }
     constraints: [
       # TODO(@ninehusky): Right now, these constraints are commented out because we fix these parameters to specific values.
@@ -103,9 +106,20 @@ implementations:
       # MREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
       # OPMODEREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
 
+      "(|| (bveq ACASCREG (bv 0 32)) (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32)))",
+      "(|| (bveq BCASCREG (bv 0 32)) (bveq BCASCREG (bv 1 32)) (bveq BCASCREG (bv 2 32)))",
       "(|| (bveq AREG (bv 0 32)) (bveq AREG (bv 1 32)) (bveq AREG (bv 2 32)))",
       "(|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32)) (bveq BREG (bv 2 32)))",
       "(|| (bveq PREG (bv 0 32)) (bveq PREG (bv 1 32)))",
+      "(|| (bveq ADREG (bv 0 32)) (bveq ADREG (bv 1 32)))",
+      "(|| (bveq ALUMODEREG (bv 0 32)) (bveq ALUMODEREG (bv 1 32)))",
+      "(|| (bveq CARRYINREG (bv 0 32)) (bveq CARRYINREG (bv 1 32)))",
+      "(|| (bveq CREG (bv 0 32)) (bveq CREG (bv 1 32)))",
+      "(|| (bveq DREG (bv 0 32)) (bveq DREG (bv 1 32)))",
+      "(|| (bveq MREG (bv 0 32)) (bveq MREG (bv 1 32)))",
+      "(|| (bveq OPMODEREG (bv 0 32)) (bveq OPMODEREG (bv 1 32)))",
+      "(|| (bveq INMODEREG (bv 0 32)) (bveq INMODEREG (bv 1 32)))",
+      "(|| (bveq CARRYINSELREG (bv 0 32)) (bveq CARRYINSELREG (bv 1 32)))",
 
       "(|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5)))",
       "(|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5)))",
@@ -178,7 +192,7 @@ implementations:
           [
             { name: A, direction: input, bitwidth: 30, value: A },
             { name: ACIN, direction: input, bitwidth: 30, value: (bv 0 30) },
-            { name: ALUMODE, direction: input, bitwidth: 4, value: (bv 0 4) },
+            { name: ALUMODE, direction: input, bitwidth: 4, value: ALUMODE },
             { name: B, direction: input, bitwidth: 18, value: B },
             { name: BCIN, direction: input, bitwidth: 18, value: (bv 0 18) },
             { name: C, direction: input, bitwidth: 48, value: C },
@@ -202,8 +216,8 @@ implementations:
             { name: CEP, direction: input, bitwidth: 1, value: (bv 1 1) },
 
             { name: CLK, direction: input, bitwidth: 1, value: clk },
-            { name: D, direction: input, bitwidth: 27, value: (bv 0 27) },
-            { name: INMODE, direction: input, bitwidth: 5, value: (bv 0 5) },
+            { name: D, direction: input, bitwidth: 27, value: D },
+            { name: INMODE, direction: input, bitwidth: 5, value: INMODE },
             { name: MULTSIGNIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: OPMODE, direction: input, bitwidth: 9, value: OPMODE },
             { name: PCIN, direction: input, bitwidth: 48, value: (bv 0 48) },
@@ -222,8 +236,8 @@ implementations:
           ]
         parameters: [
           { name: ACASCREG, value: ACASCREG },
-          { name: ADREG, value: (bv 0 32) },
-          { name: ALUMODEREG, value: (bv 0 32) },
+          { name: ADREG, value: ADREG },
+          { name: ALUMODEREG, value: ALUMODEREG },
           { name: AMULTSEL, value: AMULTSEL },
           { name: AREG, value: AREG},
           { name: AUTORESET_PATDET, value: AUTORESET_PATDET },
@@ -234,15 +248,15 @@ implementations:
           { name: BREG, value: BREG },
           { name: B_INPUT, value: B_INPUT },
           { name: CARRYINREG, value: (bv 0 32) },
-          { name: CARRYINSELREG, value: (bv 0 32) },
-          { name: CREG, value: (bv 0 32) },
-          { name: DREG, value: (bv 0 32) },
-          { name: INMODEREG, value: (bv 0 32) },
+          { name: CARRYINSELREG, value: CARRYINSELREG },
+          { name: CREG, value: CREG },
+          { name: DREG, value: DREG },
+          { name: INMODEREG, value: INMODEREG },
           { name: IS_ALUMODE_INVERTED, value: (bv 0 4) },
           { name: IS_CARRYIN_INVERTED, value: (bv 0 1) },
           { name: IS_CLK_INVERTED, value: (bv 0 1) },
           { name: IS_INMODE_INVERTED, value: (bv 0 5) },
-          { name: IS_OPMODE_INVERTED, value: IS_OPMODE_INVERTED },
+          { name: IS_OPMODE_INVERTED, value: (bv 0 9) },
           { name: IS_RSTALLCARRYIN_INVERTED, value: (bv 0 1) },
           { name: IS_RSTALUMODE_INVERTED, value: (bv 0 1) },
           { name: IS_RSTA_INVERTED, value: (bv 0 1) },
@@ -254,8 +268,8 @@ implementations:
           { name: IS_RSTM_INVERTED, value: (bv 0 1) },
           { name: IS_RSTP_INVERTED, value: (bv 0 1) },
           { name: MASK, value: (bv 0 48) },
-          { name: MREG, value: (bv 0 32) },
-          { name: OPMODEREG, value: (bv 0 32) },
+          { name: MREG, value: MREG },
+          { name: OPMODEREG, value: OPMODEREG },
           { name: PATTERN, value: (bv 0 48) },
           { name: PREADDINSEL, value: PREADDINSEL },
           { name: PREG, value: PREG },

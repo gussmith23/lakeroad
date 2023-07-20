@@ -915,11 +915,11 @@
                                          (cons (cons "ALU24B" "") lattice-ecp5-alu24b)))
 
      (define-symbolic unnamed-input-218 (bitvector 24))
-     (rosette-synthesize
-      bv-expr
-      lakeroad-expr
-      (append (symbolics bv-expr) (list unnamed-input-624))
-      #:module-semantics (list (cons (cons "MULT18X18D" "") lattice-ecp5-mult18x18d)
+     (rosette-synthesize bv-expr
+                         lakeroad-expr
+                         (append (symbolics bv-expr) (list unnamed-input-624))
+                         #:module-semantics
+                         (list (cons (cons "MULT18X18D" "") lattice-ecp5-mult18x18d)
                                (cons (cons "ALU24B" "") lattice-ecp5-alu24b))))))
 
 ;;; TODO(@gussmith23): We need to condense all DSP sketches into one.
@@ -2156,9 +2156,9 @@
                                                             (lr:list-ref phys-1 (* 2 ccu2c-i))))))
                           (lr:concat
                            (list (bv #b11 2)
-                                 (lr:concat
-                                  (list (lr:list-ref phys-0 (sub1 (* 2 (add1 ccu2c-i))))
-                                        (lr:list-ref phys-1 (sub1 (* 2 (add1 ccu2c-i))))))))))]
+                                 (lr:concat (list (lr:list-ref phys-0 (sub1 (* 2 (add1 ccu2c-i))))
+                                                  (lr:list-ref phys-1
+                                                               (sub1 (* 2 (add1 ccu2c-i))))))))))]
           [cin (?? (bitvector 1))]
           [lutmem (?? (bitvector 16))])
       (foldl (lambda (gis previous-cout)
@@ -2346,7 +2346,7 @@
     (begin
 
       ;;; Two-stage adder, taking two clock ticks to produce an output.
-      (define (two-stage-adder #:a a #:b b #:clk clk)
+      (define (two-stage-adder #:a a #:b b #:clk clk #:name [name ""])
         (let* ([state (append (signal-state a) (signal-state b) (signal-state clk))]
                [clk (signal-value clk)]
                [a (signal-value a)]
@@ -2368,15 +2368,15 @@
 
       ;;; The Lakeroad program just calls the two-stage adder and gets the O output.
       (define lr-expr
-        (lr:hash-ref (lr:hw-module-instance
-                      "two-stage-adder"
-                      (list (module-instance-port "a" (lr:bv (bv->signal a)) 'input 8)
-                            (module-instance-port "b" (lr:bv (bv->signal b)) 'input 8)
-                            (module-instance-port "clk" (lr:var "clk" 1) 'input 1)
-                            (module-instance-port "O" "O" 'output 8))
-                      '()
-                      "unused filepath")
-                     'O))
+        (lr:hash-ref
+         (lr:hw-module-instance "two-stage-adder"
+                                (list (module-instance-port "a" (lr:bv (bv->signal a)) 'input 8)
+                                      (module-instance-port "b" (lr:bv (bv->signal b)) 'input 8)
+                                      (module-instance-port "clk" (lr:var "clk" 1) 'input 1)
+                                      (module-instance-port "O" "O" 'output 8))
+                                '()
+                                "unused filepath")
+         'O))
 
       ;;; The next two checks test the `lr-sequential` argument to `rosette-synthesize`.
 
@@ -2592,23 +2592,23 @@
            rosette
            rackunit)
   (current-solver (boolector))
-  (with-terms
-   (begin
-     (define-symbolic a (bitvector 4))
-     (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bv #xff 8))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bv #x12 8))]) (check-not-false lrexpr))
-     (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
-       (check-not-false lrexpr)))))
+  (with-terms (begin
+                (define-symbolic a (bitvector 4))
+                (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvshl a (bv 1 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvshl a (bv 2 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvshl a (bv 3 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 0 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 1 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 2 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 3 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 4 4)) #:shift-by 4)])
+                  (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bvlshr a (bv 5 4)))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bv #xff 8))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bv #x12 8))]) (check-not-false lrexpr))
+                (let ([lrexpr (synthesize-wire (bv #x123456789abcdef0123456789abcdef0 128))])
+                  (check-not-false lrexpr)))))
 
 (module+ test
   (require rackunit)

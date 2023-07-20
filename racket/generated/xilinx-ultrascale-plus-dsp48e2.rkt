@@ -190,19 +190,19 @@
       (XORSIMD (bv->signal (constant 'XORSIMD (bitvector 5))))
       #:unnamed-input-331
       (unnamed-input-331
-       (bv->signal (constant 'unnamed-input-331 (bitvector 48))))
+       (bv->signal (bv 0 48)))
       #:unnamed-input-488
       (unnamed-input-488
-       (bv->signal (constant 'unnamed-input-488 (bitvector 48))))
+       (bv->signal (bv 0 48)))
       #:unnamed-input-750
       (unnamed-input-750
-       (bv->signal (constant 'unnamed-input-750 (bitvector 48))))
+       (bv->signal (bv 0 48)))
       #:unnamed-input-806
       (unnamed-input-806
-       (bv->signal (constant 'unnamed-input-806 (bitvector 48))))
+       (bv->signal (bv 0 48)))
       #:unnamed-input-850
       (unnamed-input-850
-       (bv->signal (constant 'unnamed-input-850 (bitvector 1))))
+       (bv->signal (bv 0 1)))
       #:name
       (name ""))
     (let* ((merged-input-state-hash (list))

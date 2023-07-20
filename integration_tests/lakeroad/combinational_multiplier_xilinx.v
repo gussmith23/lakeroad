@@ -3,56 +3,47 @@
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
-// RUN:  --top-module-name two_stage_multiplier \
+// RUN:  --top-module-name combinational_multiplier \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 2 \
+// RUN:  --initiation-interval 0 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \
 // RUN:  --input-signal b:16 \
 // RUN: | FileCheck %s
 
-module two_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
+module combinational_multiplier(input clk, input [15:0] a, b, output [15:0] p);
 
-  reg [15:0] tmp, out;
-
-  always @ (posedge clk) begin
-    tmp <= a * b;
-    out <= tmp;
-  end
-
-  assign p = out;
+  assign p = a * b;
 
 endmodule
 
-// CHECK: module out(a, b, clk, p);
+// CHECK: module out(a, b, p);
 // CHECK:   wire [47:0] P_0;
 // CHECK:   input [15:0] a;
 // CHECK:   wire [15:0] a;
 // CHECK:   input [15:0] b;
 // CHECK:   wire [15:0] b;
-// CHECK:   input clk;
-// CHECK:   wire clk;
 // CHECK:   output [15:0] p;
 // CHECK:   wire [15:0] p;
 // CHECK:   DSP48E2 #(
-// CHECK:     .ACASCREG(32'd2),
-// CHECK:     .ADREG(32'd1),
-// CHECK:     .ALUMODEREG(32'd1),
+// CHECK:     .ACASCREG(32'd0),
+// CHECK:     .ADREG(32'd0),
+// CHECK:     .ALUMODEREG(32'd0),
 // CHECK:     .AMULTSEL("A"),
-// CHECK:     .AREG(32'd2),
+// CHECK:     .AREG(32'd0),
 // CHECK:     .AUTORESET_PATDET("RESET_NOT_MATCH"),
 // CHECK:     .AUTORESET_PRIORITY("CEP"),
 // CHECK:     .A_INPUT("DIRECT"),
-// CHECK:     .BCASCREG(32'd1),
-// CHECK:     .BMULTSEL("B"),
-// CHECK:     .BREG(32'd1),
+// CHECK:     .BCASCREG(32'd0),
+// CHECK:     .BMULTSEL("AD"),
+// CHECK:     .BREG(32'd0),
 // CHECK:     .B_INPUT("DIRECT"),
 // CHECK:     .CARRYINREG(32'd0),
 // CHECK:     .CARRYINSELREG(32'd0),
 // CHECK:     .CREG(32'd1),
 // CHECK:     .DREG(32'd1),
-// CHECK:     .INMODEREG(32'd0),
+// CHECK:     .INMODEREG(32'd1),
 // CHECK:     .IS_ALUMODE_INVERTED(4'h0),
 // CHECK:     .IS_CARRYIN_INVERTED(1'h0),
 // CHECK:     .IS_CLK_INVERTED(1'h0),
@@ -69,29 +60,29 @@ endmodule
 // CHECK:     .IS_RSTM_INVERTED(1'h0),
 // CHECK:     .IS_RSTP_INVERTED(1'h0),
 // CHECK:     .MASK(48'h000000000000),
-// CHECK:     .MREG(32'd1),
-// CHECK:     .OPMODEREG(32'd1),
+// CHECK:     .MREG(32'd0),
+// CHECK:     .OPMODEREG(32'd0),
 // CHECK:     .PATTERN(48'h000000000000),
-// CHECK:     .PREADDINSEL("A"),
+// CHECK:     .PREADDINSEL("B"),
 // CHECK:     .PREG(32'd0),
 // CHECK:     .RND(48'h000000000000),
-// CHECK:     .SEL_MASK("MASK"),
+// CHECK:     .SEL_MASK("ROUNDING_MODE2"),
 // CHECK:     .SEL_PATTERN("ROUNDING_MODE2"),
-// CHECK:     .USE_MULT("DYNAMIC"),
+// CHECK:     .USE_MULT("MULTIPLY"),
 // CHECK:     .USE_PATTERN_DETECT("PATDET"),
 // CHECK:     .USE_SIMD("ONE48"),
 // CHECK:     .USE_WIDEXOR("FALSE"),
 // CHECK:     .XORSIMD("XOR24_48_96")
 // CHECK:   ) DSP48E2_0 (
-// CHECK:     .A({ 14'h0000, a }),
+// CHECK:     .A({ a[15], a[15], a[15], a[15], a[15], a[15], a[15], a[15], a[15], a[15], a[15], a[15], a[15], a[15], a }),
 // CHECK:     .ACIN(30'h00000000),
-// CHECK:     .ALUMODE(4'hd),
+// CHECK:     .ALUMODE(4'h1),
 // CHECK:     .B({ b[15], b[15], b }),
 // CHECK:     .BCIN(18'h00000),
 // CHECK:     .C(48'h000000000000),
 // CHECK:     .CARRYCASCIN(1'h0),
 // CHECK:     .CARRYIN(1'h0),
-// CHECK:     .CARRYINSEL(3'h1),
+// CHECK:     .CARRYINSEL(3'h5),
 // CHECK:     .CEA1(1'h1),
 // CHECK:     .CEA2(1'h1),
 // CHECK:     .CEAD(1'h1),
@@ -105,11 +96,11 @@ endmodule
 // CHECK:     .CEINMODE(1'h1),
 // CHECK:     .CEM(1'h1),
 // CHECK:     .CEP(1'h1),
-// CHECK:     .CLK(clk),
+// CHECK:     .CLK(1'h0),
 // CHECK:     .D(27'h0000000),
-// CHECK:     .INMODE(5'h1d),
+// CHECK:     .INMODE(5'h0c),
 // CHECK:     .MULTSIGNIN(1'h0),
-// CHECK:     .OPMODE(9'h1f5),
+// CHECK:     .OPMODE(9'h185),
 // CHECK:     .P({ P_0[47:16], p }),
 // CHECK:     .PCIN(48'h000000000000),
 // CHECK:     .RSTA(1'h0),

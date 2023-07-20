@@ -110,23 +110,23 @@
 ;;;
 ;;; lut3-out: list of 2 bit ids. LUT outputs. Likely not used right now.
 (define (make-sofa-lut4 sram in lut4-out lut3-out)
-  (make-cell
-   "frac_lut4"
-   (make-cell-port-directions (list 'in 'sram 'sram_inv 'mode 'mode_inv) (list 'lut3_out 'lut4_out))
-   (hasheq-helper 'in
-                  in
-                  'sram
-                  sram
-                  'sram_inv
-                  (make-list 16 "0")
-                  'mode
-                  (make-list 1 "0")
-                  'mode_inv
-                  (make-list 1 "0")
-                  'lut3_out
-                  lut3-out
-                  'lut4_out
-                  lut4-out)))
+  (make-cell "frac_lut4"
+             (make-cell-port-directions (list 'in 'sram 'sram_inv 'mode 'mode_inv)
+                                        (list 'lut3_out 'lut4_out))
+             (hasheq-helper 'in
+                            in
+                            'sram
+                            sram
+                            'sram_inv
+                            (make-list 16 "0")
+                            'mode
+                            (make-list 1 "0")
+                            'mode_inv
+                            (make-list 1 "0")
+                            'lut3_out
+                            lut3-out
+                            'lut4_out
+                            lut4-out)))
 
 ;;; Compile frac_lut4.
 (define (make-sofa-frac-lut4 in mode mode-inv sram sram-inv lut2-out lut3-out lut4-out)

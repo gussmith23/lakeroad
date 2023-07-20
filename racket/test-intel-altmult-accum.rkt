@@ -22,9 +22,9 @@
          #:accum_round [accum_round (constant (list 'accum_round (index!)) (bitvector 1))]
          #:accum_round_aclr
          [accum_round_aclr (constant (list 'accum_round_aclr (index!)) (bitvector 5))]
-         #:accum_round_pipeline_aclr
-         [accum_round_pipeline_aclr
-          (constant (list 'accum_round_pipeline_aclr (index!)) (bitvector 5))]
+         #:accum_round_pipeline_aclr [accum_round_pipeline_aclr
+                                      (constant (list 'accum_round_pipeline_aclr (index!))
+                                                (bitvector 5))]
          #:accum_round_pipeline_reg
          [accum_round_pipeline_reg (constant (list 'accum_round_pipeline_reg (index!)) (bitvector 5))]
          #:accum_round_reg [accum_round_reg (constant (list 'accum_round_reg (index!)) (bitvector 5))]
@@ -32,37 +32,37 @@
          [accum_saturation (constant (list 'accum_saturation (index!)) (bitvector 1))]
          #:accum_saturation_aclr
          [accum_saturation_aclr (constant (list 'accum_saturation_aclr (index!)) (bitvector 5))]
-         #:accum_saturation_pipeline_aclr
-         [accum_saturation_pipeline_aclr
-          (constant (list 'accum_saturation_pipeline_aclr (index!)) (bitvector 5))]
-         #:accum_saturation_pipeline_reg
-         [accum_saturation_pipeline_reg
-          (constant (list 'accum_saturation_pipeline_reg (index!)) (bitvector 5))]
+         #:accum_saturation_pipeline_aclr [accum_saturation_pipeline_aclr
+                                           (constant (list 'accum_saturation_pipeline_aclr (index!))
+                                                     (bitvector 5))]
+         #:accum_saturation_pipeline_reg [accum_saturation_pipeline_reg
+                                          (constant (list 'accum_saturation_pipeline_reg (index!))
+                                                    (bitvector 5))]
          #:accum_saturation_reg
          [accum_saturation_reg (constant (list 'accum_saturation_reg (index!)) (bitvector 5))]
          #:accum_sload [accum_sload (constant (list 'accum_sload (index!)) (bitvector 1))]
          #:accum_sload_aclr
          [accum_sload_aclr (constant (list 'accum_sload_aclr (index!)) (bitvector 5))]
-         #:accum_sload_pipeline_aclr
-         [accum_sload_pipeline_aclr
-          (constant (list 'accum_sload_pipeline_aclr (index!)) (bitvector 5))]
+         #:accum_sload_pipeline_aclr [accum_sload_pipeline_aclr
+                                      (constant (list 'accum_sload_pipeline_aclr (index!))
+                                                (bitvector 5))]
          #:accum_sload_pipeline_reg
          [accum_sload_pipeline_reg (constant (list 'accum_sload_pipeline_reg (index!)) (bitvector 5))]
          #:accum_sload_reg [accum_sload_reg (constant (list 'accum_sload_reg (index!)) (bitvector 5))]
          #:accum_sload_upper_data
          [accum_sload_upper_data (constant (list 'accum_sload_upper_data (index!)) (bitvector 1))]
-         #:accum_sload_upper_data_aclr
-         [accum_sload_upper_data_aclr
-          (constant (list 'accum_sload_upper_data_aclr (index!)) (bitvector 5))]
+         #:accum_sload_upper_data_aclr [accum_sload_upper_data_aclr
+                                        (constant (list 'accum_sload_upper_data_aclr (index!))
+                                                  (bitvector 5))]
          #:accum_sload_upper_data_pipeline_aclr
          [accum_sload_upper_data_pipeline_aclr
           (constant (list 'accum_sload_upper_data_pipeline_aclr (index!)) (bitvector 5))]
          #:accum_sload_upper_data_pipeline_reg
          [accum_sload_upper_data_pipeline_reg
           (constant (list 'accum_sload_upper_data_pipeline_reg (index!)) (bitvector 5))]
-         #:accum_sload_upper_data_reg
-         [accum_sload_upper_data_reg
-          (constant (list 'accum_sload_upper_data_reg (index!)) (bitvector 5))]
+         #:accum_sload_upper_data_reg [accum_sload_upper_data_reg
+                                       (constant (list 'accum_sload_upper_data_reg (index!))
+                                                 (bitvector 5))]
          #:aclr0 [aclr0 (constant (list 'aclr0 (index!)) (bitvector 1))]
          #:aclr1 [aclr1 (constant (list 'aclr1 (index!)) (bitvector 1))]
          #:aclr2 [aclr2 (constant (list 'aclr2 (index!)) (bitvector 1))]
@@ -85,9 +85,9 @@
          #:dataa [dataa (constant (list 'dataa (index!)) (bitvector 18))]
          #:datab [datab (constant (list 'datab (index!)) (bitvector 18))]
          #:datac [datac (constant (list 'datac (index!)) (bitvector 22))]
-         #:dedicated_multiplier_circuitry
-         [dedicated_multiplier_circuitry
-          (constant (list 'dedicated_multiplier_circuitry (index!)) (bitvector 5))]
+         #:dedicated_multiplier_circuitry [dedicated_multiplier_circuitry
+                                           (constant (list 'dedicated_multiplier_circuitry (index!))
+                                                     (bitvector 5))]
          #:dsp_block_balancing
          [dsp_block_balancing (constant (list 'dsp_block_balancing (index!)) (bitvector 5))]
          #:ena0 [ena0 (constant (list 'ena0 (index!)) (bitvector 1))]
@@ -149,24 +149,24 @@
          #:signb [signb (constant (list 'signb (index!)) (bitvector 1))]
          #:sourcea [sourcea (constant (list 'sourcea (index!)) (bitvector 1))]
          #:sourceb [sourceb (constant (list 'sourceb (index!)) (bitvector 1))]
-         #:unnamed-input-493
-         (unnamed-input-493 (constant (list 'unnamed-input-493 (index!)) (bitvector 1)))
-         #:unnamed-input-495
-         (unnamed-input-495 (constant (list 'unnamed-input-495 (index!)) (bitvector 1)))
-         #:unnamed-input-1000
-         (unnamed-input-1000 (constant (list 'unnamed-input-1000 (index!)) (bitvector 1)))
-         #:unnamed-input-1002
-         (unnamed-input-1002 (constant (list 'unnamed-input-1002 (index!)) (bitvector 36)))
-         #:unnamed-input-1005
-         (unnamed-input-1005 (constant (list 'unnamed-input-1005 (index!)) (bitvector 36)))
-         #:unnamed-input-1027
-         (unnamed-input-1027 (constant (list 'unnamed-input-1027 (index!)) (bitvector 1)))
-         #:unnamed-input-1036
-         (unnamed-input-1036 (constant (list 'unnamed-input-1036 (index!)) (bitvector 36)))
-         #:unnamed-input-1043
-         (unnamed-input-1043 (constant (list 'unnamed-input-1043 (index!)) (bitvector 36)))
-         #:unnamed-input-1054
-         (unnamed-input-1054 (constant (list 'unnamed-input-1054 (index!)) (bitvector 1)))
+         #:unnamed-input-493 (unnamed-input-493 (constant (list 'unnamed-input-493 (index!))
+                                                          (bitvector 1)))
+         #:unnamed-input-495 (unnamed-input-495 (constant (list 'unnamed-input-495 (index!))
+                                                          (bitvector 1)))
+         #:unnamed-input-1000 (unnamed-input-1000 (constant (list 'unnamed-input-1000 (index!))
+                                                            (bitvector 1)))
+         #:unnamed-input-1002 (unnamed-input-1002 (constant (list 'unnamed-input-1002 (index!))
+                                                            (bitvector 36)))
+         #:unnamed-input-1005 (unnamed-input-1005 (constant (list 'unnamed-input-1005 (index!))
+                                                            (bitvector 36)))
+         #:unnamed-input-1027 (unnamed-input-1027 (constant (list 'unnamed-input-1027 (index!))
+                                                            (bitvector 1)))
+         #:unnamed-input-1036 (unnamed-input-1036 (constant (list 'unnamed-input-1036 (index!))
+                                                            (bitvector 36)))
+         #:unnamed-input-1043 (unnamed-input-1043 (constant (list 'unnamed-input-1043 (index!))
+                                                            (bitvector 36)))
+         #:unnamed-input-1054 (unnamed-input-1054 (constant (list 'unnamed-input-1054 (index!))
+                                                            (bitvector 1)))
          #:unnamed-input-1057 (unnamed-input-1057 (constant (list 'unnamed-input-1057 (index!))
                                                             (bitvector 1))))
 
