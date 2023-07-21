@@ -1516,20 +1516,12 @@
                                  (cons "I1" (lr:bv (bv->signal (bv 0 1))))
                                  (cons "I2" (lr:bv (bv->signal (bv 0 1))))
                                  (cons "I3" (lr:bv (bv->signal (bv 0 1)))))))
-<<<<<<< HEAD
     (check-true
      (match internal-data
        [(list (cons "sram" (lr:bv (signal (? (bitvector 16) _) (? (bitvector 16) _) _)))) #t]
        [else #f]))
-    (match-define (lr:make-immutable-hash
-                   (lr:list (list (lr:cons (lr:symbol 'O) (lr:hash-ref mod-expr 'lut4_out)))))
-=======
-    (check-true (match internal-data
-                  [(list (cons "sram" (lr:bv (signal (? (bitvector 16) _) _)))) #t]
-                  [else #f]))
     (match-define (lr:make-immutable-hash (lr:list (list (lr:cons (lr:symbol 'O)
                                                                   (lr:hash-ref mod-expr 'lut4_out)))))
->>>>>>> uwsampl/main
       expr)
     (check-true
      (match mod-expr
