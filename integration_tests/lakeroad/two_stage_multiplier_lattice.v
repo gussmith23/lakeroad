@@ -3,26 +3,25 @@
 // RUN:  --architecture lattice-ecp5 \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
-// RUN:  --top-module-name three_stage_multiplier \
+// RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 3 \
+// RUN:  --initiation-interval 2 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \
 // RUN:  --input-signal b:16 \
 // RUN: | FileCheck %s
 
-module three_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
+module top(input clk, input [15:0] a, b, output [15:0] p);
 
-  reg [15:0] tmp0, tmp1, out;
+  reg [15:0] tmp0, tmp1;
 
   always @ (posedge clk) begin
     tmp0 <= a * b;
     tmp1 <= tmp0;
-    out <= tmp1;
   end
 
-  assign p = out;
+  assign p = tmp1;
 
 endmodule
 
@@ -579,7 +578,7 @@ endmodule
 // CHECK:     .REG_INPUTB_CLK("CLK0"),
 // CHECK:     .REG_INPUTB_RST("RST0"),
 // CHECK:     .REG_OUTPUT_CE("CE0"),
-// CHECK:     .REG_OUTPUT_CLK("CLK0"),
+// CHECK:     .REG_OUTPUT_CLK("NONE"),
 // CHECK:     .REG_OUTPUT_RST("RST0"),
 // CHECK:     .REG_PIPELINE_CE("CE0"),
 // CHECK:     .REG_PIPELINE_CLK("CLK0"),
@@ -593,8 +592,8 @@ endmodule
 // CHECK:     .A13(a[13]),
 // CHECK:     .A14(a[14]),
 // CHECK:     .A15(a[15]),
-// CHECK:     .A16(1'h0),
-// CHECK:     .A17(1'h0),
+// CHECK:     .A16(a[15]),
+// CHECK:     .A17(a[15]),
 // CHECK:     .A2(a[2]),
 // CHECK:     .A3(a[3]),
 // CHECK:     .A4(a[4]),
@@ -611,8 +610,8 @@ endmodule
 // CHECK:     .B13(b[13]),
 // CHECK:     .B14(b[14]),
 // CHECK:     .B15(b[15]),
-// CHECK:     .B16(1'h0),
-// CHECK:     .B17(1'h0),
+// CHECK:     .B16(b[15]),
+// CHECK:     .B17(b[15]),
 // CHECK:     .B2(b[2]),
 // CHECK:     .B3(b[3]),
 // CHECK:     .B4(b[4]),
@@ -705,8 +704,8 @@ endmodule
 // CHECK:     .RST1(1'h0),
 // CHECK:     .RST2(1'h0),
 // CHECK:     .RST3(1'h0),
-// CHECK:     .SIGNEDA(1'h0),
-// CHECK:     .SIGNEDB(1'h0),
+// CHECK:     .SIGNEDA(1'h1),
+// CHECK:     .SIGNEDB(1'h1),
 // CHECK:     .SIGNEDP(SIGNEDP_108),
 // CHECK:     .SOURCEA(1'h0),
 // CHECK:     .SOURCEB(1'h0),

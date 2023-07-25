@@ -3,30 +3,20 @@
 // RUN:  --architecture lattice-ecp5 \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
-// RUN:  --top-module-name three_stage_multiplier \
+// RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 3 \
-// RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \
 // RUN:  --input-signal b:16 \
 // RUN: | FileCheck %s
 
-module three_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
+module top(input [15:0] a, b, output [15:0] p);
 
-  reg [15:0] tmp0, tmp1, out;
-
-  always @ (posedge clk) begin
-    tmp0 <= a * b;
-    tmp1 <= tmp0;
-    out <= tmp1;
-  end
-
-  assign p = out;
+  assign p = a * b;
 
 endmodule
 
-// CHECK: module out(a, b, clk, p);
+// CHECK: module out(a, b, p);
 // CHECK:   wire P0_72;
 // CHECK:   wire P10_82;
 // CHECK:   wire P11_83;
@@ -194,8 +184,6 @@ endmodule
 // CHECK:   wire [15:0] a;
 // CHECK:   input [15:0] b;
 // CHECK:   wire [15:0] b;
-// CHECK:   input clk;
-// CHECK:   wire clk;
 // CHECK:   output [15:0] p;
 // CHECK:   wire [15:0] p;
 // CHECK:   ALU54A ALU54A_1 (
@@ -471,9 +459,9 @@ endmodule
 // CHECK:     .OP10(1'h0),
 // CHECK:     .OP2(1'h0),
 // CHECK:     .OP3(1'h0),
-// CHECK:     .OP4(1'h1),
-// CHECK:     .OP5(1'h0),
-// CHECK:     .OP6(1'h1),
+// CHECK:     .OP4(1'h0),
+// CHECK:     .OP5(1'h1),
+// CHECK:     .OP6(1'h0),
 // CHECK:     .OP7(1'h1),
 // CHECK:     .OP8(1'h1),
 // CHECK:     .OP9(1'h1),
@@ -573,16 +561,16 @@ endmodule
 // CHECK:     .CAS_MATCH_REG("FALSE"),
 // CHECK:     .MULT_BYPASS("DISABLED"),
 // CHECK:     .REG_INPUTA_CE("CE0"),
-// CHECK:     .REG_INPUTA_CLK("CLK0"),
+// CHECK:     .REG_INPUTA_CLK("NONE"),
 // CHECK:     .REG_INPUTA_RST("RST0"),
 // CHECK:     .REG_INPUTB_CE("CE0"),
-// CHECK:     .REG_INPUTB_CLK("CLK0"),
+// CHECK:     .REG_INPUTB_CLK("NONE"),
 // CHECK:     .REG_INPUTB_RST("RST0"),
 // CHECK:     .REG_OUTPUT_CE("CE0"),
-// CHECK:     .REG_OUTPUT_CLK("CLK0"),
+// CHECK:     .REG_OUTPUT_CLK("NONE"),
 // CHECK:     .REG_OUTPUT_RST("RST0"),
 // CHECK:     .REG_PIPELINE_CE("CE0"),
-// CHECK:     .REG_PIPELINE_CLK("CLK0"),
+// CHECK:     .REG_PIPELINE_CLK("NONE"),
 // CHECK:     .REG_PIPELINE_RST("RST0")
 // CHECK:   ) MULT18X18C_0 (
 // CHECK:     .A0(a[0]),
@@ -593,8 +581,8 @@ endmodule
 // CHECK:     .A13(a[13]),
 // CHECK:     .A14(a[14]),
 // CHECK:     .A15(a[15]),
-// CHECK:     .A16(1'h0),
-// CHECK:     .A17(1'h0),
+// CHECK:     .A16(a[15]),
+// CHECK:     .A17(a[15]),
 // CHECK:     .A2(a[2]),
 // CHECK:     .A3(a[3]),
 // CHECK:     .A4(a[4]),
@@ -611,8 +599,8 @@ endmodule
 // CHECK:     .B13(b[13]),
 // CHECK:     .B14(b[14]),
 // CHECK:     .B15(b[15]),
-// CHECK:     .B16(1'h0),
-// CHECK:     .B17(1'h0),
+// CHECK:     .B16(b[15]),
+// CHECK:     .B17(b[15]),
 // CHECK:     .B2(b[2]),
 // CHECK:     .B3(b[3]),
 // CHECK:     .B4(b[4]),
@@ -625,7 +613,7 @@ endmodule
 // CHECK:     .CE1(1'h1),
 // CHECK:     .CE2(1'h1),
 // CHECK:     .CE3(1'h1),
-// CHECK:     .CLK0(clk),
+// CHECK:     .CLK0(1'h0),
 // CHECK:     .CLK1(1'h0),
 // CHECK:     .CLK2(1'h0),
 // CHECK:     .CLK3(1'h0),
@@ -705,8 +693,8 @@ endmodule
 // CHECK:     .RST1(1'h0),
 // CHECK:     .RST2(1'h0),
 // CHECK:     .RST3(1'h0),
-// CHECK:     .SIGNEDA(1'h0),
-// CHECK:     .SIGNEDB(1'h0),
+// CHECK:     .SIGNEDA(1'h1),
+// CHECK:     .SIGNEDB(1'h1),
 // CHECK:     .SIGNEDP(SIGNEDP_108),
 // CHECK:     .SOURCEA(1'h0),
 // CHECK:     .SOURCEB(1'h0),
