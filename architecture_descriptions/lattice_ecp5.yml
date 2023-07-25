@@ -77,9 +77,6 @@ implementations:
       REG_INPUTB_CLK: 5,
       REG_INPUTB_CE: 5,
       REG_INPUTB_RST: 5,
-      REG_INPUTC_CLK: 5,
-      REG_INPUTC_CE: 5,
-      REG_INPUTC_RST: 5,
       REG_PIPELINE_CLK: 5,
       REG_PIPELINE_CE: 5,
       REG_PIPELINE_RST: 5,
@@ -131,19 +128,11 @@ implementations:
     constraints: [
       "(|| (bveq REG_INPUTA_CE (bv 1 5)) (bveq REG_INPUTA_CE (bv 15 5)) (bveq REG_INPUTA_CE (bv 16 5)) (bveq REG_INPUTA_CE (bv 17 5)))",
       "(|| (bveq REG_INPUTB_CE (bv 1 5)) (bveq REG_INPUTB_CE (bv 15 5)) (bveq REG_INPUTB_CE (bv 16 5)) (bveq REG_INPUTB_CE (bv 17 5)))",
-      "(|| (bveq REG_INPUTC_CE (bv 1 5)) (bveq REG_INPUTC_CE (bv 15 5)) (bveq REG_INPUTC_CE (bv 16 5)) (bveq REG_INPUTC_CE (bv 17 5)))",
       "(|| (bveq REG_PIPELINE_CE (bv 1 5)) (bveq REG_PIPELINE_CE (bv 15 5)) (bveq REG_PIPELINE_CE (bv 16 5)) (bveq REG_PIPELINE_CE (bv 17 5)))",
       "(|| (bveq REG_OUTPUT_CE (bv 1 5)) (bveq REG_OUTPUT_CE (bv 15 5)) (bveq REG_OUTPUT_CE (bv 16 5)) (bveq REG_OUTPUT_CE (bv 17 5)))",
 
-      "(|| (bveq REG_INPUTA_CLK (bv 11 5)) (bveq REG_INPUTA_CLK (bv 12 5)) (bveq REG_INPUTA_CLK (bv 13 5)) (bveq REG_INPUTA_CLK (bv 14 5)))",
-      "(|| (bveq REG_INPUTB_CLK (bv 11 5)) (bveq REG_INPUTB_CLK (bv 12 5)) (bveq REG_INPUTB_CLK (bv 13 5)) (bveq REG_INPUTB_CLK (bv 14 5)))",
-      "(|| (bveq REG_INPUTC_CLK (bv 11 5)) (bveq REG_INPUTC_CLK (bv 12 5)) (bveq REG_INPUTC_CLK (bv 13 5)) (bveq REG_INPUTC_CLK (bv 14 5)))",
-      "(|| (bveq REG_PIPELINE_CLK (bv 11 5)) (bveq REG_PIPELINE_CLK (bv 12 5)) (bveq REG_PIPELINE_CLK (bv 13 5)) (bveq REG_PIPELINE_CLK (bv 14 5)))",
-      "(|| (bveq REG_OUTPUT_CLK (bv 11 5)) (bveq REG_OUTPUT_CLK (bv 12 5)) (bveq REG_OUTPUT_CLK (bv 13 5)) (bveq REG_OUTPUT_CLK (bv 14 5)))",
-
       "(|| (bveq REG_INPUTA_RST (bv 2 5)) (bveq REG_INPUTA_RST (bv 18 5)) (bveq REG_INPUTA_RST (bv 19 5)) (bveq REG_INPUTA_RST (bv 20 5)))",
       "(|| (bveq REG_INPUTB_RST (bv 2 5)) (bveq REG_INPUTB_RST (bv 18 5)) (bveq REG_INPUTB_RST (bv 19 5)) (bveq REG_INPUTB_RST (bv 20 5)))",
-      "(|| (bveq REG_INPUTC_RST (bv 2 5)) (bveq REG_INPUTC_RST (bv 18 5)) (bveq REG_INPUTC_RST (bv 19 5)) (bveq REG_INPUTC_RST (bv 20 5)))",
       "(|| (bveq REG_PIPELINE_RST (bv 2 5)) (bveq REG_PIPELINE_RST (bv 18 5)) (bveq REG_PIPELINE_RST (bv 19 5)) (bveq REG_PIPELINE_RST (bv 20 5)))",
       "(|| (bveq REG_OUTPUT_RST (bv 2 5)) (bveq REG_OUTPUT_RST (bv 18 5)) (bveq REG_OUTPUT_RST (bv 19 5)) (bveq REG_OUTPUT_RST (bv 20 5)))",
 
@@ -152,6 +141,12 @@ implementations:
       "(|| (bveq CAS_MATCH_REG (bv 22 5)) (bveq CAS_MATCH_REG (bv 4 5)))",
 
       # Clock is either NONE or CLK0.
+      # Mult
+      "(|| (bveq REG_INPUTA_CLK (bv 0 5)) (bveq REG_INPUTA_CLK (bv 11 5)))",
+      "(|| (bveq REG_INPUTB_CLK (bv 0 5)) (bveq REG_INPUTB_CLK (bv 11 5)))",
+      "(|| (bveq REG_PIPELINE_CLK (bv 0 5)) (bveq REG_PIPELINE_CLK (bv 11 5)))",
+      "(|| (bveq REG_OUTPUT_CLK (bv 0 5)) (bveq REG_OUTPUT_CLK (bv 11 5)))",
+      # ALU
       "(|| (bveq REG_FLAG_CLK (bv 0 5)) (bveq REG_FLAG_CLK (bv 11 5)))",
       "(|| (bveq REG_INPUTC0_CLK (bv 0 5)) (bveq REG_INPUTC0_CLK (bv 11 5)))",
       "(|| (bveq REG_INPUTC1_CLK (bv 0 5)) (bveq REG_INPUTC1_CLK (bv 11 5)))",
@@ -394,10 +389,10 @@ implementations:
             { name: REG_PIPELINE_CE, value: (bv 1 5) },
             { name: REG_OUTPUT_CE, value: (bv 1 5) },
 
-            { name: REG_INPUTA_CLK, value: (bv 11 5) },
-            { name: REG_INPUTB_CLK, value: (bv 11 5) },
-            { name: REG_PIPELINE_CLK, value: (bv 11 5) },
-            { name: REG_OUTPUT_CLK, value: (bv 11 5) },
+            { name: REG_INPUTA_CLK, value: REG_INPUTA_CLK },
+            { name: REG_INPUTB_CLK, value: REG_INPUTB_CLK },
+            { name: REG_PIPELINE_CLK, value: REG_PIPELINE_CLK },
+            { name: REG_OUTPUT_CLK, value: REG_OUTPUT_CLK },
 
             { name: REG_INPUTA_RST, value: (bv 2 5) },
             { name: REG_INPUTB_RST, value: (bv 2 5) },
