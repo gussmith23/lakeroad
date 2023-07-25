@@ -317,8 +317,8 @@
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
 (define (exit-timeout e)
   (when (exn:fail:resource? e)
-        (displayln "Synthesis Timeout" (current-error-port))
-        (exit TIMEOUTCODE)))
+    (displayln "Synthesis Timeout" (current-error-port))
+    (exit TIMEOUTCODE)))
 ;;; Either a valid LR expression or #f.
 (define lakeroad-expr
   (cond
@@ -384,31 +384,32 @@
                                             (apply set (map (compose1 string->keyword car) env))))
                       (current-error-port))))
        (with-handlers ([exn:fail:resource? exit-timeout])
-        (call-with-limits
+         (call-with-limits
           (timeout)
           #f
           (thunk (rosette-synthesize
                   (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
-                          bv-expr)
+                           bv-expr)
                   sketch
                   input-symbolic-constants
                   #:bv-sequential envs
                   #:lr-sequential envs
-                  #:module-semantics module-semantics)))
-                  ))]
+                  #:module-semantics module-semantics)))))]
 
     [else
      ;;; If initiation interval is #f, then do normal combinational synthesis.
-    (with-handlers ([exn:fail:resource? exit-timeout])
-     (call-with-limits (timeout)
-                       #f
-                       (thunk (synthesize-with-sketch sketch-generator
-                                                      architecture-description
-                                                      bv-expr
-                                                      #:module-semantics module-semantics))))]))
+     (with-handlers ([exn:fail:resource? exit-timeout])
+       (call-with-limits (timeout)
+                         #f
+                         (thunk (synthesize-with-sketch sketch-generator
+                                                        architecture-description
+                                                        bv-expr
+                                                        #:module-semantics module-semantics))))]))
 
 (cond
-  [(not lakeroad-expr) (displayln "Synthesis failed" (current-error-port)) (exit FAILURECODE)]
+  [(not lakeroad-expr)
+   (displayln "Synthesis failed" (current-error-port))
+   (exit FAILURECODE)]
 
   [else
    (when (not (verilog-module-out-signal))
