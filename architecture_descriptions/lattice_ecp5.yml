@@ -150,6 +150,19 @@ implementations:
       "(|| (bveq SOURCEB_MODE (bv 7 5)) (bveq SOURCEB_MODE (bv 8 5)) (bveq SOURCEB_MODE (bv 9 5)) (bveq SOURCEB_MODE (bv 10 5)))",
 
       "(|| (bveq CAS_MATCH_REG (bv 22 5)) (bveq CAS_MATCH_REG (bv 4 5)))",
+
+      # Clock is either NONE or CLK0.
+      "(|| (bveq REG_FLAG_CLK (bv 0 5)) (bveq REG_FLAG_CLK (bv 11 5)))",
+      "(|| (bveq REG_INPUTC0_CLK (bv 0 5)) (bveq REG_INPUTC0_CLK (bv 11 5)))",
+      "(|| (bveq REG_INPUTC1_CLK (bv 0 5)) (bveq REG_INPUTC1_CLK (bv 11 5)))",
+      "(|| (bveq REG_OPCODEIN_0_CLK (bv 0 5)) (bveq REG_OPCODEIN_0_CLK (bv 11 5)))",
+      "(|| (bveq REG_OPCODEIN_1_CLK (bv 0 5)) (bveq REG_OPCODEIN_1_CLK (bv 11 5)))",
+      "(|| (bveq REG_OPCODEOP0_0_CLK (bv 0 5)) (bveq REG_OPCODEOP0_0_CLK (bv 11 5)))",
+      "(|| (bveq REG_OPCODEOP0_1_CLK (bv 0 5)) (bveq REG_OPCODEOP0_1_CLK (bv 11 5)))",
+      "(|| (bveq REG_OPCODEOP1_0_CLK (bv 0 5)) (bveq REG_OPCODEOP1_0_CLK (bv 11 5)))",
+      "(|| (bveq REG_OPCODEOP1_1_CLK (bv 0 5)) (bveq REG_OPCODEOP1_1_CLK (bv 11 5)))",
+      "(|| (bveq REG_OUTPUT0_CLK (bv 0 5)) (bveq REG_OUTPUT0_CLK (bv 11 5)))",
+      "(|| (bveq REG_OUTPUT1_CLK (bv 0 5)) (bveq REG_OUTPUT1_CLK (bv 11 5)))",
     ]
     modules:
       - module_name: MULT18X18C
@@ -209,9 +222,9 @@ implementations:
             { name: CE3, direction: input, bitwidth: 1, value: (bv 1 1) },
 
             { name: CLK0, direction: input, bitwidth: 1, value: clk },
-            { name: CLK1, direction: input, bitwidth: 1, value: clk },
-            { name: CLK2, direction: input, bitwidth: 1, value: clk },
-            { name: CLK3, direction: input, bitwidth: 1, value: clk },
+            { name: CLK1, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CLK2, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CLK3, direction: input, bitwidth: 1, value: (bv 0 1) },
 
             { name: RST0, direction: input, bitwidth: 1, value: rst },
             { name: RST1, direction: input, bitwidth: 1, value: rst },
