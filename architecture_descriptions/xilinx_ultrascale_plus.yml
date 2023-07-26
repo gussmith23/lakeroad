@@ -242,11 +242,13 @@ implementations:
           { name: AREG, value: AREG},
           { name: AUTORESET_PATDET, value: AUTORESET_PATDET },
           { name: AUTORESET_PRIORITY, value: AUTORESET_PRIORITY },
-          { name: A_INPUT, value: A_INPUT },
+          # Direct
+          { name: A_INPUT, value: (bv 7 5) },
           { name: BCASCREG, value: BCASCREG },
           { name: BMULTSEL, value: BMULTSEL },
           { name: BREG, value: BREG },
-          { name: B_INPUT, value: B_INPUT },
+          # Direct
+          { name: B_INPUT, value: (bv 7 5) },
           { name: CARRYINREG, value: (bv 0 32) },
           { name: CARRYINSELREG, value: CARRYINSELREG },
           { name: CREG, value: CREG },
@@ -271,15 +273,23 @@ implementations:
           { name: MREG, value: MREG },
           { name: OPMODEREG, value: OPMODEREG },
           { name: PATTERN, value: (bv 0 48) },
-          { name: PREADDINSEL, value: PREADDINSEL },
+          # A
+          { name: PREADDINSEL, value: (bv 0 5) },
           { name: PREG, value: PREG },
           { name: RND, value: (bv 0 48) },
-          { name: SEL_MASK, value: SEL_MASK },
-          { name: SEL_PATTERN, value: SEL_PATTERN },
-          { name: USE_MULT, value: USE_MULT },
-          { name: USE_PATTERN_DETECT, value: USE_PATTERN_DETECT },
-          { name: USE_SIMD, value: USE_SIMD },
-          { name: USE_WIDEXOR, value: USE_WIDEXOR },
-          { name: XORSIMD, value: XORSIMD },
+          # MASK
+          { name: SEL_MASK, value: (bv 8 5) },
+          # PATTERN
+          { name: SEL_PATTERN, value: (bv 9 5) },
+          # MULTIPLY
+          { name: USE_MULT, value: (bv 10 5) },
+          # NO_PATDET
+          { name: USE_PATTERN_DETECT, value: (bv 11 5) },
+          # ONE48
+          { name: USE_SIMD, value: (bv 12 5) },
+          # Set to false
+          { name: USE_WIDEXOR, value: (bv 13 5) },
+          # Set to XOR12
+          { name: XORSIMD, value: (bv 26 5) },
         ]
     outputs: { O : (get DSP48E2 P) }
