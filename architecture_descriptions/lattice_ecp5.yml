@@ -667,19 +667,10 @@ implementations:
             { name: CIN52, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: CIN53, direction: input, bitwidth: 1, value: (bv 0 1) },
 
-            # For some reason, setting this to `clk` is not working, which
-            # doesn't make much sense to me. Furthermore, hardcoding them to 0
-            # or 1 also is causing at least one test to spin on boolector.
-            # However, when I let them be solvable, they all get solved to 0.
-            # I'm unsure how that's different from setting them to 0, but it is!
-            #
-            # TODO(@gussmith23): Need to set this to `clk`.
-            #
-            # See #265.
-            { name: CLK0, direction: input, bitwidth: 1, value: ALUCLK },
-            { name: CLK1, direction: input, bitwidth: 1, value: ALUCLK },
-            { name: CLK2, direction: input, bitwidth: 1, value: ALUCLK },
-            { name: CLK3, direction: input, bitwidth: 1, value: ALUCLK },
+            { name: CLK0, direction: input, bitwidth: 1, value: clk },
+            { name: CLK1, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CLK2, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CLK3, direction: input, bitwidth: 1, value: (bv 0 1) },
 
             { name: OP0, direction: input, bitwidth: 1, value: (extract 0 0 OP) },
             { name: OP1, direction: input, bitwidth: 1, value: (extract 1 1 OP) },
