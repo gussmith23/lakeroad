@@ -168,6 +168,16 @@ implementations:
       "(|| (bveq (extract 6 4 OP) (bv 3 3)))",
       # OP picks a valid operation.
       "(|| (bveq (extract 10 7 OP) (bv 0 4)) (bveq (extract 10 7 OP) (bv 4 4)) (bveq (extract 10 7 OP) (bv 5 4)) (bveq (extract 10 7 OP) (bv 6 4)) (bveq (extract 10 7 OP) (bv 7 4)) (bveq (extract 10 7 OP) (bv 12 4)) (bveq (extract 10 7 OP) (bv 14 4)) (bveq (extract 10 7 OP) (bv 8 4)) (bveq (extract 10 7 OP) (bv 3 4)) (bveq (extract 10 7 OP) (bv 11 4)))",
+
+      # Use the same clk setting for C0 and C1.
+      "(bveq REG_INPUTC0_CLK REG_INPUTC1_CLK)",
+      
+      # Opcode should progress through the pipeline together.
+      "(bveq REG_OPCODEIN_0_CLK REG_OPCODEOP0_0_CLK)",
+      "(bveq REG_OPCODEIN_0_CLK REG_OPCODEOP1_0_CLK)",
+      "(bveq REG_OPCODEIN_1_CLK REG_OPCODEOP0_1_CLK)",
+      "(bveq REG_OPCODEIN_1_CLK REG_OPCODEOP1_1_CLK)",
+
     ]
     modules:
       - module_name: MULT18X18C
