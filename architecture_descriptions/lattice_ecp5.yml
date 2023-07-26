@@ -206,8 +206,10 @@ implementations:
             { name: B16, direction: input, bitwidth: 1, value: (extract 16 16 B) },
             { name: B17, direction: input, bitwidth: 1, value: (extract 17 17 B) },
 
-            { name: SIGNEDA, direction: input, bitwidth: 1, value: SIGNEDA },
-            { name: SIGNEDB, direction: input, bitwidth: 1, value: SIGNEDB },
+            # For scaling reasons, setting SIGNED to 0. It's worth seeing if we
+            # can make them symbolic later.
+            { name: SIGNEDA, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: SIGNEDB, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: SOURCEA, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: SOURCEB, direction: input, bitwidth: 1, value: (bv 0 1) },
 
@@ -221,10 +223,10 @@ implementations:
             { name: CLK2, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: CLK3, direction: input, bitwidth: 1, value: (bv 0 1) },
 
-            { name: RST0, direction: input, bitwidth: 1, value: rst },
-            { name: RST1, direction: input, bitwidth: 1, value: rst },
-            { name: RST2, direction: input, bitwidth: 1, value: rst },
-            { name: RST3, direction: input, bitwidth: 1, value: rst },
+            { name: RST0, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RST1, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RST2, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RST3, direction: input, bitwidth: 1, value: (bv 0 1) },
 
             { name: SRIA0, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: SRIA1, direction: input, bitwidth: 1, value: (bv 0 1) },
