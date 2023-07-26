@@ -18,6 +18,11 @@ env:
   # Can't use ${{ env.REGISTRY }} here, but would like to, so that we' don't
   # repeat ghcr.io.
   IMAGE_TAG: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+  
+concurrency:
+  # Cancel in-progress runs for branches other than main  
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # Job which cleans up GitHub Actions workspace. This is only needed when
