@@ -1169,12 +1169,7 @@
                                                 #:USE_PATTERN_DETECT USE_PATTERN_DETECT
                                                 #:USE_SIMD USE_SIMD
                                                 #:USE_WIDEXOR USE_WIDEXOR
-                                                #:XORSIMD XORSIMD
-                                                #:unnamed-input-331 unnamed-input-331
-                                                #:unnamed-input-488 unnamed-input-488
-                                                #:unnamed-input-750 unnamed-input-750
-                                                #:unnamed-input-806 unnamed-input-806
-                                                #:unnamed-input-850 unnamed-input-850))
+                                                #:XORSIMD XORSIMD))
     (define P (assoc-ref dsp-expr 'P))
     (define COUT (assoc-ref dsp-expr 'CARRYCASCOUT))
     (define XOROUT (assoc-ref dsp-expr 'XOROUT))
