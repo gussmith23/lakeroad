@@ -20,9 +20,9 @@ env:
   IMAGE_TAG: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
   
 concurrency:
-  # Cancel in-progress runs for branches other than main  
-  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Cancel in-progress runs for branches other than main.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
   # Job which cleans up GitHub Actions workspace. This is only needed when
