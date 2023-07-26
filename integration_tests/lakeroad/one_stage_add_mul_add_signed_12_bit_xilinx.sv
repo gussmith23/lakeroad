@@ -4,25 +4,25 @@
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal out:11 \
+// RUN:  --verilog-module-out-signal out:12 \
 // RUN:  --initiation-interval 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:11 \
-// RUN:  --input-signal b:11 \
-// RUN:  --input-signal c:11 \
-// RUN:  --input-signal d:11 \
+// RUN:  --input-signal a:12 \
+// RUN:  --input-signal b:12 \
+// RUN:  --input-signal c:12 \
+// RUN:  --input-signal d:12 \
 // RUN: | FileCheck %s
 
-(* use_dsp = "yes" *) module top(
-	input signed [10:0] a,
-	input signed [10:0] b,
-	input signed [10:0] c,
-	input signed [10:0] d,
-	output [10:0] out,
+(* use_dsp = "yes" *) module top (
+	input signed [11:0] a,
+	input signed [11:0] b,
+	input signed [11:0] c,
+	input signed [11:0] d,
+	output [11:0] out,
 	input clk);
 
-	logic signed [21:0] stage0;
+	logic signed [23:0] stage0;
 
 	always @(posedge clk) begin
 	stage0 <= ((d + a) * b) + c;
