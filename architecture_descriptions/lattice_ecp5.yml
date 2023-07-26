@@ -694,7 +694,7 @@ implementations:
             { name: OP7, direction: input, bitwidth: 1, value: (extract 7 7 OP) },
             { name: OP8, direction: input, bitwidth: 1, value: (extract 8 8 OP) },
             { name: OP9, direction: input, bitwidth: 1, value: (extract 9 9 OP) },
-            { name: OP10, direction: input, bitwidth: 1, value: (extract 10 10 OP) },      #:REG_FLAG_CE
+            { name: OP10, direction: input, bitwidth: 1, value: (extract 10 10 OP) },
 
             { name: RST0, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: RST1, direction: input, bitwidth: 1, value: (bv 0 1) },
