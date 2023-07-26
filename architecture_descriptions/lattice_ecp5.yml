@@ -158,6 +158,16 @@ implementations:
       "(|| (bveq REG_OPCODEOP1_1_CLK (bv 0 5)) (bveq REG_OPCODEOP1_1_CLK (bv 11 5)))",
       "(|| (bveq REG_OUTPUT0_CLK (bv 0 5)) (bveq REG_OUTPUT0_CLK (bv 11 5)))",
       "(|| (bveq REG_OUTPUT1_CLK (bv 0 5)) (bveq REG_OUTPUT1_CLK (bv 11 5)))",
+
+      # Opcode constraints.
+      # a_mux always picks MA signal.
+      "(|| (bveq (extract 1 0 OP) (bv 1 2)))",
+      # b_mux always picks MB signal.
+      "(|| (bveq (extract 3 2 OP) (bv 1 2)))",
+      # c_mux always picks C signal.
+      "(|| (bveq (extract 6 4 OP) (bv 3 3)))",
+      # OP picks a valid operation.
+      "(|| (bveq (extract 10 7 OP) (bv 0 4)) (bveq (extract 10 7 OP) (bv 4 4)) (bveq (extract 10 7 OP) (bv 5 4)) (bveq (extract 10 7 OP) (bv 6 4)) (bveq (extract 10 7 OP) (bv 7 4)) (bveq (extract 10 7 OP) (bv 12 4)) (bveq (extract 10 7 OP) (bv 14 4)) (bveq (extract 10 7 OP) (bv 8 4)) (bveq (extract 10 7 OP) (bv 3 4)) (bveq (extract 10 7 OP) (bv 11 4)))",
     ]
     modules:
       - module_name: MULT18X18C
