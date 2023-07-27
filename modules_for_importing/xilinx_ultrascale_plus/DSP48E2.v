@@ -680,7 +680,7 @@ module DSP48E2 (
 
   // DSP_ALU
   //*** W mux NB
-  always @(OPMODE_mux[8:7] or P_FDBK_in or RND_REG or C_DATA_in)
+  always_comb
     case (OPMODE_mux[8:7])
       2'b00:   wmux = 48'b0;
       2'b01:   wmux = P_FDBK_in;
@@ -693,7 +693,7 @@ module DSP48E2 (
   assign x_mac_cascd = (OPMODE_mux[6:4] == 3'b100) ? {{46{1'b0}}, MULTSIGNIN_in, 1'b0} : {48{1'b0}};
 
   //*** X mux NB
-  always @(U_DATA_in or P_FDBK_in or A_ALU or B_ALU or OPMODE_mux[1:0] or x_mac_cascd)
+  always_comb
     case (OPMODE_mux[1:0])
       2'b00:   xmux = x_mac_cascd;
       2'b01:   xmux = {{3{U_DATA_in[44]}}, U_DATA_in};
@@ -703,7 +703,7 @@ module DSP48E2 (
     endcase
 
   //*** Y mux NB
-  always @(OPMODE_mux[3:2] or V_DATA_in or C_DATA_in)
+  always_comb
     case (OPMODE_mux[3:2])
       2'b00:   ymux = 48'b0;
       2'b01:   ymux = {{3{1'b0}}, V_DATA_in};
@@ -713,7 +713,7 @@ module DSP48E2 (
     endcase
 
   //*** Z mux NB
-  always @(OPMODE_mux[6:4] or PCIN_in or P_FDBK_in or C_DATA_in or P_FDBK_47_in)
+  always_comb
     casex (OPMODE_mux[6:4])
       3'b000:  zmux = 48'b0;
       3'b001:  zmux = PCIN_in;
