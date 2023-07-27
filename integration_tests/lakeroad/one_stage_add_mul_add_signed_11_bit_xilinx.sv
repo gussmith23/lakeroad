@@ -31,3 +31,7 @@
 
 	assign out = stage0;
 endmodule
+
+// CHECK: module out(a, b, p);
+// CHECK:   DSP48E2 #(
+// CHECK: endmodule
