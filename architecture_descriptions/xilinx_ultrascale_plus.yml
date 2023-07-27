@@ -240,8 +240,10 @@ implementations:
           { name: ALUMODEREG, value: ALUMODEREG },
           { name: AMULTSEL, value: AMULTSEL },
           { name: AREG, value: AREG},
-          { name: AUTORESET_PATDET, value: AUTORESET_PATDET },
-          { name: AUTORESET_PRIORITY, value: AUTORESET_PRIORITY },
+          # NO_RESET
+          { name: AUTORESET_PATDET, value: (bv 3 5) },
+          # RESET
+          { name: AUTORESET_PRIORITY, value: (bv 6 5) },
           # Direct
           { name: A_INPUT, value: (bv 7 5) },
           { name: BCASCREG, value: BCASCREG },
