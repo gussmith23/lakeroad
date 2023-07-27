@@ -311,7 +311,7 @@ module DSP48E2 (
   wire USE_WIDEXOR_BIN;
   wire XORSIMD_BIN;
 
-  reg glblGSR = 1'b0;
+  // reg glblGSR = 1'b0;
 
   wire CARRYCASCIN_in;
   wire CARRYIN_in;
@@ -729,7 +729,7 @@ module DSP48E2 (
   //*** CARRYINSEL and OPMODE with 1 level of register
   //*********************************************************
   always @(posedge CLK_in) begin
-    if (RSTCTRL_in || glblGSR) begin
+    if (RSTCTRL_in) begin
       OPMODE_reg <= 9'b0;
     end else if (CECTRL_in) begin
       OPMODE_reg <= OPMODE_in;
@@ -737,7 +737,7 @@ module DSP48E2 (
   end
 
   always @(posedge CLK_in) begin
-    if (RSTCTRL_in || glblGSR) begin
+    if (RSTCTRL_in) begin
       CARRYINSEL_reg <= 3'b0;
     end else if (CECTRL_in) begin
       CARRYINSEL_reg <= CARRYINSEL_in;
@@ -775,7 +775,7 @@ module DSP48E2 (
   //*** ALUMODE with 1 level of register
   //*********************************************************
   always @(posedge CLK_in) begin
-    if (RSTALUMODE_in || glblGSR) ALUMODE_reg <= 4'b0;
+    if (RSTALUMODE_in) ALUMODE_reg <= 4'b0;
     else if (CEALUMODE_in) ALUMODE_reg <= ALUMODE_in;
   end
 
@@ -912,7 +912,7 @@ module DSP48E2 (
 
   //-------  input 0
   always @(posedge CLK_in) begin
-    if (RSTALLCARRYIN_in || glblGSR) CARRYIN_reg <= 1'b0;
+    if (RSTALLCARRYIN_in) CARRYIN_reg <= 1'b0;
     else if (CECARRYIN_in) CARRYIN_reg <= CARRYIN_in;
   end
 
@@ -920,16 +920,17 @@ module DSP48E2 (
 
   // INTERNAL CARRYIN REGISTER
   assign c_mult = !(AMULT26_in ^ BMULT17_in);
-  assign ce_m_g = CEM_in & ~glblGSR;  // & gwe
-  assign rst_carryin_g = RSTALLCARRYIN_in & ~glblGSR;  // & gwe
+  assign ce_m_g = CEM_in; // & ~glblGSR;  // & gwe
+  assign rst_carryin_g = RSTALLCARRYIN_in; // & ~glblGSR;  // & gwe
   assign d_carryin_int = ce_m_g ? c_mult : qmultcarryin;
 
   // rstallcarryin is injected through data path
   assign dr_carryin_int = rst_carryin_g ? 0 : d_carryin_int;
 
   always @(posedge CLK_in) begin
-    if (glblGSR) qmultcarryin <= 1'b0;
-    else qmultcarryin <= dr_carryin_int;
+    // if (glblGSR) qmultcarryin <= 1'b0;
+    // else qmultcarryin <= dr_carryin_int;
+    qmultcarryin <= dr_carryin_int;
   end
 
   // bypass register mux
@@ -958,7 +959,7 @@ module DSP48E2 (
   //*********************************************************
 
   always @(posedge CLK_in) begin
-    if (RSTA_in || (AREG_BIN == 2'b00) || glblGSR) begin
+    if (RSTA_in || (AREG_BIN == 2'b00)) begin
       A1_reg <= {A_WIDTH{1'b0}};
     end else if (CEA1_in) begin
       if (A_INPUT_BIN == A_INPUT_CASCADE) begin
@@ -970,7 +971,7 @@ module DSP48E2 (
   end
 
   always @(posedge CLK_in) begin
-    if (RSTA_in || (AREG_BIN == 2'b00) || glblGSR) begin
+    if (RSTA_in || (AREG_BIN == 2'b00)) begin
       A2_reg <= {A_WIDTH{1'b0}};
     end else if (CEA2_in) begin
       if (AREG_BIN == 2'b10) begin
@@ -993,7 +994,7 @@ module DSP48E2 (
   //*********************************************************
 
   always @(posedge CLK_in) begin
-    if (RSTB_in || (BREG_BIN == 2'b00) || glblGSR) begin
+    if (RSTB_in || (BREG_BIN == 2'b00)) begin
       B1_DATA_out <= 18'b0;
     end else if (CEB1_in) begin
       if (B_INPUT_BIN == B_INPUT_CASCADE) B1_DATA_out <= BCIN_in;
@@ -1002,7 +1003,7 @@ module DSP48E2 (
   end
 
   always @(posedge CLK_in) begin
-    if (RSTB_in || glblGSR) B2_reg <= 18'b0;
+    if (RSTB_in) B2_reg <= 18'b0;
     else if (CEB2_in) begin
       if (BREG_BIN == 2'b10) B2_reg <= B1_DATA_out;
       else if (B_INPUT_BIN == B_INPUT_CASCADE) B2_reg <= BCIN_in;
@@ -1023,7 +1024,7 @@ module DSP48E2 (
   //*********************************************************
 
   always @(posedge CLK_in) begin
-    if (RSTC_in || (CREG_BIN == 1'b0) || glblGSR) begin
+    if (RSTC_in || (CREG_BIN == 1'b0)) begin
       C_reg <= 48'b0;
     end else if (CEC_in) begin
       C_reg <= C_in;
@@ -1059,7 +1060,7 @@ module DSP48E2 (
   //*********************************************************
 
   always @(posedge CLK_in) begin
-    if (RSTM_in || (MREG_BIN == 1'b0) || glblGSR) begin
+    if (RSTM_in || (MREG_BIN == 1'b0)) begin
       U_DATA_reg <= {1'b0, {M_WIDTH - 1{1'b0}}};
       V_DATA_reg <= {1'b0, {M_WIDTH - 1{1'b0}}};
     end else if (CEM_in) begin
@@ -1097,7 +1098,7 @@ module DSP48E2 (
   //*** Output register PATTERN DETECT and UNDERFLOW / OVERFLOW 
 
   always @(posedge CLK_in) begin
-    if (RSTP_in || glblGSR || the_auto_reset_patdet) begin
+    if (RSTP_in || the_auto_reset_patdet) begin
       pdet_o_reg1  <= 1'b0;
       pdet_o_reg2  <= 1'b0;
       pdetb_o_reg1 <= 1'b0;
@@ -1132,7 +1133,7 @@ module DSP48E2 (
   //--####################################################################
   //*** register with 1 level of register
   always @(posedge CLK_in) begin
-    if (RSTP_in || glblGSR || the_auto_reset_patdet) begin
+    if (RSTP_in || the_auto_reset_patdet) begin
       COUT_reg         <= 4'b0000;
       ALUMODE10_reg    <= 1'b0;
       MULTSIGN_ALU_reg <= 1'b0;
@@ -1211,7 +1212,7 @@ module DSP48E2 (
   // new 
 
   always @(posedge CLK_in) begin
-    if (RSTINMODE_in || (INMODEREG_BIN == 1'b0) || glblGSR) begin
+    if (RSTINMODE_in || (INMODEREG_BIN == 1'b0)) begin
       INMODE_reg <= 5'b0;
     end else if (CEINMODE_in) begin
       INMODE_reg <= INMODE_in;
@@ -1225,7 +1226,7 @@ module DSP48E2 (
   //*********************************************************
 
   always @(posedge CLK_in) begin
-    if (RSTD_in || (DREG_INT == 1'b0) || glblGSR) begin
+    if (RSTD_in || (DREG_INT == 1'b0)) begin
       D_DATA_reg <= {D_WIDTH{1'b0}};
     end else if (CED_in) begin
       D_DATA_reg <= D_in;
@@ -1239,7 +1240,7 @@ module DSP48E2 (
   //*********************************************************
 
   always @(posedge CLK_in) begin
-    if (RSTD_in || glblGSR) begin
+    if (RSTD_in) begin
       AD_DATA_reg <= 27'b0;
     end else if (CEAD_in) AD_DATA_reg <= AD_in;
   end
