@@ -96,9 +96,6 @@ typedef enum logic [4:0] {
 } CONSTANT_ENUM;
 
 module DSP48E2 (
-`ifdef XIL_TIMING
-    input LOC = "UNPLACED",
-`endif
     input integer ACASCREG = 1,
     input integer ADREG = 1,
     input integer ALUMODEREG = 1,
@@ -238,9 +235,6 @@ module DSP48E2 (
 
   reg trig_attr;
   // include dynamic registers - XILINX test only
-`ifdef XIL_DR
-  `include "DSP48E2_dr.v"
-`else
   reg [ 31:0] ACASCREG_REG = ACASCREG;
   reg [ 31:0] ADREG_REG = ADREG;
   reg [ 31:0] ALUMODEREG_REG = ALUMODEREG;
@@ -287,9 +281,7 @@ module DSP48E2 (
   reg [ 47:0] USE_SIMD_REG = USE_SIMD;
   reg [ 39:0] USE_WIDEXOR_REG = USE_WIDEXOR;
   reg [ 87:0] XORSIMD_REG = XORSIMD;
-`endif
 
-`ifdef XIL_XECLIB
   wire [1:0] ACASCREG_BIN;
   wire ADREG_BIN;
   wire ALUMODEREG_BIN;
@@ -318,42 +310,8 @@ module DSP48E2 (
   wire [1:0] USE_SIMD_BIN;
   wire USE_WIDEXOR_BIN;
   wire XORSIMD_BIN;
-`else
-  reg [1:0] ACASCREG_BIN;
-  reg ADREG_BIN;
-  reg ALUMODEREG_BIN;
-  reg AMULTSEL_BIN;
-  reg [1:0] AREG_BIN;
-  reg [1:0] AUTORESET_PATDET_BIN;
-  reg AUTORESET_PRIORITY_BIN;
-  reg A_INPUT_BIN;
-  reg [1:0] BCASCREG_BIN;
-  reg BMULTSEL_BIN;
-  reg [1:0] BREG_BIN;
-  reg B_INPUT_BIN;
-  reg CARRYINREG_BIN;
-  reg CARRYINSELREG_BIN;
-  reg CREG_BIN;
-  reg DREG_BIN;
-  reg INMODEREG_BIN;
-  reg MREG_BIN;
-  reg OPMODEREG_BIN;
-  reg PREADDINSEL_BIN;
-  reg PREG_BIN;
-  reg [1:0] SEL_MASK_BIN;
-  reg SEL_PATTERN_BIN;
-  reg [1:0] USE_MULT_BIN;
-  reg USE_PATTERN_DETECT_BIN;
-  reg [1:0] USE_SIMD_BIN;
-  reg USE_WIDEXOR_BIN;
-  reg XORSIMD_BIN;
-`endif
 
-`ifdef XIL_XECLIB
   reg glblGSR = 1'b0;
-`else
-  tri0 glblGSR = glbl.GSR;
-`endif
 
   wire CARRYCASCIN_in;
   wire CARRYIN_in;
@@ -569,24 +527,6 @@ module DSP48E2 (
   assign RSTM_in = (RSTM ^ IS_RSTM_INVERTED_REG);  // rv 0
   assign RSTP_in = (RSTP ^ IS_RSTP_INVERTED_REG);  // rv 0
 
-`ifndef XIL_XECLIB
-  reg attr_test;
-  reg attr_err;
-
-  initial begin
-    trig_attr = 1'b0;
-`ifdef XIL_ATTR_TEST
-    attr_test = 1'b1;
-`else
-    attr_test = 1'b0;
-`endif
-    attr_err = 1'b0;
-    #1;
-    trig_attr = ~trig_attr;
-  end
-`endif
-
-`ifdef XIL_XECLIB
   assign ACASCREG_BIN = ACASCREG_REG[1:0];
 
   assign ADREG_BIN = ADREG_REG[0];
@@ -689,357 +629,6 @@ module DSP48E2 (
                 (XORSIMD_REG == XOR24_48_96_ENUM_VAL) ? XORSIMD_XOR24_48_96 :
                 (XORSIMD_REG == XOR12_ENUM_VAL) ? XORSIMD_XOR12 :
                     XORSIMD_XOR24_48_96;
-
-`else
-  always @(trig_attr) begin
-    #1;
-    ACASCREG_BIN = ACASCREG_REG[1:0];
-
-    ADREG_BIN = ADREG_REG[0];
-
-    ALUMODEREG_BIN = ALUMODEREG_REG[0];
-
-    AMULTSEL_BIN =
-                (AMULTSEL_REG == A_ENUM_VAL) ? AMULTSEL_A :
-                (AMULTSEL_REG == AD_ENUM_VAL) ? AMULTSEL_AD :
-                    AMULTSEL_A;
-
-    AREG_BIN = AREG_REG[1:0];
-
-    AUTORESET_PATDET_BIN =
-                (AUTORESET_PATDET_REG == NO_RESET_ENUM_VAL) ? AUTORESET_PATDET_NO_RESET :
-                (AUTORESET_PATDET_REG == RESET_MATCH_ENUM_VAL) ? AUTORESET_PATDET_RESET_MATCH :
-                (AUTORESET_PATDET_REG == RESET_NOT_MATCH_ENUM_VAL) ? AUTORESET_PATDET_RESET_NOT_MATCH :
-                    AUTORESET_PATDET_NO_RESET;
-
-    AUTORESET_PRIORITY_BIN =
-                (AUTORESET_PRIORITY_REG == RESET_ENUM_VAL) ? AUTORESET_PRIORITY_RESET :
-                (AUTORESET_PRIORITY_REG == CEP_ENUM_VAL) ? AUTORESET_PRIORITY_CEP :
-                    AUTORESET_PRIORITY_RESET;
-
-    A_INPUT_BIN =
-                (A_INPUT_REG == DIRECT_ENUM_VAL) ? A_INPUT_DIRECT :
-                (A_INPUT_REG == CASCADE_ENUM_VAL) ? A_INPUT_CASCADE :
-                    A_INPUT_DIRECT;
-
-    BCASCREG_BIN = BCASCREG_REG[1:0];
-
-    BMULTSEL_BIN =
-                (BMULTSEL_REG == B_ENUM_VAL) ? BMULTSEL_B :
-                (BMULTSEL_REG == AD_ENUM_VAL) ? BMULTSEL_AD :
-                    BMULTSEL_B;
-
-    BREG_BIN = BREG_REG[1:0];
-
-    B_INPUT_BIN =
-                (B_INPUT_REG == DIRECT_ENUM_VAL) ? B_INPUT_DIRECT :
-                (B_INPUT_REG == CASCADE_ENUM_VAL) ? B_INPUT_CASCADE :
-                    B_INPUT_DIRECT;
-
-    CARRYINREG_BIN = CARRYINREG_REG[0];
-
-    CARRYINSELREG_BIN = CARRYINSELREG_REG[0];
-
-    CREG_BIN = CREG_REG[0];
-
-    DREG_BIN = DREG_REG[0];
-
-    INMODEREG_BIN = INMODEREG_REG[0];
-
-    MREG_BIN = MREG_REG[0];
-
-    OPMODEREG_BIN = OPMODEREG_REG[0];
-
-    PREADDINSEL_BIN =
-                (PREADDINSEL_REG == A_ENUM_VAL) ? PREADDINSEL_A :
-                (PREADDINSEL_REG == B_ENUM_VAL) ? PREADDINSEL_B :
-                    PREADDINSEL_A;
-
-    PREG_BIN = PREG_REG[0];
-
-    SEL_MASK_BIN =
-                (SEL_MASK_REG == MASK_ENUM_VAL) ? SEL_MASK_MASK :
-                (SEL_MASK_REG == C_ENUM_VAL) ? SEL_MASK_C :
-                (SEL_MASK_REG == ROUNDING_MODE1_ENUM_VAL) ? SEL_MASK_ROUNDING_MODE1 :
-                (SEL_MASK_REG == ROUNDING_MODE2_ENUM_VAL) ? SEL_MASK_ROUNDING_MODE2 :
-                    SEL_MASK_MASK;
-
-    SEL_PATTERN_BIN =
-                (SEL_PATTERN_REG == PATTERN_ENUM_VAL) ? SEL_PATTERN_PATTERN :
-                (SEL_PATTERN_REG == C_ENUM_VAL) ? SEL_PATTERN_C :
-                    SEL_PATTERN_PATTERN;
-
-    USE_MULT_BIN =
-                (USE_MULT_REG == MULTIPLY_ENUM_VAL) ? USE_MULT_MULTIPLY :
-                (USE_MULT_REG == DYNAMIC_ENUM_VAL) ? USE_MULT_DYNAMIC :
-                (USE_MULT_REG == NONE_ENUM_VAL) ? USE_MULT_NONE :
-                    USE_MULT_MULTIPLY;
-
-    USE_PATTERN_DETECT_BIN =
-                (USE_PATTERN_DETECT_REG == NO_PATDET_ENUM_VAL) ? USE_PATTERN_DETECT_NO_PATDET :
-                (USE_PATTERN_DETECT_REG == PATDET_ENUM_VAL) ? USE_PATTERN_DETECT_PATDET :
-                    USE_PATTERN_DETECT_NO_PATDET;
-
-    USE_SIMD_BIN =
-                (USE_SIMD_REG == ONE48_ENUM_VAL) ? USE_SIMD_ONE48 :
-                (USE_SIMD_REG == FOUR12_ENUM_VAL) ? USE_SIMD_FOUR12 :
-                (USE_SIMD_REG == TWO24_ENUM_VAL) ? USE_SIMD_TWO24 :
-                    USE_SIMD_ONE48;
-
-    USE_WIDEXOR_BIN =
-                (USE_WIDEXOR_REG == FALSE_ENUM_VAL) ? USE_WIDEXOR_FALSE :
-                (USE_WIDEXOR_REG == TRUE_ENUM_VAL) ? USE_WIDEXOR_TRUE :
-                    USE_WIDEXOR_FALSE;
-
-    XORSIMD_BIN =
-                (XORSIMD_REG == XOR24_48_96_ENUM_VAL) ? XORSIMD_XOR24_48_96 :
-                (XORSIMD_REG == XOR12_ENUM_VAL) ? XORSIMD_XOR12 :
-                    XORSIMD_XOR24_48_96;
-
-  end
-`endif
-
-`ifndef XIL_XECLIB
-  always @(trig_attr) begin
-    #1;
-    if ((attr_test == 1'b1) ||
-        ((ACASCREG_REG != 1) &&
-         (ACASCREG_REG != 0) &&
-         (ACASCREG_REG != 2))) begin
-      $display(
-          "Error: [Unisim %s-101] ACASCREG attribute is set to %d.  Legal values for this attribute are 1, 0 or 2. Instance: %m",
-          MODULE_NAME, ACASCREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((ADREG_REG != 1) && (ADREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-102] ADREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, ADREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((ALUMODEREG_REG != 1) && (ALUMODEREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-103] ALUMODEREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, ALUMODEREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((AMULTSEL_REG != A_ENUM_VAL) &&
-         (AMULTSEL_REG != AD_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-104] AMULTSEL attribute is set to %s.  Legal values for this attribute are A or AD. Instance: %m",
-          MODULE_NAME, AMULTSEL_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((AREG_REG != 1) && (AREG_REG != 0) && (AREG_REG != 2))) begin
-      $display(
-          "Error: [Unisim %s-105] AREG attribute is set to %d.  Legal values for this attribute are 1, 0 or 2. Instance: %m",
-          MODULE_NAME, AREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((AUTORESET_PATDET_REG != NO_RESET_ENUM_VAL) &&
-         (AUTORESET_PATDET_REG != RESET_MATCH_ENUM_VAL) &&
-         (AUTORESET_PATDET_REG != RESET_NOT_MATCH_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-106] AUTORESET_PATDET attribute is set to %s.  Legal values for this attribute are NO_RESET, RESET_MATCH or RESET_NOT_MATCH. Instance: %m",
-          MODULE_NAME, AUTORESET_PATDET_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((AUTORESET_PRIORITY_REG != RESET_ENUM_VAL) &&
-         (AUTORESET_PRIORITY_REG != CEP_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-107] AUTORESET_PRIORITY attribute is set to %s.  Legal values for this attribute are RESET or CEP. Instance: %m",
-          MODULE_NAME, AUTORESET_PRIORITY_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((A_INPUT_REG != DIRECT_ENUM_VAL) &&
-         (A_INPUT_REG != CASCADE_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-108] A_INPUT attribute is set to %s.  Legal values for this attribute are DIRECT or CASCADE. Instance: %m",
-          MODULE_NAME, A_INPUT_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((BCASCREG_REG != 1) &&
-         (BCASCREG_REG != 0) &&
-         (BCASCREG_REG != 2))) begin
-      $display(
-          "Error: [Unisim %s-109] BCASCREG attribute is set to %d.  Legal values for this attribute are 1, 0 or 2. Instance: %m",
-          MODULE_NAME, BCASCREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((BMULTSEL_REG != B_ENUM_VAL) &&
-         (BMULTSEL_REG != AD_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-110] BMULTSEL attribute is set to %s.  Legal values for this attribute are B or AD. Instance: %m",
-          MODULE_NAME, BMULTSEL_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((BREG_REG != 1) && (BREG_REG != 0) && (BREG_REG != 2))) begin
-      $display(
-          "Error: [Unisim %s-111] BREG attribute is set to %d.  Legal values for this attribute are 1, 0 or 2. Instance: %m",
-          MODULE_NAME, BREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((B_INPUT_REG != DIRECT_ENUM_VAL) &&
-         (B_INPUT_REG != CASCADE_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-112] B_INPUT attribute is set to %s.  Legal values for this attribute are DIRECT or CASCADE. Instance: %m",
-          MODULE_NAME, B_INPUT_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((CARRYINREG_REG != 1) && (CARRYINREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-113] CARRYINREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, CARRYINREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((CARRYINSELREG_REG != 1) && (CARRYINSELREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-114] CARRYINSELREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, CARRYINSELREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((CREG_REG != 1) && (CREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-115] CREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, CREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((DREG_REG != 1) && (DREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-116] DREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, DREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((INMODEREG_REG != 1) && (INMODEREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-117] INMODEREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, INMODEREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((MREG_REG != 1) && (MREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-134] MREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, MREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((OPMODEREG_REG != 1) && (OPMODEREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-135] OPMODEREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, OPMODEREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((PREADDINSEL_REG != A_ENUM_VAL) &&
-         (PREADDINSEL_REG != B_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-137] PREADDINSEL attribute is set to %s.  Legal values for this attribute are A or B. Instance: %m",
-          MODULE_NAME, PREADDINSEL_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) || ((PREG_REG != 1) && (PREG_REG != 0))) begin
-      $display(
-          "Error: [Unisim %s-138] PREG attribute is set to %d.  Legal values for this attribute are 1 or 0. Instance: %m",
-          MODULE_NAME, PREG_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((SEL_MASK_REG != MASK_ENUM_VAL) &&
-         (SEL_MASK_REG != C_ENUM_VAL) &&
-         (SEL_MASK_REG != ROUNDING_MODE1_ENUM_VAL) &&
-         (SEL_MASK_REG != ROUNDING_MODE2_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-140] SEL_MASK attribute is set to %s.  Legal values for this attribute are MASK, C, ROUNDING_MODE1 or ROUNDING_MODE2. Instance: %m",
-          MODULE_NAME, SEL_MASK_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((SEL_PATTERN_REG != PATTERN_ENUM_VAL) &&
-         (SEL_PATTERN_REG != C_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-141] SEL_PATTERN attribute is set to %s.  Legal values for this attribute are PATTERN or C. Instance: %m",
-          MODULE_NAME, SEL_PATTERN_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((USE_MULT_REG != MULTIPLY_ENUM_VAL) &&
-         (USE_MULT_REG != DYNAMIC_ENUM_VAL) &&
-         (USE_MULT_REG != NONE_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-142] USE_MULT attribute is set to %s.  Legal values for this attribute are MULTIPLY, DYNAMIC or NONE. Instance: %m",
-          MODULE_NAME, USE_MULT_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((USE_PATTERN_DETECT_REG != NO_PATDET_ENUM_VAL) &&
-         (USE_PATTERN_DETECT_REG != PATDET_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-143] USE_PATTERN_DETECT attribute is set to %s.  Legal values for this attribute are NO_PATDET or PATDET. Instance: %m",
-          MODULE_NAME, USE_PATTERN_DETECT_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((USE_SIMD_REG != ONE48_ENUM_VAL) &&
-         (USE_SIMD_REG != FOUR12_ENUM_VAL) &&
-         (USE_SIMD_REG != TWO24_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-144] USE_SIMD attribute is set to %s.  Legal values for this attribute are ONE48, FOUR12 or TWO24. Instance: %m",
-          MODULE_NAME, USE_SIMD_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((USE_WIDEXOR_REG != FALSE_ENUM_VAL) &&
-         (USE_WIDEXOR_REG != TRUE_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-145] USE_WIDEXOR attribute is set to %s.  Legal values for this attribute are FALSE or TRUE. Instance: %m",
-          MODULE_NAME, USE_WIDEXOR_REG);
-      attr_err = 1'b1;
-    end
-
-    if ((attr_test == 1'b1) ||
-        ((XORSIMD_REG != XOR24_48_96_ENUM_VAL) &&
-         (XORSIMD_REG != XOR12_ENUM_VAL))) begin
-      $display(
-          "Error: [Unisim %s-146] XORSIMD attribute is set to %s.  Legal values for this attribute are XOR24_48_96 or XOR12. Instance: %m",
-          MODULE_NAME, XORSIMD_REG);
-      attr_err = 1'b1;
-    end
-
-    //    if (attr_err == 1'b1) #1 $finish;
-  end
-`endif
 
   // begin behavioral model
 
@@ -1224,51 +813,6 @@ module DSP48E2 (
   reg [3:0] ALUMODE_DATA;
   reg DREG_INT;
   reg ADREG_INT;
-
-
-  // initialize regs
-`ifndef XIL_XECLIB
-  initial begin
-    cci_drc_msg = 1'b0;
-    cis_drc_msg = 1'b0;
-    CARRYIN_reg = 1'b0;
-    ALUMODE_reg = 4'b0;
-    CARRYINSEL_mux = 3'b0;
-    CARRYINSEL_reg = 3'b0;
-    OPMODE_mux = 9'b0;
-    OPMODE_reg = 9'b0;
-    wmux = 48'b0;
-    xmux = 48'b0;
-    ymux = 48'b0;
-    zmux = 48'b0;
-    cin_b = 1'b0;
-    qmultcarryin = 1'b0;
-    invalid_opmode = 1'b1;
-    opmode_valid_flag_dal = 1'b1;
-    ping_opmode_drc_check = 1'b0;
-    A1_reg = 30'b0;
-    A2_reg = 30'b0;
-    B2_reg = 18'b0;
-    B1_DATA_out = {B_WIDTH{1'b0}};
-    C_reg = {C_WIDTH{1'b0}};
-    ps_u_mask = 44'h55555555555;
-    ps_v_mask = 44'haaaaaaaaaaa;
-    U_DATA_reg = {1'b0, {M_WIDTH - 1{1'b0}}};
-    V_DATA_reg = {1'b0, {M_WIDTH - 1{1'b0}}};
-    COUT_reg = 4'b0000;
-    ALUMODE10_reg = 1'b0;
-    MULTSIGN_ALU_reg = 1'b0;
-    ALU_OUT_reg = 48'b0;
-    XOR_MX_reg = 8'b0;
-    pdet_o_reg1 = 1'b0;
-    pdet_o_reg2 = 1'b0;
-    pdetb_o_reg1 = 1'b0;
-    pdetb_o_reg2 = 1'b0;
-    INMODE_reg = 5'b0;
-    AD_DATA_reg = {D_WIDTH{1'b0}};
-    D_DATA_reg = {D_WIDTH{1'b0}};
-  end
-`endif
 
   // DSP_ALU
   //*** W mux NB
