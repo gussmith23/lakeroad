@@ -1,4 +1,5 @@
 RUN: racket $LAKEROAD_DIR/bin/main.rkt \
+RUN:  --solver bitwuzla \
 RUN:  --instruction "(bvmul (var a 16) (var b 16))" \
 RUN:  --architecture xilinx-ultrascale-plus \
 RUN:  --template dsp \
