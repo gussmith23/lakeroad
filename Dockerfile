@@ -27,7 +27,6 @@ RUN apt install -y \
   libzmq3-dev \
   llvm-14 \
   make \
-  ninja-build \
   numactl \
   openssl \
   perl \
