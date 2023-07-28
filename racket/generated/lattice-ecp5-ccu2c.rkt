@@ -176,156 +176,156 @@
              (list)))
            (btor73
             (bv->signal
-             (zero-extend (signal-value btor56) (bitvector 2))
-             btor56))
+             (zero-extend (signal-value btor59) (bitvector 1))
+             btor59))
            (btor74
-            (signal (extract 3 0 (signal-value btor12)) (signal-state btor12)))
+            (bv->signal
+             (zero-extend (signal-value btor37) (bitvector 1))
+             btor37))
            (btor75
             (bv->signal
-             (zero-extend (signal-value btor74) (bitvector 4))
-             btor74))
+             (zero-extend (signal-value btor52) (bitvector 1))
+             btor52))
            (btor76
             (bv->signal
-             (zero-extend (signal-value btor59) (bitvector 1))
-             btor59))
+             (zero-extend (signal-value btor30) (bitvector 1))
+             btor30))
            (btor77
-            (bv->signal
-             (zero-extend (signal-value btor4) (bitvector 1))
-             btor4))
-           (btor78
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 1))
-             btor2))
-           (btor79
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 2))
-             btor34))
-           (btor80
-            (signal (extract 3 0 (signal-value btor13)) (signal-state btor13)))
-           (btor81
-            (bv->signal
-             (zero-extend (signal-value btor80) (bitvector 4))
-             btor80))
-           (btor82
-            (bv->signal
-             (zero-extend (signal-value btor37) (bitvector 1))
-             btor37))
-           (btor83
-            (bv->signal
-             (zero-extend (signal-value btor5) (bitvector 1))
-             btor5))
-           (btor84
-            (bv->signal
-             (zero-extend (signal-value btor3) (bitvector 1))
-             btor3))
-           (btor85
-            (bv->signal
-             (zero-extend (signal-value btor43) (bitvector 8))
-             btor43))
-           (btor86
-            (bv->signal
-             (zero-extend (signal-value btor46) (bitvector 4))
-             btor46))
-           (btor87
-            (bv->signal
-             (zero-extend (signal-value btor49) (bitvector 2))
-             btor49))
-           (btor88
-            (bv->signal
-             (zero-extend (signal-value btor12) (bitvector 16))
-             btor12))
-           (btor89
-            (bv->signal
-             (zero-extend (signal-value btor52) (bitvector 1))
-             btor52))
-           (btor90
-            (bv->signal
-             (zero-extend (signal-value btor9) (bitvector 1))
-             btor9))
-           (btor91
-            (bv->signal
-             (zero-extend (signal-value btor6) (bitvector 1))
-             btor6))
-           (btor92
-            (bv->signal
-             (zero-extend (signal-value btor4) (bitvector 1))
-             btor4))
-           (btor93
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 1))
-             btor2))
-           (btor94
-            (bv->signal
-             (zero-extend (signal-value btor19) (bitvector 8))
-             btor19))
-           (btor95
-            (bv->signal
-             (zero-extend (signal-value btor23) (bitvector 4))
-             btor23))
-           (btor96
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 2))
-             btor27))
-           (btor97
-            (bv->signal
-             (zero-extend (signal-value btor13) (bitvector 16))
-             btor13))
-           (btor98
-            (bv->signal
-             (zero-extend (signal-value btor30) (bitvector 1))
-             btor30))
-           (btor99
-            (bv->signal
-             (zero-extend (signal-value btor10) (bitvector 1))
-             btor10))
-           (btor100
-            (bv->signal
-             (zero-extend (signal-value btor7) (bitvector 1))
-             btor7))
-           (btor101
-            (bv->signal
-             (zero-extend (signal-value btor5) (bitvector 1))
-             btor5))
-           (btor102
-            (bv->signal
-             (zero-extend (signal-value btor3) (bitvector 1))
-             btor3))
-           (btor103
-            (bv->signal
-             (zero-extend (signal-value btor59) (bitvector 1))
-             btor59))
-           (btor104
-            (bv->signal
-             (zero-extend (signal-value btor37) (bitvector 1))
-             btor37))
-           (btor105
-            (bv->signal
-             (zero-extend (signal-value btor52) (bitvector 1))
-             btor52))
-           (btor106
-            (bv->signal
-             (zero-extend (signal-value btor30) (bitvector 1))
-             btor30))
-           (btor107
             (bv->signal
              (zero-extend (signal-value btor63) (bitvector 1))
              btor63))
-           (btor108
+           (btor78
             (bv->signal
              (zero-extend (signal-value btor67) (bitvector 1))
              btor67))
-           (btor109
+           (btor79
             (bv->signal
              (zero-extend (signal-value btor70) (bitvector 1))
              btor70))
-           (btor110
+           (btor80
             (bv->signal
              (zero-extend (signal-value btor60) (bitvector 1))
              btor60))
-           (btor111
+           (btor81
             (bv->signal
              (zero-extend (signal-value btor39) (bitvector 1))
              btor39))
+           (btor82
+            (bv->signal
+             (zero-extend (signal-value btor2) (bitvector 1))
+             btor2))
+           (btor83
+            (bv->signal
+             (zero-extend (signal-value btor4) (bitvector 1))
+             btor4))
+           (btor84
+            (bv->signal
+             (zero-extend (signal-value btor59) (bitvector 1))
+             btor59))
+           (btor85
+            (signal (extract 3 0 (signal-value btor12)) (signal-state btor12)))
+           (btor86
+            (bv->signal
+             (zero-extend (signal-value btor85) (bitvector 4))
+             btor85))
+           (btor87
+            (bv->signal
+             (zero-extend (signal-value btor56) (bitvector 2))
+             btor56))
+           (btor88
+            (bv->signal
+             (zero-extend (signal-value btor3) (bitvector 1))
+             btor3))
+           (btor89
+            (bv->signal
+             (zero-extend (signal-value btor5) (bitvector 1))
+             btor5))
+           (btor90
+            (bv->signal
+             (zero-extend (signal-value btor37) (bitvector 1))
+             btor37))
+           (btor91
+            (signal (extract 3 0 (signal-value btor13)) (signal-state btor13)))
+           (btor92
+            (bv->signal
+             (zero-extend (signal-value btor91) (bitvector 4))
+             btor91))
+           (btor93
+            (bv->signal
+             (zero-extend (signal-value btor34) (bitvector 2))
+             btor34))
+           (btor94
+            (bv->signal
+             (zero-extend (signal-value btor2) (bitvector 1))
+             btor2))
+           (btor95
+            (bv->signal
+             (zero-extend (signal-value btor4) (bitvector 1))
+             btor4))
+           (btor96
+            (bv->signal
+             (zero-extend (signal-value btor6) (bitvector 1))
+             btor6))
+           (btor97
+            (bv->signal
+             (zero-extend (signal-value btor9) (bitvector 1))
+             btor9))
+           (btor98
+            (bv->signal
+             (zero-extend (signal-value btor52) (bitvector 1))
+             btor52))
+           (btor99
+            (bv->signal
+             (zero-extend (signal-value btor12) (bitvector 16))
+             btor12))
+           (btor100
+            (bv->signal
+             (zero-extend (signal-value btor49) (bitvector 2))
+             btor49))
+           (btor101
+            (bv->signal
+             (zero-extend (signal-value btor46) (bitvector 4))
+             btor46))
+           (btor102
+            (bv->signal
+             (zero-extend (signal-value btor43) (bitvector 8))
+             btor43))
+           (btor103
+            (bv->signal
+             (zero-extend (signal-value btor3) (bitvector 1))
+             btor3))
+           (btor104
+            (bv->signal
+             (zero-extend (signal-value btor5) (bitvector 1))
+             btor5))
+           (btor105
+            (bv->signal
+             (zero-extend (signal-value btor7) (bitvector 1))
+             btor7))
+           (btor106
+            (bv->signal
+             (zero-extend (signal-value btor10) (bitvector 1))
+             btor10))
+           (btor107
+            (bv->signal
+             (zero-extend (signal-value btor30) (bitvector 1))
+             btor30))
+           (btor108
+            (bv->signal
+             (zero-extend (signal-value btor13) (bitvector 16))
+             btor13))
+           (btor109
+            (bv->signal
+             (zero-extend (signal-value btor27) (bitvector 2))
+             btor27))
+           (btor110
+            (bv->signal
+             (zero-extend (signal-value btor23) (bitvector 4))
+             btor23))
+           (btor111
+            (bv->signal
+             (zero-extend (signal-value btor19) (bitvector 8))
+             btor19))
            (output-state
             (remove-duplicates
              (append (list) merged-input-state-hash)
