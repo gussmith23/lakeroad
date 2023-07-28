@@ -2,12 +2,11 @@
 # The above enables use of ADD of git repo.
 FROM ubuntu:22.04
 
-# Get add-apt-repository
-RUN apt update
-RUN apt install -y software-properties-common
-
-# Add PPA for Racket
-RUN add-apt-repository ppa:plt/racket
+# Update, get add-apt-repository, add PPA for Racket, update again.
+RUN apt update \
+  &&  apt install -y software-properties-common \
+  &&  add-apt-repository ppa:plt/racket \
+  && apt update
 
 ## Install dependencies
 # apt dependencies
