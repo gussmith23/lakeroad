@@ -1,4 +1,4 @@
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver cvc5 \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
