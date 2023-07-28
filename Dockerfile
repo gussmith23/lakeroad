@@ -28,6 +28,7 @@ RUN apt install -y \
   libzmq3-dev \
   llvm-14 \
   make \
+  ninja-build \
   numactl \
   openssl \
   perl \
@@ -102,8 +103,23 @@ RUN pip install -r requirements.txt
 RUN raco setup --doc-index --force-user-docs
 RUN raco pkg install --deps search-auto --batch \
   fmt \
-  rosette \
   yaml
+
+# Install custom Rosette. Once these changes are merged, we can use mainline Rosette.
+WORKDIR /root
+RUN git clone https://github.com/gussmith23/rosette \
+  && cd rosette \
+  && git checkout gussmith23/add-bitwuzla-and-cvc5 \ 
+  && raco pkg install
+
+# Install CVC5.
+WORKDIR /root/cvc5
+RUN if [ "$(uname -m)" = "x86_64" ] ; then \
+  wget https://cvc5.stanford.edu/downloads/builds/x86_64-Linux-production/cvc5-2023-07-27-x86_64-Linux-production p -q -O oss-cad-suite.tgz; https://cvc5.stanford.edu/downloads/builds/x86_64-Linux-production/cvc5-2023-07-06-x86_64-Linux-production -q -O cvc5 ; \
+  else \
+  exit 1; \
+  fi
+ENV PATH="/root/cvc5:${PATH}"
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
