@@ -113,7 +113,8 @@ RUN git clone https://github.com/gussmith23/rosette \
 # Install CVC5.
 WORKDIR /root/cvc5
 RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://cvc5.stanford.edu/downloads/builds/x86_64-Linux-production/cvc5-2023-07-27-x86_64-Linux-production p -q -O oss-cad-suite.tgz; https://cvc5.stanford.edu/downloads/builds/x86_64-Linux-production/cvc5-2023-07-06-x86_64-Linux-production -q -O cvc5 ; \
+  wget https://github.com/cvc5/cvc5/releases/download/cvc5-1.0.5/cvc5-Linux p -q -O cvc5 ; \
+  chmod +x cvc5 ; \
   else \
   exit 1; \
   fi
