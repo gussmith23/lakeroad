@@ -6596,4 +6596,3 @@
        (cons 'OVERFLOW (signal (signal-value btor1011) output-state))
        (cons 'ACOUT (signal (signal-value btor124) output-state))
        (cons 'PATTERNDETECT (signal (signal-value btor996) output-state))))))
-
