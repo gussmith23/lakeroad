@@ -186,6 +186,8 @@ implementations:
       #"(=> (|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32))) (bveq BCASCREG BREG))",
       # See above; same with breg.
       "(bveq BCASCREG BREG)",
+
+      "(not (bveq (extract 8 7 OPMODE) (bv 2 2)))"
     ]
     modules:
       - module_name: DSP48E2
