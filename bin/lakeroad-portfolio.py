@@ -6,6 +6,15 @@ below.
 
 Note that this script accepts -- as a separator between lakeroad-portfolio.py
 flags and main.rkt flags, but it's not necessary.
+
+This script will run Lakeroad with each solver in parallel, and return the
+output of the first Lakeroad instance that finishes.
+
+NOTE: This script uses one thread per solver.
+
+NOTE: This script does not seem to work when run under tools like LLVM `lit`. I
+suspect the problem is that such tools catch the signals that this script
+attempts to listen for.
 """
 
 import argparse
