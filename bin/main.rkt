@@ -65,10 +65,15 @@
 (define reset-name (make-parameter #f))
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
+(define solver (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
+ ["--solver"
+  v
+  "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to #f, which uses Rosette's default."
+  (solver v)]
  ["--out-format"
   fmt
   "Output format. Supported: 'verilog' for outputting to raw Verilog,"
@@ -144,6 +149,14 @@
     (when (assoc name (inputs))
       (error "Signal " name " already present; did you duplicate an --input?"))
     (inputs (append (inputs) (list (cons name bw)))))])
+
+;;; Set solver.
+(match (solver)
+  ["cvc5" (current-solver (cvc5))]
+  ["bitwuzla" (current-solver (bitwuzla))]
+  ["boolector" (current-solver (boolector))]
+  ;;; Do nothing.
+  [#f #f])
 
 ;;; Parse instruction.
 ;;;
