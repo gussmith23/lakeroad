@@ -9,7 +9,10 @@
            "verilator.rkt"
            "utils.rkt"
            rackunit
-           rosette)
+           rosette
+           rosette/solver/smt/boolector)
+
+  (current-solver (boolector))
 
   (define to-simulate-list (list))
   (define (end-to-end-test bv-expr)
