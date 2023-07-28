@@ -23,13 +23,15 @@
          "../racket/generated/lattice-ecp5-alu54a.rkt"
          "../racket/generated/intel-altmult-accum.rkt"
          rosette/solver/smt/boolector
+         rosette/solver/smt/cvc5
+         rosette/solver/smt/bitwuzla
          "../racket/signal.rkt"
          "../racket/btor.rkt"
          racket/sandbox)
 
 (define-namespace-anchor anc)
 
-(current-solver (boolector))
+(current-solver (bitwuzla))
 
 (define architecture
   (make-parameter ""
