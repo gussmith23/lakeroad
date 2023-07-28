@@ -108,7 +108,7 @@ WORKDIR /root
 RUN git clone https://github.com/gussmith23/rosette \
   && cd rosette \
   && git checkout gussmith23/add-bitwuzla-and-cvc5 \ 
-  && raco pkg install
+  && raco pkg install --deps search-auto --batch
 
 # Install CVC5.
 WORKDIR /root/cvc5
