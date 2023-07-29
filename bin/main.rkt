@@ -384,16 +384,17 @@
        ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer. Also
        ;;; filter out #:name.
        (define keywords-minus-unnamed
-         (filter (λ (k)
-                   (not (or (string-prefix? (keyword->string k) "unnamed-input-")
-                            (equal? (keyword->string k) "name"))))
-                 keywords))
+         (apply set
+                (filter (λ (k)
+                          (not (or (string-prefix? (keyword->string k) "unnamed-input-")
+                                   (equal? (keyword->string k) "name"))))
+                        keywords)))
        (for ([env envs])
-         (when (not (equal? (length env) (length keywords-minus-unnamed)))
+         (define env-keys-set (apply set (map (compose1 string->keyword car) env)))
+         (define missing-keys (set-subtract keywords-minus-unnamed env-keys-set))
+         (when (not (equal? 0 (set-count missing-keys)))
            ;;; TODO(@gussmith23): Figure out how to use Racket logging...
-           (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a"
-                              (set-subtract (apply set keywords-minus-unnamed)
-                                            (apply set (map (compose1 string->keyword car) env))))
+           (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a" missing-keys)
                       (current-error-port))))
        (with-handlers ([exn:fail:resource? exit-timeout])
          (call-with-limits
