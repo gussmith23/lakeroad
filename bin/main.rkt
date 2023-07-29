@@ -31,8 +31,6 @@
 
 (define-namespace-anchor anc)
 
-(current-solver (bitwuzla))
-
 (define architecture
   (make-parameter ""
                   (lambda (v)
@@ -68,14 +66,14 @@
 (define TIMEOUTCODE 26)
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
-(define solver (make-parameter #f))
+(define solver (make-parameter "bitwuzla"))
 
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
  ["--solver"
   v
-  "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to #f, which uses Rosette's default."
+  "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to bitwuzla."
   (solver v)]
  ["--out-format"
   fmt
@@ -158,8 +156,7 @@
   ["cvc5" (current-solver (cvc5))]
   ["bitwuzla" (current-solver (bitwuzla))]
   ["boolector" (current-solver (boolector))]
-  ;;; Do nothing.
-  [#f #f])
+  [_ (error (format "Unknown solver: ~a" (solver)))])
 
 ;;; Parse instruction.
 ;;;

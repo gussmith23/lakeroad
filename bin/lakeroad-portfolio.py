@@ -26,6 +26,12 @@ from typing import Tuple
 import sys
 import tempfile
 
+
+# These are set in main.rkt.
+SYNTH_SUCCESS_CODE = 0
+SYNTH_FAILURE_CODE = 25
+SYNTH_TIMEOUT_CODE = 26
+
 parser = argparse.ArgumentParser(
     description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
 )
@@ -87,26 +93,40 @@ processes, files = zip(*processes_and_files)
 # Maps pid to output file.
 pid_to_file = {process.pid: outfile for (process, outfile) in processes_and_files}
 
-gone, alive = psutil.wait_procs(processes)
 
-# Kill processes that are still running.
-for p in alive:
-    p.kill()
+def _terminate_remaining_processes(p):
+    for p in processes:
+        if psutil.pid_exists(p.pid):
+            p.terminate()
 
-# Get output of first solver that finished.
-first_finished = gone[0]
+
+gone, alive = psutil.wait_procs(processes, callback=_terminate_remaining_processes)
+assert alive == [], "All processes should have terminated."
+
+# We prioritize which of the processes' output to return in the following order:
+# 1. Synthesis success
+# 2. Synthesis failure
+# 3. Timeout
+# 4. Other
+returncodes = [p.returncode for p in gone]
+if SYNTH_SUCCESS_CODE in returncodes:
+    proc = gone[returncodes.index(SYNTH_SUCCESS_CODE)]
+elif SYNTH_FAILURE_CODE in returncodes:
+    proc = gone[returncodes.index(SYNTH_FAILURE_CODE)]
+elif SYNTH_TIMEOUT_CODE in returncodes:
+    proc = gone[returncodes.index(SYNTH_TIMEOUT_CODE)]
+else:
+    proc = gone[0]
 
 # Write output on success.
-if first_finished.returncode == 0:
-    args.out_filepath.write(
-        pathlib.Path(pid_to_file[first_finished.pid].name).read_text()
-    )
+if proc.returncode == SYNTH_SUCCESS_CODE:
+    args.out_filepath.write(pathlib.Path(pid_to_file[proc.pid].name).read_text())
 
 # Close files.
 for outfile in files:
     outfile.close()
 
 # Mirror stderr, stdout, returncode.
-sys.stderr.write(first_finished.stderr.read().decode("utf-8"))
-sys.stdout.write(first_finished.stdout.read().decode("utf-8"))
-sys.exit(first_finished.returncode)
+sys.stderr.write(proc.stderr.read().decode("utf-8"))
+sys.stdout.write(proc.stdout.read().decode("utf-8"))
+sys.exit(proc.returncode)
