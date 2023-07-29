@@ -37,4 +37,4 @@
 	assign out = stage2;
 endmodule
 
-// CHECK: with-limit: out of time
+// CHECK: Synthesis Timeout

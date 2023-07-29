@@ -30,4 +30,4 @@ module top(input clk, input [15:0] a, b, c, output [15:0] p);
 
 endmodule
 
-// CHECK: Synthesis failed.
+// CHECK: Synthesis failed
