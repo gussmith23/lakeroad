@@ -45,6 +45,9 @@ parser.add_argument(
     "--cvc5", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=True
 )
 parser.add_argument(
+    "--boolector", action=argparse.BooleanOptionalAction, help="Use boolector.", default=False
+)
+parser.add_argument(
     "--out-filepath",
     help="Same as --out-filepath of Lakeroad main.rkt. This script steals this"
     " argument for its own purposes.",
@@ -62,6 +65,8 @@ if args.bitwuzla:
     solvers.append("bitwuzla")
 if args.cvc5:
     solvers.append("cvc5")
+if args.boolector:
+    solvers.append("boolector")
 
 
 def start_with_solver(solver: str) -> Tuple[psutil.Popen, tempfile.NamedTemporaryFile]:
