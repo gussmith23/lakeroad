@@ -202,18 +202,19 @@
      (when (not (top-module-name))
        (error "Must set --top-module-name."))
      (define btor
-       (with-output-to-string
-        (thunk
-         (when (not
-                (system
-                 (format
-                  ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
-                  ;;; clk2fflogic is the correct thing to use. See
-                  ;;; https://github.com/uwsampl/lakeroad/issues/238
-                  "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
-                  (verilog-module-filepath)
-                  (top-module-name))))
-           (error "Yosys failed.")))))
+       (parameterize ([current-error-port (open-output-nowhere)])
+         (with-output-to-string
+          (thunk
+           (when (not
+                  (system
+                   (format
+                    ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
+                    ;;; clk2fflogic is the correct thing to use. See
+                    ;;; https://github.com/uwsampl/lakeroad/issues/238
+                    "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    (verilog-module-filepath)
+                    (top-module-name))))
+             (error "Yosys failed."))))))
 
      (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
