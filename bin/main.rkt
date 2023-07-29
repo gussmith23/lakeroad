@@ -61,6 +61,9 @@
 (define initiation-interval (make-parameter 0))
 (define clock-name (make-parameter #f))
 (define reset-name (make-parameter #f))
+;;; Arbitrary exit code choice.
+(define FAILURECODE 25)
+(define TIMEOUTCODE 26)
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
@@ -324,7 +327,10 @@
                       #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
                       #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
-
+(define (exit-timeout e)
+  (when (exn:fail:resource? e)
+    (displayln "Synthesis Timeout" (current-error-port))
+    (exit TIMEOUTCODE)))
 ;;; Either a valid LR expression or #f.
 (define lakeroad-expr
   (cond
@@ -389,30 +395,33 @@
                               (set-subtract (apply set keywords-minus-unnamed)
                                             (apply set (map (compose1 string->keyword car) env))))
                       (current-error-port))))
-
-       (call-with-limits
-        (timeout)
-        #f
-        (thunk (rosette-synthesize
-                (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
-                         bv-expr)
-                sketch
-                input-symbolic-constants
-                #:bv-sequential envs
-                #:lr-sequential envs
-                #:module-semantics module-semantics))))]
+       (with-handlers ([exn:fail:resource? exit-timeout])
+         (call-with-limits
+          (timeout)
+          #f
+          (thunk (rosette-synthesize
+                  (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
+                           bv-expr)
+                  sketch
+                  input-symbolic-constants
+                  #:bv-sequential envs
+                  #:lr-sequential envs
+                  #:module-semantics module-semantics)))))]
 
     [else
      ;;; If initiation interval is #f, then do normal combinational synthesis.
-     (call-with-limits (timeout)
-                       #f
-                       (thunk (synthesize-with-sketch sketch-generator
-                                                      architecture-description
-                                                      bv-expr
-                                                      #:module-semantics module-semantics)))]))
+     (with-handlers ([exn:fail:resource? exit-timeout])
+       (call-with-limits (timeout)
+                         #f
+                         (thunk (synthesize-with-sketch sketch-generator
+                                                        architecture-description
+                                                        bv-expr
+                                                        #:module-semantics module-semantics))))]))
 
 (cond
-  [(not lakeroad-expr) (error "Synthesis failed.")]
+  [(not lakeroad-expr)
+   (displayln "Synthesis failed" (current-error-port))
+   (exit FAILURECODE)]
 
   [else
    (when (not (verilog-module-out-signal))
