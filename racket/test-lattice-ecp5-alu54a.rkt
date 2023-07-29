@@ -292,13 +292,7 @@
                        #:RST3 (bv->signal (bit 3 RST))
                        #:SIGNEDCIN (bv->signal (constant 'SIGNEDCIN (bitvector 1)))
                        #:SIGNEDIA (bv->signal (constant 'SIGNEDIA (bitvector 1)))
-                       #:SIGNEDIB (bv->signal (constant 'SIGNEDIB (bitvector 1)))
-                       #:unnamed-input-348 (bv->signal (constant 'unnamed-input-348 (bitvector 54)))
-                       #:unnamed-input-741 (bv->signal (constant 'unnamed-input-741 (bitvector 54)))
-                       #:unnamed-input-1159 (bv->signal (constant 'unnamed-input-1159 (bitvector 54)))
-                       #:unnamed-input-1173 (bv->signal (constant 'unnamed-input-1173 (bitvector 54)))
-                       #:unnamed-input-1179
-                       (bv->signal (constant 'unnamed-input-1179 (bitvector 54)))))
+                       #:SIGNEDIB (bv->signal (constant 'SIGNEDIB (bitvector 1)))))
 
 (define-symbolic a-input b-input (bitvector 36))
 (define-symbolic c-input (bitvector 54))
