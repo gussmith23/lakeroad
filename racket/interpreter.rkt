@@ -128,7 +128,7 @@
                 (define missing-keys (set-subtract keywords-minus-unnamed env-keys-set))
                 (when (not (equal? 0 (set-count missing-keys)))
                   ;;; TODO(@gussmith23): Figure out how to use Racket logging...
-                  (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a"
+                  (displayln (format "WARNING: Not passing all inputs to module semantics, Missing ~a"
                                      missing-keys)
                              (current-error-port)))
                 out)]
