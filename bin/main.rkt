@@ -385,7 +385,9 @@
        ;;; filter out #:name.
        (define keywords-minus-unnamed
          (apply set
-                (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-")))
+                (filter (λ (k)
+                          (not (or (string-prefix? (keyword->string k) "unnamed-input-")
+                                   (equal? (keyword->string k) "name"))))
                         keywords)))
        (for ([env envs])
          (define env-keys-set (apply set (map (compose1 string->keyword car) env)))
