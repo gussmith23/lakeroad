@@ -41,4 +41,4 @@ module addmulor_3_stage_unsigned_9_bit (
   assign out = stage2;
 endmodule
 
-// CHECK: Synthesis failed.
+// CHECK: Synthesis failed
