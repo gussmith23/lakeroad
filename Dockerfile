@@ -2,12 +2,11 @@
 # The above enables use of ADD of git repo.
 FROM ubuntu:22.04
 
-# Get add-apt-repository
-RUN apt update
-RUN apt install -y software-properties-common
-
-# Add PPA for Racket
-RUN add-apt-repository ppa:plt/racket
+# Update, get add-apt-repository, add PPA for Racket, update again.
+RUN apt update \
+  &&  apt install -y software-properties-common \
+  &&  add-apt-repository ppa:plt/racket \
+  && apt update
 
 ## Install dependencies
 # apt dependencies
@@ -102,8 +101,24 @@ RUN pip install -r requirements.txt
 RUN raco setup --doc-index --force-user-docs
 RUN raco pkg install --deps search-auto --batch \
   fmt \
-  rosette \
   yaml
+
+# Install custom Rosette. Once these changes are merged, we can use mainline Rosette.
+WORKDIR /root
+RUN git clone https://github.com/gussmith23/rosette \
+  && cd rosette \
+  && git checkout gussmith23/add-bitwuzla-and-cvc5 \ 
+  && raco pkg install --deps search-auto --batch
+
+# Install CVC5.
+WORKDIR /root/cvc5
+RUN if [ "$(uname -m)" = "x86_64" ] ; then \
+  wget https://github.com/cvc5/cvc5/releases/download/cvc5-1.0.5/cvc5-Linux p -q -O cvc5 ; \
+  chmod +x cvc5 ; \
+  else \
+  exit 1; \
+  fi
+ENV PATH="/root/cvc5:${PATH}"
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
