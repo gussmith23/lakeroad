@@ -87,11 +87,14 @@ processes, files = zip(*processes_and_files)
 # Maps pid to output file.
 pid_to_file = {process.pid: outfile for (process, outfile) in processes_and_files}
 
-gone, alive = psutil.wait_procs(processes)
 
-# Kill processes that are still running.
-for p in alive:
-    p.kill()
+def _terminate_remaining_processes(p):
+    for p in processes:
+        if psutil.pid_exists(p.pid):
+            p.terminate()
+
+
+gone, alive = psutil.wait_procs(processes, callback=_terminate_remaining_processes)
 
 # Get output of first solver that finished.
 first_finished = gone[0]
