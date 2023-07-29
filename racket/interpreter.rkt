@@ -121,17 +121,16 @@
                 ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket
                 ;;; importer. Also filter out #:name.
                 (define keywords-minus-unnamed
-                  (filter (λ (k)
-                            (not (or (string-prefix? (keyword->string k) "unnamed-input-")
-                                     (equal? (keyword->string k) "name"))))
-                          keywords))
-                (when (not (equal? (length pairs) (length keywords-minus-unnamed)))
+                  (apply set
+                         (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-")))
+                                 keywords)))
+                (define env-keys-set (apply set (map car pairs)))
+                (define missing-keys (set-subtract keywords-minus-unnamed env-keys-set))
+                (when (not (equal? 0 (set-count missing-keys)))
                   ;;; TODO(@gussmith23): Figure out how to use Racket logging...
-                  (displayln
-                   (format
-                    "WARNING: Not passing all inputs to module's semantics function, Missing ~a"
-                    (set-subtract (apply set keywords-minus-unnamed) (apply set (map car pairs))))
-                   (current-error-port)))
+                  (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a"
+                                     missing-keys)
+                             (current-error-port)))
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
