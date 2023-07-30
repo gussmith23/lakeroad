@@ -190,7 +190,7 @@ implementations:
       # "(bveq BCASCREG BREG)",
 
       # Exclude RND or P feedback loop as settings of wmux.
-      "(not (bveq (extract 8 7 OPMODE) (bv 2 2)))",
+      # "(not (bveq (extract 8 7 OPMODE) (bv 2 2)))",
       # "(not (bveq (extract 8 7 OPMODE) (bv 1 2)))",
 
       # Exclude P feedback loop as setting of xmux.
