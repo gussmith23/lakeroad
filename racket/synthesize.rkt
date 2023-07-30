@@ -77,8 +77,6 @@
                       (append (symbolics bv-expr) additional-forall)
                       #:module-semantics module-semantics))
 
-(current-solver (boolector))
-
 (define (template-map)
   (make-immutable-hash
    (list (cons "synthesize_wire" synthesize-wire)

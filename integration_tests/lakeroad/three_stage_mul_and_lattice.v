@@ -18,15 +18,15 @@
 
 module top(input clk, input [15:0] a, b, c, output [15:0] p);
 
-  reg [15:0] tmp0, tmp1, out;
+  reg [15:0] tmp0, tmp1, tmp2;
 
   always @ (posedge clk) begin
-    tmp0 <= (a * b) + c;
+    tmp0 <= (a * b) & c;
     tmp1 <= tmp0;
-    out <= tmp1;
+    tmp2 <= tmp1;
   end
 
-  assign p = out;
+  assign p = tmp2;
 
 endmodule
 
