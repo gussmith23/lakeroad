@@ -263,7 +263,7 @@ implementations:
           { name: ACASCREG, value: (zero-extend AREG (bitvector 32)) },
           { name: ADREG, value: (zero-extend ADREG (bitvector 32)) },
           { name: ALUMODEREG, value: (zero-extend ALUMODEREG (bitvector 32)) },
-          { name: AMULTSEL, value: AMULTSEL },
+          { name: AMULTSEL, value: (choose (bv 0 5) (bv 2 5)) },
           { name: AREG, value: (zero-extend AREG (bitvector 32))},
           # NO_RESET
           { name: AUTORESET_PATDET, value: (bv 3 5) },
@@ -273,7 +273,7 @@ implementations:
           { name: A_INPUT, value: (bv 7 5) },
           # Set to BREG given that we don't use cascade paths.
           { name: BCASCREG, value: (zero-extend BREG (bitvector 32)) },
-          { name: BMULTSEL, value: BMULTSEL },
+          { name: BMULTSEL, value: (choose (bv 1 5) (bv 2 5)) },
           { name: BREG, value: (zero-extend BREG (bitvector 32)) },
           # Direct
           { name: B_INPUT, value: (bv 7 5) },
