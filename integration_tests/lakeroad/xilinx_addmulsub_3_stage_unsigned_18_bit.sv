@@ -38,7 +38,6 @@
 // RUN:    --verilator_extra_arg='-Wno-WIDTH' \
 // RUN:    --verilator_extra_arg='-Wno-STMTDLY' \
 // RUN:    --verilator_extra_arg='-Wno-CASEX' \
-// RUN: --testbench_stdout_log_filepath tmp.txt \
 // RUN:    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
 // RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
 // RUN: fi
