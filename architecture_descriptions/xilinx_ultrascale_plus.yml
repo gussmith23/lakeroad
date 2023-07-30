@@ -240,7 +240,7 @@ implementations:
             { name: CEP, direction: input, bitwidth: 1, value: (bv 1 1) },
 
             { name: CLK, direction: input, bitwidth: 1, value: clk },
-            { name: D, direction: input, bitwidth: 27, value: D },
+            { name: D, direction: input, bitwidth: 27, value: (choose D (extract 26 0 C)) },
             { name: INMODE, direction: input, bitwidth: 5, value: INMODE },
             { name: MULTSIGNIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: OPMODE, direction: input, bitwidth: 9, value: OPMODE },
