@@ -48,6 +48,7 @@ parser.add_argument(
 parser.add_argument(
     "--seed",
     action="append",
+    type=int,
     help="Seed for solvers. The script will spawn one instance of each solver with the given seed.",
     default=[0],
 )
