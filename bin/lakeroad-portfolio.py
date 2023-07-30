@@ -18,6 +18,7 @@ attempts to listen for.
 """
 
 import argparse
+import itertools
 import psutil
 import subprocess
 import os
@@ -45,9 +46,17 @@ parser.add_argument(
     "--cvc5", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=True
 )
 parser.add_argument(
+    "--seed",
+    action="append",
+    help="Seed for solvers. The script will spawn one instance of each solver with the given seed.",
+    default=[0],
+)
+parser.add_argument(
     "--out-filepath",
-    help="Same as --out-filepath of Lakeroad main.rkt. This script steals this"
-    " argument for its own purposes.",
+    help=(
+        "Same as --out-filepath of Lakeroad main.rkt. This script steals this"
+        " argument for its own purposes."
+    ),
     type=argparse.FileType("w"),
     default=sys.stdout,
 )
@@ -64,8 +73,10 @@ if args.cvc5:
     solvers.append("cvc5")
 
 
-def start_with_solver(solver: str) -> Tuple[psutil.Popen, tempfile.NamedTemporaryFile]:
-    """Start Lakeroad main.rkt with the given solver.
+def start_with_solver(
+    solver: str, seed: int
+) -> Tuple[psutil.Popen, tempfile.NamedTemporaryFile]:
+    """Start Lakeroad main.rkt with the given solver and seed.
 
     Returns pid and output file for a Lakeroad session started with the given
     solver."""
@@ -76,6 +87,8 @@ def start_with_solver(solver: str) -> Tuple[psutil.Popen, tempfile.NamedTemporar
             pathlib.Path(os.path.abspath(__file__)).parent / "main.rkt",
             "--solver",
             solver,
+            "--seed",
+            str(seed),
             "--out-filepath",
             outfile.name,
             *rest,
@@ -87,7 +100,9 @@ def start_with_solver(solver: str) -> Tuple[psutil.Popen, tempfile.NamedTemporar
     return (process, outfile)
 
 
-processes_and_files = list(map(start_with_solver, solvers))
+processes_and_files = list(
+    map(lambda t: start_with_solver(*t), itertools.product(solvers, args.seed))
+)
 processes, files = zip(*processes_and_files)
 
 # Maps pid to output file.
