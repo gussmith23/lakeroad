@@ -146,7 +146,7 @@ if __name__ == "__main__":
         "--obj_dir_dir",
         type=Path,
         help="Directory where we will store obj_dirs produced by Verilator.",
-        default=tempfile.gettempdir(),
+        default=False,
     )
     parser.add_argument(
         "--test_module_filepath",
@@ -246,6 +246,11 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    # Handle the case where obj_dir_dir is not specified.
+    if args.obj_dir_dir is False:
+        tmp_dir = tempfile.TemporaryDirectory()
+        args.obj_dir_dir = tmp_dir.name
 
     # Parse something like <signal_name>:<bitwidth> into a tuple.
     parse_signal_str = lambda x: (str(x.split(":")[0]), int(x.split(":")[1]))
