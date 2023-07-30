@@ -260,7 +260,7 @@ implementations:
           ]
         parameters: [
           # Set to AREG given that we don't use cascade paths.
-          { name: ACASCREG, value: AREG },
+          { name: ACASCREG, value: (zero-extend AREG (bitvector 32)) },
           { name: ADREG, value: (zero-extend ADREG (bitvector 32)) },
           { name: ALUMODEREG, value: (zero-extend ALUMODEREG (bitvector 32)) },
           { name: AMULTSEL, value: AMULTSEL },
@@ -272,7 +272,7 @@ implementations:
           # Direct
           { name: A_INPUT, value: (bv 7 5) },
           # Set to BREG given that we don't use cascade paths.
-          { name: BCASCREG, value: BREG },
+          { name: BCASCREG, value: (zero-extend BREG (bitvector 32)) },
           { name: BMULTSEL, value: BMULTSEL },
           { name: BREG, value: (zero-extend BREG (bitvector 32)) },
           # Direct
