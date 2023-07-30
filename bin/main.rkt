@@ -23,13 +23,14 @@
          "../racket/generated/lattice-ecp5-alu54a.rkt"
          "../racket/generated/intel-altmult-accum.rkt"
          rosette/solver/smt/boolector
+         rosette/solver/smt/cvc5
+         rosette/solver/smt/cvc4
+         rosette/solver/smt/bitwuzla
          "../racket/signal.rkt"
          "../racket/btor.rkt"
          racket/sandbox)
 
 (define-namespace-anchor anc)
-
-(current-solver (boolector))
 
 (define architecture
   (make-parameter ""
@@ -61,12 +62,22 @@
 (define initiation-interval (make-parameter 0))
 (define clock-name (make-parameter #f))
 (define reset-name (make-parameter #f))
+;;; Arbitrary exit code choice.
+(define FAILURECODE 25)
+(define TIMEOUTCODE 26)
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
+(define solver (make-parameter "bitwuzla"))
+(define seed (make-parameter 0))
 
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
+ ["--seed" v "Solver seed. Defaults to 0." (seed v)]
+ ["--solver"
+  v
+  "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to bitwuzla."
+  (solver v)]
  ["--out-format"
   fmt
   "Output format. Supported: 'verilog' for outputting to raw Verilog,"
@@ -143,6 +154,14 @@
       (error "Signal " name " already present; did you duplicate an --input?"))
     (inputs (append (inputs) (list (cons name bw)))))])
 
+;;; Set solver.
+(match (solver)
+  ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ["cvc4" (current-solver (cvc4 #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ["bitwuzla" (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  [_ (error (format "Unknown solver: ~a" (solver)))])
+
 ;;; Parse instruction.
 ;;;
 ;;; This function will introduce new symbolic constants. Make sure you have good (vc) hygeine when
@@ -187,18 +206,19 @@
      (when (not (top-module-name))
        (error "Must set --top-module-name."))
      (define btor
-       (with-output-to-string
-        (thunk
-         (when (not
-                (system
-                 (format
-                  ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
-                  ;;; clk2fflogic is the correct thing to use. See
-                  ;;; https://github.com/uwsampl/lakeroad/issues/238
-                  "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
-                  (verilog-module-filepath)
-                  (top-module-name))))
-           (error "Yosys failed.")))))
+       (parameterize ([current-error-port (open-output-nowhere)])
+         (with-output-to-string
+          (thunk
+           (when (not
+                  (system
+                   (format
+                    ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
+                    ;;; clk2fflogic is the correct thing to use. See
+                    ;;; https://github.com/uwsampl/lakeroad/issues/238
+                    "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    (verilog-module-filepath)
+                    (top-module-name))))
+             (error "Yosys failed."))))))
 
      (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
@@ -312,7 +332,10 @@
                       #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
                       #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
-
+(define (exit-timeout e)
+  (when (exn:fail:resource? e)
+    (displayln "Synthesis Timeout" (current-error-port))
+    (exit TIMEOUTCODE)))
 ;;; Either a valid LR expression or #f.
 (define lakeroad-expr
   (cond
@@ -366,41 +389,45 @@
        ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer. Also
        ;;; filter out #:name.
        (define keywords-minus-unnamed
-         (filter (λ (k)
-                   (not (or (string-prefix? (keyword->string k) "unnamed-input-")
-                            (equal? (keyword->string k) "name"))))
-                 keywords))
+         (apply set
+                (filter (λ (k)
+                          (not (or (string-prefix? (keyword->string k) "unnamed-input-")
+                                   (equal? (keyword->string k) "name"))))
+                        keywords)))
        (for ([env envs])
-         (when (not (equal? (length env) (length keywords-minus-unnamed)))
+         (define env-keys-set (apply set (map (compose1 string->keyword car) env)))
+         (define missing-keys (set-subtract keywords-minus-unnamed env-keys-set))
+         (when (not (equal? 0 (set-count missing-keys)))
            ;;; TODO(@gussmith23): Figure out how to use Racket logging...
-           (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a"
-                              (set-subtract (apply set keywords-minus-unnamed)
-                                            (apply set (map (compose1 string->keyword car) env))))
+           (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a" missing-keys)
                       (current-error-port))))
-
-       (call-with-limits
-        (timeout)
-        #f
-        (thunk (rosette-synthesize
-                (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
-                         bv-expr)
-                sketch
-                input-symbolic-constants
-                #:bv-sequential envs
-                #:lr-sequential envs
-                #:module-semantics module-semantics))))]
+       (with-handlers ([exn:fail:resource? exit-timeout])
+         (call-with-limits
+          (timeout)
+          #f
+          (thunk (rosette-synthesize
+                  (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
+                           bv-expr)
+                  sketch
+                  input-symbolic-constants
+                  #:bv-sequential envs
+                  #:lr-sequential envs
+                  #:module-semantics module-semantics)))))]
 
     [else
      ;;; If initiation interval is #f, then do normal combinational synthesis.
-     (call-with-limits (timeout)
-                       #f
-                       (thunk (synthesize-with-sketch sketch-generator
-                                                      architecture-description
-                                                      bv-expr
-                                                      #:module-semantics module-semantics)))]))
+     (with-handlers ([exn:fail:resource? exit-timeout])
+       (call-with-limits (timeout)
+                         #f
+                         (thunk (synthesize-with-sketch sketch-generator
+                                                        architecture-description
+                                                        bv-expr
+                                                        #:module-semantics module-semantics))))]))
 
 (cond
-  [(not lakeroad-expr) (error "Synthesis failed.")]
+  [(not lakeroad-expr)
+   (displayln "Synthesis failed" (current-error-port))
+   (exit FAILURECODE)]
 
   [else
    (when (not (verilog-module-out-signal))

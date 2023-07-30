@@ -5,20 +5,16 @@
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
-// RUN:  --top-module-name presubaddor_2_stage_unsigned_10_bit \
-// RUN:  --verilog-module-out-signal out:10 \
-// RUN:  --initiation-interval 2 \
+// RUN:  --top-module-name top \
+// RUN:  --verilog-module-out-signal out:18 \
+// RUN:  --initiation-interval 3 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name presubaddor_2_stage_unsigned_10_bit \
-// RUN:  --input-signal a:10 \
-// RUN:  --input-signal b:10 \
-// RUN:  --input-signal c:10 \
-// RUN:  --input-signal d:10 > $outfile
+// RUN:  --module-name top \
+// RUN:  --input-signal a:18 \
+// RUN:  --input-signal b:18 \
+// RUN:  --input-signal c:18 \
+// RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
-// Ideally, we let people run these tests even without access to
-// lakeroad-private. Here, they can run the tests, but they will still pass even
-// if simulation doesn't happen. It's not a great solution, but it's what works
-// with CI.
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
 // RUN:   exit 0; \
@@ -28,12 +24,11 @@
 // RUN:    --test_module_filepath $outfile \
 // RUN:    --ground_truth_module_filepath %s \
 // RUN:    --clock_name clk \
-// RUN:    --initiation_interval 2 \
+// RUN:    --initiation_interval 3 \
 // RUN:    --output_signal_name out \
-// RUN:    --input_signal a:10 \
-// RUN:    --input_signal b:10 \
-// RUN:    --input_signal c:10 \
-// RUN:    --input_signal d:10 \
+// RUN:    --input_signal a:18 \
+// RUN:    --input_signal b:18 \
+// RUN:    --input_signal c:18 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -45,25 +40,26 @@
 // RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
 // RUN: fi
 
-module presubaddor_2_stage_unsigned_10_bit(
-	input  [9:0] a,
-	input  [9:0] b,
-	input  [9:0] c,
-	input  [9:0] d,
-	output [9:0] out,
+(* use_dsp = "yes" *) module top(
+	input signed [17:0] a,
+	input signed [17:0] b,
+	input signed [17:0] c,
+	output [17:0] out,
 	input clk);
 
-	logic  [9:0] stage0;
-	logic  [9:0] stage1;
+	logic signed [35:0] stage0;
+	logic signed [35:0] stage1;
+	logic signed [35:0] stage2;
 
 	always @(posedge clk) begin
-	stage0 <= ((d - a) * b) | c;
+	stage0 <= (a * b) + c;
 	stage1 <= stage0;
+	stage2 <= stage1;
 	end
 
-	assign out = stage1;
+	assign out = stage2;
 endmodule
 
-// CHECK: module presubaddor_2_stage_unsigned_10_bit(a, b, c, clk, d, out);
+// CHECK: module top(a, b, c, clk, out);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule

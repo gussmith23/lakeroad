@@ -1,4 +1,5 @@
 // RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN:  --solver cvc5 \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture lattice-ecp5 \
 // RUN:  --template dsp \
@@ -29,4 +30,4 @@ module top(input clk, input [15:0] a, b, c, output [15:0] p);
 
 endmodule
 
-// CHECK: Synthesis failed.
+// CHECK: Synthesis failed

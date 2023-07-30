@@ -49,38 +49,38 @@ implementations:
     outputs: { O: (get CARRY8 O), CO: (bit 7 (get CARRY8 CO)) }
   - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48, d-width: 27 } }
     internal_data: {
-      ACASCREG: 32,
-      ADREG: 32,
-      ALUMODEREG: 32,
-      AREG: 32,
-      BCASCREG: 32,
-      BREG: 32,
-      CARRYINREG: 32,
-      CARRYINSELREG: 32,
-      CREG: 32,
-      DREG: 32,
-      INMODEREG: 32,
-      MREG: 32,
-      OPMODEREG: 32,
-      PREG: 32,
+      # ACASCREG: 32,
+      ADREG: 1,
+      ALUMODEREG: 1,
+      AREG: 2,
+      # BCASCREG: 32,
+      BREG: 2,
+      # CARRYINREG: 1,
+      CARRYINSELREG: 1,
+      CREG: 1,
+      DREG: 1,
+      INMODEREG: 1,
+      MREG: 1,
+      OPMODEREG: 1,
+      PREG: 1,
 
       OPMODE: 9,
       IS_OPMODE_INVERTED: 9,
-      A_INPUT: 5,
-      B_INPUT: 5,
-      PREADDINSEL: 5,
+      # A_INPUT: 5,
+      # B_INPUT: 5,
+      # PREADDINSEL: 5,
       AMULTSEL: 5,
       BMULTSEL: 5,
       CARRYINSEL: 3,
-      USE_MULT: 5,
-      USE_SIMD: 5,
-      USE_WIDEXOR: 5,
+      # USE_MULT: 5,
+      # USE_SIMD: 5,
+      # USE_WIDEXOR: 5,
       XORSIMD: 5,
       AUTORESET_PATDET: 5,
-      AUTORESET_PRIORITY: 5,
+      # AUTORESET_PRIORITY: 5,
       SEL_MASK: 5,
-      SEL_PATTERN: 5,
-      USE_PATTERN_DETECT: 5,
+      # SEL_PATTERN: 5,
+      # USE_PATTERN_DETECT: 5,
 
       ALUMODE: 4,
       INMODE: 5,
@@ -106,35 +106,35 @@ implementations:
       # MREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
       # OPMODEREG: (lambda (v) (assert (|| (bveq v (bv 0 32)) (bveq v (bv 1 32))))),
 
-      "(|| (bveq ACASCREG (bv 0 32)) (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32)))",
-      "(|| (bveq BCASCREG (bv 0 32)) (bveq BCASCREG (bv 1 32)) (bveq BCASCREG (bv 2 32)))",
-      "(|| (bveq AREG (bv 0 32)) (bveq AREG (bv 1 32)) (bveq AREG (bv 2 32)))",
-      "(|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32)) (bveq BREG (bv 2 32)))",
-      "(|| (bveq PREG (bv 0 32)) (bveq PREG (bv 1 32)))",
-      "(|| (bveq ADREG (bv 0 32)) (bveq ADREG (bv 1 32)))",
-      "(|| (bveq ALUMODEREG (bv 0 32)) (bveq ALUMODEREG (bv 1 32)))",
-      "(|| (bveq CARRYINREG (bv 0 32)) (bveq CARRYINREG (bv 1 32)))",
-      "(|| (bveq CREG (bv 0 32)) (bveq CREG (bv 1 32)))",
-      "(|| (bveq DREG (bv 0 32)) (bveq DREG (bv 1 32)))",
-      "(|| (bveq MREG (bv 0 32)) (bveq MREG (bv 1 32)))",
-      "(|| (bveq OPMODEREG (bv 0 32)) (bveq OPMODEREG (bv 1 32)))",
-      "(|| (bveq INMODEREG (bv 0 32)) (bveq INMODEREG (bv 1 32)))",
-      "(|| (bveq CARRYINSELREG (bv 0 32)) (bveq CARRYINSELREG (bv 1 32)))",
+      # "(|| (bveq ACASCREG (bv 0 32)) (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32)))",
+      # "(|| (bveq BCASCREG (bv 0 32)) (bveq BCASCREG (bv 1 32)) (bveq BCASCREG (bv 2 32)))",
+      "(not (bveq AREG (bv 3 2)))",
+      "(not (bveq BREG (bv 3 2)))",
+      # "(|| (bveq PREG (bv 0 32)) (bveq PREG (bv 1 32)))",
+      # "(|| (bveq ADREG (bv 0 32)) (bveq ADREG (bv 1 32)))",
+      # "(|| (bveq ALUMODEREG (bv 0 32)) (bveq ALUMODEREG (bv 1 32)))",
+      # "(|| (bveq CARRYINREG (bv 0 32)) (bveq CARRYINREG (bv 1 32)))",
+      # "(|| (bveq CREG (bv 0 32)) (bveq CREG (bv 1 32)))",
+      # "(|| (bveq DREG (bv 0 32)) (bveq DREG (bv 1 32)))",
+      # "(|| (bveq MREG (bv 0 32)) (bveq MREG (bv 1 32)))",
+      # "(|| (bveq OPMODEREG (bv 0 32)) (bveq OPMODEREG (bv 1 32)))",
+      # "(|| (bveq INMODEREG (bv 0 32)) (bveq INMODEREG (bv 1 32)))",
+      # "(|| (bveq CARRYINSELREG (bv 0 32)) (bveq CARRYINSELREG (bv 1 32)))",
 
-      "(|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5)))",
-      "(|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5)))",
-      "(|| (bveq PREADDINSEL (bv 0 5)) (bveq PREADDINSEL (bv 1 5)))",
-      "(|| (bveq AMULTSEL (bv 0 5)) (bveq AMULTSEL (bv 2 5)))",
-      "(|| (bveq BMULTSEL (bv 1 5)) (bveq BMULTSEL (bv 2 5)))",
-      "(|| (bveq USE_MULT (bv 20 5)) (bveq USE_MULT (bv 10 5)) (bveq USE_MULT (bv 18 5)))",
-      "(|| (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 25 5)) (bveq USE_SIMD (bv 19 5)))",
-      "(|| (bveq USE_WIDEXOR (bv 24 5)) (bveq USE_WIDEXOR (bv 13 5)))",
-      "(|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5)))",
-      "(|| (bveq AUTORESET_PATDET (bv 3 5)) (bveq AUTORESET_PATDET (bv 4 5)) (bveq AUTORESET_PATDET (bv 5 5)))",
-      "(|| (bveq AUTORESET_PRIORITY (bv 6 5)) (bveq AUTORESET_PRIORITY (bv 16 5)))",
-      "(|| (bveq SEL_MASK (bv 8 5)) (bveq SEL_MASK (bv 17 5)) (bveq SEL_MASK (bv 22 5)) (bveq SEL_MASK (bv 23 5)))",
-      "(|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5)) (bveq SEL_PATTERN (bv 22 5)) (bveq SEL_PATTERN (bv 23 5)))",
-      "(|| (bveq USE_PATTERN_DETECT (bv 11 5)) (bveq USE_PATTERN_DETECT (bv 21 5)))",
+      # "(|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5)))",
+      # "(|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5)))",
+      # "(|| (bveq PREADDINSEL (bv 0 5)) (bveq PREADDINSEL (bv 1 5)))",
+      # "(|| (bveq AMULTSEL (bv 0 5)) (bveq AMULTSEL (bv 2 5)))",
+      # "(|| (bveq BMULTSEL (bv 1 5)) (bveq BMULTSEL (bv 2 5)))",
+      # "(|| (bveq USE_MULT (bv 20 5)) (bveq USE_MULT (bv 10 5)) (bveq USE_MULT (bv 18 5)))",
+      # "(|| (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 25 5)) (bveq USE_SIMD (bv 19 5)))",
+      # "(|| (bveq USE_WIDEXOR (bv 24 5)) (bveq USE_WIDEXOR (bv 13 5)))",
+      # "(|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5)))",
+      # "(|| (bveq AUTORESET_PATDET (bv 3 5)) (bveq AUTORESET_PATDET (bv 4 5)) (bveq AUTORESET_PATDET (bv 5 5)))",
+      # "(|| (bveq AUTORESET_PRIORITY (bv 6 5)) (bveq AUTORESET_PRIORITY (bv 16 5)))",
+      # "(|| (bveq SEL_MASK (bv 8 5)) (bveq SEL_MASK (bv 17 5)) (bveq SEL_MASK (bv 22 5)) (bveq SEL_MASK (bv 23 5)))",
+      # "(|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5)) (bveq SEL_PATTERN (bv 22 5)) (bveq SEL_PATTERN (bv 23 5)))",
+      # "(|| (bveq USE_PATTERN_DETECT (bv 11 5)) (bveq USE_PATTERN_DETECT (bv 21 5)))",
 
       "(=> (bveq (bvxor (extract 1 0 OPMODE) (extract 1 0 IS_OPMODE_INVERTED)) (bv #b01 2))
                   (bveq (bvxor (extract 3 2 OPMODE) (extract 3 2 IS_OPMODE_INVERTED)) (bv #b01 2)))",
@@ -171,17 +171,41 @@ implementations:
       # Error: [Unisim DSP48E2-2] AREG attribute is set to     and ACASCREG
       # attribute is set to     . When AREG is 0 or 1, ACASCREG must be set to
       # the same value.
-      "(=> (|| (bveq AREG (bv 0 32)) (bveq AREG (bv 1 32))) (bveq ACASCREG AREG))",
-
+      # "(=> (|| (bveq AREG (bv 0 32)) (bveq AREG (bv 1 32))) (bveq ACASCREG AREG))",
       # Error: [Unisim DSP48E2-3] AREG attribute is set to     and ACASCREG
       # attribute is set to     . When AREG is 2, ACASCREG must be set to 1 or
       # 2.
-      "(=> (bveq AREG (bv 2 32)) (|| (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32))))",
+      # "(=> (bveq AREG (bv 2 32)) (|| (bveq ACASCREG (bv 1 32)) (bveq ACASCREG (bv 2 32))))",
+      # Given that we don't use the cascade paths, it's easier to just set
+      # ACASCREG to AREG.
+      # Note: We set this below rather than using a constraint.
+      # "(bveq ACASCREG AREG)",
 
       # Error: [Unisim DSP48E2-4] BREG attribute is set to     and BCASCREG
       # attribute is set to     . When BREG is 0 or 1, BCASCREG must be set to
       # the same value.
-      "(=> (|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32))) (bveq BCASCREG BREG))",
+      #"(=> (|| (bveq BREG (bv 0 32)) (bveq BREG (bv 1 32))) (bveq BCASCREG BREG))",
+      # See above; same with breg.
+      # Note: We set this below rather than using a constraint.
+      # "(bveq BCASCREG BREG)",
+
+      # Exclude RND or P feedback loop as settings of wmux.
+      # "(not (bveq (extract 8 7 OPMODE) (bv 2 2)))",
+      # "(not (bveq (extract 8 7 OPMODE) (bv 1 2)))",
+
+      # Exclude P feedback loop as setting of xmux.
+      # "(not (bveq (extract 1 0 OPMODE) (bv 2 2)))",
+
+      # I can't tell if these do more harm or good. I'm getting a bit in the
+      # weeds with solver optimization.
+      # # Exclude P feedback, PCIN, shifted PCIN/P feedback, and illegal selection (111) from Z mux.
+      # "(not (bveq (extract 6 4 OPMODE) (bv 1 3)))",
+      # # Seems like some tests may actually depend on these...
+      # # "(not (bveq (extract 6 4 OPMODE) (bv 2 3)))",
+      # # "(not (bveq (extract 6 4 OPMODE) (bv 4 3)))",
+      # "(not (bveq (extract 6 4 OPMODE) (bv 5 3)))",
+      # "(not (bveq (extract 6 4 OPMODE) (bv 6 3)))",
+      # "(not (bveq (extract 6 4 OPMODE) (bv 7 3)))",
     ]
     modules:
       - module_name: DSP48E2
@@ -216,7 +240,7 @@ implementations:
             { name: CEP, direction: input, bitwidth: 1, value: (bv 1 1) },
 
             { name: CLK, direction: input, bitwidth: 1, value: clk },
-            { name: D, direction: input, bitwidth: 27, value: D },
+            { name: D, direction: input, bitwidth: 27, value: (choose D (extract 26 0 C)) },
             { name: INMODE, direction: input, bitwidth: 5, value: INMODE },
             { name: MULTSIGNIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: OPMODE, direction: input, bitwidth: 9, value: OPMODE },
@@ -235,23 +259,29 @@ implementations:
             { name: P, direction: output, bitwidth: 48, value: P },
           ]
         parameters: [
-          { name: ACASCREG, value: ACASCREG },
-          { name: ADREG, value: ADREG },
-          { name: ALUMODEREG, value: ALUMODEREG },
-          { name: AMULTSEL, value: AMULTSEL },
-          { name: AREG, value: AREG},
-          { name: AUTORESET_PATDET, value: AUTORESET_PATDET },
-          { name: AUTORESET_PRIORITY, value: AUTORESET_PRIORITY },
-          { name: A_INPUT, value: A_INPUT },
-          { name: BCASCREG, value: BCASCREG },
-          { name: BMULTSEL, value: BMULTSEL },
-          { name: BREG, value: BREG },
-          { name: B_INPUT, value: B_INPUT },
+          # Set to AREG given that we don't use cascade paths.
+          { name: ACASCREG, value: (zero-extend AREG (bitvector 32)) },
+          { name: ADREG, value: (zero-extend ADREG (bitvector 32)) },
+          { name: ALUMODEREG, value: (zero-extend ALUMODEREG (bitvector 32)) },
+          { name: AMULTSEL, value: (choose (bv 0 5) (bv 2 5)) },
+          { name: AREG, value: (zero-extend AREG (bitvector 32))},
+          # NO_RESET
+          { name: AUTORESET_PATDET, value: (bv 3 5) },
+          # RESET
+          { name: AUTORESET_PRIORITY, value: (bv 6 5) },
+          # Direct
+          { name: A_INPUT, value: (bv 7 5) },
+          # Set to BREG given that we don't use cascade paths.
+          { name: BCASCREG, value: (zero-extend BREG (bitvector 32)) },
+          { name: BMULTSEL, value: (choose (bv 1 5) (bv 2 5)) },
+          { name: BREG, value: (zero-extend BREG (bitvector 32)) },
+          # Direct
+          { name: B_INPUT, value: (bv 7 5) },
           { name: CARRYINREG, value: (bv 0 32) },
-          { name: CARRYINSELREG, value: CARRYINSELREG },
-          { name: CREG, value: CREG },
-          { name: DREG, value: DREG },
-          { name: INMODEREG, value: INMODEREG },
+          { name: CARRYINSELREG, value: (zero-extend CARRYINSELREG (bitvector 32)) },
+          { name: CREG, value: (zero-extend CREG (bitvector 32)) },
+          { name: DREG, value: (zero-extend DREG (bitvector 32)) },
+          { name: INMODEREG, value: (zero-extend INMODEREG (bitvector 32)) },
           { name: IS_ALUMODE_INVERTED, value: (bv 0 4) },
           { name: IS_CARRYIN_INVERTED, value: (bv 0 1) },
           { name: IS_CLK_INVERTED, value: (bv 0 1) },
@@ -268,18 +298,26 @@ implementations:
           { name: IS_RSTM_INVERTED, value: (bv 0 1) },
           { name: IS_RSTP_INVERTED, value: (bv 0 1) },
           { name: MASK, value: (bv 0 48) },
-          { name: MREG, value: MREG },
-          { name: OPMODEREG, value: OPMODEREG },
+          { name: MREG, value: (zero-extend MREG (bitvector 32)) },
+          { name: OPMODEREG, value: (zero-extend OPMODEREG (bitvector 32)) },
           { name: PATTERN, value: (bv 0 48) },
-          { name: PREADDINSEL, value: PREADDINSEL },
-          { name: PREG, value: PREG },
+          # A
+          { name: PREADDINSEL, value: (bv 0 5) },
+          { name: PREG, value: (zero-extend PREG (bitvector 32)) },
           { name: RND, value: (bv 0 48) },
-          { name: SEL_MASK, value: SEL_MASK },
-          { name: SEL_PATTERN, value: SEL_PATTERN },
-          { name: USE_MULT, value: USE_MULT },
-          { name: USE_PATTERN_DETECT, value: USE_PATTERN_DETECT },
-          { name: USE_SIMD, value: USE_SIMD },
-          { name: USE_WIDEXOR, value: USE_WIDEXOR },
-          { name: XORSIMD, value: XORSIMD },
+          # MASK
+          { name: SEL_MASK, value: (bv 8 5) },
+          # PATTERN
+          { name: SEL_PATTERN, value: (bv 9 5) },
+          # MULTIPLY
+          { name: USE_MULT, value: (bv 10 5) },
+          # NO_PATDET
+          { name: USE_PATTERN_DETECT, value: (bv 11 5) },
+          # ONE48
+          { name: USE_SIMD, value: (bv 12 5) },
+          # Set to false
+          { name: USE_WIDEXOR, value: (bv 13 5) },
+          # Set to XOR12
+          { name: XORSIMD, value: (bv 26 5) },
         ]
     outputs: { O : (get DSP48E2 P) }
