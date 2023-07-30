@@ -40,10 +40,10 @@ parser.add_argument(
     "--bitwuzla",
     action=argparse.BooleanOptionalAction,
     help="Use bitwuzla.",
-    default=True,
+    default=False,
 )
 parser.add_argument(
-    "--cvc5", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=True
+    "--cvc5", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=False
 )
 parser.add_argument(
     "--seed",
@@ -79,7 +79,10 @@ if args.cvc5:
     solvers.append("cvc5")
 if args.boolector:
     solvers.append("boolector")
+assert solvers != [], "Must specify at least one solver."
 
+# Remove duplicates from seed list.
+args.seed = list(set(args.seed))
 
 def start_with_solver(
     solver: str, seed: int
