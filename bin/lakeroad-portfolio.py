@@ -52,6 +52,12 @@ parser.add_argument(
     default=[0],
 )
 parser.add_argument(
+    "--boolector",
+    action=argparse.BooleanOptionalAction,
+    help="Use boolector.",
+    default=False,
+)
+parser.add_argument(
     "--out-filepath",
     help=(
         "Same as --out-filepath of Lakeroad main.rkt. This script steals this"
@@ -71,6 +77,8 @@ if args.bitwuzla:
     solvers.append("bitwuzla")
 if args.cvc5:
     solvers.append("cvc5")
+if args.boolector:
+    solvers.append("boolector")
 
 
 def start_with_solver(
