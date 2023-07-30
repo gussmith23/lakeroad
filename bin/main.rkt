@@ -24,6 +24,7 @@
          "../racket/generated/intel-altmult-accum.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
+         rosette/solver/smt/cvc4
          rosette/solver/smt/bitwuzla
          "../racket/signal.rkt"
          "../racket/btor.rkt"
@@ -67,10 +68,12 @@
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
+(define seed (make-parameter 0))
 
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
+ ["--seed" v "Solver seed. Defaults to 0." (seed v)]
  ["--solver"
   v
   "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to bitwuzla."
@@ -153,9 +156,10 @@
 
 ;;; Set solver.
 (match (solver)
-  ["cvc5" (current-solver (cvc5))]
-  ["bitwuzla" (current-solver (bitwuzla))]
-  ["boolector" (current-solver (boolector))]
+  ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ["cvc4" (current-solver (cvc4 #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ["bitwuzla" (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (hash ':seed (seed))))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
 ;;; Parse instruction.

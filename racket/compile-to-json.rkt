@@ -328,7 +328,12 @@
                               ;;; bitvectors, and so we need to convert them back for some modules.
                               (or (compile-parameter-override module-name p)
                                   (match (module-instance-parameter-value p)
-                                    [(lr:bv (signal v _)) (make-literal-value-from-bv v)]))))
+                                    [(lr:bv (signal v _)) (make-literal-value-from-bv v)]
+                                    ;;; TODO(@gussmith23): This is hardcoded; we should write a little
+                                    ;;; compiler here.
+                                    [(lr:zero-extend (lr:bv (signal v _))
+                                                     (lr:bitvector (bitvector w)))
+                                     (make-literal-value-from-bv (zero-extend v (bitvector w)))]))))
                            params)]
                          ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
                          ;;; parameters. We will need to figure out a way around this hack especially

@@ -12,8 +12,9 @@
 // RUN:  --module-name top \
 // RUN:  --input-signal a:18 \
 // RUN:  --input-signal b:18 \
-// RUN:  --input-signal c:18 \
-// RUN:  > $outfile
+// RUN:  --input-signal d:18 \
+// RUN: > $outfile
+// RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
@@ -28,7 +29,7 @@
 // RUN:    --output_signal_name out \
 // RUN:    --input_signal a:18 \
 // RUN:    --input_signal b:18 \
-// RUN:    --input_signal c:18 \
+// RUN:    --input_signal d:18 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -41,9 +42,9 @@
 // RUN: fi
 
 (* use_dsp = "yes" *) module top(
+	input signed [17:0] d,
 	input signed [17:0] a,
 	input signed [17:0] b,
-	input signed [17:0] c,
 	output [17:0] out,
 	input clk);
 
@@ -52,7 +53,7 @@
 	logic signed [35:0] stage2;
 
 	always @(posedge clk) begin
-	stage0 <= (a * b) + c;
+	stage0 <= (d + a) * b;
 	stage1 <= stage0;
 	stage2 <= stage1;
 	end
@@ -60,6 +61,6 @@
 	assign out = stage2;
 endmodule
 
-// CHECK: module top(a, b, c, clk, out);
+// CHECK: module top(a, b, clk, d, out);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule
