@@ -66,8 +66,8 @@ implementations:
 
       OPMODE: 9,
       IS_OPMODE_INVERTED: 9,
-      A_INPUT: 5,
-      B_INPUT: 5,
+      # A_INPUT: 5,
+      # B_INPUT: 5,
       PREADDINSEL: 5,
       AMULTSEL: 5,
       BMULTSEL: 5,
@@ -121,8 +121,8 @@ implementations:
       # "(|| (bveq INMODEREG (bv 0 32)) (bveq INMODEREG (bv 1 32)))",
       # "(|| (bveq CARRYINSELREG (bv 0 32)) (bveq CARRYINSELREG (bv 1 32)))",
 
-      "(|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5)))",
-      "(|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5)))",
+      # "(|| (bveq A_INPUT (bv 7 5)) (bveq A_INPUT (bv 15 5)))",
+      # "(|| (bveq B_INPUT (bv 7 5)) (bveq B_INPUT (bv 15 5)))",
       "(|| (bveq PREADDINSEL (bv 0 5)) (bveq PREADDINSEL (bv 1 5)))",
       "(|| (bveq AMULTSEL (bv 0 5)) (bveq AMULTSEL (bv 2 5)))",
       "(|| (bveq BMULTSEL (bv 1 5)) (bveq BMULTSEL (bv 2 5)))",
