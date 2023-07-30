@@ -1347,23 +1347,7 @@
                   (hash-table ("O" "(get DSP48E2 P)"))
                   constraints)))
 
-          (check-true
-           (not
-            (equal?
-             (member
-              "(|| (bveq AUTORESET_PATDET (bv 3 5)) (bveq AUTORESET_PATDET (bv 4 5)) (bveq AUTORESET_PATDET (bv 5 5)))"
-              constraints)
-             #f)))
-          (check-true (not (equal? (member "(|| (bveq XORSIMD (bv 26 5)) (bveq XORSIMD (bv 14 5)))"
-                                           constraints)
-                                   #f)))
-          (check-true
-           (not
-            (equal?
-             (member
-              "(|| (bveq SEL_PATTERN (bv 9 5)) (bveq SEL_PATTERN (bv 17 5)) (bveq SEL_PATTERN (bv 22 5)) (bveq SEL_PATTERN (bv 23 5)))"
-              constraints)
-             #f)))
+          (check-true (not (equal? (member "(not (bveq AREG (bv 3 2)))" constraints) #f)))
           #t]
          [else #f]))))
 
