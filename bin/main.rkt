@@ -327,10 +327,18 @@
                     other))]))
 
 (define sketch-inputs
-  (make-sketch-inputs #:output-width output-bitwidth
-                      #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
-                      #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
-                      #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
+  (make-sketch-inputs
+   #:output-width output-bitwidth
+   #:data
+   (if (> (length (inputs)) 0)
+       (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
+       ;;; Handle legacy case where no inputs are given
+       (begin
+         (when (not (instruction))
+           (error "Something's wrong -- no inputs given, but not using legacy instruction input"))
+         (map (lambda (c) (cons (lr:var (~a c) (bvlen c)) (bvlen c))) (symbolics bv-expr))))
+   #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
+   #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
 (define (exit-timeout e)
   (when (exn:fail:resource? e)
