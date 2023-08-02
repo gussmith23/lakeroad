@@ -206,8 +206,9 @@
                                 [20 "RST3"]
                                 [21 "ASYNC"]
                                 [22 "TRUE"]
-                                [_ #f]))
-
+                                [23 "STATIC"]
+                                [24 "DYNAMIC"]
+                                [_ (error (format "Unknown Lattice enum value: ~a" v))]))
                             (cond
                               [(and (equal? module-name "DSP48E2")
                                     (member (module-instance-parameter-name param)
@@ -227,7 +228,8 @@
                                                   "XORSIMD")))
                                (dsp48e2-enum-val-to-str (module-instance-parameter-value param))]
                               [(and (or (equal? module-name "MULT18X18C")
-                                        (equal? module-name "MULT18X18D"))
+                                        (equal? module-name "MULT18X18D")
+                                        (equal? module-name "ALU54A"))
                                     (member (module-instance-parameter-name param)
                                             (list "CLK0_DIV"
                                                   "CLK1_DIV"
@@ -252,7 +254,42 @@
                                                   "REG_INPUTB_RST"
                                                   "REG_INPUTC_RST"
                                                   "REG_PIPELINE_RST"
-                                                  "REG_OUTPUT_RST")))
+                                                  "REG_OUTPUT_RST"
+                                                  "REG_INPUTC0_CLK"
+                                                  "REG_INPUTC0_CE"
+                                                  "REG_INPUTC0_RST"
+                                                  "REG_INPUTC1_CLK"
+                                                  "REG_INPUTC1_CE"
+                                                  "REG_INPUTC1_RST"
+                                                  "REG_OPCODEOP0_0_CLK"
+                                                  "REG_OPCODEOP0_0_CE"
+                                                  "REG_OPCODEOP0_0_RST"
+                                                  "REG_OPCODEOP1_0_CLK"
+                                                  "REG_OPCODEOP0_1_CLK"
+                                                  "REG_OPCODEOP0_1_CE"
+                                                  "REG_OPCODEOP0_1_RST"
+                                                  "REG_OPCODEOP1_1_CLK"
+                                                  "REG_OPCODEIN_0_CLK"
+                                                  "REG_OPCODEIN_0_CE"
+                                                  "REG_OPCODEIN_0_RST"
+                                                  "REG_OPCODEIN_1_CLK"
+                                                  "REG_OPCODEIN_1_CE"
+                                                  "REG_OPCODEIN_1_RST"
+                                                  "REG_OUTPUT0_CLK"
+                                                  "REG_OUTPUT0_CE"
+                                                  "REG_OUTPUT0_RST"
+                                                  "REG_OUTPUT1_CLK"
+                                                  "REG_OUTPUT1_CE"
+                                                  "REG_OUTPUT1_RST"
+                                                  "REG_FLAG_CLK"
+                                                  "REG_FLAG_CE"
+                                                  "REG_FLAG_RST"
+                                                  "MCPAT_SOURCE"
+                                                  "MASKPAT_SOURCE"
+                                                  "GSR"
+                                                  "RESETMODE"
+                                                  "MULT9_MODE"
+                                                  "LEGACY")))
                                (lattice-mult18x18d-enum-val-to-str
                                 (module-instance-parameter-value param))]
                               [(and (equal? module-name "altmult_accum")
