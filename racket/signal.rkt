@@ -73,9 +73,20 @@
                                (cons current-value current-version))])
       (hash-set h key new-pair)))
 
+  ;;; Flatten the state lists into one big list.
+  (define all-state-pairs (apply append states))
+
+  ;;; Make sure all keys are concrete -- otherwise, we don't know what will happen!
+  (for ([pair all-state-pairs])
+    (match-let ([(cons key _) pair])
+      (unless (concrete? key)
+        (error "key ~a is not concrete" key))))
+
   ;;; Concatenate all the existing signal association lists together, then merge each key one by one
   ;;; by folding `merge` over the list. Finally, convert the hash back to an association list.
-  (hash->list (foldl merge (hash) (apply append states))))
+  ;;;
+  ;;; Note the need for for/all here
+  (for/all ([h (foldl merge (hash) all-state-pairs)]) (hash->list h)))
 
 ;;; Merge the state from each signal in a list of signals. Simply appends the association lists. Does
 ;;; not handle any conflicting keys.
