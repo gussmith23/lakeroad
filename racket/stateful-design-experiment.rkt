@@ -146,33 +146,38 @@
 
   ;;; (Simulated) pipelined multiplier, that gives its output in 3 cycles.
   (define (pipelined-multiplier clk a b)
-    (let* (;
-           [merged-state (merge-state (list clk a b))]
-           [old-clk (if (assoc-has-key? merged-state 'clk) (assoc-ref merged-state 'clk) (bv 0 1))]
-           [current-clk (signal-value clk)]
-           [clock-ticked (rising-edge old-clk current-clk)]
-           [old-pipeline-register-0 (if (assoc-has-key? merged-state 'pipeline-register-0)
-                                        (assoc-ref merged-state 'pipeline-register-0)
-                                        (bv 0 8))]
-           [old-pipeline-register-1 (if (assoc-has-key? merged-state 'pipeline-register-1)
-                                        (assoc-ref merged-state 'pipeline-register-1)
-                                        (bv 0 8))]
-           [old-pipeline-register-2 (if (assoc-has-key? merged-state 'pipeline-register-0)
-                                        (assoc-ref merged-state 'pipeline-register-2)
-                                        (bv 0 8))]
-           [new-pipeline-register-0
-            (if clock-ticked (bvmul (signal-value a) (signal-value b)) old-pipeline-register-0)]
-           [new-pipeline-register-1 (if clock-ticked old-pipeline-register-0 old-pipeline-register-1)]
-           [new-pipeline-register-2 (if clock-ticked old-pipeline-register-1 old-pipeline-register-2)]
-           [out (signal new-pipeline-register-2
-                        (make-assoc-list 'clk
-                                         current-clk
-                                         'pipeline-register-0
-                                         new-pipeline-register-0
-                                         'pipeline-register-1
-                                         new-pipeline-register-1
-                                         'pipeline-register-2
-                                         new-pipeline-register-2))])
+    (match-let*
+        (;
+         [merged-state (merge-state (list clk a b))]
+         [(cons old-clk clk-version)
+          (if (assoc-has-key? merged-state 'clk) (assoc-ref merged-state 'clk) (cons (bv 0 1) -1))]
+         [current-clk (signal-value clk)]
+         [clock-ticked (rising-edge old-clk current-clk)]
+         [(cons old-pipeline-register-0 version0) (if (assoc-has-key? merged-state
+                                                                      'pipeline-register-0)
+                                                      (assoc-ref merged-state 'pipeline-register-0)
+                                                      (cons (bv 0 8) -1))]
+         [(cons old-pipeline-register-1 version1) (if (assoc-has-key? merged-state
+                                                                      'pipeline-register-1)
+                                                      (assoc-ref merged-state 'pipeline-register-1)
+                                                      (cons (bv 0 8) -1))]
+         [(cons old-pipeline-register-2 version2) (if (assoc-has-key? merged-state
+                                                                      'pipeline-register-0)
+                                                      (assoc-ref merged-state 'pipeline-register-2)
+                                                      (cons (bv 0 8) -1))]
+         [new-pipeline-register-0
+          (if clock-ticked (bvmul (signal-value a) (signal-value b)) old-pipeline-register-0)]
+         [new-pipeline-register-1 (if clock-ticked old-pipeline-register-0 old-pipeline-register-1)]
+         [new-pipeline-register-2 (if clock-ticked old-pipeline-register-1 old-pipeline-register-2)]
+         [out (signal new-pipeline-register-2
+                      (make-assoc-list 'clk
+                                       (cons current-clk (add1 clk-version))
+                                       'pipeline-register-0
+                                       (cons new-pipeline-register-0 (add1 version0))
+                                       'pipeline-register-1
+                                       (cons new-pipeline-register-1 (add1 version1))
+                                       'pipeline-register-2
+                                       (cons new-pipeline-register-2 (add1 version2))))])
       out))
 
   (test-case "Figuring out how many cycles it takes to get the output from a pipelined multiplier"
@@ -234,25 +239,34 @@
 
   ;; (Simulated) Bit Serial Adder
   (define (bit-serial-adder clk a b)
-    (let* (;
-           [merged-state (merge-state (list clk a b))]
-           [old-clk (if (assoc-has-key? merged-state 'clk) (assoc-ref merged-state 'clk) (bv 0 1))]
-           [current-clk (signal-value clk)]
-           [clock-ticked (rising-edge old-clk current-clk)]
-           [current-a (signal-value a)]
-           [current-b (signal-value b)]
-           [rst-reg (if (assoc-has-key? merged-state 'rst) (assoc-ref merged-state 'rst) (bv 0 1))]
-           [carry-reg
-            (if (assoc-has-key? merged-state 'carry) (assoc-ref merged-state 'carry) (bv 0 1))]
-           [new-rst-reg
-            (if clock-ticked (concat (bvxor carry-reg current-a current-b) rst-reg) rst-reg)]
-           [new-carry-reg (if clock-ticked
-                              (bvor (bvand current-a current-b)
-                                    (bvand carry-reg current-a)
-                                    (bvand carry-reg current-b))
-                              carry-reg)]
-           [out (signal new-rst-reg
-                        (make-assoc-list 'clk current-clk 'rst new-rst-reg 'carry new-carry-reg))])
+    (match-let*
+        (;
+         [merged-state (merge-state (list clk a b))]
+         [(cons old-clk clk-version)
+          (if (assoc-has-key? merged-state 'clk) (assoc-ref merged-state 'clk) (cons (bv 0 1) -1))]
+         [current-clk (signal-value clk)]
+         [clock-ticked (rising-edge old-clk current-clk)]
+         [current-a (signal-value a)]
+         [current-b (signal-value b)]
+         [(cons rst-reg rst-version)
+          (if (assoc-has-key? merged-state 'rst) (assoc-ref merged-state 'rst) (cons (bv 0 1) -1))]
+         [(cons carry-reg carry-version) (if (assoc-has-key? merged-state 'carry)
+                                             (assoc-ref merged-state 'carry)
+                                             (cons (bv 0 1) -1))]
+         [new-rst-reg
+          (if clock-ticked (concat (bvxor carry-reg current-a current-b) rst-reg) rst-reg)]
+         [new-carry-reg (if clock-ticked
+                            (bvor (bvand current-a current-b)
+                                  (bvand carry-reg current-a)
+                                  (bvand carry-reg current-b))
+                            carry-reg)]
+         [out (signal new-rst-reg
+                      (make-assoc-list 'clk
+                                       (cons current-clk (add1 clk-version))
+                                       'rst
+                                       (cons new-rst-reg (add1 rst-version))
+                                       'carry
+                                       (cons new-carry-reg (add1 carry-version))))])
       out))
 
   (test-case "Test bit-serial adder"
