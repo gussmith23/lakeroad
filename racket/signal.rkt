@@ -77,10 +77,11 @@
   (define all-state-pairs (apply append states))
 
   ;;; Make sure all keys are concrete -- otherwise, we don't know what will happen!
-  (for ([pair all-state-pairs])
-    (match-let ([(cons key _) pair])
-      (unless (concrete? key)
-        (error "key ~a is not concrete" key))))
+  (for/all ([l all-state-pairs])
+           (for ([pair l])
+             (match-let ([(cons key _) pair])
+               (unless (concrete? key)
+                 (error "key ~a is not concrete" key)))))
 
   ;;; Concatenate all the existing signal association lists together, then merge each key one by one
   ;;; by folding `merge` over the list. Finally, convert the hash back to an association list.
