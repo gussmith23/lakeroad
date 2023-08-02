@@ -24,11 +24,11 @@
 ;;; Signals represent bitvectors with associated state.
 ;;;
 ;;; State is an association list from keywords to a tuple of (bitvector, number). The number
-;;; represents a 0-indexed "age" or "version".  The entries in the state map are the various pieces of
+;;; represents a 0-indexed version number.  The entries in the state map are the various pieces of
 ;;; state that existed when the signal value was generated. For example, the output of a pipelined
 ;;; multiplier module might be an bitvector v. The signal representing the multiplier's output might
 ;;; then look like (signal v { internal-register-0: (bv #x0a 8), internal-register-1: (bv #x0b 8) }),
-;;; (age/version omitted) where the internal registers represent some state internal to the multiplier
+;;; (version omitted) where the internal registers represent some state internal to the multiplier
 ;;; module.
 ;;;
 ;;; The version value is used to merge states correctly. See merge-state.
@@ -66,11 +66,11 @@
   ;;; If the key is already in the hash, then the value and age are updated if the age is greater than
   ;;; the current age in the hash map.
   (define (merge key-and-value h)
-    (match-let* ([(cons key (cons potential-value potential-age)) key-and-value]
-                 [(cons current-value current-age) (hash-ref h key (cons #f -1))]
-                 [new-pair (if (> potential-age current-age)
-                               (cons potential-value potential-age)
-                               (cons current-value current-age))])
+    (match-let* ([(cons key (cons potential-value potential-version)) key-and-value]
+                 [(cons current-value current-version) (hash-ref h key (cons #f -1))]
+                 [new-pair (if (> potential-version current-version)
+                               (cons potential-value potential-version)
+                               (cons current-value current-version))])
       (hash-set h key new-pair)))
 
   ;;; Concatenate all the existing signal association lists together, then merge each key one by one

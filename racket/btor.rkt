@@ -215,7 +215,8 @@
           `(append
             (list (cons ,(make-state-key-expr (hash-ref state-symbols (string->number state-id-str)))
                         (cons (signal-value ,(get-expr-id-str next-val-id-str))
-                              ;;; New age is either old age + 1, or 0 if it wasn't in the hash.
+                              ;;; New version is either old version + 1, or 0 if it wasn't in the
+                              ;;; hash.
                               (if (assoc-has-key? ,merged-input-state-hash-symbol
                                                   ,(make-state-key-expr
                                                     (hash-ref state-symbols
@@ -273,8 +274,8 @@
                      (cond
                        [(assoc-has-key? ,merged-input-state-hash-symbol
                                         ,(make-state-key-expr state-symbol))
-                        ;;; The state list holds (key . (value . age)) pairs. Get the value once we
-                        ;;; find the (value . age) pair.
+                        ;;; The state list holds (key . (value . version)) pairs. Get the value once
+                        ;;; we find the (value . version) pair.
                         (bv->signal (car (assoc-ref ,merged-input-state-hash-symbol
                                                     ,(make-state-key-expr state-symbol))))]
                        [(assoc-has-key? ,init-hash-symbol ,(make-state-key-expr state-symbol))
