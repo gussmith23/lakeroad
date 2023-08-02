@@ -6132,7 +6132,9 @@
                  (string->symbol (string-append name "state1266"))
                  (cons
                   (signal-value btor1265)
-                  (if (assoc-has-key? merged-input-state-hash)
+                  (if (assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1266")))
                     (add1
                      (cdr
                       (assoc-ref
@@ -6145,7 +6147,9 @@
                   (string->symbol (string-append name "state1251"))
                   (cons
                    (signal-value btor1268)
-                   (if (assoc-has-key? merged-input-state-hash)
+                   (if (assoc-has-key?
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1251")))
                      (add1
                       (cdr
                        (assoc-ref
@@ -6158,7 +6162,9 @@
                    (string->symbol (string-append name "state1239"))
                    (cons
                     (signal-value btor1238)
-                    (if (assoc-has-key? merged-input-state-hash)
+                    (if (assoc-has-key?
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1239")))
                       (add1
                        (cdr
                         (assoc-ref
@@ -6171,7 +6177,9 @@
                     (string->symbol (string-append name "state1224"))
                     (cons
                      (signal-value btor1241)
-                     (if (assoc-has-key? merged-input-state-hash)
+                     (if (assoc-has-key?
+                          merged-input-state-hash
+                          (string->symbol (string-append name "state1224")))
                        (add1
                         (cdr
                          (assoc-ref
@@ -6184,7 +6192,9 @@
                      (string->symbol (string-append name "state1203"))
                      (cons
                       (signal-value btor1202)
-                      (if (assoc-has-key? merged-input-state-hash)
+                      (if (assoc-has-key?
+                           merged-input-state-hash
+                           (string->symbol (string-append name "state1203")))
                         (add1
                          (cdr
                           (assoc-ref
@@ -6197,7 +6207,9 @@
                       (string->symbol (string-append name "state1188"))
                       (cons
                        (signal-value btor1205)
-                       (if (assoc-has-key? merged-input-state-hash)
+                       (if (assoc-has-key?
+                            merged-input-state-hash
+                            (string->symbol (string-append name "state1188")))
                          (add1
                           (cdr
                            (assoc-ref
@@ -6211,7 +6223,9 @@
                        (string->symbol (string-append name "state1176"))
                        (cons
                         (signal-value btor1175)
-                        (if (assoc-has-key? merged-input-state-hash)
+                        (if (assoc-has-key?
+                             merged-input-state-hash
+                             (string->symbol (string-append name "state1176")))
                           (add1
                            (cdr
                             (assoc-ref
@@ -6225,7 +6239,10 @@
                         (string->symbol (string-append name "state1161"))
                         (cons
                          (signal-value btor1178)
-                         (if (assoc-has-key? merged-input-state-hash)
+                         (if (assoc-has-key?
+                              merged-input-state-hash
+                              (string->symbol
+                               (string-append name "state1161")))
                            (add1
                             (cdr
                              (assoc-ref
@@ -6239,7 +6256,10 @@
                          (string->symbol (string-append name "state1148"))
                          (cons
                           (signal-value btor1147)
-                          (if (assoc-has-key? merged-input-state-hash)
+                          (if (assoc-has-key?
+                               merged-input-state-hash
+                               (string->symbol
+                                (string-append name "state1148")))
                             (add1
                              (cdr
                               (assoc-ref
@@ -6253,7 +6273,10 @@
                           (string->symbol (string-append name "state1133"))
                           (cons
                            (signal-value btor1150)
-                           (if (assoc-has-key? merged-input-state-hash)
+                           (if (assoc-has-key?
+                                merged-input-state-hash
+                                (string->symbol
+                                 (string-append name "state1133")))
                              (add1
                               (cdr
                                (assoc-ref
@@ -6267,7 +6290,10 @@
                            (string->symbol (string-append name "state1121"))
                            (cons
                             (signal-value btor1120)
-                            (if (assoc-has-key? merged-input-state-hash)
+                            (if (assoc-has-key?
+                                 merged-input-state-hash
+                                 (string->symbol
+                                  (string-append name "state1121")))
                               (add1
                                (cdr
                                 (assoc-ref
@@ -6281,7 +6307,10 @@
                             (string->symbol (string-append name "state1106"))
                             (cons
                              (signal-value btor1123)
-                             (if (assoc-has-key? merged-input-state-hash)
+                             (if (assoc-has-key?
+                                  merged-input-state-hash
+                                  (string->symbol
+                                   (string-append name "state1106")))
                                (add1
                                 (cdr
                                  (assoc-ref
@@ -6295,7 +6324,10 @@
                              (string->symbol (string-append name "state1093"))
                              (cons
                               (signal-value btor1092)
-                              (if (assoc-has-key? merged-input-state-hash)
+                              (if (assoc-has-key?
+                                   merged-input-state-hash
+                                   (string->symbol
+                                    (string-append name "state1093")))
                                 (add1
                                  (cdr
                                   (assoc-ref
@@ -6309,7 +6341,10 @@
                               (string->symbol (string-append name "state1078"))
                               (cons
                                (signal-value btor1095)
-                               (if (assoc-has-key? merged-input-state-hash)
+                               (if (assoc-has-key?
+                                    merged-input-state-hash
+                                    (string->symbol
+                                     (string-append name "state1078")))
                                  (add1
                                   (cdr
                                    (assoc-ref
@@ -6324,7 +6359,10 @@
                                 (string-append name "state1066"))
                                (cons
                                 (signal-value btor1065)
-                                (if (assoc-has-key? merged-input-state-hash)
+                                (if (assoc-has-key?
+                                     merged-input-state-hash
+                                     (string->symbol
+                                      (string-append name "state1066")))
                                   (add1
                                    (cdr
                                     (assoc-ref
@@ -6339,7 +6377,10 @@
                                  (string-append name "state1051"))
                                 (cons
                                  (signal-value btor1068)
-                                 (if (assoc-has-key? merged-input-state-hash)
+                                 (if (assoc-has-key?
+                                      merged-input-state-hash
+                                      (string->symbol
+                                       (string-append name "state1051")))
                                    (add1
                                     (cdr
                                      (assoc-ref
@@ -6354,7 +6395,10 @@
                                   (string-append name "state1038"))
                                  (cons
                                   (signal-value btor1037)
-                                  (if (assoc-has-key? merged-input-state-hash)
+                                  (if (assoc-has-key?
+                                       merged-input-state-hash
+                                       (string->symbol
+                                        (string-append name "state1038")))
                                     (add1
                                      (cdr
                                       (assoc-ref
@@ -6369,7 +6413,10 @@
                                    (string-append name "state1022"))
                                   (cons
                                    (signal-value btor1040)
-                                   (if (assoc-has-key? merged-input-state-hash)
+                                   (if (assoc-has-key?
+                                        merged-input-state-hash
+                                        (string->symbol
+                                         (string-append name "state1022")))
                                      (add1
                                       (cdr
                                        (assoc-ref
@@ -6385,7 +6432,9 @@
                                    (cons
                                     (signal-value btor1007)
                                     (if (assoc-has-key?
-                                         merged-input-state-hash)
+                                         merged-input-state-hash
+                                         (string->symbol
+                                          (string-append name "state1008")))
                                       (add1
                                        (cdr
                                         (assoc-ref
@@ -6401,7 +6450,9 @@
                                     (cons
                                      (signal-value btor1010)
                                      (if (assoc-has-key?
-                                          merged-input-state-hash)
+                                          merged-input-state-hash
+                                          (string->symbol
+                                           (string-append name "state992")))
                                        (add1
                                         (cdr
                                          (assoc-ref
@@ -6417,7 +6468,9 @@
                                      (cons
                                       (signal-value btor881)
                                       (if (assoc-has-key?
-                                           merged-input-state-hash)
+                                           merged-input-state-hash
+                                           (string->symbol
+                                            (string-append name "state882")))
                                         (add1
                                          (cdr
                                           (assoc-ref
@@ -6433,7 +6486,9 @@
                                       (cons
                                        (signal-value btor884)
                                        (if (assoc-has-key?
-                                            merged-input-state-hash)
+                                            merged-input-state-hash
+                                            (string->symbol
+                                             (string-append name "state875")))
                                          (add1
                                           (cdr
                                            (assoc-ref
@@ -6451,7 +6506,9 @@
                                        (cons
                                         (signal-value btor1370)
                                         (if (assoc-has-key?
-                                             merged-input-state-hash)
+                                             merged-input-state-hash
+                                             (string->symbol
+                                              (string-append name "state868")))
                                           (add1
                                            (cdr
                                             (assoc-ref
@@ -6469,7 +6526,11 @@
                                         (cons
                                          (signal-value btor869)
                                          (if (assoc-has-key?
-                                              merged-input-state-hash)
+                                              merged-input-state-hash
+                                              (string->symbol
+                                               (string-append
+                                                name
+                                                "state867")))
                                            (add1
                                             (cdr
                                              (assoc-ref
@@ -6487,7 +6548,11 @@
                                          (cons
                                           (signal-value btor1366)
                                           (if (assoc-has-key?
-                                               merged-input-state-hash)
+                                               merged-input-state-hash
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state862")))
                                             (add1
                                              (cdr
                                               (assoc-ref
@@ -6505,7 +6570,11 @@
                                           (cons
                                            (signal-value btor863)
                                            (if (assoc-has-key?
-                                                merged-input-state-hash)
+                                                merged-input-state-hash
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state861")))
                                              (add1
                                               (cdr
                                                (assoc-ref
@@ -6523,7 +6592,11 @@
                                            (cons
                                             (signal-value btor1362)
                                             (if (assoc-has-key?
-                                                 merged-input-state-hash)
+                                                 merged-input-state-hash
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state660")))
                                               (add1
                                                (cdr
                                                 (assoc-ref
@@ -6541,7 +6614,11 @@
                                             (cons
                                              (signal-value btor661)
                                              (if (assoc-has-key?
-                                                  merged-input-state-hash)
+                                                  merged-input-state-hash
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state659")))
                                                (add1
                                                 (cdr
                                                  (assoc-ref
@@ -6559,7 +6636,11 @@
                                              (cons
                                               (signal-value btor617)
                                               (if (assoc-has-key?
-                                                   merged-input-state-hash)
+                                                   merged-input-state-hash
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state618")))
                                                 (add1
                                                  (cdr
                                                   (assoc-ref
@@ -6577,7 +6658,11 @@
                                               (cons
                                                (signal-value btor620)
                                                (if (assoc-has-key?
-                                                    merged-input-state-hash)
+                                                    merged-input-state-hash
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state607")))
                                                  (add1
                                                   (cdr
                                                    (assoc-ref
@@ -6597,7 +6682,11 @@
                                                (cons
                                                 (signal-value btor570)
                                                 (if (assoc-has-key?
-                                                     merged-input-state-hash)
+                                                     merged-input-state-hash
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state571")))
                                                   (add1
                                                    (cdr
                                                     (assoc-ref
@@ -6617,7 +6706,11 @@
                                                 (cons
                                                  (signal-value btor573)
                                                  (if (assoc-has-key?
-                                                      merged-input-state-hash)
+                                                      merged-input-state-hash
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state558")))
                                                    (add1
                                                     (cdr
                                                      (assoc-ref
@@ -6637,7 +6730,11 @@
                                                  (cons
                                                   (signal-value btor519)
                                                   (if (assoc-has-key?
-                                                       merged-input-state-hash)
+                                                       merged-input-state-hash
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state520")))
                                                     (add1
                                                      (cdr
                                                       (assoc-ref
@@ -6657,7 +6754,11 @@
                                                   (cons
                                                    (signal-value btor522)
                                                    (if (assoc-has-key?
-                                                        merged-input-state-hash)
+                                                        merged-input-state-hash
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state503")))
                                                      (add1
                                                       (cdr
                                                        (assoc-ref
@@ -6677,7 +6778,11 @@
                                                    (cons
                                                     (signal-value btor522)
                                                     (if (assoc-has-key?
-                                                         merged-input-state-hash)
+                                                         merged-input-state-hash
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state492")))
                                                       (add1
                                                        (cdr
                                                         (assoc-ref
@@ -6697,7 +6802,11 @@
                                                     (cons
                                                      (signal-value btor1351)
                                                      (if (assoc-has-key?
-                                                          merged-input-state-hash)
+                                                          merged-input-state-hash
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state491")))
                                                        (add1
                                                         (cdr
                                                          (assoc-ref
@@ -6717,7 +6826,11 @@
                                                      (cons
                                                       (signal-value btor525)
                                                       (if (assoc-has-key?
-                                                           merged-input-state-hash)
+                                                           merged-input-state-hash
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state490")))
                                                         (add1
                                                          (cdr
                                                           (assoc-ref
@@ -6737,7 +6850,11 @@
                                                       (cons
                                                        (signal-value btor466)
                                                        (if (assoc-has-key?
-                                                            merged-input-state-hash)
+                                                            merged-input-state-hash
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state467")))
                                                          (add1
                                                           (cdr
                                                            (assoc-ref
@@ -6757,7 +6874,11 @@
                                                        (cons
                                                         (signal-value btor469)
                                                         (if (assoc-has-key?
-                                                             merged-input-state-hash)
+                                                             merged-input-state-hash
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state450")))
                                                           (add1
                                                            (cdr
                                                             (assoc-ref
@@ -6777,7 +6898,11 @@
                                                         (cons
                                                          (signal-value btor469)
                                                          (if (assoc-has-key?
-                                                              merged-input-state-hash)
+                                                              merged-input-state-hash
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state439")))
                                                            (add1
                                                             (cdr
                                                              (assoc-ref
@@ -6798,7 +6923,11 @@
                                                           (signal-value
                                                            btor1344)
                                                           (if (assoc-has-key?
-                                                               merged-input-state-hash)
+                                                               merged-input-state-hash
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state438")))
                                                             (add1
                                                              (cdr
                                                               (assoc-ref
@@ -6819,7 +6948,11 @@
                                                            (signal-value
                                                             btor472)
                                                            (if (assoc-has-key?
-                                                                merged-input-state-hash)
+                                                                merged-input-state-hash
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state437")))
                                                              (add1
                                                               (cdr
                                                                (assoc-ref
@@ -6840,7 +6973,11 @@
                                                             (signal-value
                                                              btor1340)
                                                             (if (assoc-has-key?
-                                                                 merged-input-state-hash)
+                                                                 merged-input-state-hash
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state432")))
                                                               (add1
                                                                (cdr
                                                                 (assoc-ref
@@ -6861,7 +6998,11 @@
                                                              (signal-value
                                                               btor433)
                                                              (if (assoc-has-key?
-                                                                  merged-input-state-hash)
+                                                                  merged-input-state-hash
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state431")))
                                                                (add1
                                                                 (cdr
                                                                  (assoc-ref
@@ -6882,7 +7023,11 @@
                                                               (signal-value
                                                                btor338)
                                                               (if (assoc-has-key?
-                                                                   merged-input-state-hash)
+                                                                   merged-input-state-hash
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state339")))
                                                                 (add1
                                                                  (cdr
                                                                   (assoc-ref
@@ -6903,7 +7048,11 @@
                                                                (signal-value
                                                                 btor341)
                                                                (if (assoc-has-key?
-                                                                    merged-input-state-hash)
+                                                                    merged-input-state-hash
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state323")))
                                                                  (add1
                                                                   (cdr
                                                                    (assoc-ref
@@ -6924,7 +7073,11 @@
                                                                 (signal-value
                                                                  btor341)
                                                                 (if (assoc-has-key?
-                                                                     merged-input-state-hash)
+                                                                     merged-input-state-hash
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state312")))
                                                                   (add1
                                                                    (cdr
                                                                     (assoc-ref
@@ -6945,7 +7098,11 @@
                                                                  (signal-value
                                                                   btor1333)
                                                                  (if (assoc-has-key?
-                                                                      merged-input-state-hash)
+                                                                      merged-input-state-hash
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state311")))
                                                                    (add1
                                                                     (cdr
                                                                      (assoc-ref
@@ -6966,7 +7123,11 @@
                                                                   (signal-value
                                                                    btor344)
                                                                   (if (assoc-has-key?
-                                                                       merged-input-state-hash)
+                                                                       merged-input-state-hash
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state310")))
                                                                     (add1
                                                                      (cdr
                                                                       (assoc-ref
@@ -6987,7 +7148,11 @@
                                                                    (signal-value
                                                                     btor302)
                                                                    (if (assoc-has-key?
-                                                                        merged-input-state-hash)
+                                                                        merged-input-state-hash
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state303")))
                                                                      (add1
                                                                       (cdr
                                                                        (assoc-ref
@@ -7008,7 +7173,11 @@
                                                                     (signal-value
                                                                      btor305)
                                                                     (if (assoc-has-key?
-                                                                         merged-input-state-hash)
+                                                                         merged-input-state-hash
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state287")))
                                                                       (add1
                                                                        (cdr
                                                                         (assoc-ref
@@ -7029,7 +7198,11 @@
                                                                      (signal-value
                                                                       btor305)
                                                                      (if (assoc-has-key?
-                                                                          merged-input-state-hash)
+                                                                          merged-input-state-hash
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state276")))
                                                                        (add1
                                                                         (cdr
                                                                          (assoc-ref
@@ -7050,7 +7223,11 @@
                                                                       (signal-value
                                                                        btor1326)
                                                                       (if (assoc-has-key?
-                                                                           merged-input-state-hash)
+                                                                           merged-input-state-hash
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state275")))
                                                                         (add1
                                                                          (cdr
                                                                           (assoc-ref
@@ -7071,7 +7248,11 @@
                                                                        (signal-value
                                                                         btor308)
                                                                        (if (assoc-has-key?
-                                                                            merged-input-state-hash)
+                                                                            merged-input-state-hash
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state274")))
                                                                          (add1
                                                                           (cdr
                                                                            (assoc-ref
@@ -7092,7 +7273,11 @@
                                                                         (signal-value
                                                                          btor267)
                                                                         (if (assoc-has-key?
-                                                                             merged-input-state-hash)
+                                                                             merged-input-state-hash
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state268")))
                                                                           (add1
                                                                            (cdr
                                                                             (assoc-ref
@@ -7113,7 +7298,11 @@
                                                                          (signal-value
                                                                           btor270)
                                                                          (if (assoc-has-key?
-                                                                              merged-input-state-hash)
+                                                                              merged-input-state-hash
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state251")))
                                                                            (add1
                                                                             (cdr
                                                                              (assoc-ref
@@ -7134,7 +7323,11 @@
                                                                           (signal-value
                                                                            btor243)
                                                                           (if (assoc-has-key?
-                                                                               merged-input-state-hash)
+                                                                               merged-input-state-hash
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state244")))
                                                                             (add1
                                                                              (cdr
                                                                               (assoc-ref
@@ -7155,7 +7348,11 @@
                                                                            (signal-value
                                                                             btor246)
                                                                            (if (assoc-has-key?
-                                                                                merged-input-state-hash)
+                                                                                merged-input-state-hash
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state236")))
                                                                              (add1
                                                                               (cdr
                                                                                (assoc-ref
@@ -7176,7 +7373,11 @@
                                                                             (signal-value
                                                                              btor62)
                                                                             (if (assoc-has-key?
-                                                                                 merged-input-state-hash)
+                                                                                 merged-input-state-hash
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state228")))
                                                                               (add1
                                                                                (cdr
                                                                                 (assoc-ref
@@ -7197,7 +7398,11 @@
                                                                              (signal-value
                                                                               btor1317)
                                                                              (if (assoc-has-key?
-                                                                                  merged-input-state-hash)
+                                                                                  merged-input-state-hash
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state226")))
                                                                                (add1
                                                                                 (cdr
                                                                                  (assoc-ref
@@ -7218,7 +7423,11 @@
                                                                               (signal-value
                                                                                btor232)
                                                                               (if (assoc-has-key?
-                                                                                   merged-input-state-hash)
+                                                                                   merged-input-state-hash
+                                                                                   (string->symbol
+                                                                                    (string-append
+                                                                                     name
+                                                                                     "state224")))
                                                                                 (add1
                                                                                  (cdr
                                                                                   (assoc-ref
@@ -7239,7 +7448,11 @@
                                                                                (signal-value
                                                                                 btor216)
                                                                                (if (assoc-has-key?
-                                                                                    merged-input-state-hash)
+                                                                                    merged-input-state-hash
+                                                                                    (string->symbol
+                                                                                     (string-append
+                                                                                      name
+                                                                                      "state217")))
                                                                                  (add1
                                                                                   (cdr
                                                                                    (assoc-ref
@@ -7260,7 +7473,11 @@
                                                                                 (signal-value
                                                                                  btor219)
                                                                                 (if (assoc-has-key?
-                                                                                     merged-input-state-hash)
+                                                                                     merged-input-state-hash
+                                                                                     (string->symbol
+                                                                                      (string-append
+                                                                                       name
+                                                                                       "state209")))
                                                                                   (add1
                                                                                    (cdr
                                                                                     (assoc-ref
@@ -7281,7 +7498,11 @@
                                                                                  (signal-value
                                                                                   btor64)
                                                                                  (if (assoc-has-key?
-                                                                                      merged-input-state-hash)
+                                                                                      merged-input-state-hash
+                                                                                      (string->symbol
+                                                                                       (string-append
+                                                                                        name
+                                                                                        "state201")))
                                                                                    (add1
                                                                                     (cdr
                                                                                      (assoc-ref
@@ -7302,7 +7523,11 @@
                                                                                   (signal-value
                                                                                    btor1310)
                                                                                   (if (assoc-has-key?
-                                                                                       merged-input-state-hash)
+                                                                                       merged-input-state-hash
+                                                                                       (string->symbol
+                                                                                        (string-append
+                                                                                         name
+                                                                                         "state199")))
                                                                                     (add1
                                                                                      (cdr
                                                                                       (assoc-ref
@@ -7323,7 +7548,11 @@
                                                                                    (signal-value
                                                                                     btor205)
                                                                                    (if (assoc-has-key?
-                                                                                        merged-input-state-hash)
+                                                                                        merged-input-state-hash
+                                                                                        (string->symbol
+                                                                                         (string-append
+                                                                                          name
+                                                                                          "state197")))
                                                                                      (add1
                                                                                       (cdr
                                                                                        (assoc-ref
@@ -7344,7 +7573,11 @@
                                                                                     (signal-value
                                                                                      btor188)
                                                                                     (if (assoc-has-key?
-                                                                                         merged-input-state-hash)
+                                                                                         merged-input-state-hash
+                                                                                         (string->symbol
+                                                                                          (string-append
+                                                                                           name
+                                                                                           "state189")))
                                                                                       (add1
                                                                                        (cdr
                                                                                         (assoc-ref
@@ -7365,7 +7598,11 @@
                                                                                      (signal-value
                                                                                       btor191)
                                                                                      (if (assoc-has-key?
-                                                                                          merged-input-state-hash)
+                                                                                          merged-input-state-hash
+                                                                                          (string->symbol
+                                                                                           (string-append
+                                                                                            name
+                                                                                            "state181")))
                                                                                        (add1
                                                                                         (cdr
                                                                                          (assoc-ref
@@ -7386,7 +7623,11 @@
                                                                                       (signal-value
                                                                                        btor66)
                                                                                       (if (assoc-has-key?
-                                                                                           merged-input-state-hash)
+                                                                                           merged-input-state-hash
+                                                                                           (string->symbol
+                                                                                            (string-append
+                                                                                             name
+                                                                                             "state173")))
                                                                                         (add1
                                                                                          (cdr
                                                                                           (assoc-ref
@@ -7407,7 +7648,11 @@
                                                                                        (signal-value
                                                                                         btor1303)
                                                                                        (if (assoc-has-key?
-                                                                                            merged-input-state-hash)
+                                                                                            merged-input-state-hash
+                                                                                            (string->symbol
+                                                                                             (string-append
+                                                                                              name
+                                                                                              "state171")))
                                                                                          (add1
                                                                                           (cdr
                                                                                            (assoc-ref
@@ -7428,7 +7673,11 @@
                                                                                         (signal-value
                                                                                          btor177)
                                                                                         (if (assoc-has-key?
-                                                                                             merged-input-state-hash)
+                                                                                             merged-input-state-hash
+                                                                                             (string->symbol
+                                                                                              (string-append
+                                                                                               name
+                                                                                               "state169")))
                                                                                           (add1
                                                                                            (cdr
                                                                                             (assoc-ref
@@ -7449,7 +7698,11 @@
                                                                                          (signal-value
                                                                                           btor165)
                                                                                          (if (assoc-has-key?
-                                                                                              merged-input-state-hash)
+                                                                                              merged-input-state-hash
+                                                                                              (string->symbol
+                                                                                               (string-append
+                                                                                                name
+                                                                                                "state166")))
                                                                                            (add1
                                                                                             (cdr
                                                                                              (assoc-ref
@@ -7470,7 +7723,11 @@
                                                                                           (signal-value
                                                                                            btor168)
                                                                                           (if (assoc-has-key?
-                                                                                               merged-input-state-hash)
+                                                                                               merged-input-state-hash
+                                                                                               (string->symbol
+                                                                                                (string-append
+                                                                                                 name
+                                                                                                 "state156")))
                                                                                             (add1
                                                                                              (cdr
                                                                                               (assoc-ref
@@ -7491,7 +7748,11 @@
                                                                                            (signal-value
                                                                                             btor68)
                                                                                            (if (assoc-has-key?
-                                                                                                merged-input-state-hash)
+                                                                                                merged-input-state-hash
+                                                                                                (string->symbol
+                                                                                                 (string-append
+                                                                                                  name
+                                                                                                  "state145")))
                                                                                              (add1
                                                                                               (cdr
                                                                                                (assoc-ref
@@ -7512,7 +7773,11 @@
                                                                                             (signal-value
                                                                                              btor1296)
                                                                                             (if (assoc-has-key?
-                                                                                                 merged-input-state-hash)
+                                                                                                 merged-input-state-hash
+                                                                                                 (string->symbol
+                                                                                                  (string-append
+                                                                                                   name
+                                                                                                   "state143")))
                                                                                               (add1
                                                                                                (cdr
                                                                                                 (assoc-ref
@@ -7533,7 +7798,11 @@
                                                                                              (signal-value
                                                                                               btor151)
                                                                                              (if (assoc-has-key?
-                                                                                                  merged-input-state-hash)
+                                                                                                  merged-input-state-hash
+                                                                                                  (string->symbol
+                                                                                                   (string-append
+                                                                                                    name
+                                                                                                    "state141")))
                                                                                                (add1
                                                                                                 (cdr
                                                                                                  (assoc-ref
@@ -7554,7 +7823,11 @@
                                                                                               (signal-value
                                                                                                btor270)
                                                                                               (if (assoc-has-key?
-                                                                                                   merged-input-state-hash)
+                                                                                                   merged-input-state-hash
+                                                                                                   (string->symbol
+                                                                                                    (string-append
+                                                                                                     name
+                                                                                                     "state138")))
                                                                                                 (add1
                                                                                                  (cdr
                                                                                                   (assoc-ref
@@ -7575,7 +7848,11 @@
                                                                                                (signal-value
                                                                                                 btor1291)
                                                                                                (if (assoc-has-key?
-                                                                                                    merged-input-state-hash)
+                                                                                                    merged-input-state-hash
+                                                                                                    (string->symbol
+                                                                                                     (string-append
+                                                                                                      name
+                                                                                                      "state136")))
                                                                                                  (add1
                                                                                                   (cdr
                                                                                                    (assoc-ref
@@ -7596,7 +7873,11 @@
                                                                                                 (signal-value
                                                                                                  btor273)
                                                                                                 (if (assoc-has-key?
-                                                                                                     merged-input-state-hash)
+                                                                                                     merged-input-state-hash
+                                                                                                     (string->symbol
+                                                                                                      (string-append
+                                                                                                       name
+                                                                                                       "state135")))
                                                                                                   (add1
                                                                                                    (cdr
                                                                                                     (assoc-ref
