@@ -8,6 +8,7 @@
          signal-state
          signal-state-value
          merge-state
+         merge-states
          assoc-has-key?
          assoc-ref
          make-assoc-list)
@@ -22,11 +23,15 @@
 
 ;;; Signals represent bitvectors with associated state.
 ;;;
-;;; State is an association list from keywords to bitvectors. The entries in the state map are the
-;;; various pieces of state that existed when the signal value was generated. For example, the output
-;;; of a pipelined multiplier module might be an bitvector v. The signal representing the multiplier's
-;;; output might then look like (signal v { internal-register-0: (bv #x0a 8), internal-register-1: (bv
-;;; #x0b 8) }), where the internal registers represent some state internal to the multiplier module.
+;;; State is an association list from keywords to a tuple of (bitvector, number). The number
+;;; represents a 0-indexed "age" or "version".  The entries in the state map are the various pieces of
+;;; state that existed when the signal value was generated. For example, the output of a pipelined
+;;; multiplier module might be an bitvector v. The signal representing the multiplier's output might
+;;; then look like (signal v { internal-register-0: (bv #x0a 8), internal-register-1: (bv #x0b 8) }),
+;;; (age/version omitted) where the internal registers represent some state internal to the multiplier
+;;; module.
+;;;
+;;; The version value is used to merge states correctly. See merge-state.
 (struct signal (value state) #:transparent)
 
 ;;; Creates a signal from a bitvector, optionally taking the state from an existing signal.
@@ -53,10 +58,45 @@
                       #rx"given: state1"
                       (λ () (signal-state-value 'state1 (signal (bv 0 1) (make-assoc-list)))))))))
 
+;;; This function merges state lists into a single state list. It differs from merge-state in that it
+;;; takes the states themselves, not a list of signals.
+(define (merge-states . states)
+  ;;; Given a key with its value and age, update the hash h.
+  ;;;
+  ;;; If the key is already in the hash, then the value and age are updated if the age is greater than
+  ;;; the current age in the hash map.
+  (define (merge key-and-value h)
+    (match-let* ([(cons key (cons potential-value potential-age)) key-and-value]
+                 [(cons current-value current-age) (hash-ref h key (cons #f -1))]
+                 [new-pair (if (> potential-age current-age)
+                               (cons potential-value potential-age)
+                               (cons current-value current-age))])
+      (hash-set h key new-pair)))
+
+  ;;; Concatenate all the existing signal association lists together, then merge each key one by one
+  ;;; by folding `merge` over the list. Finally, convert the hash back to an association list.
+  (hash->list (foldl merge (hash) (apply append states))))
+
 ;;; Merge the state from each signal in a list of signals. Simply appends the association lists. Does
 ;;; not handle any conflicting keys.
 (define (merge-state signals)
-  (apply append (map signal-state signals)))
+  (apply merge-states (map signal-state signals)))
+
+(module+ test
+
+  (test-case "merge"
+    (let* ([s1 (signal 'unused
+                       (list (cons 'state0 (cons (bv 5 8) 1)) (cons 'state1 (cons (bv 8 8) 0))))]
+           [s2 (signal 'unused
+                       (list (cons 'state0 (cons (bv 6 8) 3)) (cons 'state2 (cons (bv 9 8) 1))))]
+           [s3 (signal 'unused
+                       (list (cons 'state0 (cons (bv 7 8) 2)) (cons 'state3 (cons (bv 10 8) 2))))]
+           [merged (merge-state (list s1 s2 s3))])
+      (check-equal? (length merged) 4)
+      (check-equal? (assoc-ref merged 'state0) (cons (bv 6 8) 3))
+      (check-equal? (assoc-ref merged 'state1) (cons (bv 8 8) 0))
+      (check-equal? (assoc-ref merged 'state2) (cons (bv 9 8) 1))
+      (check-equal? (assoc-ref merged 'state3) (cons (bv 10 8) 2)))))
 
 (define (assoc-has-key? l k)
   (not (equal? #f (assoc k l))))
