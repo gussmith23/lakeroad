@@ -729,963 +729,1005 @@
            (btor1 (bitvector 1))
            (btor2 A0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A0)))
+            (merge-states merged-input-state-hash (signal-state A0)))
            (btor3 A1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A1)))
+            (merge-states merged-input-state-hash (signal-state A1)))
            (btor4 A10)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A10)))
+            (merge-states merged-input-state-hash (signal-state A10)))
            (btor5 A11)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A11)))
+            (merge-states merged-input-state-hash (signal-state A11)))
            (btor6 A12)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A12)))
+            (merge-states merged-input-state-hash (signal-state A12)))
            (btor7 A13)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A13)))
+            (merge-states merged-input-state-hash (signal-state A13)))
            (btor8 A14)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A14)))
+            (merge-states merged-input-state-hash (signal-state A14)))
            (btor9 A15)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A15)))
+            (merge-states merged-input-state-hash (signal-state A15)))
            (btor10 A16)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A16)))
+            (merge-states merged-input-state-hash (signal-state A16)))
            (btor11 A17)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A17)))
+            (merge-states merged-input-state-hash (signal-state A17)))
            (btor12 A18)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A18)))
+            (merge-states merged-input-state-hash (signal-state A18)))
            (btor13 A19)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A19)))
+            (merge-states merged-input-state-hash (signal-state A19)))
            (btor14 A2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A2)))
+            (merge-states merged-input-state-hash (signal-state A2)))
            (btor15 A20)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A20)))
+            (merge-states merged-input-state-hash (signal-state A20)))
            (btor16 A21)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A21)))
+            (merge-states merged-input-state-hash (signal-state A21)))
            (btor17 A22)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A22)))
+            (merge-states merged-input-state-hash (signal-state A22)))
            (btor18 A23)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A23)))
+            (merge-states merged-input-state-hash (signal-state A23)))
            (btor19 A24)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A24)))
+            (merge-states merged-input-state-hash (signal-state A24)))
            (btor20 A25)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A25)))
+            (merge-states merged-input-state-hash (signal-state A25)))
            (btor21 A26)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A26)))
+            (merge-states merged-input-state-hash (signal-state A26)))
            (btor22 A27)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A27)))
+            (merge-states merged-input-state-hash (signal-state A27)))
            (btor23 A28)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A28)))
+            (merge-states merged-input-state-hash (signal-state A28)))
            (btor24 A29)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A29)))
+            (merge-states merged-input-state-hash (signal-state A29)))
            (btor25 A3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A3)))
+            (merge-states merged-input-state-hash (signal-state A3)))
            (btor26 A30)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A30)))
+            (merge-states merged-input-state-hash (signal-state A30)))
            (btor27 A31)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A31)))
+            (merge-states merged-input-state-hash (signal-state A31)))
            (btor28 A32)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A32)))
+            (merge-states merged-input-state-hash (signal-state A32)))
            (btor29 A33)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A33)))
+            (merge-states merged-input-state-hash (signal-state A33)))
            (btor30 A34)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A34)))
+            (merge-states merged-input-state-hash (signal-state A34)))
            (btor31 A35)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A35)))
+            (merge-states merged-input-state-hash (signal-state A35)))
            (btor32 A4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A4)))
+            (merge-states merged-input-state-hash (signal-state A4)))
            (btor33 A5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A5)))
+            (merge-states merged-input-state-hash (signal-state A5)))
            (btor34 A6)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A6)))
+            (merge-states merged-input-state-hash (signal-state A6)))
            (btor35 A7)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A7)))
+            (merge-states merged-input-state-hash (signal-state A7)))
            (btor36 A8)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A8)))
+            (merge-states merged-input-state-hash (signal-state A8)))
            (btor37 A9)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A9)))
+            (merge-states merged-input-state-hash (signal-state A9)))
            (btor38 B0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B0)))
+            (merge-states merged-input-state-hash (signal-state B0)))
            (btor39 B1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B1)))
+            (merge-states merged-input-state-hash (signal-state B1)))
            (btor40 B10)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B10)))
+            (merge-states merged-input-state-hash (signal-state B10)))
            (btor41 B11)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B11)))
+            (merge-states merged-input-state-hash (signal-state B11)))
            (btor42 B12)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B12)))
+            (merge-states merged-input-state-hash (signal-state B12)))
            (btor43 B13)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B13)))
+            (merge-states merged-input-state-hash (signal-state B13)))
            (btor44 B14)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B14)))
+            (merge-states merged-input-state-hash (signal-state B14)))
            (btor45 B15)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B15)))
+            (merge-states merged-input-state-hash (signal-state B15)))
            (btor46 B16)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B16)))
+            (merge-states merged-input-state-hash (signal-state B16)))
            (btor47 B17)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B17)))
+            (merge-states merged-input-state-hash (signal-state B17)))
            (btor48 B18)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B18)))
+            (merge-states merged-input-state-hash (signal-state B18)))
            (btor49 B19)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B19)))
+            (merge-states merged-input-state-hash (signal-state B19)))
            (btor50 B2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B2)))
+            (merge-states merged-input-state-hash (signal-state B2)))
            (btor51 B20)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B20)))
+            (merge-states merged-input-state-hash (signal-state B20)))
            (btor52 B21)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B21)))
+            (merge-states merged-input-state-hash (signal-state B21)))
            (btor53 B22)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B22)))
+            (merge-states merged-input-state-hash (signal-state B22)))
            (btor54 B23)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B23)))
+            (merge-states merged-input-state-hash (signal-state B23)))
            (btor55 B24)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B24)))
+            (merge-states merged-input-state-hash (signal-state B24)))
            (btor56 B25)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B25)))
+            (merge-states merged-input-state-hash (signal-state B25)))
            (btor57 B26)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B26)))
+            (merge-states merged-input-state-hash (signal-state B26)))
            (btor58 B27)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B27)))
+            (merge-states merged-input-state-hash (signal-state B27)))
            (btor59 B28)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B28)))
+            (merge-states merged-input-state-hash (signal-state B28)))
            (btor60 B29)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B29)))
+            (merge-states merged-input-state-hash (signal-state B29)))
            (btor61 B3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B3)))
+            (merge-states merged-input-state-hash (signal-state B3)))
            (btor62 B30)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B30)))
+            (merge-states merged-input-state-hash (signal-state B30)))
            (btor63 B31)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B31)))
+            (merge-states merged-input-state-hash (signal-state B31)))
            (btor64 B32)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B32)))
+            (merge-states merged-input-state-hash (signal-state B32)))
            (btor65 B33)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B33)))
+            (merge-states merged-input-state-hash (signal-state B33)))
            (btor66 B34)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B34)))
+            (merge-states merged-input-state-hash (signal-state B34)))
            (btor67 B35)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B35)))
+            (merge-states merged-input-state-hash (signal-state B35)))
            (btor68 B4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B4)))
+            (merge-states merged-input-state-hash (signal-state B4)))
            (btor69 B5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B5)))
+            (merge-states merged-input-state-hash (signal-state B5)))
            (btor70 B6)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B6)))
+            (merge-states merged-input-state-hash (signal-state B6)))
            (btor71 B7)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B7)))
+            (merge-states merged-input-state-hash (signal-state B7)))
            (btor72 B8)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B8)))
+            (merge-states merged-input-state-hash (signal-state B8)))
            (btor73 B9)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B9)))
+            (merge-states merged-input-state-hash (signal-state B9)))
            (btor74 C0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C0)))
+            (merge-states merged-input-state-hash (signal-state C0)))
            (btor75 C1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C1)))
+            (merge-states merged-input-state-hash (signal-state C1)))
            (btor76 C10)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C10)))
+            (merge-states merged-input-state-hash (signal-state C10)))
            (btor77 C11)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C11)))
+            (merge-states merged-input-state-hash (signal-state C11)))
            (btor78 C12)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C12)))
+            (merge-states merged-input-state-hash (signal-state C12)))
            (btor79 C13)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C13)))
+            (merge-states merged-input-state-hash (signal-state C13)))
            (btor80 C14)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C14)))
+            (merge-states merged-input-state-hash (signal-state C14)))
            (btor81 C15)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C15)))
+            (merge-states merged-input-state-hash (signal-state C15)))
            (btor82 C16)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C16)))
+            (merge-states merged-input-state-hash (signal-state C16)))
            (btor83 C17)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C17)))
+            (merge-states merged-input-state-hash (signal-state C17)))
            (btor84 C18)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C18)))
+            (merge-states merged-input-state-hash (signal-state C18)))
            (btor85 C19)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C19)))
+            (merge-states merged-input-state-hash (signal-state C19)))
            (btor86 C2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C2)))
+            (merge-states merged-input-state-hash (signal-state C2)))
            (btor87 C20)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C20)))
+            (merge-states merged-input-state-hash (signal-state C20)))
            (btor88 C21)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C21)))
+            (merge-states merged-input-state-hash (signal-state C21)))
            (btor89 C22)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C22)))
+            (merge-states merged-input-state-hash (signal-state C22)))
            (btor90 C23)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C23)))
+            (merge-states merged-input-state-hash (signal-state C23)))
            (btor91 C24)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C24)))
+            (merge-states merged-input-state-hash (signal-state C24)))
            (btor92 C25)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C25)))
+            (merge-states merged-input-state-hash (signal-state C25)))
            (btor93 C26)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C26)))
+            (merge-states merged-input-state-hash (signal-state C26)))
            (btor94 C27)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C27)))
+            (merge-states merged-input-state-hash (signal-state C27)))
            (btor95 C28)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C28)))
+            (merge-states merged-input-state-hash (signal-state C28)))
            (btor96 C29)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C29)))
+            (merge-states merged-input-state-hash (signal-state C29)))
            (btor97 C3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C3)))
+            (merge-states merged-input-state-hash (signal-state C3)))
            (btor98 C30)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C30)))
+            (merge-states merged-input-state-hash (signal-state C30)))
            (btor99 C31)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C31)))
+            (merge-states merged-input-state-hash (signal-state C31)))
            (btor100 C32)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C32)))
+            (merge-states merged-input-state-hash (signal-state C32)))
            (btor101 C33)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C33)))
+            (merge-states merged-input-state-hash (signal-state C33)))
            (btor102 C34)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C34)))
+            (merge-states merged-input-state-hash (signal-state C34)))
            (btor103 C35)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C35)))
+            (merge-states merged-input-state-hash (signal-state C35)))
            (btor104 C36)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C36)))
+            (merge-states merged-input-state-hash (signal-state C36)))
            (btor105 C37)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C37)))
+            (merge-states merged-input-state-hash (signal-state C37)))
            (btor106 C38)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C38)))
+            (merge-states merged-input-state-hash (signal-state C38)))
            (btor107 C39)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C39)))
+            (merge-states merged-input-state-hash (signal-state C39)))
            (btor108 C4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C4)))
+            (merge-states merged-input-state-hash (signal-state C4)))
            (btor109 C40)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C40)))
+            (merge-states merged-input-state-hash (signal-state C40)))
            (btor110 C41)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C41)))
+            (merge-states merged-input-state-hash (signal-state C41)))
            (btor111 C42)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C42)))
+            (merge-states merged-input-state-hash (signal-state C42)))
            (btor112 C43)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C43)))
+            (merge-states merged-input-state-hash (signal-state C43)))
            (btor113 C44)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C44)))
+            (merge-states merged-input-state-hash (signal-state C44)))
            (btor114 C45)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C45)))
+            (merge-states merged-input-state-hash (signal-state C45)))
            (btor115 C46)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C46)))
+            (merge-states merged-input-state-hash (signal-state C46)))
            (btor116 C47)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C47)))
+            (merge-states merged-input-state-hash (signal-state C47)))
            (btor117 C48)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C48)))
+            (merge-states merged-input-state-hash (signal-state C48)))
            (btor118 C49)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C49)))
+            (merge-states merged-input-state-hash (signal-state C49)))
            (btor119 C5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C5)))
+            (merge-states merged-input-state-hash (signal-state C5)))
            (btor120 C50)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C50)))
+            (merge-states merged-input-state-hash (signal-state C50)))
            (btor121 C51)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C51)))
+            (merge-states merged-input-state-hash (signal-state C51)))
            (btor122 C52)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C52)))
+            (merge-states merged-input-state-hash (signal-state C52)))
            (btor123 C53)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C53)))
+            (merge-states merged-input-state-hash (signal-state C53)))
            (btor124 C6)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C6)))
+            (merge-states merged-input-state-hash (signal-state C6)))
            (btor125 C7)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C7)))
+            (merge-states merged-input-state-hash (signal-state C7)))
            (btor126 C8)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C8)))
+            (merge-states merged-input-state-hash (signal-state C8)))
            (btor127 C9)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state C9)))
+            (merge-states merged-input-state-hash (signal-state C9)))
            (btor128 CE0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CE0)))
+            (merge-states merged-input-state-hash (signal-state CE0)))
            (btor129 CE1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CE1)))
+            (merge-states merged-input-state-hash (signal-state CE1)))
            (btor130 CE2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CE2)))
+            (merge-states merged-input-state-hash (signal-state CE2)))
            (btor131 CE3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CE3)))
+            (merge-states merged-input-state-hash (signal-state CE3)))
            (btor132 CIN0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN0)))
+            (merge-states merged-input-state-hash (signal-state CIN0)))
            (btor133 CIN1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN1)))
+            (merge-states merged-input-state-hash (signal-state CIN1)))
            (btor134 CIN10)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN10)))
+            (merge-states merged-input-state-hash (signal-state CIN10)))
            (btor135 CIN11)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN11)))
+            (merge-states merged-input-state-hash (signal-state CIN11)))
            (btor136 CIN12)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN12)))
+            (merge-states merged-input-state-hash (signal-state CIN12)))
            (btor137 CIN13)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN13)))
+            (merge-states merged-input-state-hash (signal-state CIN13)))
            (btor138 CIN14)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN14)))
+            (merge-states merged-input-state-hash (signal-state CIN14)))
            (btor139 CIN15)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN15)))
+            (merge-states merged-input-state-hash (signal-state CIN15)))
            (btor140 CIN16)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN16)))
+            (merge-states merged-input-state-hash (signal-state CIN16)))
            (btor141 CIN17)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN17)))
+            (merge-states merged-input-state-hash (signal-state CIN17)))
            (btor142 CIN18)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN18)))
+            (merge-states merged-input-state-hash (signal-state CIN18)))
            (btor143 CIN19)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN19)))
+            (merge-states merged-input-state-hash (signal-state CIN19)))
            (btor144 CIN2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN2)))
+            (merge-states merged-input-state-hash (signal-state CIN2)))
            (btor145 CIN20)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN20)))
+            (merge-states merged-input-state-hash (signal-state CIN20)))
            (btor146 CIN21)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN21)))
+            (merge-states merged-input-state-hash (signal-state CIN21)))
            (btor147 CIN22)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN22)))
+            (merge-states merged-input-state-hash (signal-state CIN22)))
            (btor148 CIN23)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN23)))
+            (merge-states merged-input-state-hash (signal-state CIN23)))
            (btor149 CIN24)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN24)))
+            (merge-states merged-input-state-hash (signal-state CIN24)))
            (btor150 CIN25)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN25)))
+            (merge-states merged-input-state-hash (signal-state CIN25)))
            (btor151 CIN26)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN26)))
+            (merge-states merged-input-state-hash (signal-state CIN26)))
            (btor152 CIN27)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN27)))
+            (merge-states merged-input-state-hash (signal-state CIN27)))
            (btor153 CIN28)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN28)))
+            (merge-states merged-input-state-hash (signal-state CIN28)))
            (btor154 CIN29)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN29)))
+            (merge-states merged-input-state-hash (signal-state CIN29)))
            (btor155 CIN3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN3)))
+            (merge-states merged-input-state-hash (signal-state CIN3)))
            (btor156 CIN30)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN30)))
+            (merge-states merged-input-state-hash (signal-state CIN30)))
            (btor157 CIN31)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN31)))
+            (merge-states merged-input-state-hash (signal-state CIN31)))
            (btor158 CIN32)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN32)))
+            (merge-states merged-input-state-hash (signal-state CIN32)))
            (btor159 CIN33)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN33)))
+            (merge-states merged-input-state-hash (signal-state CIN33)))
            (btor160 CIN34)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN34)))
+            (merge-states merged-input-state-hash (signal-state CIN34)))
            (btor161 CIN35)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN35)))
+            (merge-states merged-input-state-hash (signal-state CIN35)))
            (btor162 CIN36)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN36)))
+            (merge-states merged-input-state-hash (signal-state CIN36)))
            (btor163 CIN37)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN37)))
+            (merge-states merged-input-state-hash (signal-state CIN37)))
            (btor164 CIN38)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN38)))
+            (merge-states merged-input-state-hash (signal-state CIN38)))
            (btor165 CIN39)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN39)))
+            (merge-states merged-input-state-hash (signal-state CIN39)))
            (btor166 CIN4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN4)))
+            (merge-states merged-input-state-hash (signal-state CIN4)))
            (btor167 CIN40)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN40)))
+            (merge-states merged-input-state-hash (signal-state CIN40)))
            (btor168 CIN41)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN41)))
+            (merge-states merged-input-state-hash (signal-state CIN41)))
            (btor169 CIN42)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN42)))
+            (merge-states merged-input-state-hash (signal-state CIN42)))
            (btor170 CIN43)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN43)))
+            (merge-states merged-input-state-hash (signal-state CIN43)))
            (btor171 CIN44)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN44)))
+            (merge-states merged-input-state-hash (signal-state CIN44)))
            (btor172 CIN45)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN45)))
+            (merge-states merged-input-state-hash (signal-state CIN45)))
            (btor173 CIN46)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN46)))
+            (merge-states merged-input-state-hash (signal-state CIN46)))
            (btor174 CIN47)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN47)))
+            (merge-states merged-input-state-hash (signal-state CIN47)))
            (btor175 CIN48)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN48)))
+            (merge-states merged-input-state-hash (signal-state CIN48)))
            (btor176 CIN49)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN49)))
+            (merge-states merged-input-state-hash (signal-state CIN49)))
            (btor177 CIN5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN5)))
+            (merge-states merged-input-state-hash (signal-state CIN5)))
            (btor178 CIN50)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN50)))
+            (merge-states merged-input-state-hash (signal-state CIN50)))
            (btor179 CIN51)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN51)))
+            (merge-states merged-input-state-hash (signal-state CIN51)))
            (btor180 CIN52)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN52)))
+            (merge-states merged-input-state-hash (signal-state CIN52)))
            (btor181 CIN53)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN53)))
+            (merge-states merged-input-state-hash (signal-state CIN53)))
            (btor182 CIN6)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN6)))
+            (merge-states merged-input-state-hash (signal-state CIN6)))
            (btor183 CIN7)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN7)))
+            (merge-states merged-input-state-hash (signal-state CIN7)))
            (btor184 CIN8)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN8)))
+            (merge-states merged-input-state-hash (signal-state CIN8)))
            (btor185 CIN9)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CIN9)))
+            (merge-states merged-input-state-hash (signal-state CIN9)))
            (btor186 CLK0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CLK0)))
+            (merge-states merged-input-state-hash (signal-state CLK0)))
            (btor187 CLK1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CLK1)))
+            (merge-states merged-input-state-hash (signal-state CLK1)))
            (btor188 CLK2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CLK2)))
+            (merge-states merged-input-state-hash (signal-state CLK2)))
            (btor189 CLK3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CLK3)))
+            (merge-states merged-input-state-hash (signal-state CLK3)))
            (btor190 (bitvector 5))
            (btor191 LEGACY)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state LEGACY)))
+            (merge-states merged-input-state-hash (signal-state LEGACY)))
            (btor192 MA0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA0)))
+            (merge-states merged-input-state-hash (signal-state MA0)))
            (btor193 MA1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA1)))
+            (merge-states merged-input-state-hash (signal-state MA1)))
            (btor194 MA10)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA10)))
+            (merge-states merged-input-state-hash (signal-state MA10)))
            (btor195 MA11)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA11)))
+            (merge-states merged-input-state-hash (signal-state MA11)))
            (btor196 MA12)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA12)))
+            (merge-states merged-input-state-hash (signal-state MA12)))
            (btor197 MA13)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA13)))
+            (merge-states merged-input-state-hash (signal-state MA13)))
            (btor198 MA14)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA14)))
+            (merge-states merged-input-state-hash (signal-state MA14)))
            (btor199 MA15)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA15)))
+            (merge-states merged-input-state-hash (signal-state MA15)))
            (btor200 MA16)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA16)))
+            (merge-states merged-input-state-hash (signal-state MA16)))
            (btor201 MA17)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA17)))
+            (merge-states merged-input-state-hash (signal-state MA17)))
            (btor202 MA18)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA18)))
+            (merge-states merged-input-state-hash (signal-state MA18)))
            (btor203 MA19)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA19)))
+            (merge-states merged-input-state-hash (signal-state MA19)))
            (btor204 MA2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA2)))
+            (merge-states merged-input-state-hash (signal-state MA2)))
            (btor205 MA20)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA20)))
+            (merge-states merged-input-state-hash (signal-state MA20)))
            (btor206 MA21)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA21)))
+            (merge-states merged-input-state-hash (signal-state MA21)))
            (btor207 MA22)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA22)))
+            (merge-states merged-input-state-hash (signal-state MA22)))
            (btor208 MA23)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA23)))
+            (merge-states merged-input-state-hash (signal-state MA23)))
            (btor209 MA24)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA24)))
+            (merge-states merged-input-state-hash (signal-state MA24)))
            (btor210 MA25)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA25)))
+            (merge-states merged-input-state-hash (signal-state MA25)))
            (btor211 MA26)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA26)))
+            (merge-states merged-input-state-hash (signal-state MA26)))
            (btor212 MA27)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA27)))
+            (merge-states merged-input-state-hash (signal-state MA27)))
            (btor213 MA28)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA28)))
+            (merge-states merged-input-state-hash (signal-state MA28)))
            (btor214 MA29)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA29)))
+            (merge-states merged-input-state-hash (signal-state MA29)))
            (btor215 MA3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA3)))
+            (merge-states merged-input-state-hash (signal-state MA3)))
            (btor216 MA30)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA30)))
+            (merge-states merged-input-state-hash (signal-state MA30)))
            (btor217 MA31)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA31)))
+            (merge-states merged-input-state-hash (signal-state MA31)))
            (btor218 MA32)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA32)))
+            (merge-states merged-input-state-hash (signal-state MA32)))
            (btor219 MA33)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA33)))
+            (merge-states merged-input-state-hash (signal-state MA33)))
            (btor220 MA34)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA34)))
+            (merge-states merged-input-state-hash (signal-state MA34)))
            (btor221 MA35)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA35)))
+            (merge-states merged-input-state-hash (signal-state MA35)))
            (btor222 MA4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA4)))
+            (merge-states merged-input-state-hash (signal-state MA4)))
            (btor223 MA5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA5)))
+            (merge-states merged-input-state-hash (signal-state MA5)))
            (btor224 MA6)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA6)))
+            (merge-states merged-input-state-hash (signal-state MA6)))
            (btor225 MA7)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA7)))
+            (merge-states merged-input-state-hash (signal-state MA7)))
            (btor226 MA8)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA8)))
+            (merge-states merged-input-state-hash (signal-state MA8)))
            (btor227 MA9)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MA9)))
+            (merge-states merged-input-state-hash (signal-state MA9)))
            (btor228 (bitvector 56))
            (btor229 MASK01)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MASK01)))
+            (merge-states merged-input-state-hash (signal-state MASK01)))
            (btor230 MASKPAT)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MASKPAT)))
+            (merge-states merged-input-state-hash (signal-state MASKPAT)))
            (btor231 MASKPAT_SOURCE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MASKPAT_SOURCE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state MASKPAT_SOURCE)))
            (btor232 MB0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB0)))
+            (merge-states merged-input-state-hash (signal-state MB0)))
            (btor233 MB1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB1)))
+            (merge-states merged-input-state-hash (signal-state MB1)))
            (btor234 MB10)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB10)))
+            (merge-states merged-input-state-hash (signal-state MB10)))
            (btor235 MB11)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB11)))
+            (merge-states merged-input-state-hash (signal-state MB11)))
            (btor236 MB12)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB12)))
+            (merge-states merged-input-state-hash (signal-state MB12)))
            (btor237 MB13)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB13)))
+            (merge-states merged-input-state-hash (signal-state MB13)))
            (btor238 MB14)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB14)))
+            (merge-states merged-input-state-hash (signal-state MB14)))
            (btor239 MB15)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB15)))
+            (merge-states merged-input-state-hash (signal-state MB15)))
            (btor240 MB16)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB16)))
+            (merge-states merged-input-state-hash (signal-state MB16)))
            (btor241 MB17)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB17)))
+            (merge-states merged-input-state-hash (signal-state MB17)))
            (btor242 MB18)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB18)))
+            (merge-states merged-input-state-hash (signal-state MB18)))
            (btor243 MB19)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB19)))
+            (merge-states merged-input-state-hash (signal-state MB19)))
            (btor244 MB2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB2)))
+            (merge-states merged-input-state-hash (signal-state MB2)))
            (btor245 MB20)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB20)))
+            (merge-states merged-input-state-hash (signal-state MB20)))
            (btor246 MB21)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB21)))
+            (merge-states merged-input-state-hash (signal-state MB21)))
            (btor247 MB22)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB22)))
+            (merge-states merged-input-state-hash (signal-state MB22)))
            (btor248 MB23)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB23)))
+            (merge-states merged-input-state-hash (signal-state MB23)))
            (btor249 MB24)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB24)))
+            (merge-states merged-input-state-hash (signal-state MB24)))
            (btor250 MB25)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB25)))
+            (merge-states merged-input-state-hash (signal-state MB25)))
            (btor251 MB26)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB26)))
+            (merge-states merged-input-state-hash (signal-state MB26)))
            (btor252 MB27)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB27)))
+            (merge-states merged-input-state-hash (signal-state MB27)))
            (btor253 MB28)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB28)))
+            (merge-states merged-input-state-hash (signal-state MB28)))
            (btor254 MB29)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB29)))
+            (merge-states merged-input-state-hash (signal-state MB29)))
            (btor255 MB3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB3)))
+            (merge-states merged-input-state-hash (signal-state MB3)))
            (btor256 MB30)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB30)))
+            (merge-states merged-input-state-hash (signal-state MB30)))
            (btor257 MB31)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB31)))
+            (merge-states merged-input-state-hash (signal-state MB31)))
            (btor258 MB32)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB32)))
+            (merge-states merged-input-state-hash (signal-state MB32)))
            (btor259 MB33)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB33)))
+            (merge-states merged-input-state-hash (signal-state MB33)))
            (btor260 MB34)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB34)))
+            (merge-states merged-input-state-hash (signal-state MB34)))
            (btor261 MB35)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB35)))
+            (merge-states merged-input-state-hash (signal-state MB35)))
            (btor262 MB4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB4)))
+            (merge-states merged-input-state-hash (signal-state MB4)))
            (btor263 MB5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB5)))
+            (merge-states merged-input-state-hash (signal-state MB5)))
            (btor264 MB6)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB6)))
+            (merge-states merged-input-state-hash (signal-state MB6)))
            (btor265 MB7)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB7)))
+            (merge-states merged-input-state-hash (signal-state MB7)))
            (btor266 MB8)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB8)))
+            (merge-states merged-input-state-hash (signal-state MB8)))
            (btor267 MB9)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MB9)))
+            (merge-states merged-input-state-hash (signal-state MB9)))
            (btor268 MCPAT)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MCPAT)))
+            (merge-states merged-input-state-hash (signal-state MCPAT)))
            (btor269 MCPAT_SOURCE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MCPAT_SOURCE)))
+            (merge-states merged-input-state-hash (signal-state MCPAT_SOURCE)))
            (btor270 MULT9_MODE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state MULT9_MODE)))
+            (merge-states merged-input-state-hash (signal-state MULT9_MODE)))
            (btor271 OP0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP0)))
+            (merge-states merged-input-state-hash (signal-state OP0)))
            (btor272 OP1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP1)))
+            (merge-states merged-input-state-hash (signal-state OP1)))
            (btor273 OP10)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP10)))
+            (merge-states merged-input-state-hash (signal-state OP10)))
            (btor274 OP2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP2)))
+            (merge-states merged-input-state-hash (signal-state OP2)))
            (btor275 OP3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP3)))
+            (merge-states merged-input-state-hash (signal-state OP3)))
            (btor276 OP4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP4)))
+            (merge-states merged-input-state-hash (signal-state OP4)))
            (btor277 OP5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP5)))
+            (merge-states merged-input-state-hash (signal-state OP5)))
            (btor278 OP6)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP6)))
+            (merge-states merged-input-state-hash (signal-state OP6)))
            (btor279 OP7)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP7)))
+            (merge-states merged-input-state-hash (signal-state OP7)))
            (btor280 OP8)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP8)))
+            (merge-states merged-input-state-hash (signal-state OP8)))
            (btor281 OP9)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state OP9)))
+            (merge-states merged-input-state-hash (signal-state OP9)))
            (btor282 REG_FLAG_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_FLAG_CE)))
+            (merge-states merged-input-state-hash (signal-state REG_FLAG_CE)))
            (btor283 REG_FLAG_CLK)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_FLAG_CLK)))
+            (merge-states merged-input-state-hash (signal-state REG_FLAG_CLK)))
            (btor284 REG_FLAG_RST)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_FLAG_RST)))
+            (merge-states merged-input-state-hash (signal-state REG_FLAG_RST)))
            (btor285 REG_INPUTC0_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_INPUTC0_CE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_INPUTC0_CE)))
            (btor286 REG_INPUTC0_CLK)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_INPUTC0_CLK)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_INPUTC0_CLK)))
            (btor287 REG_INPUTC0_RST)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_INPUTC0_RST)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_INPUTC0_RST)))
            (btor288 REG_INPUTC1_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_INPUTC1_CE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_INPUTC1_CE)))
            (btor289 REG_INPUTC1_CLK)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_INPUTC1_CLK)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_INPUTC1_CLK)))
            (btor290 REG_INPUTC1_RST)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_INPUTC1_RST)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_INPUTC1_RST)))
            (btor291 REG_OPCODEIN_0_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OPCODEIN_0_CE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OPCODEIN_0_CE)))
            (btor292 REG_OPCODEIN_0_CLK)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OPCODEIN_0_CLK)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OPCODEIN_0_CLK)))
            (btor293 REG_OPCODEIN_0_RST)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OPCODEIN_0_RST)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OPCODEIN_0_RST)))
            (btor294 REG_OPCODEIN_1_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OPCODEIN_1_CE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OPCODEIN_1_CE)))
            (btor295 REG_OPCODEIN_1_CLK)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OPCODEIN_1_CLK)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OPCODEIN_1_CLK)))
            (btor296 REG_OPCODEIN_1_RST)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OPCODEIN_1_RST)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OPCODEIN_1_RST)))
            (btor297 REG_OPCODEOP0_0_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OPCODEOP0_0_CE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OPCODEOP0_0_CE)))
            (btor298 REG_OPCODEOP0_0_CLK)
            (merged-input-state-hash
-            (append
+            (merge-states
              merged-input-state-hash
              (signal-state REG_OPCODEOP0_0_CLK)))
            (btor299 REG_OPCODEOP0_0_RST)
            (merged-input-state-hash
-            (append
+            (merge-states
              merged-input-state-hash
              (signal-state REG_OPCODEOP0_0_RST)))
            (btor300 REG_OPCODEOP0_1_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OPCODEOP0_1_CE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OPCODEOP0_1_CE)))
            (btor301 REG_OPCODEOP0_1_CLK)
            (merged-input-state-hash
-            (append
+            (merge-states
              merged-input-state-hash
              (signal-state REG_OPCODEOP0_1_CLK)))
            (btor302 REG_OPCODEOP0_1_RST)
            (merged-input-state-hash
-            (append
+            (merge-states
              merged-input-state-hash
              (signal-state REG_OPCODEOP0_1_RST)))
            (btor303 REG_OPCODEOP1_0_CLK)
            (merged-input-state-hash
-            (append
+            (merge-states
              merged-input-state-hash
              (signal-state REG_OPCODEOP1_0_CLK)))
            (btor304 REG_OPCODEOP1_1_CLK)
            (merged-input-state-hash
-            (append
+            (merge-states
              merged-input-state-hash
              (signal-state REG_OPCODEOP1_1_CLK)))
            (btor305 REG_OUTPUT0_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OUTPUT0_CE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OUTPUT0_CE)))
            (btor306 REG_OUTPUT0_CLK)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OUTPUT0_CLK)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OUTPUT0_CLK)))
            (btor307 REG_OUTPUT0_RST)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OUTPUT0_RST)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OUTPUT0_RST)))
            (btor308 REG_OUTPUT1_CE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OUTPUT1_CE)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OUTPUT1_CE)))
            (btor309 REG_OUTPUT1_CLK)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OUTPUT1_CLK)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OUTPUT1_CLK)))
            (btor310 REG_OUTPUT1_RST)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state REG_OUTPUT1_RST)))
+            (merge-states
+             merged-input-state-hash
+             (signal-state REG_OUTPUT1_RST)))
            (btor311 RNDPAT)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state RNDPAT)))
+            (merge-states merged-input-state-hash (signal-state RNDPAT)))
            (btor312 RST0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state RST0)))
+            (merge-states merged-input-state-hash (signal-state RST0)))
            (btor313 RST1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state RST1)))
+            (merge-states merged-input-state-hash (signal-state RST1)))
            (btor314 RST2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state RST2)))
+            (merge-states merged-input-state-hash (signal-state RST2)))
            (btor315 RST3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state RST3)))
+            (merge-states merged-input-state-hash (signal-state RST3)))
            (btor316 SIGNEDCIN)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state SIGNEDCIN)))
+            (merge-states merged-input-state-hash (signal-state SIGNEDCIN)))
            (btor317 SIGNEDIA)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state SIGNEDIA)))
+            (merge-states merged-input-state-hash (signal-state SIGNEDIA)))
            (btor318 SIGNEDIB)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state SIGNEDIB)))
+            (merge-states merged-input-state-hash (signal-state SIGNEDIB)))
            (btor319
             (let* ((state-value
                     (cond
@@ -1693,9 +1735,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state319")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state319")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state319"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state319")))
@@ -1718,9 +1761,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state320")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state320")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state320"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state320")))
@@ -1744,9 +1788,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state322")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state322")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state322"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state322")))
@@ -2268,9 +2313,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state496")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state496")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state496"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state496")))
@@ -2293,9 +2339,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state497")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state497")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state497"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state497")))
@@ -2318,9 +2365,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state498")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state498")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state498"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state498")))
@@ -2398,9 +2446,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state515")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state515")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state515"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state515")))
@@ -2423,9 +2472,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state516")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state516")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state516"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state516")))
@@ -2448,9 +2498,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state517")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state517")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state517"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state517")))
@@ -2746,9 +2797,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state594")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state594")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state594"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state594")))
@@ -2771,9 +2823,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state595")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state595")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state595"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state595")))
@@ -2796,9 +2849,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state596")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state596")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state596"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state596")))
@@ -2876,9 +2930,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state613")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state613")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state613"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state613")))
@@ -2901,9 +2956,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state614")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state614")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state614"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state614")))
@@ -2926,9 +2982,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state615")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state615")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state615"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state615")))
@@ -3059,9 +3116,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state648")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state648")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state648"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state648")))
@@ -3084,9 +3142,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state649")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state649")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state649"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state649")))
@@ -3109,9 +3168,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state650")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state650")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state650"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state650")))
@@ -3907,9 +3967,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state849")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state849")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state849"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state849")))
@@ -3932,9 +3993,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state850")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state850")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state850"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state850")))
@@ -3957,9 +4019,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state851")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state851")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state851"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state851")))
@@ -4374,9 +4437,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state959")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state959")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state959"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state959")))
@@ -4399,9 +4463,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state960")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state960")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state960"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state960")))
@@ -4424,9 +4489,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state961")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state961")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state961"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state961")))
@@ -4504,9 +4570,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state978")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state978")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state978"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state978")))
@@ -4529,9 +4596,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state979")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state979")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state979"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state979")))
@@ -4554,9 +4622,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state980")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state980")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state980"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state980")))
@@ -5290,9 +5359,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1175")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1175")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1175"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1175")))
@@ -5315,9 +5385,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1176")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1176")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1176"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1176")))
@@ -5374,9 +5445,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1191")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1191")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1191"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1191")))
@@ -5399,9 +5471,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1192")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1192")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1192"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1192")))
@@ -5436,9 +5509,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1198")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1198")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1198"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1198")))
@@ -5461,9 +5535,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1199")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1199")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1199"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1199")))
@@ -5495,9 +5570,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1205")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1205")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1205"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1205")))
@@ -5520,9 +5596,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1206")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1206")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1206"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1206")))
@@ -5558,9 +5635,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1213")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1213")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1213"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1213")))
@@ -5583,9 +5661,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1214")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1214")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1214"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1214")))
@@ -5621,9 +5700,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1221")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1221")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1221"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1221")))
@@ -5646,9 +5726,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1222")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1222")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1222"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1222")))
@@ -5778,9 +5859,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1256")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1256")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1256"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1256")))
@@ -5803,9 +5885,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1257")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1257")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1257"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1257")))
@@ -5828,9 +5911,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1258")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1258")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1258"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1258")))
@@ -5959,9 +6043,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1299")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1299")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1299"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1299")))
@@ -5984,9 +6069,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1300")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1300")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1300"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1300")))
@@ -6009,9 +6095,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1301")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1301")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1301"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1301")))
@@ -6275,9 +6362,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1410")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1410")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1410"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1410")))
@@ -6300,9 +6388,10 @@
                        merged-input-state-hash
                        (string->symbol (string-append name "state1411")))
                       (bv->signal
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state1411")))))
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1411"))))))
                      ((assoc-has-key?
                        init-hash
                        (string->symbol (string-append name "state1411")))
@@ -8427,168 +8516,548 @@
                (list
                 (cons
                  (string->symbol (string-append name "state1411"))
-                 (signal-value btor2030)))
+                 (cons
+                  (signal-value btor2030)
+                  (if (assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1411")))
+                    (add1
+                     (cdr
+                      (assoc-ref
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state1411")))))
+                    0))))
                (append
                 (list
                  (cons
                   (string->symbol (string-append name "state1410"))
-                  (signal-value btor1412)))
+                  (cons
+                   (signal-value btor1412)
+                   (if (assoc-has-key?
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1410")))
+                     (add1
+                      (cdr
+                       (assoc-ref
+                        merged-input-state-hash
+                        (string->symbol (string-append name "state1410")))))
+                     0))))
                 (append
                  (list
                   (cons
                    (string->symbol (string-append name "state1301"))
-                   (signal-value btor1314)))
+                   (cons
+                    (signal-value btor1314)
+                    (if (assoc-has-key?
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1301")))
+                      (add1
+                       (cdr
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state1301")))))
+                      0))))
                  (append
                   (list
                    (cons
                     (string->symbol (string-append name "state1300"))
-                    (signal-value btor2025)))
+                    (cons
+                     (signal-value btor2025)
+                     (if (assoc-has-key?
+                          merged-input-state-hash
+                          (string->symbol (string-append name "state1300")))
+                       (add1
+                        (cdr
+                         (assoc-ref
+                          merged-input-state-hash
+                          (string->symbol (string-append name "state1300")))))
+                       0))))
                   (append
                    (list
                     (cons
                      (string->symbol (string-append name "state1299"))
-                     (signal-value btor1317)))
+                     (cons
+                      (signal-value btor1317)
+                      (if (assoc-has-key?
+                           merged-input-state-hash
+                           (string->symbol (string-append name "state1299")))
+                        (add1
+                         (cdr
+                          (assoc-ref
+                           merged-input-state-hash
+                           (string->symbol (string-append name "state1299")))))
+                        0))))
                    (append
                     (list
                      (cons
                       (string->symbol (string-append name "state1258"))
-                      (signal-value btor1271)))
+                      (cons
+                       (signal-value btor1271)
+                       (if (assoc-has-key?
+                            merged-input-state-hash
+                            (string->symbol (string-append name "state1258")))
+                         (add1
+                          (cdr
+                           (assoc-ref
+                            merged-input-state-hash
+                            (string->symbol
+                             (string-append name "state1258")))))
+                         0))))
                     (append
                      (list
                       (cons
                        (string->symbol (string-append name "state1257"))
-                       (signal-value btor2019)))
+                       (cons
+                        (signal-value btor2019)
+                        (if (assoc-has-key?
+                             merged-input-state-hash
+                             (string->symbol (string-append name "state1257")))
+                          (add1
+                           (cdr
+                            (assoc-ref
+                             merged-input-state-hash
+                             (string->symbol
+                              (string-append name "state1257")))))
+                          0))))
                      (append
                       (list
                        (cons
                         (string->symbol (string-append name "state1256"))
-                        (signal-value btor1274)))
+                        (cons
+                         (signal-value btor1274)
+                         (if (assoc-has-key?
+                              merged-input-state-hash
+                              (string->symbol
+                               (string-append name "state1256")))
+                           (add1
+                            (cdr
+                             (assoc-ref
+                              merged-input-state-hash
+                              (string->symbol
+                               (string-append name "state1256")))))
+                           0))))
                       (append
                        (list
                         (cons
                          (string->symbol (string-append name "state1222"))
-                         (signal-value btor2015)))
+                         (cons
+                          (signal-value btor2015)
+                          (if (assoc-has-key?
+                               merged-input-state-hash
+                               (string->symbol
+                                (string-append name "state1222")))
+                            (add1
+                             (cdr
+                              (assoc-ref
+                               merged-input-state-hash
+                               (string->symbol
+                                (string-append name "state1222")))))
+                            0))))
                        (append
                         (list
                          (cons
                           (string->symbol (string-append name "state1221"))
-                          (signal-value btor1223)))
+                          (cons
+                           (signal-value btor1223)
+                           (if (assoc-has-key?
+                                merged-input-state-hash
+                                (string->symbol
+                                 (string-append name "state1221")))
+                             (add1
+                              (cdr
+                               (assoc-ref
+                                merged-input-state-hash
+                                (string->symbol
+                                 (string-append name "state1221")))))
+                             0))))
                         (append
                          (list
                           (cons
                            (string->symbol (string-append name "state1214"))
-                           (signal-value btor2011)))
+                           (cons
+                            (signal-value btor2011)
+                            (if (assoc-has-key?
+                                 merged-input-state-hash
+                                 (string->symbol
+                                  (string-append name "state1214")))
+                              (add1
+                               (cdr
+                                (assoc-ref
+                                 merged-input-state-hash
+                                 (string->symbol
+                                  (string-append name "state1214")))))
+                              0))))
                          (append
                           (list
                            (cons
                             (string->symbol (string-append name "state1213"))
-                            (signal-value btor1215)))
+                            (cons
+                             (signal-value btor1215)
+                             (if (assoc-has-key?
+                                  merged-input-state-hash
+                                  (string->symbol
+                                   (string-append name "state1213")))
+                               (add1
+                                (cdr
+                                 (assoc-ref
+                                  merged-input-state-hash
+                                  (string->symbol
+                                   (string-append name "state1213")))))
+                               0))))
                           (append
                            (list
                             (cons
                              (string->symbol (string-append name "state1206"))
-                             (signal-value btor2007)))
+                             (cons
+                              (signal-value btor2007)
+                              (if (assoc-has-key?
+                                   merged-input-state-hash
+                                   (string->symbol
+                                    (string-append name "state1206")))
+                                (add1
+                                 (cdr
+                                  (assoc-ref
+                                   merged-input-state-hash
+                                   (string->symbol
+                                    (string-append name "state1206")))))
+                                0))))
                            (append
                             (list
                              (cons
                               (string->symbol (string-append name "state1205"))
-                              (signal-value btor1207)))
+                              (cons
+                               (signal-value btor1207)
+                               (if (assoc-has-key?
+                                    merged-input-state-hash
+                                    (string->symbol
+                                     (string-append name "state1205")))
+                                 (add1
+                                  (cdr
+                                   (assoc-ref
+                                    merged-input-state-hash
+                                    (string->symbol
+                                     (string-append name "state1205")))))
+                                 0))))
                             (append
                              (list
                               (cons
                                (string->symbol
                                 (string-append name "state1199"))
-                               (signal-value btor2003)))
+                               (cons
+                                (signal-value btor2003)
+                                (if (assoc-has-key?
+                                     merged-input-state-hash
+                                     (string->symbol
+                                      (string-append name "state1199")))
+                                  (add1
+                                   (cdr
+                                    (assoc-ref
+                                     merged-input-state-hash
+                                     (string->symbol
+                                      (string-append name "state1199")))))
+                                  0))))
                              (append
                               (list
                                (cons
                                 (string->symbol
                                  (string-append name "state1198"))
-                                (signal-value btor1200)))
+                                (cons
+                                 (signal-value btor1200)
+                                 (if (assoc-has-key?
+                                      merged-input-state-hash
+                                      (string->symbol
+                                       (string-append name "state1198")))
+                                   (add1
+                                    (cdr
+                                     (assoc-ref
+                                      merged-input-state-hash
+                                      (string->symbol
+                                       (string-append name "state1198")))))
+                                   0))))
                               (append
                                (list
                                 (cons
                                  (string->symbol
                                   (string-append name "state1192"))
-                                 (signal-value btor1999)))
+                                 (cons
+                                  (signal-value btor1999)
+                                  (if (assoc-has-key?
+                                       merged-input-state-hash
+                                       (string->symbol
+                                        (string-append name "state1192")))
+                                    (add1
+                                     (cdr
+                                      (assoc-ref
+                                       merged-input-state-hash
+                                       (string->symbol
+                                        (string-append name "state1192")))))
+                                    0))))
                                (append
                                 (list
                                  (cons
                                   (string->symbol
                                    (string-append name "state1191"))
-                                  (signal-value btor1193)))
+                                  (cons
+                                   (signal-value btor1193)
+                                   (if (assoc-has-key?
+                                        merged-input-state-hash
+                                        (string->symbol
+                                         (string-append name "state1191")))
+                                     (add1
+                                      (cdr
+                                       (assoc-ref
+                                        merged-input-state-hash
+                                        (string->symbol
+                                         (string-append name "state1191")))))
+                                     0))))
                                 (append
                                  (list
                                   (cons
                                    (string->symbol
                                     (string-append name "state1176"))
-                                   (signal-value btor1995)))
+                                   (cons
+                                    (signal-value btor1995)
+                                    (if (assoc-has-key?
+                                         merged-input-state-hash
+                                         (string->symbol
+                                          (string-append name "state1176")))
+                                      (add1
+                                       (cdr
+                                        (assoc-ref
+                                         merged-input-state-hash
+                                         (string->symbol
+                                          (string-append name "state1176")))))
+                                      0))))
                                  (append
                                   (list
                                    (cons
                                     (string->symbol
                                      (string-append name "state1175"))
-                                    (signal-value btor1177)))
+                                    (cons
+                                     (signal-value btor1177)
+                                     (if (assoc-has-key?
+                                          merged-input-state-hash
+                                          (string->symbol
+                                           (string-append name "state1175")))
+                                       (add1
+                                        (cdr
+                                         (assoc-ref
+                                          merged-input-state-hash
+                                          (string->symbol
+                                           (string-append name "state1175")))))
+                                       0))))
                                   (append
                                    (list
                                     (cons
                                      (string->symbol
                                       (string-append name "state980"))
-                                     (signal-value btor993)))
+                                     (cons
+                                      (signal-value btor993)
+                                      (if (assoc-has-key?
+                                           merged-input-state-hash
+                                           (string->symbol
+                                            (string-append name "state980")))
+                                        (add1
+                                         (cdr
+                                          (assoc-ref
+                                           merged-input-state-hash
+                                           (string->symbol
+                                            (string-append name "state980")))))
+                                        0))))
                                    (append
                                     (list
                                      (cons
                                       (string->symbol
                                        (string-append name "state979"))
-                                      (signal-value btor1990)))
+                                      (cons
+                                       (signal-value btor1990)
+                                       (if (assoc-has-key?
+                                            merged-input-state-hash
+                                            (string->symbol
+                                             (string-append name "state979")))
+                                         (add1
+                                          (cdr
+                                           (assoc-ref
+                                            merged-input-state-hash
+                                            (string->symbol
+                                             (string-append
+                                              name
+                                              "state979")))))
+                                         0))))
                                     (append
                                      (list
                                       (cons
                                        (string->symbol
                                         (string-append name "state978"))
-                                       (signal-value btor996)))
+                                       (cons
+                                        (signal-value btor996)
+                                        (if (assoc-has-key?
+                                             merged-input-state-hash
+                                             (string->symbol
+                                              (string-append name "state978")))
+                                          (add1
+                                           (cdr
+                                            (assoc-ref
+                                             merged-input-state-hash
+                                             (string->symbol
+                                              (string-append
+                                               name
+                                               "state978")))))
+                                          0))))
                                      (append
                                       (list
                                        (cons
                                         (string->symbol
                                          (string-append name "state961"))
-                                        (signal-value btor974)))
+                                        (cons
+                                         (signal-value btor974)
+                                         (if (assoc-has-key?
+                                              merged-input-state-hash
+                                              (string->symbol
+                                               (string-append
+                                                name
+                                                "state961")))
+                                           (add1
+                                            (cdr
+                                             (assoc-ref
+                                              merged-input-state-hash
+                                              (string->symbol
+                                               (string-append
+                                                name
+                                                "state961")))))
+                                           0))))
                                       (append
                                        (list
                                         (cons
                                          (string->symbol
                                           (string-append name "state960"))
-                                         (signal-value btor1985)))
+                                         (cons
+                                          (signal-value btor1985)
+                                          (if (assoc-has-key?
+                                               merged-input-state-hash
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state960")))
+                                            (add1
+                                             (cdr
+                                              (assoc-ref
+                                               merged-input-state-hash
+                                               (string->symbol
+                                                (string-append
+                                                 name
+                                                 "state960")))))
+                                            0))))
                                        (append
                                         (list
                                          (cons
                                           (string->symbol
                                            (string-append name "state959"))
-                                          (signal-value btor977)))
+                                          (cons
+                                           (signal-value btor977)
+                                           (if (assoc-has-key?
+                                                merged-input-state-hash
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state959")))
+                                             (add1
+                                              (cdr
+                                               (assoc-ref
+                                                merged-input-state-hash
+                                                (string->symbol
+                                                 (string-append
+                                                  name
+                                                  "state959")))))
+                                             0))))
                                         (append
                                          (list
                                           (cons
                                            (string->symbol
                                             (string-append name "state851"))
-                                           (signal-value btor864)))
+                                           (cons
+                                            (signal-value btor864)
+                                            (if (assoc-has-key?
+                                                 merged-input-state-hash
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state851")))
+                                              (add1
+                                               (cdr
+                                                (assoc-ref
+                                                 merged-input-state-hash
+                                                 (string->symbol
+                                                  (string-append
+                                                   name
+                                                   "state851")))))
+                                              0))))
                                          (append
                                           (list
                                            (cons
                                             (string->symbol
                                              (string-append name "state850"))
-                                            (signal-value btor1979)))
+                                            (cons
+                                             (signal-value btor1979)
+                                             (if (assoc-has-key?
+                                                  merged-input-state-hash
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state850")))
+                                               (add1
+                                                (cdr
+                                                 (assoc-ref
+                                                  merged-input-state-hash
+                                                  (string->symbol
+                                                   (string-append
+                                                    name
+                                                    "state850")))))
+                                               0))))
                                           (append
                                            (list
                                             (cons
                                              (string->symbol
                                               (string-append name "state849"))
-                                             (signal-value btor867)))
+                                             (cons
+                                              (signal-value btor867)
+                                              (if (assoc-has-key?
+                                                   merged-input-state-hash
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state849")))
+                                                (add1
+                                                 (cdr
+                                                  (assoc-ref
+                                                   merged-input-state-hash
+                                                   (string->symbol
+                                                    (string-append
+                                                     name
+                                                     "state849")))))
+                                                0))))
                                            (append
                                             (list
                                              (cons
                                               (string->symbol
                                                (string-append name "state650"))
-                                              (signal-value btor663)))
+                                              (cons
+                                               (signal-value btor663)
+                                               (if (assoc-has-key?
+                                                    merged-input-state-hash
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state650")))
+                                                 (add1
+                                                  (cdr
+                                                   (assoc-ref
+                                                    merged-input-state-hash
+                                                    (string->symbol
+                                                     (string-append
+                                                      name
+                                                      "state650")))))
+                                                 0))))
                                             (append
                                              (list
                                               (cons
@@ -8596,7 +9065,23 @@
                                                 (string-append
                                                  name
                                                  "state649"))
-                                               (signal-value btor1974)))
+                                               (cons
+                                                (signal-value btor1974)
+                                                (if (assoc-has-key?
+                                                     merged-input-state-hash
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state649")))
+                                                  (add1
+                                                   (cdr
+                                                    (assoc-ref
+                                                     merged-input-state-hash
+                                                     (string->symbol
+                                                      (string-append
+                                                       name
+                                                       "state649")))))
+                                                  0))))
                                              (append
                                               (list
                                                (cons
@@ -8604,7 +9089,23 @@
                                                  (string-append
                                                   name
                                                   "state648"))
-                                                (signal-value btor666)))
+                                                (cons
+                                                 (signal-value btor666)
+                                                 (if (assoc-has-key?
+                                                      merged-input-state-hash
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state648")))
+                                                   (add1
+                                                    (cdr
+                                                     (assoc-ref
+                                                      merged-input-state-hash
+                                                      (string->symbol
+                                                       (string-append
+                                                        name
+                                                        "state648")))))
+                                                   0))))
                                               (append
                                                (list
                                                 (cons
@@ -8612,7 +9113,23 @@
                                                   (string-append
                                                    name
                                                    "state615"))
-                                                 (signal-value btor628)))
+                                                 (cons
+                                                  (signal-value btor628)
+                                                  (if (assoc-has-key?
+                                                       merged-input-state-hash
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state615")))
+                                                    (add1
+                                                     (cdr
+                                                      (assoc-ref
+                                                       merged-input-state-hash
+                                                       (string->symbol
+                                                        (string-append
+                                                         name
+                                                         "state615")))))
+                                                    0))))
                                                (append
                                                 (list
                                                  (cons
@@ -8620,7 +9137,23 @@
                                                    (string-append
                                                     name
                                                     "state614"))
-                                                  (signal-value btor1968)))
+                                                  (cons
+                                                   (signal-value btor1968)
+                                                   (if (assoc-has-key?
+                                                        merged-input-state-hash
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state614")))
+                                                     (add1
+                                                      (cdr
+                                                       (assoc-ref
+                                                        merged-input-state-hash
+                                                        (string->symbol
+                                                         (string-append
+                                                          name
+                                                          "state614")))))
+                                                     0))))
                                                 (append
                                                  (list
                                                   (cons
@@ -8628,7 +9161,23 @@
                                                     (string-append
                                                      name
                                                      "state613"))
-                                                   (signal-value btor631)))
+                                                   (cons
+                                                    (signal-value btor631)
+                                                    (if (assoc-has-key?
+                                                         merged-input-state-hash
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state613")))
+                                                      (add1
+                                                       (cdr
+                                                        (assoc-ref
+                                                         merged-input-state-hash
+                                                         (string->symbol
+                                                          (string-append
+                                                           name
+                                                           "state613")))))
+                                                      0))))
                                                  (append
                                                   (list
                                                    (cons
@@ -8636,7 +9185,23 @@
                                                      (string-append
                                                       name
                                                       "state596"))
-                                                    (signal-value btor609)))
+                                                    (cons
+                                                     (signal-value btor609)
+                                                     (if (assoc-has-key?
+                                                          merged-input-state-hash
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state596")))
+                                                       (add1
+                                                        (cdr
+                                                         (assoc-ref
+                                                          merged-input-state-hash
+                                                          (string->symbol
+                                                           (string-append
+                                                            name
+                                                            "state596")))))
+                                                       0))))
                                                   (append
                                                    (list
                                                     (cons
@@ -8644,7 +9209,23 @@
                                                       (string-append
                                                        name
                                                        "state595"))
-                                                     (signal-value btor1963)))
+                                                     (cons
+                                                      (signal-value btor1963)
+                                                      (if (assoc-has-key?
+                                                           merged-input-state-hash
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state595")))
+                                                        (add1
+                                                         (cdr
+                                                          (assoc-ref
+                                                           merged-input-state-hash
+                                                           (string->symbol
+                                                            (string-append
+                                                             name
+                                                             "state595")))))
+                                                        0))))
                                                    (append
                                                     (list
                                                      (cons
@@ -8652,7 +9233,23 @@
                                                        (string-append
                                                         name
                                                         "state594"))
-                                                      (signal-value btor612)))
+                                                      (cons
+                                                       (signal-value btor612)
+                                                       (if (assoc-has-key?
+                                                            merged-input-state-hash
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state594")))
+                                                         (add1
+                                                          (cdr
+                                                           (assoc-ref
+                                                            merged-input-state-hash
+                                                            (string->symbol
+                                                             (string-append
+                                                              name
+                                                              "state594")))))
+                                                         0))))
                                                     (append
                                                      (list
                                                       (cons
@@ -8660,7 +9257,23 @@
                                                         (string-append
                                                          name
                                                          "state517"))
-                                                       (signal-value btor530)))
+                                                       (cons
+                                                        (signal-value btor530)
+                                                        (if (assoc-has-key?
+                                                             merged-input-state-hash
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state517")))
+                                                          (add1
+                                                           (cdr
+                                                            (assoc-ref
+                                                             merged-input-state-hash
+                                                             (string->symbol
+                                                              (string-append
+                                                               name
+                                                               "state517")))))
+                                                          0))))
                                                      (append
                                                       (list
                                                        (cons
@@ -8668,8 +9281,24 @@
                                                          (string-append
                                                           name
                                                           "state516"))
-                                                        (signal-value
-                                                         btor1958)))
+                                                        (cons
+                                                         (signal-value
+                                                          btor1958)
+                                                         (if (assoc-has-key?
+                                                              merged-input-state-hash
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state516")))
+                                                           (add1
+                                                            (cdr
+                                                             (assoc-ref
+                                                              merged-input-state-hash
+                                                              (string->symbol
+                                                               (string-append
+                                                                name
+                                                                "state516")))))
+                                                           0))))
                                                       (append
                                                        (list
                                                         (cons
@@ -8677,8 +9306,24 @@
                                                           (string-append
                                                            name
                                                            "state515"))
-                                                         (signal-value
-                                                          btor533)))
+                                                         (cons
+                                                          (signal-value
+                                                           btor533)
+                                                          (if (assoc-has-key?
+                                                               merged-input-state-hash
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state515")))
+                                                            (add1
+                                                             (cdr
+                                                              (assoc-ref
+                                                               merged-input-state-hash
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state515")))))
+                                                            0))))
                                                        (append
                                                         (list
                                                          (cons
@@ -8686,8 +9331,24 @@
                                                            (string-append
                                                             name
                                                             "state498"))
-                                                          (signal-value
-                                                           btor511)))
+                                                          (cons
+                                                           (signal-value
+                                                            btor511)
+                                                           (if (assoc-has-key?
+                                                                merged-input-state-hash
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state498")))
+                                                             (add1
+                                                              (cdr
+                                                               (assoc-ref
+                                                                merged-input-state-hash
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state498")))))
+                                                             0))))
                                                         (append
                                                          (list
                                                           (cons
@@ -8695,8 +9356,24 @@
                                                             (string-append
                                                              name
                                                              "state497"))
-                                                           (signal-value
-                                                            btor1953)))
+                                                           (cons
+                                                            (signal-value
+                                                             btor1953)
+                                                            (if (assoc-has-key?
+                                                                 merged-input-state-hash
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state497")))
+                                                              (add1
+                                                               (cdr
+                                                                (assoc-ref
+                                                                 merged-input-state-hash
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state497")))))
+                                                              0))))
                                                          (append
                                                           (list
                                                            (cons
@@ -8704,8 +9381,24 @@
                                                              (string-append
                                                               name
                                                               "state496"))
-                                                            (signal-value
-                                                             btor514)))
+                                                            (cons
+                                                             (signal-value
+                                                              btor514)
+                                                             (if (assoc-has-key?
+                                                                  merged-input-state-hash
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state496")))
+                                                               (add1
+                                                                (cdr
+                                                                 (assoc-ref
+                                                                  merged-input-state-hash
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state496")))))
+                                                               0))))
                                                           (append
                                                            (list
                                                             (cons
@@ -8713,8 +9406,24 @@
                                                               (string-append
                                                                name
                                                                "state322"))
-                                                             (signal-value
-                                                              btor340)))
+                                                             (cons
+                                                              (signal-value
+                                                               btor340)
+                                                              (if (assoc-has-key?
+                                                                   merged-input-state-hash
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state322")))
+                                                                (add1
+                                                                 (cdr
+                                                                  (assoc-ref
+                                                                   merged-input-state-hash
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state322")))))
+                                                                0))))
                                                            (append
                                                             (list
                                                              (cons
@@ -8722,8 +9431,24 @@
                                                                (string-append
                                                                 name
                                                                 "state320"))
-                                                              (signal-value
-                                                               btor1948)))
+                                                              (cons
+                                                               (signal-value
+                                                                btor1948)
+                                                               (if (assoc-has-key?
+                                                                    merged-input-state-hash
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state320")))
+                                                                 (add1
+                                                                  (cdr
+                                                                   (assoc-ref
+                                                                    merged-input-state-hash
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state320")))))
+                                                                 0))))
                                                             (append
                                                              (list
                                                               (cons
@@ -8731,8 +9456,24 @@
                                                                 (string-append
                                                                  name
                                                                  "state319"))
-                                                               (signal-value
-                                                                btor345)))
+                                                               (cons
+                                                                (signal-value
+                                                                 btor345)
+                                                                (if (assoc-has-key?
+                                                                     merged-input-state-hash
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state319")))
+                                                                  (add1
+                                                                   (cdr
+                                                                    (assoc-ref
+                                                                     merged-input-state-hash
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state319")))))
+                                                                  0))))
                                                              (list))))))))))))))))))))))))))))))))))))))))))))))))
               merged-input-state-hash)
              equal?

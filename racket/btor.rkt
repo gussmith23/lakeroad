@@ -210,11 +210,23 @@
          ;;; A next statement determines the value of the state var that we return out.
          ;;; We build a hash map that maps state symbols (e.g. 'state0) to the expressions that convey
          ;;; the output value for the state.
-         (set! output-state-hash
-               `(append (list (cons ,(make-state-key-expr (hash-ref state-symbols
-                                                                    (string->number state-id-str)))
-                                    (signal-value ,(get-expr-id-str next-val-id-str))))
-                        ,output-state-hash))]
+         (set!
+          output-state-hash
+          `(append
+            (list (cons ,(make-state-key-expr (hash-ref state-symbols (string->number state-id-str)))
+                        (cons (signal-value ,(get-expr-id-str next-val-id-str))
+                              ;;; New version is either old version + 1, or 0 if it wasn't in the
+                              ;;; hash.
+                              (if (assoc-has-key? ,merged-input-state-hash-symbol
+                                                  ,(make-state-key-expr
+                                                    (hash-ref state-symbols
+                                                              (string->number state-id-str))))
+                                  (add1 (cdr (assoc-ref ,merged-input-state-hash-symbol
+                                                        ,(make-state-key-expr
+                                                          (hash-ref state-symbols
+                                                                    (string->number state-id-str))))))
+                                  0))))
+            ,output-state-hash))]
         ;;; Do nothing. Should be handled by the above code which does a first pass for init values.
         [`("init" ,sort-id-str ,state-id-str ,val-id-str) (void)]
         ;;; `name` is optional. We approximate optional using `...`, which will match whatever's left.
@@ -258,18 +270,20 @@
            ;;; value by name and convert it to a signal.
            (add-expr-id-str
             id-str
-            `(let* ([state-value (cond
-                                   [(assoc-has-key? ,merged-input-state-hash-symbol
-                                                    ,(make-state-key-expr state-symbol))
-                                    (bv->signal (assoc-ref ,merged-input-state-hash-symbol
-                                                           ,(make-state-key-expr state-symbol)))]
-                                   [(assoc-has-key? ,init-hash-symbol
-                                                    ,(make-state-key-expr state-symbol))
-                                    (bv->signal (assoc-ref ,init-hash-symbol
-                                                           ,(make-state-key-expr state-symbol)))]
-                                   [else
-                                    (bv->signal (,(hash-ref get-default-value-fn-hash
-                                                            (string->number sort-id-str))))])])
+            `(let* ([state-value
+                     (cond
+                       [(assoc-has-key? ,merged-input-state-hash-symbol
+                                        ,(make-state-key-expr state-symbol))
+                        ;;; The state list holds (key . (value . version)) pairs. Get the value once
+                        ;;; we find the (value . version) pair.
+                        (bv->signal (car (assoc-ref ,merged-input-state-hash-symbol
+                                                    ,(make-state-key-expr state-symbol))))]
+                       [(assoc-has-key? ,init-hash-symbol ,(make-state-key-expr state-symbol))
+                        (bv->signal (assoc-ref ,init-hash-symbol
+                                               ,(make-state-key-expr state-symbol)))]
+                       [else
+                        (bv->signal (,(hash-ref get-default-value-fn-hash
+                                                (string->number sort-id-str))))])])
                (when (not (signal? state-value))
                  (error "Expected signal"))
                ;;; TODO(@gussmith23): Signals don't just have to contain bvs, now that we've enabled
@@ -310,7 +324,8 @@
          (hash-set! input-types (string->symbol name) (hash-ref sorts (string->number type-id-str)))
          (add-expr-id-str id-str (string->symbol name))
          (add-expr merged-input-state-hash-symbol
-                   `(append ,merged-input-state-hash-symbol (signal-state ,(string->symbol name))))]
+                   `(merge-states ,merged-input-state-hash-symbol
+                                  (signal-state ,(string->symbol name))))]
         [`("const" ,type-id-str ,value-str)
          (let* ([type (hash-ref sorts (string->number type-id-str))]
                 [value (string->number value-str 2)])

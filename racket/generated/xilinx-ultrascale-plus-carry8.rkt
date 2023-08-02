@@ -20,20 +20,20 @@
            (btor1 (bitvector 1))
            (btor2 CARRY_TYPE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CARRY_TYPE)))
+            (merge-states merged-input-state-hash (signal-state CARRY_TYPE)))
            (btor3 CI)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CI)))
+            (merge-states merged-input-state-hash (signal-state CI)))
            (btor4 CI_TOP)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CI_TOP)))
+            (merge-states merged-input-state-hash (signal-state CI_TOP)))
            (btor5 (bitvector 8))
            (btor6 DI)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state DI)))
+            (merge-states merged-input-state-hash (signal-state DI)))
            (btor7 S)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state S)))
+            (merge-states merged-input-state-hash (signal-state S)))
            (btor8
             (signal (extract 0 0 (signal-value btor6)) (signal-state btor6)))
            (btor9
