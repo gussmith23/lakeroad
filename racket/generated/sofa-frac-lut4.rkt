@@ -20,21 +20,21 @@
            (btor1 (bitvector 4))
            (btor2 in)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state in)))
+            (merge-states merged-input-state-hash (signal-state in)))
            (btor3 (bitvector 1))
            (btor4 mode)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state mode)))
+            (merge-states merged-input-state-hash (signal-state mode)))
            (btor5 mode_inv)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state mode_inv)))
+            (merge-states merged-input-state-hash (signal-state mode_inv)))
            (btor6 (bitvector 16))
            (btor7 sram)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state sram)))
+            (merge-states merged-input-state-hash (signal-state sram)))
            (btor8 sram_inv)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state sram_inv)))
+            (merge-states merged-input-state-hash (signal-state sram_inv)))
            (btor9
             (signal (extract 0 0 (signal-value btor7)) (signal-state btor7)))
            (btor10

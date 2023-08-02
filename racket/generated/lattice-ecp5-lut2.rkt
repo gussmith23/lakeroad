@@ -16,14 +16,14 @@
            (btor1 (bitvector 1))
            (btor2 A)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A)))
+            (merge-states merged-input-state-hash (signal-state A)))
            (btor3 B)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B)))
+            (merge-states merged-input-state-hash (signal-state B)))
            (btor4 (bitvector 4))
            (btor5 init)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state init)))
+            (merge-states merged-input-state-hash (signal-state init)))
            (btor6 (bitvector 2))
            (btor7
             (signal (extract 1 0 (signal-value btor5)) (signal-state btor5)))

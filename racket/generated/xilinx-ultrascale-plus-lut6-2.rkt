@@ -210,26 +210,26 @@
            (btor1 (bitvector 1))
            (btor2 I0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I0)))
+            (merge-states merged-input-state-hash (signal-state I0)))
            (btor3 I1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I1)))
+            (merge-states merged-input-state-hash (signal-state I1)))
            (btor4 I2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I2)))
+            (merge-states merged-input-state-hash (signal-state I2)))
            (btor5 I3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I3)))
+            (merge-states merged-input-state-hash (signal-state I3)))
            (btor6 I4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I4)))
+            (merge-states merged-input-state-hash (signal-state I4)))
            (btor7 I5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I5)))
+            (merge-states merged-input-state-hash (signal-state I5)))
            (btor8 (bitvector 64))
            (btor9 INIT)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state INIT)))
+            (merge-states merged-input-state-hash (signal-state INIT)))
            (btor10 unnamed-input-10)
            (btor11 (bitvector 4))
            (btor12 unnamed-input-12)
