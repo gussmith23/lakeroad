@@ -3,8 +3,7 @@
 
 (provide btor->racket)
 
-(require rosette
-         racket/hash
+(require racket/hash
          "lattice-ecp5.rkt"
          "ultrascale.rkt"
          (prefix-in lr: "language.rkt")
@@ -292,7 +291,7 @@
                ;;;    (error "Signal value invalid"))
                state-value)))]
         [`("sort" "bitvec" ,width-str)
-         (hash-set! sorts (string->number id-str) (bitvector (string->number width-str)))
+         (hash-set! sorts (string->number id-str) `(bitvector ,(string->number width-str)))
          (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))
          (hash-set!
           get-default-value-fn-hash
@@ -301,7 +300,7 @@
              (log-warning "Getting default value of 0 for bitvector, this may be a bad idea!")
              (bv 0 ,(string->number width-str))))]
         [`("sort" "array" ,index-sort-id-str ,element-sort-id-str)
-         (hash-set! sorts (string->number id-str) vector?)
+         (hash-set! sorts (string->number id-str) 'vector?)
          (add-expr-id-str id-str (hash-ref sorts (string->number id-str)))
          (hash-set!
           get-default-value-fn-hash
@@ -359,45 +358,45 @@
                                          ,s)))]
         [`("concat" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (op-call-builder concat a b)))]
+           (add-expr-id-str id-str (op-call-builder 'concat a b)))]
         [`("add" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (op-call-builder bvadd a b)))]
+           (add-expr-id-str id-str (op-call-builder 'bvadd a b)))]
         [`("xor" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (op-call-builder bvxor a b)))]
+           (add-expr-id-str id-str (op-call-builder 'bvxor a b)))]
         [`("and" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (op-call-builder bvand a b)))]
+           (add-expr-id-str id-str (op-call-builder 'bvand a b)))]
         [`("sub" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (op-call-builder bvsub a b)))]
+           (add-expr-id-str id-str (op-call-builder 'bvsub a b)))]
         [`("or" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (op-call-builder bvor a b)))]
+           (add-expr-id-str id-str (op-call-builder 'bvor a b)))]
         [`("mul" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (op-call-builder bvmul a b)))]
+           (add-expr-id-str id-str (op-call-builder 'bvmul a b)))]
         [`("srl" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (op-call-builder bvlshr a b)))]
+           (add-expr-id-str id-str (op-call-builder 'bvlshr a b)))]
         [`("not" ,out-type-id-str ,a-id-str)
-         (let ([a (get-expr-id-str a-id-str)]) (add-expr-id-str id-str (op-call-builder bvnot a)))]
+         (let ([a (get-expr-id-str a-id-str)]) (add-expr-id-str id-str (op-call-builder 'bvnot a)))]
         [`("xnor" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
            (add-expr-id-str id-str (op-call-builder '(lambda (a b) (bvnot (bvxor a b))) a b)))]
         [`("redor" ,out-type-id-str ,in-id-str)
-         (add-expr-id-str id-str (redop-call-builder bvor (get-expr-id-str in-id-str)))]
+         (add-expr-id-str id-str (redop-call-builder 'bvor (get-expr-id-str in-id-str)))]
         [`("redxor" ,out-type-id-str ,in-id-str)
-         (add-expr-id-str id-str (redop-call-builder bvxor (get-expr-id-str in-id-str)))]
+         (add-expr-id-str id-str (redop-call-builder 'bvxor (get-expr-id-str in-id-str)))]
         [`("redand" ,out-type-id-str ,in-id-str)
-         (add-expr-id-str id-str (redop-call-builder bvand (get-expr-id-str in-id-str)))]
+         (add-expr-id-str id-str (redop-call-builder 'bvand (get-expr-id-str in-id-str)))]
         [`("eq" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (compop-call-builder bveq a b)))]
+           (add-expr-id-str id-str (compop-call-builder 'bveq a b)))]
         [`("ugte" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
-           (add-expr-id-str id-str (compop-call-builder bvuge a b)))]
+           (add-expr-id-str id-str (compop-call-builder 'bvuge a b)))]
         [`("neq" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
            (add-expr-id-str id-str (compop-call-builder `(compose1 not bveq) a b)))])))
