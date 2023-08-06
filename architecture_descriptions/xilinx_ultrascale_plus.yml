@@ -45,7 +45,7 @@ implementations:
             { name: S, direction: input, bitwidth: 8, value: S },
             { name: CO, direction: output, bitwidth: 8, value: CO },
             { name: O, direction: output, bitwidth: 8, value: O },
-            { name: CI_TOP, direction:input, bitwidth: 1, value: (bv 0 1) },
+            { name: CI_TOP, direction: input, bitwidth: 1, value: (bv 0 1) },
           ]
         parameters:
           [
