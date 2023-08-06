@@ -46,6 +46,12 @@ implementations:
             { name: CO, direction: output, bitwidth: 8, value: CO },
             { name: O, direction: output, bitwidth: 8, value: O },
           ]
+        parameters:
+          [
+            # CARRY_TYPE = "SINGLE"; second carry-in for "DUAL" mode set to 0.
+            { name: CARRY_TYPE, value: (bv 0 1) },
+            { name: CI_TOP, value: (bv 0 1) },
+          ]
     outputs: { O: (get CARRY8 O), CO: (bit 7 (get CARRY8 CO)) }
   - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48, d-width: 27 } }
     internal_data: {

@@ -1331,7 +1331,8 @@
                                                (module-instance-port "S" "S" 'input 8)
                                                (module-instance-port "CO" "CO" 'output 8)
                                                (module-instance-port "O" "O" 'output 8))
-                                         (list)
+                                         (list (module-instance-parameter "CARRY_TYPE" "(bv 0 1)")
+                                               (module-instance-parameter "CI_TOP" "(bv 0 1)"))
                                          "../verilator_xilinx/CARRY8.v"
                                          "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v"
                                          "CARRY8"))
