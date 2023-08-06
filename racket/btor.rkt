@@ -514,6 +514,7 @@ here-string-delimiter
          ))
 
       (define ns (namespace-anchor->namespace a))
+      (namespace-require 'rosette ns)
       (define toga-f (eval function-syntax ns))
       ;;;(pretty-write function-syntax)
 
