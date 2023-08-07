@@ -210,6 +210,12 @@
                                 [24 "DYNAMIC"]
                                 [_ (error (format "Unknown Lattice enum value: ~a" v))]))
                             (cond
+                              [(and (equal? module-name "CARRY8")
+                                    (equal? (module-instance-parameter-name param) "CARRY_TYPE"))
+                               (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                 [0 "SINGLE_CY8"]
+                                 [1 "DUAL_CY4"]
+                                 [_ (error (format "Unexpected CARRY_TYPE ~a" v))])]
                               [(and (equal? module-name "DSP48E2")
                                     (member (module-instance-parameter-name param)
                                             (list "AMULTSEL"
