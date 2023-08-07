@@ -71,7 +71,7 @@ RUN git clone https://github.com/boolector/boolector \
 # architectures.
 WORKDIR /root
 RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
+  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-08-06/oss-cad-suite-linux-x64-20230806.tgz -q -O oss-cad-suite.tgz; \
   else \
   exit 1; \
   fi \
@@ -96,29 +96,19 @@ WORKDIR /root/lakeroad
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-# raco (Racket) dependencies
-# First, fix https://github.com/racket/racket/issues/2691
-RUN raco setup --doc-index --force-user-docs
-RUN raco pkg install --deps search-auto --batch \
-  fmt \
-  yaml
-
-# Install custom Rosette. Once these changes are merged, we can use mainline Rosette.
+# Install raco (Racket) dependencies. First, fix
+# https://github.com/racket/racket/issues/2691 by building the docs.
 WORKDIR /root
-RUN git clone https://github.com/gussmith23/rosette \
-  && cd rosette \
-  && git checkout gussmith23/add-bitwuzla-and-cvc5 \ 
+ADD rosette/ rosette/
+RUN raco setup --doc-index --force-user-docs \
+  && raco pkg install --deps search-auto --batch \
+  # For now, we use a custom Rosette install; see below.
+  # rosette \
+  yaml \
+  # Install Rosette from submodule. Check that it exists first.
+  && [ "$(ls --almost-all /root/rosette)" ] \
+  && cd /root/rosette \
   && raco pkg install --deps search-auto --batch
-
-# Install CVC5.
-WORKDIR /root/cvc5
-RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/cvc5/cvc5/releases/download/cvc5-1.0.5/cvc5-Linux p -q -O cvc5 ; \
-  chmod +x cvc5 ; \
-  else \
-  exit 1; \
-  fi
-ENV PATH="/root/cvc5:${PATH}"
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
