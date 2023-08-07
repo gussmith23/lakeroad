@@ -217,7 +217,12 @@
                                                                param))))
                                  [0 "SINGLE_CY8"]
                                  [1 "DUAL_CY4"]
-                                 [_ (error (format "Unexpected CARRY_TYPE ~a" v))])]
+                                 [_
+                                  (error (format "Unexpected CARRY_TYPE ~a"
+                                                 (module-instance-parameter-name
+                                                  (signal-value
+                                                   (lr:bv-v (module-instance-parameter-value
+                                                             param))))))])]
                               [(and (equal? module-name "DSP48E2")
                                     (member (module-instance-parameter-name param)
                                             (list "AMULTSEL"
