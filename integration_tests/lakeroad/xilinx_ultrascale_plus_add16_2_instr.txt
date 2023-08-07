@@ -38,14 +38,18 @@ CHECK:   input [15:0] b;
 CHECK:   wire [15:0] b;
 CHECK:   output [15:0] out;
 CHECK:   wire [15:0] out;
-CHECK:   CARRY8 CARRY8_16 (
+CHECK:   CARRY8 #(
+CHECK      .CARRY_TYPE("SINGLE_CY8")
+CHECK:   ) CARRY8_16 (
 CHECK:     .CI(1'h0),
 CHECK:     .CO(CO_16),
 CHECK:     .DI(a[7:0]),
 CHECK:     .O(out[7:0]),
 CHECK:     .S({ O_7, O_6, O_5, O_4, O_3, O_2, O_1, O_0 })
 CHECK:   );
-CHECK:   CARRY8 CARRY8_17 (
+CHECK:   CARRY8 #(
+CHECK      .CARRY_TYPE("SINGLE_CY8")
+CHECK:   ) CARRY8_17 (
 CHECK:     .CI(CO_16[7]),
 CHECK:     .CO(CO_18),
 CHECK:     .DI(a[15:8]),
