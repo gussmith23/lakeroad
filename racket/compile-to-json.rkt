@@ -212,7 +212,9 @@
                             (cond
                               [(and (equal? module-name "CARRY8")
                                     (equal? (module-instance-parameter-name param) "CARRY_TYPE"))
-                               (match (bitvector->natural (signal-value (lr:bv-v v)))
+                               (match (bitvector->natural
+                                       (signal-value (lr:bv-v (module-instance-parameter-value
+                                                               param))))
                                  [0 "SINGLE_CY8"]
                                  [1 "DUAL_CY4"]
                                  [_ (error (format "Unexpected CARRY_TYPE ~a" v))])]
