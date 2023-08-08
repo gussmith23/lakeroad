@@ -22,6 +22,7 @@ RUN apt install -y \
   git \
   libfl-dev \
   libfl2 \
+  libgmp-dev \
   libgoogle-perftools-dev \
   libssl-dev \
   libzmq3-dev \
@@ -32,6 +33,7 @@ RUN apt install -y \
   openssl \
   perl \
   perl-doc \
+  pkg-config \
   python3 \
   python3-pip \
   racket \
