@@ -120,6 +120,7 @@ RUN raco setup --doc-index --force-user-docs \
   && raco pkg install --deps search-auto --batch \
   # For now, we use a custom Rosette install; see below.
   # rosette \
+  fmt \
   yaml \
   # Install Rosette from submodule. Check that it exists first.
   && [ "$(ls --almost-all /root/rosette)" ] \
