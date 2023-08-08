@@ -56,18 +56,6 @@ RUN mkdir -p /root/.local/bin \
   && chmod +x /root/.local/bin/lit
 ENV PATH="/root/.local/bin:${PATH}"
 
-# Build and install latest boolector.
-WORKDIR /root
-ARG MAKE_JOBS=2
-RUN git clone https://github.com/boolector/boolector \
-  && cd boolector \
-  && git checkout 3.2.2 \
-  && ./contrib/setup-lingeling.sh \
-  && ./contrib/setup-btor2tools.sh \
-  && ./configure.sh \
-  && cd build \
-  && make -j${MAKE_JOBS} install
-
 # Install Yosys and other OSS hardware tools from prebuilt binaries.
 #
 # If we get an error here, we likely just need to add other branches for other
