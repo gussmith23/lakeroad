@@ -504,6 +504,6 @@
               #:include-dirs (list (build-path (getenv "LAKEROAD_DIR") "verilator-unisims")
                                    (build-path (getenv "LAKEROAD_DIR") "verilator_xilinx"))
               #:extra-verilator-args
-              "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING"
+              "-Wno-BLKSEQ -Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING"
               to-simulate-list
               (getenv "VERILATOR_INCLUDE_DIR"))))
