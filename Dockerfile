@@ -56,7 +56,11 @@ RUN mkdir -p /root/.local/bin \
   && chmod +x /root/.local/bin/lit
 ENV PATH="/root/.local/bin:${PATH}"
 
-# Install Yosys and other OSS hardware tools from prebuilt binaries.
+# Install a bunch of useful tools from prebuilt binaries. Thanks to YosysHQ for
+# making this available!
+#
+# We currently use the following binaries from oss-cad-suite:
+# yosys, verilator, cvc5, bitwuzla, boolector.
 #
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
