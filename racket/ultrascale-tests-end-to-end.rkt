@@ -92,6 +92,6 @@
     #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
                          (build-path (get-lakeroad-directory) "verilator-unisims"))
     #:extra-verilator-args
-    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
     to-simulate-list
     (getenv "VERILATOR_INCLUDE_DIR"))))
