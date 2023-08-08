@@ -69,18 +69,13 @@ RUN if [ "$(uname -m)" = "x86_64" ] ; then \
   && tar xf oss-cad-suite.tgz
 ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
-# Build and install latest Verilator.
-ARG MAKE_JOBS=2
-WORKDIR /root
-RUN  git clone https://github.com/verilator/verilator \
-  && unset VERILATOR_ROOT \
-  && cd verilator \
-  && git checkout v4.222 \
-  && autoconf \
-  && ./configure \
-  && make -j${MAKE_JOBS} \
-  && make install
-ENV VERILATOR_INCLUDE_DIR=/root/verilator/include
+# This environment variable is needed to test with Verilator in Lakeroad.
+#
+# TODO(@gussmith23): I don't think this is actually needed. Verilator generates
+# Makefiles that we should be using to make .a libraries to link against. Then,
+# we don't have to worry about getting the right includes etc. when trying to
+# compile Verilator files.
+ENV VERILATOR_INCLUDE_DIR=/root/oss-cad-suite/share/verilator/include
 
 # pip dependencies
 WORKDIR /root/lakeroad
