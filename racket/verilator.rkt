@@ -258,7 +258,7 @@ run_all: $(TESTBENCH_EXECUTABLES)
 %.vo: %.v
   # The CFLAGS values fix issues with timing functions not being found.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
-	+$(VERILATOR) -Wall --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
+	+$(VERILATOR) --no-timing -Wall --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
   # Copy the compiled result, which is named V<filename>__ALL.o, to <filename>.vo.
 	cp $(addprefix $(dir $<)/V, $(patsubst %.v,%__ALL.o,$(notdir $<))) $@
 
