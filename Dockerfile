@@ -78,6 +78,19 @@ RUN if [ "$(uname -m)" = "x86_64" ] ; then \
   && tar xf oss-cad-suite.tgz
 ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
+# Build latest bitwuzla.
+WORKDIR /root
+ARG MAKE_JOBS=2
+RUN git clone https://github.com/bitwuzla/bitwuzla \
+  && cd bitwuzla \
+  && git checkout 4eda0536800576cb2531ab9ce13292da8f21f0eb \
+  && ./configure.py \
+  && cd build \
+  && ninja -j${MAKE_JOBS}
+# Put it on the path. Note that there's a bitwuzla in oss-cad-suite, so we need
+# to make sure this one takes precedence.
+ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
+
 # Build and install latest Verilator.
 ARG MAKE_JOBS=2
 WORKDIR /root
