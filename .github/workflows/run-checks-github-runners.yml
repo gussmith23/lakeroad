@@ -12,6 +12,10 @@ on:
 
   # Allow manual trigger.
   workflow_dispatch:
+    inputs:
+      no-cache:
+        type: boolean
+        description: use --no-cache flag on docker build. 'true' turns on --no-cache.
 
 env:
   REGISTRY: ghcr.io
@@ -68,6 +72,7 @@ jobs:
           tags: ${{ env.IMAGE_TAG }}
           cache-to: type=gha,mode=max
           cache-from: type=gha
+          no-cache: ${{ github.event.inputs.no-cache == 'true' }}
 
   # This can be run on ubuntu-latest (i.e., on GitHub's provided runners), but
   # it will be much slower. Specifically, our end-to-end tests using Verilator
