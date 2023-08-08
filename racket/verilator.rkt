@@ -252,7 +252,7 @@ run_all: $(TESTBENCH_EXECUTABLES)
 %.out: %.cc $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(VERILATOR_INCLUDE_DIR)/verilated_threads.cpp $(VERILOG_FILES:.v=.vo)
   # -lstdc++ fixes build problems on Mac.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
-	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -faligned-new -lstdc++ -std=c++11 $^ -o $@ -lpthread
+	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -DVL_THREADED -faligned-new -lstdc++ -std=c++11 $^ -o $@ -lpthread
 	$@ || (echo "Test failed: $@"; exit 1)
 
 %.vo: %.v
