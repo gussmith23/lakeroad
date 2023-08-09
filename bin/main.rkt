@@ -361,32 +361,37 @@
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
                   (inputs))]
 
-            ;;; The same environments, but with everything set to zero.
-            [input-zeroes (map (λ (p)
-                                 (match p
-                                   [(cons name bw) (cons name (bv->signal (bv 0 bw)))]))
-                               (inputs))]
-
-            [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
+            ;;; The same environments, but with symbolic values
+            [make-intermediate-inputs
+             (lambda (inputs iter)
+               (map (λ (p)
+                      (match p
+                        [(cons name bw)
+                         (cons name (bv->signal (constant (list name "iter" iter) (bitvector bw))))]))
+                    inputs))]
 
             ;;; Environments for sequential synthesis. Each environment represents one set of input
             ;;; states. For each set of input states, we run the interpreter with the given inputs,
             ;;; get the output (including all of the internal state), and then pass that state on to
             ;;; the next iteration. See `rosette-synthesize`.
             ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
-            [envs ;;; First, we tick the clock with the inputs set to their input values.
-             (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
-                           (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
-                     ;;; then, we tick the clock with the inputs set to zero.
-                     (apply append
-                            (make-list
-                             (sub1 (initiation-interval))
-                             (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-zeroes)
-                                   (cons (cons (clock-name) (bv->signal (bv 1 1))) input-zeroes)))))]
+            ;;; First, we tick the clock with the inputs set to their input values.
+            [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
+                                (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
+                          ;;; then, we tick the clock with the inputs set to symbolic values.
+                          (apply append
+                                 (map (lambda (iter)
+                                        (list (cons (cons (clock-name) (bv->signal (bv 0 1)))
+                                                    (make-intermediate-inputs (inputs) iter))
+                                              (cons (cons (clock-name) (bv->signal (bv 1 1)))
+                                                    (make-intermediate-inputs (inputs) iter))))
+                                      (range 1 (initiation-interval)))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
-                      envs)])
+                      envs)]
+
+            [input-symbolic-constants (symbolics envs)])
 
        ;;; Throw error if we're not passing all values to the bv-expr.
        ;;; TODO(@gussmith23): This check would be better elsewhere, but the use of `compose` below
