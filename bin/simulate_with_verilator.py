@@ -29,6 +29,8 @@ def simulate_with_verilator(
     include_dirs: List[Union[str, Path]] = [],
     extra_args: List[str] = [],
     max_num_tests=MAX_NUM_TESTS,
+    use_random_intermediate_inputs=False,
+    seed=0,
 ):
     """
 
@@ -99,6 +101,10 @@ def simulate_with_verilator(
         set_module_clock_body=f"module->{clock_name}=clock;",
         initiation_interval=initiation_interval,
         output_signal=output_signal,
+        seed=seed,
+        use_random_intermediate_inputs=(
+            "true" if use_random_intermediate_inputs else "false"
+        ),
     )
     Path(testbench_cc_filepath).write_text(testbench_source)
 
@@ -110,6 +116,7 @@ def simulate_with_verilator(
             logging.warning(
                 "Exhaustive testing space is too large, doing random testing."
             )
+
             # Generate a random subset of the inputs.
             def generate_one():
                 return [random.randint(0, 2**width - 1) for _, width in module_inputs]
@@ -142,6 +149,18 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
+    parser.add_argument(
+        "--seed",
+        type=int,
+        help="Random seed for srand() in the testbench.",
+        default=0,
+    )
+    parser.add_argument(
+        "--use_random_intermediate_inputs",
+        action=argparse.BooleanOptionalAction,
+        help="Use random intermediate inputs after clock cycle 0, rather than 0s.",
+        default=False,
+    )
     parser.add_argument(
         "--obj_dir_dir",
         type=Path,
@@ -272,4 +291,6 @@ if __name__ == "__main__":
         include_dirs=args.verilator_include_dir,
         extra_args=args.verilator_extra_arg,
         max_num_tests=args.max_num_tests,
+        use_random_intermediate_inputs=args.use_random_intermediate_inputs,
+        seed=args.seed,
     )
