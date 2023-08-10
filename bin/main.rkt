@@ -226,7 +226,8 @@
      ;;; path expects a bvexpr, which we can get by just calling the function.
      (if (> (initiation-interval) 0)
          f
-         (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal)))))]))
+         ;(signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))
+         f)]))
 
 (when (boolean? bv-expr)
   (error
@@ -427,15 +428,28 @@
                   #:lr-sequential envs
                   #:module-semantics module-semantics)))))]
 
+    ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
+     (define envs
+       (list (map (λ (p)
+                    (match p
+                      [(cons name bw)
+                       (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                  (inputs))))
+     (define input-symbolic-constants (symbolics envs))
      ;;; If initiation interval is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
-       (call-with-limits (timeout)
-                         #f
-                         (thunk (synthesize-with-sketch sketch-generator
-                                                        architecture-description
-                                                        bv-expr
-                                                        #:module-semantics module-semantics))))]))
+       (call-with-limits
+        (timeout)
+        #f
+        (thunk (rosette-synthesize
+                (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
+                         bv-expr)
+                sketch
+                input-symbolic-constants
+                #:bv-sequential envs
+                #:lr-sequential envs
+                #:module-semantics module-semantics))))]))
 
 (cond
   [(not lakeroad-expr)
