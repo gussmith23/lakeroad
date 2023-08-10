@@ -1,7 +1,3 @@
-// This test is an interesting case. It's not obvious that this shouldn't go
-// onto a DSP given the documentation, but neither Lakeroad nor Vivado can put
-// it on a DSP.
-//
 // RUN: ($LAKEROAD_DIR/bin/lakeroad-portfolio.py \
 // RUN:  --bitwuzla \
 // RUN:  --cvc5 \
