@@ -159,7 +159,7 @@ if __name__ == "__main__":
         "--use_random_intermediate_inputs",
         action=argparse.BooleanOptionalAction,
         help="Use random intermediate inputs after clock cycle 0, rather than 0s.",
-        default=False,
+        default=True,
     )
     parser.add_argument(
         "--obj_dir_dir",
