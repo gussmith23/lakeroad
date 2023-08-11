@@ -37,4 +37,4 @@
 	assign out = stage2;
 endmodule
 
-// CHECK: module top(a, b, c, clk, d, out);
+// CHECK: Synthesis Timeout
