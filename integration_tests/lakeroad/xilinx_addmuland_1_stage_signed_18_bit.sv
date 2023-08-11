@@ -68,4 +68,4 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: Synthesis Timeout
+// CHECK: module top(a, b, c, clk, d, out);
