@@ -29,7 +29,7 @@ def simulate_with_verilator(
     include_dirs: List[Union[str, Path]] = [],
     extra_args: List[str] = [],
     max_num_tests=MAX_NUM_TESTS,
-    use_random_intermediate_inputs=False,
+    use_random_intermediate_inputs=True,
     seed=0,
 ):
     """
