@@ -60,7 +60,7 @@ ENV PATH="/root/.local/bin:${PATH}"
 # making this available!
 #
 # We currently use the following binaries from oss-cad-suite:
-# yosys, verilator, cvc5, bitwuzla, boolector.
+# yosys, verilator, cvc5, boolector.
 #
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
