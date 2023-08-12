@@ -249,16 +249,16 @@ endif
 
 run_all: $(TESTBENCH_EXECUTABLES)
 
-%.out: %.cc $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(VERILOG_FILES:.v=.vo)
+%.out: %.cc $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(VERILATOR_INCLUDE_DIR)/verilated_threads.cpp $(VERILOG_FILES:.v=.vo)
   # -lstdc++ fixes build problems on Mac.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
-	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -faligned-new -lstdc++ -std=c++11 -Wall -Wextra -Werror $^ -o $@
+	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -DVL_THREADED -faligned-new -lstdc++ -std=c++11 $^ -o $@ -lpthread
 	$@ || (echo "Test failed: $@"; exit 1)
 
 %.vo: %.v
   # The CFLAGS values fix issues with timing functions not being found.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
-	+$(VERILATOR) -Wall --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
+	+$(VERILATOR) --no-timing -Wall --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
   # Copy the compiled result, which is named V<filename>__ALL.o, to <filename>.vo.
 	cp $(addprefix $(dir $<)/V, $(patsubst %.v,%__ALL.o,$(notdir $<))) $@
 

@@ -108,6 +108,6 @@
   (define include-dir (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
   (test-true "simulate all synthesized designs with Verilator"
              (simulate-with-verilator #:include-dirs (list include-dir)
-                                      #:extra-verilator-args "-Wno-UNUSED -Wno-UNOPT"
+                                      #:extra-verilator-args "-Wno-UNUSED -Wno-UNOPT -Wno-UNOPTFLAT"
                                       to-simulate-list
                                       (getenv "VERILATOR_INCLUDE_DIR"))))

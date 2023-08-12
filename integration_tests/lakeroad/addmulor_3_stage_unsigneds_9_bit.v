@@ -1,7 +1,7 @@
 // It's unclear why this test fails; see #289.
 //
 // RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver bitwuzla \
+// RUN:  --solver cvc5 \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
@@ -15,6 +15,7 @@
 // RUN:  --input-signal b:9 \
 // RUN:  --input-signal c:9 \
 // RUN:  --input-signal d:9 \
+// RUN:  --timeout 90 \
 // RUN: || true) \
 // RUN: 2>&1 \
 // RUN: | FileCheck %s
@@ -41,4 +42,4 @@ module addmulor_3_stage_unsigned_9_bit (
   assign out = stage2;
 endmodule
 
-// CHECK: Synthesis failed
+// CHECK: Synthesis Timeout

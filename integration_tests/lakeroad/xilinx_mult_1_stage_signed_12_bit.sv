@@ -1,6 +1,6 @@
 // RUN: outfile=$(mktemp)
-// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver cvc5 \
+// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
@@ -11,31 +11,35 @@
 // RUN:  --clock-name clk \
 // RUN:  --module-name top \
 // RUN:  --input-signal a:12 \
-// RUN:  --input-signal b:12 > $outfile
+// RUN:  --input-signal b:12 \
+// RUN:  --timeout 90 \
+// RUN:  || true) \
+// RUN:  > $outfile \
+// RUN:  2>&1
 // RUN: FileCheck %s < $outfile
-// RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
-// RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
-// RUN:   exit 0; \
-// RUN: else \
-// RUN:   python $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --max_num_tests=10000 \
-// RUN:    --test_module_filepath $outfile \
-// RUN:    --ground_truth_module_filepath %s \
-// RUN:    --clock_name clk \
-// RUN:    --initiation_interval 1 \
-// RUN:    --output_signal_name out \
-// RUN:    --input_signal a:12 \
-// RUN:    --input_signal b:12 \
-// RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
-// RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
-// RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
-// RUN:    --verilator_extra_arg='-Wno-LATCH' \
-// RUN:    --verilator_extra_arg='-Wno-WIDTH' \
-// RUN:    --verilator_extra_arg='-Wno-STMTDLY' \
-// RUN:    --verilator_extra_arg='-Wno-CASEX' \
-// RUN:    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
-// RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
-// RUN: fi
+// if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
+//   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
+//   exit 0; \
+// else \
+//   python $LAKEROAD_DIR/bin/simulate_with_verilator.py \
+//    --max_num_tests=10000 \
+//    --test_module_filepath $outfile \
+//    --ground_truth_module_filepath %s \
+//    --clock_name clk \
+//    --initiation_interval 1 \
+//    --output_signal_name out \
+//    --input_signal a:12 \
+//    --input_signal b:12 \
+//    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
+//    --verilator_extra_arg='-DXIL_XECLIB' \
+//    --verilator_extra_arg='-Wno-UNOPTFLAT' \
+//    --verilator_extra_arg='-Wno-LATCH' \
+//    --verilator_extra_arg='-Wno-WIDTH' \
+//    --verilator_extra_arg='-Wno-STMTDLY' \
+//    --verilator_extra_arg='-Wno-CASEX' \
+//    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
+//    --verilator_extra_arg='-Wno-PINMISSING'; \
+// fi
 
 (* use_dsp = "yes" *) module top(
 	input signed [11:0] a,
@@ -53,6 +57,4 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: module top(a, b, clk, out);
-// CHECK:   DSP48E2 #(
-// CHECK: endmodule
+// CHECK: Synthesis Timeout

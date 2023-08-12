@@ -77,7 +77,7 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
                         (build-path (get-lakeroad-directory) "verilator-unisims"))
    #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT -Wno-UNOPTFLAT"
    #:run-with-verilator #t)
 
   ;;; TODO(@gussmith23): Currently these tests only test combinational DSP usage, which is actually
@@ -107,7 +107,7 @@
   ;;;                                   lattice-ecp5-mult18x18d))
   ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
   ;;;    #:extra-verilator-args
-  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
   ;;;    #:run-with-verilator #f)
 
   ;;;   (sketch-test
@@ -130,7 +130,7 @@
   ;;;                                   lattice-ecp5-mult18x18d))
   ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
   ;;;    #:extra-verilator-args
-  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
   ;;;    #:run-with-verilator #f)
 
   ;;;   (sketch-test
@@ -152,7 +152,7 @@
   ;;;    #:module-semantics (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))
   ;;;    #:include-dirs (list)
   ;;;    #:extra-verilator-args
-  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
   ;;;    #:run-with-verilator #f)
 
   ;;; TODO(@ninehusky): find out why these aren't working by going through the DSP48E2 manual
@@ -172,7 +172,7 @@
   ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
   ;;;                       (build-path (get-lakeroad-directory) "verilator-unisims"))
   ;;;  #:extra-verilator-args
-  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT")
+  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT")
 
   ;;; (sketch-test
   ;;;  #:name "bvnot on Xilinx DSP48E2"
@@ -189,7 +189,7 @@
   ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
   ;;;                       (build-path (get-lakeroad-directory) "verilator-unisims"))
   ;;;  #:extra-verilator-args
-  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT")
+  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT")
 
   ;;; (sketch-test
   ;;;  #:name "bvxor on Xilinx DSP48E2"
@@ -206,7 +206,7 @@
   ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
   ;;;                       (build-path (get-lakeroad-directory) "verilator-unisims"))
   ;;;  #:extra-verilator-args
-  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT")
+  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT")
 
   (sketch-test
    #:name "bvmul and bvand on Xilinx DSP48E2"
@@ -231,5 +231,5 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
                         (build-path (get-lakeroad-directory) "verilator-unisims"))
    #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
    #:run-with-verilator #f))

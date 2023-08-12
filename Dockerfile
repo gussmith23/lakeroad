@@ -22,15 +22,18 @@ RUN apt install -y \
   git \
   libfl-dev \
   libfl2 \
+  libgmp-dev \
   libgoogle-perftools-dev \
   libssl-dev \
   libzmq3-dev \
   llvm-14 \
   make \
+  ninja-build \
   numactl \
   openssl \
   perl \
   perl-doc \
+  pkg-config \
   python3 \
   python3-pip \
   racket \
@@ -53,72 +56,63 @@ RUN mkdir -p /root/.local/bin \
   && chmod +x /root/.local/bin/lit
 ENV PATH="/root/.local/bin:${PATH}"
 
-# Build and install latest boolector.
-WORKDIR /root
-ARG MAKE_JOBS=2
-RUN git clone https://github.com/boolector/boolector \
-  && cd boolector \
-  && git checkout 3.2.2 \
-  && ./contrib/setup-lingeling.sh \
-  && ./contrib/setup-btor2tools.sh \
-  && ./configure.sh \
-  && cd build \
-  && make -j${MAKE_JOBS} install
-
-# Install Yosys and other OSS hardware tools from prebuilt binaries.
+# Install a bunch of useful tools from prebuilt binaries. Thanks to YosysHQ for
+# making this available!
+#
+# We currently use the following binaries from oss-cad-suite:
+# yosys, verilator, cvc5, boolector.
 #
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
 WORKDIR /root
 RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
+  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-08-06/oss-cad-suite-linux-x64-20230806.tgz -q -O oss-cad-suite.tgz; \
   else \
   exit 1; \
   fi \
   && tar xf oss-cad-suite.tgz
 ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
-# Build and install latest Verilator.
-ARG MAKE_JOBS=2
-WORKDIR /root
-RUN  git clone https://github.com/verilator/verilator \
-  && unset VERILATOR_ROOT \
-  && cd verilator \
-  && git checkout v4.222 \
-  && autoconf \
-  && ./configure \
-  && make -j${MAKE_JOBS} \
-  && make install
-ENV VERILATOR_INCLUDE_DIR=/root/verilator/include
+# This environment variable is needed to test with Verilator in Lakeroad.
+#
+# TODO(@gussmith23): I don't think this is actually needed. Verilator generates
+# Makefiles that we should be using to make .a libraries to link against. Then,
+# we don't have to worry about getting the right includes etc. when trying to
+# compile Verilator files.
+ENV VERILATOR_INCLUDE_DIR=/root/oss-cad-suite/share/verilator/include
 
 # pip dependencies
 WORKDIR /root/lakeroad
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-# raco (Racket) dependencies
-# First, fix https://github.com/racket/racket/issues/2691
-RUN raco setup --doc-index --force-user-docs
-RUN raco pkg install --deps search-auto --batch \
-  fmt \
-  yaml
-
-# Install custom Rosette. Once these changes are merged, we can use mainline Rosette.
+# Build latest bitwuzla.
 WORKDIR /root
-RUN git clone https://github.com/gussmith23/rosette \
-  && cd rosette \
-  && git checkout gussmith23/add-bitwuzla-and-cvc5 \ 
-  && raco pkg install --deps search-auto --batch
+ARG MAKE_JOBS=2
+RUN git clone https://github.com/bitwuzla/bitwuzla \
+  && cd bitwuzla \
+  && git checkout 4eda0536800576cb2531ab9ce13292da8f21f0eb \
+  && ./configure.py \
+  && cd build \
+  && ninja -j${MAKE_JOBS}
+# Put it on the path. Note that there's a bitwuzla in oss-cad-suite, so we need
+# to make sure this one takes precedence.
+ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
 
-# Install CVC5.
-WORKDIR /root/cvc5
-RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/cvc5/cvc5/releases/download/cvc5-1.0.5/cvc5-Linux p -q -O cvc5 ; \
-  chmod +x cvc5 ; \
-  else \
-  exit 1; \
-  fi
-ENV PATH="/root/cvc5:${PATH}"
+# Install raco (Racket) dependencies. First, fix
+# https://github.com/racket/racket/issues/2691 by building the docs.
+WORKDIR /root
+ADD rosette/ rosette/
+RUN raco setup --doc-index --force-user-docs \
+  && raco pkg install --deps search-auto --batch \
+  # For now, we use a custom Rosette install; see below.
+  # rosette \
+  fmt \
+  yaml \
+  # Install Rosette from submodule. Check that it exists first.
+  && [ "$(ls --almost-all /root/rosette)" ] \
+  && cd /root/rosette \
+  && raco pkg install --deps search-auto --batch
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y

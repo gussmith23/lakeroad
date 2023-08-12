@@ -120,4 +120,4 @@
    (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
          (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-   #:extra-verilator-args "-Wno-UNUSED"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-UNOPTFLAT"))

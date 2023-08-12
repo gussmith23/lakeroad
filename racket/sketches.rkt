@@ -840,7 +840,7 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
                         (build-path (get-lakeroad-directory) "verilator-unisims"))
    #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT")
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT -Wno-UNOPTFLAT")
 
   (sketch-test
    #:name "DSP for bvmul and bvand on Xilinx DSP48E2"
@@ -854,7 +854,7 @@
    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
                         (build-path (get-lakeroad-directory) "verilator-unisims"))
    #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT")
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT")
 
   (sketch-test
    #:name "left shift on SOFA"
