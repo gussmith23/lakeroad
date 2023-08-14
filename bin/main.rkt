@@ -206,8 +206,6 @@
     `(lambda ,(flatten (map (lambda (kw) (list kw `,(string->symbol (keyword->string kw))))
                             keywords-sorted))
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
-  (displayln out-fn)
-
   (eval out-fn ns))
 
 ;;; The bitvector expression we're trying to synthesize.
