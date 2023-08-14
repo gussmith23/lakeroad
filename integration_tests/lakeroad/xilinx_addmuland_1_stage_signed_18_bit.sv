@@ -4,8 +4,8 @@
 // further cemented the breakage.
 //
 // outfile=$(mktemp)
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver bitwuzla \
+// RUN: ($LAKEROAD_DIR/bin/lakeroad-portfolio.py \
+// RUN:  --cvc5 --bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \

@@ -1,7 +1,7 @@
 // It's unclear why this test fails; see #289.
 //
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver cvc5 \
+// RUN: ($LAKEROAD_DIR/bin/lakeroad-portfolio.py \
+// RUN:  --cvc5 --bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
