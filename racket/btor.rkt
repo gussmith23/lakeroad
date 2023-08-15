@@ -425,7 +425,8 @@
   (list out-function requires))
 
 (module+ test
-  (require rackunit)
+  (require rackunit
+           "signal.rkt")
   (define-namespace-anchor a)
   (test-case "Zach Sisco's TOGA test"
     (begin
