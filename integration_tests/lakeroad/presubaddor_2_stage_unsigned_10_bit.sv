@@ -23,7 +23,7 @@
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
 // RUN:   exit 0; \
 // RUN: else \
-// RUN:   python $LAKEROAD_DIR/bin/simulate_with_verilator.py \
+// RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
 // RUN:    --max_num_tests=10000 \
 // RUN:    --test_module_filepath $outfile \
 // RUN:    --ground_truth_module_filepath %s \
