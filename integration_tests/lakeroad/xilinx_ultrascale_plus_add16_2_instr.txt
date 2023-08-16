@@ -1,5 +1,5 @@
-RUN: $LAKEROAD_DIR/bin/lakeroad-portfolio.py \
-RUN:  --cvc5 --bitwuzla \
+RUN: racket $LAKEROAD_DIR/bin/main.rkt \
+RUN:  --solver bitwuzla \
 RUN:  --instruction '(bvadd (var a 16) (var b 16))' \
 RUN:  --architecture xilinx-ultrascale-plus \
 RUN:  --template bitwise-with-carry \
