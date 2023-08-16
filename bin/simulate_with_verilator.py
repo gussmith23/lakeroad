@@ -31,6 +31,7 @@ def simulate_with_verilator(
     max_num_tests=MAX_NUM_TESTS,
     use_random_intermediate_inputs=True,
     seed=0,
+    ignore_missing_test_module_file: bool = False,
 ):
     """
 
@@ -45,7 +46,32 @@ def simulate_with_verilator(
       testbench_{c,exe}_output_filepath: Filepath to write the testbench
         code/executable to.
       testbench_log_filepath: Filepath to write the testbench output to.
+      ignore_missing_test_module_file: If True, we will not raise an exception
+        if the test module file does not exist. This is our current hacky solution
+        to handling the fact that Lakeroad doesn't always produce output.
     """
+
+    if ignore_missing_test_module_file and not Path(test_module_filepath).exists():
+        logging.warning(
+            f"Test module file {test_module_filepath} does not exist. "
+            "Skipping simulation."
+        )
+        return
+
+    obj_dir_dir = Path(obj_dir_dir)
+    obj_dir_dir.mkdir(parents=True, exist_ok=True)
+    testbench_cc_filepath = Path(testbench_cc_filepath)
+    testbench_cc_filepath.parent.mkdir(parents=True, exist_ok=True)
+    testbench_exe_filepath = Path(testbench_exe_filepath)
+    testbench_exe_filepath.parent.mkdir(parents=True, exist_ok=True)
+    testbench_inputs_filepath = Path(testbench_inputs_filepath)
+    testbench_inputs_filepath.parent.mkdir(parents=True, exist_ok=True)
+    testbench_stdout_log_filepath = Path(testbench_stdout_log_filepath)
+    testbench_stdout_log_filepath.parent.mkdir(parents=True, exist_ok=True)
+    testbench_stderr_log_filepath = Path(testbench_stderr_log_filepath)
+    testbench_stderr_log_filepath.parent.mkdir(parents=True, exist_ok=True)
+    makefile_filepath = Path(makefile_filepath)
+    makefile_filepath.parent.mkdir(parents=True, exist_ok=True)
 
     # Instantiate Makefile template for our code.
     if "VERILATOR_INCLUDE_DIR" not in os.environ:
@@ -113,9 +139,9 @@ def simulate_with_verilator(
         # We can expose this as an argument. You can use this to tune how long
         # the tests take, at the cost of test coverage.
         if 2 ** (sum([width for _, width in module_inputs])) > max_num_tests:
-            logging.warning(
-                "Exhaustive testing space is too large, doing random testing."
-            )
+            # logging.warning(
+            #     "Exhaustive testing space is too large, doing random testing."
+            # )
 
             # Generate a random subset of the inputs.
             def generate_one():
