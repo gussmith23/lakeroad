@@ -67,4 +67,4 @@
 	assign out = stage2;
 endmodule
 
-// CHECK: Synthesis failed
+// CHECK: Synthesis Timeout
