@@ -13,4 +13,7 @@ RUN:  || true) \
 RUN: 2>&1 \
 RUN: | FileCheck %s
 
-CHECK: Synthesis Timeout
+CHECK: module out(a, b, p);
+CHECK:   DSP48E2 #(
+CHECK:   ) \TECHMAP_REPLACE.DSP48E2_0  (
+CHECK: endmodule
