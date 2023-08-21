@@ -11,6 +11,7 @@
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \
 // RUN:  --input-signal b:16 \
+// RUN:  --timeout 90 \
 // RUN: || true) \
 // RUN: 2>&1 \
 // RUN: | FileCheck %s
