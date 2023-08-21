@@ -6,14 +6,13 @@
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal out:11 \
-// RUN:  --initiation-interval 1 \
-// RUN:  --clock-name clk \
+// RUN:  --verilog-module-out-signal out:8 \
+// RUN:  --initiation-interval 0 \
 // RUN:  --module-name top \
-// RUN:  --input-signal a:11 \
-// RUN:  --input-signal b:11 \
-// RUN: > $outfile
-// RUN: cat $outfile
+// RUN:  --input-signal a:8 \
+// RUN:  --input-signal b:8 \
+// RUN:  --input-signal c:8 \
+// RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
@@ -25,11 +24,11 @@
 // RUN:    --max_num_tests=10000 \
 // RUN:    --test_module_filepath $outfile \
 // RUN:    --ground_truth_module_filepath %s \
-// RUN:    --clock_name clk \
-// RUN:    --initiation_interval 1 \
+// RUN:    --initiation_interval 0 \
 // RUN:    --output_signal_name out \
-// RUN:    --input_signal a:11 \
-// RUN:    --input_signal b:11 \
+// RUN:    --input_signal a:8 \
+// RUN:    --input_signal b:8 \
+// RUN:    --input_signal c:8 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -42,21 +41,15 @@
 // RUN: fi
 
 (* use_dsp = "yes" *) module top(
-	input  [10:0] a,
-	input  [10:0] b,
-	output [10:0] out,
+	input signed [7:0] a,
+	input signed [7:0] b,
+	input signed [7:0] c,
+	output [7:0] out,
 	input clk);
 
-	logic  [21:0] stage0;
-
-	always @(posedge clk) begin
-	stage0 <= a * b;
-
-	end
-
-	assign out = stage0;
+	assign out = (a * b) + c;
 endmodule
 
-// CHECK: module top(a, b, clk, out);
+// CHECK: module top(a, b, c, out);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule
