@@ -30,4 +30,4 @@ module three_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
 
 endmodule
 
-// CHECK: Synthesis Timeout
+// CHECK: module out(a, b, clk, p);
