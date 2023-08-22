@@ -140,5 +140,10 @@ ADD --keep-git-dir=false . .
 # Build Racket bytecode; makes Lakeroad much faster.
 RUN raco make /root/lakeroad/bin/main.rkt
 
+# Point to lakeroad-private repo. This may or may not exist, if you didn't clone
+# the lakeroad-private submodule. However, it shouldn't matter, as anything that
+# uses LAKEROAD_PRIVATE_DIR should check if the directory exists/is nonempty first.
+ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
+
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]

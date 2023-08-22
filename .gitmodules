@@ -19,3 +19,6 @@
 [submodule "rosette"]
 	path = rosette
 	url = git@github.com:gussmith23/rosette
+[submodule "lakeroad-private"]
+	path = lakeroad-private
+	url = git@github.com:uwsampl/lakeroad-private
