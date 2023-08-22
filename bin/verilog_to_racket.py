@@ -129,8 +129,10 @@ def preprocess_flatten_convert_verilog(
             # -simcheck runs checks like -check, but also checks that there are no blackboxes.
             f"hierarchy -simcheck -top {top}",
             "prep",
-            "proc",
             "flatten",
+            # Jannis Harder suggested this optimization to kill some remaining
+            # undefined values from case statements/muxes.
+            "pmuxtree; opt_muxtree",
             # I've gone back and forth on whether to use clk2fflogic or
             # async2sync here, and in the end, I'm 99% sure clk2fflogic is the
             # correct choice. I had thought that we couldn't use clk2fflogic for
@@ -139,6 +141,10 @@ def preprocess_flatten_convert_verilog(
             # https://github.com/uwsampl/lakeroad/issues/238
             # https://github.com/uwsampl/lakeroad/issues/170
             "clk2fflogic",
+            #"async2sync",
+            #"dffunmap",
+            # Does more optimization.
+            "prep",
             f"write_btor {btorfile.name}",
             f"write_verilog -sv {vfile.name}",
         ]

@@ -8,20 +8,22 @@
       #:B
       (B (bv->signal (constant 'B (bitvector 1))))
       #:init
-      (init (bv->signal (constant 'init (bitvector 4)))))
+      (init (bv->signal (constant 'init (bitvector 4))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))
            (btor2 A)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state A)))
+            (merge-states merged-input-state-hash (signal-state A)))
            (btor3 B)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state B)))
+            (merge-states merged-input-state-hash (signal-state B)))
            (btor4 (bitvector 4))
            (btor5 init)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state init)))
+            (merge-states merged-input-state-hash (signal-state init)))
            (btor6 (bitvector 2))
            (btor7
             (signal (extract 1 0 (signal-value btor5)) (signal-state btor5)))
@@ -36,5 +38,11 @@
            (btor14
             (bv->signal
              (zero-extend (signal-value btor9) (bitvector 2))
-             btor9)))
-      (list (cons 'Z (signal (signal-value btor12) (list)))))))
+             btor9))
+           (output-state
+            (remove-duplicates
+             (append (list) merged-input-state-hash)
+             equal?
+             #:key
+             car)))
+      (list (cons 'Z (signal (signal-value btor12) output-state))))))

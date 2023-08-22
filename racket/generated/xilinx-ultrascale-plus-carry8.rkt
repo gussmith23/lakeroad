@@ -12,26 +12,28 @@
       #:DI
       (DI (bv->signal (constant 'DI (bitvector 8))))
       #:S
-      (S (bv->signal (constant 'S (bitvector 8)))))
+      (S (bv->signal (constant 'S (bitvector 8))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))
            (btor2 CARRY_TYPE)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CARRY_TYPE)))
+            (merge-states merged-input-state-hash (signal-state CARRY_TYPE)))
            (btor3 CI)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CI)))
+            (merge-states merged-input-state-hash (signal-state CI)))
            (btor4 CI_TOP)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state CI_TOP)))
+            (merge-states merged-input-state-hash (signal-state CI_TOP)))
            (btor5 (bitvector 8))
            (btor6 DI)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state DI)))
+            (merge-states merged-input-state-hash (signal-state DI)))
            (btor7 S)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state S)))
+            (merge-states merged-input-state-hash (signal-state S)))
            (btor8
             (signal (extract 0 0 (signal-value btor6)) (signal-state btor6)))
            (btor9
@@ -172,7 +174,13 @@
            (btor64
             (bv->signal
              (zero-extend (signal-value btor32) (bitvector 1))
-             btor32)))
+             btor32))
+           (output-state
+            (remove-duplicates
+             (append (list) merged-input-state-hash)
+             equal?
+             #:key
+             car)))
       (list
-       (cons 'CO (signal (signal-value btor45) (list)))
-       (cons 'O (signal (signal-value btor54) (list)))))))
+       (cons 'CO (signal (signal-value btor45) output-state))
+       (cons 'O (signal (signal-value btor54) output-state))))))

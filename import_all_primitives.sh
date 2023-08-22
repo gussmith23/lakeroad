@@ -57,13 +57,15 @@ out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   | sed 's#(require (file.*#(require "../signal.rkt\")#' )
 echo "$out" > $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-carry8.rkt
 
-out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
-  --infile $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v \
+# Note: requires GNU sed. Install with Brew on Mac.
+out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+  --infile "$LAKEROAD_DIR"/modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v \
   --top DSP48E2 \
   --define XIL_XECLIB \
   --function-name xilinx-ultrascale-plus-dsp48e2 \
-  | sed 's#(require (file.*#(require "../signal.rkt\")#' )
-echo "$out" > $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt
+  | sed 's#(require (file.*#(require "../signal.rkt\")#' \
+  | sed "s/constant 'unnamed-input-[[:digit:]]\+ (bitvector \([[:digit:]]\+\))/bv 0 \1/" )
+echo "$out" > "$LAKEROAD_DIR"/racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt
 
 out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   --infile $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/LUT6_2.v \
@@ -78,3 +80,35 @@ out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   --function-name xilinx-ultrascale-plus-lut6 \
   | sed 's#(require (file.*#(require "../signal.rkt\")#' )
 echo "$out" > $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-lut6.rkt
+
+if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then 
+  echo "not importing modules as LAKEROAD_PRIVATE_DIR is not set"
+else 
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+    --infile "$LAKEROAD_PRIVATE_DIR"/lattice_ecp5/modified_ALU54B.v \
+    --top ALU54B \
+    --function-name lattice-ecp5-alu54b \
+    | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+  echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-alu54b.rkt
+
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+    --infile "$LAKEROAD_PRIVATE_DIR"/lattice_ecp5/ALU54A_modified_for_racket_import.v \
+    --top ALU54A \
+    --function-name lattice-ecp5-alu54a \
+    | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+  echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-alu54a.rkt
+
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+    --infile "$LAKEROAD_PRIVATE_DIR"/lattice_ecp5/MULT18X18D_modified_for_racket_import.v \
+    --top MULT18X18D \
+    --function-name lattice-ecp5-mult18x18d \
+    | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+  echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-mult18x18d.rkt
+
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+    --infile "$LAKEROAD_PRIVATE_DIR"/lattice_ecp5/MULT18X18C_modified_for_racket_import.v \
+    --top MULT18X18C \
+    --function-name lattice-ecp5-mult18x18c \
+    | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+  echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-mult18x18c.rkt
+fi

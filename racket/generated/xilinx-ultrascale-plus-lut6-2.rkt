@@ -202,32 +202,34 @@
        (bv->signal (constant 'unnamed-input-1169 (bitvector 8))))
       #:unnamed-input-1171
       (unnamed-input-1171
-       (bv->signal (constant 'unnamed-input-1171 (bitvector 3)))))
+       (bv->signal (constant 'unnamed-input-1171 (bitvector 3))))
+      #:name
+      (name ""))
     (let* ((merged-input-state-hash (list))
            (init-hash (list))
            (btor1 (bitvector 1))
            (btor2 I0)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I0)))
+            (merge-states merged-input-state-hash (signal-state I0)))
            (btor3 I1)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I1)))
+            (merge-states merged-input-state-hash (signal-state I1)))
            (btor4 I2)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I2)))
+            (merge-states merged-input-state-hash (signal-state I2)))
            (btor5 I3)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I3)))
+            (merge-states merged-input-state-hash (signal-state I3)))
            (btor6 I4)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I4)))
+            (merge-states merged-input-state-hash (signal-state I4)))
            (btor7 I5)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state I5)))
+            (merge-states merged-input-state-hash (signal-state I5)))
            (btor8 (bitvector 64))
            (btor9 INIT)
            (merged-input-state-hash
-            (append merged-input-state-hash (signal-state INIT)))
+            (merge-states merged-input-state-hash (signal-state INIT)))
            (btor10 unnamed-input-10)
            (btor11 (bitvector 4))
            (btor12 unnamed-input-12)
@@ -4451,7 +4453,13 @@
            (btor1173
             (bv->signal
              (zero-extend (signal-value btor24) (bitvector 1))
-             btor24)))
+             btor24))
+           (output-state
+            (remove-duplicates
+             (append (list) merged-input-state-hash)
+             equal?
+             #:key
+             car)))
       (list
-       (cons 'O5 (signal (signal-value btor537) (list)))
-       (cons 'O6 (signal (signal-value btor1112) (list)))))))
+       (cons 'O5 (signal (signal-value btor537) output-state))
+       (cons 'O6 (signal (signal-value btor1112) output-state))))))

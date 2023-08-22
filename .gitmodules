@@ -16,3 +16,6 @@
 [submodule "skywater-pdk-libs-sky130_fd_sc_hd"]
 	path = skywater-pdk-libs-sky130_fd_sc_hd
 	url = git@github.com:uwsampl/skywater-pdk-libs-sky130_fd_sc_hd
+[submodule "rosette"]
+	path = rosette
+	url = git@github.com:gussmith23/rosette

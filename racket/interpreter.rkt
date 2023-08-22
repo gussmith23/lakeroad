@@ -28,10 +28,12 @@
 ;;; module-semantics: association list of functions mapping (cons module-name filepath) to a function
 ;;; implementing the semantics for that module.
 ;;;
+;;; environment: association list of (cons var-name (string) value (signal)).
+;;;
 ;;; TODO(@gussmith23): This might be better as an argument to interpret, but I'm implementing this
 ;;; during crunch time, so this is easier.
 ;;;(define module-semantics (make-parameter '()))
-(define (interpret expr #:module-semantics [module-semantics '()])
+(define (interpret expr #:module-semantics [module-semantics '()] #:environment [environment '()])
   (set! interp-memoization-hits 0)
   (set! interp-memoization-misses 0)
   (define interpreter-memo-hash (make-hasheq))
@@ -45,6 +47,8 @@
           (define out
             (destruct
              expr
+             [(lr:var name bw)
+              (cdr (or (assoc name environment) (error "variable " name " not found")))]
              [(lr:symbol s) s]
              [(lr:make-immutable-hash list-expr) (interpret-helper list-expr)]
              [(lr:cons v0-expr v1-expr) (cons (interpret-helper v0-expr) (interpret-helper v1-expr))]
@@ -53,18 +57,18 @@
                      [_ (when (not (list? h))
                           (error "hash-remap-keys: expected h to be assoc list, got: " h))]
                      [new-h
-                      (map (λ (pair)
-                             (let ([k (car pair)] [v (cdr pair)])
-                               (cons
-                                (cdr (or (assoc k ks)
-                                         (error
-                                          (format
-                                           "old key ~a not found in list: ~a. original hash map: ~a"
-                                           k
-                                           ks
-                                           h))))
-                                v)))
-                           h)])
+                      (map
+                       (λ (pair)
+                         (let ([k (car pair)] [v (cdr pair)])
+                           (cons
+                            (cdr (or (assoc k ks)
+                                     (error (format
+                                             "old key ~a not found in list: ~a. original hash map: ~a"
+                                             k
+                                             ks
+                                             h))))
+                            v)))
+                       h)])
                 new-h)]
              [(lr:hash-ref h-expr k)
               (let* ([h (interpret-helper h-expr)]
@@ -92,16 +96,41 @@
                      [all-values (append port-values param-values)]
                      ;;; Interpret values.
                      [all-values (map interpret-helper all-values)]
-                     ;;; Wrap in signal.
 
                      ;;; Pair them.
                      [pairs (map cons all-names-as-keywords all-values)]
+
+                     ;;; Append #:name argument.
+                     ;;;
+                     ;;; NOTE: We currently give each module a unique name based on the hash code of
+                     ;;; its expression. There's really no reason why this is correct, and we should
+                     ;;; definitely have a smarter solution! This was just a quick solution for giving
+                     ;;; each module a unique name.
+                     [pairs (cons (cons (string->keyword "name")
+                                        (number->string (equal-hash-code expr)))
+                                  pairs)]
 
                      ;;; Sort them by keyword<.
                      [pairs (sort pairs keyword<? #:key car)]
 
                      ;;; Call the function.
                      [out (keyword-apply module-semantics-fn (map car pairs) (map cdr pairs) '())])
+                ;;; Warn if we didn't pass all arguments (except for unnamed inputs).
+                ;;; TODO(@gussmith23): handle unnammed inputs more intelligently, maybe in yml?
+                (match-define-values (_ keywords) (procedure-keywords module-semantics-fn))
+                ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket
+                ;;; importer. Also filter out #:name.
+                (define keywords-minus-unnamed
+                  (apply set
+                         (filter (λ (k) (not (string-prefix? (keyword->string k) "unnamed-input-")))
+                                 keywords)))
+                (define env-keys-set (apply set (map car pairs)))
+                (define missing-keys (set-subtract keywords-minus-unnamed env-keys-set))
+                (when (not (equal? 0 (set-count missing-keys)))
+                  ;;; TODO(@gussmith23): Figure out how to use Racket logging...
+                  (displayln (format "WARNING: Not passing all inputs to module semantics, Missing ~a"
+                                     missing-keys)
+                             (current-error-port)))
                 out)]
              ;;; Lakeroad language.
              [(logical-to-physical-mapping f inputs)
@@ -308,6 +337,11 @@
                      [bv (interpret-helper bv)]
                      [state (merge-state (list v))])
                 (signal (zero-extend (signal-value v) bv) state))]
+             [(lr:sign-extend v bv)
+              (let* ([v (interpret-helper v)]
+                     [bv (interpret-helper bv)]
+                     [state (merge-state (list v))])
+                (signal (sign-extend (signal-value v) bv) state))]
              ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
              ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
              ;;; ((union zero-extend dup-extend) v b) instead of (union (zero-extend v b) (dup-extend v b)).
@@ -350,19 +384,19 @@
   (require rackunit
            rosette)
 
-  (check-equal? (map signal-value
-                     (interpret (physical-to-logical-mapping
-                                 (ptol-bitwise)
-                                 (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
-                                                (lr:bv (bv->signal (bv #b0 1))))))))
-                (list (bv #b01 2)))
+  (check-equal?
+   (map signal-value
+        (interpret (physical-to-logical-mapping (ptol-bitwise)
+                                                (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
+                                                               (lr:bv (bv->signal (bv #b0 1))))))))
+   (list (bv #b01 2)))
 
-  (check-equal? (map signal-value
-                     (interpret (logical-to-physical-mapping
-                                 (ltop-bitwise)
-                                 (lr:list (list (lr:bv (bv->signal (bv 1 1)))
-                                                (lr:bv (bv->signal (bv 0 1))))))))
-                (list (bv #b01 2)))
+  (check-equal?
+   (map signal-value
+        (interpret (logical-to-physical-mapping (ltop-bitwise)
+                                                (lr:list (list (lr:bv (bv->signal (bv 1 1)))
+                                                               (lr:bv (bv->signal (bv 0 1))))))))
+   (list (bv #b01 2)))
 
   (check-equal?
    (map signal-value

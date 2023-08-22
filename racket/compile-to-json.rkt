@@ -7,9 +7,7 @@
          "lattice-ecp5.rkt"
          "sofa.rkt"
          "logical-to-physical.rkt"
-         "utils.rkt"
          "interpreter.rkt"
-         racket/pretty
          rosette
          (prefix-in lr: "language.rkt")
          "signal.rkt"
@@ -18,9 +16,13 @@
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
 ;;;
 ;;; TODO Write helper function to convert Yosys JSON to Verilog.
+;;;
+;;; - yosys-techmap-format: Whether or not to output in Yosys techmapping format, as described here:
+;;;   https://github.com/YosysHQ/yosys/blob/c2285b3460083afbd8f2dd21d81d7f726e8c93d2/passes/techmap/techmap.cc#L1129
 (define (lakeroad->jsexpr expr
                           #:module-name [module-name "top"]
-                          #:output-signal-name [output-signal-name "out0"])
+                          #:output-signal-name [output-signal-name "out0"]
+                          #:yosys-techmap-format [yosys-techmap-format #f])
 
   ;;; The next available bit id. Starts at 2, as Yosys reserves 0 and 1 for the literals 0 and 1.
   (define next-bit-id 2)
@@ -38,9 +40,15 @@
   (define next-cell-id 0)
   (define cells (hasheq-helper))
   (define (add-cell k v)
-    (hasheq-helper #:base cells
-                   (string->symbol (string-append (symbol->string k) (format "_~a" next-cell-id)))
-                   v)
+    (hasheq-helper
+     #:base cells
+     (string->symbol
+      (format "~a~a_~a"
+              ;;; Prefix with `TECHMAP_REPLACE.` if we're outputting in Yosys techmapping format.
+              (if yosys-techmap-format "TECHMAP_REPLACE." "")
+              (symbol->string k)
+              next-cell-id))
+     v)
     (set! next-cell-id (add1 next-cell-id))
     (void))
 
@@ -85,8 +93,8 @@
                  [(lr:hw-module-instance module-name ports params filepath)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
-                         [input-port-symbols
-                          (map string->symbol (map module-instance-port-name input-ports))]
+                         [input-port-symbols (map string->symbol
+                                                  (map module-instance-port-name input-ports))]
                          ;;; Pairs of input symbol with compiled expression.
                          [input-pairs (map (λ (p)
                                              (cons (string->symbol (module-instance-port-name p))
@@ -94,8 +102,8 @@
                                            input-ports)]
                          [output-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'output)) ports)]
-                         [output-port-symbols
-                          (map string->symbol (map module-instance-port-name output-ports))]
+                         [output-port-symbols (map string->symbol
+                                                   (map module-instance-port-name output-ports))]
                          ;;; Pairs of output symbol with allocated bit ids.
                          [output-pairs
                           (map (λ (p)
@@ -105,13 +113,278 @@
                                    (cons (string->symbol (module-instance-port-name p)) bits)))
                                output-ports)]
 
+                         ;;; For now, you can add logic here to override parameter compilation.
+                         [compile-parameter-override
+                          (lambda (module-name param)
+
+                            (define (intel-altmult-accum-enum-val-to-str v)
+                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                [0 "ACLR0"]
+                                [1 "ACLR1"]
+                                [2 "ACLR2"]
+                                [3 "ACLR3"]
+                                [4 "ADD"]
+                                [5 "AUTO"]
+                                [6 "CLOCK0"]
+                                [7 "CLOCK1"]
+                                [8 "CLOCK2"]
+                                [9 "CLOCK3"]
+                                [10 "DATAA"]
+                                [11 "DATAB"]
+                                [12 "NO"]
+                                [13 "NONE"]
+                                [14 "PORT_CONNECTIVITY"]
+                                [15 "PORT_UNUSED"]
+                                [16 "PORT_USED"]
+                                [17 "SCANA"]
+                                [18 "SCANB"]
+                                [19 "SIGNED"]
+                                [20 "SIMPLE"]
+                                [21 "SUB"]
+                                [22 "Stratix"]
+                                [23 "UNREGISTERED"]
+                                [24 "UNSIGNED"]
+                                [25 "UNUSED"]
+                                [26 "VARIABLE"]
+                                [27 "YES"]
+                                [28 "altmult_accum"]
+                                [_ #f]))
+
+                            (define (dsp48e2-enum-val-to-str v)
+                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                [0 "A"]
+                                [1 "B"]
+                                [2 "AD"]
+                                [3 "NO_RESET"]
+                                [4 "RESET_MATCH"]
+                                [5 "RESET_NOT_MATCH"]
+                                [6 "RESET"]
+                                [7 "DIRECT"]
+                                [8 "MASK"]
+                                [9 "PATTERN"]
+                                [10 "MULTIPLY"]
+                                [11 "NO_PATDET"]
+                                [12 "ONE48"]
+                                [13 "FALSE"]
+                                [14 "XOR24_48_96"]
+                                [15 "CASCADE"]
+                                [16 "CEP"]
+                                [17 "C"]
+                                [18 "DYNAMIC"]
+                                [19 "FOUR12"]
+                                [20 "NONE"]
+                                [21 "PATDET"]
+                                [22 "ROUNDING_MODE1"]
+                                [23 "ROUNDING_MODE2"]
+                                [24 "TRUE"]
+                                [25 "TWO24"]
+                                [26 "XOR12"]
+                                [_ #f]))
+
+                            (define (lattice-mult18x18d-enum-val-to-str v)
+                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                [0 "NONE"]
+                                [1 "CE0"]
+                                [2 "RST0"]
+                                [3 "ENABLED"]
+                                [4 "FALSE"]
+                                [5 "DISABLED"]
+                                [6 "SYNC"]
+                                [7 "B_SHIFT"]
+                                [8 "C_SHIFT"]
+                                [9 "B_C_DYNAMIC"]
+                                [10 "HIGHSPEED"]
+                                [11 "CLK0"]
+                                [12 "CLK1"]
+                                [13 "CLK2"]
+                                [14 "CLK3"]
+                                [15 "CE1"]
+                                [16 "CE2"]
+                                [17 "CE3"]
+                                [18 "RST1"]
+                                [19 "RST2"]
+                                [20 "RST3"]
+                                [21 "ASYNC"]
+                                [22 "TRUE"]
+                                [23 "STATIC"]
+                                [24 "DYNAMIC"]
+                                [_ (error (format "Unknown Lattice enum value: ~a" v))]))
+                            (cond
+                              [(and (equal? module-name "CARRY8")
+                                    (equal? (module-instance-parameter-name param) "CARRY_TYPE"))
+                               (match (bitvector->natural
+                                       (signal-value (lr:bv-v (module-instance-parameter-value
+                                                               param))))
+                                 [0 "SINGLE_CY8"]
+                                 [1 "DUAL_CY4"]
+                                 [_
+                                  (error (format "Unexpected CARRY_TYPE ~a"
+                                                 (module-instance-parameter-name
+                                                  (signal-value
+                                                   (lr:bv-v (module-instance-parameter-value
+                                                             param))))))])]
+                              [(and (equal? module-name "DSP48E2")
+                                    (member (module-instance-parameter-name param)
+                                            (list "AMULTSEL"
+                                                  "AUTORESET_PATDET"
+                                                  "AUTORESET_PRIORITY"
+                                                  "A_INPUT"
+                                                  "BMULTSEL"
+                                                  "B_INPUT"
+                                                  "PREADDINSEL"
+                                                  "SEL_MASK"
+                                                  "SEL_PATTERN"
+                                                  "USE_MULT"
+                                                  "USE_PATTERN_DETECT"
+                                                  "USE_SIMD"
+                                                  "USE_WIDEXOR"
+                                                  "XORSIMD")))
+                               (dsp48e2-enum-val-to-str (module-instance-parameter-value param))]
+                              [(and (or (equal? module-name "MULT18X18C")
+                                        (equal? module-name "MULT18X18D")
+                                        (equal? module-name "ALU54A"))
+                                    (member (module-instance-parameter-name param)
+                                            (list "CLK0_DIV"
+                                                  "CLK1_DIV"
+                                                  "CLK2_DIV"
+                                                  "CLK3_DIV"
+                                                  "GSR"
+                                                  "HIGHSPEED_CLK"
+                                                  "MULT_BYPASS"
+                                                  "CAS_MATCH_REG"
+                                                  "SOURCEB_MODE"
+                                                  "REG_INPUTA_CE"
+                                                  "REG_INPUTB_CE"
+                                                  "REG_INPUTC_CE"
+                                                  "REG_PIPELINE_CE"
+                                                  "REG_OUTPUT_CE"
+                                                  "REG_INPUTA_CLK"
+                                                  "REG_INPUTB_CLK"
+                                                  "REG_INPUTC_CLK"
+                                                  "REG_PIPELINE_CLK"
+                                                  "REG_OUTPUT_CLK"
+                                                  "REG_INPUTA_RST"
+                                                  "REG_INPUTB_RST"
+                                                  "REG_INPUTC_RST"
+                                                  "REG_PIPELINE_RST"
+                                                  "REG_OUTPUT_RST"
+                                                  "REG_INPUTC0_CLK"
+                                                  "REG_INPUTC0_CE"
+                                                  "REG_INPUTC0_RST"
+                                                  "REG_INPUTC1_CLK"
+                                                  "REG_INPUTC1_CE"
+                                                  "REG_INPUTC1_RST"
+                                                  "REG_OPCODEOP0_0_CLK"
+                                                  "REG_OPCODEOP0_0_CE"
+                                                  "REG_OPCODEOP0_0_RST"
+                                                  "REG_OPCODEOP1_0_CLK"
+                                                  "REG_OPCODEOP0_1_CLK"
+                                                  "REG_OPCODEOP0_1_CE"
+                                                  "REG_OPCODEOP0_1_RST"
+                                                  "REG_OPCODEOP1_1_CLK"
+                                                  "REG_OPCODEIN_0_CLK"
+                                                  "REG_OPCODEIN_0_CE"
+                                                  "REG_OPCODEIN_0_RST"
+                                                  "REG_OPCODEIN_1_CLK"
+                                                  "REG_OPCODEIN_1_CE"
+                                                  "REG_OPCODEIN_1_RST"
+                                                  "REG_OUTPUT0_CLK"
+                                                  "REG_OUTPUT0_CE"
+                                                  "REG_OUTPUT0_RST"
+                                                  "REG_OUTPUT1_CLK"
+                                                  "REG_OUTPUT1_CE"
+                                                  "REG_OUTPUT1_RST"
+                                                  "REG_FLAG_CLK"
+                                                  "REG_FLAG_CE"
+                                                  "REG_FLAG_RST"
+                                                  "MCPAT_SOURCE"
+                                                  "MASKPAT_SOURCE"
+                                                  "GSR"
+                                                  "RESETMODE"
+                                                  "MULT9_MODE"
+                                                  "LEGACY")))
+                               (lattice-mult18x18d-enum-val-to-str
+                                (module-instance-parameter-value param))]
+                              [(and (equal? module-name "altmult_accum")
+                                    (member (module-instance-parameter-name param)
+                                            (list "input_reg_a"
+                                                  "input_aclr_a"
+                                                  "multiplier1_direction"
+                                                  "multiplier3_direction"
+                                                  "input_reg_b"
+                                                  "input_aclr_b"
+                                                  "port_addnsub"
+                                                  "addnsub_reg"
+                                                  "addnsub_aclr"
+                                                  "addnsub_pipeline_reg"
+                                                  "addnsub_pipeline_aclr"
+                                                  "accum_direction"
+                                                  "accum_sload_reg"
+                                                  "accum_sload_aclr"
+                                                  "accum_sload_pipeline_reg"
+                                                  "accum_sload_pipeline_aclr"
+                                                  "representation_a"
+                                                  "port_signa"
+                                                  "sign_reg_a"
+                                                  "sign_aclr_a"
+                                                  "sign_pipeline_reg_a"
+                                                  "sign_pipeline_aclr_a"
+                                                  "port_signb"
+                                                  "representation_b"
+                                                  "sign_reg_b"
+                                                  "sign_aclr_b"
+                                                  "sign_pipeline_reg_b"
+                                                  "sign_pipeline_aclr_b"
+                                                  "multiplier_reg"
+                                                  "multiplier_aclr"
+                                                  "output_reg"
+                                                  "output_aclr"
+                                                  "lpm_type"
+                                                  "lpm_hint"
+                                                  "dedicated_multiplier_circuitry"
+                                                  "dsp_block_balancing"
+                                                  "intended_device_family"
+                                                  "accum_round_aclr"
+                                                  "accum_round_pipeline_aclr"
+                                                  "accum_round_pipeline_reg"
+                                                  "accum_round_reg"
+                                                  "accum_saturation_aclr"
+                                                  "accum_saturation_pipeline_aclr"
+                                                  "accum_saturation_pipeline_reg"
+                                                  "accum_saturation_reg"
+                                                  "accum_sload_upper_data_aclr"
+                                                  "accum_sload_upper_data_pipeline_aclr"
+                                                  "accum_sload_upper_data_pipeline_reg"
+                                                  "accum_sload_upper_data_reg"
+                                                  "mult_round_aclr"
+                                                  "mult_round_reg"
+                                                  "mult_saturation_aclr"
+                                                  "mult_saturation_reg"
+                                                  "input_source_a"
+                                                  "input_source_b")))
+                               (intel-altmult-accum-enum-val-to-str
+                                (module-instance-parameter-value param))]
+
+                              [else #f]))]
+
                          ;;; Pairs of parameter symbol with value.
                          [param-pairs
-                          (map (λ (p)
-                                 (cons (string->symbol (module-instance-parameter-name p))
-                                       (match (module-instance-parameter-value p)
-                                         [(lr:bv (signal v _)) (make-literal-value-from-bv v)])))
-                               params)]
+                          (map
+                           (λ (p)
+                             (cons
+                              (string->symbol (module-instance-parameter-name p))
+                              ;;; Here, we allow for overrides on parameter compilation. This is
+                              ;;; because we've had to manually convert string parameters to
+                              ;;; bitvectors, and so we need to convert them back for some modules.
+                              (or (compile-parameter-override module-name p)
+                                  (match (module-instance-parameter-value p)
+                                    [(lr:bv (signal v _)) (make-literal-value-from-bv v)]
+                                    ;;; TODO(@gussmith23): This is hardcoded; we should write a little
+                                    ;;; compiler here.
+                                    [(lr:zero-extend (lr:bv (signal v _))
+                                                     (lr:bitvector (bitvector w)))
+                                     (make-literal-value-from-bv (zero-extend v (bitvector w)))]))))
+                           params)]
                          ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
                          ;;; parameters. We will need to figure out a way around this hack especially
                          ;;; if we want to support other modules that use string parameters e.g. DSP.
@@ -120,11 +393,11 @@
                                                   (list (cons 'INJECT1_0 "NO")
                                                         (cons 'INJECT1_1 "NO")))
                                           param-pairs)]
-                         [cell (make-cell
-                                module-name
-                                (make-cell-port-directions input-port-symbols output-port-symbols)
-                                (make-immutable-hash (append input-pairs output-pairs))
-                                #:params (make-immutable-hash param-pairs))])
+                         [cell (make-cell module-name
+                                          (make-cell-port-directions input-port-symbols
+                                                                     output-port-symbols)
+                                          (make-immutable-hash (append input-pairs output-pairs))
+                                          #:params (make-immutable-hash param-pairs))])
 
                     (add-cell (string->symbol module-name) cell)
 
@@ -435,6 +708,10 @@
                   (append (compile v)
                           (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
                                      "0"))]
+                 [(lr:sign-extend v bv-type)
+                  (append (compile v)
+                          (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
+                                     (last (compile v))))]
                  [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
                   (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
@@ -459,6 +736,20 @@
                   ;;; Return the bits.
                   (hash-ref port-details 'bits)]
 
+                 ;;; Vars correspond to module inputs!
+                 [(lr:var name bw)
+                  ;;; Get the port details if they exist; create and return them if they don't.
+                  (define port-details
+                    (hash-ref ports
+                              name
+                              (lambda ()
+                                (define bits (get-bits bw))
+                                (define port-details (make-port-details "input" bits))
+                                (add-port (string->symbol name) port-details)
+                                port-details)))
+
+                  ;;; Return the bits.
+                  (hash-ref port-details 'bits)]
                  ;;; Concrete bitvectors become constants.
                  [(lr:bv (signal (? bv? (? concrete? s)) state))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
@@ -501,51 +792,51 @@
   ;;;             (check-equal? (hash-count (hash-ref module 'ports)) 5))
 
   (test-begin
-   (define out (lakeroad->jsexpr (lr:bv (bv->signal (bv #b000111 6)))))
-   (check-equal?
-    (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
-    (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
+    (define out (lakeroad->jsexpr (lr:bv (bv->signal (bv #b000111 6)))))
+    (check-equal?
+     (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
+     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
 
   (test-begin
-   (current-solver (boolector))
-   (define a (bv->signal (?? (bitvector 8))))
-   (define b (bv->signal (?? (bitvector 8))))
-   (define expr
-     (lr:first (physical-to-logical-mapping
-                (ptol-bitwise)
-                ;;; Take the 8 outputs from the LUTs; drop cout.
-                (lr:take (ultrascale-plus-clb (lr:bv (bv->signal (?? (bitvector 1))))
-                                              (lr:bv (bv->signal (?? (bitvector 64))))
-                                              (lr:bv (bv->signal (?? (bitvector 64))))
-                                              (lr:bv (bv->signal (?? (bitvector 64))))
-                                              (lr:bv (bv->signal (?? (bitvector 64))))
-                                              (lr:bv (bv->signal (?? (bitvector 64))))
-                                              (lr:bv (bv->signal (?? (bitvector 64))))
-                                              (lr:bv (bv->signal (?? (bitvector 64))))
-                                              (lr:bv (bv->signal (?? (bitvector 64))))
-                                              (lr:bv (bv->signal (?? (bitvector 2))))
-                                              (lr:bv (bv->signal (?? (bitvector 2))))
-                                              (lr:bv (bv->signal (?? (bitvector 2))))
-                                              (lr:bv (bv->signal (?? (bitvector 2))))
-                                              (lr:bv (bv->signal (?? (bitvector 2))))
-                                              (lr:bv (bv->signal (?? (bitvector 2))))
-                                              (lr:bv (bv->signal (?? (bitvector 2))))
-                                              (lr:bv (bv->signal (?? (bitvector 2))))
-                                              (logical-to-physical-mapping
-                                               (ltop-bitwise)
-                                               (lr:list (list (lr:bv a)
-                                                              (lr:bv b)
-                                                              (lr:bv (bv->signal (bv 0 8)))
-                                                              (lr:bv (bv->signal (bv 0 8)))
-                                                              (lr:bv (bv->signal (bv 0 8)))
-                                                              (lr:bv (bv->signal (bv 0 8)))))))
-                         (lr:integer 8)))))
-   (define soln
-     (synthesize #:forall (list a b)
-                 #:guarantee
-                 (begin
-                   ; Assert that the output of the CLB implements the requested function f.
-                   (assert (bveq (bvand (signal-value a) (signal-value b))
-                                 (signal-value (interpret expr)))))))
-   (check-true (sat? soln))
-   (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))
+    (current-solver (boolector))
+    (define a (bv->signal (?? (bitvector 8))))
+    (define b (bv->signal (?? (bitvector 8))))
+    (define expr
+      (lr:first (physical-to-logical-mapping
+                 (ptol-bitwise)
+                 ;;; Take the 8 outputs from the LUTs; drop cout.
+                 (lr:take (ultrascale-plus-clb (lr:bv (bv->signal (?? (bitvector 1))))
+                                               (lr:bv (bv->signal (?? (bitvector 64))))
+                                               (lr:bv (bv->signal (?? (bitvector 64))))
+                                               (lr:bv (bv->signal (?? (bitvector 64))))
+                                               (lr:bv (bv->signal (?? (bitvector 64))))
+                                               (lr:bv (bv->signal (?? (bitvector 64))))
+                                               (lr:bv (bv->signal (?? (bitvector 64))))
+                                               (lr:bv (bv->signal (?? (bitvector 64))))
+                                               (lr:bv (bv->signal (?? (bitvector 64))))
+                                               (lr:bv (bv->signal (?? (bitvector 2))))
+                                               (lr:bv (bv->signal (?? (bitvector 2))))
+                                               (lr:bv (bv->signal (?? (bitvector 2))))
+                                               (lr:bv (bv->signal (?? (bitvector 2))))
+                                               (lr:bv (bv->signal (?? (bitvector 2))))
+                                               (lr:bv (bv->signal (?? (bitvector 2))))
+                                               (lr:bv (bv->signal (?? (bitvector 2))))
+                                               (lr:bv (bv->signal (?? (bitvector 2))))
+                                               (logical-to-physical-mapping
+                                                (ltop-bitwise)
+                                                (lr:list (list (lr:bv a)
+                                                               (lr:bv b)
+                                                               (lr:bv (bv->signal (bv 0 8)))
+                                                               (lr:bv (bv->signal (bv 0 8)))
+                                                               (lr:bv (bv->signal (bv 0 8)))
+                                                               (lr:bv (bv->signal (bv 0 8)))))))
+                          (lr:integer 8)))))
+    (define soln
+      (synthesize #:forall (list a b)
+                  #:guarantee
+                  (begin
+                    ; Assert that the output of the CLB implements the requested function f.
+                    (assert (bveq (bvand (signal-value a) (signal-value b))
+                                  (signal-value (interpret expr)))))))
+    (check-true (sat? soln))
+    (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))

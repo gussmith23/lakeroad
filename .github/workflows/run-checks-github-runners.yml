@@ -12,12 +12,21 @@ on:
 
   # Allow manual trigger.
   workflow_dispatch:
+    inputs:
+      no-cache:
+        type: boolean
+        description: use --no-cache flag on docker build. 'true' turns on --no-cache.
 
 env:
   REGISTRY: ghcr.io
   # Can't use ${{ env.REGISTRY }} here, but would like to, so that we' don't
   # repeat ghcr.io.
   IMAGE_TAG: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+  
+concurrency:
+  # Cancel in-progress runs for branches other than main.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
   # Job which cleans up GitHub Actions workspace. This is only needed when
@@ -44,7 +53,7 @@ jobs:
           submodules: true
 
       - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -58,16 +67,17 @@ jobs:
       #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@dc7b9719a96d48369863986a06765841d7ea23f6
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           tags: ${{ env.IMAGE_TAG }}
           cache-to: type=gha,mode=max
           cache-from: type=gha
+          no-cache: ${{ github.event.inputs.no-cache == 'true' }}
 
   # This can be run on ubuntu-latest (i.e., on GitHub's provided runners), but
   # it will be much slower. Specifically, our end-to-end tests using Verilator
@@ -80,7 +90,7 @@ jobs:
     needs: [build-and-push-image, cleaner]
     steps:
       - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -97,7 +107,7 @@ jobs:
     needs: build-and-push-image
     steps:
       - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}

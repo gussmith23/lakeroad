@@ -23,119 +23,117 @@
 ;;;
 ;;; It's preferable to batch tests into a single Verilator testbench as possible, because Verilator
 ;;; compilation takes much longer than synthesis with Lakeroad or testbench runtime.
-(define/contract
- (simulate-with-verilator to-simulate-values
-                          verilator-include-dir
-                          #:additional-files-to-build [additional-files-to-build '()]
-                          #:include-dirs [include-dirs '()]
-                          #:extra-verilator-args [extra-verilator-args ""]
-                          #:extra-cc-args [extra-cc-args ""]
-                          #:num-make-jobs [num-make-jobs (processor-count)]
-                          #:max-loop-bound [max-loop-bound 256]
-                          #:force-random-values [force-random-values #f])
- (->* ((listof to-simulate?) path-string?)
-      (#:additional-files-to-build (listof path-string?)
-       #:include-dirs (listof path-string?)
-       #:extra-verilator-args string?
-       #:extra-cc-args string?
-       #:num-make-jobs integer?
-       #:max-loop-bound integer?
-       #:force-random-values boolean?)
-      boolean?)
- (begin
-   (define working-directory (make-temporary-file "rkttmp~a" 'directory))
-   (log-info "Working directory: ~a" working-directory)
+(define/contract (simulate-with-verilator to-simulate-values
+                                          verilator-include-dir
+                                          #:additional-files-to-build [additional-files-to-build '()]
+                                          #:include-dirs [include-dirs '()]
+                                          #:extra-verilator-args [extra-verilator-args ""]
+                                          #:extra-cc-args [extra-cc-args ""]
+                                          #:num-make-jobs [num-make-jobs (processor-count)]
+                                          #:max-loop-bound [max-loop-bound 256]
+                                          #:force-random-values [force-random-values #f])
+  (->* ((listof to-simulate?) path-string?)
+       (#:additional-files-to-build (listof path-string?)
+                                    #:include-dirs (listof path-string?)
+                                    #:extra-verilator-args string?
+                                    #:extra-cc-args string?
+                                    #:num-make-jobs integer?
+                                    #:max-loop-bound integer?
+                                    #:force-random-values boolean?)
+       boolean?)
+  (begin
+    (define working-directory (make-temporary-file "rkttmp~a" 'directory))
+    (log-info "Working directory: ~a" working-directory)
 
-   ;;; Converts Lakeroad expression to a Verilog module, writes it to a .v file, and generates the
-   ;;; testbench code to test the Verilog module.
-   (define/contract
-    (generate-code-for-lakeroad-expression to-simulate-value)
-    (-> to-simulate? (list/c string? string? path?))
-    (begin
-      (match-define (to-simulate lakeroad-expr bv-expr) to-simulate-value)
-      (define json-file (make-temporary-file "rkttmp~a.json" #f working-directory))
-      (define verilog-file (make-temporary-file "rkttmp~a.v" #f working-directory))
-      (define module-name
-        (path->string (path-replace-extension (file-name-from-path verilog-file) "")))
-      (display-to-file (jsexpr->string (lakeroad->jsexpr lakeroad-expr #:module-name module-name))
-                       json-file
-                       #:exists 'update)
-      (match-let ([(list proc-stdout stdin proc-id stderr control-fn)
-                   (process
-                    (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file))])
-        (control-fn 'wait)
-        (when (not (equal? 0 (control-fn 'exit-code)))
-          (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
-                         (port->string proc-stdout)
-                         (port->string stderr))))
-        (close-input-port proc-stdout)
-        (close-input-port stderr)
-        (close-output-port stdin))
+    ;;; Converts Lakeroad expression to a Verilog module, writes it to a .v file, and generates the
+    ;;; testbench code to test the Verilog module.
+    (define/contract (generate-code-for-lakeroad-expression to-simulate-value)
+      (-> to-simulate? (list/c string? string? path?))
+      (begin
+        (match-define (to-simulate lakeroad-expr bv-expr) to-simulate-value)
+        (define json-file (make-temporary-file "rkttmp~a.json" #f working-directory))
+        (define verilog-file (make-temporary-file "rkttmp~a.v" #f working-directory))
+        (define module-name
+          (path->string (path-replace-extension (file-name-from-path verilog-file) "")))
+        (display-to-file (jsexpr->string (lakeroad->jsexpr lakeroad-expr #:module-name module-name))
+                         json-file
+                         #:exists 'update)
+        (match-let ([(list proc-stdout stdin proc-id stderr control-fn)
+                     (process
+                      (format "yosys -p 'read_json ~a; write_verilog ~a'" json-file verilog-file))])
+          (control-fn 'wait)
+          (when (not (equal? 0 (control-fn 'exit-code)))
+            (error (format "Converting JSON to Verilog via Yosys failed:\nSTDOUT:\n~a\nSTDERR:\n~a"
+                           (port->string proc-stdout)
+                           (port->string stderr))))
+          (close-input-port proc-stdout)
+          (close-input-port stderr)
+          (close-output-port stdin))
 
-      ;;; The class name of the C++ class produced by Verilator after Verilating our .v file.
-      (define verilated-type-name (format "V~a" module-name))
+        ;;; The class name of the C++ class produced by Verilator after Verilating our .v file.
+        (define verilated-type-name (format "V~a" module-name))
 
-      ;;; The symbol for the variable which indicates which value of the given var we're checking
-      ;;; this iteration.
-      (define (idx-var var)
-        (format "i~a" var))
+        ;;; The symbol for the variable which indicates which value of the given var we're checking
+        ;;; this iteration.
+        (define (idx-var var)
+          (format "i~a" var))
 
-      ;;; The symbol for the variable which holds the value that gets driven into the input of the
-      ;;; module.
-      (define (val-var var)
-        (~a var))
+        ;;; The symbol for the variable which holds the value that gets driven into the input of the
+        ;;; module.
+        (define (val-var var)
+          (~a var))
 
-      ;;; The sequence of `for (<idx-var> = 0; <idx-var> < <limit>; <idx-var>++)` statements which
-      ;;; open the loop for each input we're testing over.
-      (define for-loop-openings
-        (for/list ([var (symbolics bv-expr)])
+        ;;; The sequence of `for (<idx-var> = 0; <idx-var> < <limit>; <idx-var>++)` statements which
+        ;;; open the loop for each input we're testing over.
+        (define for-loop-openings
+          (for/list ([var (symbolics bv-expr)])
 
-          ;;; The symbol for the variable which indicates which value of the given var we're checking
-          ;;; this iteration. This index variable will either be used directly as input, in the case
-          ;;; where we're doing exhaustive testing of all possible inputs, or won't be used at all, as
-          ;;; the input will be generated randomly.
-          (define idx-variable-name (idx-var var))
+            ;;; The symbol for the variable which indicates which value of the given var we're checking
+            ;;; this iteration. This index variable will either be used directly as input, in the case
+            ;;; where we're doing exhaustive testing of all possible inputs, or won't be used at all, as
+            ;;; the input will be generated randomly.
+            (define idx-variable-name (idx-var var))
 
-          ;;; The max value that the index variable should run to (exclusive). This, in combination
-          ;;; with the randomness flag, controls whether exhaustive testing occurs. E.g. if randomness
-          ;;; isn't forced and the max bound is 256, then every variable up to 8 bits wide will be
-          ;;; exhaustively tested.
-          (define limit (min max-loop-bound (expt 2 (bvlen var))))
+            ;;; The max value that the index variable should run to (exclusive). This, in combination
+            ;;; with the randomness flag, controls whether exhaustive testing occurs. E.g. if randomness
+            ;;; isn't forced and the max bound is 256, then every variable up to 8 bits wide will be
+            ;;; exhaustively tested.
+            (define limit (min max-loop-bound (expt 2 (bvlen var))))
 
-          ;;; Open the for loop that iterates over this variable.
-          (format "for (uint64_t ~a = 0; ~a < ~a; ++~a) {"
-                  idx-variable-name
-                  idx-variable-name
-                  limit
-                  idx-variable-name)))
+            ;;; Open the for loop that iterates over this variable.
+            (format "for (uint64_t ~a = 0; ~a < ~a; ++~a) {"
+                    idx-variable-name
+                    idx-variable-name
+                    limit
+                    idx-variable-name)))
 
-      ;;; The sequence of variable assignments that set the module's input values in this loop
-      ;;; iteration. When a variable is 8 bits wide or less, then we test all of its possible values.
-      ;;; We do this by setting the input value to the index variable for this variable. The index
-      ;;; variable counts from 0 to the max value; e.g. to 1 for a 1 bit number, or 255 for an 8 bit
-      ;;; number. This gives us exhaustive testing on this input. In the case where the variable is
-      ;;; greater than 8 bits wide, we use randomly generated values for the input. Randomness can
-      ;;; also be forced by using force-random-values.
-      (define value-definitions
-        (for/list ([var (symbolics bv-expr)])
+        ;;; The sequence of variable assignments that set the module's input values in this loop
+        ;;; iteration. When a variable is 8 bits wide or less, then we test all of its possible values.
+        ;;; We do this by setting the input value to the index variable for this variable. The index
+        ;;; variable counts from 0 to the max value; e.g. to 1 for a 1 bit number, or 255 for an 8 bit
+        ;;; number. This gives us exhaustive testing on this input. In the case where the variable is
+        ;;; greater than 8 bits wide, we use randomly generated values for the input. Randomness can
+        ;;; also be forced by using force-random-values.
+        (define value-definitions
+          (for/list ([var (symbolics bv-expr)])
+            (format
+             "uint64_t ~a = ~a;"
+             (val-var var)
+             (if (|| force-random-values (> (bvlen var) 8))
+                 "(((uint64_t)std::rand() & 0xff) << 56) | (((uint64_t)std::rand() & 0xff) << 48) | (((uint64_t)std::rand() & 0xff) << 40)| (((uint64_t)std::rand() & 0xff) << 32) | (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff)"
+                 (idx-var var)))))
+
+        ;;; The sequence of assignments of the values to the module inputs.
+        (define module-input-assignments
+          (for/list ([var (symbolics bv-expr)])
+            (format "top->~a = ~a;" var (val-var var))))
+
+        ;;; Closing the for loops.
+        (define for-loop-closings (make-list (length (symbolics bv-expr)) "}"))
+
+        (define code
           (format
-           "uint64_t ~a = ~a;"
-           (val-var var)
-           (if (|| force-random-values (> (bvlen var) 8))
-               "(((uint64_t)std::rand() & 0xff) << 56) | (((uint64_t)std::rand() & 0xff) << 48) | (((uint64_t)std::rand() & 0xff) << 40)| (((uint64_t)std::rand() & 0xff) << 32) | (std::rand() & 0xff << 24) | (std::rand() & 0xff << 16) | (std::rand() & 0xff << 8) | (std::rand() & 0xff)"
-               (idx-var var)))))
-
-      ;;; The sequence of assignments of the values to the module inputs.
-      (define module-input-assignments
-        (for/list ([var (symbolics bv-expr)])
-          (format "top->~a = ~a;" var (val-var var))))
-
-      ;;; Closing the for loops.
-      (define for-loop-closings (make-list (length (symbolics bv-expr)) "}"))
-
-      (define code
-        (format
-         #<<here-string-delimiter
+           #<<here-string-delimiter
 {
   // bv-expr: ~a
   ~a *top = new ~a{contextp};
@@ -154,37 +152,37 @@
   delete top;
 }
 here-string-delimiter
-         ;
-         bv-expr
-         verilated-type-name
-         verilated-type-name
-         (string-join for-loop-openings "\n")
-         (string-join value-definitions "\n")
-         (string-join module-input-assignments "\n")
-         (bvexpr->cexpr bv-expr)
-         (sub1 (expt 2 (bvlen bv-expr)))
-         (string-join for-loop-closings "\n")))
+           ;
+           bv-expr
+           verilated-type-name
+           verilated-type-name
+           (string-join for-loop-openings "\n")
+           (string-join value-definitions "\n")
+           (string-join module-input-assignments "\n")
+           (bvexpr->cexpr bv-expr)
+           (sub1 (expt 2 (bvlen bv-expr)))
+           (string-join for-loop-closings "\n")))
 
-      (list code verilated-type-name verilog-file)))
+        (list code verilated-type-name verilog-file)))
 
-   (define results
-     (for/list ([to-simulate-value to-simulate-values])
-       (generate-code-for-lakeroad-expression to-simulate-value)))
-   (define verilated-type-names (map second results))
-   (define verilog-files (map third results))
-   (define includes
-     (string-join
-      (for/list ([verilog-file verilog-files])
-        (format "#include \"~a\""
-                (build-path
-                 working-directory
-                 (format "V~a.h" (path-replace-extension (file-name-from-path verilog-file) "")))))
-      "\n"))
+    (define results
+      (for/list ([to-simulate-value to-simulate-values])
+        (generate-code-for-lakeroad-expression to-simulate-value)))
+    (define verilated-type-names (map second results))
+    (define verilog-files (map third results))
+    (define includes
+      (string-join
+       (for/list ([verilog-file verilog-files])
+         (format "#include \"~a\""
+                 (build-path
+                  working-directory
+                  (format "V~a.h" (path-replace-extension (file-name-from-path verilog-file) "")))))
+       "\n"))
 
-   ;;; Make the contents of a testbench file.
-   (define (make-testbench-source includes test-code)
-     (format
-      #<<here-string-delimiter
+    ;;; Make the contents of a testbench file.
+    (define (make-testbench-source includes test-code)
+      (format
+       #<<here-string-delimiter
 #include <cstdlib>
 #include <inttypes.h>
 ~a
@@ -202,24 +200,24 @@ int main(int argc, char **argv)
   return 0;
 }
 here-string-delimiter
-      ;
-      includes
-      test-code))
+       ;
+       includes
+       test-code))
 
-   (define testbench-files
-     (for/list ([test-code (map first results)])
-       (define f (make-temporary-file "rkttmp_testbench_~a.cc" #f working-directory))
-       (log-info "testbench file: ~a" f)
-       (display-to-file (make-testbench-source includes test-code) f #:exists 'update)
-       f))
+    (define testbench-files
+      (for/list ([test-code (map first results)])
+        (define f (make-temporary-file "rkttmp_testbench_~a.cc" #f working-directory))
+        (log-info "testbench file: ~a" f)
+        (display-to-file (make-testbench-source includes test-code) f #:exists 'update)
+        f))
 
-   (define include-dirs-string
-     (string-join (for/list ([include-dir include-dirs])
-                    (format "-I~a" include-dir))))
+    (define include-dirs-string
+      (string-join (for/list ([include-dir include-dirs])
+                     (format "-I~a" include-dir))))
 
-   (define makefile-source
-     (format
-      #<<here-string-delimiter
+    (define makefile-source
+      (format
+       #<<here-string-delimiter
 # Builds Verilog .v files into a Verilated testbench.
 # Environment variable arguments:
 # - VERILOG_FILES: The Verilog files to Verilate. These contain the modules to test.
@@ -251,49 +249,50 @@ endif
 
 run_all: $(TESTBENCH_EXECUTABLES)
 
-%.out: %.cc $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(VERILOG_FILES:.v=.vo)
+%.out: %.cc $(VERILATOR_INCLUDE_DIR)/verilated.cpp $(VERILATOR_INCLUDE_DIR)/verilated_threads.cpp $(VERILOG_FILES:.v=.vo)
   # -lstdc++ fixes build problems on Mac.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
-	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -faligned-new -lstdc++ -std=c++11 -Wall -Wextra -Werror $^ -o $@
+	+$(CXX) $(CFLAGS) -I$(VERILATOR_INCLUDE_DIR) -DVL_THREADED -faligned-new -lstdc++ -std=c++11 $^ -o $@ -lpthread
 	$@ || (echo "Test failed: $@"; exit 1)
 
 %.vo: %.v
   # The CFLAGS values fix issues with timing functions not being found.
   # The + passes information about the jobserver to sub-commands. Not sure if it has any effect here.
-	+$(VERILATOR) -Wall --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
+	+$(VERILATOR) --no-timing -Wall --CFLAGS "-DVL_TIME_STAMP64 -DVL_NO_LEGACY" -Mdir . --cc --build $(VFLAGS) $<
   # Copy the compiled result, which is named V<filename>__ALL.o, to <filename>.vo.
 	cp $(addprefix $(dir $<)/V, $(patsubst %.v,%__ALL.o,$(notdir $<))) $@
 
 here-string-delimiter
-      ;
-      verilator-include-dir
-      (string-join (map path->string verilog-files) " ")
-      (string-join (map path->string testbench-files) " ")
-      include-dirs-string
-      extra-verilator-args
-      (string-join (map path->string additional-files-to-build) " ")))
+       ;
+       verilator-include-dir
+       (string-join (map path->string verilog-files) " ")
+       (string-join (map path->string testbench-files) " ")
+       include-dirs-string
+       extra-verilator-args
+       (string-join (map path->string additional-files-to-build) " ")))
 
-   (display-to-file makefile-source (build-path working-directory "Makefile") #:exists 'error)
+    (display-to-file makefile-source (build-path working-directory "Makefile") #:exists 'error)
 
-   (define make-invocation
-     (format "make --no-builtin-rules -j ~a -C ~a run_all" num-make-jobs working-directory))
+    (define make-invocation
+      (format "make --no-builtin-rules -j ~a -C ~a run_all" num-make-jobs working-directory))
 
-   (log-info "invoking make:\n~a" make-invocation)
-   ;;; It seems like using (process) might be slow? Am I using it wrong?
-   ;;;  (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process make-invocation)])
-   ;;;    (control-fn 'wait)
-   ;;;    (when (not (equal? 0 (control-fn 'exit-code)))
-   ;;;      (error (format "Calling make command failed.\nCommand:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
-   ;;;                     make-invocation
-   ;;;                     (port->string proc-stdout)
-   ;;;                     (port->string stderr))))
-   ;;;    (close-input-port proc-stdout)
-   ;;;    (close-input-port stderr)
-   ;;;    (close-output-port stdin))
-   ;;;
-   ;;; Throw away stdout, keep stderr. If anything is printed on stderr, we should likely be failing anyway.
+    (log-info "invoking make:\n~a" make-invocation)
+    ;;; It seems like using (process) might be slow? Am I using it wrong?
+    ;;;  (match-let ([(list proc-stdout stdin proc-id stderr control-fn) (process make-invocation)])
+    ;;;    (control-fn 'wait)
+    ;;;    (when (not (equal? 0 (control-fn 'exit-code)))
+    ;;;      (error (format "Calling make command failed.\nCommand:\n~a\nSTDOUT:\n~a\nSTDERR:\n~a"
+    ;;;                     make-invocation
+    ;;;                     (port->string proc-stdout)
+    ;;;                     (port->string stderr))))
+    ;;;    (close-input-port proc-stdout)
+    ;;;    (close-input-port stderr)
+    ;;;    (close-output-port stdin))
+    ;;;
+    ;;; Throw away stdout, keep stderr. If anything is printed on stderr, we should likely be failing anyway.
 
-   (parameterize ([current-output-port (open-output-bytes)]) (system make-invocation))))
+    (parameterize ([current-output-port (open-output-bytes)])
+      (system make-invocation))))
 
 (module+ test
 
@@ -303,27 +302,26 @@ here-string-delimiter
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
   (test-case "Simple multi-design Verilator test"
-             (check-true
-              (normal? (with-vc (with-terms
-                                 (begin
-                                   (define-symbolic a b (bitvector 8))
-                                   (check-true (simulate-with-verilator
-                                                (list (to-simulate (lr:bv (bv->signal a)) a)
-                                                      (to-simulate (lr:bv (bv->signal b)) b))
-                                                (getenv "VERILATOR_INCLUDE_DIR")))))))))
+    (check-true
+     (normal? (with-vc (with-terms (begin
+                                     (define-symbolic a b (bitvector 8))
+                                     (check-true (simulate-with-verilator
+                                                  (list (to-simulate (lr:bv (bv->signal a)) a)
+                                                        (to-simulate (lr:bv (bv->signal b)) b))
+                                                  (getenv "VERILATOR_INCLUDE_DIR")))))))))
 
   ;;; TODO(@gussmith23): Capture the output of this so that we don't print an assertion failure during
   ;;; testing.
   (test-case "Simple multi-design Verilator test 2"
-             (check-true
-              (normal? (with-vc (with-terms (begin
-                                              (define-symbolic a b (bitvector 8))
-                                              (displayln "Note: expecting an assertion failure:")
-                                              (check-false
-                                               (simulate-with-verilator
-                                                (list (to-simulate (lr:bv (bv->signal a)) a)
-                                                      (to-simulate (lr:bv (bv->signal b)) (bvnot b)))
-                                                (getenv "VERILATOR_INCLUDE_DIR"))))))))))
+    (check-true (normal? (with-vc (with-terms (begin
+                                                (define-symbolic a b (bitvector 8))
+                                                (displayln "Note: expecting an assertion failure:")
+                                                (check-false
+                                                 (simulate-with-verilator
+                                                  (list (to-simulate (lr:bv (bv->signal a)) a)
+                                                        (to-simulate (lr:bv (bv->signal b))
+                                                                     (bvnot b)))
+                                                  (getenv "VERILATOR_INCLUDE_DIR"))))))))))
 
 ;;; Test a Lakeroad expression using a simple testbench.
 ;;;

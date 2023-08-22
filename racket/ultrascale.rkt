@@ -197,7 +197,8 @@
                                      mux-selector-f
                                      mux-selector-g
                                      mux-selector-h
-                                     inputs) expr]
+                                     inputs)
+                expr]
                ;;; Compile all input expressions.
                [cin (lakeroad->jsexpr cin)]
                [inputs (lakeroad->jsexpr inputs)]
@@ -363,9 +364,9 @@
                                 (mux)
                                 (mux)
                                 (mux)
-                                (logical-to-physical-mapping
-                                 (choose (ltop-bitwise) (ltop-bitwise-reverse))
-                                 (logical-list)))
+                                (logical-to-physical-mapping (choose (ltop-bitwise)
+                                                                     (ltop-bitwise-reverse))
+                                                             (logical-list)))
            8)]
  [logical-list
   (choose (list (logical-8bit) (logical-8bit) (bv #xff 8) (bv #xff 8) (bv #xff 8) (bv #xff 8))
@@ -448,7 +449,8 @@
 ; Wrapper to make things easier.
 ; Returns (carry0, muxcy)
 (define (carry-layer outputs prev-muxcy)
-  (match-let ([(list O5 O6) outputs]) (list (carry-o O6 prev-muxcy) (carry-co O6 O5 prev-muxcy))))
+  (match-let ([(list O5 O6) outputs])
+    (list (carry-o O6 prev-muxcy) (carry-co O6 O5 prev-muxcy))))
 
 (define ultrascale-input-width 6)
 (define ultrascale-output-width 2)
@@ -903,7 +905,8 @@
                                          unnamed-input-488
                                          unnamed-input-750
                                          unnamed-input-806
-                                         unnamed-input-850) expr]
+                                         unnamed-input-850)
+                expr]
                [A (interpreter A)]
                [ACASCREG (interpreter ACASCREG)]
                [ACIN (interpreter ACIN)]
@@ -1166,12 +1169,7 @@
                                                 #:USE_PATTERN_DETECT USE_PATTERN_DETECT
                                                 #:USE_SIMD USE_SIMD
                                                 #:USE_WIDEXOR USE_WIDEXOR
-                                                #:XORSIMD XORSIMD
-                                                #:unnamed-input-331 unnamed-input-331
-                                                #:unnamed-input-488 unnamed-input-488
-                                                #:unnamed-input-750 unnamed-input-750
-                                                #:unnamed-input-806 unnamed-input-806
-                                                #:unnamed-input-850 unnamed-input-850))
+                                                #:XORSIMD XORSIMD))
     (define P (assoc-ref dsp-expr 'P))
     (define COUT (assoc-ref dsp-expr 'CARRYCASCOUT))
     (define XOROUT (assoc-ref dsp-expr 'XOROUT))
@@ -1454,133 +1452,134 @@ here-string-delimiter
                                          unnamed-input-488
                                          unnamed-input-750
                                          unnamed-input-806
-                                         unnamed-input-850) expr]
-               [cell (make-cell
-                      "DSP48E2"
-                      (make-cell-port-directions (list 'A
-                                                       'ACIN
-                                                       'ALUMODE
-                                                       'B
-                                                       'BCIN
-                                                       'C
-                                                       'CARRYCASCIN
-                                                       'CARRYIN
-                                                       'CARRYINSEL
-                                                       'CEA1
-                                                       'CEA2
-                                                       'CEAD
-                                                       'CEALUMODE
-                                                       'CEB1
-                                                       'CEB2
-                                                       'CEC
-                                                       'CECARRYIN
-                                                       'CECTRL
-                                                       'CED
-                                                       'CEINMODE
-                                                       'CEM
-                                                       'CEP
-                                                       'CLK
-                                                       'D
-                                                       'INMODE
-                                                       'MULTSIGNIN
-                                                       'OPMODE
-                                                       'PCIN
-                                                       'RSTA
-                                                       'RSTALLCARRYIN
-                                                       'RSTALUMODE
-                                                       'RSTB
-                                                       'RSTC
-                                                       'RSTCTRL
-                                                       'RSTD
-                                                       'RSTINMODE
-                                                       'RSTM
-                                                       'RSTP)
-                                                 (list 'P 'CARRYCASCOUT 'XOROUT))
-                      (hash 'P
-                            P
-                            'CARRYCASCOUT
-                            CARRYCASCOUT
-                            'XOROUT
-                            XOROUT
-                            'A
-                            (compile A)
-                            'ACIN
-                            (compile ACIN)
-                            'ALUMODE
-                            (compile ALUMODE)
-                            'B
-                            (compile B)
-                            'BCIN
-                            (compile BCIN)
-                            'C
-                            (compile C)
-                            'CARRYCASCIN
-                            (compile CARRYCASCIN)
-                            'CARRYIN
-                            (compile CARRYIN)
-                            'CARRYINSEL
-                            (compile CARRYINSEL)
-                            'CEA1
-                            (compile CEA1)
-                            'CEA2
-                            (compile CEA2)
-                            'CEAD
-                            (compile CEAD)
-                            'CEALUMODE
-                            (compile CEALUMODE)
-                            'CEB1
-                            (compile CEB1)
-                            'CEB2
-                            (compile CEB2)
-                            'CEC
-                            (compile CEC)
-                            'CECARRYIN
-                            (compile CECARRYIN)
-                            'CECTRL
-                            (compile CECTRL)
-                            'CED
-                            (compile CED)
-                            'CEINMODE
-                            (compile CEINMODE)
-                            'CEM
-                            (compile CEM)
-                            'CEP
-                            (compile CEP)
-                            'CLK
-                            (compile CLK)
-                            'D
-                            (compile D)
-                            'INMODE
-                            (compile INMODE)
-                            'MULTSIGNIN
-                            (compile MULTSIGNIN)
-                            'OPMODE
-                            (compile OPMODE)
-                            'PCIN
-                            (compile PCIN)
-                            'RSTA
-                            (compile RSTA)
-                            'RSTALLCARRYIN
-                            (compile RSTALLCARRYIN)
-                            'RSTALUMODE
-                            (compile RSTALUMODE)
-                            'RSTB
-                            (compile RSTB)
-                            'RSTC
-                            (compile RSTC)
-                            'RSTCTRL
-                            (compile RSTCTRL)
-                            'RSTD
-                            (compile RSTD)
-                            'RSTINMODE
-                            (compile RSTINMODE)
-                            'RSTM
-                            (compile RSTM)
-                            'RSTP
-                            (compile RSTP))
-                      #:params
-                      (hash
-                       'AMULTSEL
+                                         unnamed-input-850)
+                expr]
+               [cell
+                (make-cell
+                 "DSP48E2"
+                 (make-cell-port-directions (list 'A
+                                                  'ACIN
+                                                  'ALUMODE
+                                                  'B
+                                                  'BCIN
+                                                  'C
+                                                  'CARRYCASCIN
+                                                  'CARRYIN
+                                                  'CARRYINSEL
+                                                  'CEA1
+                                                  'CEA2
+                                                  'CEAD
+                                                  'CEALUMODE
+                                                  'CEB1
+                                                  'CEB2
+                                                  'CEC
+                                                  'CECARRYIN
+                                                  'CECTRL
+                                                  'CED
+                                                  'CEINMODE
+                                                  'CEM
+                                                  'CEP
+                                                  'CLK
+                                                  'D
+                                                  'INMODE
+                                                  'MULTSIGNIN
+                                                  'OPMODE
+                                                  'PCIN
+                                                  'RSTA
+                                                  'RSTALLCARRYIN
+                                                  'RSTALUMODE
+                                                  'RSTB
+                                                  'RSTC
+                                                  'RSTCTRL
+                                                  'RSTD
+                                                  'RSTINMODE
+                                                  'RSTM
+                                                  'RSTP)
+                                            (list 'P 'CARRYCASCOUT 'XOROUT))
+                 (hash 'P
+                       P
+                       'CARRYCASCOUT
+                       CARRYCASCOUT
+                       'XOROUT
+                       XOROUT
+                       'A
+                       (compile A)
+                       'ACIN
+                       (compile ACIN)
+                       'ALUMODE
+                       (compile ALUMODE)
+                       'B
+                       (compile B)
+                       'BCIN
+                       (compile BCIN)
+                       'C
+                       (compile C)
+                       'CARRYCASCIN
+                       (compile CARRYCASCIN)
+                       'CARRYIN
+                       (compile CARRYIN)
+                       'CARRYINSEL
+                       (compile CARRYINSEL)
+                       'CEA1
+                       (compile CEA1)
+                       'CEA2
+                       (compile CEA2)
+                       'CEAD
+                       (compile CEAD)
+                       'CEALUMODE
+                       (compile CEALUMODE)
+                       'CEB1
+                       (compile CEB1)
+                       'CEB2
+                       (compile CEB2)
+                       'CEC
+                       (compile CEC)
+                       'CECARRYIN
+                       (compile CECARRYIN)
+                       'CECTRL
+                       (compile CECTRL)
+                       'CED
+                       (compile CED)
+                       'CEINMODE
+                       (compile CEINMODE)
+                       'CEM
+                       (compile CEM)
+                       'CEP
+                       (compile CEP)
+                       'CLK
+                       (compile CLK)
+                       'D
+                       (compile D)
+                       'INMODE
+                       (compile INMODE)
+                       'MULTSIGNIN
+                       (compile MULTSIGNIN)
+                       'OPMODE
+                       (compile OPMODE)
+                       'PCIN
+                       (compile PCIN)
+                       'RSTA
+                       (compile RSTA)
+                       'RSTALLCARRYIN
+                       (compile RSTALLCARRYIN)
+                       'RSTALUMODE
+                       (compile RSTALUMODE)
+                       'RSTB
+                       (compile RSTB)
+                       'RSTC
+                       (compile RSTC)
+                       'RSTCTRL
+                       (compile RSTCTRL)
+                       'RSTD
+                       (compile RSTD)
+                       'RSTINMODE
+                       (compile RSTINMODE)
+                       'RSTM
+                       (compile RSTM)
+                       'RSTP
+                       (compile RSTP))
+                 #:params
+                 (hash 'AMULTSEL
                        (dsp48e2-enum-val-to-str (signal-value (lr:bv-v AMULTSEL)))
                        'A_INPUT
                        (dsp48e2-enum-val-to-str (signal-value (lr:bv-v A_INPUT)))

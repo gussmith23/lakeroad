@@ -20,29 +20,28 @@
 
   ;;; Test synthesis of bv-expr, and add result to list.
   (define (synthesize test-name bv-expr)
-    (test-case
-     test-name
-     (begin
-       (define with-vc-result
-         (with-vc (with-terms (synthesize-any
-                               (xilinx-ultrascale-plus-architecture-description)
-                               bv-expr
-                               #:module-semantics
-                               (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v")
-                                           xilinx-ultrascale-plus-lut2)
-                                     (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
-                                           xilinx-ultrascale-plus-lut6)
-                                     (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v")
-                                           xilinx-ultrascale-plus-carry8))))))
-       (when (failed? with-vc-result)
-         (raise (result-value with-vc-result)))
-       (check-false (failed? with-vc-result))
+    (test-case test-name
+      (begin
+        (define with-vc-result
+          (with-vc (with-terms (synthesize-any (xilinx-ultrascale-plus-architecture-description)
+                                               bv-expr
+                                               #:module-semantics
+                                               (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v")
+                                                           xilinx-ultrascale-plus-lut2)
+                                                     (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
+                                                           xilinx-ultrascale-plus-lut6)
+                                                     (cons (cons "CARRY8"
+                                                                 "../verilator_xilinx/CARRY8.v")
+                                                           xilinx-ultrascale-plus-carry8))))))
+        (when (failed? with-vc-result)
+          (raise (result-value with-vc-result)))
+        (check-false (failed? with-vc-result))
 
-       (define lakeroad-expr (result-value with-vc-result))
+        (define lakeroad-expr (result-value with-vc-result))
 
-       (check-not-equal? lakeroad-expr #f)
+        (check-not-equal? lakeroad-expr #f)
 
-       (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
+        (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])
@@ -93,6 +92,6 @@
     #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
                          (build-path (get-lakeroad-directory) "verilator-unisims"))
     #:extra-verilator-args
-    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT"
+    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
     to-simulate-list
     (getenv "VERILATOR_INCLUDE_DIR"))))
