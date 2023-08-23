@@ -166,7 +166,7 @@
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
 ;;; Parse instruction. Returns a Racket function in the format currently expected by synthesis:
-;;; A function with keyword arguments, taking signal arguments and returning an association list of 
+;;; A function with keyword arguments, taking signal arguments and returning an association list of
 ;;; signals.
 ;;;
 ;;; expr The instruction to parse, e.g. '(bvadd (var a 8) (var b 8)).
