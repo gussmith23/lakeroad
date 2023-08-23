@@ -5,9 +5,9 @@
            rosette/solver/smt/boolector
            "verilator.rkt"
            rosette
+           "synthesize.rkt"
            "programs-to-synthesize.rkt"
            "circt-comb-operators.rkt"
-           "synthesize.rkt"
            "utils.rkt"
            "generated/lattice-ecp5-lut4.rkt"
            "generated/lattice-ecp5-ccu2c.rkt"

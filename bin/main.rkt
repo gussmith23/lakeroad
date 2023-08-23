@@ -264,44 +264,7 @@
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
     ["shift" shift-sketch-generator]
-    ;;; TODO(@gussmith23) Clean up these hacks.
-    ["xilinx-ultrascale-plus-dsp48e2"
-     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
-       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
-
-     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
-     ;;; synthesis function.
-     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-       ;;; Note: wrap in list to mock the return value of sketch generators.
-       (list (synthesize-xilinx-ultrascale-plus-dsp bv-expr)))]
-    ["xilinx-ultrascale-plus-dsp48e2-2-dsps"
-     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
-       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
-
-     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
-     ;;; synthesis function.
-     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-       ;;; Note: wrap in list to mock the return value of sketch generators.
-       (list (synthesize-xilinx-ultrascale-plus-2-dsps bv-expr)))]
-    ["xilinx-ultrascale-plus-dsp48e2-xor"
-     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
-       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
-
-     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
-     ;;; synthesis function.
-     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-       ;;; Note: wrap in list to mock the return value of sketch generators.
-       (list (synthesize-xilinx-ultrascale-plus-dsp-xor bv-expr)))]
-    ["lattice-ecp5-dsp"
-     (when (not (equal? "lattice-ecp5" (architecture)))
-       (error "lattice-ecp5-dsp template only supported for lattice-ecp5 architecture."))
-
-     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
-     ;;; synthesis function.
-     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-       ;;; Note: wrap in list to mock the return value of sketch generators.
-       (list (synthesize-lattice-ecp5-dsp bv-expr)))]
-    [else (error "Missing or invalid template.")]))
+    [_ (error "Missing or invalid template.")]))
 
 (define architecture-description
   (match (architecture)
