@@ -30,6 +30,7 @@
          racket/sandbox)
 
 (define-namespace-anchor anc)
+(define ns (namespace-anchor->namespace anc))
 
 (define architecture
   (make-parameter ""
@@ -112,6 +113,8 @@
   v
   "Name of the output signal of the module written out by Lakeroad. This argument also indicates"
   " the output signal name of the Verilog module specified by --verilog-module-filepath."
+  " Note that this also needs to be specified when passing via the legacy --instruction argument,"
+  " but it can be set to anything."
   " TODO(@gussmith23): There should be two separate arguments for this."
   (let ([splits (string-split v ":")])
     (when (not (equal? 2 (length splits)))
@@ -161,38 +164,48 @@
   ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (hash ':seed (seed))))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
-;;; Parse instruction.
-;;;
-;;; This function will introduce new symbolic constants. Make sure you have good (vc) hygeine when
-;;; calling this function (e.g. by wrapping its invocation with (with-vc)).
+;;; Parse instruction. Returns a Racket function in the format currently expected by synthesis:
+;;; A function with keyword arguments, taking signal arguments and returning an association list of 
+;;; signals.
 ;;;
 ;;; expr The instruction to parse, e.g. '(bvadd (var a 8) (var b 8)).
 (define (parse-instruction expr)
-
+  ;;; A list to collect the args we encounter.
+  (define keywords '())
   (define (helper expr)
     (match expr
-      [`(bitvector->bits ,a) (bitvector->bits (helper a))]
-      [`(apply bvxor ,a) (apply bvxor (helper a))]
-      [`(bvlshr ,a ,b) (bvlshr (helper a) (helper b))]
-      [`(bvashr ,a ,b) (bvashr (helper a) (helper b))]
-      [`(bvshl ,a ,b) (bvshl (helper a) (helper b))]
-      [`(bvuge ,a ,b) (bvuge (helper a) (helper b))]
-      [`(bvule ,a ,b) (bvule (helper a) (helper b))]
-      [`(bvult ,a ,b) (bvult (helper a) (helper b))]
-      [`(bvugt ,a ,b) (bvugt (helper a) (helper b))]
-      [`(not ,a) (not (helper a))]
-      [`(bveq ,a ,b) (bveq (helper a) (helper b))]
-      [`(bool->bitvector ,a) (bool->bitvector (helper a))]
-      [`(bvand ,a ,b) (bvand (helper a) (helper b))]
-      [`(bvor ,a ,b) (bvor (helper a) (helper b))]
-      [`(bvxor ,a ,b) (bvxor (helper a) (helper b))]
-      [`(bvadd ,a ,b) (bvadd (helper a) (helper b))]
-      [`(bvsub ,a ,b) (bvsub (helper a) (helper b))]
-      [`(bvmul ,a ,b) (bvmul (helper a) (helper b))]
-      [`(bvnot ,a) (bvnot (helper a))]
-      [`(var ,id ,bw) (constant id (bitvector bw))]))
+      [`(bitvector->bits ,a) `(bitvector->bits ,(helper a))]
+      [`(apply bvxor ,a) `(bvxor ,@(helper a))]
+      [`(bvlshr ,a ,b) `(bvlshr ,(helper a) ,(helper b))]
+      [`(bvashr ,a ,b) `(bvashr ,(helper a) ,(helper b))]
+      [`(bvshl ,a ,b) `(bvshl ,(helper a) ,(helper b))]
+      [`(bvuge ,a ,b) `(bvuge ,(helper a) ,(helper b))]
+      [`(bvule ,a ,b) `(bvule ,(helper a) ,(helper b))]
+      [`(bvult ,a ,b) `(bvult ,(helper a) ,(helper b))]
+      [`(bvugt ,a ,b) `(bvugt ,(helper a) ,(helper b))]
+      [`(not ,a) `(not ,(helper a))]
+      [`(bveq ,a ,b) `(bveq ,(helper a) ,(helper b))]
+      [`(bool->bitvector ,a) `(bool->bitvector ,(helper a))]
+      [`(bvand ,a ,b) `(bvand ,(helper a) ,(helper b))]
+      [`(bvor ,a ,b) `(bvor ,(helper a) ,(helper b))]
+      [`(bvxor ,a ,b) `(bvxor ,(helper a) ,(helper b))]
+      [`(bvadd ,a ,b) `(bvadd ,(helper a) ,(helper b))]
+      [`(bvsub ,a ,b) `(bvsub ,(helper a) ,(helper b))]
+      [`(bvmul ,a ,b) `(bvmul ,(helper a) ,(helper b))]
+      [`(bvnot ,a) `(bvnot ,(helper a))]
+      [`(circt-comb-mux ,s ,a ,b) `(circt-comb-mux ,(helper s) ,(helper a) ,(helper b))]
+      [`(var ,id ,bw)
+       (set! keywords (cons (string->keyword (symbol->string id)) keywords))
+       `(signal-value ,id)]))
 
-  (helper expr))
+  (define body (helper expr))
+
+  (define keywords-sorted (sort keywords keyword<?))
+  (define out-fn
+    `(lambda ,(flatten (map (lambda (kw) (list kw `,(string->symbol (keyword->string kw))))
+                            keywords-sorted))
+       (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
+  (eval out-fn ns))
 
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
@@ -218,13 +231,13 @@
                     (top-module-name))))
              (error "Yosys failed."))))))
 
-     (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
      ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
      ;;; path expects a bvexpr, which we can get by just calling the function.
      (if (> (initiation-interval) 0)
          f
-         (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal)))))]))
+         ;(signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))
+         f)]))
 
 (when (boolean? bv-expr)
   (error
@@ -322,32 +335,37 @@
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
                   (inputs))]
 
-            ;;; The same environments, but with everything set to zero.
-            [input-zeroes (map (λ (p)
-                                 (match p
-                                   [(cons name bw) (cons name (bv->signal (bv 0 bw)))]))
-                               (inputs))]
-
-            [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
+            ;;; The same environments, but with symbolic values
+            [make-intermediate-inputs
+             (lambda (inputs iter)
+               (map (λ (p)
+                      (match p
+                        [(cons name bw)
+                         (cons name (bv->signal (constant (list name "iter" iter) (bitvector bw))))]))
+                    inputs))]
 
             ;;; Environments for sequential synthesis. Each environment represents one set of input
             ;;; states. For each set of input states, we run the interpreter with the given inputs,
             ;;; get the output (including all of the internal state), and then pass that state on to
             ;;; the next iteration. See `rosette-synthesize`.
             ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
-            [envs ;;; First, we tick the clock with the inputs set to their input values.
-             (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
-                           (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
-                     ;;; then, we tick the clock with the inputs set to zero.
-                     (apply append
-                            (make-list
-                             (sub1 (initiation-interval))
-                             (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-zeroes)
-                                   (cons (cons (clock-name) (bv->signal (bv 1 1))) input-zeroes)))))]
+            ;;; First, we tick the clock with the inputs set to their input values.
+            [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
+                                (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
+                          ;;; then, we tick the clock with the inputs set to symbolic values.
+                          (apply append
+                                 (map (lambda (iter)
+                                        (list (cons (cons (clock-name) (bv->signal (bv 0 1)))
+                                                    (make-intermediate-inputs (inputs) iter))
+                                              (cons (cons (clock-name) (bv->signal (bv 1 1)))
+                                                    (make-intermediate-inputs (inputs) iter))))
+                                      (range 1 (initiation-interval)))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
-                      envs)])
+                      envs)]
+
+            [input-symbolic-constants (symbolics envs)])
 
        ;;; Throw error if we're not passing all values to the bv-expr.
        ;;; TODO(@gussmith23): This check would be better elsewhere, but the use of `compose` below
@@ -383,15 +401,28 @@
                   #:lr-sequential envs
                   #:module-semantics module-semantics)))))]
 
+    ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
+     (define envs
+       (list (map (λ (p)
+                    (match p
+                      [(cons name bw)
+                       (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                  (inputs))))
+     (define input-symbolic-constants (symbolics envs))
      ;;; If initiation interval is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
-       (call-with-limits (timeout)
-                         #f
-                         (thunk (synthesize-with-sketch sketch-generator
-                                                        architecture-description
-                                                        bv-expr
-                                                        #:module-semantics module-semantics))))]))
+       (call-with-limits
+        (timeout)
+        #f
+        (thunk (rosette-synthesize
+                (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
+                         bv-expr)
+                sketch
+                input-symbolic-constants
+                #:bv-sequential envs
+                #:lr-sequential envs
+                #:module-semantics module-semantics))))]))
 
 (cond
   [(not lakeroad-expr)
