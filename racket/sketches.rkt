@@ -59,7 +59,7 @@
 ;;; - clk: (cons lr-expr int) or #f: the expr and bitwidth of the clock, if one exists.
 ;;; - rst: (cons lr-expr int) or #f: the expr and bitwidth of the reset, if one exists.
 ;;; - data: (listof (cons lr-expr int)): the exprs and bitwidths of the data inputs.
-(struct sketch-inputs (output-width clk rst data))
+(struct sketch-inputs (output-width clk rst data) #:transparent)
 (define (make-sketch-inputs #:output-width output-width #:data data #:clk [clk #f] #:rst [rst #f])
   (sketch-inputs output-width clk rst data))
 
