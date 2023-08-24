@@ -9,17 +9,7 @@
 (provide interpret-logical-to-physical-mapping
          interpret-physical-to-logical-mapping
          compile-logical-to-physical-mapping
-         compile-physical-to-logical-mapping
-         logical-to-physical-mapping
-         physical-to-logical-mapping
-         (struct-out ltop-bitwise)
-         (struct-out ltop-shift)
-         (struct-out ltop-identity)
-         (struct-out ltop-constant)
-         (struct-out ltop-bitwise-reverse)
-         (struct-out ptol-bitwise)
-         (struct-out ptol-bitwise-reverse)
-         (struct-out ptol-choose-one))
+         compile-physical-to-logical-mapping)
 
 (require rosette
          racket/pretty
@@ -28,9 +18,6 @@
          "signal.rkt"
          (prefix-in lr: "language.rkt")
          rosette/lib/destruct)
-
-(struct logical-to-physical-mapping (f inputs) #:transparent)
-(struct physical-to-logical-mapping (f outputs) #:transparent)
 
 (define (bvvs->signalvs inputs state)
   (map (lambda (bv) (signal bv state)) inputs))
@@ -97,13 +84,6 @@
 ;;; If neither of these variants are matched, then the expression is passed to the interpreter fn.
 ;;;
 ;;; Returns: list of physical input bitvectors: (physical input 0, physical input 1, ...).
-(struct ltop-identity () #:transparent)
-(struct ltop-bitwise () #:transparent)
-(struct ltop-bitwise-reverse () #:transparent)
-(struct ltop-bitwise-with-mask (masks) #:transparent)
-(struct ltop-uf (uf bw bits-per-group) #:transparent)
-(struct ltop-shift (n) #:transparent)
-(struct ltop-constant (c) #:transparent)
 (define (interpret-logical-to-physical-mapping interpreter f inputs)
   (destruct
    f
@@ -497,11 +477,6 @@
 ;;; Interprets physical-to-logical mappings.
 ;;; Expects a list of logical outputs in least significant->most significant order.
 ;;; For example, in a Xilinx UltraScale+ CLB, this list would be (LUTA out, LUTB out, ...).
-(struct ptol-bitwise () #:transparent)
-(struct ptol-bitwise-reverse () #:transparent)
-(struct ptol-uf (uf bw bits-per-group) #:transparent)
-(struct ptol-choose-one (idx) #:transparent)
-(struct ptol-identity () #:transparent)
 (define (interpret-physical-to-logical-mapping interpreter f logical-outputs)
   (destruct
    f

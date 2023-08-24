@@ -15,13 +15,8 @@
          sofa-architecture-description
          find-biggest-lut-size
          densely-pack-inputs-into-luts
-         (struct-out lr:hw-module-instance)
          (struct-out module-instance-port)
-         (struct-out module-instance-parameter)
-         (struct-out lr:hash-ref)
-         (struct-out lr:make-immutable-hash)
-         (struct-out lr:cons)
-         (struct-out lr:hash-remap-keys))
+         (struct-out module-instance-parameter))
 
 (require rosette
          yaml
@@ -264,12 +259,6 @@
 
 ;;; Part 3: constructing things using the architecture description.
 
-;;; Lakeroad construct for a hardware module instance.
-;;;
-;;; - ports: list of module-instance-ports.
-;;; - filepath: Used to identify the module at interpretation time. We can use some other identifier.
-(struct lr:hw-module-instance (name ports params filepath) #:transparent)
-
 ;;; Find interface implementation in architecture description.
 ;;;
 ;;; - ad: architecture description.
@@ -351,11 +340,6 @@
   (test-false "find-interface-definition returns #f"
               (find-interface-definition (interface-identifier "NotARealInterface"
                                                                (hash "num_inputs" 4)))))
-
-(struct lr:hash-ref (h k) #:transparent)
-;;; Remap the keys in h (a Lakeroad expression which produces a hashmap) using the association list
-;;; ks, which maps old keys to new keys.
-(struct lr:hash-remap-keys (h ks) #:transparent)
 
 ;;; Parse an expression in our small architecture description DSL.
 ;;;
@@ -1443,9 +1427,6 @@
           (check-equal? (signal-value v1) (bv 1 1))
           #t]
          [else #f])))))
-
-(struct lr:make-immutable-hash (list-expr) #:transparent)
-(struct lr:cons (v0-expr v1-expr) #:transparent)
 
 (module+ test
   (test-begin
