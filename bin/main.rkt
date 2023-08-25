@@ -282,9 +282,12 @@
 (define module-semantics
   (match (architecture)
     ["xilinx-ultrascale-plus"
-     (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-           (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
-           (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v") xilinx-ultrascale-plus-carry8)
+     (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                 xilinx-ultrascale-plus-lut2)
+           (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                 xilinx-ultrascale-plus-lut6)
+           (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
+                 xilinx-ultrascale-plus-carry8)
            (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
                  xilinx-ultrascale-plus-dsp48e2))]
     ["lattice-ecp5"
