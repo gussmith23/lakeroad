@@ -130,9 +130,9 @@
                              (current-error-port)))
                 out)]
              ;;; Lakeroad language.
-             [(logical-to-physical-mapping f inputs)
+             [(lr:logical-to-physical-mapping f inputs)
               (interpret-logical-to-physical-mapping interpret-helper f inputs)]
-             [(physical-to-logical-mapping f outputs)
+             [(lr:physical-to-logical-mapping f outputs)
               (interpret-physical-to-logical-mapping interpret-helper f outputs)]
              ;;; Returns a list of:
              ;;; - a (bitvector n): the result of the addition.
@@ -218,14 +218,14 @@
 
   (check-equal?
    (map signal-value
-        (interpret (physical-to-logical-mapping (ptol-bitwise)
-                                                (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
-                                                               (lr:bv (bv->signal (bv #b0 1))))))))
+        (interpret (lr:physical-to-logical-mapping (lr:ptol-bitwise)
+                                                   (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
+                                                                  (lr:bv (bv->signal (bv #b0 1))))))))
    (list (bv #b01 2)))
 
   (check-equal?
    (map signal-value
-        (interpret (logical-to-physical-mapping (ltop-bitwise)
-                                                (lr:list (list (lr:bv (bv->signal (bv 1 1)))
-                                                               (lr:bv (bv->signal (bv 0 1))))))))
+        (interpret (lr:logical-to-physical-mapping (lr:ltop-bitwise)
+                                                   (lr:list (list (lr:bv (bv->signal (bv 1 1)))
+                                                                  (lr:bv (bv->signal (bv 0 1))))))))
    (list (bv #b01 2))))

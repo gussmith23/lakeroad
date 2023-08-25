@@ -128,8 +128,8 @@
          #:internal-data lut-internal-data)]
 
        ;;; Get physical inputs to luts by performing a logical-to-physical mapping.
-       [physical-inputs (logical-to-physical-mapping
-                         (if logical-to-physical-chooser (ltop-bitwise) (ltop-bitwise-reverse))
+       [physical-inputs (lr:logical-to-physical-mapping
+                         (if logical-to-physical-chooser (lr:ltop-bitwise) (lr:ltop-bitwise-reverse))
                          logical-inputs)]
 
        ;;; Construct the LUTs.
@@ -152,8 +152,8 @@
        ;;; first result.
        ;;;
        ;;; TODO(@gussmith23): Could support more results in the future.
-       [logical-outputs (physical-to-logical-mapping
-                         (if physical-to-logical-chooser (ptol-bitwise) (ptol-bitwise-reverse))
+       [logical-outputs (lr:physical-to-logical-mapping
+                         (if physical-to-logical-chooser (lr:ptol-bitwise) (lr:ptol-bitwise-reverse))
                          physical-outputs)]
        [out-expr (lr:list-ref logical-outputs (lr:integer 0))])
 

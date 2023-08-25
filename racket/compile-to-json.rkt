@@ -400,9 +400,9 @@
 
                     ;;; Return a hashmap of output port symbols to values.
                     (make-immutable-hash output-pairs))]
-                 [(physical-to-logical-mapping f outputs)
+                 [(lr:physical-to-logical-mapping f outputs)
                   (compile-physical-to-logical-mapping compile f outputs)]
-                 [(logical-to-physical-mapping f inputs)
+                 [(lr:logical-to-physical-mapping f inputs)
                   (compile-logical-to-physical-mapping compile f inputs)]
 
                  ;;; Racket operators.
