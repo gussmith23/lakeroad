@@ -1284,8 +1284,8 @@
                                                (module-instance-port "I1" "I1" 'input 1)
                                                (module-instance-port "O" "O" 'output 1))
                                          (list (module-instance-parameter "INIT" "INIT"))
-                                         "../verilator_xilinx/LUT2.v"
-                                         "../verilator_xilinx/LUT2.v"
+                                         "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v"
+                                         "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v"
                                          "LUT2"))
                   (hash-table ("INIT" 4))
                   (hash-table ("O" "(get LUT2 O)"))
@@ -1301,7 +1301,7 @@
                                                (module-instance-port "I5" "I5" 'input 1)
                                                (module-instance-port "O" "O" 'output 1))
                                          (list (module-instance-parameter "INIT" "INIT"))
-                                         "../verilator_xilinx/LUT6.v"
+                                         "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v"
                                          "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v"
                                          "LUT6"))
                   (hash-table ("INIT" 64))
@@ -1317,7 +1317,7 @@
                                                (module-instance-port "O" "O" 'output 8)
                                                (module-instance-port "CI_TOP" "(bv 0 1)" 'input 1))
                                          (list (module-instance-parameter "CARRY_TYPE" "(bv 0 1)"))
-                                         "../verilator_xilinx/CARRY8.v"
+                                         "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v"
                                          "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v"
                                          "CARRY8"))
                   (hash-table)
