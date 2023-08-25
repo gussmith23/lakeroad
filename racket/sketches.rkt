@@ -915,9 +915,9 @@
    #:bv-expr (bvlshr a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator shift-sketch-generator
-   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+   #:module-semantics (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
                                   lattice-ecp5-lut4))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
@@ -926,9 +926,9 @@
    #:bv-expr (bvashr a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator shift-sketch-generator
-   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+   #:module-semantics (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
                                   lattice-ecp5-lut4))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
@@ -937,9 +937,9 @@
    #:bv-expr (bvshl a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator shift-sketch-generator
-   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+   #:module-semantics (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
                                   lattice-ecp5-lut4))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED")
 
   ;;; TODO(@gussmith23): we have a bug in bvexpr->cexpr that's causing this to fail. (I think.)
@@ -949,9 +949,9 @@
    #:bv-expr (bvlshr a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator shift-sketch-generator
-   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+   #:module-semantics (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
                                   lattice-ecp5-lut4))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
@@ -960,9 +960,9 @@
    #:bv-expr (bvashr a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator shift-sketch-generator
-   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+   #:module-semantics (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
                                   lattice-ecp5-lut4))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
@@ -971,9 +971,9 @@
    #:bv-expr (bvshl a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator shift-sketch-generator
-   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+   #:module-semantics (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
                                   lattice-ecp5-lut4))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
@@ -982,9 +982,9 @@
    #:bv-expr (bvand a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-sketch-generator
-   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+   #:module-semantics (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
                                   lattice-ecp5-lut4))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test
@@ -994,9 +994,9 @@
    #:bv-expr (if (not (bvzero? sel)) a b)
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-sketch-generator
-   #:module-semantics (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
+   #:module-semantics (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
                                   lattice-ecp5-lut4))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED")
 
   (sketch-test #:name "bitwise with carry sketch generator on ultrascale"
@@ -1497,9 +1497,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1509,9 +1509,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-with-carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1521,9 +1521,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-with-carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1533,9 +1533,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-with-carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1545,9 +1545,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator bitwise-with-carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1557,9 +1557,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1569,9 +1569,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1581,9 +1581,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1593,9 +1593,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator carry-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1605,9 +1605,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator comparison-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1617,9 +1617,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator shallow-comparison-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1629,9 +1629,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator multiplication-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1641,9 +1641,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator multiplication-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test
@@ -1653,9 +1653,9 @@
    #:architecture-description (lattice-ecp5-architecture-description)
    #:sketch-generator multiplication-sketch-generator
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
    #:extra-verilator-args "-Wno-UNUSED -Wno-PINMISSING")
 
   (sketch-test

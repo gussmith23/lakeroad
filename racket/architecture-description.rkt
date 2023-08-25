@@ -1350,7 +1350,7 @@
                                                (module-instance-port "D" "I3" 'input 1)
                                                (module-instance-port "Z" "O" 'output 1))
                                          (list (module-instance-parameter "init" "init"))
-                                         "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
+                                         "../verilog/simulation/lattice-ecp5/LUT4.v"
                                          "../modules_for_importing/lattice_ecp5/LUT4.v"
                                          "lut"))
                   (hash-table ("init" 16))
@@ -1375,7 +1375,7 @@
                                                (module-instance-parameter "INIT1" "INIT1")
                                                (module-instance-parameter "INJECT1_0" "(bv 0 1)")
                                                (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
-                                         "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
+                                         "../verilog/simulation/lattice-ecp5/CCU2C.v"
                                          "../modules_for_importing/lattice_ecp5/CCU2C.v"
                                          "ccu2c"))
                   (hash-table ("INIT0" 16) ("INIT1" 16))

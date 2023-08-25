@@ -105,7 +105,7 @@
   ;;;      'O))
   ;;;    #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
   ;;;                                   lattice-ecp5-mult18x18d))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
   ;;;    #:extra-verilator-args
   ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
   ;;;    #:run-with-verilator #f)
@@ -128,7 +128,7 @@
   ;;;                              'O)
   ;;;    #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
   ;;;                                   lattice-ecp5-mult18x18d))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
   ;;;    #:extra-verilator-args
   ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
   ;;;    #:run-with-verilator #f)
