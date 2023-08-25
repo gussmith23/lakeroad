@@ -73,7 +73,7 @@
              (collect-garbage))))
 
   (define skywater-or2-1-dir
-    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/"))
+    (build-path (get-lakeroad-directory) "verilog/simulation/skywater/"))
   (define skywater-inv-dir
     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/"))
   (define skywater-buf-dir
