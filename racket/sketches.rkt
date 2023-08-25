@@ -864,10 +864,8 @@
    #:sketch-generator shift-sketch-generator
    #:module-semantics (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v")
                                   sofa-frac-lut4))
-   #:include-dirs
-   (list
-    (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-    (build-path (get-lakeroad-directory) "verilog/simulation/skywater/"))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+                        (build-path (get-lakeroad-directory) "verilog/simulation/skywater/"))
    #:extra-verilator-args
    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 

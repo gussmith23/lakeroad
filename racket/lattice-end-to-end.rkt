@@ -28,15 +28,15 @@
       (begin
         (displayln bv-expr)
         (define with-vc-result
-          (with-vc (with-terms
-                    (synthesize-any
-                     (lattice-ecp5-architecture-description)
-                     bv-expr
-                     #:module-semantics
-                     (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
-                                 lattice-ecp5-lut4)
-                           (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v")
-                                 lattice-ecp5-ccu2c))))))
+          (with-vc (with-terms (synthesize-any
+                                (lattice-ecp5-architecture-description)
+                                bv-expr
+                                #:module-semantics
+                                (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
+                                            lattice-ecp5-lut4)
+                                      (cons (cons "CCU2C"
+                                                  "../verilog/simulation/lattice-ecp5/CCU2C.v")
+                                            lattice-ecp5-ccu2c))))))
 
         (when (failed? with-vc-result)
           (raise (result-value with-vc-result)))

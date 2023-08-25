@@ -1,11 +1,23 @@
-#lang racket
+#lang racket/base
 
 (provide lakeroad->jsexpr)
 
-(require "comp-json.rkt"
+(require racket/list
+         racket/match
+         racket/format
+         "comp-json.rkt"
          "logical-to-physical.rkt"
-         "interpreter.rkt"
-         rosette
+         (only-in rosette
+                  bv?
+                  concrete?
+                  constant?
+                  symbolic?
+                  bitvector->natural
+                  bitvector->bits
+                  bitvector-size
+                  type-of
+                  bitvector
+                  zero-extend)
          (prefix-in lr: "language.rkt")
          "signal.rkt"
          "architecture-description.rkt")
@@ -59,8 +71,6 @@
     (void))
 
   (define parameter-default-values (hasheq-helper))
-  (define (add-parameter-default-value k v)
-    (hasheq-helper #:base parameter-default-values k v))
 
   (define memo (make-hash))
   ;;; Generally: individual signals (symbolic constants e.g. 'a' or concrete constants e.g. (bv 1 2))
@@ -87,7 +97,7 @@
                                                    v))))])
                     new-h)]
                  [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) k)]
-                 [(lr:hw-module-instance module-name ports params filepath)
+                 [(lr:hw-module-instance module-name ports params _)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
                          [input-port-symbols (map string->symbol
@@ -414,9 +424,9 @@
                  [(lr:map f lsts) (apply map f (compile lsts))]
 
                  ;;; Rosette operators.
-                 [(or (expression (== extract) high low v) (lr:extract high low v))
+                 [(lr:extract high low v)
                   (drop (take (compile v) (add1 (compile high))) (compile low))]
-                 [(or (expression (== zero-extend) v bv-type) (lr:zero-extend v bv-type))
+                 [(lr:zero-extend v bv-type)
                   (append (compile v)
                           (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
                                      "0"))]
@@ -424,8 +434,7 @@
                   (append (compile v)
                           (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
                                      (last (compile v))))]
-                 [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
-                  (append (compile v1) (compile v0))]
+                 [(lr:concat (list v0 v1)) (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
                  ;;; TODO(@gussmith23): Compile, then reverse? Or reverse, then compile?
                  [(lr:concat rst) (apply append (reverse (compile rst)))]
@@ -434,7 +443,7 @@
                   (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) state))
+                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) _))
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
@@ -463,7 +472,7 @@
                   ;;; Return the bits.
                   (hash-ref port-details 'bits)]
                  ;;; Concrete bitvectors become constants.
-                 [(lr:bv (signal (? bv? (? concrete? s)) state))
+                 [(lr:bv (signal (? bv? (? concrete? s)) _))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
 
                  [(lr:integer v) v]

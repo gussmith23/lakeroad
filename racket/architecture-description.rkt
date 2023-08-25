@@ -18,6 +18,8 @@
          (struct-out module-instance-port)
          (struct-out module-instance-parameter))
 
+;;; TODO: We really shouldn't import all of Rosette here. Undoing this would be a little messy,
+;;; though.
 (require rosette
          yaml
          "utils.rkt"
