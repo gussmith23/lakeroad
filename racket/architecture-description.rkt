@@ -479,8 +479,7 @@
 
 (module+ test
   (require rackunit)
-  (test-begin
-    "Construct Lattice LUT4"
+  (test-case "Construct Lattice LUT4"
     (let* ([out (construct-interface-internal (lattice-ecp5-architecture-description)
                                               (interface-identifier "LUT" (hash "num_inputs" 4))
                                               (list (cons "I0" (bv 0 1))
@@ -1060,8 +1059,7 @@
           #t]
          [else #f]))))
 
-  (test-begin
-    "Construct a LUT5 on Lattice from LUT4s and a MUX2."
+  (test-case "Construct a LUT5 on Lattice from LUT4s and a MUX2."
     (match-let* ([(list expr internal-data)
                   (construct-interface (lattice-ecp5-architecture-description)
                                        (interface-identifier "LUT" (hash "num_inputs" 5))
@@ -1399,8 +1397,7 @@
   (test-not-exn "Parse SOFA YAML" (λ () (sofa-architecture-description))))
 
 (module+ test
-  (test-begin
-    "Construct a LUT2 on Lattice from a LUT4."
+  (test-case "Construct a LUT2 on Lattice from a LUT4."
     (match-let* ([(list expr internal-data)
                   (construct-interface (lattice-ecp5-architecture-description)
                                        (interface-identifier "LUT" (hash "num_inputs" 2))
@@ -1431,8 +1428,7 @@
          [else #f])))))
 
 (module+ test
-  (test-begin
-    "Construct a CCU2C on Lattice."
+  (test-case "Construct a CCU2C on Lattice."
     (match-define (list expr internal-data)
       (construct-interface (lattice-ecp5-architecture-description)
                            (interface-identifier "carry" (hash "width" 2))
@@ -1475,8 +1471,7 @@
 
        [else #f])))
 
-  (test-begin
-    "Construct a frac_lut4 on sofa"
+  (test-case "Construct a frac_lut4 on sofa"
     (match-define (list expr internal-data)
       (construct-interface (sofa-architecture-description)
                            (interface-identifier "LUT" (hash "num_inputs" 4))

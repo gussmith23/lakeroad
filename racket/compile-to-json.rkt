@@ -501,14 +501,14 @@
            rackunit)
 
   ;;; Re-enable this test when we support multiple outputs.
-  ;;; (test-begin (define-symbolic a b (bitvector 8))
+  ;;; (test-case "multiple outputs" (define-symbolic a b (bitvector 8))
   ;;;             (define out (lakeroad->jsexpr (list a b a)))
   ;;;             (define modules (hash-ref out 'modules))
   ;;;             (check-equal? (hash-count modules) 1)
   ;;;             (define module (hash-ref modules 'top))
   ;;;             (check-equal? (hash-count (hash-ref module 'ports)) 5))
 
-  (test-begin
+  (test-case "test"
     (define out (lakeroad->jsexpr (lr:bv (bv->signal (bv #b000111 6)))))
     (check-equal?
      (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)

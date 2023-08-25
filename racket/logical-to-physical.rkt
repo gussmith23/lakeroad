@@ -526,7 +526,7 @@
                 (list (bv->signal (bv #b10 2))))
 
   ;;; Test that we can synthesize a logical-to-physical mapping given constraints.
-  (test-begin
+  (test-case "synthesize"
     (define logical-out-a (bv->signal (?? (bitvector 1))))
     (define logical-out-b (bv->signal (?? (bitvector 1))))
     (define logical-out-c (bv->signal (?? (bitvector 1))))
@@ -570,7 +570,7 @@
                                           (signal-value logical-out-h))
                                   (extract 7 5 (signal-value physical-out)))))))
     (check-true (sat? soln)))
-  (test-begin
+  (test-case "interpret"
     (check-equal?
      (list (bv 0 1))
      (map signal-value
