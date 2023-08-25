@@ -217,6 +217,9 @@
        (error "Must set --verilog-module-out-signal."))
      (when (not (top-module-name))
        (error "Must set --top-module-name."))
+     (when (not (parameterize ([current-output-port (open-output-nowhere)])
+                  (system "yosys --version")))
+       (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
      (define btor
        (parameterize ([current-error-port (open-output-nowhere)])
          (with-output-to-string
