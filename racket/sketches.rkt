@@ -835,8 +835,9 @@
    ;;;
    ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
    #:sketch-generator single-dsp-sketch-generator
-   #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
-                                  xilinx-ultrascale-plus-dsp48e2))
+   #:module-semantics
+   (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
+               xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory)
                                     "verilog/simulation/xilinx-ultrascale-plus"))
    #:extra-verilator-args
@@ -849,8 +850,9 @@
    #:architecture-description (xilinx-ultrascale-plus-architecture-description)
    ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
    #:sketch-generator single-dsp-sketch-generator
-   #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
-                                  xilinx-ultrascale-plus-dsp48e2))
+   #:module-semantics
+   (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
+               xilinx-ultrascale-plus-dsp48e2))
    #:include-dirs (list (build-path (get-lakeroad-directory)
                                     "verilog/simulation/xilinx-ultrascale-plus"))
    #:extra-verilator-args
