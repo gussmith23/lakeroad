@@ -1,12 +1,16 @@
-#lang racket
+#lang racket/base
 
 ; A library for compiling to JSON to match the nextpnr spec, roughly defined at:
 ; https://github.com/YosysHQ/yosys/blob/63c9c9be5c0b0cc2b7f4588f1ac8e72eabc6bd0a/backends/json/json.cc#L340
 ;
 
 (require json
+         racket/match
+         racket/list
+         racket/set
+         racket/function
          racket/format
-         rosette)
+         (only-in rosette bitvector->natural bitvector->bits))
 
 (provide hasheq-helper
          as-symbol
@@ -90,7 +94,10 @@
 ; + #:valfn: a function to apply to values before they are inserted. This allows
 ;       this helper function to be customized. Default is the `identity`
 ;       function
-(define (hasheq-helper #:base [base 'nil] #:keyfn [keyfn as-symbol] #:valfn [valfn identity] . vals)
+(define (hasheq-helper #:base [base 'nil]
+                       #:keyfn [keyfn as-symbol]
+                       #:valfn [valfn (lambda (v) v)]
+                       . vals)
   (when (odd? (length vals))
     (error (format "hasheq-helper expects even number of values: ~a" vals)))
 

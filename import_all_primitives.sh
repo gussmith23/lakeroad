@@ -38,12 +38,7 @@ out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   --infile $LAKEROAD_DIR/modules_for_importing/SOFA/frac_lut4.v \
   --top frac_lut4 \
   --function-name sofa-frac-lut4 \
-  --include $LAKEROAD_DIR/SOFA_modules/ \
-  --include $LAKEROAD_DIR/skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2 \
-  --include $LAKEROAD_DIR/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2 \
-  --include $LAKEROAD_DIR/skywater-pdk-libs-sky130_fd_sc_hd/models/udp_mux_2to1 \
-  --include $LAKEROAD_DIR/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf \
-  --include $LAKEROAD_DIR/skywater-pdk-libs-sky130_fd_sc_hd/cells/inv \
+  --include $LAKEROAD_DIR/verilog/simulation/skywater \
   --define SKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK \
   --define NO_PRIMITIVES \
   --define FUNCTIONAL \

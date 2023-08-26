@@ -15,14 +15,11 @@
          sofa-architecture-description
          find-biggest-lut-size
          densely-pack-inputs-into-luts
-         (struct-out lr:hw-module-instance)
          (struct-out module-instance-port)
-         (struct-out module-instance-parameter)
-         (struct-out lr:hash-ref)
-         (struct-out lr:make-immutable-hash)
-         (struct-out lr:cons)
-         (struct-out lr:hash-remap-keys))
+         (struct-out module-instance-parameter))
 
+;;; TODO: We really shouldn't import all of Rosette here. Undoing this would be a little messy,
+;;; though.
 (require rosette
          yaml
          "utils.rkt"
@@ -264,12 +261,6 @@
 
 ;;; Part 3: constructing things using the architecture description.
 
-;;; Lakeroad construct for a hardware module instance.
-;;;
-;;; - ports: list of module-instance-ports.
-;;; - filepath: Used to identify the module at interpretation time. We can use some other identifier.
-(struct lr:hw-module-instance (name ports params filepath) #:transparent)
-
 ;;; Find interface implementation in architecture description.
 ;;;
 ;;; - ad: architecture description.
@@ -351,11 +342,6 @@
   (test-false "find-interface-definition returns #f"
               (find-interface-definition (interface-identifier "NotARealInterface"
                                                                (hash "num_inputs" 4)))))
-
-(struct lr:hash-ref (h k) #:transparent)
-;;; Remap the keys in h (a Lakeroad expression which produces a hashmap) using the association list
-;;; ks, which maps old keys to new keys.
-(struct lr:hash-remap-keys (h ks) #:transparent)
 
 ;;; Parse an expression in our small architecture description DSL.
 ;;;
@@ -493,8 +479,7 @@
 
 (module+ test
   (require rackunit)
-  (test-begin
-    "Construct Lattice LUT4"
+  (test-case "Construct Lattice LUT4"
     (let* ([out (construct-interface-internal (lattice-ecp5-architecture-description)
                                               (interface-identifier "LUT" (hash "num_inputs" 4))
                                               (list (cons "I0" (bv 0 1))
@@ -1074,8 +1059,7 @@
           #t]
          [else #f]))))
 
-  (test-begin
-    "Construct a LUT5 on Lattice from LUT4s and a MUX2."
+  (test-case "Construct a LUT5 on Lattice from LUT4s and a MUX2."
     (match-let* ([(list expr internal-data)
                   (construct-interface (lattice-ecp5-architecture-description)
                                        (interface-identifier "LUT" (hash "num_inputs" 5))
@@ -1300,8 +1284,8 @@
                                                (module-instance-port "I1" "I1" 'input 1)
                                                (module-instance-port "O" "O" 'output 1))
                                          (list (module-instance-parameter "INIT" "INIT"))
-                                         "../verilator_xilinx/LUT2.v"
-                                         "../verilator_xilinx/LUT2.v"
+                                         "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v"
+                                         "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v"
                                          "LUT2"))
                   (hash-table ("INIT" 4))
                   (hash-table ("O" "(get LUT2 O)"))
@@ -1317,7 +1301,7 @@
                                                (module-instance-port "I5" "I5" 'input 1)
                                                (module-instance-port "O" "O" 'output 1))
                                          (list (module-instance-parameter "INIT" "INIT"))
-                                         "../verilator_xilinx/LUT6.v"
+                                         "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v"
                                          "../modules_for_importing/xilinx_ultrascale_plus/LUT6.v"
                                          "LUT6"))
                   (hash-table ("INIT" 64))
@@ -1333,7 +1317,7 @@
                                                (module-instance-port "O" "O" 'output 8)
                                                (module-instance-port "CI_TOP" "(bv 0 1)" 'input 1))
                                          (list (module-instance-parameter "CARRY_TYPE" "(bv 0 1)"))
-                                         "../verilator_xilinx/CARRY8.v"
+                                         "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v"
                                          "../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v"
                                          "CARRY8"))
                   (hash-table)
@@ -1366,7 +1350,7 @@
                                                (module-instance-port "D" "I3" 'input 1)
                                                (module-instance-port "Z" "O" 'output 1))
                                          (list (module-instance-parameter "init" "init"))
-                                         "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v"
+                                         "../verilog/simulation/lattice-ecp5/LUT4.v"
                                          "../modules_for_importing/lattice_ecp5/LUT4.v"
                                          "lut"))
                   (hash-table ("init" 16))
@@ -1391,7 +1375,7 @@
                                                (module-instance-parameter "INIT1" "INIT1")
                                                (module-instance-parameter "INJECT1_0" "(bv 0 1)")
                                                (module-instance-parameter "INJECT1_1" "(bv 0 1)"))
-                                         "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v"
+                                         "../verilog/simulation/lattice-ecp5/CCU2C.v"
                                          "../modules_for_importing/lattice_ecp5/CCU2C.v"
                                          "ccu2c"))
                   (hash-table ("INIT0" 16) ("INIT1" 16))
@@ -1413,8 +1397,7 @@
   (test-not-exn "Parse SOFA YAML" (λ () (sofa-architecture-description))))
 
 (module+ test
-  (test-begin
-    "Construct a LUT2 on Lattice from a LUT4."
+  (test-case "Construct a LUT2 on Lattice from a LUT4."
     (match-let* ([(list expr internal-data)
                   (construct-interface (lattice-ecp5-architecture-description)
                                        (interface-identifier "LUT" (hash "num_inputs" 2))
@@ -1444,12 +1427,8 @@
           #t]
          [else #f])))))
 
-(struct lr:make-immutable-hash (list-expr) #:transparent)
-(struct lr:cons (v0-expr v1-expr) #:transparent)
-
 (module+ test
-  (test-begin
-    "Construct a CCU2C on Lattice."
+  (test-case "Construct a CCU2C on Lattice."
     (match-define (list expr internal-data)
       (construct-interface (lattice-ecp5-architecture-description)
                            (interface-identifier "carry" (hash "width" 2))
@@ -1492,8 +1471,7 @@
 
        [else #f])))
 
-  (test-begin
-    "Construct a frac_lut4 on sofa"
+  (test-case "Construct a frac_lut4 on sofa"
     (match-define (list expr internal-data)
       (construct-interface (sofa-architecture-description)
                            (interface-identifier "LUT" (hash "num_inputs" 4))

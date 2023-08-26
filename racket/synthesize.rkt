@@ -1092,13 +1092,13 @@
 ;;; (input-to-output) wire template that is ready for synthesis.
 (define (make-wire-lrexpr inputs shift-by bitwidth)
   (define lakeroad-expr
-    (lr:first (physical-to-logical-mapping
-               (ptol-bitwise)
-               (logical-to-physical-mapping
-                (choose (ltop-bitwise)
-                        (ltop-bitwise-reverse)
-                        (ltop-shift shift-by)
-                        (ltop-constant (lr:bv (bv->signal (??* (bitvector bitwidth))))))
+    (lr:first (lr:physical-to-logical-mapping
+               (lr:ptol-bitwise)
+               (lr:logical-to-physical-mapping
+                (choose (lr:ltop-bitwise)
+                        (lr:ltop-bitwise-reverse)
+                        (lr:ltop-shift shift-by)
+                        (lr:ltop-constant (lr:bv (bv->signal (??* (bitvector bitwidth))))))
                 inputs))))
 
   lakeroad-expr)

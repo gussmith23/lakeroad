@@ -3,7 +3,7 @@ implementations:
     modules:
       - module_name: LUT2
         instance_name: LUT2
-        filepath: ../verilator_xilinx/LUT2.v
+        filepath: ../verilog/simulation/xilinx-ultrascale-plus/LUT2.v
         parameters: [{ name: INIT, value: INIT }]
         ports:
           [
@@ -17,7 +17,7 @@ implementations:
     modules:
       - module_name: LUT6
         instance_name: LUT6
-        filepath: ../verilator_xilinx/LUT6.v
+        filepath: ../verilog/simulation/xilinx-ultrascale-plus/LUT6.v
         racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/LUT6.v
         parameters: [{ name: INIT, value: INIT }]
         ports:
@@ -36,7 +36,7 @@ implementations:
     modules:
       - module_name: CARRY8
         instance_name: CARRY8
-        filepath: ../verilator_xilinx/CARRY8.v
+        filepath: ../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v
         racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/CARRY8.v
         ports:
           [
@@ -216,7 +216,7 @@ implementations:
     modules:
       - module_name: DSP48E2
         instance_name: DSP48E2
-        filepath: ../verilator_unisims/DSP48E2.v
+        filepath: ../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v
         racket_import_filepath: ../modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v
         ports:
           [

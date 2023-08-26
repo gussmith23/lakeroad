@@ -28,15 +28,15 @@
       (begin
         (displayln bv-expr)
         (define with-vc-result
-          (with-vc (with-terms
-                    (synthesize-any
-                     (lattice-ecp5-architecture-description)
-                     bv-expr
-                     #:module-semantics
-                     (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v")
-                                 lattice-ecp5-lut4)
-                           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v")
-                                 lattice-ecp5-ccu2c))))))
+          (with-vc (with-terms (synthesize-any
+                                (lattice-ecp5-architecture-description)
+                                bv-expr
+                                #:module-semantics
+                                (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
+                                            lattice-ecp5-lut4)
+                                      (cons (cons "CCU2C"
+                                                  "../verilog/simulation/lattice-ecp5/CCU2C.v")
+                                            lattice-ecp5-ccu2c))))))
 
         (when (failed? with-vc-result)
           (raise (result-value with-vc-result)))
@@ -105,7 +105,7 @@
 
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
-  (define include-dir (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+  (define include-dir (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
   (test-true "simulate all synthesized designs with Verilator"
              (simulate-with-verilator #:include-dirs (list include-dir)
                                       #:extra-verilator-args "-Wno-UNUSED -Wno-UNOPT -Wno-UNOPTFLAT"

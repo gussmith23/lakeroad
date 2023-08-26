@@ -4,10 +4,8 @@
 (provide interpret
          report-memoization)
 
-(require racket/pretty
-         "logical-to-physical.rkt"
+(require "logical-to-physical.rkt"
          "utils.rkt"
-         "lut.rkt"
          rosette
          rosette/lib/destruct
          (prefix-in lr: "language.rkt")
@@ -44,7 +42,7 @@
           (define out
             (destruct
              expr
-             [(lr:var name bw)
+             [(lr:var name _)
               (cdr (or (assoc name environment) (error "variable " name " not found")))]
              [(lr:symbol s) s]
              [(lr:make-immutable-hash list-expr) (interpret-helper list-expr)]
@@ -130,9 +128,9 @@
                              (current-error-port)))
                 out)]
              ;;; Lakeroad language.
-             [(logical-to-physical-mapping f inputs)
+             [(lr:logical-to-physical-mapping f inputs)
               (interpret-logical-to-physical-mapping interpret-helper f inputs)]
-             [(physical-to-logical-mapping f outputs)
+             [(lr:physical-to-logical-mapping f outputs)
               (interpret-physical-to-logical-mapping interpret-helper f outputs)]
              ;;; Returns a list of:
              ;;; - a (bitvector n): the result of the addition.
@@ -144,7 +142,7 @@
              ;;;   addition, when implementing addition.
              ;;; - s: the select signal for the mux. Usually set to the partial sums of the addition (i.e. the
              ;;;   bitwise XORs of the inputs) when performing addition.
-             [(lr:carry width architecture cin di s)
+             [(lr:carry _ _ cin di s)
               (let* (;;; Returns the carry out bit at each stage.
                      [cin (interpret-helper cin)]
                      [di (interpret-helper di)]
@@ -218,14 +216,14 @@
 
   (check-equal?
    (map signal-value
-        (interpret (physical-to-logical-mapping (ptol-bitwise)
-                                                (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
-                                                               (lr:bv (bv->signal (bv #b0 1))))))))
+        (interpret (lr:physical-to-logical-mapping (lr:ptol-bitwise)
+                                                   (lr:list (list (lr:bv (bv->signal (bv #b1 1)))
+                                                                  (lr:bv (bv->signal (bv #b0 1))))))))
    (list (bv #b01 2)))
 
   (check-equal?
    (map signal-value
-        (interpret (logical-to-physical-mapping (ltop-bitwise)
-                                                (lr:list (list (lr:bv (bv->signal (bv 1 1)))
-                                                               (lr:bv (bv->signal (bv 0 1))))))))
+        (interpret (lr:logical-to-physical-mapping (lr:ltop-bitwise)
+                                                   (lr:list (list (lr:bv (bv->signal (bv 1 1)))
+                                                                  (lr:bv (bv->signal (bv 0 1))))))))
    (list (bv #b01 2))))

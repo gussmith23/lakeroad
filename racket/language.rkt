@@ -19,7 +19,26 @@
          (struct-out list)
          (struct-out integer)
          (struct-out bitvector)
-         (struct-out var))
+         (struct-out var)
+         (struct-out hw-module-instance)
+         (struct-out hash-ref)
+         (struct-out make-immutable-hash)
+         (struct-out cons)
+         (struct-out hash-remap-keys)
+         (struct-out ltop-bitwise)
+         (struct-out ltop-shift)
+         (struct-out ltop-identity)
+         (struct-out ltop-constant)
+         (struct-out ltop-bitwise-reverse)
+         (struct-out ptol-bitwise)
+         (struct-out ptol-bitwise-reverse)
+         (struct-out ptol-choose-one)
+         (struct-out logical-to-physical-mapping)
+         (struct-out physical-to-logical-mapping)
+         (struct-out ltop-uf)
+         (struct-out ptol-uf)
+         (struct-out ptol-identity)
+         (struct-out ltop-bitwise-with-mask))
 
 ;;; Functions from Racket/Rosette.
 (struct list-ref (lst pos) #:transparent)
@@ -45,3 +64,32 @@
 ;;; We actually didn't need `var`s for a very long time, as variable inputs could be passed in as
 ;;; Rosette symbolic constants wrapped in `bv`s.
 (struct var (name bw) #:transparent)
+
+;;; Lakeroad construct for a hardware module instance.
+;;;
+;;; - ports: list of module-instance-ports.
+;;; - filepath: Used to identify the module at interpretation time. We can use some other identifier.
+(struct hw-module-instance (name ports params filepath) #:transparent)
+
+(struct hash-ref (h k) #:transparent)
+;;; Remap the keys in h (a Lakeroad expression which produces a hashmap) using the association list
+;;; ks, which maps old keys to new keys.
+(struct hash-remap-keys (h ks) #:transparent)
+
+(struct make-immutable-hash (list-expr) #:transparent)
+(struct cons (v0-expr v1-expr) #:transparent)
+
+(struct logical-to-physical-mapping (f inputs) #:transparent)
+(struct physical-to-logical-mapping (f outputs) #:transparent)
+(struct ltop-identity () #:transparent)
+(struct ltop-bitwise () #:transparent)
+(struct ltop-bitwise-reverse () #:transparent)
+(struct ltop-bitwise-with-mask (masks) #:transparent)
+(struct ltop-uf (uf bw bits-per-group) #:transparent)
+(struct ltop-shift (n) #:transparent)
+(struct ltop-constant (c) #:transparent)
+(struct ptol-bitwise () #:transparent)
+(struct ptol-bitwise-reverse () #:transparent)
+(struct ptol-uf (uf bw bits-per-group) #:transparent)
+(struct ptol-choose-one (idx) #:transparent)
+(struct ptol-identity () #:transparent)
