@@ -1005,8 +1005,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator bitwise-with-carry-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1025,8 +1027,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1039,8 +1043,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1053,8 +1059,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1067,8 +1075,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1081,8 +1091,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1095,8 +1107,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1109,8 +1123,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1123,8 +1139,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1150,8 +1168,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1164,8 +1184,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1178,8 +1200,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1192,8 +1216,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1206,8 +1232,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1233,8 +1261,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1260,8 +1290,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1274,8 +1306,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1288,8 +1322,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1302,8 +1338,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1316,8 +1354,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1343,8 +1383,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1370,8 +1412,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1384,8 +1428,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1398,8 +1444,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1412,8 +1460,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1426,8 +1476,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1440,8 +1492,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1454,8 +1508,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1468,8 +1524,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator shallow-comparison-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
@@ -1482,8 +1540,10 @@
                #:architecture-description (xilinx-ultrascale-plus-architecture-description)
                #:sketch-generator multiplication-sketch-generator
                #:module-semantics
-               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v") xilinx-ultrascale-plus-lut2)
-                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v") xilinx-ultrascale-plus-lut6)
+               (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                           xilinx-ultrascale-plus-lut2)
+                     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                           xilinx-ultrascale-plus-lut6)
                      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
                            xilinx-ultrascale-plus-carry8))
                #:include-dirs (list (build-path (get-lakeroad-directory)
