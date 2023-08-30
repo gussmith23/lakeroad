@@ -31,6 +31,7 @@
          racket/sandbox)
 
 (define-namespace-anchor anc)
+(define ns (namespace-anchor->namespace anc))
 
 (define architecture
   (make-parameter ""
@@ -113,6 +114,8 @@
   v
   "Name of the output signal of the module written out by Lakeroad. This argument also indicates"
   " the output signal name of the Verilog module specified by --verilog-module-filepath."
+  " Note that this also needs to be specified when passing via the legacy --instruction argument,"
+  " but it can be set to anything."
   " TODO(@gussmith23): There should be two separate arguments for this."
   (let ([splits (string-split v ":")])
     (when (not (equal? 2 (length splits)))
@@ -162,39 +165,48 @@
   ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (hash ':seed (seed))))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
-;;; Parse instruction.
-;;;
-;;; This function will introduce new symbolic constants. Make sure you have good (vc) hygeine when
-;;; calling this function (e.g. by wrapping its invocation with (with-vc)).
+;;; Parse instruction. Returns a Racket function in the format currently expected by synthesis:
+;;; A function with keyword arguments, taking signal arguments and returning an association list of
+;;; signals.
 ;;;
 ;;; expr The instruction to parse, e.g. '(bvadd (var a 8) (var b 8)).
 (define (parse-instruction expr)
-
+  ;;; A list to collect the args we encounter.
+  (define keywords '())
   (define (helper expr)
     (match expr
-      [`(bitvector->bits ,a) (bitvector->bits (helper a))]
-      [`(apply bvxor ,a) (apply bvxor (helper a))]
-      [`(bvlshr ,a ,b) (bvlshr (helper a) (helper b))]
-      [`(bvashr ,a ,b) (bvashr (helper a) (helper b))]
-      [`(bvshl ,a ,b) (bvshl (helper a) (helper b))]
-      [`(bvuge ,a ,b) (bvuge (helper a) (helper b))]
-      [`(bvule ,a ,b) (bvule (helper a) (helper b))]
-      [`(bvult ,a ,b) (bvult (helper a) (helper b))]
-      [`(bvugt ,a ,b) (bvugt (helper a) (helper b))]
-      [`(not ,a) (not (helper a))]
-      [`(bveq ,a ,b) (bveq (helper a) (helper b))]
-      [`(bool->bitvector ,a) (bool->bitvector (helper a))]
-      [`(bvand ,a ,b) (bvand (helper a) (helper b))]
-      [`(bvor ,a ,b) (bvor (helper a) (helper b))]
-      [`(bvxor ,a ,b) (bvxor (helper a) (helper b))]
-      [`(bvadd ,a ,b) (bvadd (helper a) (helper b))]
-      [`(bvsub ,a ,b) (bvsub (helper a) (helper b))]
-      [`(bvmul ,a ,b) (bvmul (helper a) (helper b))]
-      [`(bvnot ,a) (bvnot (helper a))]
-      [`(circt-comb-mux ,s ,a ,b) (circt-comb-mux (helper s) (helper a) (helper b))]
-      [`(var ,id ,bw) (constant id (bitvector bw))]))
+      [`(bitvector->bits ,a) `(bitvector->bits ,(helper a))]
+      [`(apply bvxor ,a) `(bvxor ,@(helper a))]
+      [`(bvlshr ,a ,b) `(bvlshr ,(helper a) ,(helper b))]
+      [`(bvashr ,a ,b) `(bvashr ,(helper a) ,(helper b))]
+      [`(bvshl ,a ,b) `(bvshl ,(helper a) ,(helper b))]
+      [`(bvuge ,a ,b) `(bvuge ,(helper a) ,(helper b))]
+      [`(bvule ,a ,b) `(bvule ,(helper a) ,(helper b))]
+      [`(bvult ,a ,b) `(bvult ,(helper a) ,(helper b))]
+      [`(bvugt ,a ,b) `(bvugt ,(helper a) ,(helper b))]
+      [`(not ,a) `(not ,(helper a))]
+      [`(bveq ,a ,b) `(bveq ,(helper a) ,(helper b))]
+      [`(bool->bitvector ,a) `(bool->bitvector ,(helper a))]
+      [`(bvand ,a ,b) `(bvand ,(helper a) ,(helper b))]
+      [`(bvor ,a ,b) `(bvor ,(helper a) ,(helper b))]
+      [`(bvxor ,a ,b) `(bvxor ,(helper a) ,(helper b))]
+      [`(bvadd ,a ,b) `(bvadd ,(helper a) ,(helper b))]
+      [`(bvsub ,a ,b) `(bvsub ,(helper a) ,(helper b))]
+      [`(bvmul ,a ,b) `(bvmul ,(helper a) ,(helper b))]
+      [`(bvnot ,a) `(bvnot ,(helper a))]
+      [`(circt-comb-mux ,s ,a ,b) `(circt-comb-mux ,(helper s) ,(helper a) ,(helper b))]
+      [`(var ,id ,bw)
+       (set! keywords (cons (string->keyword (symbol->string id)) keywords))
+       `(signal-value ,id)]))
 
-  (helper expr))
+  (define body (helper expr))
+
+  (define keywords-sorted (sort keywords keyword<?))
+  (define out-fn
+    `(lambda ,(flatten (map (lambda (kw) (list kw `,(string->symbol (keyword->string kw))))
+                            keywords-sorted))
+       (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
+  (eval out-fn ns))
 
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
@@ -205,6 +217,9 @@
        (error "Must set --verilog-module-out-signal."))
      (when (not (top-module-name))
        (error "Must set --top-module-name."))
+     (when (not (parameterize ([current-output-port (open-output-nowhere)])
+                  (system "yosys --version")))
+       (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
      (define btor
        (parameterize ([current-error-port (open-output-nowhere)])
          (with-output-to-string
@@ -220,13 +235,13 @@
                     (top-module-name))))
              (error "Yosys failed."))))))
 
-     (define ns (namespace-anchor->namespace anc))
      (define f (eval (first (btor->racket btor)) ns))
      ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
      ;;; path expects a bvexpr, which we can get by just calling the function.
      (if (> (initiation-interval) 0)
          f
-         (signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal)))))]))
+         ;(signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))
+         f)]))
 
 (when (boolean? bv-expr)
   (error
@@ -252,44 +267,7 @@
     ["comparison" comparison-sketch-generator]
     ["multiplication" multiplication-sketch-generator]
     ["shift" shift-sketch-generator]
-    ;;; TODO(@gussmith23) Clean up these hacks.
-    ["xilinx-ultrascale-plus-dsp48e2"
-     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
-       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
-
-     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
-     ;;; synthesis function.
-     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-       ;;; Note: wrap in list to mock the return value of sketch generators.
-       (list (synthesize-xilinx-ultrascale-plus-dsp bv-expr)))]
-    ["xilinx-ultrascale-plus-dsp48e2-2-dsps"
-     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
-       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
-
-     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
-     ;;; synthesis function.
-     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-       ;;; Note: wrap in list to mock the return value of sketch generators.
-       (list (synthesize-xilinx-ultrascale-plus-2-dsps bv-expr)))]
-    ["xilinx-ultrascale-plus-dsp48e2-xor"
-     (when (not (equal? "xilinx-ultrascale-plus" (architecture)))
-       (error "DSP48E2 template only supported for xilinx-ultrascale-plus architecture."))
-
-     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
-     ;;; synthesis function.
-     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-       ;;; Note: wrap in list to mock the return value of sketch generators.
-       (list (synthesize-xilinx-ultrascale-plus-dsp-xor bv-expr)))]
-    ["lattice-ecp5-dsp"
-     (when (not (equal? "lattice-ecp5" (architecture)))
-       (error "lattice-ecp5-dsp template only supported for lattice-ecp5 architecture."))
-
-     ;;; Return a faux sketch generator---a lambda that ignores the inputs and runs our old-style
-     ;;; synthesis function.
-     (lambda (architecture-description logical-inputs num-logical-inputs bitwidth)
-       ;;; Note: wrap in list to mock the return value of sketch generators.
-       (list (synthesize-lattice-ecp5-dsp bv-expr)))]
-    [else (error "Missing or invalid template.")]))
+    [_ (error "Missing or invalid template.")]))
 
 (define architecture-description
   (match (architecture)
@@ -304,13 +282,17 @@
 (define module-semantics
   (match (architecture)
     ["xilinx-ultrascale-plus"
-     (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v") xilinx-ultrascale-plus-lut2)
-           (cons (cons "LUT6" "../verilator_xilinx/LUT6.v") xilinx-ultrascale-plus-lut6)
-           (cons (cons "CARRY8" "../verilator_xilinx/CARRY8.v") xilinx-ultrascale-plus-carry8)
-           (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v") xilinx-ultrascale-plus-dsp48e2))]
+     (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                 xilinx-ultrascale-plus-lut2)
+           (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                 xilinx-ultrascale-plus-lut6)
+           (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
+                 xilinx-ultrascale-plus-carry8)
+           (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
+                 xilinx-ultrascale-plus-dsp48e2))]
     ["lattice-ecp5"
-     (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-           (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c)
+     (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+           (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c)
            (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
                  lattice-ecp5-mult18x18d)
            (cons (cons "MULT18X18C" "../lakeroad-private/lattice_ecp5/MULT18X18C.v")
@@ -327,18 +309,10 @@
                     other))]))
 
 (define sketch-inputs
-  (make-sketch-inputs
-   #:output-width output-bitwidth
-   #:data
-   (if (> (length (inputs)) 0)
-       (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
-       ;;; Handle legacy case where no inputs are given
-       (begin
-         (when (not (instruction))
-           (error "Something's wrong -- no inputs given, but not using legacy instruction input"))
-         (map (lambda (c) (cons (lr:var (~a c) (bvlen c)) (bvlen c))) (symbolics bv-expr))))
-   #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
-   #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
+  (make-sketch-inputs #:output-width output-bitwidth
+                      #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
+                      #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
+                      #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
 (define (exit-timeout e)
   (when (exn:fail:resource? e)
@@ -361,32 +335,37 @@
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
                   (inputs))]
 
-            ;;; The same environments, but with everything set to zero.
-            [input-zeroes (map (λ (p)
-                                 (match p
-                                   [(cons name bw) (cons name (bv->signal (bv 0 bw)))]))
-                               (inputs))]
-
-            [input-symbolic-constants (map (compose1 signal-value cdr) input-values)]
+            ;;; The same environments, but with symbolic values
+            [make-intermediate-inputs
+             (lambda (inputs iter)
+               (map (λ (p)
+                      (match p
+                        [(cons name bw)
+                         (cons name (bv->signal (constant (list name "iter" iter) (bitvector bw))))]))
+                    inputs))]
 
             ;;; Environments for sequential synthesis. Each environment represents one set of input
             ;;; states. For each set of input states, we run the interpreter with the given inputs,
             ;;; get the output (including all of the internal state), and then pass that state on to
             ;;; the next iteration. See `rosette-synthesize`.
             ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
-            [envs ;;; First, we tick the clock with the inputs set to their input values.
-             (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
-                           (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
-                     ;;; then, we tick the clock with the inputs set to zero.
-                     (apply append
-                            (make-list
-                             (sub1 (initiation-interval))
-                             (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-zeroes)
-                                   (cons (cons (clock-name) (bv->signal (bv 1 1))) input-zeroes)))))]
+            ;;; First, we tick the clock with the inputs set to their input values.
+            [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
+                                (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
+                          ;;; then, we tick the clock with the inputs set to symbolic values.
+                          (apply append
+                                 (map (lambda (iter)
+                                        (list (cons (cons (clock-name) (bv->signal (bv 0 1)))
+                                                    (make-intermediate-inputs (inputs) iter))
+                                              (cons (cons (clock-name) (bv->signal (bv 1 1)))
+                                                    (make-intermediate-inputs (inputs) iter))))
+                                      (range 1 (initiation-interval)))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
-                      envs)])
+                      envs)]
+
+            [input-symbolic-constants (symbolics envs)])
 
        ;;; Throw error if we're not passing all values to the bv-expr.
        ;;; TODO(@gussmith23): This check would be better elsewhere, but the use of `compose` below
@@ -422,15 +401,28 @@
                   #:lr-sequential envs
                   #:module-semantics module-semantics)))))]
 
+    ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
+     (define envs
+       (list (map (λ (p)
+                    (match p
+                      [(cons name bw)
+                       (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                  (inputs))))
+     (define input-symbolic-constants (symbolics envs))
      ;;; If initiation interval is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
-       (call-with-limits (timeout)
-                         #f
-                         (thunk (synthesize-with-sketch sketch-generator
-                                                        architecture-description
-                                                        bv-expr
-                                                        #:module-semantics module-semantics))))]))
+       (call-with-limits
+        (timeout)
+        #f
+        (thunk (rosette-synthesize
+                (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
+                         bv-expr)
+                sketch
+                input-symbolic-constants
+                #:bv-sequential envs
+                #:lr-sequential envs
+                #:module-semantics module-semantics))))]))
 
 (cond
   [(not lakeroad-expr)

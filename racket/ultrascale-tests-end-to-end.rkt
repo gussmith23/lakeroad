@@ -23,16 +23,18 @@
     (test-case test-name
       (begin
         (define with-vc-result
-          (with-vc (with-terms (synthesize-any (xilinx-ultrascale-plus-architecture-description)
-                                               bv-expr
-                                               #:module-semantics
-                                               (list (cons (cons "LUT2" "../verilator_xilinx/LUT2.v")
-                                                           xilinx-ultrascale-plus-lut2)
-                                                     (cons (cons "LUT6" "../verilator_xilinx/LUT6.v")
-                                                           xilinx-ultrascale-plus-lut6)
-                                                     (cons (cons "CARRY8"
-                                                                 "../verilator_xilinx/CARRY8.v")
-                                                           xilinx-ultrascale-plus-carry8))))))
+          (with-vc (with-terms
+                    (synthesize-any
+                     (xilinx-ultrascale-plus-architecture-description)
+                     bv-expr
+                     #:module-semantics
+                     (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+                                 xilinx-ultrascale-plus-lut2)
+                           (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+                                 xilinx-ultrascale-plus-lut6)
+                           (cons (cons "CARRY8"
+                                       "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
+                                 xilinx-ultrascale-plus-carry8))))))
         (when (failed? with-vc-result)
           (raise (result-value with-vc-result)))
         (check-false (failed? with-vc-result))
@@ -85,12 +87,13 @@
 
   (when (not (getenv "VERILATOR_INCLUDE_DIR"))
     (raise "VERILATOR_INCLUDE_DIR not set"))
-  (define include-dir (build-path (get-lakeroad-directory) "verilator_xilinx"))
+  (define include-dir
+    (build-path (get-lakeroad-directory) "verilog/simulation/xilinx-ultrascale-plus"))
   (test-true
    "simulate all synthesized designs with Verilator"
    (simulate-with-verilator
-    #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
-                         (build-path (get-lakeroad-directory) "verilator-unisims"))
+    #:include-dirs (list (build-path (get-lakeroad-directory)
+                                     "verilog/simulation/xilinx-ultrascale-plus"))
     #:extra-verilator-args
     "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
     to-simulate-list

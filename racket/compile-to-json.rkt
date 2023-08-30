@@ -1,14 +1,23 @@
-#lang racket
+#lang racket/base
 
 (provide lakeroad->jsexpr)
 
-(require "comp-json.rkt"
-         "ultrascale.rkt"
-         "lattice-ecp5.rkt"
-         "sofa.rkt"
+(require racket/list
+         racket/match
+         racket/format
+         "comp-json.rkt"
          "logical-to-physical.rkt"
-         "interpreter.rkt"
-         rosette
+         (only-in rosette
+                  bv?
+                  concrete?
+                  constant?
+                  symbolic?
+                  bitvector->natural
+                  bitvector->bits
+                  bitvector-size
+                  type-of
+                  bitvector
+                  zero-extend)
          (prefix-in lr: "language.rkt")
          "signal.rkt"
          "architecture-description.rkt")
@@ -62,8 +71,6 @@
     (void))
 
   (define parameter-default-values (hasheq-helper))
-  (define (add-parameter-default-value k v)
-    (hasheq-helper #:base parameter-default-values k v))
 
   (define memo (make-hash))
   ;;; Generally: individual signals (symbolic constants e.g. 'a' or concrete constants e.g. (bv 1 2))
@@ -90,7 +97,7 @@
                                                    v))))])
                     new-h)]
                  [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) k)]
-                 [(lr:hw-module-instance module-name ports params filepath)
+                 [(lr:hw-module-instance module-name ports params _)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
                          [input-port-symbols (map string->symbol
@@ -403,294 +410,9 @@
 
                     ;;; Return a hashmap of output port symbols to values.
                     (make-immutable-hash output-pairs))]
-                 [(lr:lut (lr:integer 1) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
-                  (compile (ultrascale-plus-lut1 lutmem inputs))]
-                 [(lr:lut (lr:integer 2) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
-                  (compile (ultrascale-plus-lut2 lutmem inputs))]
-                 [(lr:lut (lr:integer 3) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
-                  (compile (ultrascale-plus-lut3 lutmem inputs))]
-                 [(lr:lut (lr:integer 4) (lr:integer 1) 'xilinx-ultrascale-plus lutmem inputs)
-                  (compile (ultrascale-plus-lut4 lutmem inputs))]
-
-                 ;;; Have to reverse the inputs for SOFA. Could also reverse the lutmem.
-                 ;;;
-                 ;;; TODO(@gussmith23): It's probably not great to have the compiler depend on the
-                 ;;; interpreter.
-                 [(lr:lut (lr:integer 4) (lr:integer 1) 'sofa lutmem inputs)
-                  (compile (sofa-lut4 lutmem (apply concat (bitvector->bits (interpret inputs)))))]
-
-                 [(ultrascale-plus-dsp48e2 A
-                                           ACASCREG
-                                           ACIN
-                                           ADREG
-                                           ALUMODE
-                                           ALUMODEREG
-                                           AMULTSEL
-                                           AREG
-                                           AUTORESET_PATDET
-                                           AUTORESET_PRIORITY
-                                           A_INPUT
-                                           B
-                                           BCASCREG
-                                           BCIN
-                                           BMULTSEL
-                                           BREG
-                                           B_INPUT
-                                           C
-                                           CARRYCASCIN
-                                           CARRYIN
-                                           CARRYINREG
-                                           CARRYINSEL
-                                           CARRYINSELREG
-                                           CEA1
-                                           CEA2
-                                           CEAD
-                                           CEALUMODE
-                                           CEB1
-                                           CEB2
-                                           CEC
-                                           CECARRYIN
-                                           CECTRL
-                                           CED
-                                           CEINMODE
-                                           CEM
-                                           CEP
-                                           CLK
-                                           CREG
-                                           D
-                                           DREG
-                                           INMODE
-                                           INMODEREG
-                                           IS_ALUMODE_INVERTED
-                                           IS_CARRYIN_INVERTED
-                                           IS_CLK_INVERTED
-                                           IS_INMODE_INVERTED
-                                           IS_OPMODE_INVERTED
-                                           IS_RSTALLCARRYIN_INVERTED
-                                           IS_RSTALUMODE_INVERTED
-                                           IS_RSTA_INVERTED
-                                           IS_RSTB_INVERTED
-                                           IS_RSTCTRL_INVERTED
-                                           IS_RSTC_INVERTED
-                                           IS_RSTD_INVERTED
-                                           IS_RSTINMODE_INVERTED
-                                           IS_RSTM_INVERTED
-                                           IS_RSTP_INVERTED
-                                           MASK
-                                           MREG
-                                           MULTSIGNIN
-                                           OPMODE
-                                           OPMODEREG
-                                           PATTERN
-                                           PCIN
-                                           PREADDINSEL
-                                           PREG
-                                           RND
-                                           RSTA
-                                           RSTALLCARRYIN
-                                           RSTALUMODE
-                                           RSTB
-                                           RSTC
-                                           RSTCTRL
-                                           RSTD
-                                           RSTINMODE
-                                           RSTM
-                                           RSTP
-                                           SEL_MASK
-                                           SEL_PATTERN
-                                           USE_MULT
-                                           USE_PATTERN_DETECT
-                                           USE_SIMD
-                                           USE_WIDEXOR
-                                           XORSIMD
-                                           unnamed-input-331
-                                           unnamed-input-488
-                                           unnamed-input-750
-                                           unnamed-input-806
-                                           unnamed-input-850)
-                  (make-ultrascale-plus-dsp48e2 compile
-                                                get-bits
-                                                add-cell
-                                                add-netname
-                                                add-parameter-default-value
-                                                expr)]
-                 [(xilinx-ultrascale-plus-carry8 carry-type ci ci-top di s)
-                  (compile-xilinx-ultrascale-plus-carry8 compile
-                                                         get-bits
-                                                         add-cell
-                                                         add-netname
-                                                         add-parameter-default-value
-                                                         expr)]
-                 [(xilinx-ultrascale-plus-lut6 i0 i1 i2 i3 i4 i5 init)
-                  (compile-xilinx-ultrascale-plus-lut6 compile
-                                                       get-bits
-                                                       add-cell
-                                                       add-netname
-                                                       add-parameter-default-value
-                                                       expr)]
-                 [(xilinx-ultrascale-plus-lut6-2 i0 i1 i2 i3 i4 i5 init)
-                  (compile-xilinx-ultrascale-plus-lut6-2 compile
-                                                         get-bits
-                                                         add-cell
-                                                         add-netname
-                                                         add-parameter-default-value
-                                                         expr)]
-                 [(sofa-lut4 sram inputs)
-                  (compile-sofa compile
-                                get-bits
-                                add-cell
-                                add-netname
-                                add-parameter-default-value
-                                expr)]
-                 [(sofa-frac-lut4 in mode mode-inv sram sram-inv)
-                  (compile-sofa compile
-                                get-bits
-                                add-cell
-                                add-netname
-                                add-parameter-default-value
-                                expr)]
-                 [(ultrascale-plus-clb cin
-                                       lut-a
-                                       lut-b
-                                       lut-c
-                                       lut-d
-                                       lut-e
-                                       lut-f
-                                       lut-g
-                                       lut-h
-                                       mux-selector-a
-                                       mux-selector-b
-                                       mux-selector-c
-                                       mux-selector-d
-                                       mux-selector-e
-                                       mux-selector-f
-                                       mux-selector-g
-                                       mux-selector-h
-                                       inputs)
-                  (make-ultrascale-plus-clb compile
-                                            get-bits
-                                            add-cell
-                                            add-netname
-                                            add-parameter-default-value
-                                            expr)]
-                 [(lattice-ecp5-pfu lut-a lut-b lut-c lut-d lut-e lut-f lut-g lut-h inputs)
-                  (compile-lattice-pfu compile
-                                       get-bits
-                                       add-cell
-                                       add-netname
-                                       add-parameter-default-value
-                                       expr)]
-                 [(lattice-ecp5-ccu2c INIT0 INIT1 INJECT1_0 INJECT1_1 CIN inputs)
-                  (compile-lattice-ccu2c compile
-                                         get-bits
-                                         add-cell
-                                         add-netname
-                                         add-parameter-default-value
-                                         expr)]
-                 [(lattice-ecp5-lut2 INIT inputs)
-                  (compile-lattice-lut2 compile
-                                        get-bits
-                                        add-cell
-                                        add-netname
-                                        add-parameter-default-value
-                                        expr)]
-                 [(lattice-ecp5-lut4 INIT inputs)
-                  (compile-lattice-lut4 compile
-                                        get-bits
-                                        add-cell
-                                        add-netname
-                                        add-parameter-default-value
-                                        expr)]
-                 [(lattice-ecp5-lut6 INIT inputs)
-                  (compile-lattice-lut6 compile
-                                        get-bits
-                                        add-cell
-                                        add-netname
-                                        add-parameter-default-value
-                                        expr)]
-                 [(lattice-ecp5-lut8 INIT inputs)
-                  (compile-lattice-lut8 compile
-                                        get-bits
-                                        add-cell
-                                        add-netname
-                                        add-parameter-default-value
-                                        expr)]
-                 [(lattice-ecp5-mux21 D0 D1 SD)
-                  (compile-lattice-mux21 compile
-                                         get-bits
-                                         add-cell
-                                         add-netname
-                                         add-parameter-default-value
-                                         expr)]
-
-                 [(lattice-ecp5-l6mux21 D0 D1 SD)
-                  (compile-lattice-l6mux21 compile
-                                           get-bits
-                                           add-cell
-                                           add-netname
-                                           add-parameter-default-value
-                                           expr)]
-                 [(lattice-ecp5-pfumx ALUT BLUT CO)
-                  (compile-lattice-pfumx compile
-                                         get-bits
-                                         add-cell
-                                         add-netname
-                                         add-parameter-default-value
-                                         expr)]
-                 [(lattice-ecp5-ripple-pfu INIT0
-                                           INIT1
-                                           INIT2
-                                           INIT3
-                                           INIT4
-                                           INIT5
-                                           INIT6
-                                           INIT7
-                                           INJECT1_0
-                                           INJECT1_1
-                                           INJECT1_2
-                                           INJECT1_3
-                                           INJECT1_4
-                                           INJECT1_5
-                                           INJECT1_6
-                                           INJECT1_7
-                                           CIN
-                                           inputs)
-                  (compile-lattice-ripple-pfu compile
-                                              get-bits
-                                              add-cell
-                                              add-netname
-                                              add-parameter-default-value
-                                              expr)]
-                 [(ultrascale-plus-lut1 init inputs)
-                  (match-define (list i0) (compile inputs))
-                  (define o (get-bits 1))
-                  (add-cell 'lut1
-                            (make-cell "LUT1"
-                                       (make-cell-port-directions (list 'I0) (list 'O))
-                                       (make-cell-connections 'I0 i0 'O (first o))
-                                       #:params (hasheq 'INIT (make-literal-value-from-bv init))))
-                  o]
-                 [(ultrascale-plus-lut2 init inputs)
-                  (match-define (list i0 i1) (compile inputs))
-                  (define o (get-bits 1))
-                  (add-cell 'lut2
-                            (make-cell "LUT2"
-                                       (make-cell-port-directions (list 'I0 'I1) (list 'O))
-                                       (make-cell-connections 'I0 i0 'I1 i1 'O (first o))
-                                       #:params (hasheq 'INIT (make-literal-value-from-bv init))))
-                  o]
-                 [(ultrascale-plus-lut3 init inputs)
-                  (match-define (list i0 i1 i2) (compile inputs))
-                  (define o (get-bits 1))
-                  (add-cell 'lut3
-                            (make-cell "LUT3"
-                                       (make-cell-port-directions (list 'I0 'I1 'I2) (list 'O))
-                                       (make-cell-connections 'I0 i0 'I1 i1 'I2 i2 'O (first o))
-                                       #:params (hasheq 'INIT (make-literal-value-from-bv init))))
-                  o]
-                 [(physical-to-logical-mapping f outputs)
+                 [(lr:physical-to-logical-mapping f outputs)
                   (compile-physical-to-logical-mapping compile f outputs)]
-                 [(logical-to-physical-mapping f inputs)
+                 [(lr:logical-to-physical-mapping f inputs)
                   (compile-logical-to-physical-mapping compile f inputs)]
 
                  ;;; Racket operators.
@@ -702,9 +424,9 @@
                  [(lr:map f lsts) (apply map f (compile lsts))]
 
                  ;;; Rosette operators.
-                 [(or (expression (== extract) high low v) (lr:extract high low v))
+                 [(lr:extract high low v)
                   (drop (take (compile v) (add1 (compile high))) (compile low))]
-                 [(or (expression (== zero-extend) v bv-type) (lr:zero-extend v bv-type))
+                 [(lr:zero-extend v bv-type)
                   (append (compile v)
                           (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
                                      "0"))]
@@ -712,8 +434,7 @@
                   (append (compile v)
                           (make-list (- (bitvector-size (compile bv-type)) (length (compile v)))
                                      (last (compile v))))]
-                 [(or (lr:concat (list v0 v1)) (expression (== concat) v0 v1))
-                  (append (compile v1) (compile v0))]
+                 [(lr:concat (list v0 v1)) (append (compile v1) (compile v0))]
                  ;; TODO: How to handle variadic rosette concats?
                  ;;; TODO(@gussmith23): Compile, then reverse? Or reverse, then compile?
                  [(lr:concat rst) (apply append (reverse (compile rst)))]
@@ -722,7 +443,7 @@
                   (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) state))
+                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) _))
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
@@ -751,7 +472,7 @@
                   ;;; Return the bits.
                   (hash-ref port-details 'bits)]
                  ;;; Concrete bitvectors become constants.
-                 [(lr:bv (signal (? bv? (? concrete? s)) state))
+                 [(lr:bv (signal (? bv? (? concrete? s)) _))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
 
                  [(lr:integer v) v]
@@ -776,67 +497,19 @@
   doc)
 
 (module+ test
-  (require rosette/lib/synthax
-           rosette/solver/smt/boolector
-           rosette
-           json
-           rackunit
-           "interpreter.rkt")
+  (require rosette
+           rackunit)
 
   ;;; Re-enable this test when we support multiple outputs.
-  ;;; (test-begin (define-symbolic a b (bitvector 8))
+  ;;; (test-case "multiple outputs" (define-symbolic a b (bitvector 8))
   ;;;             (define out (lakeroad->jsexpr (list a b a)))
   ;;;             (define modules (hash-ref out 'modules))
   ;;;             (check-equal? (hash-count modules) 1)
   ;;;             (define module (hash-ref modules 'top))
   ;;;             (check-equal? (hash-count (hash-ref module 'ports)) 5))
 
-  (test-begin
+  (test-case "test"
     (define out (lakeroad->jsexpr (lr:bv (bv->signal (bv #b000111 6)))))
     (check-equal?
      (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
-     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output"))))
-
-  (test-begin
-    (current-solver (boolector))
-    (define a (bv->signal (?? (bitvector 8))))
-    (define b (bv->signal (?? (bitvector 8))))
-    (define expr
-      (lr:first (physical-to-logical-mapping
-                 (ptol-bitwise)
-                 ;;; Take the 8 outputs from the LUTs; drop cout.
-                 (lr:take (ultrascale-plus-clb (lr:bv (bv->signal (?? (bitvector 1))))
-                                               (lr:bv (bv->signal (?? (bitvector 64))))
-                                               (lr:bv (bv->signal (?? (bitvector 64))))
-                                               (lr:bv (bv->signal (?? (bitvector 64))))
-                                               (lr:bv (bv->signal (?? (bitvector 64))))
-                                               (lr:bv (bv->signal (?? (bitvector 64))))
-                                               (lr:bv (bv->signal (?? (bitvector 64))))
-                                               (lr:bv (bv->signal (?? (bitvector 64))))
-                                               (lr:bv (bv->signal (?? (bitvector 64))))
-                                               (lr:bv (bv->signal (?? (bitvector 2))))
-                                               (lr:bv (bv->signal (?? (bitvector 2))))
-                                               (lr:bv (bv->signal (?? (bitvector 2))))
-                                               (lr:bv (bv->signal (?? (bitvector 2))))
-                                               (lr:bv (bv->signal (?? (bitvector 2))))
-                                               (lr:bv (bv->signal (?? (bitvector 2))))
-                                               (lr:bv (bv->signal (?? (bitvector 2))))
-                                               (lr:bv (bv->signal (?? (bitvector 2))))
-                                               (logical-to-physical-mapping
-                                                (ltop-bitwise)
-                                                (lr:list (list (lr:bv a)
-                                                               (lr:bv b)
-                                                               (lr:bv (bv->signal (bv 0 8)))
-                                                               (lr:bv (bv->signal (bv 0 8)))
-                                                               (lr:bv (bv->signal (bv 0 8)))
-                                                               (lr:bv (bv->signal (bv 0 8)))))))
-                          (lr:integer 8)))))
-    (define soln
-      (synthesize #:forall (list a b)
-                  #:guarantee
-                  (begin
-                    ; Assert that the output of the CLB implements the requested function f.
-                    (assert (bveq (bvand (signal-value a) (signal-value b))
-                                  (signal-value (interpret expr)))))))
-    (check-true (sat? soln))
-    (check-not-exn (thunk (lakeroad->jsexpr (evaluate expr soln))))))
+     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output")))))

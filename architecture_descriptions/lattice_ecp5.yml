@@ -7,7 +7,7 @@ implementations:
     modules:
       - module_name: LUT4
         instance_name: lut
-        filepath: ../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v
+        filepath: ../verilog/simulation/lattice-ecp5/LUT4.v
         racket_import_filepath: ../modules_for_importing/lattice_ecp5/LUT4.v
         ports:
           [
@@ -24,7 +24,7 @@ implementations:
  #   modules:
  #     # TODO(@gussmith23): This MUX is not actually intended to be general-purpose. Replace this with a LUT2 implementation.
  #     - module_name: L6MUX21
- #       filepath: ../f4pga-arch-defs/ecp5/primitives/slice/L6MUX21.v
+ #       filepath: ../verilog/simulation/lattice-ecp5/L6MUX21.v
  #       ports:
  #         [
  #           { name: D0, direction: input, bitwidth: 1, value: I0 },
@@ -38,7 +38,7 @@ implementations:
     modules:
       - module_name: CCU2C
         instance_name: ccu2c
-        filepath: ../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v
+        filepath: ../verilog/simulation/lattice-ecp5/CCU2C.v
         racket_import_filepath: ../modules_for_importing/lattice_ecp5/CCU2C.v
         ports: [
             { name: CIN, direction: input, bitwidth: 1, value: CI },

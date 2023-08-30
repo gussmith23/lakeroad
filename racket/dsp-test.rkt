@@ -72,12 +72,13 @@
                               (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
                         #:internal-data #f))
                 'O)
-   #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
-                                  xilinx-ultrascale-plus-dsp48e2))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
-                        (build-path (get-lakeroad-directory) "verilator-unisims"))
+   #:module-semantics
+   (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
+               xilinx-ultrascale-plus-dsp48e2))
+   #:include-dirs (list (build-path (get-lakeroad-directory)
+                                    "verilog/simulation/xilinx-ultrascale-plus"))
    #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT -Wno-UNOPTFLAT"
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-CASEX -Wno-WIDTH"
    #:run-with-verilator #t)
 
   ;;; TODO(@gussmith23): Currently these tests only test combinational DSP usage, which is actually
@@ -105,9 +106,9 @@
   ;;;      'O))
   ;;;    #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
   ;;;                                   lattice-ecp5-mult18x18d))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
   ;;;    #:extra-verilator-args
-  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
+  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX"
   ;;;    #:run-with-verilator #f)
 
   ;;;   (sketch-test
@@ -128,9 +129,9 @@
   ;;;                              'O)
   ;;;    #:module-semantics (list (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
   ;;;                                   lattice-ecp5-mult18x18d))
-  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
+  ;;;    #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
   ;;;    #:extra-verilator-args
-  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
+  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX  -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX"
   ;;;    #:run-with-verilator #f)
 
   ;;;   (sketch-test
@@ -152,7 +153,7 @@
   ;;;    #:module-semantics (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))
   ;;;    #:include-dirs (list)
   ;;;    #:extra-verilator-args
-  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
+  ;;;    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX  -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX"
   ;;;    #:run-with-verilator #f)
 
   ;;; TODO(@ninehusky): find out why these aren't working by going through the DSP48E2 manual
@@ -167,12 +168,12 @@
   ;;;                                    (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
   ;;;                                    #:internal-data #f))
   ;;;                            'O)
-  ;;;  #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
+  ;;;  #:module-semantics (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
   ;;;                                 xilinx-ultrascale-plus-dsp48e2))
-  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
+  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "../verilog/simulation/xilinx-ultrascale-plus")
   ;;;                       (build-path (get-lakeroad-directory) "verilator-unisims"))
   ;;;  #:extra-verilator-args
-  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT")
+  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX  -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX")
 
   ;;; (sketch-test
   ;;;  #:name "bvnot on Xilinx DSP48E2"
@@ -184,12 +185,12 @@
   ;;;                                    (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
   ;;;                                    #:internal-data #f))
   ;;;                            'O)
-  ;;;  #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
+  ;;;  #:module-semantics (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
   ;;;                                 xilinx-ultrascale-plus-dsp48e2))
-  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
+  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "../verilog/simulation/xilinx-ultrascale-plus")
   ;;;                       (build-path (get-lakeroad-directory) "verilator-unisims"))
   ;;;  #:extra-verilator-args
-  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT")
+  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX  -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX")
 
   ;;; (sketch-test
   ;;;  #:name "bvxor on Xilinx DSP48E2"
@@ -201,12 +202,12 @@
   ;;;                                    (list (cons "A" (lr:bv a)) (cons "B" (lr:bv b)))
   ;;;                                    #:internal-data #f))
   ;;;                            'O)
-  ;;;  #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
+  ;;;  #:module-semantics (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
   ;;;                                 xilinx-ultrascale-plus-dsp48e2))
-  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
+  ;;;  #:include-dirs (list (build-path (get-lakeroad-directory) "../verilog/simulation/xilinx-ultrascale-plus")
   ;;;                       (build-path (get-lakeroad-directory) "verilator-unisims"))
   ;;;  #:extra-verilator-args
-  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT")
+  ;;;  "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX  -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX")
 
   (sketch-test
    #:name "bvmul and bvand on Xilinx DSP48E2"
@@ -226,10 +227,11 @@
                               (cons "rst" (lr:bv (bv->signal (bv 0 1)))))
                         #:internal-data #f))
                 'O)
-   #:module-semantics (list (cons (cons "DSP48E2" "../verilator_unisims/DSP48E2.v")
-                                  xilinx-ultrascale-plus-dsp48e2))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "verilator_xilinx")
-                        (build-path (get-lakeroad-directory) "verilator-unisims"))
+   #:module-semantics
+   (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
+               xilinx-ultrascale-plus-dsp48e2))
+   #:include-dirs (list (build-path (get-lakeroad-directory)
+                                    "verilog/simulation/xilinx-ultrascale-plus"))
    #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
+   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX"
    #:run-with-verilator #f))

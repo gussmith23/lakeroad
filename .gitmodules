@@ -1,21 +1,6 @@
-[submodule "verilator-unisims"]
-	path = verilator-unisims
-	url = git@github.com:oliverbunting/verilator-unisims
-[submodule "verilator_xilinx"]
-	path = verilator_xilinx
-	url = git@github.com:fredrequin/verilator_xilinx
-[submodule "Nitro-Parts-lib-Xilinx"]
-	path = Nitro-Parts-lib-Xilinx
-	url = git@github.com:nachiket/Nitro-Parts-lib-Xilinx
-[submodule "f4pga-arch-defs"]
-	path = f4pga-arch-defs
-	url = git@github.com:uwsampl/f4pga-arch-defs
-[submodule "SOFA"]
-	path = SOFA
-	url = git@github.com:uwsampl/SOFA
-[submodule "skywater-pdk-libs-sky130_fd_sc_hd"]
-	path = skywater-pdk-libs-sky130_fd_sc_hd
-	url = git@github.com:uwsampl/skywater-pdk-libs-sky130_fd_sc_hd
 [submodule "rosette"]
 	path = rosette
 	url = git@github.com:gussmith23/rosette
+[submodule "lakeroad-private"]
+	path = lakeroad-private
+	url = git@github.com:uwsampl/lakeroad-private

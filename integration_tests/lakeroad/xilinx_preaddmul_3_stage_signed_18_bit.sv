@@ -22,7 +22,9 @@
 //   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
 //   exit 0; \
 // else \
-//   python $LAKEROAD_DIR/bin/simulate_with_verilator.py \
+//   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
+//    --use_random_intermediate_inputs \
+//    --seed=23 \
 //    --max_num_tests=10000 \
 //    --test_module_filepath $outfile \
 //    --ground_truth_module_filepath %s \
@@ -63,4 +65,4 @@
 	assign out = stage2;
 endmodule
 
-// CHECK: Synthesis Timeout
+// CHECK: Synthesis Timeout 
