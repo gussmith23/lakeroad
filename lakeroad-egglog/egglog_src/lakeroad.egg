@@ -16,8 +16,8 @@
   (Op1 Op Expr)
   (Op2 Op Expr Expr)
   (Op3 Op Expr Expr Expr)
-  ; (Reg clock-expr d-expr default-value)
-  (Reg Expr Expr i64)
+  ; (Reg default-value clock-expr d-expr)
+  (Reg i64 Expr Expr)
   ; (Wire name bitwidth)
   ; Wire is a placeholder for another expression. See below how 
   ; wires are the key to creating cyclic graphs.

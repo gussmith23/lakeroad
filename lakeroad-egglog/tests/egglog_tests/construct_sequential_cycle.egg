@@ -33,9 +33,8 @@
 ; will initially be a placeholder, represented by a `Wire`.
 (let cyclic-input-0 (Wire "cyclic-input-0" 1))
 (let subcircuit-0 
-  (Reg clk 
-       (Op2 (And) (Var "a" 1) cyclic-input-0)
-       0))
+  (Reg 0 clk 
+       (Op2 (And) (Var "a" 1) cyclic-input-0)))
 ;
 ; Now, subcircuit-0 is an expression representing
 ; the and-reg circuit, with one of its inputs
@@ -44,9 +43,8 @@
 ; Let's also create the second subcircuit (the right column):
 (let cyclic-input-1 (Wire "cyclic-input-1" 1))
 (let subcircuit-1 
-  (Reg clk 
-       (Op2 (And) (Var "b" 1) cyclic-input-1)
-       0))
+  (Reg 0 clk 
+       (Op2 (And) (Var "b" 1) cyclic-input-1)))
 ;
 ; The final thing we need to do is to connect the two sub-circuits
 ; together, by assigning a value each wire. We can do this
