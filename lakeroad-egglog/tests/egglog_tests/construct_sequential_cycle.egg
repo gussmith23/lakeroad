@@ -26,15 +26,15 @@
 ;  this demo doesn't actually check for combinational cycles!)
 ;
 ; First, we create a clock for the registers.
-(let clk (Var "clk"))
+(let clk (Var "clk" 1))
 ;
 ; Now, we'll create the first subcircuit (left column).
 ; The input which will eventually come from the second subcircuit
 ; will initially be a placeholder, represented by a `Wire`.
-(let cyclic-input-0 (Wire "cyclic-input-0"))
+(let cyclic-input-0 (Wire "cyclic-input-0" 1))
 (let subcircuit-0 
   (Reg clk 
-       (Op2 (And) (Var "a") cyclic-input-0)
+       (Op2 (And) (Var "a" 1) cyclic-input-0)
        0))
 ;
 ; Now, subcircuit-0 is an expression representing
@@ -42,10 +42,10 @@
 ; coming from a wire that is not assigned to anything.
 ; 
 ; Let's also create the second subcircuit (the right column):
-(let cyclic-input-1 (Wire "cyclic-input-1"))
+(let cyclic-input-1 (Wire "cyclic-input-1" 1))
 (let subcircuit-1 
   (Reg clk 
-       (Op2 (And) (Var "b") cyclic-input-1)
+       (Op2 (And) (Var "b" 1) cyclic-input-1)
        0))
 ;
 ; The final thing we need to do is to connect the two sub-circuits
@@ -58,5 +58,5 @@
 ; they made it possible to declare a placeholder input for each
 ; circuit! Now that the placeholder values are connected,
 ; the wires are no longer needed.
-(delete (Wire "cyclic-input-0"))
-(delete (Wire "cyclic-input-1"))
+(delete (Wire "cyclic-input-0" 1))
+(delete (Wire "cyclic-input-1" 1))

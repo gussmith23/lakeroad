@@ -8,17 +8,17 @@
 ; formalization. The IDs are still there, though: they're the 
 ; eclass IDs!
 (datatype Expr
-  ; (BV value)
-  (BV i64)
-  ; (Var name)
-  (Var String)
+  ; (BV value bitwidth)
+  (BV i64 i64)
+  ; (Var name bitwidth)
+  (Var String i64)
   ; (OpN op input-expr...)
   (Op1 Op Expr)
   (Op2 Op Expr Expr)
   (Op3 Op Expr Expr Expr)
   ; (Reg clock-expr d-expr default-value)
   (Reg Expr Expr i64)
-  ; (Wire name)
+  ; (Wire name bitwidth)
   ; Wire is a placeholder for another expression. See below how 
   ; wires are the key to creating cyclic graphs.
-  (Wire String))
+  (Wire String i64))
