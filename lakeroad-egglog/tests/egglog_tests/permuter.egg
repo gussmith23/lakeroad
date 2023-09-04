@@ -1,0 +1,83 @@
+(include "egglog_src/lakeroad.egg")
+
+; wire declarations
+; $auto$rtlil.cc:2509:Mux$15
+(let v0 (Wire "v0" 16))
+; $auto$rtlil.cc:2443:Or$13
+(let v1 (Wire "v1" 1))
+; $auto$rtlil.cc:2509:Mux$11
+(let v2 (Wire "v2" 16))
+; $auto$rtlil.cc:2509:Mux$9
+(let v3 (Wire "v3" 16))
+; $procmux$3_CMP
+(let v4 (Wire "v4" 1))
+; $procmux$4_CMP
+(let v5 (Wire "v5" 1))
+; $procmux$5_CMP
+(let v6 (Wire "v6" 1))
+; $procmux$6_CMP
+(let v7 (Wire "v7" 1))
+; clk
+(let v8 (Wire "v8" 1))
+; control
+(let v9 (Wire "v9" 2))
+; din
+(let v10 (Wire "v10" 16))
+; dout
+(let v11 (Wire "v11" 16))
+
+; cells
+(union v1 (Op2 (Or) v5 v4))
+; { \din [11:8] \din [15:12] \din [3:0] \din [7:4] }
+(let v12 (Extract 7 4 v10))
+(let v13 (Extract 3 0 v10))
+(let v14 (Extract 15 12 v10))
+(let v15 (Extract 11 8 v10))
+(let v16 (Concat v12 v13))
+(let v17 (Concat v16 v14))
+(let v18 (Concat v17 v15))
+(union v2 (Mux v6 v10 v18))
+; { \din [7:0] \din [15:8] }
+(let v19 (Extract 15 8 v10))
+(let v20 (Extract 7 0 v10))
+(let v21 (Concat v19 v20))
+; { \din [3:0] \din [7:4] \din [11:8] \din [15:12] }
+(let v22 (Concat v14 v15))
+(let v23 (Concat v22 v12))
+(let v24 (Concat v23 v13))
+(union v3 (Mux v4 v21 v24))
+; TODO: assuming 0 default for Reg
+(union v11 (Reg 0 v8 v0))
+(union v0 (Mux v1 v2 v3))
+; 2'11
+(let v25 (BV 3 2))
+(union v4 (Op2 (Eq) v9 v25))
+; 2'10
+(let v26 (BV 2 2))
+(union v5 (Op2 (Eq) v9 v26))
+; 1'1
+(let v27 (BV 1 1))
+(union v6 (Op2 (Eq) v9 v27))
+(union v7 (Op1 (LogicNot) v9))
+
+; inputs
+(union v8 (Var "clk" 1))
+(union v9 (Var "control" 2))
+(union v10 (Var "din" 16))
+
+; outputs
+(let dout v11)
+
+; delete wire expressions
+(delete (Wire "v0" 16))
+(delete (Wire "v1" 1))
+(delete (Wire "v2" 16))
+(delete (Wire "v3" 16))
+(delete (Wire "v4" 1))
+(delete (Wire "v5" 1))
+(delete (Wire "v6" 1))
+(delete (Wire "v7" 1))
+(delete (Wire "v8" 1))
+(delete (Wire "v9" 2))
+(delete (Wire "v10" 16))
+(delete (Wire "v11" 16))
