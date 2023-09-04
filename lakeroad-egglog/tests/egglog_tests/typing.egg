@@ -1,0 +1,11 @@
+(include "egglog_src/lakeroad.egg")
+
+(let clk (Var "clk" 1))
+(let a (Var "a" 8))
+(let b (Var "b" 8))
+(let simple
+ (Reg 0 clk
+  (Op2 (And) a b)))
+
+(run typing 10)
+(check (HasType simple (Bitvector 8)))
