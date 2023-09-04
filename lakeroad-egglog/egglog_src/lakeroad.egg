@@ -5,7 +5,9 @@
   (And)
   (Or)
   (Eq)
-  (LogicNot))
+  (LogicNot)
+  ; (Mux select-expr expr expr)
+  (Mux))
 
 ; Our language. Note that we do not explicitly use IDs as in Zach's
 ; formalization. The IDs are still there, though: they're the 
@@ -30,8 +32,6 @@
   (Extract i64 i64 Expr)
   ; (Concat expr expr)
   (Concat Expr Expr)
-  ; (Mux select-expr expr expr)
-  (Mux Expr Expr Expr)
   ; (ZeroExtend expr bitwidth)
   (ZeroExtend Expr i64))
 
