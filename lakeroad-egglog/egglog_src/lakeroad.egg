@@ -63,6 +63,6 @@
 (rule
   ((Op2 (And) a-expr b-expr)
    (HasType a-expr (Bitvector bw))
-   (HasType a-expr (Bitvector bw)))
+   (HasType b-expr (Bitvector bw)))
   ((HasType (Op2 (And) a-expr b-expr) (Bitvector bw)))
   :ruleset typing)
