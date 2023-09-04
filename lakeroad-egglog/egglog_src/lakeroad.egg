@@ -4,6 +4,7 @@
 (datatype Op
   (And)
   (Or)
+  ; Returns a bitvector of width 1.
   (Eq)
   (LogicNot)
   ; (Mux select-expr expr expr)
