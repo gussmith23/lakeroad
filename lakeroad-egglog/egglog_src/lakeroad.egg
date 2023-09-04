@@ -67,8 +67,36 @@
   ((HasType (Op2 (And) a-expr b-expr) (Bitvector bw)))
   :ruleset typing)
 (rule
+  ((Op2 (Or) a-expr b-expr)
+   (HasType a-expr (Bitvector bw))
+   (HasType b-expr (Bitvector bw)))
+  ((HasType (Op2 (Or) a-expr b-expr) (Bitvector bw)))
+  :ruleset typing)
+(rule
   ((Op2 (Eq) a-expr b-expr)
    (HasType a-expr (Bitvector bw))
    (HasType b-expr (Bitvector bw)))
   ((HasType (Op2 (Eq) a-expr b-expr) (Bitvector 1)))
+  :ruleset typing)
+(rule
+  ((Op3 (Mux) sel-expr a-expr b-expr)
+   (HasType sel-expr (Bitvector 1))
+   (HasType a-expr (Bitvector bw))
+   (HasType b-expr (Bitvector bw)))
+  ((HasType (Op3 (Mux) sel-expr a-expr b-expr) (Bitvector bw)))
+  :ruleset typing)
+(rule
+  ((Concat a-expr b-expr)
+   (HasType a-expr (Bitvector m))
+   (HasType b-expr (Bitvector n)))
+  ((HasType (Concat a-expr b-expr) (Bitvector (+ m n))))
+  :ruleset typing)
+(rule
+  ((Extract high low expr)
+   (HasType expr (Bitvector n)))
+  ((HasType (Extract high low expr) (Bitvector (+ 1 (- high low)))))
+  :ruleset typing)
+(rule
+  ((ZeroExtend expr bitwidth))
+  ((HasType (ZeroExtend expr bitwidth) (Bitvector bitwidth)))
   :ruleset typing)
