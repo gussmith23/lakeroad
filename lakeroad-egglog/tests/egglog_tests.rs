@@ -16,3 +16,4 @@ macro_rules! egglog_test {
 
 egglog_test!(test_1, "tests/egglog_tests/construct_sequential_cycle.egg");
 egglog_test!(permuter, "tests/egglog_tests/permuter.egg");
+egglog_test!(typing, "tests/egglog_tests/typing.egg");

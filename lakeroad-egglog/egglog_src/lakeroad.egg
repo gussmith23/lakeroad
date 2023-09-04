@@ -32,3 +32,35 @@
   (Concat Expr Expr)
   ; (Mux select-expr expr expr)
   (Mux Expr Expr Expr))
+
+;;; Types for Lakeroad expressions.
+(datatype Type
+  ;;; Bitvector type.
+  (Bitvector i64))
+
+;;; Indicates that a Lakeroad expression has a given type.
+(relation HasType (Expr Type))
+
+;;; Typing judgements.
+(ruleset typing)
+(rule
+  ((Var name bw))
+  ((HasType (Var name bw) (Bitvector bw)))
+  :ruleset typing)
+(rule
+  ((BV name bw))
+  ((HasType (BV name bw) (Bitvector bw)))
+  :ruleset typing)
+(rule
+  ((Reg default clk-expr d-expr)
+   ; Currently require clock to be one bit.
+   (HasType clk-expr (Bitvector 1))
+   (HasType d-expr (Bitvector bw)))
+  ((HasType (Reg default clk-expr d-expr) (Bitvector bw)))
+  :ruleset typing)
+(rule
+  ((Op2 (And) a-expr b-expr)
+   (HasType a-expr (Bitvector bw))
+   (HasType a-expr (Bitvector bw)))
+  ((HasType (Op2 (And) a-expr b-expr) (Bitvector bw)))
+  :ruleset typing)
