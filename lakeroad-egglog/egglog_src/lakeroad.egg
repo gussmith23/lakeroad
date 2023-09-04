@@ -66,3 +66,9 @@
    (HasType b-expr (Bitvector bw)))
   ((HasType (Op2 (And) a-expr b-expr) (Bitvector bw)))
   :ruleset typing)
+(rule
+  ((Op2 (Eq) a-expr b-expr)
+   (HasType a-expr (Bitvector bw))
+   (HasType b-expr (Bitvector bw)))
+  ((HasType (Op2 (Eq) a-expr b-expr) (Bitvector 1)))
+  :ruleset typing)
