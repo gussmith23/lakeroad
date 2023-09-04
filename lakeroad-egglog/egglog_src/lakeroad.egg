@@ -31,7 +31,9 @@
   ; (Concat expr expr)
   (Concat Expr Expr)
   ; (Mux select-expr expr expr)
-  (Mux Expr Expr Expr))
+  (Mux Expr Expr Expr)
+  ; (ZeroExtend expr bitwidth)
+  (ZeroExtend Expr i64))
 
 ;;; Types for Lakeroad expressions.
 (datatype Type
