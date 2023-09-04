@@ -61,9 +61,12 @@
 (union v7 (Op1 (LogicNot) v9))
 
 ; inputs
-(union v8 (Var "clk" 1))
-(union v9 (Var "control" 2))
-(union v10 (Var "din" 16))
+(let clk (Var "clk" 1))
+(union v8 clk)
+(let control (Var "control" 2))
+(union v9 control)
+(let din (Var "din" 16))
+(union v10 din)
 
 ; outputs
 (let dout v11)
@@ -81,3 +84,6 @@
 (delete (Wire "v9" 2))
 (delete (Wire "v10" 16))
 (delete (Wire "v11" 16))
+
+(run typing 100)
+(check (HasType dout (Bitvector 16)))
