@@ -1,5 +1,5 @@
 // RUN: outfile=$(mktemp)
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture lattice-ecp5 \
@@ -14,7 +14,6 @@
 // RUN:  --input-signal b:16 \
 // RUN:  --input-signal c:16 \
 // RUN:  --timeout 90 \
-// RUN: || true) \
 // RUN:  > $outfile \
 // RUN: 2>&1
 // RUN: FileCheck %s < $outfile
