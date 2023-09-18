@@ -367,6 +367,8 @@
            (add-expr-id-str id-str (op-call-builder 'bvlshr a b)))]
         [`("not" ,out-type-id-str ,a-id-str)
          (let ([a (get-expr-id-str a-id-str)]) (add-expr-id-str id-str (op-call-builder 'bvnot a)))]
+        [`("neg" ,_ ,a-id-str)
+         (let ([a (get-expr-id-str a-id-str)]) (add-expr-id-str id-str (op-call-builder 'bvneg a)))]
         [`("xnor" ,out-type-id-str ,a-id-str ,b-id-str)
          (let ([a (get-expr-id-str a-id-str)] [b (get-expr-id-str b-id-str)])
            (add-expr-id-str id-str (op-call-builder '(lambda (a b) (bvnot (bvxor a b))) a b)))]
