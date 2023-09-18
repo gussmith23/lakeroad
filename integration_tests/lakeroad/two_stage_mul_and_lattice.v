@@ -56,7 +56,7 @@ module top(input clk, input [15:0] a, b, c, output [15:0] p);
 
 endmodule
 
-// CHECK: module top(a, b, clk, out);
+// CHECK: module top(a, b, c, clk, p); 
 // CHECK:   ALU54A #(
 // CHECK:   MULT18X18C #(
 // CHECK: endmodule
