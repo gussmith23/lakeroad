@@ -22,6 +22,7 @@
          "../racket/generated/lattice-ecp5-alu24b.rkt"
          "../racket/generated/lattice-ecp5-alu54a.rkt"
          "../racket/generated/intel-altmult-accum.rkt"
+         "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -41,6 +42,7 @@
                       [(or "lattice-ecp5") v]
                       [(or "sofa") v]
                       ["intel" v]
+                      ["intel-cyclone10lp" v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -275,6 +277,9 @@
     ["lattice-ecp5" (lattice-ecp5-architecture-description)]
     ["sofa" (sofa-architecture-description)]
     ["intel" (intel-architecture-description)]
+    ["intel-cyclone10lp"
+     (parse-architecture-description-file
+      (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -304,6 +309,8 @@
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     ["intel" (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))]
+    ["intel-cyclone10lp"
+     (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
