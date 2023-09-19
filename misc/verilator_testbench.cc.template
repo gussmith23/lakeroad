@@ -59,7 +59,7 @@ int main(int argc, char** argv) {{
 #else
     // CLOCK CYCLE 1
 
-    // Set inputs to desired inputs.
+    // First half of clock cycle 1: clk=0, inputs=desired inputs.
     SET_MODULE_INPUTS(test_module, inputs)
     SET_MODULE_CLOCK(test_module, 0)
     SET_MODULE_INPUTS(ground_truth_module, inputs)
@@ -67,7 +67,18 @@ int main(int argc, char** argv) {{
 
     test_module->eval();
     ground_truth_module->eval();
-    
+
+    // Second half of clock cycle 1: clk=1, inputs=random values/0.
+    if ({use_random_intermediate_inputs} == true) {{
+      for (int i = 0; i < NUM_INPUTS; i++) {{
+        inputs[i] = rand();
+      }}
+    }} else {{
+      for (int i = 0; i < NUM_INPUTS; i++) {{
+        inputs[i] = 0;
+      }}
+    }}
+
     SET_MODULE_CLOCK(test_module, 1)
     SET_MODULE_CLOCK(ground_truth_module, 1)
     
