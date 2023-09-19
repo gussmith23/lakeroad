@@ -132,8 +132,7 @@
         (define for-loop-closings (make-list (length (symbolics bv-expr)) "}"))
 
         (define code
-          (format
-           #<<here-string-delimiter
+          (format #<<here-string-delimiter
 {
   // bv-expr: ~a
   ~a *top = new ~a{contextp};
@@ -152,16 +151,16 @@
   delete top;
 }
 here-string-delimiter
-           ;
-           bv-expr
-           verilated-type-name
-           verilated-type-name
-           (string-join for-loop-openings "\n")
-           (string-join value-definitions "\n")
-           (string-join module-input-assignments "\n")
-           (bvexpr->cexpr bv-expr)
-           (sub1 (expt 2 (bvlen bv-expr)))
-           (string-join for-loop-closings "\n")))
+                  ;
+                  bv-expr
+                  verilated-type-name
+                  verilated-type-name
+                  (string-join for-loop-openings "\n")
+                  (string-join value-definitions "\n")
+                  (string-join module-input-assignments "\n")
+                  (bvexpr->cexpr bv-expr)
+                  (sub1 (expt 2 (bvlen bv-expr)))
+                  (string-join for-loop-closings "\n")))
 
         (list code verilated-type-name verilog-file)))
 
@@ -181,8 +180,7 @@ here-string-delimiter
 
     ;;; Make the contents of a testbench file.
     (define (make-testbench-source includes test-code)
-      (format
-       #<<here-string-delimiter
+      (format #<<here-string-delimiter
 #include <cstdlib>
 #include <inttypes.h>
 ~a
@@ -200,9 +198,9 @@ int main(int argc, char **argv)
   return 0;
 }
 here-string-delimiter
-       ;
-       includes
-       test-code))
+              ;
+              includes
+              test-code))
 
     (define testbench-files
       (for/list ([test-code (map first results)])
