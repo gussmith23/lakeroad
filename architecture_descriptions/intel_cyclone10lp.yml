@@ -12,8 +12,6 @@ implementations:
       datab_clock: 1
       signa_clock: 1
       signb_clock: 1
-      signa: 1
-      signb: 1
     constraints: []
     modules:
       - module_name: cyclone10lp_mac_mult
@@ -23,8 +21,10 @@ implementations:
         ports: [
           { name: dataa, direction: input, bitwidth: 18, value: A },
           { name: datab, direction: input, bitwidth: 18, value: B },
-          { name: signa, direction: input, bitwidth: 1, value: signa },
-          { name: signb, direction: input, bitwidth: 1, value: signb },
+          # For some reason, these chooses work better than just declaring
+          # symbolic values.
+          { name: signa, direction: input, bitwidth: 1, value: (choose (bv 0 1) (bv 1 1)) },
+          { name: signb, direction: input, bitwidth: 1, value: (choose (bv 0 1) (bv 1 1)) },
           { name: clk, direction: input, bitwidth: 1, value: clk },
           { name: aclr, direction: input, bitwidth: 1, value: (bv 0 1) },
           { name: ena, direction: input, bitwidth: 1, value: (bv 1 1) },
