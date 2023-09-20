@@ -64,6 +64,8 @@ ENV PATH="/root/.local/bin:${PATH}"
 #
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
+#
+# TODO(@gussmith23): Could shrink Docker image by deleting unneeded binaries.
 WORKDIR /root
 RUN if [ "$(uname -m)" = "x86_64" ] ; then \
   wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-08-06/oss-cad-suite-linux-x64-20230806.tgz -q -O oss-cad-suite.tgz; \
@@ -99,19 +101,24 @@ RUN git clone https://github.com/bitwuzla/bitwuzla \
 # to make sure this one takes precedence.
 ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
 
-# Install raco (Racket) dependencies. First, fix
-# https://github.com/racket/racket/issues/2691 by building the docs.
+# Install raco (Racket) dependencies. 
 WORKDIR /root
 ADD rosette/ rosette/
-RUN raco setup --doc-index --force-user-docs \
+ARG FMT_COMMIT_HASH=bd44477
+RUN \
+  # First, fix https://github.com/racket/racket/issues/2691 by building the
+  # docs.
+  raco setup --doc-index --force-user-docs \
+  # Install YAML package.
   && raco pkg install --deps search-auto --batch \
-  # For now, we use a custom Rosette install; see below.
-  # rosette \
-  fmt \
+  rosette \
   yaml \
-  # Install Rosette from submodule. Check that it exists first.
-  && [ "$(ls --almost-all /root/rosette)" ] \
-  && cd /root/rosette \
+  # Install fmt directly from GitHub. This prevents the version from changing on
+  # us unexpectedly.
+  && cd /root \
+  && git clone https://github.com/sorawee/fmt \
+  && cd fmt \
+  && git checkout ${FMT_COMMIT_HASH} \
   && raco pkg install --deps search-auto --batch
 
 # Install Rust
