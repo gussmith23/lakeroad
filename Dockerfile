@@ -109,7 +109,7 @@ RUN \
   # First, fix https://github.com/racket/racket/issues/2691 by building the
   # docs.
   raco setup --doc-index --force-user-docs \
-  # Install YAML package.
+  # Install packages.
   && raco pkg install --deps search-auto --batch \
   rosette \
   yaml \
