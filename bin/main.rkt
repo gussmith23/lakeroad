@@ -351,7 +351,8 @@
             ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
             ;;; First, we tick the clock with the inputs set to their input values.
             [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
-                                (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
+                                (cons (cons (clock-name) (bv->signal (bv 1 1)))
+                                      (make-intermediate-inputs (inputs) 0)))
                           ;;; then, we tick the clock with the inputs set to symbolic values.
                           (apply append
                                  (map (lambda (iter)
