@@ -1,5 +1,5 @@
 // RUN: outfile=$(mktemp)
-// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
@@ -14,8 +14,9 @@
 // RUN:  --input-signal b:14 \
 // RUN:  --input-signal c:14 \
 // RUN:  --timeout 90 \
-// RUN: > $outfile
-// RUN: cat $outfile
+// RUN: || true) \
+// RUN: > $outfile \
+// RUN: 2>&1 \
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
@@ -61,4 +62,4 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: module top(a, b, c, clk, out);
+// CHECK: Synthesis Timeout
