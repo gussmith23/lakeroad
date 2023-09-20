@@ -39,7 +39,6 @@
 // RUN:    --verilator_extra_arg='-Wno-PINMISSING' \
 // RUN:    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
-// RUN: --testbench_stdout_log_filepath tmp.txt \
 // RUN:    --verilator_extra_arg='-Wno-WIDTH'; \
 // RUN: fi
 
