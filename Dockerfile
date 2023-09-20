@@ -103,7 +103,6 @@ ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
 
 # Install raco (Racket) dependencies. 
 WORKDIR /root
-ADD rosette/ rosette/
 ARG FMT_COMMIT_HASH=bd44477
 RUN \
   # First, fix https://github.com/racket/racket/issues/2691 by building the
