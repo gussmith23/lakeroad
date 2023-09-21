@@ -161,7 +161,10 @@
 (match (solver)
   ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (hash ':seed (seed))))]
   ["cvc4" (current-solver (cvc4 #:logic 'QF_BV #:options (hash ':seed (seed))))]
-  ["bitwuzla" (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ;;; TODO(@gussmith23): Make it possible to set options from the command line; remove
+  ;;; PP_ELIM_BV_EXTRACTS as a default.
+  ["bitwuzla"
+   (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed) ':PP_ELIM_BV_EXTRACTS 1)))]
   ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (hash ':seed (seed))))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
