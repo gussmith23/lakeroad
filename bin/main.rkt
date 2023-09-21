@@ -149,13 +149,21 @@
   v
   "Name of an input signal to the module in the format `<name>:<bw` e.g. `a:8` This flag can be"
   " specified multiple times. This currently only needs to be specified for sequential synthesis."
-  ;;; Parse --input arg: split <name>:<bw> into name and bw, construct Rosette symbolic input.
-  (let* ([splits (string-split v ":")] [name (first splits)] [bw (string->number (second splits))])
-    (when (not (equal? 2 (length splits)))
+  ;;; Parse --input arg: split <id>:<name>:<bw> into name and bw, construct Rosette symbolic input.
+  
+  ;;; (let* ([splits (string-split v ":")] [name (first splits)] [bw (string->number (second splits))])
+  ;;;   (when (not (equal? 2 (length splits)))
+  ;;;     (error (format "Invalid input signal specification: ~a" v)))
+  ;;;   (when (assoc name (inputs))
+  ;;;     (error "Signal " name " already present; did you duplicate an --input?"))
+  ;;;   (inputs (append (inputs) (list (cons name bw)))))
+  (let* ([splits (string-split v ":")] [id (car splits)] [name (cadr splits)] [bw (string->number (caddr splits))])
+    (when (not (equal? 3 (length splits)))
       (error (format "Invalid input signal specification: ~a" v)))
     (when (assoc name (inputs))
       (error "Signal " name " already present; did you duplicate an --input?"))
-    (inputs (append (inputs) (list (cons name bw)))))])
+    (inputs (append (inputs) (list (list id name bw)))))
+    ])
 
 ;;; Set solver.
 (match (solver)
@@ -260,6 +268,7 @@
 (define sketch-generator
   (match (template)
     ["dsp" single-dsp-sketch-generator]
+    ["parallel-dsp" parallel-dsp-sketch-generator]
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
@@ -310,7 +319,8 @@
 
 (define sketch-inputs
   (make-sketch-inputs #:output-width output-bitwidth
-                      #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
+                      ;;; #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
+                      #:data (map (lambda (p) (cons (first p) (list (lr:var (second p) (third p)) (third p)))) (inputs))
                       #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
                       #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
@@ -331,7 +341,7 @@
             [input-values
              (map (λ (p)
                     (match p
-                      [(cons name bw)
+                      [(list id name bw)
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
                   (inputs))]
 
@@ -340,7 +350,7 @@
              (lambda (inputs iter)
                (map (λ (p)
                       (match p
-                        [(cons name bw)
+                        [(list id name bw)
                          (cons name (bv->signal (constant (list name "iter" iter) (bitvector bw))))]))
                     inputs))]
 

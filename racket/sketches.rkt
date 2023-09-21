@@ -29,6 +29,7 @@
          multiplication-sketch-generator
          shift-sketch-generator
          single-dsp-sketch-generator
+         parallel-dsp-sketch-generator
          make-sketch-inputs)
 
 (require "architecture-description.rkt"
@@ -61,7 +62,8 @@
 ;;; - data: (listof (cons lr-expr int)): the exprs and bitwidths of the data inputs.
 (struct sketch-inputs (output-width clk rst data) #:transparent)
 (define (make-sketch-inputs #:output-width output-width #:data data #:clk [clk #f] #:rst [rst #f])
-  (sketch-inputs output-width clk rst data))
+  (begin
+  (sketch-inputs output-width clk rst data)))
 
 ;;; Simple helper to generate an architecture-specific sketch for the given bitvector expression.
 (define (generate-sketch sketch-generator architecture-description bv-expr)
@@ -205,6 +207,10 @@
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
        ;;; Unpack clk and rst signals; default to 0 if neither is set.
+       [test (displayln "INPUTS ARE HERE")]
+       [test2 (displayln inputs)]
+       [test4 (displayln (sketch-inputs-data inputs))]
+       [test3 (displayln (assoc "c" (sketch-inputs-data inputs)))]
        [clk-expr (if (sketch-inputs-clk inputs)
                      (car (sketch-inputs-clk inputs))
                      (lr:bv (bv->signal (bv 0 1))))]
@@ -259,6 +265,115 @@
                  (cons (lr:bv (bv->signal (bv 0 1))) 1)
                  (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
 
+       [out-expr
+        (choose
+         (make-dsp-expr internal-data
+                        (sketch-inputs-output-width inputs)
+                        clk-expr
+                        rst-expr
+                        a-expr
+                        a-bw
+                        b-expr
+                        b-bw
+                        c-expr
+                        c-bw
+                        d-expr
+                        d-bw)
+         ;;(make-dsp-expr internal-data out-width (car clk-input) (car rst-input) a-expr a-bw c-expr c-bw b-expr b-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw a-expr a-bw c-expr c-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw c-expr c-bw a-expr a-bw)
+         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) c-expr c-bw b-expr b-bw a-expr a-bw)
+         ;;;    (make-dsp-expr internal-data
+         ;;; out-width
+         ;;; (car clk-input)
+         ;;; (car rst-input) c-expr
+         ;;; c-bw
+         ;;; a-expr
+         ;;; a-bw
+         ;;; b-expr
+         ;;; b-bw)
+         )])
+    (list out-expr internal-data)))
+
+(define (parallel-dsp-sketch-generator architecture-description
+                                     inputs
+                                     #:internal-data [internal-data #f])
+  (match-let*
+      ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+       ;;; Unpack clk and rst signals; default to 0 if neither is set.
+      ;;;  [test (displayln "INPUTS ARE HERE parallel")]
+      ;;;  [test2 (displayln inputs)]
+      ;;;  [test4 (displayln (sketch-inputs-data inputs))]
+      ;;;  [test3 (displayln (assoc "c" (sketch-inputs-data inputs)))]
+       [clk-expr (if (sketch-inputs-clk inputs)
+                     (car (sketch-inputs-clk inputs))
+                     (lr:bv (bv->signal (bv 0 1))))]
+       [rst-expr (if (sketch-inputs-rst inputs)
+                     (car (sketch-inputs-rst inputs))
+                     (lr:bv (bv->signal (bv 0 1))))]
+
+       [make-dsp-expr (lambda (internal-data out-width
+                                             clk-expr
+                                             rst-expr
+                                             a-expr
+                                             a-width
+                                             b-expr
+                                             b-width
+                                             c-expr
+                                             c-width
+                                             d-expr
+                                             d-width)
+                        (match-define (list dsp-expr ignored-internal-data)
+                          (construct-interface architecture-description
+                                               (interface-identifier "DSP"
+                                                                     (hash "out-width"
+                                                                           out-width
+                                                                           "a-width"
+                                                                           a-width
+                                                                           "b-width"
+                                                                           b-width
+                                                                           "c-width"
+                                                                           c-width
+                                                                           "d-width"
+                                                                           d-width))
+                                               (list (cons "clk" clk-expr)
+                                                     (cons "rst" rst-expr)
+                                                     (cons "A" a-expr)
+                                                     (cons "B" b-expr)
+                                                     (cons "C" c-expr)
+                                                     (cons "D" d-expr))
+                                               #:internal-data internal-data))
+                        ;;; Ignoring internal data for now, but we could use it in the future.
+                        ;(list (lr:hash-ref dsp-expr 'O) internal-data)
+                        (lr:hash-ref dsp-expr 'O))]
+       ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
+       ;;; give C.
+       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw) (cons d-expr d-bw))
+        (match (sketch-inputs-data inputs)
+          [(list a-tuple b-tuple c-tuple d-tuple) (list a-tuple b-tuple c-tuple d-tuple)]
+          [(list a-tuple b-tuple c-tuple)
+           (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (bv 0 1))) 1))]
+          [(list a-tuple b-tuple)
+           (list a-tuple
+                 b-tuple
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
+       [(list a-expr a-bw) (if (assoc "a" (sketch-inputs-data inputs))
+             (list (second (assoc "a" (sketch-inputs-data inputs))) 
+                   (third (assoc "a" (sketch-inputs-data inputs))))
+             (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
+       [(list b-expr b-bw) (if (assoc "b" (sketch-inputs-data inputs))
+             (list (second (assoc "b" (sketch-inputs-data inputs))) 
+                   (third (assoc "b" (sketch-inputs-data inputs))))
+             (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
+       [(list c-expr c-bw) (if (assoc "c" (sketch-inputs-data inputs))
+             (list (second (assoc "c" (sketch-inputs-data inputs))) 
+                   (third (assoc "c" (sketch-inputs-data inputs))))
+             (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
+       [(list d-expr d-bw) (if (assoc "d" (sketch-inputs-data inputs))
+             (list (second (assoc "d" (sketch-inputs-data inputs))) 
+                   (third (assoc "d" (sketch-inputs-data inputs))))
+             (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
        [out-expr
         (choose
          (make-dsp-expr internal-data

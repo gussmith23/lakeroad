@@ -298,7 +298,7 @@ if __name__ == "__main__":
         args.obj_dir_dir = tmp_dir.name
 
     # Parse something like <signal_name>:<bitwidth> into a tuple.
-    parse_signal_str = lambda x: (str(x.split(":")[0]), int(x.split(":")[1]))
+    parse_signal_str = lambda x: (str(x.split(":")[1]), int(x.split(":")[2]))
 
     simulate_with_verilator(
         obj_dir_dir=args.obj_dir_dir,
