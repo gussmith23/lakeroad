@@ -129,7 +129,7 @@ def preprocess_flatten_convert_verilog(
             # -simcheck runs checks like -check, but also checks that there are no blackboxes.
             f"hierarchy -simcheck -top {top}",
             "prep",
-            "flatten",
+            f"flatten {top}",
             # Jannis Harder suggested this optimization to kill some remaining
             # undefined values from case statements/muxes.
             "pmuxtree; opt_muxtree",
