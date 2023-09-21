@@ -64,6 +64,8 @@ ENV PATH="/root/.local/bin:${PATH}"
 #
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
+#
+# TODO(@gussmith23): Could shrink Docker image by deleting unneeded binaries.
 WORKDIR /root
 RUN if [ "$(uname -m)" = "x86_64" ] ; then \
   wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-08-06/oss-cad-suite-linux-x64-20230806.tgz -q -O oss-cad-suite.tgz; \
@@ -89,9 +91,10 @@ RUN pip install -r requirements.txt
 # Build latest bitwuzla.
 WORKDIR /root
 ARG MAKE_JOBS=2
+ARG BITWUZLA_COMMIT_HASH=80a6041152d131af55f4afcf88707352f277b861
 RUN git clone https://github.com/bitwuzla/bitwuzla \
   && cd bitwuzla \
-  && git checkout 80a6041152d131af55f4afcf88707352f277b861 \
+  && git checkout ${BITWUZLA_COMMIT_HASH} \
   && ./configure.py \
   && cd build \
   && ninja -j${MAKE_JOBS}
@@ -99,14 +102,24 @@ RUN git clone https://github.com/bitwuzla/bitwuzla \
 # to make sure this one takes precedence.
 ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
 
-# Install raco (Racket) dependencies. First, fix
-# https://github.com/racket/racket/issues/2691 by building the docs.
+# Install raco (Racket) dependencies. 
 WORKDIR /root
-RUN raco setup --doc-index --force-user-docs \
+ARG FMT_COMMIT_HASH=bd44477
+RUN \
+  # First, fix https://github.com/racket/racket/issues/2691 by building the
+  # docs.
+  raco setup --doc-index --force-user-docs \
+  # Install packages.
   && raco pkg install --deps search-auto --batch \
   rosette \
-  fmt \
-  yaml
+  yaml \
+  # Install fmt directly from GitHub. This prevents the version from changing on
+  # us unexpectedly.
+  && cd /root \
+  && git clone https://github.com/sorawee/fmt \
+  && cd fmt \
+  && git checkout ${FMT_COMMIT_HASH} \
+  && raco pkg install --deps search-auto --batch
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
