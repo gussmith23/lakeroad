@@ -377,10 +377,14 @@
                                                   "input_source_b")))
                                (intel-altmult-accum-enum-val-to-str
                                 (module-instance-parameter-value param))]
-                              [(and (equal? module-name "cyclone10lp_mac_mult")
+                              [(or (and (equal? module-name "cyclone10lp_mac_out")
+                                        (member (module-instance-parameter-name param)
+                                                (list "output_clock")))
+                                   (and
+                                    (equal? module-name "cyclone10lp_mac_mult")
                                     (member
                                      (module-instance-parameter-name param)
-                                     (list "dataa_clock" "datab_clock" "signa_clock" "signb_clock")))
+                                     (list "dataa_clock" "datab_clock" "signa_clock" "signb_clock"))))
                                (intel-cyclone10lp-enum-val-to-str
                                 (module-instance-parameter-value param))]
 

@@ -12,6 +12,7 @@ implementations:
       datab_clock: 1
       signa_clock: 1
       signb_clock: 1
+      out_clock: 1
     constraints: []
     modules:
       - module_name: cyclone10lp_mac_mult
@@ -39,4 +40,21 @@ implementations:
           {name: signa_clock, value: signa_clock},
           {name: signb_clock, value: signb_clock},
         ]
-    outputs: { O : (get cyclone10lp_mac_mult dataout) }
+      - module_name: cyclone10lp_mac_out
+        instance_name: cyclone10lp_mac_out
+        filepath: unused
+        racket_import_filepath: unused
+
+        ports: [
+          { name: aclr, direction: input, bitwidth: 1, value: (bv 0 1) },
+          { name: ena, direction: input, bitwidth: 1, value: (bv 1 1) },
+          { name: devclrn, direction: input, bitwidth: 1, value: (bv 1 1) },
+          { name: devpor, direction: input, bitwidth: 1, value: (bv 1 1) },
+          { name: clk, direction: input, bitwidth: 1, value: clk },
+          { name: dataa, direction: input, bitwidth: 36, value: (get cyclone10lp_mac_mult dataout) },
+          { name: dataout, direction: output, bitwidth: 36, value: unused },
+        ]
+        parameters: [
+          {name: output_clock, value: (bv 0 1)},
+        ]
+    outputs: { O : (get cyclone10lp_mac_out dataout) }

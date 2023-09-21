@@ -23,6 +23,7 @@
          "../racket/generated/lattice-ecp5-alu54a.rkt"
          "../racket/generated/intel-altmult-accum.rkt"
          "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
+         "../racket/generated/intel-cyclone10lp-mac-out.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -310,7 +311,8 @@
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     ["intel" (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))]
     ["intel-cyclone10lp"
-     (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult))]
+     (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
+           (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
