@@ -97,3 +97,16 @@
 (check (HasType v3 (Bitvector 16)))
 (check (HasType v0 (Bitvector 16)))
 (check (HasType dout (Bitvector 16)))
+
+;;; Run sketch proposal rewrites.
+(run sketch-proposal 100)
+(run typing 100)
+(run misc 100)
+(run sketch-proposal 100)
+(run typing 100)
+(run misc 100)
+(run sketch-proposal 100)
+(run typing 100)
+(run misc 100)
+
+(extract dout)
