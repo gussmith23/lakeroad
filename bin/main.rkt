@@ -22,6 +22,8 @@
          "../racket/generated/lattice-ecp5-alu24b.rkt"
          "../racket/generated/lattice-ecp5-alu54a.rkt"
          "../racket/generated/intel-altmult-accum.rkt"
+         "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
+         "../racket/generated/intel-cyclone10lp-mac-out.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -41,6 +43,7 @@
                       [(or "lattice-ecp5") v]
                       [(or "sofa") v]
                       ["intel" v]
+                      ["intel-cyclone10lp" v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -161,7 +164,10 @@
 (match (solver)
   ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (hash ':seed (seed))))]
   ["cvc4" (current-solver (cvc4 #:logic 'QF_BV #:options (hash ':seed (seed))))]
-  ["bitwuzla" (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ;;; TODO(@gussmith23): Make it possible to set options from the command line; remove
+  ;;; PP_ELIM_BV_EXTRACTS as a default.
+  ["bitwuzla"
+   (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed) ':PP_ELIM_BV_EXTRACTS 1)))]
   ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (hash ':seed (seed))))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
@@ -275,6 +281,9 @@
     ["lattice-ecp5" (lattice-ecp5-architecture-description)]
     ["sofa" (sofa-architecture-description)]
     ["intel" (intel-architecture-description)]
+    ["intel-cyclone10lp"
+     (parse-architecture-description-file
+      (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -304,6 +313,9 @@
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     ["intel" (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))]
+    ["intel-cyclone10lp"
+     (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
+           (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -351,7 +363,8 @@
             ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
             ;;; First, we tick the clock with the inputs set to their input values.
             [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
-                                (cons (cons (clock-name) (bv->signal (bv 1 1))) input-values))
+                                (cons (cons (clock-name) (bv->signal (bv 1 1)))
+                                      (make-intermediate-inputs (inputs) 0)))
                           ;;; then, we tick the clock with the inputs set to symbolic values.
                           (apply append
                                  (map (lambda (iter)
