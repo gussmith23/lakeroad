@@ -10,7 +10,7 @@
   ; (Mux select-expr expr expr)
   (Mux))
 
-; Our language. Note that we do not explicitly use IDs as in Zach's
+; Our language. Note that we do not explicitly use IDs as in the Lakeroad paper
 ; formalization. The IDs are still there, though: they're the 
 ; eclass IDs!
 (datatype Expr
