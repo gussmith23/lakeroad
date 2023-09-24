@@ -10,6 +10,10 @@
   ; (Mux select-expr expr expr)
   (Mux))
 
+; Sketch Ops
+(datatype SketchOp
+  (LUT4))
+
 ; Our language. Note that we do not explicitly use IDs as in the Lakeroad paper
 ; formalization. The IDs are still there, though: they're the 
 ; eclass IDs!
@@ -34,7 +38,16 @@
   ; (Concat expr expr)
   (Concat Expr Expr)
   ; (ZeroExtend expr bitwidth)
-  (ZeroExtend Expr i64))
+  (ZeroExtend Expr i64)
+  
+  ; (Sketch sketch-id input-expr...)
+  ; A sketch node. This is a proposal for a potential expression, that will
+  ; need to be solved for/made concrete later on.
+  (Sketch1 SketchOp Expr)
+  (Sketch2 SketchOp Expr Expr)
+  (Sketch3 SketchOp Expr Expr Expr)
+  (Sketch4 SketchOp Expr Expr Expr Expr)
+  )
 
 ;;; Types for Lakeroad expressions.
 (datatype Type
@@ -101,3 +114,37 @@
   ((ZeroExtend expr bitwidth))
   ((HasType (ZeroExtend expr bitwidth) (Bitvector bitwidth)))
   :ruleset typing)
+
+
+;;; LUT sketch proposal rewrites.
+(ruleset sketch-proposal)
+(rule 
+  ((Op1 op e) (HasType (Op1 op e) (Bitvector 1)) (HasType e (Bitvector n)) (<= n 4))
+  ((union (Op1 op e) (Sketch1 (LUT4) e)))
+  :ruleset sketch-proposal)
+(rule 
+  ((Op2 op e1 e2) (HasType (Op2 op e1 e2) (Bitvector 1)) (HasType e1 (Bitvector m)) (HasType e2 (Bitvector n)) (<= (+ m n) 4))
+  ((union (Op2 op e1 e2) (Sketch1 (LUT4) (Concat e1 e2))))
+  :ruleset sketch-proposal)
+(rule 
+  ((Op3 op e1 e2 e3) (HasType (Op3 op e1 e2 e3) (Bitvector 1)) (HasType e1 (Bitvector m)) (HasType e2 (Bitvector n)) (HasType e3 (Bitvector o)) (<= (+ (+ m n) o) 4))
+  ((union (Op3 op e1 e2 e3) (Sketch1 (LUT4) (Concat (Concat e1 e2) e3))))
+  :ruleset sketch-proposal)
+
+
+;;; Misc rewrites.
+(ruleset misc)
+;;; Split up Mux op.
+;;; Given a multibit mux expr, split it up into one-bit mux exprs.
+(rule
+  ((Op3 (Mux) sel-expr a-expr b-expr)
+   (HasType sel-expr (Bitvector 1))
+   (HasType a-expr (Bitvector n))
+   (HasType b-expr (Bitvector n))
+   (> n 1))
+  ((union 
+    (Op3 (Mux) sel-expr a-expr b-expr)
+    (Concat 
+     (Op3 (Mux) sel-expr (Extract (- n 1) (- n 1) a-expr) (Extract (- n 1) (- n 1) b-expr))
+     (Op3 (Mux) sel-expr (Extract (- n 2) 0 a-expr) (Extract (- n 2) 0 b-expr)))))
+ :ruleset misc)
