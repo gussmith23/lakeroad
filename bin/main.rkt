@@ -417,7 +417,7 @@
      (define envs
        (list (map (λ (p)
                     (match p
-                      [(cons name bw)
+                      [(list id name bw)
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
                   (inputs))))
      (define input-symbolic-constants (symbolics envs))

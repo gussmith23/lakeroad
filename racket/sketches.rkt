@@ -301,10 +301,6 @@
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
        ;;; Unpack clk and rst signals; default to 0 if neither is set.
-      ;;;  [test (displayln "INPUTS ARE HERE parallel")]
-      ;;;  [test2 (displayln inputs)]
-      ;;;  [test4 (displayln (sketch-inputs-data inputs))]
-      ;;;  [test3 (displayln (assoc "c" (sketch-inputs-data inputs)))]
        [clk-expr (if (sketch-inputs-clk inputs)
                      (car (sketch-inputs-clk inputs))
                      (lr:bv (bv->signal (bv 0 1))))]
@@ -346,18 +342,6 @@
                         ;;; Ignoring internal data for now, but we could use it in the future.
                         ;(list (lr:hash-ref dsp-expr 'O) internal-data)
                         (lr:hash-ref dsp-expr 'O))]
-       ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
-       ;;; give C.
-       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw) (cons d-expr d-bw))
-        (match (sketch-inputs-data inputs)
-          [(list a-tuple b-tuple c-tuple d-tuple) (list a-tuple b-tuple c-tuple d-tuple)]
-          [(list a-tuple b-tuple c-tuple)
-           (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (bv 0 1))) 1))]
-          [(list a-tuple b-tuple)
-           (list a-tuple
-                 b-tuple
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
        [(list a-expr a-bw) (if (assoc "a" (sketch-inputs-data inputs))
              (list (second (assoc "a" (sketch-inputs-data inputs))) 
                    (third (assoc "a" (sketch-inputs-data inputs))))
@@ -374,35 +358,75 @@
              (list (second (assoc "d" (sketch-inputs-data inputs))) 
                    (third (assoc "d" (sketch-inputs-data inputs))))
              (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
-       [out-expr
-        (choose
-         (make-dsp-expr internal-data
-                        (sketch-inputs-output-width inputs)
-                        clk-expr
-                        rst-expr
-                        a-expr
-                        a-bw
-                        b-expr
-                        b-bw
-                        c-expr
-                        c-bw
-                        d-expr
-                        d-bw)
-         ;;(make-dsp-expr internal-data out-width (car clk-input) (car rst-input) a-expr a-bw c-expr c-bw b-expr b-bw)
-         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw a-expr a-bw c-expr c-bw)
-         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw c-expr c-bw a-expr a-bw)
-         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) c-expr c-bw b-expr b-bw a-expr a-bw)
-         ;;;    (make-dsp-expr internal-data
-         ;;; out-width
-         ;;; (car clk-input)
-         ;;; (car rst-input) c-expr
-         ;;; c-bw
-         ;;; a-expr
-         ;;; a-bw
-         ;;; b-expr
-         ;;; b-bw)
-         )])
-    (list out-expr internal-data)))
+      ;;;  [displ (displayln a-expr)]
+       [iterations (floor (/ c-bw 18))]
+       [mod (modulo c-bw 18)]
+       [testlist (for/list ([i iterations])
+                  i)]
+      ;;;  [displ (displayln testlist)]
+       [outputlist (for/list ([i iterations])
+                             (lr:extract (lr:integer 17) (lr:integer 0) (make-dsp-expr internal-data
+                              18
+                              clk-expr
+                              rst-expr
+                              (lr:extract (lr:integer (+ (* i 18) 17)) (lr:integer (* i 18)) a-expr)
+                              18
+                              b-expr
+                              b-bw 
+                              (lr:extract (lr:integer (+ (* i 18) 17)) (lr:integer (* i 18)) c-expr)
+                              18
+                              d-expr
+                              d-bw)))]
+       [fencepost  (lr:extract (lr:integer (- mod 1)) (lr:integer 0)
+                                  (make-dsp-expr internal-data
+                                  18
+                                  clk-expr
+                                  rst-expr
+                                  (lr:extract (lr:integer (+ (* iterations 18) (- mod 1))) (lr:integer (* iterations 18)) a-expr)
+                                  18
+                                  b-expr
+                                  b-bw
+                                  (lr:extract (lr:integer (+ (* iterations 18) (- mod 1))) (lr:integer (* iterations 18)) c-expr)
+                                  18
+                                  d-expr
+                                  d-bw))]
+       [output-list (if (> mod 0)
+                        (cons fencepost (reverse outputlist))
+                        (reverse outputlist))]
+       [output (lr:concat (lr:list output-list))]
+      ;;;  [out-expr
+      ;;;   (choose
+      ;;;    (make-dsp-expr internal-data
+      ;;;                   (sketch-inputs-output-width inputs)
+      ;;;                   clk-expr
+      ;;;                   rst-expr
+      ;;;                   (lr:extract (lr:integer 17) (lr:integer 0) a-expr)
+      ;;;                   18 
+      ;;;                   b-expr
+      ;;;                   b-bw
+      ;;;                   (lr:extract (lr:integer 17) (lr:integer 0) c-expr)
+      ;;;                   18
+      ;;;                   d-expr
+      ;;;                   d-bw)
+      ;;;    )]
+      ;;;  [out-expr2
+      ;;;   (choose
+      ;;;    (make-dsp-expr internal-data
+      ;;;                   (sketch-inputs-output-width inputs)
+      ;;;                   clk-expr
+      ;;;                   rst-expr
+      ;;;                   (lr:extract (lr:integer 35) (lr:integer 18) a-expr)
+      ;;;                   18
+      ;;;                   b-expr
+      ;;;                   b-bw
+      ;;;                   (lr:extract (lr:integer 35) (lr:integer 18) c-expr)
+      ;;;                   18
+      ;;;                   d-expr
+      ;;;                   d-bw)
+      ;;;    )]
+      ;;;  [combined (lr:concat (lr:list (list (lr:extract (lr:integer 17) (lr:integer 0) out-expr2) (lr:extract (lr:integer 17) (lr:integer 0) out-expr) ) ))]
+       )
+    (list output internal-data)))
 
 ;;; Bitwise with carry sketch generator.
 ;;;
