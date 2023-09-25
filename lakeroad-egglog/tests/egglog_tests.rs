@@ -27,6 +27,11 @@ macro_rules! egglog_test {
 
 egglog_test!(test_1, "tests/egglog_tests/construct_sequential_cycle.egg");
 egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
+    // TODO(@gussmith23): Remove this.
+    let serialized = egraph.serialize_for_graphviz();
+    let svg_path = Path::new("tmp.svg");
+    serialized.to_svg_file(svg_path).unwrap();
+
     let report = egraph
         .get_extract_report()
         .as_ref()
@@ -40,9 +45,5 @@ egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
         "Cost >= 100000000. Presumably we extracted an Op."
     );
     dbg!(cost);
-
-    let serialized = egraph.serialize_for_graphviz();
-    let svg_path = Path::new("tmp.svg");
-    serialized.to_svg_file(svg_path).unwrap();
 });
 egglog_test!(typing, "tests/egglog_tests/typing.egg");
