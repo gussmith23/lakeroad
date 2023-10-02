@@ -152,3 +152,9 @@
      (Op3 (Mux) sel-expr (Extract (- n 1) (- n 1) a-expr) (Extract (- n 1) (- n 1) b-expr))
      (Op3 (Mux) sel-expr (Extract (- n 2) 0 a-expr) (Extract (- n 2) 0 b-expr)))))
  :ruleset rewrites)
+
+; Simplify nested extracts.
+(rewrite 
+  (Extract hi1 lo1 (Extract hi0 lo0 expr))
+  (Extract (+ (+ lo0 lo1) (- hi1 lo1)) (+ lo0 lo1) expr)
+  :ruleset rewrites)
