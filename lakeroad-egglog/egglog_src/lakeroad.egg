@@ -158,3 +158,12 @@
   (Extract hi1 lo1 (Extract hi0 lo0 expr))
   (Extract (+ (+ lo0 lo1) (- hi1 lo1)) (+ lo0 lo1) expr)
   :ruleset rewrites)
+
+; Simplify Concats of contiguous Extracts.
+(rule 
+  ((Concat (Extract hi1 lo1 expr) (Extract hi0 lo0 expr))
+   (= lo1 (+ hi0 1)))
+  ((union 
+    (Concat (Extract hi1 lo1 expr) (Extract hi0 lo0 expr))
+    (Extract hi1 lo0 expr)))
+ :ruleset rewrites)
