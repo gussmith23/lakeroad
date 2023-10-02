@@ -36,14 +36,20 @@ egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
         .get_extract_report()
         .as_ref()
         .expect("no extract report");
-    let cost = match report {
-        &Best { cost, .. } => cost,
+    let (cost, _term_dag, _term) = match &report {
+        Best {
+            cost,
+            termdag,
+            term,
+        } => (cost, termdag, term),
         _ => panic!("Expected [`Best`]"),
     };
     assert!(
-        cost < 100000000,
+        *cost < 100000000,
         "Cost >= 100000000. Presumably we extracted an Op."
     );
-    dbg!(cost);
+    assert!(*cost <= 1348, "Regression; last recorded best was 1348.");
+    // dbg!(cost);
+    // dbg!(_term_dag.to_string(_term));
 });
 egglog_test!(typing, "tests/egglog_tests/typing.egg");
