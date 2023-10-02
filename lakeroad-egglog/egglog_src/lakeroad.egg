@@ -167,3 +167,26 @@
     (Concat (Extract hi1 lo1 expr) (Extract hi0 lo0 expr))
     (Extract hi1 lo0 expr)))
  :ruleset rewrites)
+
+ ; Simplify Extracts of Concats.
+(rule 
+  ((Extract hi lo (Concat e1 e0))
+   (HasType e0 (Bitvector bw0))
+   (HasType e1 (Bitvector bw1))
+   ;;; Check that the extract is only extracting from e1.
+   (< hi (+ bw0 bw1))
+   (>= lo bw0))
+  ((union 
+    (Extract hi lo (Concat e1 e0))
+    (Extract (- hi bw0) (- lo bw0) e1)))
+ :ruleset rewrites)
+(rule 
+  ((Extract hi lo (Concat e1 e0))
+   (HasType e0 (Bitvector bw0))
+   (HasType e1 (Bitvector bw1))
+   ;;; Check that the extract is only extracting from e0.
+   (< hi bw0))
+  ((union 
+    (Extract hi lo (Concat e1 e0))
+    (Extract hi lo e0)))
+ :ruleset rewrites)
