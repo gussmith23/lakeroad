@@ -51,5 +51,7 @@ egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
     assert!(*cost <= 1348, "Regression; last recorded best was 1348.");
     // dbg!(cost);
     // dbg!(_term_dag.to_string(_term));
+
+    dbg!(lakeroad_egglog::to_verilog(_term_dag, _term));
 });
 egglog_test!(typing, "tests/egglog_tests/typing.egg");
