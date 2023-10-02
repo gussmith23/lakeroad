@@ -85,10 +85,7 @@
 (delete (Wire "v9" 16))
 (delete (Wire "v10" 16))
 
-;;; TODO(@gussmith23): This should go back to running just the typing rules
-;;; once https://github.com/egraphs-good/egglog/issues/246 is resolved.
-;(run typing 100)
-(run rewrites 100)
+(run typing 100)
 
 ; Check a bunch of types.
 (check (HasType v4 (Bitvector 1)))
@@ -103,7 +100,11 @@
 (check (HasType v0 (Bitvector 16)))
 (check (HasType dout (Bitvector 16)))
 
-;;; Run sketch proposal rewrites.
-(run rewrites 100)
+;;; Run all rewrites to propose LUT mapping.
+(run-schedule 
+  (repeat 100
+    (saturate typing) 
+    (saturate sketch-proposal)
+    (saturate misc))) 
 
 (extract dout)

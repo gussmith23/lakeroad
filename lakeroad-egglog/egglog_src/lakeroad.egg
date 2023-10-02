@@ -58,86 +58,82 @@
 (relation HasType (Expr Type))
 
 ;;; Typing judgements.
-;;; TODO(@gussmith23): Can separate these into different rulesets once
-;;; https://github.com/egraphs-good/egglog/issues/246
-;;; is resolved.
-;(ruleset typing)
-(ruleset rewrites)
+(ruleset typing)
 (rule
   ((Var name bw))
   ((HasType (Var name bw) (Bitvector bw)))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((BV name bw))
   ((HasType (BV name bw) (Bitvector bw)))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((Reg default clk-expr d-expr)
    ; Currently require clock to be one bit.
    (HasType clk-expr (Bitvector 1))
    (HasType d-expr (Bitvector bw)))
   ((HasType (Reg default clk-expr d-expr) (Bitvector bw)))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((Op2 (And) a-expr b-expr)
    (HasType a-expr (Bitvector bw))
    (HasType b-expr (Bitvector bw)))
   ((HasType (Op2 (And) a-expr b-expr) (Bitvector bw)))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((Op2 (Or) a-expr b-expr)
    (HasType a-expr (Bitvector bw))
    (HasType b-expr (Bitvector bw)))
   ((HasType (Op2 (Or) a-expr b-expr) (Bitvector bw)))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((Op2 (Eq) a-expr b-expr)
    (HasType a-expr (Bitvector bw))
    (HasType b-expr (Bitvector bw)))
   ((HasType (Op2 (Eq) a-expr b-expr) (Bitvector 1)))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((Op3 (Mux) sel-expr a-expr b-expr)
    (HasType sel-expr (Bitvector 1))
    (HasType a-expr (Bitvector bw))
    (HasType b-expr (Bitvector bw)))
   ((HasType (Op3 (Mux) sel-expr a-expr b-expr) (Bitvector bw)))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((Concat a-expr b-expr)
    (HasType a-expr (Bitvector m))
    (HasType b-expr (Bitvector n)))
   ((HasType (Concat a-expr b-expr) (Bitvector (+ m n))))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((Extract high low expr)
    (HasType expr (Bitvector n)))
   ((HasType (Extract high low expr) (Bitvector (+ 1 (- high low)))))
-  :ruleset rewrites)
+  :ruleset typing)
 (rule
   ((ZeroExtend expr bitwidth))
   ((HasType (ZeroExtend expr bitwidth) (Bitvector bitwidth)))
-  :ruleset rewrites)
+  :ruleset typing)
 
 
 ;;; LUT sketch proposal rewrites.
-;(ruleset sketch-proposal)
+(ruleset sketch-proposal)
 (rule 
   ((Op1 op e) (HasType (Op1 op e) (Bitvector 1)) (HasType e (Bitvector n)) (<= n 4))
   ((union (Op1 op e) (Sketch1 (LUT4) e)))
-  :ruleset rewrites)
+  :ruleset sketch-proposal)
 (rule 
   ((Op2 op e1 e2) (HasType (Op2 op e1 e2) (Bitvector 1)) (HasType e1 (Bitvector m)) (HasType e2 (Bitvector n)) (<= (+ m n) 4))
   ((union (Op2 op e1 e2) (Sketch1 (LUT4) (Concat e1 e2))))
-  :ruleset rewrites)
+  :ruleset sketch-proposal)
 (rule 
   ((Op3 op e1 e2 e3) (HasType (Op3 op e1 e2 e3) (Bitvector 1)) (HasType e1 (Bitvector m)) (HasType e2 (Bitvector n)) (HasType e3 (Bitvector o)) (<= (+ (+ m n) o) 4))
   ((union (Op3 op e1 e2 e3) (Sketch1 (LUT4) (Concat (Concat e1 e2) e3))))
-  :ruleset rewrites)
+  :ruleset sketch-proposal)
 
 
 ;;; Misc rewrites.
-;(ruleset misc)
+(ruleset misc)
 ;;; Split up Mux op.
 ;;; Given a multibit mux expr, split it up into one-bit mux exprs.
 (rule
@@ -151,13 +147,13 @@
     (Concat 
      (Op3 (Mux) sel-expr (Extract (- n 1) (- n 1) a-expr) (Extract (- n 1) (- n 1) b-expr))
      (Op3 (Mux) sel-expr (Extract (- n 2) 0 a-expr) (Extract (- n 2) 0 b-expr)))))
- :ruleset rewrites)
+ :ruleset misc)
 
 ; Simplify nested extracts.
 (rewrite 
   (Extract hi1 lo1 (Extract hi0 lo0 expr))
   (Extract (+ (+ lo0 lo1) (- hi1 lo1)) (+ lo0 lo1) expr)
-  :ruleset rewrites)
+  :ruleset misc)
 
 ; Simplify Concats of contiguous Extracts.
 (rule 
@@ -166,7 +162,7 @@
   ((union 
     (Concat (Extract hi1 lo1 expr) (Extract hi0 lo0 expr))
     (Extract hi1 lo0 expr)))
- :ruleset rewrites)
+ :ruleset misc)
 
  ; Simplify Extracts of Concats.
 (rule 
@@ -179,7 +175,7 @@
   ((union 
     (Extract hi lo (Concat e1 e0))
     (Extract (- hi bw0) (- lo bw0) e1)))
- :ruleset rewrites)
+ :ruleset misc)
 (rule 
   ((Extract hi lo (Concat e1 e0))
    (HasType e0 (Bitvector bw0))
@@ -189,4 +185,4 @@
   ((union 
     (Extract hi lo (Concat e1 e0))
     (Extract hi lo e0)))
- :ruleset rewrites)
+ :ruleset misc)
