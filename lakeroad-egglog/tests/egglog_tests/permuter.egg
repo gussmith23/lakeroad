@@ -1,3 +1,5 @@
+; This file comes from an example permuter design given to us by Intel.
+
 (include "egglog_src/lakeroad.egg")
 
 ; wire declarations
@@ -83,7 +85,10 @@
 (delete (Wire "v9" 16))
 (delete (Wire "v10" 16))
 
-(run typing 100)
+;;; TODO(@gussmith23): This should go back to running just the typing rules
+;;; once https://github.com/egraphs-good/egglog/issues/246 is resolved.
+;(run typing 100)
+(run rewrites 100)
 
 ; Check a bunch of types.
 (check (HasType v4 (Bitvector 1)))
@@ -99,14 +104,6 @@
 (check (HasType dout (Bitvector 16)))
 
 ;;; Run sketch proposal rewrites.
-(run sketch-proposal 100)
-(run typing 100)
-(run misc 100)
-(run sketch-proposal 100)
-(run typing 100)
-(run misc 100)
-(run sketch-proposal 100)
-(run typing 100)
-(run misc 100)
+(run rewrites 100)
 
 (extract dout)
