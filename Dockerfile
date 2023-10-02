@@ -88,13 +88,11 @@ WORKDIR /root/lakeroad
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-# Build latest bitwuzla.
+# Build Bitwuzla from version tracked in submodule.
 WORKDIR /root
 ARG MAKE_JOBS=2
-ARG BITWUZLA_COMMIT_HASH=80a6041152d131af55f4afcf88707352f277b861
-RUN git clone https://github.com/bitwuzla/bitwuzla \
-  && cd bitwuzla \
-  && git checkout ${BITWUZLA_COMMIT_HASH} \
+ADD bitwuzla bitwuzla
+RUN cd bitwuzla \
   && ./configure.py \
   && cd build \
   && ninja -j${MAKE_JOBS}
