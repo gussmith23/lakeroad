@@ -10,9 +10,11 @@
 // RUN:  --initiation-interval 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name top \
-// RUN:  --input-signal a:a:18 \
-// RUN:  --input-signal c:b:18 \
+// RUN:  --input-signal "a:(extract 17 0 (port a 18)):18" \
+// RUN:  --input-signal "c:(extract 17 0 (port b 18)):18" \
 // RUN:  --timeout 90 \
+// RUN:  --port a:18 \
+// RUN:  --port b:18 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \

@@ -363,11 +363,11 @@
                            i)]
                [outputlist (for/list ([i iterations])
                              (lr:extract
-                              (lr:integer 17)
+                              (lr:integer (- (sketch-inputs-output-width inputs) 1))
                               (lr:integer 0)
                               (make-dsp-expr
                                internal-data
-                               18
+                               (sketch-inputs-output-width inputs)
                                clk-expr
                                rst-expr
                                (lr:extract (lr:integer (+ (* i 18) 17)) (lr:integer (* i 18)) a-expr)

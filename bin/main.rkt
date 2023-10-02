@@ -70,6 +70,15 @@
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
 (define seed (make-parameter 0))
+(define ports (make-parameter '()))
+
+(define (parse-dsl expr-str)
+  (define expr (read (open-input-string expr-str)))
+  (define (recursive-helper expr)
+    (match expr
+      [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
+      [`(port ,(? symbol? sym) ,width) (lr:var (symbol->string sym) width)]))
+  (recursive-helper expr))
 
 (command-line
  #:program "lakeroad"
@@ -145,26 +154,26 @@
   " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)]
+ [("--port")
+  v
+  "Name of a verilog port"
+  (let* ([splits (string-split v ":")] [port (first splits)] [bw (string->number (second splits))])
+    (ports (append (ports) (list (list port bw)))))]
  [("--input-signal")
   v
   "Name of an input signal to the module in the format `<name>:<bw` e.g. `a:8` This flag can be"
   " specified multiple times. This currently only needs to be specified for sequential synthesis."
-  ;;; Parse --input arg: split <id>:<name>:<bw> into name and bw, construct Rosette symbolic input.
-  
-  ;;; (let* ([splits (string-split v ":")] [name (first splits)] [bw (string->number (second splits))])
-  ;;;   (when (not (equal? 2 (length splits)))
-  ;;;     (error (format "Invalid input signal specification: ~a" v)))
-  ;;;   (when (assoc name (inputs))
-  ;;;     (error "Signal " name " already present; did you duplicate an --input?"))
-  ;;;   (inputs (append (inputs) (list (cons name bw)))))
-  (let* ([splits (string-split v ":")] [id (car splits)] [name (cadr splits)] [bw (string->number (caddr splits))])
+  ;;; Parse --input arg: split <id>:<expr>:<bw> into interface-id, expression to be mapped to
+  ;;; interface, and bw, construct Rosette symbolic input.
+  (let* ([splits (string-split v ":")]
+         [id (car splits)]
+         [expr (parse-dsl (cadr splits))]
+         [bw (string->number (caddr splits))])
     (when (not (equal? 3 (length splits)))
       (error (format "Invalid input signal specification: ~a" v)))
-    (when (assoc name (inputs))
-      (error "Signal " name " already present; did you duplicate an --input?"))
-    (inputs (append (inputs) (list (list id name bw)))))
-    ])
-
+    (when (assoc id (inputs))
+      (error "Signal " id " already present; did you duplicate an --input?"))
+    (inputs (append (inputs) (list (list id expr bw)))))])
 ;;; Set solver.
 (match (solver)
   ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (hash ':seed (seed))))]
@@ -320,7 +329,7 @@
 (define sketch-inputs
   (make-sketch-inputs #:output-width output-bitwidth
                       ;;; #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
-                      #:data (map (lambda (p) (cons (first p) (list (lr:var (second p) (third p)) (third p)))) (inputs))
+                      #:data (map (lambda (p) (cons (first p) (list (second p) (third p)))) (inputs))
                       #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
                       #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
@@ -333,7 +342,6 @@
   (cond
     [(> (initiation-interval) 0)
      (let* ([_ "this line prevents autoformatter from messing up comments"]
-
             ;;; Generate the input values: an association list mapping name to value, where the value
             ;;; is a signal whose value is a symbolic bitvector.
             ;;;
@@ -341,16 +349,16 @@
             [input-values
              (map (λ (p)
                     (match p
-                      [(list id name bw)
+                      [(list name bw)
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                  (inputs))]
+                  (ports))]
 
             ;;; The same environments, but with symbolic values
             [make-intermediate-inputs
              (lambda (inputs iter)
                (map (λ (p)
                       (match p
-                        [(list id name bw)
+                        [(list name bw)
                          (cons name (bv->signal (constant (list name "iter" iter) (bitvector bw))))]))
                     inputs))]
 
@@ -362,14 +370,14 @@
             ;;; First, we tick the clock with the inputs set to their input values.
             [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
                                 (cons (cons (clock-name) (bv->signal (bv 1 1)))
-                                      (make-intermediate-inputs (inputs) 0)))
+                                      (make-intermediate-inputs (ports) 0)))
                           ;;; then, we tick the clock with the inputs set to symbolic values.
                           (apply append
                                  (map (lambda (iter)
                                         (list (cons (cons (clock-name) (bv->signal (bv 0 1)))
-                                                    (make-intermediate-inputs (inputs) iter))
+                                                    (make-intermediate-inputs (ports) iter))
                                               (cons (cons (clock-name) (bv->signal (bv 1 1)))
-                                                    (make-intermediate-inputs (inputs) iter))))
+                                                    (make-intermediate-inputs (ports) iter))))
                                       (range 1 (initiation-interval)))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
@@ -417,9 +425,9 @@
      (define envs
        (list (map (λ (p)
                     (match p
-                      [(list id name bw)
+                      [(list name bw)
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                  (inputs))))
+                  (ports))))
      (define input-symbolic-constants (symbolics envs))
      ;;; If initiation interval is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
@@ -452,11 +460,11 @@
 
    (match (out-format)
      [(or "verilog" "yosys-techmap")
-      (display
-       (with-output-to-string (lambda ()
-                                (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
-                                                           (json-filepath))))
-                                  (error "Yosys failed."))))
-       (output-port))]
+      (display (with-output-to-string
+                (lambda ()
+                  (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
+                                             (json-filepath))))
+                    (error "Yosys failed."))))
+               (output-port))]
 
      [_ (error "Invalid output format.")])])
