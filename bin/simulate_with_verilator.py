@@ -114,13 +114,13 @@ def simulate_with_verilator(
         test_module_port_list=",".join(
             [f".{name}({name})" for name, _ in module_inputs]
             + [f".{name}({name}_test)" for name, _ in module_outputs]
-            + [f".{clock_name}({clock_name})" if clock_name else ""]
-        ),
+        )
+        + (f",.{clock_name}({clock_name})" if clock_name else ""),
         ground_truth_module_port_list=",".join(
             [f".{name}({name})" for name, _ in module_inputs]
             + [f".{name}({name}_ground_truth)" for name, _ in module_outputs]
-            + [f".{clock_name}({clock_name})" if clock_name else ""]
-        ),
+        )
+        + (f",.{clock_name}({clock_name})" if clock_name else ""),
         input_output_declarations=" ".join(
             # Modules share inputs.
             [f"logic [{bw-1}:0] {name};" for (name, bw) in module_inputs]
@@ -130,10 +130,8 @@ def simulate_with_verilator(
                 f"logic [{bw-1}:0] {name}_ground_truth;"
                 for (name, bw) in module_outputs
             ]
-            + [f"logic {clock_name};"]
-            if clock_name
-            else []
-        ),
+        )
+        + (f"logic {clock_name};" if clock_name else ""),
         display_inputs=f"$display(\"Inputs: {', '.join([f'{name}=%d' for name, _ in module_inputs])}\", {', '.join([name for name, _ in module_inputs])});",
         display_outputs=f"$display(\"Expected outputs: {', '.join([f'{name}_ground_truth=%d' for name, _ in module_outputs])}\", {', '.join([f'{name}_ground_truth' for name, _ in module_outputs])});"
         + f"$display(\"  Actual outputs: {', '.join([f'{name}_test        =%d' for name, _ in module_outputs])}\", {', '.join([f'{name}_test' for name, _ in module_outputs])});",
