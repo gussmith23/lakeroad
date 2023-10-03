@@ -294,6 +294,13 @@ if __name__ == "__main__":
         default=[],
     )
     parser.add_argument(
+        "--verilator_include_dir",
+        type=Path,
+        help="Directories to pass to Verilator as include directories.",
+        action="append",
+        default=[],
+    )
+    parser.add_argument(
         "--verilator_extra_arg",
         type=str,
         help="Extra argument to pass to Verilator.",
@@ -341,4 +348,5 @@ if __name__ == "__main__":
         extra_args=args.verilator_extra_arg,
         max_num_tests=args.max_num_tests,
         expect_all_zero_outputs=args.expect_all_zero_outputs,
+        include_dirs=args.verilator_include_dir,
     )
