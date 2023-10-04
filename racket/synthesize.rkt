@@ -969,6 +969,10 @@
          [(list bools ...)
           (for ([i (in-range (length bools))])
             (when (list-ref bools i)
+              ;;; Uncomment this to see the assertions being made. Could log this more cleanly in the
+              ;;; future.
+              ;;; (displayln
+              ;;;  (format "~a = ~a" (list-ref bv-expr-evaluated i) (list-ref lr-expr-evaluated i)))
               (assert (bveq (list-ref bv-expr-evaluated i) (list-ref lr-expr-evaluated i)))))]))))
 
   (if (sat? soln)
