@@ -865,19 +865,24 @@
 ;;;     state from each call is passed to the next call. The final bitvector expression is used for
 ;;;     synthesis.
 ;;; - module-semantics: The semantics of hardware modules. See the corresponding interpreter argument.
+;;; - assert-equal-on: A list of booleans the same legth as bv/lr-sequential, indicating which
+;;;   evaluation stages' outputs we should make assertions over. #f means no assertion at this stage,
+;;;   #t means an assertion at this stage. If #f, we default to making assertions only at the last
+;;;   stage.
 (define (rosette-synthesize bv-expr
                             lakeroad-expr
                             inputs
                             #:bv-sequential [bv-sequential #f]
                             #:lr-sequential [lr-sequential #f]
-                            #:module-semantics [module-semantics '()])
+                            #:module-semantics [module-semantics '()]
+                            #:assert-equal-on [assert-equal-on #f])
 
   ;;; Evaluate the bv-expr. If it's already a bitvector expression, nothing needs to be done with it.
   (define bv-expr-evaluated
     (match bv-sequential
       ;;; If the bv-sequential argument is #f, it indicates that the expression is combinational. We
       ;;; take the expression as-is.
-      [#f bv-expr]
+      [#f (list bv-expr)]
       ;;; Otherwise, we have to symbolically execute the expression a number of iterations, as
       ;;; determined by `env`.
       [(list envs ...)
@@ -885,16 +890,19 @@
          (error "bv-expr must be a procedure if bv-sequential is not #f"))
        (let* ([interpret-one-iter
                ;;; Interpret the expression once, using the environment for this iteration.
-               (lambda (this-iter-env prev-value)
+               ;;; prev-values is a list of all previous values, newest to oldest.
+               (lambda (this-iter-env prev-values)
                  (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
 
                         ;;; Attach the state generated last iteration to the environment for this iteration.
                         [this-iter-env
-                         (map (lambda (pair)
-                                (match pair
-                                  [(cons k (signal v state))
-                                   (cons k (signal v (append (signal-state prev-value) state)))]))
-                              this-iter-env)]
+                         (map
+                          (lambda (pair)
+                            (match pair
+                              [(cons k (signal v state))
+                               (cons k
+                                     (signal v (append (signal-state (first prev-values)) state)))]))
+                          this-iter-env)]
 
                         ;;; Convert to keywords.
                         [this-iter-env (map (lambda (pair)
@@ -904,39 +912,55 @@
 
                         ;;; Sort keywords.
                         [this-iter-env (sort this-iter-env keyword<? #:key car)])
-                   (keyword-apply bv-expr (map car this-iter-env) (map cdr this-iter-env) '())))])
-         (signal-value (foldl interpret-one-iter (signal 'unused '()) envs)))]))
+                   (cons (keyword-apply bv-expr (map car this-iter-env) (map cdr this-iter-env) '())
+                         prev-values)))])
+         ;;; Fold to get the list of values from each step; map to get the bitvector values out of the
+         ;;; signal; reverse to get the values in the right order (newest last); cdr to drop the
+         ;;; initial value.
+         (cdr (reverse (map signal-value
+                            (foldl interpret-one-iter (list (signal 'unused '())) envs)))))]))
+
+  (define lr-expr-evaluated
+    (match lr-sequential
+      [#f (list (interpret lakeroad-expr #:module-semantics module-semantics))]
+      [(list envs ...)
+       (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
+              ;;; Interpret the Lakeroad expression once, using one of the environments from `envs`
+              ;;; (stored in `this-iter-env`). `prev-values` are the values from the previous call to
+              ;;; the interpreter, newest first.
+              [interpret-one-iter
+               (lambda (this-iter-env prev-values)
+                 (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
+                        ;;; Attach the state generated last iteration to the environment for this
+                        ;;; iteration.
+                        [this-iter-env
+                         (map
+                          (lambda (pair)
+                            (match pair
+                              [(cons k (signal v state))
+                               (cons k
+                                     (signal v (append (signal-state (first prev-values)) state)))]))
+                          this-iter-env)])
+                   (cons (interpret lakeroad-expr
+                                    #:module-semantics module-semantics
+                                    #:environment this-iter-env)
+                         prev-values)))]
+              [final-value (foldl interpret-one-iter (list (signal 'unused '())) envs)])
+         (cdr (reverse (map signal-value final-value))))]))
 
   ;;; This block of code should be restructured. Instead of running synthesis in here, this `define`
   ;;; should interpret the Lakeroad expression, and then synthesis should be moved to another define.
   (define soln
-    (match lr-sequential
-      [#f
-       (synthesize #:forall inputs
-                   #:guarantee (assert (bveq bv-expr-evaluated
-                                             (signal-value (interpret lakeroad-expr
-                                                                      #:module-semantics
-                                                                      module-semantics)))))]
-      [(list envs ...)
-       (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
-              ;;; Interpret the Lakeroad expression once, using one of the environments from `envs` (stored
-              ;;; in `this-iter-env`). `prev-value` is the value from the previous call to the interpreter.
-              [interpret-one-iter
-               (lambda (this-iter-env prev-value)
-                 (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
-                        ;;; Attach the state generated last iteration to the environment for this iteration.
-                        [this-iter-env
-                         (map (lambda (pair)
-                                (match pair
-                                  [(cons k (signal v state))
-                                   (cons k (signal v (append (signal-state prev-value) state)))]))
-                              this-iter-env)])
-                   (interpret lakeroad-expr
-                              #:module-semantics module-semantics
-                              #:environment this-iter-env)))]
-              [final-value (foldl interpret-one-iter (signal 'unused '()) envs)])
-         (synthesize #:forall inputs
-                     #:guarantee (assert (bveq bv-expr-evaluated (signal-value final-value)))))]))
+    (synthesize ;;; [this comment just helps force a prettier formatting]
+     #:forall inputs
+     #:guarantee ;;; [this comment just helps force a prettier formatting]
+     (begin
+       (match assert-equal-on
+         [#f (assert (bveq (last bv-expr-evaluated) (last lr-expr-evaluated)))]
+         [(list bools ...)
+          (for ([i (in-range (length bools))])
+            (when (list-ref bools i)
+              (assert (bveq (list-ref bv-expr-evaluated i) (list-ref lr-expr-evaluated i)))))]))))
 
   (if (sat? soln)
       (evaluate
