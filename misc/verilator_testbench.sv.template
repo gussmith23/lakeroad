@@ -36,9 +36,7 @@ initial begin
     #CLK_PERIOD;
 
     // For each requested clock cycle, finish the last half of the current clock
-    // cycle and then start the first half of the next clock cycle. Note that
-    // this actually causes us to have one extra half-cycle on the end, but that
-    // shouldn't matter given how our register semantics work.
+    // cycle and then start the first half of the next clock cycle.
     for (int clk_i = 0; clk_i < {initiation_interval}; clk_i++) begin
       // Second half of cycle clk_i (inputs=random, clock=1)
       {randomize_inputs} 
@@ -46,9 +44,11 @@ initial begin
       #CLK_PERIOD;
 
       // First half of cycle clk_i+1 (inputs=random, clock=0)
-      {clear_clock} 
-      {randomize_inputs}
-      #CLK_PERIOD;
+      if (clk_i < {initiation_interval}-1) begin
+        {clear_clock} 
+        {randomize_inputs}
+        #CLK_PERIOD;
+      end
     end
 
     // Record whether any of the output bits are non-zero.
