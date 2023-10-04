@@ -20,14 +20,14 @@
 // RUN:   exit 0; \
 // RUN: else \
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --use_random_intermediate_inputs \
-// RUN:    --seed=23 \
+// RUN:    --test_module_name out \
+// RUN:    --ground_truth_module_name top \
 // RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 2 \
-// RUN:    --output_signal_name p \
+// RUN:    --output_signal p:18 \
 // RUN:    --input_signal a:18 \
 // RUN:    --input_signal b:18 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/intel_cyclone10lp/" \
