@@ -7,7 +7,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal p:18 \
-// RUN:  --module-name out \
+// RUN:  --module-name test_module \
 // RUN:  --input-signal a:18 \
 // RUN:  --input-signal b:18 \
 // RUN:  --initiation-interval 1 \
@@ -24,7 +24,7 @@
 // RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
-// RUN:    --test_module_name out \
+// RUN:    --test_module_name test_module \
 // RUN:    --ground_truth_module_name top \
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 1 \
@@ -52,6 +52,6 @@ module top(input clk, input [17:0] a, b, output [17:0] p);
 
 endmodule
 
-// CHECK: module out(a, b, clk, p);
+// CHECK: module test_module(a, b, clk, p);
 // CHECK:   cyclone10lp_mac_mult #(
 // CHECK: endmodule

@@ -9,7 +9,7 @@
 // RUN:  --verilog-module-out-signal p:16 \
 // RUN:  --initiation-interval 2 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name top \
+// RUN:  --module-name test_module \
 // RUN:  --input-signal a:16 \
 // RUN:  --input-signal b:16 \
 // RUN:  --input-signal c:16 \
@@ -23,14 +23,14 @@
 // RUN:   exit 0; \
 // RUN: else \
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --test_module_name out \
+// RUN:    --test_module_name test_module \
 // RUN:    --ground_truth_module_name top \
 // RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 2 \
-// RUN:    --output_signal_name p \
+// RUN:    --output_signal p:16 \
 // RUN:    --input_signal a:16 \
 // RUN:    --input_signal b:16 \
 // RUN:    --input_signal c:16 \
@@ -56,7 +56,7 @@ module top(input clk, input [15:0] a, b, c, output [15:0] p);
 
 endmodule
 
-// CHECK: module top(a, b, c, clk, p); 
+// CHECK: module test_module(a, b, c, clk, p); 
 // CHECK:   ALU54A #(
 // CHECK:   MULT18X18C #(
 // CHECK: endmodule

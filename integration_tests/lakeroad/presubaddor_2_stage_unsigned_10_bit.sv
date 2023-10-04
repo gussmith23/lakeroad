@@ -9,7 +9,7 @@
 // RUN:  --verilog-module-out-signal out:10 \
 // RUN:  --initiation-interval 2 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name presubaddor_2_stage_unsigned_10_bit \
+// RUN:  --module-name test_module \
 // RUN:  --extra-cycles 3 \
 // RUN:  --input-signal a:10 \
 // RUN:  --input-signal b:10 \
@@ -25,14 +25,14 @@
 // RUN:   exit 0; \
 // RUN: else \
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --test_module_name out \
-// RUN:    --ground_truth_module_name top \
+// RUN:    --test_module_name test_module \
+// RUN:    --ground_truth_module_name presubaddor_2_stage_unsigned_10_bit \
 // RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 2 \
-// RUN:    --output_signal_name out \
+// RUN:    --output_signal out:10 \
 // RUN:    --input_signal a:10 \
 // RUN:    --input_signal b:10 \
 // RUN:    --input_signal c:10 \
@@ -67,6 +67,6 @@ module presubaddor_2_stage_unsigned_10_bit(
 	assign out = stage1;
 endmodule
 
-// CHECK: module presubaddor_2_stage_unsigned_10_bit(a, b, c, clk, d, out);
+// CHECK: module test_module(a, b, c, clk, d, out);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule
