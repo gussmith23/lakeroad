@@ -931,7 +931,7 @@
 
   (define lr-expr-evaluated
     (match lr-sequential
-      [#f (list (interpret lakeroad-expr #:module-semantics module-semantics))]
+      [#f (list (signal-value (interpret lakeroad-expr #:module-semantics module-semantics)))]
       [(list envs ...)
        (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
               ;;; Interpret the Lakeroad expression once, using one of the environments from `envs`
