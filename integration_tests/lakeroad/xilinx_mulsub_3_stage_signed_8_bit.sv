@@ -13,6 +13,7 @@
 // RUN:  --input-signal a:8 \
 // RUN:  --input-signal b:8 \
 // RUN:  --input-signal c:8 \
+// RUN:  --extra-cycles 3 \
 // RUN:  || true ) 2>&1 \
 // RUN:  | FileCheck %s
 // FileCheck %s < $outfile

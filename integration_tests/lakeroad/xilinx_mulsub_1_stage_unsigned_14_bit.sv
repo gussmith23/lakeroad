@@ -14,6 +14,7 @@
 // RUN:  --input-signal b:14 \
 // RUN:  --input-signal c:14 \
 // RUN:  --timeout 90 \
+// RUN:  --extra-cycles 3 \
 // RUN:  || true) \
 // RUN:  > $outfile \
 // RUN:  2>&1
