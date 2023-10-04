@@ -73,6 +73,7 @@
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
 (define seed (make-parameter 0))
+(define extra-cycles (make-parameter 0))
 
 (command-line
  #:program "lakeroad"
@@ -130,6 +131,14 @@
   "Initiation interval of the module to be compiled. This will also be the initiation interval of the"
   " resulting synthesized Verilog module, though this need not be the case in general."
   (initiation-interval (string->number v))]
+ ["--extra-cycles"
+  v
+  "Number of extra cycles to run the module for and make assertions about. Defaults to 0. When ==0,"
+  " synthesis runs the module for exactly the initiation interval number of steps and makes a single"
+  " assertion about the outputs being equal at the last time step. When >0, synthesis runs the module"
+  " for initiation interval + extra cycles number of steps and makes assertions about all of the"
+  " outputs being equal at each time step greater than or equal to the initiation interval."
+  (extra-cycles (string->number v))]
  ["--clock-name"
   v
   "Name of the clock signal of both modules. Currently assumes they're the same, but this need not be"
@@ -372,7 +381,7 @@
                                                     (make-intermediate-inputs (inputs) iter))
                                               (cons (cons (clock-name) (bv->signal (bv 1 1)))
                                                     (make-intermediate-inputs (inputs) iter))))
-                                      (range 1 (initiation-interval)))))]
+                                      (range 1 (+ (initiation-interval) (extra-cycles))))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
@@ -412,7 +421,12 @@
                   input-symbolic-constants
                   #:bv-sequential envs
                   #:lr-sequential envs
-                  #:module-semantics module-semantics)))))]
+                  #:module-semantics module-semantics
+                  #:assert-equal-on
+                  (if (equal? (extra-cycles) 0)
+                      #f
+                      (flatten (append (make-list (- (initiation-interval) 1) (list #f #f))
+                                       (make-list (+ (extra-cycles) 1) (list #f #t))))))))))]
 
     ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
