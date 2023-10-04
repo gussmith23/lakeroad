@@ -13,6 +13,7 @@
 // RUN:  --initiation-interval 1 \
 // RUN:  --clock-name clk \
 // RUN:  --timeout 60 \
+// RUN:  --extra-cycles 3 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \

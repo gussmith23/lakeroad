@@ -12,6 +12,7 @@
 // RUN:  --module-name top \
 // RUN:  --input-signal a:8 \
 // RUN:  --input-signal b:8 \
+// RUN:  --extra-cycles 3 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \

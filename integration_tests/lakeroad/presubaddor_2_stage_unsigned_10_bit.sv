@@ -10,6 +10,7 @@
 // RUN:  --initiation-interval 2 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name presubaddor_2_stage_unsigned_10_bit \
+// RUN:  --extra-cycles 3 \
 // RUN:  --input-signal a:10 \
 // RUN:  --input-signal b:10 \
 // RUN:  --input-signal c:10 \

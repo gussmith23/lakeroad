@@ -13,6 +13,7 @@
 // RUN:  --input-signal b:12 \
 // RUN:  --input-signal c:12 \
 // RUN:  --input-signal d:12 \
+// RUN:  --extra-cycles 3 \
 // RUN: | FileCheck %s
 
 (* use_dsp = "yes" *) module top (

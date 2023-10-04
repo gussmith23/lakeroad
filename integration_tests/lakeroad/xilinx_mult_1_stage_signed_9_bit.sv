@@ -12,6 +12,7 @@
 // RUN:  --module-name top \
 // RUN:  --input-signal a:9 \
 // RUN:  --input-signal b:9 \
+// RUN:  --extra-cycles 3 \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
