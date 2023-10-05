@@ -14,6 +14,7 @@
 // RUN:  --input-signal b:18 \
 // RUN:  --input-signal d:18 \
 // RUN:  --extra-cycles 3 \
+// RUN:  --timeout 120 \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile

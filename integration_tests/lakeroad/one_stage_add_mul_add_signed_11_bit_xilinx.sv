@@ -14,6 +14,7 @@
 // RUN:  --input-signal c:11 \
 // RUN:  --input-signal d:11 \
 // RUN:  --extra-cycles 3 \
+// RUN:  --timeout 120 \
 // RUN: | FileCheck %s
 
 (* use_dsp = "yes" *) module top(
