@@ -878,7 +878,8 @@
                             #:assert-equal-on [assert-equal-on #f])
 
   (when (not (equal? assert-equal-on #f))
-    (when (not (equal? (length lr-sequential) (length bv-sequential) (length assert-equal-on)))
+    (when (not (and (equal? (length lr-sequential) (length bv-sequential))
+                    (equal? (length bv-sequential) (length assert-equal-on))))
       (error
        "if not #f, assert-equal-on should be the same length as bv-sequential and lr-sequential")))
 
