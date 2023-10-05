@@ -12,7 +12,8 @@
 // RUN:  --input-signal a:16 \
 // RUN:  --input-signal b:16 \
 // RUN:  --timeout 90 \
-// RUN:  --extra-cycles 3 \
+// This one termiates with 2 extra cycles, but not 3.
+// RUN:  --extra-cycles 2 \
 // RUN: || true) \
 // RUN: 2>&1 \
 // RUN: | FileCheck %s

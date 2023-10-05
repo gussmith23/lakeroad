@@ -877,12 +877,9 @@
                             #:module-semantics [module-semantics '()]
                             #:assert-equal-on [assert-equal-on #f])
 
-  (when (or (not (equal? bv-sequential #f)) (not (equal? lr-sequential #f)))
-    (when (not (equal? (length bv-sequential) (length lr-sequential)))
-      (error
-       "for now, bv-sequential and lr-sequential must be the same length when not #f. This doesn't have to be the case, but it simplifies this function.")))
   (when (not (equal? assert-equal-on #f))
-    (when (not (equal? (length bv-sequential) (length assert-equal-on)))
+    (when (not (and (equal? (length lr-sequential) (length bv-sequential))
+                    (equal? (length bv-sequential) (length assert-equal-on))))
       (error
        "if not #f, assert-equal-on should be the same length as bv-sequential and lr-sequential")))
 
@@ -931,7 +928,7 @@
 
   (define lr-expr-evaluated
     (match lr-sequential
-      [#f (list (interpret lakeroad-expr #:module-semantics module-semantics))]
+      [#f (list (signal-value (interpret lakeroad-expr #:module-semantics module-semantics)))]
       [(list envs ...)
        (let* ([_ 0] ;;; Dummy line to prevent formatter from messing up comments.
               ;;; Interpret the Lakeroad expression once, using one of the environments from `envs`

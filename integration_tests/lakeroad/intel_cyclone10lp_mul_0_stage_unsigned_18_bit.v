@@ -10,6 +10,7 @@
 // RUN:  --module-name test_module \
 // RUN:  --input-signal a:18 \
 // RUN:  --input-signal b:18 \
+// RUN:  --timeout 120 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
