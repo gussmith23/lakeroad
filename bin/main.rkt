@@ -278,6 +278,7 @@
   (match (template)
     ["dsp" single-dsp-sketch-generator]
     ["parallel-dsp" parallel-dsp-sketch-generator]
+    ;;; ["parallel-dsp-xilinx" xilinx-wide-dsp-sketch-generator]
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]

@@ -16,7 +16,10 @@
          find-biggest-lut-size
          densely-pack-inputs-into-luts
          (struct-out module-instance-port)
-         (struct-out module-instance-parameter))
+         (struct-out module-instance-parameter)
+         (struct-out architecture-description)
+         (struct-out interface-implementation))
+         
 
 ;;; TODO: We really shouldn't import all of Rosette here. Undoing this would be a little messy,
 ;;; though.
@@ -513,6 +516,7 @@
 
 ;;; Part 4: A smarter implementation of construct-interface-internal, which handles some cases where some
 ;;; interfaces are not implemented.
+
 
 ;(construct-lut5-from-lut4 architecture-description ports)
 
