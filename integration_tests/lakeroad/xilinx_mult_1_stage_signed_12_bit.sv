@@ -13,6 +13,7 @@
 // RUN:  --input-signal a:12 \
 // RUN:  --input-signal b:12 \
 // RUN:  --timeout 90 \
+// RUN:  --extra-cycles 3 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
