@@ -4,3 +4,6 @@
 [submodule "bitwuzla"]
 	path = bitwuzla
 	url = git@github.com:bitwuzla/bitwuzla.git
+[submodule "lakeroad-egglog/yosys"]
+	path = lakeroad-egglog/yosys
+	url = git@github.com:uwsampl/yosys
