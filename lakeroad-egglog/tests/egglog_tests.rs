@@ -54,8 +54,10 @@ egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
 
     // Sanity checking my own understanding of egglog: the last term in the term
     // graph is usually the top-level term.
-    assert_eq!(_term_dag.get(_term_dag.nodes.len()-1), *_term);
+    assert_eq!(_term_dag.get(_term_dag.nodes.len() - 1), *_term);
     println!(
-        "{}",lakeroad_egglog::to_verilog(_term_dag, _term_dag.nodes.len()-1));
+        "{}",
+        lakeroad_egglog::to_verilog(_term_dag, _term_dag.nodes.len() - 1)
+    );
 });
 egglog_test!(typing, "tests/egglog_tests/typing.egg");
