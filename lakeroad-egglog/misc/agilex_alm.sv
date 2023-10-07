@@ -96,6 +96,6 @@ module lut4 (
 );
 
   // We may need to swap the order of the index bits.
-  assign out = mem[{{a, b, c, d}}];
+  assign out = mem[{a, b, c, d}];
 
 endmodule
