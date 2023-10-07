@@ -9,7 +9,7 @@
 // RUN:  --verilog-module-out-signal out:18 \
 // RUN:  --initiation-interval 3 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name top \
+// RUN:  --module-name test_module \
 // RUN:  --input-signal a:18 \
 // RUN:  --input-signal b:18 \
 // RUN:  --input-signal c:18 \
@@ -24,14 +24,14 @@
 //   exit 0; \
 // else \
 //   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-//    --use_random_intermediate_inputs \
-//    --seed=23 \
+//    --test_module_name test_module \
+//    --ground_truth_module_name top \
 //    --max_num_tests=10000 \
-//    --test_module_filepath $outfile \
-//    --ground_truth_module_filepath %s \
+//    --verilog_filepath $outfile \
+//    --verilog_filepath %s \
 //    --clock_name clk \
 //    --initiation_interval 3 \
-//    --output_signal_name out \
+//    --output_signal out:18 \
 //    --input_signal a:18 \
 //    --input_signal b:18 \
 //    --input_signal c:18 \
@@ -47,23 +47,24 @@
 // fi
 
 (* use_dsp = "yes" *) module top(
-	input signed [17:0] a,
-	input signed [17:0] b,
-	input signed [17:0] c,
-	output [17:0] out,
-	input clk);
+    input signed [17:0] a,
+    input signed [17:0] b,
+    input signed [17:0] c,
+    output [17:0] out,
+    input clk
+);
 
-	logic signed [35:0] stage0;
-	logic signed [35:0] stage1;
-	logic signed [35:0] stage2;
+  logic signed [35:0] stage0;
+  logic signed [35:0] stage1;
+  logic signed [35:0] stage2;
 
-	always @(posedge clk) begin
-	stage0 <= (a * b) + c;
-	stage1 <= stage0;
-	stage2 <= stage1;
-	end
+  always @(posedge clk) begin
+    stage0 <= (a * b) + c;
+    stage1 <= stage0;
+    stage2 <= stage1;
+  end
 
-	assign out = stage2;
+  assign out = stage2;
 endmodule
 
 // CHECK: Synthesis Timeout

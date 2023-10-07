@@ -33,8 +33,8 @@
 //     --use_random_intermediate_inputs \
 //     --seed=23 \
 //     --max_num_tests=10000 \
-//     --test_module_filepath $outfile \
-//     --ground_truth_module_filepath %s \
+//     --verilog_filepath $outfile \
+//     --verilog_filepath %s \
 //     --clock_name clk \
 //     --initiation_interval 1 \
 //     --output_signal_name out \
