@@ -96,6 +96,7 @@ module lut4 (
 );
 
   // We may need to swap the order of the index bits.
-  assign out = mem[{a, b, c, d}];
+  // This implementation (instead of mem[{a, b, c, d}]) avoids $shiftx.
+  assign out = 1'(mem >> {a, b, c, d});
 
 endmodule
