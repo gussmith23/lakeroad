@@ -61,3 +61,4 @@ egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
     );
 });
 egglog_test!(typing, "tests/egglog_tests/typing.egg");
+egglog_test!(agilex_alm, "tests/egglog_tests/agilex_alm.egg");
