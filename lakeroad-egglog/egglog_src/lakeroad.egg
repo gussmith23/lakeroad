@@ -4,6 +4,8 @@
 (datatype Op
   (And)
   (Or)
+  (Xor)
+  (Shr)
   ; Returns a bitvector of width 1.
   (Eq)
   (LogicNot)
