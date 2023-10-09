@@ -32,6 +32,7 @@ def simulate_with_verilator(
     max_num_tests=MAX_NUM_TESTS,
     ignore_missing_test_module_file: bool = False,
     expect_all_zero_outputs: bool = False,
+    extra_make_args: List[str] = [],
 ):
     """
 
@@ -179,7 +180,7 @@ def simulate_with_verilator(
             print(" ".join([str(x) for x in one_set_of_inputs]), file=f)
 
     proc = subprocess.run(
-        ["make", "--always-make", "-f", makefile_filepath], capture_output=True
+        ["make", "--always-make", "-f", makefile_filepath] + extra_make_args, capture_output=True
     )
     Path(testbench_stdout_log_filepath).write_bytes(proc.stdout)
     Path(testbench_stderr_log_filepath).write_bytes(proc.stderr)
