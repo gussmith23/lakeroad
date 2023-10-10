@@ -3,7 +3,7 @@
 # simulates the two Verilated designs against each other.
 .PHONY: simulate
 
-VERILATOR=verilator
+VERILATOR?=verilator
 
 simulate: {testbench_exe_filepath} {testbench_inputs_filepath}
 	{testbench_exe_filepath} < {testbench_inputs_filepath}
