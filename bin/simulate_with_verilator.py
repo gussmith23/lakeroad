@@ -56,7 +56,7 @@ def simulate_with_verilator(
     if ignore_missing_test_module_file and not all(
         [Path(path).exists() for path in verilog_filepaths]
     ):
-        missing = filter(lambda path: not Path(path).exists(), verilog_filepaths)[0]
+        missing = list(filter(lambda path: not Path(path).exists(), verilog_filepaths))[0]
         logging.warning(
             f"Required Verilog file {missing} does not exist. " "Skipping simulation."
         )
