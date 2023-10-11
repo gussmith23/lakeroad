@@ -260,6 +260,11 @@
            (list a-tuple
                  b-tuple
                  (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1))]
+          [(list a-tuple)
+           (list a-tuple
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
                  (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
 
        [out-expr
