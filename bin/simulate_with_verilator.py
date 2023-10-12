@@ -32,7 +32,6 @@ def simulate_with_verilator(
     max_num_tests=MAX_NUM_TESTS,
     ignore_missing_test_module_file: bool = False,
     expect_all_zero_outputs: bool = False,
-    extra_make_args: List[str] = [],
 ):
     """
 
@@ -179,8 +178,12 @@ def simulate_with_verilator(
         for one_set_of_inputs in all_inputs:
             print(" ".join([str(x) for x in one_set_of_inputs]), file=f)
 
+    # --environment-overrides is a brute-force way to allow users to use CXX=...
+    # to override the C++ compiler with an environment variable. Overriding
+    # doesn't normally work due to the issues brought up here:
+    # https://github.com/verilator/verilator/issues/4549
     proc = subprocess.run(
-        ["make", "--always-make", "-f", makefile_filepath] + extra_make_args, capture_output=True
+        ["make", "--environment-overrides", "--always-make", "-f", makefile_filepath], capture_output=True
     )
     Path(testbench_stdout_log_filepath).write_bytes(proc.stdout)
     Path(testbench_stderr_log_filepath).write_bytes(proc.stderr)
