@@ -1,4 +1,4 @@
-use egglog::ExtractReport::*;
+use egglog::{ExtractReport::*, Value};
 use std::path::Path;
 
 macro_rules! egglog_test {
@@ -61,4 +61,30 @@ egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
     );
 });
 egglog_test!(typing, "tests/egglog_tests/typing.egg");
-egglog_test!(agilex_alm, "tests/egglog_tests/agilex_alm.egg");
+
+fn create_rewrites(egraph: &egglog::EGraph, expr: &str, num_rewrites: i64) {
+
+    // I want to find the "expr" in the egraph, where "expr" isn't actually an
+    // expression for now, but instead just a let-bound name e.g. "lut6out".
+    // Seems like there should be a way to get these definitions. I guess part
+    // of the point of the egraph is that the name will just point to an eclass,
+    // not a specific expression. We'll still need to extract. This is where
+    // we can do interesting things. Whatever we extract will act as the LHS of
+    // the rewrite. So if we can extract multiple things, we'll get multiple
+    // LHSs. For now we just need to get a single one extracting.
+
+    // Or something like this.
+    // let equivalent_exprs = [extract_random(egraph, expr, seed) for seed in random_list_of_seeds(num_rewrites)];
+
+    fn extract_random(egraph: &egglog::EGraph, expr: &str, seed: i64) {
+    }
+
+    // let rewrites = [make_rewrite(/*LHS*/ lhs_expr, /* RHS */ expr) for lhs_expr in equivalent_exprs];
+
+    // let rewrites = remove_duplicates(rewrites);
+}
+
+egglog_test!(agilex_alm, "tests/egglog_tests/agilex_alm.egg", egraph, {
+
+    dbg!(create_rewrites(&egraph, "lut6out", 1));
+});
