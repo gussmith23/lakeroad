@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    default,
-};
+use std::collections::HashSet;
 
 use egglog::{ast::Literal, Term, TermDag};
 

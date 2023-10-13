@@ -1,5 +1,6 @@
-use egglog::{ExtractReport::*, Value};
-use std::path::Path;
+use egglog::{ast::Expr, ArcSort, ExtractReport::*, TermDag, Value};
+use log::warn;
+use std::{collections::HashMap, path::Path};
 
 macro_rules! egglog_test {
     ($name:ident, $path:literal) => {
@@ -62,8 +63,13 @@ egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
 });
 egglog_test!(typing, "tests/egglog_tests/typing.egg");
 
-fn create_rewrites(egraph: &egglog::EGraph, expr: &str, num_rewrites: i64) {
-
+fn create_rewrites(
+    egraph: &egglog::EGraph,
+    value: &Value,
+    sort: &ArcSort,
+    num_rewrites: i64,
+    replacement_map: &HashMap<Expr, Expr>,
+) {
     // I want to find the "expr" in the egraph, where "expr" isn't actually an
     // expression for now, but instead just a let-bound name e.g. "lut6out".
     // Seems like there should be a way to get these definitions. I guess part
@@ -73,18 +79,70 @@ fn create_rewrites(egraph: &egglog::EGraph, expr: &str, num_rewrites: i64) {
     // the rewrite. So if we can extract multiple things, we'll get multiple
     // LHSs. For now we just need to get a single one extracting.
 
-    // Or something like this.
-    // let equivalent_exprs = [extract_random(egraph, expr, seed) for seed in random_list_of_seeds(num_rewrites)];
-
-    fn extract_random(egraph: &egglog::EGraph, expr: &str, seed: i64) {
+    /// Extract a random term from the egraph at the given value.
+    fn extract_random(egraph: &egglog::EGraph, value: &Value, sort: &ArcSort, _seed: i64) -> Expr {
+        warn!("This function currently always returns the same expr.");
+        let mut termdag = TermDag::default();
+        let (_size, extracted) = egraph.extract(*value, &mut termdag, &sort);
+        termdag.term_to_expr(&extracted)
     }
 
-    // let rewrites = [make_rewrite(/*LHS*/ lhs_expr, /* RHS */ expr) for lhs_expr in equivalent_exprs];
+    // Get a bunch of random exprs that will serve as the left hand sides of the
+    // rewrite. Sort and dedup to remove duplciates.
+    let mut exprs: Vec<_> = (0..num_rewrites)
+        .map(|seed| extract_random(egraph, value, sort, seed))
+        .collect();
+    exprs.sort();
+    exprs.dedup();
 
+    if exprs.len() < num_rewrites.try_into().unwrap() {
+        warn!(
+            "Expected {} exprs to turn into rewrites, but only got {}; there \
+               must have been duplicates. In the future we can add a retry \
+               mechanism.",
+            num_rewrites,
+            exprs.len()
+        );
+    }
+
+    for expr in &exprs {
+        println!("{}", expr);
+    }
+
+    // Replace requested expressions with other expressions. This allows us to,
+    // for example, replace the LUT memory input(s) with symbolic solvable
+    // expressions, in the case of a LUT expression. This replacement isn't
+    // checked for correctness.
+    fn replace_in_expr(expr: Expr, replacement_map: &HashMap<Expr, Expr>) -> Expr {
+        expr.map(&mut |expr| {
+            if replacement_map.contains_key(expr) {
+                replacement_map[expr].clone()
+            } else {
+                expr.clone()
+            }
+        })
+    }
+
+    let exprs: Vec<_> = exprs
+        .iter()
+        .map(|expr| replace_in_expr(expr.clone(), replacement_map))
+        .collect();
+
+    // let rewrites = [make_rewrite(/*LHS*/ lhs_expr, /* RHS */ expr) for lhs_expr in exprs];
+
+    // Or remove duplicate expressions before the previous step.
     // let rewrites = remove_duplicates(rewrites);
 }
 
 egglog_test!(agilex_alm, "tests/egglog_tests/agilex_alm.egg", egraph, {
-
-    dbg!(create_rewrites(&egraph, "lut6out", 1));
+    let (sort, value) = egraph
+        .eval_expr(&egglog::ast::Expr::Var("lut6out".into()), None, true)
+        .unwrap();
+    dbg!(create_rewrites(
+        &egraph,
+        &value,
+        &sort,
+        1,
+        &vec![].into_iter().collect()
+    ));
 });
