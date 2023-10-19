@@ -22,6 +22,8 @@
          "../racket/generated/lattice-ecp5-alu24b.rkt"
          "../racket/generated/lattice-ecp5-alu54a.rkt"
          "../racket/generated/intel-altmult-accum.rkt"
+         "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
+         "../racket/generated/intel-cyclone10lp-mac-out.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -41,6 +43,7 @@
                       [(or "lattice-ecp5") v]
                       [(or "sofa") v]
                       ["intel" v]
+                      ["intel-cyclone10lp" v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -79,6 +82,7 @@
       [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
       [`(port ,(? symbol? sym) ,width) (lr:var (symbol->string sym) width)]))
   (recursive-helper expr))
+(define extra-cycles (make-parameter 0))
 
 (command-line
  #:program "lakeroad"
@@ -136,6 +140,14 @@
   "Initiation interval of the module to be compiled. This will also be the initiation interval of the"
   " resulting synthesized Verilog module, though this need not be the case in general."
   (initiation-interval (string->number v))]
+ ["--extra-cycles"
+  v
+  "Number of extra cycles to run the module for and make assertions about. Defaults to 0. When ==0,"
+  " synthesis runs the module for exactly the initiation interval number of steps and makes a single"
+  " assertion about the outputs being equal at the last time step. When >0, synthesis runs the module"
+  " for initiation interval + extra cycles number of steps and makes assertions about all of the"
+  " outputs being equal at each time step greater than or equal to the initiation interval."
+  (extra-cycles (string->number v))]
  ["--clock-name"
   v
   "Name of the clock signal of both modules. Currently assumes they're the same, but this need not be"
@@ -178,7 +190,10 @@
 (match (solver)
   ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (hash ':seed (seed))))]
   ["cvc4" (current-solver (cvc4 #:logic 'QF_BV #:options (hash ':seed (seed))))]
-  ["bitwuzla" (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ;;; TODO(@gussmith23): Make it possible to set options from the command line; remove
+  ;;; PP_ELIM_BV_EXTRACTS as a default.
+  ["bitwuzla"
+   (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed) ':PP_ELIM_BV_EXTRACTS 1)))]
   ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (hash ':seed (seed))))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
@@ -294,6 +309,9 @@
     ["lattice-ecp5" (lattice-ecp5-architecture-description)]
     ["sofa" (sofa-architecture-description)]
     ["intel" (intel-architecture-description)]
+    ["intel-cyclone10lp"
+     (parse-architecture-description-file
+      (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -323,6 +341,9 @@
     ["sofa"
      (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
     ["intel" (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))]
+    ["intel-cyclone10lp"
+     (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
+           (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -379,7 +400,7 @@
                                                     (make-intermediate-inputs (ports) iter))
                                               (cons (cons (clock-name) (bv->signal (bv 1 1)))
                                                     (make-intermediate-inputs (ports) iter))))
-                                      (range 1 (initiation-interval)))))]
+                                      (range 1 (+ (initiation-interval) (extra-cycles))))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
@@ -419,7 +440,12 @@
                   input-symbolic-constants
                   #:bv-sequential envs
                   #:lr-sequential envs
-                  #:module-semantics module-semantics)))))]
+                  #:module-semantics module-semantics
+                  #:assert-equal-on
+                  (if (equal? (extra-cycles) 0)
+                      #f
+                      (flatten (append (make-list (- (initiation-interval) 1) (list #f #f))
+                                       (make-list (+ (extra-cycles) 1) (list #f #t))))))))))]
 
     ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else

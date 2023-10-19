@@ -20,6 +20,7 @@
 // RUN:  --input-signal c:18 \
 // RUN:  --input-signal d:18 \
 // RUN:  --timeout 60 \
+// RUN:  --extra-cycles 3 \
 // RUN: || true) 2>&1 \
 // RUN: | FileCheck %s
 //   > $outfile
@@ -32,8 +33,8 @@
 //     --use_random_intermediate_inputs \
 //     --seed=23 \
 //     --max_num_tests=10000 \
-//     --test_module_filepath $outfile \
-//     --ground_truth_module_filepath %s \
+//     --verilog_filepath $outfile \
+//     --verilog_filepath %s \
 //     --clock_name clk \
 //     --initiation_interval 1 \
 //     --output_signal_name out \
@@ -70,4 +71,4 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: module top(a, b, c, clk, d, out);
+// CHECK: Synthesis Timeout

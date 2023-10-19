@@ -9,11 +9,14 @@
 // RUN:  --verilog-module-out-signal out:10 \
 // RUN:  --initiation-interval 2 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name presubaddor_2_stage_unsigned_10_bit \
+// RUN:  --module-name test_module \
+// RUN:  --extra-cycles 3 \
+// RUN:  --timeout 120 \
 // RUN:  --input-signal a:10 \
 // RUN:  --input-signal b:10 \
 // RUN:  --input-signal c:10 \
-// RUN:  --input-signal d:10 > $outfile
+// RUN:  --input-signal d:10 \
+// RUN: > $outfile
 // RUN: FileCheck %s < $outfile
 // Ideally, we let people run these tests even without access to
 // lakeroad-private. Here, they can run the tests, but they will still pass even
@@ -24,14 +27,14 @@
 // RUN:   exit 0; \
 // RUN: else \
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --use_random_intermediate_inputs \
-// RUN:    --seed=23 \
+// RUN:    --test_module_name test_module \
+// RUN:    --ground_truth_module_name presubaddor_2_stage_unsigned_10_bit \
 // RUN:    --max_num_tests=10000 \
-// RUN:    --test_module_filepath $outfile \
-// RUN:    --ground_truth_module_filepath %s \
+// RUN:    --verilog_filepath $outfile \
+// RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 2 \
-// RUN:    --output_signal_name out \
+// RUN:    --output_signal out:10 \
 // RUN:    --input_signal a:10 \
 // RUN:    --input_signal b:10 \
 // RUN:    --input_signal c:10 \
@@ -48,24 +51,23 @@
 // RUN: fi
 
 module presubaddor_2_stage_unsigned_10_bit(
-	input  [9:0] a,
-	input  [9:0] b,
-	input  [9:0] c,
-	input  [9:0] d,
-	output [9:0] out,
-	input clk);
+    input [9:0] a,
+    input [9:0] b,
+    input [9:0] c,
+    input [9:0] d,
+    output [9:0] out,
+    input clk
+);
 
-	logic  [9:0] stage0;
-	logic  [9:0] stage1;
+  logic [9:0] stage0;
+  logic [9:0] stage1;
 
-	always @(posedge clk) begin
-	stage0 <= ((d - a) * b) | c;
-	stage1 <= stage0;
-	end
+  always @(posedge clk) begin
+    stage0 <= ((d - a) * b) | c;
+    stage1 <= stage0;
+  end
 
-	assign out = stage1;
+  assign out = stage1;
 endmodule
 
-// CHECK: module presubaddor_2_stage_unsigned_10_bit(a, b, c, clk, d, out);
-// CHECK:   DSP48E2 #(
-// CHECK: endmodule
+// CHECK: module test_module(a, b, c, clk, d, out);

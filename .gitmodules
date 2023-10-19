@@ -1,6 +1,6 @@
-[submodule "rosette"]
-	path = rosette
-	url = git@github.com:gussmith23/rosette
 [submodule "lakeroad-private"]
 	path = lakeroad-private
 	url = git@github.com:uwsampl/lakeroad-private
+[submodule "bitwuzla"]
+	path = bitwuzla
+	url = git@github.com:bitwuzla/bitwuzla.git

@@ -18,8 +18,8 @@
          (struct-out module-instance-port)
          (struct-out module-instance-parameter)
          (struct-out architecture-description)
-         (struct-out interface-implementation))
-         
+         (struct-out interface-implementation)
+         parse-architecture-description-file)
 
 ;;; TODO: We really shouldn't import all of Rosette here. Undoing this would be a little messy,
 ;;; though.
@@ -138,7 +138,16 @@
           (interface-port "B" 'input 18)
           (interface-port "C" 'input 54)
           (interface-port "clk" 'input 1)
-          (interface-port "O" 'output 54)))))
+          (interface-port "O" 'output 54)))
+   (interface-definition
+    ;;; TODO(@gussmith23): again with the above hack, but we use #f for d-width and c-width
+    (interface-identifier "DSP"
+                          (hash "out-width" 36 "a-width" 18 "b-width" 18 "c-width" 1 "d-width" 1))
+    (list (interface-port "A" 'input 18)
+          (interface-port "B" 'input 18)
+          (interface-port "C" 'input 1)
+          (interface-port "clk" 'input 1)
+          (interface-port "O" 'output 36)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 

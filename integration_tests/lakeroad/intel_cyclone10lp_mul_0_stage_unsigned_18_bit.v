@@ -2,16 +2,14 @@
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
-// RUN:  --architecture xilinx-ultrascale-plus \
+// RUN:  --architecture intel-cyclone10lp \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal out:8 \
-// RUN:  --initiation-interval 0 \
+// RUN:  --verilog-module-out-signal p:18 \
 // RUN:  --module-name test_module \
-// RUN:  --input-signal a:8 \
-// RUN:  --input-signal b:8 \
-// RUN:  --input-signal c:8 \
+// RUN:  --input-signal a:18 \
+// RUN:  --input-signal b:18 \
 // RUN:  --timeout 120 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
@@ -22,35 +20,28 @@
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
 // RUN:    --test_module_name test_module \
 // RUN:    --ground_truth_module_name top \
+// RUN:    --output_signal p:18 \
 // RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --initiation_interval 0 \
-// RUN:    --output_signal out:8 \
-// RUN:    --input_signal a:8 \
-// RUN:    --input_signal b:8 \
-// RUN:    --input_signal c:8 \
-// RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
-// RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
-// RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
+// RUN:    --input_signal a:18 \
+// RUN:    --input_signal b:18 \
+// RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/intel_cyclone10lp/" \
 // RUN:    --verilator_extra_arg='-Wno-LATCH' \
-// RUN:    --verilator_extra_arg='-Wno-WIDTH' \
-// RUN:    --verilator_extra_arg='-Wno-STMTDLY' \
-// RUN:    --verilator_extra_arg='-Wno-CASEX' \
+// RUN:    --verilator_extra_arg='-Wno-INITIALDLY' \
+// RUN:    --verilator_extra_arg='-Wno-COMBDLY' \
 // RUN:    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
-// RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
+// RUN:    --verilator_extra_arg='-Wno-WIDTH'; \
 // RUN: fi
+ 
 
-(* use_dsp = "yes" *) module top(
-	input signed [7:0] a,
-	input signed [7:0] b,
-	input signed [7:0] c,
-	output [7:0] out,
-	input clk);
+module top(input [17:0] a, b, output [17:0] p);
 
-	assign out = (a * b) + c;
+  assign p = a * b;
+
 endmodule
 
-// CHECK: module test_module(a, b, c, out);
-// CHECK:   DSP48E2 #(
+// CHECK: module test_module(a, b, p);
+// CHECK:   cyclone10lp_mac_mult #(
 // CHECK: endmodule

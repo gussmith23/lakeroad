@@ -106,4 +106,18 @@ else
     --function-name lattice-ecp5-mult18x18c \
     | sed 's#(require (file.*#(require "../signal.rkt\")#' )
   echo "$out" > "$LAKEROAD_DIR"/racket/generated/lattice-ecp5-mult18x18c.rkt
+
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+    --infile "$LAKEROAD_PRIVATE_DIR"/intel_cyclone10lp/cyclone10lp_mac_mult_modified_for_racket_import.v \
+    --top cyclone10lp_mac_mult \
+    --function-name intel-cyclone10lp-mac-mult \
+    | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+  echo "$out" > "$LAKEROAD_DIR"/racket/generated/intel-cyclone10lp-mac-mult.rkt
+
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
+    --infile "$LAKEROAD_PRIVATE_DIR"/intel_cyclone10lp/cyclone10lp_mac_mult_modified_for_racket_import.v \
+    --top cyclone10lp_mac_out \
+    --function-name intel-cyclone10lp-mac-out \
+    | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+  echo "$out" > "$LAKEROAD_DIR"/racket/generated/intel-cyclone10lp-mac-out.rkt
 fi

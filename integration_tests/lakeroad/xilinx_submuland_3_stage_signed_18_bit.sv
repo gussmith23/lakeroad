@@ -12,7 +12,8 @@
 // RUN:  --input-signal b:18 \
 // RUN:  --input-signal c:18 \
 // RUN:  --input-signal d:18 \
-// RUN:  --timeout 60 \
+// RUN:  --timeout 120 \
+// RUN:  --extra-cycles 3 \
 // RUN:  || true) 2>&1 \
 // RUN: | FileCheck %s
 

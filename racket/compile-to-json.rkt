@@ -124,6 +124,12 @@
                          [compile-parameter-override
                           (lambda (module-name param)
 
+                            (define (intel-cyclone10lp-enum-val-to-str v)
+                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                [0 "none"]
+                                [1 "TRUE"]
+                                [_ (error "Unknown Cyclone 10 LP enum value" v)]))
+
                             (define (intel-altmult-accum-enum-val-to-str v)
                               (match (bitvector->natural (signal-value (lr:bv-v v)))
                                 [0 "ACLR0"]
@@ -370,6 +376,16 @@
                                                   "input_source_a"
                                                   "input_source_b")))
                                (intel-altmult-accum-enum-val-to-str
+                                (module-instance-parameter-value param))]
+                              [(or (and (equal? module-name "cyclone10lp_mac_out")
+                                        (member (module-instance-parameter-name param)
+                                                (list "output_clock")))
+                                   (and
+                                    (equal? module-name "cyclone10lp_mac_mult")
+                                    (member
+                                     (module-instance-parameter-name param)
+                                     (list "dataa_clock" "datab_clock" "signa_clock" "signb_clock"))))
+                               (intel-cyclone10lp-enum-val-to-str
                                 (module-instance-parameter-value param))]
 
                               [else #f]))]

@@ -1,19 +1,19 @@
 // RUN: outfile=$(mktemp)
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver bitwuzla \
+// RUN:  --solver cvc5 \
 // RUN:  --verilog-module-filepath %s \
-// RUN:  --architecture lattice-ecp5 \
+// RUN:  --architecture intel-cyclone10lp \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 1 \
-// RUN:  --clock-name clk \
+// RUN:  --verilog-module-out-signal p:18 \
 // RUN:  --module-name test_module \
-// RUN:  --input-signal a:16 \
-// RUN:  --input-signal b:16 \
+// RUN:  --input-signal a:18 \
+// RUN:  --input-signal b:18 \
+// RUN:  --initiation-interval 2 \
+// RUN:  --clock-name clk \
+// RUN:  --timeout 60 \
 // RUN:  --extra-cycles 3 \
-// RUN:  --timeout 120 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
@@ -27,32 +27,33 @@
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
-// RUN:    --initiation_interval 1 \
-// RUN:    --output_signal p:16 \
-// RUN:    --input_signal a:16 \
-// RUN:    --input_signal b:16 \
-// RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/lattice_ecp5/" \
-// RUN:    --verilator_extra_arg='-Wno-CASEINCOMPLETE' \
-// RUN:    --verilator_extra_arg='-Wno-IMPLICIT' \
-// RUN:    --verilator_extra_arg='-Wno-PINMISSING' \
+// RUN:    --initiation_interval 2 \
+// RUN:    --output_signal p:18 \
+// RUN:    --input_signal a:18 \
+// RUN:    --input_signal b:18 \
+// RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/intel_cyclone10lp/" \
+// RUN:    --verilator_extra_arg='-Wno-LATCH' \
+// RUN:    --verilator_extra_arg='-Wno-INITIALDLY' \
+// RUN:    --verilator_extra_arg='-Wno-COMBDLY' \
 // RUN:    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
-// RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
 // RUN:    --verilator_extra_arg='-Wno-WIDTH'; \
 // RUN: fi
+ 
 
-module top(input clk, input [15:0] a, b, output [15:0] p);
+module top(input clk, input [17:0] a, b, output [17:0] p);
 
-  reg [15:0] tmp0;
+  logic [17:0] r0, r1;
 
   always @ (posedge clk) begin
-    tmp0 <= a * b;
+    r0 <= a * b;
+    r1 <= r0;
   end
 
-  assign p = tmp0;
+  assign p = r1;
 
 endmodule
 
 // CHECK: module test_module(a, b, clk, p);
-// CHECK:   ALU54A #(
-// CHECK:   MULT18X18C #(
+// CHECK:   cyclone10lp_mac_mult #(
+// CHECK:   cyclone10lp_mac_out #(
 // CHECK: endmodule
