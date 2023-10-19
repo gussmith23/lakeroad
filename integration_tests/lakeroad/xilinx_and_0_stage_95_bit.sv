@@ -6,15 +6,15 @@
 // RUN:  --template parallel-dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal out:36 \
+// RUN:  --verilog-module-out-signal out:95 \
 // RUN:  --initiation-interval 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name top \
-// RUN:  --input-signal "a:(port a 36):36" \
-// RUN:  --input-signal "c:(port b 36):36" \
+// RUN:  --input-signal "a:(port a 95):95" \
+// RUN:  --input-signal "c:(port b 95):95" \
 // RUN:  --timeout 90 \
-// RUN:  --port a:36 \
-// RUN:  --port b:36 \
+// RUN:  --port a:95 \
+// RUN:  --port b:95 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
@@ -30,8 +30,8 @@
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 1 \
 // RUN:    --output_signal_name out \
-// RUN:    --input_signal a:a:36 \
-// RUN:    --input_signal c:b:36 \
+// RUN:    --input_signal a:a:95 \
+// RUN:    --input_signal c:b:95 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -44,12 +44,12 @@
 // RUN: fi
 
 (* use_dsp = "yes" *) module top(
-	input signed [29:0] a,
-	input signed [29:0] b,
-	output [29:0] out,
+	input signed [94:0] a,
+	input signed [94:0] b,
+	output [94:0] out,
 	input clk);
 
-	logic signed [29:0] stage0;
+	logic signed [94:0] stage0;
 
 	always @(posedge clk) begin
 	stage0 <= a & b;

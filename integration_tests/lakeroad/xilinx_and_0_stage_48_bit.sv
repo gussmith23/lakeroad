@@ -49,10 +49,10 @@
 	output [47:0] out,
 	input clk);
 
-	logic signed [57:0] stage0;
+	logic signed [47:0] stage0;
 
 	always @(posedge clk) begin
-	stage0 <= a & b;
+	stage0 <= a + b;
 
 	end
 
