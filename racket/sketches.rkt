@@ -205,177 +205,82 @@
 (define (single-dsp-sketch-generator architecture-description
                                      inputs
                                      #:internal-data [internal-data #f])
-  (match-let*
-      ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
-       ;;; Unpack clk and rst signals; default to 0 if neither is set.
-       [test (displayln "INPUTS ARE HERE")]
-       [test2 (displayln inputs)]
-       [test4 (displayln (sketch-inputs-data inputs))]
-       [test3 (displayln (assoc "c" (sketch-inputs-data inputs)))]
-       [clk-expr (if (sketch-inputs-clk inputs)
-                     (car (sketch-inputs-clk inputs))
-                     (lr:bv (bv->signal (bv 0 1))))]
-       [rst-expr (if (sketch-inputs-rst inputs)
-                     (car (sketch-inputs-rst inputs))
-                     (lr:bv (bv->signal (bv 0 1))))]
+  (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+               ;;; Unpack clk and rst signals; default to 0 if neither is set.
+               [test (displayln "INPUTS ARE HERE")]
+               [test2 (displayln inputs)]
+               [test4 (displayln (sketch-inputs-data inputs))]
+               [test3 (displayln (assoc "c" (sketch-inputs-data inputs)))]
+               [clk-expr (if (sketch-inputs-clk inputs)
+                             (car (sketch-inputs-clk inputs))
+                             (lr:bv (bv->signal (bv 0 1))))]
+               [rst-expr (if (sketch-inputs-rst inputs)
+                             (car (sketch-inputs-rst inputs))
+                             (lr:bv (bv->signal (bv 0 1))))]
 
-       [make-dsp-expr (lambda (internal-data out-width
-                                             clk-expr
-                                             rst-expr
-                                             a-expr
-                                             a-width
-                                             b-expr
-                                             b-width
-                                             c-expr
-                                             c-width
-                                             d-expr
-                                             d-width)
-                        (match-define (list dsp-expr ignored-internal-data)
-                          (construct-interface architecture-description
-                                               (interface-identifier "DSP"
-                                                                     (hash "out-width"
-                                                                           out-width
-                                                                           "a-width"
-                                                                           a-width
-                                                                           "b-width"
-                                                                           b-width
-                                                                           "c-width"
-                                                                           c-width
-                                                                           "d-width"
-                                                                           d-width))
-                                               (list (cons "clk" clk-expr)
-                                                     (cons "rst" rst-expr)
-                                                     (cons "A" a-expr)
-                                                     (cons "B" b-expr)
-                                                     (cons "C" c-expr)
-                                                     (cons "D" d-expr))
-                                               #:internal-data internal-data))
-                        ;;; Ignoring internal data for now, but we could use it in the future.
-                        ;(list (lr:hash-ref dsp-expr 'O) internal-data)
-                        (lr:hash-ref dsp-expr 'O))]
-       ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
-       ;;; give C.
-       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw) (cons d-expr d-bw))
-        (match (sketch-inputs-data inputs)
-          [(list a-tuple b-tuple c-tuple d-tuple) (list a-tuple b-tuple c-tuple d-tuple)]
-          [(list a-tuple b-tuple c-tuple)
-           (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (bv 0 1))) 1))]
-          [(list a-tuple b-tuple)
-           (list a-tuple
-                 b-tuple
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
+               [make-dsp-expr (lambda (internal-data out-width
+                                                     clk-expr
+                                                     rst-expr
+                                                     a-expr
+                                                     a-width
+                                                     b-expr
+                                                     b-width
+                                                     c-expr
+                                                     c-width
+                                                     d-expr
+                                                     d-width)
+                                (match-define (list dsp-expr ignored-internal-data)
+                                  (construct-interface architecture-description
+                                                       (interface-identifier "DSP"
+                                                                             (hash "out-width"
+                                                                                   out-width
+                                                                                   "a-width"
+                                                                                   a-width
+                                                                                   "b-width"
+                                                                                   b-width
+                                                                                   "c-width"
+                                                                                   c-width
+                                                                                   "d-width"
+                                                                                   d-width))
+                                                       (list (cons "clk" clk-expr)
+                                                             (cons "rst" rst-expr)
+                                                             (cons "A" a-expr)
+                                                             (cons "B" b-expr)
+                                                             (cons "C" c-expr)
+                                                             (cons "D" d-expr))
+                                                       #:internal-data internal-data))
+                                ;;; Ignoring internal data for now, but we could use it in the future.
+                                ;(list (lr:hash-ref dsp-expr 'O) internal-data)
+                                (lr:hash-ref dsp-expr 'O))]
+               ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
+               ;;; give C.
+               [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw) (cons d-expr d-bw))
+                (match (sketch-inputs-data inputs)
+                  [(list a-tuple b-tuple c-tuple d-tuple) (list a-tuple b-tuple c-tuple d-tuple)]
+                  [(list a-tuple b-tuple c-tuple)
+                   (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (bv 0 1))) 1))]
+                  [(list a-tuple b-tuple)
+                   (list a-tuple
+                         b-tuple
+                         (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                         (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
 
-       [out-expr
-        (choose
-         (make-dsp-expr internal-data
-                        (sketch-inputs-output-width inputs)
-                        clk-expr
-                        rst-expr
-                        a-expr
-                        a-bw
-                        b-expr
-                        b-bw
-                        c-expr
-                        c-bw
-                        d-expr
-                        d-bw)
-         ;;(make-dsp-expr internal-data out-width (car clk-input) (car rst-input) a-expr a-bw c-expr c-bw b-expr b-bw)
-         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw a-expr a-bw c-expr c-bw)
-         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) b-expr b-bw c-expr c-bw a-expr a-bw)
-         ;;;    (make-dsp-expr internal-data out-width (car clk-input) (car rst-input) c-expr c-bw b-expr b-bw a-expr a-bw)
-         ;;;    (make-dsp-expr internal-data
-         ;;; out-width
-         ;;; (car clk-input)
-         ;;; (car rst-input) c-expr
-         ;;; c-bw
-         ;;; a-expr
-         ;;; a-bw
-         ;;; b-expr
-         ;;; b-bw)
-         )])
+               [out-expr (choose (make-dsp-expr internal-data
+                                                (sketch-inputs-output-width inputs)
+                                                clk-expr
+                                                rst-expr
+                                                a-expr
+                                                a-bw
+                                                b-expr
+                                                b-bw
+                                                c-expr
+                                                c-bw
+                                                d-expr
+                                                d-bw))])
     (list out-expr internal-data)))
-;;; (define (xilinx-wide-dsp-sketch-generator architecture-description
-;;;                                           inputs
-;;;                                           #:internal-data [internal-data #f])
-;;;   (match-let* ([_ 1]
-;;;                [clk-expr (if (sketch-inputs-clk inputs)
-;;;                              (car (sketch-inputs-clk inputs))
-;;;                              (lr:bv (bv->signal (bv 0 1))))]
-;;;                [rst-expr (if (sketch-inputs-rst inputs)
-;;;                              (car (sketch-inputs-rst inputs))
-;;;                              (lr:bv (bv->signal (bv 0 1))))]
-
-;;;                [make-dsp-expr (lambda (internal-data out-width
-;;;                                                      clk-expr
-;;;                                                      rst-expr
-;;;                                                      a-expr
-;;;                                                      a-width
-;;;                                                      b-expr
-;;;                                                      b-width
-;;;                                                      c-expr
-;;;                                                      c-width
-;;;                                                      d-expr
-;;;                                                      d-width)
-;;;                                 (match-define (list dsp-expr ignored-internal-data)
-;;;                                   (construct-interface architecture-description
-;;;                                                        (interface-identifier "DSP"
-;;;                                                                              (hash "out-width"
-;;;                                                                                    out-width
-;;;                                                                                    "a-width"
-;;;                                                                                    a-width
-;;;                                                                                    "b-width"
-;;;                                                                                    b-width
-;;;                                                                                    "c-width"
-;;;                                                                                    c-width
-;;;                                                                                    "d-width"
-;;;                                                                                    d-width))
-;;;                                                        (list (cons "clk" clk-expr)
-;;;                                                              (cons "rst" rst-expr)
-;;;                                                              (cons "A" a-expr)
-;;;                                                              (cons "B" b-expr)
-;;;                                                              (cons "C" c-expr)
-;;;                                                              (cons "D" d-expr))
-;;;                                                        #:internal-data internal-data))
-;;;                                 ;;; Ignoring internal data for now, but we could use it in the future.
-;;;                                 ;(list (lr:hash-ref dsp-expr 'O) internal-data)
-;;;                                 (lr:hash-ref dsp-expr 'O))]
-;;;                [(list a-expr a-bw) (if (assoc "a" (sketch-inputs-data inputs))
-;;;                                        (list (second (assoc "a" (sketch-inputs-data inputs)))
-;;;                                              (third (assoc "a" (sketch-inputs-data inputs))))
-;;;                                        (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
-;;;                [(list b-expr b-bw) (if (assoc "b" (sketch-inputs-data inputs))
-;;;                                        (list (second (assoc "b" (sketch-inputs-data inputs)))
-;;;                                              (third (assoc "b" (sketch-inputs-data inputs))))
-;;;                                        (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
-;;;                [(list c-expr c-bw) (if (assoc "c" (sketch-inputs-data inputs))
-;;;                                        (list (second (assoc "c" (sketch-inputs-data inputs)))
-;;;                                              (third (assoc "c" (sketch-inputs-data inputs))))
-;;;                                        (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
-;;;                [(list d-expr d-bw) (if (assoc "d" (sketch-inputs-data inputs))
-;;;                                        (list (second (assoc "d" (sketch-inputs-data inputs)))
-;;;                                              (third (assoc "d" (sketch-inputs-data inputs))))
-;;;                                        (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
-;;;                [lookup-dsp-output-width
-;;;                 (lambda (x)
-;;;                   (hash-ref (interface-identifier-parameters
-;;;                              (interface-implementation-identifier
-;;;                               (findf (lambda (y)
-;;;                                        (equal? "DSP"
-;;;                                                (interface-identifier-name
-;;;                                                 (interface-implementation-identifier y))))
-;;;                                      (architecture-description-interface-implementations x))))
-;;;                             "out-width"))]
-;;;                ;; the output width on this architecture to determine how many dsps to use
-;;;                [out-width (lookup-dsp-output-width architecture-description)]
-;;;                [iterations (floor (/ c-bw out-width))] ;; c is input bitwidth
-;;;                [mod (modulo c-bw out-width)] ;; leftover bits for the last dsp
-
-;;;                )
-;;;     ))
 (define (parallel-dsp-sketch-generator architecture-description
                                        inputs
-                                       #:internal-data [internal-data #f])
+                                       #:inteal-data [internal-data #f])
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
        ;;; Unpack clk and rst signals; default to 0 if neither is set.
@@ -450,95 +355,66 @@
        ;; the output width on this architecture to determine how many dsps to use
        [out-width (lookup-port-width architecture-description "out-width")]
        [a-width (lookup-port-width architecture-description "a-width")]
-      ;;;  [_ (displayln out-width)]
-      ;;;  [_ (displayln a-width)]
-       ;; the number of dsps we need to use (delta 1)
        [iterations (floor (/ c-bw out-width))]
-       ;;;  [mod (modulo c-bw 18)]
-       ;;;  [outputlist (for/list ([i iterations]) ;; no need to extract the bits from this any more, since its always 48
-       ;;;                        (make-dsp-expr
-       ;;;                         internal-data
-       ;;;                         (lookup-port-width architecture-description "out-width")
-       ;;;                         clk-expr
-       ;;;                         rst-expr
-       ;;;                         ;; A is the first 30 bits of this iteration of A
-       ;;;                         (lr:extract (lr:integer (+ (* i 30) 29)) (lr:integer (* i 30)) a-expr)
-       ;;;                         (lookup-port-width architecture-description "a-width")
-       ;;;                         ;; B is the next 18 bits of this iteration of A
-       ;;;                         (lr:extract (lr:integer (+ (* i 30) 47)) (lr:integer (+ (* i 30) 30)) a-expr)
-       ;;;                         (lookup-port-width architecture-description "b-width")
-       ;;;                         ;; C is just the next 48 bits of C
-       ;;;                         (lr:extract (lr:integer (+ (* i 48) 47)) (lr:integer (* i 48)) c-expr)
-       ;;;                         (lookup-port-width architecture-description "c-width")
-       ;;;                         ;; D is a dud right now
-       ;;;                         d-expr
-       ;;;                         d-bw
-       ;;;                         ))]
        [iterations (floor (/ c-bw 48))]
        [mod (modulo c-bw 48)] ;; leftover bits for the last dsp
-       [_ (displayln iterations)]
-       [_ (displayln mod)]
-       [outputlist (for/list ([i iterations])
-                     (displayln i)
-                     (lr:extract
-                      (lr:integer 47)
-                      (lr:integer 0)
-                      (make-dsp-expr
-                       internal-data
-                       (lookup-port-width architecture-description "out-width")
-                       clk-expr
-                       rst-expr
-                  ;;;      (lr:extract (lr:integer 47) (lr:integer 18) a-expr)
-                       (lr:extract (lr:integer (+ (* i 48) 47)) (lr:integer (- (+ (* i 48) 47) 29)) a-expr)
-                       30
-                  ;;;      (lr:extract (lr:integer 17) (lr:integer 0) a-expr)
-                       (lr:extract (lr:integer (+ (* i 48) 17)) (lr:integer (- (+ (* i 48) 17) 17)) a-expr)
-                       18
-                       (lr:extract (lr:integer (+ (* i 48) 47)) (lr:integer (* i 48)) c-expr)
-                       48
-                       d-expr
-                       d-bw)))]
+       [outputlist
+        (for/list ([i iterations])
+          (lr:extract
+           (lr:integer 47)
+           (lr:integer 0)
+           (make-dsp-expr
+            internal-data
+            (lookup-port-width architecture-description "out-width")
+            clk-expr
+            rst-expr
+            (lr:extract (lr:integer (+ (* i 48) 47)) (lr:integer (- (+ (* i 48) 47) 29)) a-expr)
+            30
+            (lr:extract (lr:integer (+ (* i 48) 17)) (lr:integer (- (+ (* i 48) 17) 17)) a-expr)
+            18
+            (lr:extract (lr:integer (+ (* i 48) 47)) (lr:integer (* i 48)) c-expr)
+            48
+            d-expr
+            d-bw)))]
        ;; we now have some cleanup: if the leftover bits are less than 31, then we dont nee to use b.
-       [_ (displayln (+ (* iterations 48) (- mod 1)))]
-       [_ (displayln (+ (* iterations 48) 17))]
-       [_ (displayln (+ (* iterations 48) 17))]
-       [_ (displayln (* iterations 48))]
-       [fencepost (lr:extract (lr:integer (- mod 1))
-                              (lr:integer 0)
-                              (make-dsp-expr internal-data
-                                             mod
-                                             clk-expr
-                                             rst-expr
-                                             (if (> mod 30) ;; we need to use a for some top bits
-                                                 (lr:extract (lr:integer (+ (* iterations 48) (- mod 1))) ;; top is how many ever bits of leftover we have - 1,
-                                                             (lr:integer (+ (* iterations 48) 18))  ;; bottom STARTS at 17 + the end of whole loop, since we need ot use the first 17 in b
-                                                             a-expr)
-                                                 ;; we can use a for everything
-                                                 (lr:extract (lr:integer (+ (* iterations 48) (- mod 1)))
-                                                             (lr:integer (* iterations 48))
-                                                             a-expr))
-                                             (if (> mod 30)
-                                                 (- mod 17)
-                                                 mod)
-                                             (if (> mod 30) ;; if we need to use b for the botom bits
-                                                 (lr:extract (lr:integer (+ (* iterations 48) 17)) ;; top is 17 + the end of whole loop, since we need to use the first 17 in b
-                                                             (lr:integer (* iterations 48)) ;; bottom is the end of the whole loop
-                                                             a-expr)
-                                                 b-expr)
-                                             (if (> mod 30)
-                                                 18
-                                                 b-bw)
-                                             (lr:extract (lr:integer (+ (* iterations 48) (- mod 1)))
-                                                         (lr:integer (* iterations 48))
-                                                         c-expr)
-                                             48
-                                             d-expr
-                                             d-bw))]
-       [_ (displayln (> mod 0))]
+       [fencepost
+        (lr:extract
+         (lr:integer (- mod 1))
+         (lr:integer 0)
+         (make-dsp-expr
+          internal-data
+          mod
+          clk-expr
+          rst-expr
+          (if (> mod 30) ;; we need to use a for some top bits
+              (lr:extract
+               (lr:integer (+ (* iterations 48)
+                              (- mod 1))) ;; top is how many ever bits of leftover we have - 1,
+               (lr:integer
+                (+ (* iterations 48)
+                   18)) ;; bottom STARTS at 17 + endofloop, since we need to use the first 17 in b
+               a-expr)
+              ;; we can use a for everything
+              (lr:extract (lr:integer (+ (* iterations 48) (- mod 1)))
+                          (lr:integer (* iterations 48))
+                          a-expr))
+          (if (> mod 30) (- mod 17) mod)
+          (if (> mod 30) ;; if we need to use b for the botom bits
+              (lr:extract
+               (lr:integer
+                (+ (* iterations 48)
+                   17)) ;; top is 17 + the end of whole loop, since we need to use the first 17 in b
+               (lr:integer (* iterations 48)) ;; bottom is the end of the whole loop
+               a-expr)
+              b-expr)
+          (if (> mod 30) 18 b-bw)
+          (lr:extract (lr:integer (+ (* iterations 48) (- mod 1)))
+                      (lr:integer (* iterations 48))
+                      c-expr)
+          48
+          d-expr
+          d-bw))]
        [output-list (if (> mod 0) (cons fencepost (reverse outputlist)) (reverse outputlist))]
-       ;;;  [output-list (reverse outputlist)]
-
-       ;;;  [_ (displayln outputlist)]
        [output (lr:concat (lr:list output-list))])
     (list output internal-data)))
 
