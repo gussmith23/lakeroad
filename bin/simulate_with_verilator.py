@@ -109,6 +109,7 @@ def simulate_with_verilator(
         Path(os.environ["LAKEROAD_DIR"]) / "misc" / "verilator_testbench.sv.template"
     ).read_text()
     testbench_source = testbench_template_source.format(
+        max_input_bitwidth=max([bw for _, bw in module_inputs]),
         test_module_name=test_module_name,
         ground_truth_module_name=ground_truth_module_name,
         test_module_port_list=",".join(
