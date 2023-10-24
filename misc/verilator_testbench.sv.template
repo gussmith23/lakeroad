@@ -4,7 +4,7 @@ module testbench;
 
 integer num_inputs;
 integer num_test_cases;
-integer inputs[];
+logic [{max_input_bitwidth}-1:0] inputs[];
 
 {test_module_name} simulate_with_verilator_test_module({test_module_port_list});
 {ground_truth_module_name} simulate_with_verilator_ground_truth_module({ground_truth_module_port_list});
