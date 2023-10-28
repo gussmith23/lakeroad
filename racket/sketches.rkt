@@ -283,7 +283,7 @@
     (list out-expr internal-data)))
 (define (parallel-dsp-sketch-generator architecture-description
                                        inputs
-                                       #:inteal-data [internal-data #f])
+                                       #:internal-data [internal-data #f])
   (match-let*
       ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
        ;;; Unpack clk and rst signals; default to 0 if neither is set.
@@ -323,7 +323,8 @@
                                                      (cons "A" a-expr)
                                                      (cons "B" b-expr)
                                                      (cons "C" c-expr)
-                                                     (cons "D" d-expr))
+                                                     (cons "D" d-expr)
+                                                     (cons "CARRYIN" (lr:bv (bv->signal (bv 0 1)))))
                                                #:internal-data internal-data))
                         ;;; Ignoring internal data for now, but we could use it in the future.
                         ;(list (lr:hash-ref dsp-expr 'O) internal-data)
@@ -420,7 +421,11 @@
        [output-list (if (> mod 0) (cons fencepost (reverse outputlist)) (reverse outputlist))]
        [output (lr:concat (lr:list output-list))])
     (list output internal-data)))
-
+;;; (define (wide-and-xilinx-dsp-sketch-generator architecture-description
+;;;                                               sketch-inputs
+;;;                                               #:internal-data [internal-data #f])
+;;;   (match-let*
+;;;       ))
 ;;; Bitwise with carry sketch generator.
 ;;;
 ;;; Suitable for arithmetic operations like addition and subtraction.
