@@ -65,7 +65,7 @@ def simulate_with_verilator(
     obj_dirpath.mkdir(parents=True, exist_ok=True)
     testbench_sv_filepath = Path(testbench_sv_filepath)
     testbench_sv_filepath.parent.mkdir(parents=True, exist_ok=True)
-    testbench_exe_filepath = Path(testbench_exe_filepath)
+    testbench_exe_filepath = Path(testbench_exe_filepath).resolve()
     testbench_exe_filepath.parent.mkdir(parents=True, exist_ok=True)
     testbench_inputs_filepath = Path(testbench_inputs_filepath)
     testbench_inputs_filepath.parent.mkdir(parents=True, exist_ok=True)
