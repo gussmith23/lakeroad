@@ -146,3 +146,5 @@ egglog_test!(agilex_alm, "tests/egglog_tests/agilex_alm.egg", egraph, {
         &vec![].into_iter().collect()
     ));
 });
+
+egglog_test!(half_adder, "tests/egglog_tests/half_adder.egg");
