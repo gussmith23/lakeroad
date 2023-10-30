@@ -9,9 +9,9 @@
 // RUN:  --verilog-module-out-signal out:18 \
 // RUN:  --initiation-interval 1 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name top \
-// RUN:  --input-signal "a:(extract 17 0 (port a 18)):18" \
-// RUN:  --input-signal "c:(extract 17 0 (port b 18)):18" \
+// RUN:  --module-name out \
+// RUN:  --input-signal "a:(port a 18):18" \
+// RUN:  --input-signal "c:(port b 18):18" \
 // RUN:  --timeout 90 \
 // RUN:  --port a:18 \
 // RUN:  --port b:18 \
@@ -22,16 +22,16 @@
 // RUN:   exit 0; \
 // RUN: else \
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --use_random_intermediate_inputs \
-// RUN:    --seed=23 \
 // RUN:    --max_num_tests=10000 \
-// RUN:    --test_module_filepath $outfile \
-// RUN:    --ground_truth_module_filepath %s \
+// RUN:    --verilog_filepath $outfile \
+// RUN:    --verilog_filepath %s \
+// RUN:    --test_module_name top \
+// RUN:    --ground_truth_module_name out \
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 1 \
-// RUN:    --output_signal_name out \
-// RUN:    --input_signal a:a:18 \
-// RUN:    --input_signal b:b:18 \
+// RUN:    --output_signal out:18 \
+// RUN:    --input_signal a:18 \
+// RUN:    --input_signal b:18 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -59,4 +59,4 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: module top(a, b, clk, out); 
+// CHECK: module out(a, b, clk, out);
