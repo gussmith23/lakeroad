@@ -61,7 +61,10 @@
 
 ;;; Typing judgements.
 (ruleset typing)
-
+(rule
+  ((Wire name bw))
+  ((HasType (Wire name bw) (Bitvector bw)))
+  :ruleset typing)
 (rule
   ((Var name bw))
   ((HasType (Var name bw) (Bitvector bw)))
