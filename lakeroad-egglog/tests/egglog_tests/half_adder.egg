@@ -23,24 +23,18 @@
 ; outputs
 (let o_carry v0)
 (let o_sum v1)
-;; need to saturate typing before deleting the wires
-(run-schedule
- (repeat 100
-         (saturate typing)
-         ;; (saturate sketch-proposal)
-         (saturate misc)))
+
 ; delete wire expressions
 (delete (Wire "v0" 1))
 (delete (Wire "v1" 1))
 (delete (Wire "v2" 1))
 (delete (Wire "v3" 1))
 
-;; not sure why but I'm also saturating stuff again after jsut in case
-;; you prob don't need this
 (run-schedule
  (repeat 100
          (saturate typing)
-         ;; (saturate sketch-proposal)
+         (saturate sketch-proposal)
          (saturate misc)))
+
 (extract o_sum)
 (query-extract (HasType o_sum (Bitvector 1)))

@@ -61,10 +61,7 @@
 
 ;;; Typing judgements.
 (ruleset typing)
-(rule
- ((Wire name bw))
- ((HasType (Wire name bw) (Bitvector bw)))
- :ruleset typing)
+
 (rule
   ((Var name bw))
   ((HasType (Var name bw) (Bitvector bw)))
@@ -86,12 +83,23 @@
    (HasType b-expr (Bitvector bw)))
   ((HasType (Op2 (And) a-expr b-expr) (Bitvector bw)))
   :ruleset typing)
-
 (rule
   ((Op2 (Or) a-expr b-expr)
    (HasType a-expr (Bitvector bw))
    (HasType b-expr (Bitvector bw)))
   ((HasType (Op2 (Or) a-expr b-expr) (Bitvector bw)))
+  :ruleset typing)
+(rule
+  ((Op2 (Xor) a-expr b-expr)
+   (HasType a-expr (Bitvector bw))
+   (HasType b-expr (Bitvector bw)))
+  ((HasType (Op2 (Xor) a-expr b-expr) (Bitvector bw)))
+  :ruleset typing)
+(rule
+  ((Op2 (Shr) a-expr b-expr)
+   (HasType a-expr (Bitvector bw))
+   (HasType b-expr (Bitvector bw)))
+  ((HasType (Op2 (Shr) a-expr b-expr) (Bitvector bw)))
   :ruleset typing)
 (rule
   ((Op2 (Eq) a-expr b-expr)
