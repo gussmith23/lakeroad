@@ -536,7 +536,6 @@
 ;;; Part 4: A smarter implementation of construct-interface-internal, which handles some cases where some
 ;;; interfaces are not implemented.
 
-
 ;(construct-lut5-from-lut4 architecture-description ports)
 
 ;;; This is a more user-friendly wrapper over construct-interface-internal, which is smart enough to
@@ -996,39 +995,47 @@
                                         their-d-width))
             ;;; Either sign extend or zero extend the data inputs. Some multipliers handle signed
             ;;; inputs, some multipliers take sign as a separate argument.
-            (let* ([lst (list (cons "A"
-                        (choose (lr:zero-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
+            (let* ([lst (list
+                         (cons "A"
+                               (choose
+                                (lr:zero-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
                                                 (lr:bitvector (bitvector their-a-width)))
                                 (lr:sign-extend (cdr (or (assoc "A" port-map) (error "Expected A")))
                                                 (lr:bitvector (bitvector their-a-width)))))
-                      (cons "B"
-                            (choose (lr:zero-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
-                                                    (lr:bitvector (bitvector their-b-width)))
-                                    (lr:sign-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
-                                                    (lr:bitvector (bitvector their-b-width)))))
-                      (cons "C"
-                            (choose (lr:zero-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
-                                                    (lr:bitvector (bitvector their-c-width)))
-                                    (lr:sign-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
-                                                    (lr:bitvector (bitvector their-c-width)))))
-                      (cons "D"
-                            (choose (lr:zero-extend (cdr (or (assoc "D" port-map) (error "Expected D")))
-                                                    (lr:bitvector (bitvector their-d-width)))
-                                    (lr:sign-extend (cdr (or (assoc "D" port-map) (error "Expected D")))
-                                                    (lr:bitvector (bitvector their-d-width)))))
-                      (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk"))))
-                      (cons "rst" (cdr (or (assoc "rst" port-map) (error "Expected rst")))))])
-                  (if (assoc "CARRYIN" port-map)
-                       (cons (cons "CARRYIN" (cdr (assoc "CARRYIN" port-map))) lst)
-                       lst))
+                         (cons "B"
+                               (choose
+                                (lr:zero-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
+                                                (lr:bitvector (bitvector their-b-width)))
+                                (lr:sign-extend (cdr (or (assoc "B" port-map) (error "Expected B")))
+                                                (lr:bitvector (bitvector their-b-width)))))
+                         (cons "C"
+                               (choose
+                                (lr:zero-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
+                                                (lr:bitvector (bitvector their-c-width)))
+                                (lr:sign-extend (cdr (or (assoc "C" port-map) (error "Expected C")))
+                                                (lr:bitvector (bitvector their-c-width)))))
+                         (cons "D"
+                               (choose
+                                (lr:zero-extend (cdr (or (assoc "D" port-map) (error "Expected D")))
+                                                (lr:bitvector (bitvector their-d-width)))
+                                (lr:sign-extend (cdr (or (assoc "D" port-map) (error "Expected D")))
+                                                (lr:bitvector (bitvector their-d-width)))))
+                         (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk"))))
+                         (cons "rst" (cdr (or (assoc "rst" port-map) (error "Expected rst")))))]
+                   [lst (if (assoc "CARRYIN" port-map)
+                            (cons (cons "CARRYIN" (cdr (assoc "CARRYIN" port-map))) lst)
+                            lst)])
+              lst)
             #:internal-data internal-data)])
 
        (list (lr:make-immutable-hash
-              (lr:list (list (lr:cons (lr:symbol 'O)
-                                      (lr:extract (lr:integer (- requested-out-width 1))
-                                                  (lr:integer 0)
-                                                  (lr:hash-ref dsp-expr 'O))))))
-             internal-data))]
+                          (lr:list (list (lr:cons (lr:symbol 'O)
+                                                  (lr:extract (lr:integer (- requested-out-width 1))
+                                                              (lr:integer 0)
+                                                              (lr:hash-ref dsp-expr 'O)))
+                                         (lr:cons (lr:symbol 'CARRYOUT)
+                                                  (lr:hash-ref dsp-expr 'CARRYOUT)))))
+                         internal-data))]
 
     [else
      (error
