@@ -1022,6 +1022,9 @@
                                                 (lr:bitvector (bitvector their-d-width)))))
                          (cons "clk" (cdr (or (assoc "clk" port-map) (error "Expected clk"))))
                          (cons "rst" (cdr (or (assoc "rst" port-map) (error "Expected rst")))))]
+                   ;  [lst (if (assoc "CARRYIN" port-map)
+                   ;           (cons (cons "CARRYIN" (cdr (assoc "CARRYIN" port-map))) lst)
+                   ;           lst)]
                    [lst (if (assoc "CARRYIN" port-map)
                             (cons (cons "CARRYIN" (cdr (assoc "CARRYIN" port-map))) lst)
                             lst)])
@@ -1029,13 +1032,12 @@
             #:internal-data internal-data)])
 
        (list (lr:make-immutable-hash
-                          (lr:list (list (lr:cons (lr:symbol 'O)
-                                                  (lr:extract (lr:integer (- requested-out-width 1))
-                                                              (lr:integer 0)
-                                                              (lr:hash-ref dsp-expr 'O)))
-                                         (lr:cons (lr:symbol 'CARRYOUT)
-                                                  (lr:hash-ref dsp-expr 'CARRYOUT)))))
-                         internal-data))]
+              (lr:list (list (lr:cons (lr:symbol 'O)
+                                      (lr:extract (lr:integer (- requested-out-width 1))
+                                                  (lr:integer 0)
+                                                  (lr:hash-ref dsp-expr 'O)))
+                             (lr:cons (lr:symbol 'CARRYOUT) (lr:hash-ref dsp-expr 'CARRYOUT)))))
+             internal-data))]
 
     [else
      (error

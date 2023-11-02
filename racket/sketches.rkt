@@ -349,7 +349,8 @@
 
                [lookup-port-width
                 (lambda (x name)
-                  (hash-ref (interface-identifier-parameters
+                  (hash-ref 
+                  (interface-identifier-parameters
                              (interface-implementation-identifier
                               (findf (lambda (y)
                                        (equal? "DSP"
@@ -359,10 +360,12 @@
                             name))]
                ;; the output width on this architecture to determine how many dsps to use
                [out-width (lookup-port-width architecture-description "out-width")]
-               [a-width (lookup-port-width architecture-description "a-width")]
-               [iterations (floor (/ c-bw out-width))]
-               [iterations (floor (/ c-bw 48))]
+            ;    [_ (displayln out-width)]
+            ;    [a-width (lookup-port-width architecture-description "a-width")]
+            ;    [iterations (floor (/ c-bw out-width))]
+            ;    [iterations (floor (/ c-bw 48))]
                [mod (modulo c-bw 48)] ;; leftover bits for the last dsp
+               ;; deals with the least significant 48 bits
                [dsp1 (make-dsp-expr internal-data
                                     out-width
                                     clk-expr
@@ -376,10 +379,7 @@
                                     d-expr
                                     d-bw
                                     (choose (lr:bv (bv->signal (bv 0 1)))))]
-              [_ (displayln (lr:hash-ref dsp1 'O))]
-              [_ (displayln "")]
-              [_ (displayln "")]
-              [_ (displayln (lr:hash-ref dsp1 'CARRYOUT))]
+              ;; deals with the most significant bits
               [dsp2 (make-dsp-expr internal-data
                                    out-width
                                    clk-expr
@@ -388,14 +388,16 @@
                                    30
                                    (lr:extract (lr:integer 65) (lr:integer 48) a-expr)
                                    18
-                                   (lr:extract (lr:integer 47) (lr:integer 0) c-expr)
+                                   (lr:extract (lr:integer 95) (lr:integer 48) c-expr)
                                    48
                                    d-expr
                                    d-bw
-                                   (lr:bv (bv->signal (bv 0 1))))]
-               [outputlist (cons (lr:hash-ref dsp1 'O) (cons (lr:hash-ref dsp2 'O) '()))]
-                                   )
-    (list (lr:hash-ref dsp1 'CARRYOUT) internal-data)))
+                                   (lr:extract (lr:integer 0) (lr:integer 0) 
+                                               (lr:hash-ref dsp1 'CARRYOUT)))]
+               [outputlow (lr:extract (lr:integer 47) (lr:integer 0) (lr:hash-ref dsp1 'O))]
+               [outputhigh (lr:extract (lr:integer 47) (lr:integer 0) (lr:hash-ref dsp2 'O))]
+               [output (lr:concat (lr:list (list outputhigh outputlow)))])
+    (list output internal-data)))
 
 (define (parallel-dsp-sketch-generator architecture-description
                                        inputs
