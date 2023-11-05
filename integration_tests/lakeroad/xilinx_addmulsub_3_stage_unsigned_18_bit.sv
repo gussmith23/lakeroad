@@ -14,6 +14,7 @@
 // RUN:  --input-signal b:18 \
 // RUN:  --input-signal c:18 \
 // RUN:  --input-signal d:18 \
+// RUN:  --extra-cycles 3 \
 // RUN:  --timeout 90 || true) \
 // RUN:  > $outfile \
 // RUN:  2>&1 
@@ -26,8 +27,8 @@
 //    --use_random_intermediate_inputs \
 //    --seed=23 \
 //    --max_num_tests=10000 \
-//    --test_module_filepath $outfile \
-//    --ground_truth_module_filepath %s \
+//    --verilog_filepath $outfile \
+//    --verilog_filepath %s \
 //    --clock_name clk \
 //    --initiation_interval 3 \
 //    --output_signal_name out \

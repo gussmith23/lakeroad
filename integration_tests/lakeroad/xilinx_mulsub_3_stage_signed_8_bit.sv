@@ -13,6 +13,8 @@
 // RUN:  --input-signal a:8 \
 // RUN:  --input-signal b:8 \
 // RUN:  --input-signal c:8 \
+// RUN:  --extra-cycles 3 \
+// RUN:  --timeout 120 \
 // RUN:  || true ) 2>&1 \
 // RUN:  | FileCheck %s
 // FileCheck %s < $outfile
@@ -24,8 +26,8 @@
 //     --use_random_intermediate_inputs \
 //     --seed=23 \
 //     --max_num_tests=10000 \
-//     --test_module_filepath $outfile \
-//     --ground_truth_module_filepath %s \
+//     --verilog_filepath $outfile \
+//     --verilog_filepath %s \
 //     --clock_name clk \
 //     --initiation_interval 3 \
 //     --output_signal_name out \

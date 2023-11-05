@@ -185,7 +185,10 @@
                                      (interface-identifier "carry" (hash "width" bitwidth))
                                      (list (cons "CI" (lr:bv (bv->signal (?? (bitvector 1)))))
                                            (cons "DI" (lr:list-ref logical-inputs (lr:integer 0)))
-                                           (cons "S" (lr:list-ref logical-inputs (lr:integer 1))))
+                                           (cons "S"
+                                                 (if (>= num-logical-inputs 2)
+                                                     (lr:list-ref logical-inputs (lr:integer 1))
+                                                     (lr:bv (bv->signal (?? (bitvector bitwidth)))))))
                                      #:internal-data internal-data)]
                [out-expr (lr:hash-ref carry-expr 'O)])
     (list out-expr internal-data)))
@@ -256,6 +259,11 @@
           [(list a-tuple b-tuple)
            (list a-tuple
                  b-tuple
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1))]
+          [(list a-tuple)
+           (list a-tuple
+                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
                  (cons (lr:bv (bv->signal (bv 0 1))) 1)
                  (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
 

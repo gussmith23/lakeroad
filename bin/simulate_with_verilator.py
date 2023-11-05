@@ -6,41 +6,40 @@ import os
 from pathlib import Path
 import random
 import sys
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 import subprocess
 
 MAX_NUM_TESTS = 2**18
 
 
 def simulate_with_verilator(
-    obj_dir_dir: Union[str, Path],
-    test_module_filepath: Union[str, Path],
-    ground_truth_module_filepath: Union[str, Path],
+    test_module_name: str,
+    ground_truth_module_name: str,
+    obj_dirpath: Union[str, Path],
+    verilog_filepaths: List[Union[str, Path]],
     module_inputs: List[Tuple[str, int]],
-    clock_name: str,
     initiation_interval: int,
-    testbench_cc_filepath: Union[str, Path],
+    testbench_sv_filepath: Union[str, Path],
     testbench_exe_filepath: Union[str, Path],
     testbench_inputs_filepath: Union[str, Path],
     testbench_stdout_log_filepath: Union[str, Path],
     testbench_stderr_log_filepath: Union[str, Path],
     makefile_filepath: Union[str, Path],
-    output_signal: str,
+    module_outputs: List[Tuple[str, int]],
+    clock_name: Optional[str] = None,
     include_dirs: List[Union[str, Path]] = [],
     extra_args: List[str] = [],
     max_num_tests=MAX_NUM_TESTS,
-    use_random_intermediate_inputs=True,
-    seed=0,
     ignore_missing_test_module_file: bool = False,
+    expect_all_zero_outputs: bool = False,
 ):
     """
 
     Args:
-      obj_dir_dir: Directory where we will store obj_dirs produced by Verilator.
-      test_module_filepath: Filepath of Verilog file which serves as the module
-        we're testing.
-      ground_truth_module_filepath: Filepath of Verilog file which serves as the
-        ground truth module.
+      obj_dirpah: Path to obj_dir Verilator output directory.
+      verilog_filepaths: Verilog files to compile with Verilator. These files
+        should at least contain the Verilog code for the test and ground truth
+        modules.
       module_inputs: List of tuples of the form (input_name, input_width). We
         assume inputs are the same between the two modules.
       testbench_{c,exe}_output_filepath: Filepath to write the testbench
@@ -49,20 +48,24 @@ def simulate_with_verilator(
       ignore_missing_test_module_file: If True, we will not raise an exception
         if the test module file does not exist. This is our current hacky solution
         to handling the fact that Lakeroad doesn't always produce output.
+      expect_all_zero_outputs: If True, we will expect that all outputs are
+        always 0 on all inputs. This should almost always be False.
     """
 
-    if ignore_missing_test_module_file and not Path(test_module_filepath).exists():
+    if ignore_missing_test_module_file and not all(
+        [Path(path).exists() for path in verilog_filepaths]
+    ):
+        missing = list(filter(lambda path: not Path(path).exists(), verilog_filepaths))[0]
         logging.warning(
-            f"Test module file {test_module_filepath} does not exist. "
-            "Skipping simulation."
+            f"Required Verilog file {missing} does not exist. " "Skipping simulation."
         )
         return
 
-    obj_dir_dir = Path(obj_dir_dir)
-    obj_dir_dir.mkdir(parents=True, exist_ok=True)
-    testbench_cc_filepath = Path(testbench_cc_filepath)
-    testbench_cc_filepath.parent.mkdir(parents=True, exist_ok=True)
-    testbench_exe_filepath = Path(testbench_exe_filepath)
+    obj_dirpath = Path(obj_dirpath)
+    obj_dirpath.mkdir(parents=True, exist_ok=True)
+    testbench_sv_filepath = Path(testbench_sv_filepath)
+    testbench_sv_filepath.parent.mkdir(parents=True, exist_ok=True)
+    testbench_exe_filepath = Path(testbench_exe_filepath).resolve()
     testbench_exe_filepath.parent.mkdir(parents=True, exist_ok=True)
     testbench_inputs_filepath = Path(testbench_inputs_filepath)
     testbench_inputs_filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -91,48 +94,67 @@ def simulate_with_verilator(
         .format(
             testbench_exe_filepath=testbench_exe_filepath,
             testbench_inputs_filepath=testbench_inputs_filepath,
-            test_module_obj_dirpath=Path(obj_dir_dir) / "test_module",
-            ground_truth_module_obj_dirpath=Path(obj_dir_dir) / "ground_truth_module",
-            test_module_verilog_filepath=test_module_filepath,
-            ground_truth_module_verilog_filepath=ground_truth_module_filepath,
-            test_module_extra_verilator_args=" ".join(
-                [f"-I{dir}" for dir in include_dirs] + extra_args
+            obj_dirpath=obj_dirpath,
+            extra_verilator_args=" ".join(
+                [str(path) for path in verilog_filepaths]
+                + [f"-I{dir}" for dir in include_dirs]
+                + extra_args
             ),
-            ground_truth_module_extra_verilator_args=" ".join(
-                [f"-I{dir}" for dir in include_dirs] + extra_args
-            ),
-            testbench_filepath=testbench_cc_filepath,
-            verilator_include_dir=os.environ["VERILATOR_INCLUDE_DIR"],
+            testbench_filepath=testbench_sv_filepath,
         )
     )
 
     # Instantiate testbench template for our code.
     testbench_template_source = (
-        Path(os.environ["LAKEROAD_DIR"]) / "misc" / "verilator_testbench.cc.template"
+        Path(os.environ["LAKEROAD_DIR"]) / "misc" / "verilator_testbench.sv.template"
     ).read_text()
     testbench_source = testbench_template_source.format(
-        num_inputs=len(module_inputs),
-        test_module_header_filepath=(
-            Path(obj_dir_dir) / "test_module" / "Vtest_module.h"
-        ),
-        ground_truth_module_header_filepath=(
-            Path(obj_dir_dir) / "ground_truth_module" / "Vground_truth_module.h"
-        ),
-        set_module_inputs_body=" ".join(
-            [
-                f"module->{name}=inputs[{i}];"
-                for i, (name, _) in enumerate(module_inputs)
+        max_input_bitwidth=max([bw for _, bw in module_inputs]),
+        test_module_name=test_module_name,
+        ground_truth_module_name=ground_truth_module_name,
+        test_module_port_list=",".join(
+            [f".{name}({name})" for name, _ in module_inputs]
+            + [f".{name}({name}_test)" for name, _ in module_outputs]
+        )
+        + (f",.{clock_name}({clock_name})" if clock_name else ""),
+        ground_truth_module_port_list=",".join(
+            [f".{name}({name})" for name, _ in module_inputs]
+            + [f".{name}({name}_ground_truth)" for name, _ in module_outputs]
+        )
+        + (f",.{clock_name}({clock_name})" if clock_name else ""),
+        input_output_declarations=" ".join(
+            # Modules share inputs.
+            [f"logic [{bw-1}:0] {name};" for (name, bw) in module_inputs]
+            # Make a different output for each module.
+            + [f"logic [{bw-1}:0] {name}_test;" for (name, bw) in module_outputs]
+            + [
+                f"logic [{bw-1}:0] {name}_ground_truth;"
+                for (name, bw) in module_outputs
             ]
+        )
+        + (f"logic {clock_name};" if clock_name else ""),
+        display_inputs=f"$display(\"Inputs: {', '.join([f'{name}=%d' for name, _ in module_inputs])}\", {', '.join([name for name, _ in module_inputs])});",
+        display_outputs=f"$display(\"Expected outputs: {', '.join([f'{name}_ground_truth=%d' for name, _ in module_outputs])}\", {', '.join([f'{name}_ground_truth' for name, _ in module_outputs])});"
+        + f"$display(\"  Actual outputs: {', '.join([f'{name}_test        =%d' for name, _ in module_outputs])}\", {', '.join([f'{name}_test' for name, _ in module_outputs])});",
+        set_inputs=" ".join(
+            f"{name}=inputs[{i}][{bw-1}:0];"
+            for (i, (name, bw)) in enumerate(module_inputs)
         ),
-        set_module_clock_body=f"module->{clock_name}=clock;",
+        clear_clock=f"{clock_name}=1'b0;" if clock_name else "",
+        set_clock=f"{clock_name}=1'b1;" if clock_name else "",
+        check_outputs="("
+        + " && ".join(
+            [f"({name}_ground_truth=={name}_test)" for name, _ in module_outputs]
+        )
+        + ")",
         initiation_interval=initiation_interval,
-        output_signal=output_signal,
-        seed=seed,
-        use_random_intermediate_inputs=(
-            "true" if use_random_intermediate_inputs else "false"
+        randomize_inputs=" ".join(
+            f"inputs[{i}]=$urandom();" for i in range(len(module_inputs))
         ),
+        outputs_reduced_by_or=f"({'|'.join(f'(|{name}_test)' for name, _ in module_outputs)})",
+        expect_all_zero_outputs="1'b1" if expect_all_zero_outputs else "1'b0",
     )
-    Path(testbench_cc_filepath).write_text(testbench_source)
+    Path(testbench_sv_filepath).write_text(testbench_source)
 
     # Generate the input to the testbench.
     with testbench_inputs_filepath.open("w") as f:
@@ -157,8 +179,12 @@ def simulate_with_verilator(
         for one_set_of_inputs in all_inputs:
             print(" ".join([str(x) for x in one_set_of_inputs]), file=f)
 
+    # --environment-overrides is a brute-force way to allow users to use CXX=...
+    # to override the C++ compiler with an environment variable. Overriding
+    # doesn't normally work due to the issues brought up here:
+    # https://github.com/verilator/verilator/issues/4549
     proc = subprocess.run(
-        ["make", "--always-make", "-f", makefile_filepath], capture_output=True
+        ["make", "--environment-overrides", "--always-make", "-f", makefile_filepath], capture_output=True
     )
     Path(testbench_stdout_log_filepath).write_bytes(proc.stdout)
     Path(testbench_stderr_log_filepath).write_bytes(proc.stderr)
@@ -176,33 +202,33 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--seed",
-        type=int,
-        help="Random seed for srand() in the testbench.",
-        default=0,
-    )
-    parser.add_argument(
-        "--use_random_intermediate_inputs",
-        action=argparse.BooleanOptionalAction,
-        help="Use random intermediate inputs after clock cycle 0, rather than 0s.",
-        default=True,
-    )
-    parser.add_argument(
-        "--obj_dir_dir",
+        "--obj_dirpath",
         type=Path,
-        help="Directory where we will store obj_dirs produced by Verilator.",
+        help="Path where we will place the obj_dir folder produced by Verilator.",
         default=False,
     )
     parser.add_argument(
-        "--test_module_filepath",
+        "--verilog_filepath",
         type=Path,
-        help="Filepath of Verilog file which serves as the module we're testing.",
+        help=(
+            "Filepath of Verilog file to compile with Verilator. At the very"
+            " least, you should use this argument to specify the filepaths to"
+            " the modules you're testing and the ground truth module."
+        ),
+        required=True,
+        default=[],
+        action="append",
+    )
+    parser.add_argument(
+        "--test_module_name",
+        type=str,
+        help="Name of the module we're testing.",
         required=True,
     )
     parser.add_argument(
-        "--ground_truth_module_filepath",
-        type=Path,
-        help="Filepath of Verilog file which serves as the ground truth module.",
+        "--ground_truth_module_name",
+        type=str,
+        help="Name of the ground truth module we're testing against.",
         required=True,
     )
     parser.add_argument(
@@ -216,6 +242,7 @@ if __name__ == "__main__":
         "--clock_name",
         type=str,
         help="Name of the clock input to the module we're testing.",
+        default=None,
     )
     parser.add_argument(
         "--initiation_interval",
@@ -224,14 +251,14 @@ if __name__ == "__main__":
         default=0,
     )
     parser.add_argument(
-        "--testbench_cc_filepath",
+        "--testbench_sv_filepath",
         type=Path,
-        help="Filepath to write the testbench C++ code to.",
+        help="Filepath to write the testbench SystemVerilog code to.",
         # Note that mkstemp here will keep the file open, and thus not writeable
         # (e.g. when our Makefile tries to write the executable after
         # compilation.) So we use NamedTemporaryFile, get the name, and then
         # immediately drop the file so that the file gets deleted.
-        default=tempfile.NamedTemporaryFile(suffix=".cc").name,
+        default=tempfile.NamedTemporaryFile(suffix=".sv").name,
     )
     parser.add_argument(
         "--testbench_exe_filepath",
@@ -264,10 +291,12 @@ if __name__ == "__main__":
         default=tempfile.NamedTemporaryFile(suffix=".mk").name,
     )
     parser.add_argument(
-        "--output_signal_name",
+        "--output_signal",
         type=str,
-        help="Name of the output signal of the module we're testing.",
+        help="Module output, in the form <name>:<bw>.",
         required=True,
+        action="append",
+        default=[],
     )
     parser.add_argument(
         "--verilator_include_dir",
@@ -289,34 +318,40 @@ if __name__ == "__main__":
         help="Maximum number of tests to run. If this number is greater than the space of all points, testing will be non-exhaustive.",
         default=MAX_NUM_TESTS,
     )
+    parser.add_argument(
+        "--expect_all_zero_outputs",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Whether to expect that all outputs are always 0 on all inputs.",
+    )
 
     args = parser.parse_args()
 
-    # Handle the case where obj_dir_dir is not specified.
-    if args.obj_dir_dir is False:
+    # Handle the case where obj_dirpath is not specified.
+    if args.obj_dirpath is False:
         tmp_dir = tempfile.TemporaryDirectory()
-        args.obj_dir_dir = tmp_dir.name
+        args.obj_dirpath = tmp_dir.name
 
     # Parse something like <signal_name>:<bitwidth> into a tuple.
     parse_signal_str = lambda x: (str(x.split(":")[0]), int(x.split(":")[1]))
 
     simulate_with_verilator(
-        obj_dir_dir=args.obj_dir_dir,
-        test_module_filepath=args.test_module_filepath,
-        ground_truth_module_filepath=args.ground_truth_module_filepath,
+        test_module_name=args.test_module_name,
+        ground_truth_module_name=args.ground_truth_module_name,
+        obj_dirpath=args.obj_dirpath,
+        verilog_filepaths=args.verilog_filepath,
         module_inputs=[parse_signal_str(i) for i in args.input_signal],
         clock_name=args.clock_name,
         initiation_interval=args.initiation_interval,
-        testbench_cc_filepath=args.testbench_cc_filepath,
+        testbench_sv_filepath=args.testbench_sv_filepath,
         testbench_exe_filepath=args.testbench_exe_filepath,
         testbench_inputs_filepath=args.testbench_inputs_filepath,
         testbench_stdout_log_filepath=args.testbench_stdout_log_filepath,
         testbench_stderr_log_filepath=args.testbench_stderr_log_filepath,
         makefile_filepath=args.makefile_filepath,
-        output_signal=args.output_signal_name,
-        include_dirs=args.verilator_include_dir,
+        module_outputs=[parse_signal_str(i) for i in args.output_signal],
         extra_args=args.verilator_extra_arg,
         max_num_tests=args.max_num_tests,
-        use_random_intermediate_inputs=args.use_random_intermediate_inputs,
-        seed=args.seed,
+        expect_all_zero_outputs=args.expect_all_zero_outputs,
+        include_dirs=args.verilator_include_dir,
     )

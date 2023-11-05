@@ -9,9 +9,11 @@
 // RUN:  --verilog-module-out-signal out:9 \
 // RUN:  --initiation-interval 1 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name top \
+// RUN:  --module-name test_module \
 // RUN:  --input-signal a:9 \
 // RUN:  --input-signal b:9 \
+// RUN:  --extra-cycles 3 \
+// RUN:  --timeout 120 \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
@@ -20,14 +22,14 @@
 // RUN:   exit 0; \
 // RUN: else \
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --use_random_intermediate_inputs \
-// RUN:    --seed=23 \
+// RUN:    --test_module_name test_module \
+// RUN:    --ground_truth_module_name top \
 // RUN:    --max_num_tests=10000 \
-// RUN:    --test_module_filepath $outfile \
-// RUN:    --ground_truth_module_filepath %s \
+// RUN:    --verilog_filepath $outfile \
+// RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 1 \
-// RUN:    --output_signal_name out \
+// RUN:    --output_signal out:9 \
 // RUN:    --input_signal a:9 \
 // RUN:    --input_signal b:9 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
@@ -57,6 +59,6 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: module top(a, b, clk, out);
+// CHECK: module test_module(a, b, clk, out);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule
