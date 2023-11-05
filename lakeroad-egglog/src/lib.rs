@@ -207,7 +207,7 @@ pub fn to_verilog(term_dag: &TermDag, id: usize) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    // use super::*;
 
     #[test]
     fn it_works() {}
