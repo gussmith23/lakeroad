@@ -6,15 +6,15 @@
 // RUN:  --template parallel-add-dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal out:96 \
+// RUN:  --verilog-module-out-signal out:94 \
 // RUN:  --initiation-interval 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
-// RUN:  --input-signal "a:(port a 96):96" \
-// RUN:  --input-signal "c:(port b 96):96" \
+// RUN:  --input-signal "a:(port a 94):94" \
+// RUN:  --input-signal "c:(port b 94):94" \
 // RUN:  --timeout 90 \
-// RUN:  --port a:96 \
-// RUN:  --port b:96 \
+// RUN:  --port a:94 \
+// RUN:  --port b:94 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
@@ -29,9 +29,9 @@
 // RUN:    --ground_truth_module_name out \
 // RUN:    --clock_name clk \
 // RUN:    --initiation_interval 1 \
-// RUN:    --output_signal out:96 \
-// RUN:    --input_signal a:96 \
-// RUN:    --input_signal b:96 \
+// RUN:    --output_signal out:94 \
+// RUN:    --input_signal a:94 \
+// RUN:    --input_signal b:94 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --testbench_inputs_filepath 'tmpinputs.txt' \
 // RUN:    --testbench_stdout_log_filepath='tmplog.log' \
@@ -46,15 +46,15 @@
 // RUN: fi
 
 (* use_dsp = "yes" *) module top(
-	input signed [95:0] a,
-	input signed [95:0] b,
-	output [95:0] out,
+	input signed [93:0] a,
+	input signed [93:0] b,
+	output [93:0] out,
 	input clk);
 
-	logic signed [95:0] stage0;
+	logic signed [93:0] stage0;
 
 	always @(posedge clk) begin
-	stage0 <= a & b;
+	stage0 <= a + b;
 
 	end
 

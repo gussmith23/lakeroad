@@ -282,16 +282,16 @@
                                                 d-expr
                                                 d-bw))])
     (list out-expr internal-data)))
-(define (parallel-add-dsp-sketch-generator architecture-description
+(define (parallel-dsp-bla-sketch-generator architecture-description
                                            inputs
                                            #:internal-data [internal-data #f])
   (match-let* ([_ 1]
                [clk-expr (if (sketch-inputs-clk inputs)
-                           (car (sketch-inputs-clk inputs))
-                           (lr:bv (bv->signal (bv 0 1))))]
+                             (car (sketch-inputs-clk inputs))
+                             (lr:bv (bv->signal (bv 0 1))))]
                [rst-expr (if (sketch-inputs-rst inputs)
-                           (car (sketch-inputs-rst inputs))
-                           (lr:bv (bv->signal (bv 0 1))))]
+                             (car (sketch-inputs-rst inputs))
+                             (lr:bv (bv->signal (bv 0 1))))]
                [make-dsp-expr (lambda (internal-data out-width
                                                      clk-expr
                                                      rst-expr
@@ -326,10 +326,8 @@
                                                              (cons "CARRYIN" cin-expr))
                                                        #:internal-data internal-data))
                                 ;;; Ignoring internal data for now, but we could use it in the future.
-                                ;(list (lr:hash-ref dsp-expr 'O) internal-data)
                                 dsp-expr)]
-               [get-dsp-output (lambda (dsp-expr out)
-                                 (lr:hash-ref dsp-expr out))]
+               [get-dsp-output (lambda (dsp-expr out) (lr:hash-ref dsp-expr out))]
                [(list a-expr a-bw) (if (assoc "a" (sketch-inputs-data inputs))
                                        (list (second (assoc "a" (sketch-inputs-data inputs)))
                                              (third (assoc "a" (sketch-inputs-data inputs))))
@@ -349,8 +347,7 @@
 
                [lookup-port-width
                 (lambda (x name)
-                  (hash-ref 
-                  (interface-identifier-parameters
+                  (hash-ref (interface-identifier-parameters
                              (interface-implementation-identifier
                               (findf (lambda (y)
                                        (equal? "DSP"
@@ -358,12 +355,13 @@
                                                 (interface-implementation-identifier y))))
                                      (architecture-description-interface-implementations x))))
                             name))]
+
                ;; the output width on this architecture to determine how many dsps to use
-               [out-width (lookup-port-width architecture-description "out-width")]
-            ;    [_ (displayln out-width)]
-            ;    [a-width (lookup-port-width architecture-description "a-width")]
-            ;    [iterations (floor (/ c-bw out-width))]
-            ;    [iterations (floor (/ c-bw 48))]
+               [out-width (lookup-port-width "out-width")]
+               ;    [_ (displayln out-width)]
+               ;    [a-width (lookup-port-width architecture-description "a-width")]
+               ;    [iterations (floor (/ c-bw out-width))]
+               ;    [iterations (floor (/ c-bw 48))]
                [mod (modulo c-bw 48)] ;; leftover bits for the last dsp
                ;; deals with the least significant 48 bits
                [dsp1 (make-dsp-expr internal-data
@@ -379,26 +377,167 @@
                                     d-expr
                                     d-bw
                                     (choose (lr:bv (bv->signal (bv 0 1)))))]
-              ;; deals with the most significant bits
-              [dsp2 (make-dsp-expr internal-data
-                                   out-width
-                                   clk-expr
-                                   rst-expr
-                                   (lr:extract (lr:integer 95) (lr:integer 66) a-expr)
-                                   30
-                                   (lr:extract (lr:integer 65) (lr:integer 48) a-expr)
-                                   18
-                                   (lr:extract (lr:integer 95) (lr:integer 48) c-expr)
-                                   48
-                                   d-expr
-                                   d-bw
-                                   (lr:extract (lr:integer 0) (lr:integer 0) 
-                                               (lr:hash-ref dsp1 'CARRYOUT)))]
+               ;; deals with the most significant bits
+               [dsp2 (make-dsp-expr
+                      internal-data
+                      out-width
+                      clk-expr
+                      rst-expr
+                      (lr:extract (lr:integer 93) (lr:integer 66) a-expr)
+                      28
+                      (lr:extract (lr:integer 65) (lr:integer 48) a-expr)
+                      18
+                      (lr:extract (lr:integer 93) (lr:integer 48) c-expr)
+                      46
+                      d-expr
+                      d-bw
+                      (lr:extract (lr:integer 0) (lr:integer 0) (lr:hash-ref dsp1 'CARRYOUT)))]
                [outputlow (lr:extract (lr:integer 47) (lr:integer 0) (lr:hash-ref dsp1 'O))]
-               [outputhigh (lr:extract (lr:integer 47) (lr:integer 0) (lr:hash-ref dsp2 'O))]
+               [outputhigh (lr:extract (lr:integer 45) (lr:integer 0) (lr:hash-ref dsp2 'O))]
                [output (lr:concat (lr:list (list outputhigh outputlow)))])
     (list output internal-data)))
+(define (parallel-add-dsp-sketch-generator architecture-description
+                                           inputs
+                                           #:internal-data [internal-data #f])
+  (match-let*
+      ([_ 1]
+       [clk-expr (if (sketch-inputs-clk inputs)
+                     (car (sketch-inputs-clk inputs))
+                     (lr:bv (bv->signal (bv 0 1))))]
+       [rst-expr (if (sketch-inputs-rst inputs)
+                     (car (sketch-inputs-rst inputs))
+                     (lr:bv (bv->signal (bv 0 1))))]
+       [make-dsp-expr (lambda (internal-data out-width
+                                             clk-expr
+                                             rst-expr
+                                             a-expr
+                                             a-width
+                                             b-expr
+                                             b-width
+                                             c-expr
+                                             c-width
+                                             d-expr
+                                             d-width
+                                             cin-expr)
+                        (match-define (list dsp-expr ignored-internal-data)
+                          (construct-interface architecture-description
+                                               (interface-identifier "DSP"
+                                                                     (hash "out-width"
+                                                                           out-width
+                                                                           "a-width"
+                                                                           a-width
+                                                                           "b-width"
+                                                                           b-width
+                                                                           "c-width"
+                                                                           c-width
+                                                                           "d-width"
+                                                                           d-width))
+                                               (list (cons "clk" clk-expr)
+                                                     (cons "rst" rst-expr)
+                                                     (cons "A" a-expr)
+                                                     (cons "B" b-expr)
+                                                     (cons "C" c-expr)
+                                                     (cons "D" d-expr)
+                                                     (cons "CARRYIN" cin-expr))
+                                               #:internal-data internal-data))
+                        ;;; Ignoring internal data for now, but we could use it in the future.
+                        dsp-expr)]
+       ;;; extract the value out of the input-list for each of the main dsp inputs, or default
+       [(list a-expr a-bw) (if (assoc "a" (sketch-inputs-data inputs))
+                               (list (second (assoc "a" (sketch-inputs-data inputs)))
+                                     (third (assoc "a" (sketch-inputs-data inputs))))
+                               (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
+       [(list b-expr b-bw) (if (assoc "b" (sketch-inputs-data inputs))
+                               (list (second (assoc "b" (sketch-inputs-data inputs)))
+                                     (third (assoc "b" (sketch-inputs-data inputs))))
+                               (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
+       [(list c-expr c-bw) (if (assoc "c" (sketch-inputs-data inputs))
+                               (list (second (assoc "c" (sketch-inputs-data inputs)))
+                                     (third (assoc "c" (sketch-inputs-data inputs))))
+                               (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
+       [(list d-expr d-bw) (if (assoc "d" (sketch-inputs-data inputs))
+                               (list (second (assoc "d" (sketch-inputs-data inputs)))
+                                     (third (assoc "d" (sketch-inputs-data inputs))))
+                               (list (lr:bv (bv->signal (choose (bv 0 1) (bv 1 1)))) 1))]
+       [lookup-port-width
+        (lambda (name)
+          (hash-ref
+           (interface-identifier-parameters
+            (interface-implementation-identifier
+             (findf (lambda (y)
+                      (equal? "DSP"
+                              (interface-identifier-name (interface-implementation-identifier y))))
+                    (architecture-description-interface-implementations architecture-description))))
+           name))]
+       [out-width (lookup-port-width "out-width")]
+       [mod (modulo c-bw out-width)] ;; leftover bits for the last dsp
+       [iterations (floor (/ c-bw out-width))]
+       [_ (displayln iterations)]
+       [carry-accumulator (cons (lr:bv (bv->signal (bv 0 1))) '())]
+       [dsp-accumulator '()] 
+       [create-dsp-array
+        (lambda (depth)
+          (for ([i depth])
+            (let* ([cur-dsp (make-dsp-expr
+             internal-data
+             out-width
+             clk-expr
+             rst-expr
+             (lr:extract (lr:integer (+ (* depth 48) 47))
+                         (lr:integer (- (+ (* depth 48) 47) 29))
+                         a-expr)
+             30
+             (lr:extract (lr:integer (+ (* depth 48) 17)) (lr:integer (* depth 48)) a-expr)
+             18
+             (lr:extract (lr:integer (+ (* depth 48) 47)) (lr:integer (* depth 48)) c-expr)
+             out-width
+             d-expr
+             d-bw
+             (car carry-accumulator))])
+             (begin
+              (cons (lr:hash-ref cur-dsp 'CARRYOUT) carry-accumulator)
+              (cons cur-dsp dsp-accumulator)))))]
 
+       [generate-dsp-array
+        (letrec ([helper
+                  (lambda (depth)
+                    (if (< depth 0)
+                        '()
+                        (let* ([arr (helper (- depth 1))])
+                          (cons (make-dsp-expr internal-data
+                                               out-width
+                                               clk-expr
+                                               rst-expr
+                                               (lr:extract (lr:integer (+ (* depth 48) 47))
+                                                           (lr:integer (- (+ (* depth 48) 47) 29))
+                                                           a-expr)
+                                               30
+                                               (lr:extract (lr:integer (+ (* depth 48) 17))
+                                                           (lr:integer  (* depth 48))
+                                                           a-expr)
+                                               18
+                                               (lr:extract (lr:integer (+ (* depth 48) 47))
+                                                           (lr:integer (* depth 48))
+                                                           c-expr)
+                                               out-width
+                                               d-expr
+                                               d-bw
+                                               (if (= depth 0)
+                                                   (begin
+                                                     (displayln "last one")
+                                                     (lr:bv (bv->signal (bv 0 1))))
+                                                   (begin
+                                                     (displayln "taking previous")
+                                                     (lr:extract (lr:integer 0)
+                                                                 (lr:integer 0)
+                                                                 (lr:hash-ref (car arr) 'CARRYOUT)))))
+                                arr))))])
+          helper)]
+       [dsp-array (generate-dsp-array (- iterations 1))]
+      ;  [_ (displayln dsp-array)]
+      ;  [_ (displayln (length dsp-array))]
+       [output (lr:concat (lr:list (map (lambda (dsp) (lr:hash-ref dsp 'O)) dsp-array)))])
+    (list output internal-data)))
 (define (parallel-dsp-sketch-generator architecture-description
                                        inputs
                                        #:internal-data [internal-data #f])
@@ -539,13 +678,6 @@
        [output-list (if (> mod 0) (cons fencepost (reverse outputlist)) (reverse outputlist))]
        [output (lr:concat (lr:list output-list))])
     (list output internal-data)))
-;;; (define (wide-and-xilinx-dsp-sketch-generator architecture-description
-;;;                                               sketch-inputs
-;;;                                               #:internal-data [internal-data #f])
-;;;   (match-let*
-;;;       ))
-;;; Bitwise with carry sketch generator.
-;;;
 ;;; Suitable for arithmetic operations like addition and subtraction.
 (define (bitwise-with-carry-sketch-generator architecture-description
                                              sketch-inputs
