@@ -25,7 +25,10 @@ if [ -z ${VERILATOR_INCLUDE_DIR+x} ]; then
     declare -rx VERILATOR_INCLUDE_DIR
 fi
 
-# Rust tests.
+# New Lakeroad egglog tests.
+cargo test --manifest-path $SCRIPT_DIR/lakeroad-egglog/Cargo.toml -- --nocapture
+
+# Old Lakeroad egg tests.
 cargo test --manifest-path $SCRIPT_DIR/rust/Cargo.toml -- --nocapture
 
 # Racket tests.
