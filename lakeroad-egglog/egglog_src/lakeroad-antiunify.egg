@@ -1,4 +1,5 @@
-;;; Lakeroad language definition, for importing before running other tests.
+;;; Lakeroad language definition with antiunification experiments.
+
 
 ; Ops
 (datatype Op
@@ -10,35 +11,51 @@
   (Eq)
   (LogicNot)
   ; (Mux select-expr expr expr)
-  (Mux))
+  (Mux)
+  
+  ; (Op1 (Extract high low) expr)
+  ; Extraction from a bitvector.
+  (Extract i64 i64)
 
-; Sketch Ops
-(datatype SketchOp
-  (LUT4))
+  ; (Op2 (Concat) top-expr bottom-expr)
+  ; Concatenation of two bitvectors.
+  (Concat)
+  
+  ; (Op2 (Reg init-value) clock-expr data-expr)
+  (Reg i64)
+
+  ; (Op0 (BV value bitwidth))
+  (BV i64 i64)
+  )
+
+(function Module ())
 
 ; Our language. Note that we do not explicitly use IDs as in the Lakeroad paper
 ; formalization. The IDs are still there, though: they're the 
 ; eclass IDs!
 (datatype Expr
-  ; (BV value bitwidth)
-  (BV i64 i64)
+
   ; (Var name bitwidth)
   (Var String i64)
+  
+  ;;; "Direct" representation of programs:
+  ;;; Expressing programs via direct application of Ops to leaf nodes (Vars
+  ;;; and Consts).
   ; (OpN op input-expr...)
+  (Op0 Op :cost 100000000)
   (Op1 Op Expr :cost 100000000)
   (Op2 Op Expr Expr :cost 100000000)
   (Op3 Op Expr Expr Expr :cost 100000000)
+  ; Variadic Op
+  (OpVar Op ExprList)
+
+
   ; (Reg default-value clock-expr d-expr)
   (Reg i64 Expr Expr)
   ; (Wire name bitwidth)
   ; Wire is a placeholder for another expression. See below how 
   ; wires are the key to creating cyclic graphs.
   (Wire String i64)
-  ; (Extract high low expr)
-  ; Extracts expr[high:low] using inclusive ranges as in Rosette/Verilog.
-  (Extract i64 i64 Expr)
-  ; (Concat expr expr)
-  (Concat Expr Expr)
   ; (ZeroExtend expr bitwidth)
   (ZeroExtend Expr i64)
   
