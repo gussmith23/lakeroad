@@ -1,7 +1,8 @@
 use egglog::{
-    ast::{parse::ExprParser, Expr},
+    ast::{parse::ExprParser, Expr, Expr::*},
     ArcSort,
     ExtractReport::*,
+    
     TermDag, Value,
 };
 use log::warn;
@@ -115,6 +116,14 @@ fn create_rewrites(
     }
     /// Given an expression, like `(Var "i_out" 1)` - create a replacement map that replaces that with `i_out`
     /// You can pass the replacement map returned by this function to replace_in_expr
+    /// ```
+    /// let expr = ExprParser::new().parse("(Var \"i_out\" 1)").unwrap();
+    /// let r = get_input_wires(&expr);
+    /// let k = format!("{}", r.keys().collect::<Vec<_>>()[0]);
+    /// let v = format!("{}",r.values().collect::<Vec<_>>()[0]);
+    /// assert!(k == "(Var \"i_out\" 1)", "Key of rewrite");
+    /// assert!(v == "i_out", "Value of rewrite");
+    /// ```
     fn get_input_wires(e: &Expr) -> HashMap<Expr, Expr> {
         let v: Vec<(Expr, Expr)> = e.fold(&mut |s, out| {
             match s {

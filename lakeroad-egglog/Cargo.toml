@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 egglog = { git = "https://github.com/egraphs-good/egglog" }
 log = "0.4.20"
+regex = "1.10.2"
