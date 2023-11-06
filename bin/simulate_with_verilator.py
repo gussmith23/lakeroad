@@ -177,7 +177,7 @@ def simulate_with_verilator(
             )
         print(f"{len(module_inputs)} {len(all_inputs)}", file=f)
         for one_set_of_inputs in all_inputs:
-            print(" ".join([str(x) for x in one_set_of_inputs]), file=f)
+            print(" ".join([str(hex(x)) for x in one_set_of_inputs]), file=f)
 
     # --environment-overrides is a brute-force way to allow users to use CXX=...
     # to override the C++ compiler with an environment variable. Overriding
