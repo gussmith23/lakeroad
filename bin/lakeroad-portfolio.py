@@ -23,7 +23,7 @@ import psutil
 import subprocess
 import os
 import pathlib
-from typing import Tuple
+from typing import List, Tuple
 import sys
 import tempfile
 
@@ -43,14 +43,35 @@ parser.add_argument(
     default=False,
 )
 parser.add_argument(
+    "--bitwuzla-flag-set",
+    type=str,
+    help=(
+        "Solver flag set to pass to bitwuzla. Each flag set (i.e. each"
+        " separate instance of this flag) will generate a separate instance of"
+        " bitwuzla. A flag set is a string of the form"
+        ' "<key>=<value>,<key>=<value>,...". If no flag set is specified but'
+        " the solver is enabled by its corresponding flag, there will be a"
+        " single instance of the solver with no flags."
+    ),
+    default=[],
+    action="append",
+)
+parser.add_argument(
     "--cvc5", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=False
 )
 parser.add_argument(
-    "--seed",
+    "--cvc5-flag-set",
+    type=str,
+    help=(
+        "Solver flag set to pass to cvc5. Each flag set (i.e. each"
+        " separate instance of this flag) will generate a separate instance of"
+        " cvc5. A flag set is a string of the form"
+        ' "<key>=<value>,<key>=<value>,...". If no flag set is specified but'
+        " the solver is enabled by its corresponding flag, there will be a"
+        " single instance of the solver with no flags."
+    ),
+    default=[],
     action="append",
-    type=int,
-    help="Seed for solvers. The script will spawn one instance of each solver with the given seed.",
-    default=[0],
 )
 parser.add_argument(
     "--boolector",
@@ -72,23 +93,48 @@ args, rest = parser.parse_known_args()
 # Process the "--" flag which marks the end of the flags for the script.
 rest = rest[1:] if rest[0] == "--" else rest
 
-# Build list of solvers to run.
-solvers = []
-if args.bitwuzla:
-    solvers.append("bitwuzla")
-if args.cvc5:
-    solvers.append("cvc5")
-if args.boolector:
-    solvers.append("boolector")
-assert solvers != [], "Must specify at least one solver."
 
-# Remove duplicates from seed list.
-args.seed = list(set(args.seed))
+def _parse_flag_sets(flag_sets: List[str]) -> List[List[str]]:
+    """Parse a list of flag sets.
+
+    A flag set is a string of the form "<key>=<value>,<key>=<value>,...". This
+    function parses a list of flag sets into a list of lists of strings of the
+    form ["<key>=<value>", "<key>=<value>", ...].
+    """
+    out = []
+    for flag_set in flag_sets:
+        out.append(flag_set.split(","))
+    return out
+
+
+# Build list of solvers to run.
+#
+# A list of (solver, flag_set) tuples, where each flag_set is a list of strings
+# of the form "<key>=<value>".
+solvers_and_flag_sets = []
+if args.bitwuzla:
+    if len(args.bitwuzla_flag_set) == 0:
+        solvers_and_flag_sets.append(("bitwuzla", []))
+    else:
+        solvers_and_flag_sets.extend(
+            ("bitwuzla", _parse_flag_sets(set)) for set in args.bitwuzla_flag_set
+        )
+if args.cvc5:
+    if len(args.cvc5_flag_set) == 0:
+        solvers_and_flag_sets.append(("cvc5", []))
+    else:
+        solvers_and_flag_sets.extend(
+            ("cvc5", _parse_flag_sets(set)) for set in args.cvc5_flag_set
+        )
+if args.boolector:
+    solvers_and_flag_sets.append(("boolector", []))
+assert solvers_and_flag_sets != [], "Must specify at least one solver."
+
 
 def start_with_solver(
-    solver: str, seed: int
+    solver: str, flags: List[str] = []
 ) -> Tuple[psutil.Popen, tempfile.NamedTemporaryFile]:
-    """Start Lakeroad main.rkt with the given solver and seed.
+    """Start Lakeroad main.rkt with the given solver and flags.
 
     Returns pid and output file for a Lakeroad session started with the given
     solver."""
@@ -99,10 +145,9 @@ def start_with_solver(
             pathlib.Path(os.path.abspath(__file__)).parent / "main.rkt",
             "--solver",
             solver,
-            "--seed",
-            str(seed),
             "--out-filepath",
             outfile.name,
+            *_make_solver_flag_lakeroad_args(flags),
             *rest,
         ],
         stdin=sys.stdin,
@@ -112,9 +157,16 @@ def start_with_solver(
     return (process, outfile)
 
 
-processes_and_files = list(
-    map(lambda t: start_with_solver(*t), itertools.product(solvers, args.seed))
-)
+def _make_solver_flag_lakeroad_args(flags: List[str]) -> List[str]:
+    """Prepends the --solver-flag flag before each value in a list."""
+    out = []
+    for flag in flags:
+        out.append("--solver-flag")
+        out.append(flag)
+    return out
+
+
+processes_and_files = list(map(lambda t: start_with_solver(*t), solvers_and_flag_sets))
 processes, files = zip(*processes_and_files)
 
 # Maps pid to output file.
