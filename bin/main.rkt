@@ -72,13 +72,12 @@
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
-(define seed (make-parameter 0))
 (define extra-cycles (make-parameter 0))
+(define solver-flags (make-parameter (make-hash)))
 
 (command-line
  #:program "lakeroad"
  #:once-each ["--architecture" arch "Hardware architecture to target." (architecture arch)]
- ["--seed" v "Solver seed. Defaults to 0." (seed v)]
  ["--solver"
   v
   "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to bitwuzla."
@@ -151,6 +150,14 @@
   (reset-name v)]
  #:once-any
  #:multi
+ [("--solver-flag")
+  v
+  "Flag to pass to the solver. A string of the form <flag>=<value>. This flag can be specified"
+  "multiple times."
+  (match-let* ([(list key value) (string-split v "=")] [key (string->keyword key)])
+    (when (hash-has-key? (solver-flags) key)
+      (error (format "Flag ~a already specified." key)))
+    (hash-set! (solver-flags) key value))]
  [("--instruction")
   v
   "The instruction to synthesize, written in Rosette bitvector semantics. Use (var <name> <bw>) to"
@@ -171,13 +178,10 @@
 
 ;;; Set solver.
 (match (solver)
-  ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (hash ':seed (seed))))]
-  ["cvc4" (current-solver (cvc4 #:logic 'QF_BV #:options (hash ':seed (seed))))]
-  ;;; TODO(@gussmith23): Make it possible to set options from the command line; remove
-  ;;; PP_ELIM_BV_EXTRACTS as a default.
-  ["bitwuzla"
-   (current-solver (bitwuzla #:logic 'QF_BV #:options (hash ':seed (seed) ':PP_ELIM_BV_EXTRACTS 1)))]
-  ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (hash ':seed (seed))))]
+  ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (solver-flags)))]
+  ["cvc4" (current-solver (cvc4 #:logic 'QF_BV #:options (solver-flags)))]
+  ["bitwuzla" (current-solver (bitwuzla #:logic 'QF_BV #:options (solver-flags)))]
+  ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (solver-flags)))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
 ;;; Parse instruction. Returns a Racket function in the format currently expected by synthesis:
