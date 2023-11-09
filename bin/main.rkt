@@ -154,7 +154,7 @@
   v
   "Flag to pass to the solver. A string of the form <flag>=<value>. This flag can be specified"
   "multiple times."
-  (match-let* ([(list key value) (string-split v "=")] [key (string->keyword key)])
+  (match-let* ([(list key value) (string-split v "=")] [key (string->symbol key)])
     (when (hash-has-key? (solver-flags) key)
       (error (format "Flag ~a already specified." key)))
     (hash-set! (solver-flags) key value))]
