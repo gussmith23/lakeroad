@@ -94,17 +94,14 @@ args, rest = parser.parse_known_args()
 rest = rest[1:] if rest[0] == "--" else rest
 
 
-def _parse_flag_sets(flag_sets: List[str]) -> List[List[str]]:
-    """Parse a list of flag sets.
+def _parse_flag_set(flag_set: str) -> List[str]:
+    """Parse a flag set.
 
     A flag set is a string of the form "<key>=<value>,<key>=<value>,...". This
-    function parses a list of flag sets into a list of lists of strings of the
-    form ["<key>=<value>", "<key>=<value>", ...].
+    function parses a set into a list of strings of the form ["<key>=<value>",
+    "<key>=<value>", ...].
     """
-    out = []
-    for flag_set in flag_sets:
-        out.append(flag_set.split(","))
-    return out
+    return flag_set.split(",")
 
 
 # Build list of solvers to run.
@@ -117,14 +114,14 @@ if args.bitwuzla:
         solvers_and_flag_sets.append(("bitwuzla", []))
     else:
         solvers_and_flag_sets.extend(
-            ("bitwuzla", _parse_flag_sets(set)) for set in args.bitwuzla_flag_set
+            ("bitwuzla", _parse_flag_set(set)) for set in args.bitwuzla_flag_set
         )
 if args.cvc5:
     if len(args.cvc5_flag_set) == 0:
         solvers_and_flag_sets.append(("cvc5", []))
     else:
         solvers_and_flag_sets.extend(
-            ("cvc5", _parse_flag_sets(set)) for set in args.cvc5_flag_set
+            ("cvc5", _parse_flag_set(set)) for set in args.cvc5_flag_set
         )
 if args.boolector:
     solvers_and_flag_sets.append(("boolector", []))
