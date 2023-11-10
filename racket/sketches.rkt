@@ -37,6 +37,7 @@
          "signal.rkt"
          rosette
          rosette/lib/synthax
+         rosette/lib/angelic
          "verilator.rkt"
          "utils.rkt")
 
@@ -749,6 +750,14 @@
                                                         (cons "S" s-expr))
                                                   #:internal-data mux2-internal-data))]
 
+                           ;;; It's unclear why this choose* can't be a choose, but if you change it,
+                           ;;; you'll see that tests break. Vishal debugged this and came up with two
+                           ;;; possible fixes. One which puts the choose* "into hardware" (i.e. stamps
+                           ;;; out both the right and left exprs and muxes them) and one that uses
+                           ;;; choose*. This one will produce smaller hardware but may have worse
+                           ;;; solver performance. Choosing to go with this one. Both PRs are here:
+                           ;;; This one: https://github.com/uwsampl/lakeroad/pull/198
+                           ;;; Mux fix: https://github.com/uwsampl/lakeroad/pull/199
                            [out-expr (lr:hash-ref (choose* mux-expr-right mux-expr-left) 'O)])
 
                       out-expr))]
