@@ -37,6 +37,7 @@
          "signal.rkt"
          rosette
          rosette/lib/synthax
+         rosette/lib/angelic
          "verilator.rkt"
          "utils.rkt")
 
@@ -749,7 +750,15 @@
                                                         (cons "S" s-expr))
                                                   #:internal-data mux2-internal-data))]
 
-                           [out-expr (lr:hash-ref (choose mux-expr-right mux-expr-left) 'O)])
+                           ;;; It's unclear why this choose* can't be a choose, but if you change it,
+                           ;;; you'll see that tests break. Vishal debugged this and came up with two
+                           ;;; possible fixes. One which puts the choose* "into hardware" (i.e. stamps
+                           ;;; out both the right and left exprs and muxes them) and one that uses
+                           ;;; choose*. This one will produce smaller hardware but may have worse
+                           ;;; solver performance. Choosing to go with this one. Both PRs are here:
+                           ;;; This one: https://github.com/uwsampl/lakeroad/pull/198
+                           ;;; Mux fix: https://github.com/uwsampl/lakeroad/pull/199
+                           [out-expr (lr:hash-ref (choose* mux-expr-right mux-expr-left) 'O)])
 
                       out-expr))]
 
@@ -879,43 +888,31 @@
    #:extra-verilator-args
    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
-  ;;; TODO(@gussmith23): Right shifts broken on SOFA
-  ;; (sketch-test
-  ;;  #:name "logical right shift on SOFA"
-  ;;  #:defines (define-symbolic a b (bitvector 3))
-  ;;  #:bv-expr (bvlshr a b)
-  ;;  #:architecture-description (sofa-architecture-description)
-  ;;  #:sketch-generator shift-sketch-generator
-  ;;  #:module-semantics
-  ;;  (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;  #:include-dirs
-  ;;  (list
-  ;;   (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;   (build-path (get-lakeroad-directory) "verilog/simulation/skywater/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;  #:extra-verilator-args
-  ;;  "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
-  ;; (sketch-test
-  ;;  #:name "arithmetic right shift on SOFA"
-  ;;  #:defines (define-symbolic a b (bitvector 3))
-  ;;  #:bv-expr (bvashr a b)
-  ;;  #:architecture-description (sofa-architecture-description)
-  ;;  #:sketch-generator shift-sketch-generator
-  ;;  #:module-semantics
-  ;;  (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))
-  ;;  #:include-dirs
-  ;;  (list
-  ;;   (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-  ;;   (build-path (get-lakeroad-directory) "verilog/simulation/skywater/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/")
-  ;;   (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-  ;;  #:extra-verilator-args
-  ;;  "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  ;;; TODO(@vcanumalla): Shifts work on SOFA, but there is probably a better way of doing the sketch.
+  (sketch-test
+   #:name "logical right shift on SOFA"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvlshr a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v")
+                                  sofa-frac-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+                        (build-path (get-lakeroad-directory) "verilog/simulation/skywater/"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
+  (sketch-test
+   #:name "arithmetic right shift on SOFA"
+   #:defines (define-symbolic a b (bitvector 3))
+   #:bv-expr (bvashr a b)
+   #:architecture-description (sofa-architecture-description)
+   #:sketch-generator shift-sketch-generator
+   #:module-semantics (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v")
+                                  sofa-frac-lut4))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
+                        (build-path (get-lakeroad-directory) "verilog/simulation/skywater/"))
+   #:extra-verilator-args
+   "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES")
 
   (sketch-test
    #:name "logical right shift on lattice"
