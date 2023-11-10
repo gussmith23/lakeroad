@@ -1,12 +1,16 @@
-#lang racket
+#lang racket/base
 
 ; A library for compiling to JSON to match the nextpnr spec, roughly defined at:
 ; https://github.com/YosysHQ/yosys/blob/63c9c9be5c0b0cc2b7f4588f1ac8e72eabc6bd0a/backends/json/json.cc#L340
 ;
 
 (require json
+         racket/match
+         racket/list
+         racket/set
+         racket/function
          racket/format
-         rosette)
+         (only-in rosette bitvector->natural bitvector->bits))
 
 (provide hasheq-helper
          as-symbol
@@ -90,7 +94,10 @@
 ; + #:valfn: a function to apply to values before they are inserted. This allows
 ;       this helper function to be customized. Default is the `identity`
 ;       function
-(define (hasheq-helper #:base [base 'nil] #:keyfn [keyfn as-symbol] #:valfn [valfn identity] . vals)
+(define (hasheq-helper #:base [base 'nil]
+                       #:keyfn [keyfn as-symbol]
+                       #:valfn [valfn (lambda (v) v)]
+                       . vals)
   (when (odd? (length vals))
     (error (format "hasheq-helper expects even number of values: ~a" vals)))
 
@@ -428,10 +435,10 @@
     (hash-set! netnames name net-details)))
 
 (define (get-net-details netnames net-name)
-  (hash-ref
-   netnames
-   (as-symbol net-name)
-   (lambda () (error (format "Netnames ~a does not contain net-name ~a" netnames net-name)))))
+  (hash-ref netnames
+            (as-symbol net-name)
+            (lambda ()
+              (error (format "Netnames ~a does not contain net-name ~a" netnames net-name)))))
 
 (define (get-net-details-from-module-in-doc doc mod-name net-name)
   (get-cell (hash-ref (get-module-from-doc doc mod-name) 'netnames) net-name))

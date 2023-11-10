@@ -7,7 +7,8 @@
          "sketches.rkt"
          (prefix-in lr: "language.rkt")
          "utils.rkt"
-         "architecture-description.rkt")
+         "architecture-description.rkt"
+         "signal.rkt")
 
 ;;; Grammar that mixes multiple sketches.
 (define-grammar
@@ -36,23 +37,23 @@
     [_ (error "Not implemented")])]
  [bitwise
   (first (bitwise-sketch-generator architecture-description
-                                   (lr:list (list (input) (expr)))
-                                   num-logical-inputs
-                                   bitwidth))]
+                                   (make-sketch-inputs #:data (list (cons (input) bitwidth)
+                                                                    (cons (expr) bitwidth))
+                                                       #:output-width bitwidth)))]
  [bitwise-with-carry
   (first (bitwise-with-carry-sketch-generator architecture-description
-                                              (lr:list (list (input) (expr)))
-                                              num-logical-inputs
-                                              bitwidth))]
+                                              (make-sketch-inputs #:data (list (cons (input) bitwidth)
+                                                                               (cons (expr) bitwidth))
+                                                                  #:output-width bitwidth)))]
  [comparison
   (first (comparison-sketch-generator architecture-description
-                                      (lr:list (list (input) (expr)))
-                                      num-logical-inputs
-                                      bitwidth))])
+                                      (make-sketch-inputs #:data (list (cons (input) bitwidth)
+                                                                       (cons (expr) bitwidth))
+                                                          #:output-width bitwidth)))])
 
 (define (apply-lakeroad-grammar architecture-description bv-expr #:depth [depth 0])
   (lakeroad-grammar architecture-description
-                    (lr:list (map lr:bv (symbolics bv-expr)))
+                    (lr:list (map lr:bv (map bv->signal (symbolics bv-expr))))
                     (length (symbolics bv-expr))
                     (apply max (bvlen bv-expr) (map bvlen (symbolics bv-expr)))
                     #:depth depth))
@@ -74,40 +75,40 @@
                                     #:module-semantics module-semantics
                                     #:include-dirs include-dirs
                                     #:extra-verilator-args extra-verilator-args)
-    (test-case
-     name
-     (with-terms
-      (begin
-        defines ...
+    (test-case name
+      (with-terms
+       (begin
+         defines ...
 
-        (define sketch (apply-lakeroad-grammar architecture-description bv-expr #:depth 3))
+         (define sketch (apply-lakeroad-grammar architecture-description bv-expr #:depth 3))
 
-        (define result
-          (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
-                                           #:guarantee
-                                           (assert (bveq bv-expr
-                                                         (interpret sketch
-                                                                    #:module-semantics
-                                                                    module-semantics)))))))
+         (define result
+           (with-vc (with-terms (synthesize #:forall (symbolics bv-expr)
+                                            #:guarantee
+                                            (assert (bveq bv-expr
+                                                          (signal-value
+                                                           (interpret sketch
+                                                                      #:module-semantics
+                                                                      module-semantics))))))))
 
-        (check-true (normal? result))
-        (define soln (result-value result))
-        (check-true (sat? soln))
+         (check-true (normal? result))
+         (define soln (result-value result))
+         (check-true (sat? soln))
 
-        (define lr-expr
-          (evaluate
-           sketch
-           ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-           (complete-solution soln
-                              (set->list (set-subtract (list->set (symbolics sketch))
-                                                       (list->set (symbolics bv-expr)))))))
+         (define lr-expr
+           (evaluate
+            sketch
+            ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
+            (complete-solution soln
+                               (set->list (set-subtract (list->set (symbolics sketch))
+                                                        (list->set (symbolics bv-expr)))))))
 
-        (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-          (raise "VERILATOR_INCLUDE_DIR not set"))
-        (check-true (simulate-with-verilator #:include-dirs include-dirs
-                                             #:extra-verilator-args extra-verilator-args
-                                             (list (to-simulate lr-expr bv-expr))
-                                             (getenv "VERILATOR_INCLUDE_DIR")))))))
+         (when (not (getenv "VERILATOR_INCLUDE_DIR"))
+           (raise "VERILATOR_INCLUDE_DIR not set"))
+         (check-true (simulate-with-verilator #:include-dirs include-dirs
+                                              #:extra-verilator-args extra-verilator-args
+                                              (list (to-simulate lr-expr bv-expr))
+                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
 
   (grammar-test
    #:name "add"
@@ -116,7 +117,7 @@
    #:depth 2
    #:architecture-description (lattice-ecp5-architecture-description)
    #:module-semantics
-   (list (cons (cons "LUT4" "../f4pga-arch-defs/ecp5/primitives/slice/LUT4.v") lattice-ecp5-lut4)
-         (cons (cons "CCU2C" "../f4pga-arch-defs/ecp5/primitives/slice/CCU2C.v") lattice-ecp5-ccu2c))
-   #:include-dirs (list (build-path (get-lakeroad-directory) "f4pga-arch-defs/ecp5/primitives/slice"))
-   #:extra-verilator-args "-Wno-UNUSED"))
+   (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
+         (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c))
+   #:include-dirs (list (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
+   #:extra-verilator-args "-Wno-UNUSED -Wno-UNOPTFLAT"))

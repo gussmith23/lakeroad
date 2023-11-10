@@ -6,6 +6,7 @@
 (require rackunit
          "interpreter.rkt"
          rosette
+         "signal.rkt"
          "verilator.rkt")
 
 ;;; Verify lr-expr against bv-expr, and optionally add both to the list of expressions to simulate.
@@ -41,7 +42,8 @@
                                  (add-f (to-simulate lr-expr bv-expr))
                                  (test-true
                                   (string-append name ": verify lr-expr against bv-expr")
-                                  (unsat? (let ([result (verify (assert (bveq (interpret lr-expr)
+                                  (unsat? (let ([result (verify (assert (bveq (signal-value
+                                                                               (interpret lr-expr))
                                                                               bv-expr)))])
                                             (when (not (unsat? result))
                                               (displayln (model result)))

@@ -2,12 +2,11 @@
 # The above enables use of ADD of git repo.
 FROM ubuntu:22.04
 
-# Get add-apt-repository
-RUN apt update
-RUN apt install -y software-properties-common
-
-# Add PPA for Racket
-RUN add-apt-repository ppa:plt/racket
+# Update, get add-apt-repository, add PPA for Racket, update again.
+RUN apt update \
+  &&  apt install -y software-properties-common \
+  &&  add-apt-repository ppa:plt/racket \
+  && apt update
 
 ## Install dependencies
 # apt dependencies
@@ -23,15 +22,18 @@ RUN apt install -y \
   git \
   libfl-dev \
   libfl2 \
+  libgmp-dev \
   libgoogle-perftools-dev \
   libssl-dev \
   libzmq3-dev \
   llvm-14 \
   make \
+  ninja-build \
   numactl \
   openssl \
   perl \
   perl-doc \
+  pkg-config \
   python3 \
   python3-pip \
   racket \
@@ -54,56 +56,68 @@ RUN mkdir -p /root/.local/bin \
   && chmod +x /root/.local/bin/lit
 ENV PATH="/root/.local/bin:${PATH}"
 
-# Build and install latest boolector.
-WORKDIR /root
-ARG MAKE_JOBS=2
-RUN git clone https://github.com/boolector/boolector \
-  && cd boolector \
-  && git checkout 3.2.2 \
-  && ./contrib/setup-lingeling.sh \
-  && ./contrib/setup-btor2tools.sh \
-  && ./configure.sh \
-  && cd build \
-  && make -j${MAKE_JOBS} install
-
-# Install Yosys and other OSS hardware tools from prebuilt binaries.
+# Install a bunch of useful tools from prebuilt binaries. Thanks to YosysHQ for
+# making this available!
+#
+# We currently use the following binaries from oss-cad-suite:
+# yosys, verilator, cvc5, boolector.
 #
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
+#
+# TODO(@gussmith23): Could shrink Docker image by deleting unneeded binaries.
 WORKDIR /root
 RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2022-03-23/oss-cad-suite-linux-x64-20220323.tgz -q -O oss-cad-suite.tgz; \
+  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-08-06/oss-cad-suite-linux-x64-20230806.tgz -q -O oss-cad-suite.tgz; \
   else \
   exit 1; \
   fi \
   && tar xf oss-cad-suite.tgz
 ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
-# Build and install latest Verilator.
-ARG MAKE_JOBS=2
-WORKDIR /root
-RUN  git clone https://github.com/verilator/verilator \
-  && unset VERILATOR_ROOT \
-  && cd verilator \
-  && git checkout v4.222 \
-  && autoconf \
-  && ./configure \
-  && make -j${MAKE_JOBS} \
-  && make install
-ENV VERILATOR_INCLUDE_DIR=/root/verilator/include
+# This environment variable is needed to test with Verilator in Lakeroad.
+#
+# TODO(@gussmith23): I don't think this is actually needed. Verilator generates
+# Makefiles that we should be using to make .a libraries to link against. Then,
+# we don't have to worry about getting the right includes etc. when trying to
+# compile Verilator files.
+ENV VERILATOR_INCLUDE_DIR=/root/oss-cad-suite/share/verilator/include
 
 # pip dependencies
 WORKDIR /root/lakeroad
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-# raco (Racket) dependencies
-# First, fix https://github.com/racket/racket/issues/2691
-RUN raco setup --doc-index --force-user-docs
-RUN raco pkg install --deps search-auto --batch \
-  fmt \
+# Build Bitwuzla from version tracked in submodule.
+WORKDIR /root
+ARG MAKE_JOBS=2
+ADD bitwuzla bitwuzla
+RUN cd bitwuzla \
+  && ./configure.py \
+  && cd build \
+  && ninja -j${MAKE_JOBS}
+# Put it on the path. Note that there's a bitwuzla in oss-cad-suite, so we need
+# to make sure this one takes precedence.
+ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
+
+# Install raco (Racket) dependencies. 
+WORKDIR /root
+ARG FMT_COMMIT_HASH=bd44477
+RUN \
+  # First, fix https://github.com/racket/racket/issues/2691 by building the
+  # docs.
+  raco setup --doc-index --force-user-docs \
+  # Install packages.
+  && raco pkg install --deps search-auto --batch \
   rosette \
-  yaml
+  yaml \
+  # Install fmt directly from GitHub. This prevents the version from changing on
+  # us unexpectedly.
+  && cd /root \
+  && git clone https://github.com/sorawee/fmt \
+  && cd fmt \
+  && git checkout ${FMT_COMMIT_HASH} \
+  && raco pkg install --deps search-auto --batch
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -130,6 +144,11 @@ ADD --keep-git-dir=false . .
 
 # Build Racket bytecode; makes Lakeroad much faster.
 RUN raco make /root/lakeroad/bin/main.rkt
+
+# Point to lakeroad-private repo. This may or may not exist, if you didn't clone
+# the lakeroad-private submodule. However, it shouldn't matter, as anything that
+# uses LAKEROAD_PRIVATE_DIR should check if the directory exists/is nonempty first.
+ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
