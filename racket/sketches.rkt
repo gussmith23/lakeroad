@@ -472,71 +472,89 @@
        [out-width (lookup-port-width "out-width")]
        [mod (modulo c-bw out-width)] ;; leftover bits for the last dsp
        [iterations (floor (/ c-bw out-width))]
-       [_ (displayln iterations)]
-       [carry-accumulator (cons (lr:bv (bv->signal (bv 0 1))) '())]
-       [dsp-accumulator '()] 
-       [create-dsp-array
-        (lambda (depth)
-          (for ([i depth])
-            (let* ([cur-dsp (make-dsp-expr
-             internal-data
-             out-width
-             clk-expr
-             rst-expr
-             (lr:extract (lr:integer (+ (* depth 48) 47))
-                         (lr:integer (- (+ (* depth 48) 47) 29))
-                         a-expr)
-             30
-             (lr:extract (lr:integer (+ (* depth 48) 17)) (lr:integer (* depth 48)) a-expr)
-             18
-             (lr:extract (lr:integer (+ (* depth 48) 47)) (lr:integer (* depth 48)) c-expr)
-             out-width
-             d-expr
-             d-bw
-             (car carry-accumulator))])
-             (begin
-              (cons (lr:hash-ref cur-dsp 'CARRYOUT) carry-accumulator)
-              (cons cur-dsp dsp-accumulator)))))]
-
        [generate-dsp-array
-        (letrec ([helper
-                  (lambda (depth)
-                    (if (< depth 0)
-                        '()
-                        (let* ([arr (helper (- depth 1))])
-                          (cons (make-dsp-expr internal-data
-                                               out-width
-                                               clk-expr
-                                               rst-expr
-                                               (lr:extract (lr:integer (+ (* depth 48) 47))
-                                                           (lr:integer (- (+ (* depth 48) 47) 29))
-                                                           a-expr)
-                                               30
-                                               (lr:extract (lr:integer (+ (* depth 48) 17))
-                                                           (lr:integer  (* depth 48))
-                                                           a-expr)
-                                               18
-                                               (lr:extract (lr:integer (+ (* depth 48) 47))
-                                                           (lr:integer (* depth 48))
-                                                           c-expr)
-                                               out-width
-                                               d-expr
-                                               d-bw
-                                               (if (= depth 0)
-                                                   (begin
-                                                     (displayln "last one")
-                                                     (lr:bv (bv->signal (bv 0 1))))
-                                                   (begin
-                                                     (displayln "taking previous")
-                                                     (lr:extract (lr:integer 0)
-                                                                 (lr:integer 0)
-                                                                 (lr:hash-ref (car arr) 'CARRYOUT)))))
-                                arr))))])
+        (letrec
+            ([helper
+              (lambda (depth)
+                (if (< depth 0)
+                    '()
+                    (let* ([arr (helper (- depth 1))])
+                      (cons
+                       (make-dsp-expr
+                        internal-data
+                        out-width
+                        clk-expr
+                        rst-expr
+                        (lr:extract (lr:integer (+ (* depth 48) 47))
+                                    (lr:integer (- (+ (* depth 48) 47) 29))
+                                    a-expr)
+                        30
+                        (lr:extract (lr:integer (+ (* depth 48) 17)) (lr:integer (* depth 48)) a-expr)
+                        18
+                        (lr:extract (lr:integer (+ (* depth 48) 47)) (lr:integer (* depth 48)) c-expr)
+                        out-width
+                        d-expr
+                        d-bw
+                        (if (= depth 0)
+                            (begin
+                              (lr:bv (bv->signal (bv 0 1))))
+                            (begin
+                              (lr:extract (lr:integer 0)
+                                          (lr:integer 0)
+                                          (lr:hash-ref (car arr) 'CARRYOUT)))))
+                       arr))))])
           helper)]
        [dsp-array (generate-dsp-array (- iterations 1))]
-      ;  [_ (displayln dsp-array)]
-      ;  [_ (displayln (length dsp-array))]
-       [output (lr:concat (lr:list (map (lambda (dsp) (lr:hash-ref dsp 'O)) dsp-array)))])
+       [_ (displayln mod)]
+       [fencepost
+        (if (= mod 0)
+            '()
+            (lr:extract
+             (lr:integer (- mod 1))
+             (lr:integer 0)
+             (lr:hash-ref
+              (make-dsp-expr
+               internal-data
+               mod
+               clk-expr
+               rst-expr
+               (if (> mod 30) ;; we need to use a for some top bits
+                   (lr:extract
+                    (lr:integer (+ (* iterations 48)
+                                   (- mod 1))) ;; top is how many ever bits of leftover we have - 1,
+                    (lr:integer
+                     (+
+                      (* iterations 48)
+                      18)) ;; bottom STARTS at 17 + endofloop, since we need to use the first 17 in b
+                    a-expr)
+                   ;; we can use a for everything
+                   (lr:extract (lr:integer (+ (* iterations 48) (- mod 1)))
+                               (lr:integer (* iterations 48))
+                               a-expr))
+               (if (> mod 30) (- mod 17) mod)
+               (if (> mod 30) ;; if we need to use b for the botom bits
+                   (lr:extract
+                    (lr:integer
+                     (+
+                      (* iterations 48)
+                      17)) ;; top is 17 + the end of whole loop, since we need to use the first 17 in b
+                    (lr:integer (* iterations 48)) ;; bottom is the end of the whole loop
+                    a-expr)
+                   b-expr)
+               (if (> mod 30) 18 b-bw)
+               (lr:extract (lr:integer (+ (* iterations 48) (- mod 1)))
+                           (lr:integer (* iterations 48))
+                           c-expr)
+               mod
+               d-expr
+               d-bw
+               (lr:extract (lr:integer 0) (lr:integer 0) (lr:hash-ref (car dsp-array) 'CARRYOUT)))
+              'O)))]
+       [output (if (= mod 0)
+                   (lr:concat (lr:list (map (lambda (dsp) (lr:hash-ref dsp 'O)) dsp-array)))
+                   (lr:concat (lr:list (append (list fencepost)
+                                               (map (lambda (dsp) (lr:hash-ref dsp 'O))
+                                                    dsp-array)))))])
     (list output internal-data)))
 (define (parallel-dsp-sketch-generator architecture-description
                                        inputs
