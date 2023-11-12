@@ -1,11 +1,15 @@
 use egglog::{
-    ast::{parse::ExprParser, Expr},
-    ArcSort,
+    add_primitives,
+    ast::{parse::ExprParser, Expr, Symbol},
+    constraint::{SimpleTypeConstraint, TypeConstraint},
+    sort::{FromSort, I64Sort, IntoSort, Sort, VecSort},
+    ArcSort, EGraph,
     ExtractReport::*,
-    TermDag, Value,
+    PrimitiveLike, SimplePrimitive, TermDag, Value,
 };
 use log::warn;
-use std::{collections::HashMap, path::Path};
+use std::{collections::HashMap, hash, path::Path};
+use std::{collections::HashSet, sync::Arc};
 
 macro_rules! egglog_test {
     ($name:ident, $path:literal) => {
@@ -210,3 +214,81 @@ egglog_test!(agilex_alm, "tests/egglog_tests/agilex_alm.egg", egraph, {
 });
 
 egglog_test!(half_adder, "tests/egglog_tests/half_adder.egg");
+
+#[test]
+fn antiunify() {
+    let mut egraph = egglog::EGraph::default();
+    egraph
+        .parse_and_run_program(
+            r#"
+(include "egglog_src/lakeroad-antiunify.egg")
+(sort IVec (Vec i64))
+(sort ExprVec (Vec Expr))
+    "#,
+        )
+        .unwrap();
+
+    struct DeBruijnify {
+        in_sort: Arc<VecSort>,
+        out_sort: Arc<VecSort>,
+        i64_sort: Arc<I64Sort>,
+    }
+
+    impl PrimitiveLike for DeBruijnify {
+        fn name(&self) -> Symbol {
+            "debruijnify".into()
+        }
+
+        fn get_type_constraints(&self) -> Box<dyn TypeConstraint> {
+            Box::new(SimpleTypeConstraint::new(
+                self.name(),
+                vec![self.in_sort.clone(), self.out_sort.clone()],
+            ))
+        }
+
+        fn apply(&self, values: &[crate::Value], egraph: &EGraph) -> Option<crate::Value> {
+            let in_vec = Vec::<Value>::load(&self.in_sort, &values[0]);
+
+            let mut seen_values: HashMap<Value, i64> = HashMap::new();
+            let mut next_id = 0;
+            let mut out = vec![];
+
+            for value in in_vec {
+                // Get representative value.
+                let value = egraph.find(value);
+
+                // If we haven't assinged it a number yet, give it the next one.
+                if !seen_values.contains_key(&value) {
+                    seen_values.insert(value, next_id);
+                    next_id += 1;
+                }
+
+                // Add the number to the output vector.
+                out.push(seen_values[&value].store(&self.i64_sort).unwrap());
+            }
+
+            out.store(&self.out_sort)
+        }
+    }
+
+    egraph.add_primitive(DeBruijnify {
+        i64_sort: egraph.get_sort().unwrap(),
+        in_sort: egraph
+            .get_sort_by(|s: &Arc<VecSort>| s.name() == "ExprVec".into())
+            .unwrap(),
+        out_sort: egraph
+            .get_sort_by(|s: &Arc<VecSort>| s.name() == "IVec".into())
+            .unwrap(),
+    });
+
+    egraph
+        .parse_and_run_program(
+            r#"
+(let out (debruijnify (vec-of (Var "x" 8) (Var "y" 16))))
+(check (= out (vec-of 0 1)))
+(let out2 (debruijnify (vec-of (Var "x" 8) (Var "y" 16) (Var "x" 8) (Var "z" 1) (Var "y" 16))))
+(check (= out2 (vec-of 0 1 0 2 1)))
+    "#,
+        )
+        .unwrap();
+}
