@@ -1,5 +1,10 @@
 ;;; Lakeroad language definition with antiunification experiments.
 
+(sort IVec (Vec i64))
+
+;;; Forward-declare Exprs and declare ExprVec.
+(sort Expr)
+(sort ExprVec (Vec Expr))
 
 ; Ops
 (datatype Op
@@ -9,6 +14,8 @@
   (Shr)
   ; Returns a bitvector of width 1.
   (Eq)
+  ; Bitwise not.
+  (Not)
   (LogicNot)
   ; (Mux select-expr expr expr)
   (Mux)
@@ -28,42 +35,66 @@
   (BV i64 i64)
   )
 
+(datatype Graph 
+  ;;; Hole with a bitwidth.
+  ;(Hole i64)
+  ;;; TODO need to implement bitwidth. for now too lazy to implement the typechecking.
+  (Hole)
+
+  ;;;
+  (Op0_ Op)
+  (Op1_ Op Graph)
+  (Op2_ Op Graph Graph)
+  (Op3_ Op Graph Graph Graph)
+  )
+
+;;; Module declaration
+(sort Module)
+;;; IVec is an vector of integers holding De Bruijn indices.
+(function MakeModule (Graph IVec) Module)
+
 ; Our language. Note that we do not explicitly use IDs as in the Lakeroad paper
 ; formalization. The IDs are still there, though: they're the 
 ; eclass IDs!
-(datatype Expr
+;(datatype Expr
 
   ; (Var name bitwidth)
-  (Var String i64)
+  (function Var (String i64) Expr)
   
   ;;; "Direct" representation of programs:
   ;;; Expressing programs via direct application of Ops to leaf nodes (Vars
   ;;; and Consts).
   ; (OpN op input-expr...)
-  (Op0 Op :cost 100000000)
-  (Op1 Op Expr :cost 100000000)
-  (Op2 Op Expr Expr :cost 100000000)
-  (Op3 Op Expr Expr Expr :cost 100000000)
+  (function Op0 (Op) Expr)
+  (function Op1 (Op Expr) Expr)
+  (function Op2 (Op Expr Expr) Expr)
+  (function Op3 (Op Expr Expr Expr) Expr)
 
 
   ; (Wire name bitwidth)
-  ; Wire is a placeholder for another expression. See below how 
-  ; wires are the key to creating cyclic graphs.
-  (Wire String i64)
-  ; (ZeroExtend expr bitwidth)
-  (ZeroExtend Expr i64)
+  (function Wire (String i64) Expr)
   
-  ; (Sketch sketch-id input-expr...)
-  ; A sketch node. This is a proposal for a potential expression, that will
-  ; need to be solved for/made concrete later on.
-  ;(Sketch1 SketchOp Expr)
-  ;(Sketch2 SketchOp Expr Expr)
-  ;(Sketch3 SketchOp Expr Expr Expr)
-  ;(Sketch4 SketchOp Expr Expr Expr Expr)
-  )
+  ;;; 
+  (function apply (Module ExprVec) Expr)
+  ;)
 
 ;;; Types for Lakeroad expressions.
 (datatype Type
   ;;; Bitvector type.
   (Bitvector i64))
 
+
+(ruleset enumerate-modules)
+(rewrite
+  (Op0 op)
+  ; the (vec-pop (vec-of ..)) thing is a hack for type inference not working
+  (apply (MakeModule (Op0_ op) (vec-pop (vec-of 0))) (vec-pop (vec-of (Var "unused" 0))))
+  :ruleset enumerate-modules
+)
+
+(rewrite
+  (Op1 op expr)
+  ;;; TODO need to do type inference on these.
+  (apply (MakeModule (Op1_ op (Hole)) (vec-of 0)) (vec-of expr))
+  :ruleset enumerate-modules
+)

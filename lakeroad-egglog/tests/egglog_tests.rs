@@ -1,15 +1,14 @@
 use egglog::{
-    add_primitives,
     ast::{parse::ExprParser, Expr, Symbol},
     constraint::{SimpleTypeConstraint, TypeConstraint},
     sort::{FromSort, I64Sort, IntoSort, Sort, VecSort},
     ArcSort, EGraph,
     ExtractReport::*,
-    PrimitiveLike, SimplePrimitive, TermDag, Value,
+    PrimitiveLike, TermDag, Value,
 };
 use log::warn;
-use std::{collections::HashMap, hash, path::Path};
-use std::{collections::HashSet, sync::Arc};
+use std::sync::Arc;
+use std::{collections::HashMap, path::Path};
 
 macro_rules! egglog_test {
     ($name:ident, $path:literal) => {
@@ -222,8 +221,6 @@ fn antiunify() {
         .parse_and_run_program(
             r#"
 (include "egglog_src/lakeroad-antiunify.egg")
-(sort IVec (Vec i64))
-(sort ExprVec (Vec Expr))
     "#,
         )
         .unwrap();
@@ -288,6 +285,22 @@ fn antiunify() {
 (check (= out (vec-of 0 1)))
 (let out2 (debruijnify (vec-of (Var "x" 8) (Var "y" 16) (Var "x" 8) (Var "z" 1) (Var "y" 16))))
 (check (= out2 (vec-of 0 1 0 2 1)))
+
+(let const (Op0 (BV 23 8)))
+(run enumerate-modules 1)
+(check 
+ (= 
+  (Op0 (BV 23 8)) 
+  ; The (vec-pop (vec-of ...)) thing is a hack, should be removable in the future.
+  (apply (MakeModule (Op0_ (BV 23 8)) (vec-pop (vec-of 0))) (vec-pop (vec-of (Var "unused" 0))))))
+
+
+(let not (Op1 (Not) (Var "x" 8)))
+(run enumerate-modules 1)
+(check
+ (=
+  (Op1 (Not) (Var "x" 8))
+    (apply (MakeModule (Op1_ (Not) (Hole)) (vec-of 0)) (vec-of (Var "x" 8)))))
     "#,
         )
         .unwrap();
