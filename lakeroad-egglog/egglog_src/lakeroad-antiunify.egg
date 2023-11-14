@@ -92,9 +92,18 @@
   :ruleset enumerate-modules
 )
 
+;;; Op1
+;; Introduce hole
 (rewrite
   (Op1 op expr)
   ;;; TODO need to do type inference on these.
   (apply (MakeModule (Op1_ op (Hole)) (vec-of 0)) (vec-of expr))
+  :ruleset enumerate-modules
+)
+;; Merge
+(rewrite
+  (Op1 op (apply (MakeModule graph indices) args))
+  ;;; TODO need to do type inference on these.
+  (apply (MakeModule (Op1_ op graph) indices) args)
   :ruleset enumerate-modules
 )

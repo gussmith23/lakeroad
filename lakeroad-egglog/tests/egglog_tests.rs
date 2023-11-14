@@ -290,7 +290,7 @@ fn antiunify() {
 (run enumerate-modules 1)
 (check 
  (= 
-  (Op0 (BV 23 8)) 
+  const
   ; The (vec-pop (vec-of ...)) thing is a hack, should be removable in the future.
   (apply (MakeModule (Op0_ (BV 23 8)) (vec-pop (vec-of 0))) (vec-pop (vec-of (Var "unused" 0))))))
 
@@ -299,8 +299,15 @@ fn antiunify() {
 (run enumerate-modules 1)
 (check
  (=
-  (Op1 (Not) (Var "x" 8))
-    (apply (MakeModule (Op1_ (Not) (Hole)) (vec-of 0)) (vec-of (Var "x" 8)))))
+  not
+  (apply (MakeModule (Op1_ (Not) (Hole)) (vec-of 0)) (vec-of (Var "x" 8)))))
+
+(let notnot (Op1 (Not) (Op1 (Not) (Var "x" 8))))
+(run enumerate-modules 1)  
+(check
+ (=
+  notnot
+  (apply (MakeModule (Op1_ (Not) (Op1_ (Not) (Hole))) (vec-of 0)) (vec-of (Var "x" 8)))))
     "#,
         )
         .unwrap();
