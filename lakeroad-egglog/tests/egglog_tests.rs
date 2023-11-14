@@ -363,4 +363,8 @@ fn antiunify() {
     "#,
         )
         .unwrap();
+
+    // let serialized = egraph.serialize_for_graphviz(true);
+    // let svg_path = Path::new("tmp").with_extension("svg");
+    // serialized.to_svg_file(svg_path).unwrap();
 }
