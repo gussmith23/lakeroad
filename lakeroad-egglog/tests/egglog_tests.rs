@@ -308,6 +308,25 @@ fn antiunify() {
  (=
   notnot
   (apply (MakeModule (Op1_ (Not) (Op1_ (Not) (Hole))) (vec-of 0)) (vec-of (Var "x" 8)))))
+
+
+;;; There's an annoying order of evaluation issue here. Have to put these
+;;; rewrite defs here for now.
+
+;;; Op2
+;; hole, hole
+(rewrite
+  (Op2 op e1 e2)
+  (apply (MakeModule (Op2_ op (Hole) (Hole)) (debruijnify (vec-of e1 e2))) (vec-of e1 e2))
+  :ruleset enumerate-modules
+)
+
+(let and (Op2 (And) (Var "x" 8) (Var "y" 8)))
+(run enumerate-modules 1)
+(check
+ (=
+  and
+  (apply (MakeModule (Op2_ (And) (Hole) (Hole)) (vec-of 0 1)) (vec-of (Var "x" 8) (Var "y" 8)))))
     "#,
         )
         .unwrap();
