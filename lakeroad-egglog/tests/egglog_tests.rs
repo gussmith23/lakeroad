@@ -320,6 +320,24 @@ fn antiunify() {
   (apply (MakeModule (Op2_ op (Hole) (Hole)) (debruijnify (vec-of e1 e2))) (vec-of e1 e2))
   :ruleset enumerate-modules
 )
+;; merge, hole
+(rewrite
+  (Op2 op (apply (MakeModule graph indices) args) e)
+  (apply (MakeModule (Op2_ op graph (Hole)) (debruijnify (vec-push args e))) (vec-push args e))
+  :ruleset enumerate-modules
+)
+;; hole, merge
+(rewrite
+  (Op2 op e (apply (MakeModule graph indices) args))
+  (apply (MakeModule (Op2_ op (Hole) graph) (debruijnify (vec-append (vec-of e) args))) (vec-append (vec-of e) args))
+  :ruleset enumerate-modules
+)
+;; merge, merge
+(rewrite
+  (Op2 op (apply (MakeModule graph0 indices0) args0) (apply (MakeModule graph1 indices1) args1))
+  (apply (MakeModule (Op2_ op graph0 graph1) (debruijnify (vec-append args0 args1))) (vec-append args0 args1))
+  :ruleset enumerate-modules
+)
 
 (let and (Op2 (And) (Var "x" 8) (Var "y" 8)))
 (run enumerate-modules 1)
@@ -327,6 +345,21 @@ fn antiunify() {
  (=
   and
   (apply (MakeModule (Op2_ (And) (Hole) (Hole)) (vec-of 0 1)) (vec-of (Var "x" 8) (Var "y" 8)))))
+
+(let orand (Op2 (Or) and and))
+(run enumerate-modules 1)
+(check
+ (= 
+  orand
+  (apply (MakeModule (Op2_ (Or) (Op2_ (And) (Hole) (Hole)) (Hole)) (vec-of 0 1 2)) (vec-of (Var "x" 8) (Var "y" 8) and ))))
+(check
+ (= 
+  orand
+  (apply (MakeModule (Op2_ (Or) (Hole) (Op2_ (And) (Hole) (Hole))) (vec-of 0 1 2)) (vec-of and (Var "x" 8) (Var "y" 8)))))
+(check
+ (= 
+  orand
+  (apply (MakeModule (Op2_ (Or) (Op2_ (And) (Hole) (Hole)) (Op2_ (And) (Hole) (Hole))) (vec-of 0 1 0 1)) (vec-of (Var "x" 8) (Var "y" 8) (Var "x" 8) (Var "y" 8)))))
     "#,
         )
         .unwrap();
