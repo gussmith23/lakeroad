@@ -276,3 +276,15 @@ fn antiunify() {
     // let svg_path = Path::new("tmp").with_extension("svg");
     // serialized.to_svg_file(svg_path).unwrap();
 }
+
+#[test]
+fn antiunify_permuter() {
+    let mut egraph = egglog::EGraph::default();
+    lakeroad_egglog::import_lakeroad(&mut egraph);
+
+    egraph.parse_and_run_program(
+        r#"
+(include "tests/egglog_tests/permuter-new-syntax.egg")
+"#,
+    ).unwrap();
+}

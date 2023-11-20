@@ -33,6 +33,9 @@
 
   ; (Op0 (BV value bitwidth))
   (BV i64 i64)
+
+  ; (Op1 (ZeroExtend bitwidth) expr)
+  (ZeroExtend i64)
   )
 
 (datatype Graph 
