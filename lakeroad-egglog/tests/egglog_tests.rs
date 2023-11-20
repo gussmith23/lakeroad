@@ -1,13 +1,10 @@
 use egglog::{
-    ast::{parse::ExprParser, Expr, Symbol},
-    constraint::{SimpleTypeConstraint, TypeConstraint},
-    sort::{FromSort, I64Sort, IntoSort, Sort, VecSort},
-    ArcSort, EGraph,
+    ast::{parse::ExprParser, Expr},
+    ArcSort,
     ExtractReport::*,
-    PrimitiveLike, TermDag, Value,
+    TermDag, Value,
 };
 use log::warn;
-use std::sync::Arc;
 use std::{collections::HashMap, path::Path};
 
 macro_rules! egglog_test {
@@ -217,66 +214,7 @@ egglog_test!(half_adder, "tests/egglog_tests/half_adder.egg");
 #[test]
 fn antiunify() {
     let mut egraph = egglog::EGraph::default();
-    egraph
-        .parse_and_run_program(
-            r#"
-(include "egglog_src/lakeroad-antiunify.egg")
-    "#,
-        )
-        .unwrap();
-
-    struct DeBruijnify {
-        in_sort: Arc<VecSort>,
-        out_sort: Arc<VecSort>,
-        i64_sort: Arc<I64Sort>,
-    }
-
-    impl PrimitiveLike for DeBruijnify {
-        fn name(&self) -> Symbol {
-            "debruijnify".into()
-        }
-
-        fn get_type_constraints(&self) -> Box<dyn TypeConstraint> {
-            Box::new(SimpleTypeConstraint::new(
-                self.name(),
-                vec![self.in_sort.clone(), self.out_sort.clone()],
-            ))
-        }
-
-        fn apply(&self, values: &[crate::Value], egraph: &EGraph) -> Option<crate::Value> {
-            let in_vec = Vec::<Value>::load(&self.in_sort, &values[0]);
-
-            let mut seen_values: HashMap<Value, i64> = HashMap::new();
-            let mut next_id = 0;
-            let mut out = vec![];
-
-            for value in in_vec {
-                // Get representative value.
-                let value = egraph.find(value);
-
-                // If we haven't assinged it a number yet, give it the next one.
-                if !seen_values.contains_key(&value) {
-                    seen_values.insert(value, next_id);
-                    next_id += 1;
-                }
-
-                // Add the number to the output vector.
-                out.push(seen_values[&value].store(&self.i64_sort).unwrap());
-            }
-
-            out.store(&self.out_sort)
-        }
-    }
-
-    egraph.add_primitive(DeBruijnify {
-        i64_sort: egraph.get_sort().unwrap(),
-        in_sort: egraph
-            .get_sort_by(|s: &Arc<VecSort>| s.name() == "ExprVec".into())
-            .unwrap(),
-        out_sort: egraph
-            .get_sort_by(|s: &Arc<VecSort>| s.name() == "IVec".into())
-            .unwrap(),
-    });
+    lakeroad_egglog::import_lakeroad(&mut egraph);
 
     egraph
         .parse_and_run_program(
@@ -308,36 +246,6 @@ fn antiunify() {
  (=
   notnot
   (apply (MakeModule (Op1_ (Not) (Op1_ (Not) (Hole))) (vec-of 0)) (vec-of (Var "x" 8)))))
-
-
-;;; There's an annoying order of evaluation issue here. Have to put these
-;;; rewrite defs here for now.
-
-;;; Op2
-;; hole, hole
-(rewrite
-  (Op2 op e1 e2)
-  (apply (MakeModule (Op2_ op (Hole) (Hole)) (debruijnify (vec-of e1 e2))) (vec-of e1 e2))
-  :ruleset enumerate-modules
-)
-;; merge, hole
-(rewrite
-  (Op2 op (apply (MakeModule graph indices) args) e)
-  (apply (MakeModule (Op2_ op graph (Hole)) (debruijnify (vec-push args e))) (vec-push args e))
-  :ruleset enumerate-modules
-)
-;; hole, merge
-(rewrite
-  (Op2 op e (apply (MakeModule graph indices) args))
-  (apply (MakeModule (Op2_ op (Hole) graph) (debruijnify (vec-append (vec-of e) args))) (vec-append (vec-of e) args))
-  :ruleset enumerate-modules
-)
-;; merge, merge
-(rewrite
-  (Op2 op (apply (MakeModule graph0 indices0) args0) (apply (MakeModule graph1 indices1) args1))
-  (apply (MakeModule (Op2_ op graph0 graph1) (debruijnify (vec-append args0 args1))) (vec-append args0 args1))
-  :ruleset enumerate-modules
-)
 
 (let and (Op2 (And) (Var "x" 8) (Var "y" 8)))
 (run enumerate-modules 1)
