@@ -280,36 +280,64 @@ pub fn import_lakeroad(egraph: &mut EGraph) {
             .unwrap(),
     });
 
+    let enumeration_ruleset_name = "enumerate-modules";
     egraph
-        .parse_and_run_program(
-            r#"
-;;; Op2
-;; hole, hole
-(rewrite
-  (Op2 op e1 e2)
-  (apply (MakeModule (Op2_ op (Hole) (Hole)) (debruijnify (vec-of e1 e2))) (vec-of e1 e2))
-  :ruleset enumerate-modules
-)
-;; merge, hole
-(rewrite
-  (Op2 op (apply (MakeModule graph indices) args) e)
-  (apply (MakeModule (Op2_ op graph (Hole)) (debruijnify (vec-push args e))) (vec-push args e))
-  :ruleset enumerate-modules
-)
-;; hole, merge
-(rewrite
-  (Op2 op e (apply (MakeModule graph indices) args))
-  (apply (MakeModule (Op2_ op (Hole) graph) (debruijnify (vec-append (vec-of e) args))) (vec-append (vec-of e) args))
-  :ruleset enumerate-modules
-)
-;; merge, merge
-(rewrite
-  (Op2 op (apply (MakeModule graph0 indices0) args0) (apply (MakeModule graph1 indices1) args1))
-  (apply (MakeModule (Op2_ op graph0 graph1) (debruijnify (vec-append args0 args1))) (vec-append args0 args1))
-  :ruleset enumerate-modules
-)
-    "#,
-        )
+        .parse_and_run_program(&format!(
+            "
+(ruleset {enumeration_ruleset_name})
+{rewrites}",
+            enumeration_ruleset_name = enumeration_ruleset_name,
+            rewrites = vec![
+                // 0-ary
+                generate_module_enumeration_rewrite(&[], Some(enumeration_ruleset_name)),
+                // 1-ary
+                generate_module_enumeration_rewrite(&[true], Some(enumeration_ruleset_name)),
+                generate_module_enumeration_rewrite(&[false], Some(enumeration_ruleset_name)),
+                // 2-ary
+                generate_module_enumeration_rewrite(&[true, true], Some(enumeration_ruleset_name)),
+                generate_module_enumeration_rewrite(&[true, false], Some(enumeration_ruleset_name)),
+                generate_module_enumeration_rewrite(&[false, true], Some(enumeration_ruleset_name)),
+                generate_module_enumeration_rewrite(
+                    &[false, false],
+                    Some(enumeration_ruleset_name)
+                ),
+                // 3-ary
+                generate_module_enumeration_rewrite(
+                    &[true, true, true],
+                    Some(enumeration_ruleset_name)
+                ),
+                generate_module_enumeration_rewrite(
+                    &[true, true, false],
+                    Some(enumeration_ruleset_name)
+                ),
+                generate_module_enumeration_rewrite(
+                    &[true, false, true],
+                    Some(enumeration_ruleset_name)
+                ),
+                generate_module_enumeration_rewrite(
+                    &[true, false, false],
+                    Some(enumeration_ruleset_name)
+                ),
+                generate_module_enumeration_rewrite(
+                    &[false, true, true],
+                    Some(enumeration_ruleset_name)
+                ),
+                generate_module_enumeration_rewrite(
+                    &[false, true, false],
+                    Some(enumeration_ruleset_name)
+                ),
+                generate_module_enumeration_rewrite(
+                    &[false, false, true],
+                    Some(enumeration_ruleset_name)
+                ),
+                generate_module_enumeration_rewrite(
+                    &[false, false, false],
+                    Some(enumeration_ruleset_name)
+                ),
+                // clang-format on
+            ]
+            .join("\n"),
+        ))
         .unwrap();
 }
 
