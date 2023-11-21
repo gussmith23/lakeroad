@@ -294,10 +294,16 @@ fn antiunify_permuter() {
     egraph
         .parse_and_run_program(
             r#"
-(run enumerate-modules 10)
+(run enumerate-modules 100)
+(run enumerate-modules 1)
 "#,
         )
         .unwrap();
+
+    assert!(
+        !egraph.get_run_report().clone().unwrap().updated,
+        "expected saturation i.e. no updates from the last run of rewrites!"
+    );
 
     // let serialized = egraph.serialize_for_graphviz(true);
     // let svg_path = Path::new("tmp").with_extension("svg");
