@@ -313,6 +313,103 @@ pub fn import_lakeroad(egraph: &mut EGraph) {
         .unwrap();
 }
 
+/// Generate module enumeration rewrite.
+///
+/// - hole_indicator: a list of booleans indicating whether the Op's
+///   argument at the given index is a hole. If true, the argument will
+///   become a `(Hole)`. If not, it will expect a module application:
+///   `(apply (MakeModule graph indices) args)`.
+///
+/// ```
+/// use lakeroad_egglog::generate_module_enumeration_rewrite;
+/// assert_eq!(generate_module_enumeration_rewrite(&[true, false, true], None),
+///           "(rewrite
+///   (Op3 op expr0 (apply (MakeModule graph1 _) args1) expr2)
+///   (apply (MakeModule (Op3_ op (Hole) graph1 (Hole)) (debruijnify (vec-append (vec-pop (vec-of (Var \"unused\" 0))) (vec-of expr0) args1 (vec-of expr2)))) (vec-append (vec-pop (vec-of (Var \"unused\" 0))) (vec-of expr0) args1 (vec-of expr2)))
+/// )");
+/// ```
+pub fn generate_module_enumeration_rewrite(
+    hole_indicator: &[bool],
+    ruleset: Option<&str>,
+) -> String {
+    let arity: usize = hole_indicator.len();
+
+    fn make_apply_pattern(idx: usize) -> String {
+        format!("(apply (MakeModule graph{idx} _) args{idx})", idx = idx)
+    }
+
+    fn make_opaque_expr_pattern(idx: usize) -> String {
+        format!("expr{idx}", idx = idx)
+    }
+
+    let arg_patterns = hole_indicator
+        .iter()
+        .enumerate()
+        .map(|(idx, is_hole)| {
+            if *is_hole {
+                make_opaque_expr_pattern(idx)
+            } else {
+                make_apply_pattern(idx)
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let lhs = format!(
+        "(Op{arity} op {args})",
+        arity = arity,
+        args = arg_patterns.join(" ")
+    );
+
+    let args_rhs_patterns = hole_indicator
+        .iter()
+        .enumerate()
+        .map(|(idx, is_hole)| {
+            if *is_hole {
+                "(Hole)".to_string()
+            } else {
+                format!("graph{idx}", idx = idx).to_string()
+            }
+        })
+        .collect::<Vec<_>>();
+
+    // Creates the list of arguments for the module application.
+    // the (vec-pop (vec-of ..)) thing is a hack for type inference not working
+    let args_list_expr = format!(
+        "(vec-append (vec-pop (vec-of (Var \"unused\" 0))) {args})",
+        args = hole_indicator
+            .iter()
+            .enumerate()
+            .map(|(idx, is_hole)| {
+                if *is_hole {
+                    format!("(vec-of expr{idx})", idx = idx)
+                } else {
+                    format!("args{idx}", idx = idx)
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
+    );
+
+    let rhs = format!(
+        "(apply (MakeModule (Op{arity}_ op {graphs}) (debruijnify {args})) {args})",
+        arity = arity,
+        graphs = args_rhs_patterns.join(" "),
+        args = args_list_expr,
+    );
+
+    format!(
+        "(rewrite
+  {lhs}
+  {rhs}
+{ruleset_flag})",
+        lhs = lhs,
+        rhs = rhs,
+        ruleset_flag = match ruleset {
+            Some(ruleset) => format!(":ruleset {}\n", ruleset),
+            None => "".to_string(),
+        },
+    )
+}
 #[cfg(test)]
 mod tests {
     // use super::*;
