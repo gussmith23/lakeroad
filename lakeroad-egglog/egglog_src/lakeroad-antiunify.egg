@@ -109,6 +109,13 @@
 (relation InputBitwidthsMatchOutputBitwidthConst (Op i64))
 (InputBitwidthsMatchOutputBitwidthConst (Eq) 1)
 
+;;; Bitwise: Indicates that an op `(op a b ...)` can be written 
+;;; `(concat (op a[0] b[0] ...) (op a[1] b[1] ...) ...)`.
+(relation Bitwise (Op))
+(Bitwise (And))
+(Bitwise (Or))
+(Bitwise (Xor))
+
 
 ;;; Typing judgements.
 (ruleset typing)
@@ -190,3 +197,18 @@
   ((Op1 (ZeroExtend bitwidth) expr))
   ((HasType (Op1 (ZeroExtend bitwidth) expr) (Bitvector bitwidth)))
   :ruleset typing)
+
+;;; Rewrites that are likely to expand the egraph.
+(ruleset expansion)
+(rule 
+ ((Op2 op e1 e2)
+  (Bitwise op)
+  (HasType (Op2 op e1 e2) (Bitvector n))
+  (> n 1))
+ ((union
+   (Op2 op e1 e2)
+   (Op2 (Concat) 
+    (Op2 op 
+     (Op1 (Extract (- n 1) 1) e1) (Op1 (Extract (- n 1) 1) e2))
+    (Op2 op 
+     (Op1 (Extract 0 0) e1) (Op1 (Extract 0 0) e2))))))
