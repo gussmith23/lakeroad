@@ -288,6 +288,12 @@ pub fn import_lakeroad(egraph: &mut EGraph) {
 {rewrites}",
             enumeration_ruleset_name = enumeration_ruleset_name,
             rewrites = vec![
+                // Var
+                // Note that this puts a loop in the graph, because a Var
+                // becomes a hole applied to itself. We just need to be careful
+                // about that during extraction.
+                format!("(rewrite (Var name bw) (apply (MakeModule (Hole) (vec-of 0)) (vec-of (Var name bw))) :ruleset {})", enumeration_ruleset_name),
+
                 // 0-ary
                 generate_module_enumeration_rewrite(&[], Some(enumeration_ruleset_name)),
                 // 1-ary
