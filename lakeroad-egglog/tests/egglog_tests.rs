@@ -299,6 +299,10 @@ fn antiunify_permuter() {
         .parse_and_run_program("(run-schedule (saturate typing))")
         .unwrap();
 
+    egraph
+        .parse_and_run_program("(run-schedule (repeat 100 (seq (run expansion) (saturate typing) (saturate enumerate-modules))))")
+        .unwrap();
+
     // let serialized = egraph.serialize_for_graphviz(true);
     // let svg_path = Path::new("tmp").with_extension("svg");
     // serialized.to_svg_file(svg_path).unwrap();
