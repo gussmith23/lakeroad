@@ -63,6 +63,14 @@
 
   ; (Var name bitwidth)
   (function Var (String i64) Expr)
+  ;;; I'm unsure whether we need this. This is the variant of Var we use as
+  ;;; arguments to `apply` nodes. This prevents the loop induced by putting
+  ;;; `(Var a 8) = (apply (MakeModule (Hole) [0]) [(Var a 8)])`
+  ;;; into the graph. If we put this in the graph, you could infinitely extract
+  ;;; `(apply (MakeModule ...) (apply (MakeModule ...) (apply (MakeModule ...) ...)))`
+  ;;; (which captures the fact that you can apply the identity function as many
+  ;;; times as you want).
+  (function Var_ (String i64) Expr)
   
   ;;; "Direct" representation of programs:
   ;;; Expressing programs via direct application of Ops to leaf nodes (Vars
