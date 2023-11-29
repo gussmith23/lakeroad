@@ -59,6 +59,7 @@ parser.add_argument(
 parser.add_argument(
     "--cvc5", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=False
 )
+
 parser.add_argument(
     "--cvc5-flag-set",
     type=str,
@@ -72,6 +73,9 @@ parser.add_argument(
     ),
     default=[],
     action="append",
+)
+parser.add_argument(
+    "--stp", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=False
 )
 parser.add_argument(
     "--boolector",
@@ -125,6 +129,8 @@ if args.cvc5:
         )
 if args.boolector:
     solvers_and_flag_sets.append(("boolector", []))
+if args.stp:
+    solvers_and_flag_sets.append(("stp", []))
 assert solvers_and_flag_sets != [], "Must specify at least one solver."
 
 
