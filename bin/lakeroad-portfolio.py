@@ -73,9 +73,12 @@ parser.add_argument(
     ),
     default=[],
     action="append",
+<<<<<<< HEAD
 )
 parser.add_argument(
     "--stp", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=False
+=======
+>>>>>>> origin/main
 )
 parser.add_argument(
     "--boolector",
