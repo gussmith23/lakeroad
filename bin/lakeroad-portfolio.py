@@ -74,7 +74,10 @@ parser.add_argument(
     action="append",
 )
 parser.add_argument(
-    "--stp", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=False
+    "--stp", action=argparse.BooleanOptionalAction, help="Use stp.", default=False
+)
+parser.add_argument(
+    "--yices-smt2", action=argparse.BooleanOptionalAction, help="Use yices2.", default=False
 )
 parser.add_argument(
     "--boolector",
