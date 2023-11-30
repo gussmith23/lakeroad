@@ -19,6 +19,7 @@ attempts to listen for.
 
 import argparse
 import itertools
+import json
 import psutil
 import subprocess
 import os
@@ -87,6 +88,15 @@ parser.add_argument(
     ),
     type=argparse.FileType("w"),
     default=sys.stdout,
+)
+parser.add_argument(
+    "--metadata-out-filepath",
+    help=(
+        "Path where metadata about this run will be written to (e.g."
+        " information about which solver completed first.)."
+    ),
+    type=argparse.FileType("w"),
+    default=None,
 )
 args, rest = parser.parse_known_args()
 
@@ -163,11 +173,17 @@ def _make_solver_flag_lakeroad_args(flags: List[str]) -> List[str]:
     return out
 
 
-processes_and_files = list(map(lambda t: start_with_solver(*t), solvers_and_flag_sets))
-processes, files = zip(*processes_and_files)
+# List of (process, outfile, (solver, flag_set)) tuples.
+procs_files_solvers = list(
+    map(lambda t: (*start_with_solver(*t), t), solvers_and_flag_sets)
+)
+processes, files, _ = zip(*procs_files_solvers)
 
-# Maps pid to output file.
-pid_to_file = {process.pid: outfile for (process, outfile) in processes_and_files}
+# Maps pid to output file and solver+flagset.
+pid_to_file_and_solver = {
+    process.pid: (outfile, solver_and_flag_set)
+    for (process, outfile, solver_and_flag_set) in procs_files_solvers
+}
 
 
 def _terminate_remaining_processes(p):
@@ -196,11 +212,23 @@ else:
 
 # Write output on success.
 if proc.returncode == SYNTH_SUCCESS_CODE:
-    args.out_filepath.write(pathlib.Path(pid_to_file[proc.pid].name).read_text())
+    args.out_filepath.write(
+        pathlib.Path(pid_to_file_and_solver[proc.pid][0].name).read_text()
+    )
 
 # Close files.
 for outfile in files:
     outfile.close()
+
+# Write metadata.
+if args.metadata_out_filepath is not None:
+    json.dump(
+        {
+            "solver": pid_to_file_and_solver[proc.pid][1][0],
+            "flags": pid_to_file_and_solver[proc.pid][1][1],
+        },
+        args.metadata_out_filepath,
+    )
 
 # Mirror stderr, stdout, returncode.
 sys.stderr.write(proc.stderr.read().decode("utf-8"))
