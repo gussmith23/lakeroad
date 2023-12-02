@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-egglog = { git = "https://github.com/egraphs-good/egglog" }
+egglog = { git = "https://github.com/egraphs-good/egglog", rev = "41562802315eccc9136c9d2ae6967d2df4071420" }
 log = "0.4.20"
