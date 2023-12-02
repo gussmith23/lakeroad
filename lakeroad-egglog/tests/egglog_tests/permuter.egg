@@ -1,15 +1,13 @@
 ; This file comes from an example permuter design given to us by Intel.
 
-(include "egglog_src/lakeroad.egg")
-
 ; wire declarations
 ; $0\dout[15:0]
 (let v0 (Wire "v0" 16))
-; $auto$rtlil.cc:2443:Or$13
+; $auto$rtlil.cc:2492:Or$13
 (let v1 (Wire "v1" 1))
-; $auto$rtlil.cc:2509:Mux$11
+; $auto$rtlil.cc:2558:Mux$11
 (let v2 (Wire "v2" 16))
-; $auto$rtlil.cc:2509:Mux$9
+; $auto$rtlil.cc:2558:Mux$9
 (let v3 (Wire "v3" 16))
 ; $procmux$3_CMP
 (let v4 (Wire "v4" 1))
@@ -29,36 +27,36 @@
 ; cells
 (union v1 (Op2 (Or) v5 v4))
 ; { \din [11:8] \din [15:12] \din [3:0] \din [7:4] }
-(let v11 (Extract 7 4 v9))
-(let v12 (Extract 3 0 v9))
-(let v13 (Extract 15 12 v9))
-(let v14 (Extract 11 8 v9))
-(let v15 (Concat v11 v12))
-(let v16 (Concat v15 v13))
-(let v17 (Concat v16 v14))
+(let v11 (Op1 (Extract 7 4) v9))
+(let v12 (Op1 (Extract 3 0) v9))
+(let v13 (Op1 (Extract 15 12) v9))
+(let v14 (Op1 (Extract 11 8) v9))
+(let v15 (Op2 (Concat) v11 v12))
+(let v16 (Op2 (Concat) v15 v13))
+(let v17 (Op2 (Concat) v16 v14))
 (union v2 (Op3 (Mux) v6 v9 v17))
 (union v0 (Op3 (Mux) v1 v2 v3))
 ; { \din [7:0] \din [15:8] }
-(let v18 (Extract 15 8 v9))
-(let v19 (Extract 7 0 v9))
-(let v20 (Concat v18 v19))
+(let v18 (Op1 (Extract 15 8) v9))
+(let v19 (Op1 (Extract 7 0) v9))
+(let v20 (Op2 (Concat) v18 v19))
 ; { \din [3:0] \din [7:4] \din [11:8] \din [15:12] }
-(let v21 (Concat v13 v14))
-(let v22 (Concat v21 v11))
-(let v23 (Concat v22 v12))
+(let v21 (Op2 (Concat) v13 v14))
+(let v22 (Op2 (Concat) v21 v11))
+(let v23 (Op2 (Concat) v22 v12))
 (union v3 (Op3 (Mux) v4 v20 v23))
 ; TODO: assuming 0 default for Reg
-(union v10 (Reg 0 v7 v0))
+(union v10 (Op1 (Reg 0) v0))
 ; 2'11
-(let v24 (BV 3 2))
+(let v24 (Op0 (BV 3 2)))
 (union v4 (Op2 (Eq) v8 v24))
 ; 2'10
-(let v25 (BV 2 2))
+(let v25 (Op0 (BV 2 2)))
 (union v5 (Op2 (Eq) v8 v25))
 ; 1'1
-(let v26 (BV 1 1))
+(let v26 (Op0 (BV 1 1)))
 ; TODO not handling signedness
-(let v27 (ZeroExtend v26 2))
+(let v27 (Op1 (ZeroExtend 2) v26))
 (union v6 (Op2 (Eq) v8 v27))
 
 ; inputs
@@ -84,27 +82,3 @@
 (delete (Wire "v8" 2))
 (delete (Wire "v9" 16))
 (delete (Wire "v10" 16))
-
-(run typing 100)
-
-; Check a bunch of types.
-(check (HasType v4 (Bitvector 1)))
-(check (HasType v1 (Bitvector 1)))
-(check (HasType v19 (Bitvector 8)))
-(check (HasType v20 (Bitvector 16)))
-(check (HasType v9 (Bitvector 16)))
-(check (HasType v17 (Bitvector 16)))
-(check (HasType v6 (Bitvector 1)))
-(check (HasType v2 (Bitvector 16)))
-(check (HasType v3 (Bitvector 16)))
-(check (HasType v0 (Bitvector 16)))
-(check (HasType dout (Bitvector 16)))
-
-;;; Run all rewrites to propose LUT mapping.
-(run-schedule 
-  (repeat 100
-    (saturate typing) 
-    (saturate sketch-proposal)
-    (saturate misc))) 
-
-(extract dout)

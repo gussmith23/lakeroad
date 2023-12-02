@@ -1,4 +1,10 @@
-;;; Lakeroad language definition, for importing before running other tests.
+;;; Lakeroad language definition with antiunification experiments.
+
+(sort IVec (Vec i64))
+
+;;; Forward-declare Exprs and declare ExprVec.
+(sort Expr)
+(sort ExprVec (Vec Expr))
 
 ; Ops
 (datatype Op
@@ -8,56 +14,116 @@
   (Shr)
   ; Returns a bitvector of width 1.
   (Eq)
+  ; Bitwise not.
+  (Not)
   (LogicNot)
   ; (Mux select-expr expr expr)
-  (Mux))
+  (Mux)
+  
+  ; (Op1 (Extract high low) expr)
+  ; Extraction from a bitvector.
+  (Extract i64 i64)
 
-; Sketch Ops
-(datatype SketchOp
-  (LUT4))
+  ; (Op2 (Concat) top-expr bottom-expr)
+  ; Concatenation of two bitvectors.
+  (Concat)
+  
+  ; (Op2 (Reg init-value) clock-expr data-expr)
+  (Reg i64)
+
+  ; (Op0 (BV value bitwidth))
+  (BV i64 i64)
+
+  ; (Op1 (ZeroExtend bitwidth) expr)
+  (ZeroExtend i64)
+  )
+
+(datatype Graph 
+  ;;; Hole with a bitwidth.
+  ;(Hole i64)
+  ;;; TODO need to implement bitwidth. for now too lazy to implement the typechecking.
+  (Hole)
+
+  ;;;
+  (Op0_ Op)
+  (Op1_ Op Graph)
+  (Op2_ Op Graph Graph)
+  (Op3_ Op Graph Graph Graph)
+  )
+
+;;; Module declaration
+(sort Module)
+;;; IVec is an vector of integers holding De Bruijn indices.
+(function MakeModule (Graph IVec) Module)
 
 ; Our language. Note that we do not explicitly use IDs as in the Lakeroad paper
 ; formalization. The IDs are still there, though: they're the 
 ; eclass IDs!
-(datatype Expr
-  ; (BV value bitwidth)
-  (BV i64 i64)
+;(datatype Expr
+
   ; (Var name bitwidth)
-  (Var String i64)
-  ; (OpN op input-expr...)
-  (Op1 Op Expr :cost 100000000)
-  (Op2 Op Expr Expr :cost 100000000)
-  (Op3 Op Expr Expr Expr :cost 100000000)
-  ; (Reg default-value clock-expr d-expr)
-  (Reg i64 Expr Expr)
-  ; (Wire name bitwidth)
-  ; Wire is a placeholder for another expression. See below how 
-  ; wires are the key to creating cyclic graphs.
-  (Wire String i64)
-  ; (Extract high low expr)
-  ; Extracts expr[high:low] using inclusive ranges as in Rosette/Verilog.
-  (Extract i64 i64 Expr)
-  ; (Concat expr expr)
-  (Concat Expr Expr)
-  ; (ZeroExtend expr bitwidth)
-  (ZeroExtend Expr i64)
+  (function Var (String i64) Expr)
+  ;;; I'm unsure whether we need this. This is the variant of Var we use as
+  ;;; arguments to `apply` nodes. This prevents the loop induced by putting
+  ;;; `(Var a 8) = (apply (MakeModule (Hole) [0]) [(Var a 8)])`
+  ;;; into the graph. If we put this in the graph, you could infinitely extract
+  ;;; `(apply (MakeModule ...) (apply (MakeModule ...) (apply (MakeModule ...) ...)))`
+  ;;; (which captures the fact that you can apply the identity function as many
+  ;;; times as you want).
+  (function Var_ (String i64) Expr)
   
-  ; (Sketch sketch-id input-expr...)
-  ; A sketch node. This is a proposal for a potential expression, that will
-  ; need to be solved for/made concrete later on.
-  (Sketch1 SketchOp Expr)
-  (Sketch2 SketchOp Expr Expr)
-  (Sketch3 SketchOp Expr Expr Expr)
-  (Sketch4 SketchOp Expr Expr Expr Expr)
-  )
+  ;;; "Direct" representation of programs:
+  ;;; Expressing programs via direct application of Ops to leaf nodes (Vars
+  ;;; and Consts).
+  ; (OpN op input-expr...)
+  (function Op0 (Op) Expr)
+  (function Op1 (Op Expr) Expr)
+  (function Op2 (Op Expr Expr) Expr)
+  (function Op3 (Op Expr Expr Expr) Expr)
+
+
+  ; (Wire name bitwidth)
+  (function Wire (String i64) Expr)
+  
+  ;;; 
+  (function apply (Module ExprVec) Expr)
+  ;)
 
 ;;; Types for Lakeroad expressions.
 (datatype Type
   ;;; Bitvector type.
-  (Bitvector i64))
+  (Bitvector i64)
+  ;;; Module type: when `apply`ed, gives back the indicated type. This could be
+  ;;; a lot more rigorous. Currently will not allow for checking correct input
+  ;;; types.
+  (ModuleType Type))
 
 ;;; Indicates that a Lakeroad expression has a given type.
 (relation HasType (Expr Type))
+
+;;; Indicates that all input and output bitwidths must match for this type of 
+;;; op.
+(relation AllBitwidthsMatch (Op))
+(AllBitwidthsMatch (And))
+(AllBitwidthsMatch (Or))
+(AllBitwidthsMatch (Xor))
+(AllBitwidthsMatch (Shr))
+; Have to write this one as a rule, unfortunately.
+(ruleset core)
+(rule ((Reg n)) ((AllBitwidthsMatch (Reg n))) :ruleset core)
+
+;;; Indicates that, for the op, the input bitwidths must match, and the output
+;;; bitwidth is the indicated constant.
+(relation InputBitwidthsMatchOutputBitwidthConst (Op i64))
+(InputBitwidthsMatchOutputBitwidthConst (Eq) 1)
+
+;;; Bitwise: Indicates that an op `(op a b ...)` can be written 
+;;; `(concat (op a[0] b[0] ...) (op a[1] b[1] ...) ...)`.
+(relation Bitwise (Op))
+(Bitwise (And))
+(Bitwise (Or))
+(Bitwise (Xor))
+
 
 ;;; Typing judgements.
 (ruleset typing)
@@ -70,45 +136,50 @@
   ((HasType (Var name bw) (Bitvector bw)))
   :ruleset typing)
 (rule
-  ((BV name bw))
-  ((HasType (BV name bw) (Bitvector bw)))
+  ((Op0 (BV val bw)))
+  ((HasType (Op0 (BV val bw)) (Bitvector bw)))
   :ruleset typing)
 (rule
-  ((Reg default clk-expr d-expr)
-   ; Currently require clock to be one bit.
-   (HasType clk-expr (Bitvector 1))
-   (HasType d-expr (Bitvector bw)))
-  ((HasType (Reg default clk-expr d-expr) (Bitvector bw)))
+  ((Op1 op i0)
+   (HasType i0 (Bitvector bw))
+   (AllBitwidthsMatch op))
+  ((HasType (Op1 op i0) (Bitvector bw)))
   :ruleset typing)
 (rule
-  ((Op2 (And) a-expr b-expr)
-   (HasType a-expr (Bitvector bw))
-   (HasType b-expr (Bitvector bw)))
-  ((HasType (Op2 (And) a-expr b-expr) (Bitvector bw)))
+  ((Op2 op i0 i1)
+   (HasType i0 (Bitvector bw))
+   (HasType i1 (Bitvector bw))
+   (AllBitwidthsMatch op))
+  ((HasType (Op2 op i0 i1) (Bitvector bw)))
   :ruleset typing)
 (rule
-  ((Op2 (Or) a-expr b-expr)
-   (HasType a-expr (Bitvector bw))
-   (HasType b-expr (Bitvector bw)))
-  ((HasType (Op2 (Or) a-expr b-expr) (Bitvector bw)))
+  ((Op3 op i0 i1 i2)
+   (HasType i0 (Bitvector bw))
+   (HasType i1 (Bitvector bw))
+   (HasType i2 (Bitvector bw))
+   (AllBitwidthsMatch op))
+  ((HasType (Op3 op i0 i1 i2) (Bitvector bw)))
   :ruleset typing)
 (rule
-  ((Op2 (Xor) a-expr b-expr)
-   (HasType a-expr (Bitvector bw))
-   (HasType b-expr (Bitvector bw)))
-  ((HasType (Op2 (Xor) a-expr b-expr) (Bitvector bw)))
+  ((Op1 op i0)
+   (HasType i0 (Bitvector bw))
+   (InputBitwidthsMatchOutputBitwidthConst op out-bw))
+  ((HasType (Op1 op i0) (Bitvector out-bw)))
   :ruleset typing)
 (rule
-  ((Op2 (Shr) a-expr b-expr)
-   (HasType a-expr (Bitvector bw))
-   (HasType b-expr (Bitvector bw)))
-  ((HasType (Op2 (Shr) a-expr b-expr) (Bitvector bw)))
+  ((Op2 op i0 i1)
+   (HasType i0 (Bitvector bw))
+   (HasType i1 (Bitvector bw))
+   (InputBitwidthsMatchOutputBitwidthConst op out-bw))
+  ((HasType (Op2 op i0 i1) (Bitvector out-bw)))
   :ruleset typing)
 (rule
-  ((Op2 (Eq) a-expr b-expr)
-   (HasType a-expr (Bitvector bw))
-   (HasType b-expr (Bitvector bw)))
-  ((HasType (Op2 (Eq) a-expr b-expr) (Bitvector 1)))
+  ((Op3 op i0 i1 i2)
+   (HasType i0 (Bitvector bw))
+   (HasType i1 (Bitvector bw))
+   (HasType i2 (Bitvector bw))
+   (InputBitwidthsMatchOutputBitwidthConst op out-bw))
+  ((HasType (Op3 op i0 i1 i2) (Bitvector out-bw)))
   :ruleset typing)
 (rule
   ((Op3 (Mux) sel-expr a-expr b-expr)
@@ -118,89 +189,39 @@
   ((HasType (Op3 (Mux) sel-expr a-expr b-expr) (Bitvector bw)))
   :ruleset typing)
 (rule
-  ((Concat a-expr b-expr)
+  ((Op2 (Concat) a-expr b-expr)
    (HasType a-expr (Bitvector m))
    (HasType b-expr (Bitvector n)))
-  ((HasType (Concat a-expr b-expr) (Bitvector (+ m n))))
+  ((HasType (Op2 (Concat) a-expr b-expr) (Bitvector (+ m n))))
   :ruleset typing)
 (rule
-  ((Extract high low expr)
+  ((Op1 (Extract high low) expr)
+   (HasType expr (Bitvector n))
+   (>= 0 low)
+   (< high n))
+  ((HasType (Op1 (Extract high low) expr) (Bitvector (+ 1 (- high low)))))
+  :ruleset typing)
+(rule
+  ((Op1 (ZeroExtend bitwidth) expr))
+  ((HasType (Op1 (ZeroExtend bitwidth) expr) (Bitvector bitwidth)))
+  :ruleset typing)
+(rule
+  ((Op1 (Reg init) expr)
    (HasType expr (Bitvector n)))
-  ((HasType (Extract high low expr) (Bitvector (+ 1 (- high low)))))
-  :ruleset typing)
-(rule
-  ((ZeroExtend expr bitwidth))
-  ((HasType (ZeroExtend expr bitwidth) (Bitvector bitwidth)))
+  ((HasType (Op1 (Reg init) expr) (Bitvector n)))
   :ruleset typing)
 
-
-;;; LUT sketch proposal rewrites.
-(ruleset sketch-proposal)
+;;; Rewrites that are likely to expand the egraph.
+(ruleset expansion)
 (rule 
-  ((Op1 op e) (HasType (Op1 op e) (Bitvector 1)) (HasType e (Bitvector n)) (<= n 4))
-  ((union (Op1 op e) (Sketch1 (LUT4) e)))
-  :ruleset sketch-proposal)
-(rule 
-  ((Op2 op e1 e2) (HasType (Op2 op e1 e2) (Bitvector 1)) (HasType e1 (Bitvector m)) (HasType e2 (Bitvector n)) (<= (+ m n) 4))
-  ((union (Op2 op e1 e2) (Sketch1 (LUT4) (Concat e1 e2))))
-  :ruleset sketch-proposal)
-(rule 
-  ((Op3 op e1 e2 e3) (HasType (Op3 op e1 e2 e3) (Bitvector 1)) (HasType e1 (Bitvector m)) (HasType e2 (Bitvector n)) (HasType e3 (Bitvector o)) (<= (+ (+ m n) o) 4))
-  ((union (Op3 op e1 e2 e3) (Sketch1 (LUT4) (Concat (Concat e1 e2) e3))))
-  :ruleset sketch-proposal)
-
-
-;;; Misc rewrites.
-(ruleset misc)
-;;; Split up Mux op.
-;;; Given a multibit mux expr, split it up into one-bit mux exprs.
-(rule
-  ((Op3 (Mux) sel-expr a-expr b-expr)
-   (HasType sel-expr (Bitvector 1))
-   (HasType a-expr (Bitvector n))
-   (HasType b-expr (Bitvector n))
-   (> n 1))
-  ((union 
-    (Op3 (Mux) sel-expr a-expr b-expr)
-    (Concat 
-     (Op3 (Mux) sel-expr (Extract (- n 1) (- n 1) a-expr) (Extract (- n 1) (- n 1) b-expr))
-     (Op3 (Mux) sel-expr (Extract (- n 2) 0 a-expr) (Extract (- n 2) 0 b-expr)))))
- :ruleset misc)
-
-; Simplify nested extracts.
-(rewrite 
-  (Extract hi1 lo1 (Extract hi0 lo0 expr))
-  (Extract (+ (+ lo0 lo1) (- hi1 lo1)) (+ lo0 lo1) expr)
-  :ruleset misc)
-
-; Simplify Concats of contiguous Extracts.
-(rule 
-  ((Concat (Extract hi1 lo1 expr) (Extract hi0 lo0 expr))
-   (= lo1 (+ hi0 1)))
-  ((union 
-    (Concat (Extract hi1 lo1 expr) (Extract hi0 lo0 expr))
-    (Extract hi1 lo0 expr)))
- :ruleset misc)
-
- ; Simplify Extracts of Concats.
-(rule 
-  ((Extract hi lo (Concat e1 e0))
-   (HasType e0 (Bitvector bw0))
-   (HasType e1 (Bitvector bw1))
-   ;;; Check that the extract is only extracting from e1.
-   (< hi (+ bw0 bw1))
-   (>= lo bw0))
-  ((union 
-    (Extract hi lo (Concat e1 e0))
-    (Extract (- hi bw0) (- lo bw0) e1)))
- :ruleset misc)
-(rule 
-  ((Extract hi lo (Concat e1 e0))
-   (HasType e0 (Bitvector bw0))
-   (HasType e1 (Bitvector bw1))
-   ;;; Check that the extract is only extracting from e0.
-   (< hi bw0))
-  ((union 
-    (Extract hi lo (Concat e1 e0))
-    (Extract hi lo e0)))
- :ruleset misc)
+ ((Op2 op e1 e2)
+  (Bitwise op)
+  (HasType (Op2 op e1 e2) (Bitvector n))
+  (> n 1))
+ ((union
+   (Op2 op e1 e2)
+   (Op2 (Concat) 
+    (Op2 op 
+     (Op1 (Extract (- n 1) 1) e1) (Op1 (Extract (- n 1) 1) e2))
+    (Op2 op 
+     (Op1 (Extract 0 0) e1) (Op1 (Extract 0 0) e2))))))

@@ -1,4 +1,5 @@
-(include "egglog_src/lakeroad.egg")
+; Handled by calling lakeroad_egglog::import_lakeroad(&mut egraph) in the macro.
+; (include "egglog_src/lakeroad.egg")
 
 ; wire declarations
 ; $and$half-adder.v:17$2_Y
@@ -32,9 +33,7 @@
 
 (run-schedule
  (repeat 100
-         (saturate typing)
-         (saturate sketch-proposal)
-         (saturate misc)))
+         (saturate typing)))
 
 (extract o_sum)
 (query-extract (HasType o_sum (Bitvector 1)))

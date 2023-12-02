@@ -222,7 +222,7 @@ pub fn import_lakeroad(egraph: &mut EGraph) {
     egraph
         .parse_and_run_program(
             r#"
-(include "egglog_src/lakeroad-antiunify.egg")
+(include "egglog_src/lakeroad.egg")
     "#,
         )
         .unwrap();

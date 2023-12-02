@@ -1,4 +1,5 @@
-(include "egglog_src/lakeroad.egg")
+; Handled by calling lakeroad_egglog::import_lakeroad(&mut egraph) in the macro.
+; (include "egglog_src/lakeroad.egg")
 
 ; CONSTRUCTING GRAPHS
 ;
@@ -33,7 +34,7 @@
 ; will initially be a placeholder, represented by a `Wire`.
 (let cyclic-input-0 (Wire "cyclic-input-0" 1))
 (let subcircuit-0 
-  (Reg 0 clk 
+  (Op1 (Reg 0)
        (Op2 (And) (Var "a" 1) cyclic-input-0)))
 ;
 ; Now, subcircuit-0 is an expression representing
@@ -43,7 +44,7 @@
 ; Let's also create the second subcircuit (the right column):
 (let cyclic-input-1 (Wire "cyclic-input-1" 1))
 (let subcircuit-1 
-  (Reg 0 clk 
+  (Op1 (Reg 0)
        (Op2 (And) (Var "b" 1) cyclic-input-1)))
 ;
 ; The final thing we need to do is to connect the two sub-circuits

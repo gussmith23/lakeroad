@@ -1,4 +1,5 @@
-(include "egglog_src/lakeroad.egg")
+; Handled by calling lakeroad_egglog::import_lakeroad(&mut egraph) in the macro.
+; (include "egglog_src/lakeroad.egg")
 
 ; wire declarations
 ; a
@@ -11,12 +12,12 @@
 (let v3 (Wire "v3" 1))
 ; $flatten\lut4_g1.$shr$misc/agilex_alm.sv:100$12_Y
 (let v4 (Wire "v4" 16))
-(let v5 (Extract 0 0 v4))
+(let v5 (Op1 (Extract 0 0) v4))
 ; lut4_g1_mem
 (let v6 (Wire "v6" 16))
 ; $flatten\lut4_p1.$shr$misc/agilex_alm.sv:100$12_Y
 (let v7 (Wire "v7" 16))
-(let v8 (Extract 0 0 v7))
+(let v8 (Op1 (Extract 0 0) v7))
 ; lut4_p1_mem
 (let v9 (Wire "v9" 16))
 ; c0
@@ -25,12 +26,12 @@
 (let v11 (Wire "v11" 1))
 ; $flatten\lut4_g0.$shr$misc/agilex_alm.sv:100$12_Y
 (let v12 (Wire "v12" 16))
-(let v13 (Extract 0 0 v12))
+(let v13 (Op1 (Extract 0 0) v12))
 ; lut4_g0_mem
 (let v14 (Wire "v14" 16))
 ; $flatten\lut4_p0.$shr$misc/agilex_alm.sv:100$12_Y
 (let v15 (Wire "v15" 16))
-(let v16 (Extract 0 0 v15))
+(let v16 (Op1 (Extract 0 0) v15))
 ; lut4_p0_mem
 (let v17 (Wire "v17" 16))
 ; $ternary$misc/agilex_alm.sv:83$11_Y
@@ -75,19 +76,19 @@
 (union v27 (Op3 (Mux) v31 v8 v5))
 (union v28 (Op3 (Mux) v31 v16 v13))
 ; { \a \b \c1 \d1 }
-(let v32 (Concat v3 v2))
-(let v33 (Concat v32 v1))
-(let v34 (Concat v33 v0))
+(let v32 (Op2 (Concat) v3 v2))
+(let v33 (Op2 (Concat) v32 v1))
+(let v34 (Op2 (Concat) v33 v0))
 ; TODO not handling signedness
-(let v35 (ZeroExtend v34 16))
+(let v35 (Op1 (ZeroExtend 16) v34))
 (union v4 (Op2 (Shr) v6 v35))
 (union v7 (Op2 (Shr) v9 v35))
 ; { \a \b \c0 \d0 }
-(let v36 (Concat v11 v10))
-(let v37 (Concat v36 v1))
-(let v38 (Concat v37 v0))
+(let v36 (Op2 (Concat) v11 v10))
+(let v37 (Op2 (Concat) v36 v1))
+(let v38 (Op2 (Concat) v37 v0))
 ; TODO not handling signedness
-(let v39 (ZeroExtend v38 16))
+(let v39 (Op1 (ZeroExtend 16) v38))
 (union v12 (Op2 (Shr) v14 v39))
 (union v15 (Op2 (Shr) v17 v39))
 

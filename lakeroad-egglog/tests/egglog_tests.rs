@@ -1,66 +1,37 @@
 use egglog::{
     ast::{parse::ExprParser, Expr},
-    ArcSort,
-    ExtractReport::*,
-    TermDag, Value,
+    ArcSort, EGraph, TermDag, Value,
 };
 use log::warn;
 use std::{collections::HashMap, path::Path};
 
 macro_rules! egglog_test {
     ($name:ident, $path:literal) => {
-        egglog_test!($name, $path, egraph, {});
+        egglog_test!($name, $path, |_unused| {});
     };
-    ($name:ident, $path:literal, $egraph_ident:ident, $after:block) => {
+    ($name:ident, $path:literal, $after_lambda:expr) => {
         #[test]
         fn $name() {
-            let mut $egraph_ident = egglog::EGraph::default();
-            $egraph_ident
+            let mut egraph = egglog::EGraph::default();
+            lakeroad_egglog::import_lakeroad(&mut egraph);
+            egraph
                 .parse_and_run_program(
                     &std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join($path))
                         .unwrap(),
                 )
                 .unwrap();
             // Uncomment to see SVGs, or add the following lines to your $after.
-            // let serialized = $egraph_ident.serialize_for_graphviz();
+            // let serialized = egraph.serialize_for_graphviz();
             // let svg_path = Path::new($path).with_extension("svg");
             // serialized.to_svg_file(svg_path).unwrap();
 
-            $after
+            $after_lambda(&mut egraph);
         }
     };
 }
 
 egglog_test!(test_1, "tests/egglog_tests/construct_sequential_cycle.egg");
-egglog_test!(permuter, "tests/egglog_tests/permuter.egg", egraph, {
-    let report = egraph
-        .get_extract_report()
-        .as_ref()
-        .expect("no extract report");
-    let (cost, _term_dag, _term) = match &report {
-        Best {
-            cost,
-            termdag,
-            term,
-        } => (cost, termdag, term),
-        _ => panic!("Expected [`Best`]"),
-    };
-    assert!(
-        *cost < 100000000,
-        "Cost >= 100000000. Presumably we extracted an Op."
-    );
-    assert!(*cost <= 1348, "Regression; last recorded best was 1348.");
-    // dbg!(cost);
-    dbg!(_term_dag.to_string(_term));
-
-    // Sanity checking my own understanding of egglog: the last term in the term
-    // graph is usually the top-level term.
-    assert_eq!(_term_dag.get(_term_dag.nodes.len() - 1), *_term);
-    println!(
-        "{}",
-        lakeroad_egglog::to_verilog(_term_dag, _term_dag.nodes.len() - 1)
-    );
-});
+egglog_test!(permuter, "tests/egglog_tests/permuter.egg");
 egglog_test!(typing, "tests/egglog_tests/typing.egg");
 
 fn create_rewrites(
@@ -137,77 +108,81 @@ fn create_rewrites(
     // let rewrites = remove_duplicates(rewrites);
 }
 
-egglog_test!(agilex_alm, "tests/egglog_tests/agilex_alm.egg", egraph, {
-    let (sort, value) = egraph
-        .eval_expr(&egglog::ast::Expr::Var("lut6out".into()), None, true)
-        .unwrap();
-    create_rewrites(
-        &egraph,
-        &value,
-        &sort,
-        1,
-        &vec![
-            (
-                ExprParser::new().parse("(Var \"a\" 1)").unwrap(),
-                Expr::Var("a".into()),
-            ),
-            (
-                ExprParser::new().parse("(Var \"b\" 1)").unwrap(),
-                Expr::Var("b".into()),
-            ),
-            (
-                ExprParser::new().parse("(Var \"c0\" 1)").unwrap(),
-                Expr::Var("c0".into()),
-            ),
-            (
-                ExprParser::new().parse("(Var \"c1\" 1)").unwrap(),
-                Expr::Var("c1".into()),
-            ),
-            (
-                ExprParser::new().parse("(Var \"d0\" 1)").unwrap(),
-                Expr::Var("d0".into()),
-            ),
-            (
-                ExprParser::new().parse("(Var \"d1\" 1)").unwrap(),
-                Expr::Var("d1".into()),
-            ),
-            (
-                ExprParser::new().parse("(Var \"e\" 1)").unwrap(),
-                Expr::Var("e".into()),
-            ),
-            (
-                ExprParser::new().parse("(Var \"f\" 1)").unwrap(),
-                Expr::Var("f".into()),
-            ),
-            (
-                ExprParser::new().parse("(Var \"lut4_g0_mem\" 16)").unwrap(),
-                ExprParser::new()
-                    .parse("(Symbolic \"lut4_g0_mem\" 16)")
-                    .unwrap(),
-            ),
-            (
-                ExprParser::new().parse("(Var \"lut4_p0_mem\" 16)").unwrap(),
-                ExprParser::new()
-                    .parse("(Symbolic \"lut4_p0_mem\" 16)")
-                    .unwrap(),
-            ),
-            (
-                ExprParser::new().parse("(Var \"lut4_g1_mem\" 16)").unwrap(),
-                ExprParser::new()
-                    .parse("(Symbolic \"lut4_g1_mem\" 16)")
-                    .unwrap(),
-            ),
-            (
-                ExprParser::new().parse("(Var \"lut4_p1_mem\" 16)").unwrap(),
-                ExprParser::new()
-                    .parse("(Symbolic \"lut4_p1_mem\" 16)")
-                    .unwrap(),
-            ),
-        ]
-        .into_iter()
-        .collect(),
-    );
-});
+egglog_test!(
+    agilex_alm,
+    "tests/egglog_tests/agilex_alm.egg",
+    |egraph: &mut EGraph| {
+        let (sort, value) = egraph
+            .eval_expr(&egglog::ast::Expr::Var("lut6out".into()), None, true)
+            .unwrap();
+        create_rewrites(
+            &egraph,
+            &value,
+            &sort,
+            1,
+            &vec![
+                (
+                    ExprParser::new().parse("(Var \"a\" 1)").unwrap(),
+                    Expr::Var("a".into()),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"b\" 1)").unwrap(),
+                    Expr::Var("b".into()),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"c0\" 1)").unwrap(),
+                    Expr::Var("c0".into()),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"c1\" 1)").unwrap(),
+                    Expr::Var("c1".into()),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"d0\" 1)").unwrap(),
+                    Expr::Var("d0".into()),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"d1\" 1)").unwrap(),
+                    Expr::Var("d1".into()),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"e\" 1)").unwrap(),
+                    Expr::Var("e".into()),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"f\" 1)").unwrap(),
+                    Expr::Var("f".into()),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"lut4_g0_mem\" 16)").unwrap(),
+                    ExprParser::new()
+                        .parse("(Symbolic \"lut4_g0_mem\" 16)")
+                        .unwrap(),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"lut4_p0_mem\" 16)").unwrap(),
+                    ExprParser::new()
+                        .parse("(Symbolic \"lut4_p0_mem\" 16)")
+                        .unwrap(),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"lut4_g1_mem\" 16)").unwrap(),
+                    ExprParser::new()
+                        .parse("(Symbolic \"lut4_g1_mem\" 16)")
+                        .unwrap(),
+                ),
+                (
+                    ExprParser::new().parse("(Var \"lut4_p1_mem\" 16)").unwrap(),
+                    ExprParser::new()
+                        .parse("(Symbolic \"lut4_p1_mem\" 16)")
+                        .unwrap(),
+                ),
+            ]
+            .into_iter()
+            .collect(),
+        );
+    }
+);
 
 egglog_test!(half_adder, "tests/egglog_tests/half_adder.egg");
 
@@ -285,7 +260,7 @@ fn antiunify_permuter() {
     egraph
         .parse_and_run_program(
             r#"
-(include "tests/egglog_tests/permuter-new-syntax.egg")
+(include "tests/egglog_tests/permuter.egg")
 "#,
         )
         .unwrap();
