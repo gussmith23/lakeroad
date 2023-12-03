@@ -282,3 +282,69 @@ fn antiunify_permuter() {
     // let svg_path = Path::new("tmp").with_extension("svg");
     // serialized.to_svg_file(svg_path).unwrap();
 }
+
+#[test]
+fn find_loop() {
+    let mut egraph = egglog::EGraph::default();
+    lakeroad_egglog::import_lakeroad(&mut egraph);
+
+    egraph
+        .parse_and_run_program(
+            r#"
+
+; This file comes from an example permuter design given to us by Intel.
+
+; wire declarations
+; $0\dout[15:0]
+(let v0 (Wire "v0" 16))
+; $auto$rtlil.cc:2492:Or$13
+(let v1 (Wire "v1" 1))
+; $auto$rtlil.cc:2558:Mux$11
+(let v2 (Wire "v2" 16))
+; $auto$rtlil.cc:2558:Mux$9
+(let v3 (Wire "v3" 16))
+; $procmux$3_CMP
+(let v4 (Wire "v4" 1))
+; $procmux$4_CMP
+(let v5 (Wire "v5" 1))
+; $procmux$5_CMP
+(let v6 (Wire "v6" 1))
+; clk
+(let v7 (Wire "v7" 1))
+; control
+(let v8 (Wire "v8" 2))
+; din
+(let v9 (Wire "v9" 16))
+; dout
+(let v10 (Wire "v10" 16))
+
+; cells
+; Loop involves this node; if we uncomment it the loop comes back.
+;(union v1 (Op2 (Or) v5 v4))
+; { \din [11:8] \din [15:12] \din [3:0] \din [7:4] }
+(let v11 (Op1 (Extract 7 4) v9))
+(let v12 (Op1 (Extract 3 0) v9))
+(let v13 (Op1 (Extract 15 12) v9))
+(let v14 (Op1 (Extract 11 8) v9))
+(let v15 (Op2 (Concat) v11 v12))
+(let v16 (Op2 (Concat) v15 v13))
+(let v17 (Op2 (Concat) v16 v14))
+(union v2 (Op3 (Mux) v6 v9 v17))
+(union v0 (Op3 (Mux) v1 v2 v3))
+; { \din [7:0] \din [15:8] }
+(let v18 (Op1 (Extract 15 8) v9))
+(let v19 (Op1 (Extract 7 0) v9))
+(let v20 (Op2 (Concat) v18 v19))
+; { \din [3:0] \din [7:4] \din [11:8] \din [15:12] }
+(let v21 (Op2 (Concat) v13 v14))
+(let v22 (Op2 (Concat) v21 v11))
+(let v23 (Op2 (Concat) v22 v12))
+(union v3 (Op3 (Mux) v4 v20 v23))
+
+(run enumerate-modules 100)
+"#,
+        )
+        .unwrap();
+
+    lakeroad_egglog::list_modules(&mut egraph, 1000);
+}

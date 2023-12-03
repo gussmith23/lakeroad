@@ -444,6 +444,19 @@ pub fn generate_module_enumeration_rewrite(
         },
     )
 }
+
+/// List all modules present in the egraph.
+pub fn list_modules(egraph: &mut EGraph, num_variants: usize) {
+    for s in egraph
+        .parse_and_run_program(
+            format!("(query-extract :variants {num_variants} (MakeModule mod args))").as_str(),
+        )
+        .unwrap()
+    {
+        println!("{}", s);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     // use super::*;
