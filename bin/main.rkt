@@ -29,7 +29,7 @@
          rosette/solver/smt/cvc4
          rosette/solver/smt/bitwuzla
          rosette/solver/smt/stp
-         rosette/solver/smt/yices-smt2
+         rosette/solver/smt/yices
          "../racket/signal.rkt"
          "../racket/btor.rkt"
          racket/sandbox)
@@ -185,7 +185,7 @@
   ["bitwuzla" (current-solver (bitwuzla #:logic 'QF_BV #:options (solver-flags)))]
   ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (solver-flags)))]
   ["stp" (current-solver (stp #:logic 'QF_BV #:options (solver-flags)))]
-  ["yices-smt2" (current-solver (yices-smt2 #:logic 'QF_BV #:options (solver-flags)))]
+  ["yices" (current-solver (yices #:logic 'QF_BV #:options (solver-flags)))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
 ;;; Parse instruction. Returns a Racket function in the format currently expected by synthesis:

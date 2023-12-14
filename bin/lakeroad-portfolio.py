@@ -78,7 +78,7 @@ parser.add_argument(
     "--stp", action=argparse.BooleanOptionalAction, help="Use stp.", default=False
 )
 parser.add_argument(
-    "--yices-smt2", action=argparse.BooleanOptionalAction, help="Use yices2.", default=False
+    "--yices", action=argparse.BooleanOptionalAction, help="Use yices2.", default=False
 )
 parser.add_argument(
     "--boolector",
@@ -143,8 +143,8 @@ if args.boolector:
     solvers_and_flag_sets.append(("boolector", []))
 if args.stp:
     solvers_and_flag_sets.append(("stp", []))
-if args.yices_smt2:
-    solvers_and_flag_sets.append(("yices-smt2", []))
+if args.yices:
+    solvers_and_flag_sets.append(("yices", []))
 assert solvers_and_flag_sets != [], "Must specify at least one solver."
 
 
