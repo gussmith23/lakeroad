@@ -81,20 +81,6 @@ parser.add_argument(
     "--yices-smt2", action=argparse.BooleanOptionalAction, help="Use yices2.", default=False
 )
 parser.add_argument(
-    "--yices-smt2-flag-set",
-    type=str,
-    help=(
-        "Solver flag set to pass to yices-smt2. Each flag set (i.e. each"
-        " separate instance of this flag) will generate a separate instance of"
-        " cvc5. A flag set is a string of the form"
-        ' "<key>=<value>,<key>=<value>,...". If no flag set is specified but'
-        " the solver is enabled by its corresponding flag, there will be a"
-        " single instance of the solver with no flags."
-    ),
-    default=[],
-    action="append",
-)
-parser.add_argument(
     "--boolector",
     action=argparse.BooleanOptionalAction,
     help="Use boolector.",
@@ -157,6 +143,8 @@ if args.boolector:
     solvers_and_flag_sets.append(("boolector", []))
 if args.stp:
     solvers_and_flag_sets.append(("stp", []))
+if args.yices_smt2:
+    solvers_and_flag_sets.append(("yices-smt2", []))
 assert solvers_and_flag_sets != [], "Must specify at least one solver."
 
 
