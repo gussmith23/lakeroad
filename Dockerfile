@@ -102,7 +102,6 @@ ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
 
 # Install raco (Racket) dependencies. 
 WORKDIR /root
-ADD rosette/ rosette/
 ARG FMT_COMMIT_HASH=bd44477
 RUN \
   # First, fix https://github.com/racket/racket/issues/2691 by building the
@@ -110,6 +109,7 @@ RUN \
   raco setup --doc-index --force-user-docs \
   # Install packages.
   && raco pkg install --deps search-auto --batch \
+  rosette \
   yaml \
   # Install fmt directly from GitHub. This prevents the version from changing on
   # us unexpectedly.
@@ -117,11 +117,6 @@ RUN \
   && git clone https://github.com/sorawee/fmt \
   && cd fmt \
   && git checkout ${FMT_COMMIT_HASH} \
-  && raco pkg install --deps search-auto --batch \
-  # Install Rosette from submodule.
-  # TODO(@gussmith23): Go back to installing Rosette from package manager once
-  # https://github.com/emina/rosette/pull/273 is merged.
-  && cd /root/rosette \
   && raco pkg install --deps search-auto --batch
 
 # Install Rust
