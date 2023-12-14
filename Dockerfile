@@ -162,13 +162,13 @@ RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   wget ${STP_URL} -nv -O stp.tar.gz && \
   mkdir stp && \
   tar xzf stp.tar.gz -C stp --strip-components=1 && \
-  pushd stp && \
+  cd stp && \
   ./scripts/deps/setup-gtest.sh && \
   ./scripts/deps/setup-outputcheck.sh && \
   ./scripts/deps/setup-cms.sh && \
   ./scripts/deps/setup-minisat.sh && \
   mkdir build && \
-  pushd build && \
+  cd build && \
   cmake .. && \
   cmake --build .
 ENV PATH="/root/stp/build:${PATH}"
@@ -180,7 +180,7 @@ RUN apt-get install -y gperf && \
   wget ${YICES2_URL} -nv -O yices2.tar.gz && \
   mkdir yices2 && \
   tar xvf yices2.tar.gz -C yices2 --strip-components=1 && \
-  pushd yices2 && \
+  cd yices2 && \
   autoconf && \
   ./configure && \
   make && \
