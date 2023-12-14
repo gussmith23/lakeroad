@@ -102,6 +102,7 @@ ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
 
 # Install raco (Racket) dependencies. 
 WORKDIR /root
+ADD rosette/ rosette/
 ARG FMT_COMMIT_HASH=bd44477
 RUN \
   # First, fix https://github.com/racket/racket/issues/2691 by building the
@@ -109,7 +110,6 @@ RUN \
   raco setup --doc-index --force-user-docs \
   # Install packages.
   && raco pkg install --deps search-auto --batch \
-  rosette \
   yaml \
   # Install fmt directly from GitHub. This prevents the version from changing on
   # us unexpectedly.
@@ -117,6 +117,11 @@ RUN \
   && git clone https://github.com/sorawee/fmt \
   && cd fmt \
   && git checkout ${FMT_COMMIT_HASH} \
+  && raco pkg install --deps search-auto --batch \
+  # Install Rosette from submodule.
+  # TODO(@gussmith23): Go back to installing Rosette from package manager once
+  # https://github.com/emina/rosette/pull/273 is merged.
+  && cd /root/rosette \
   && raco pkg install --deps search-auto --batch
 
 # Install Rust
@@ -149,6 +154,40 @@ RUN raco make /root/lakeroad/bin/main.rkt
 # the lakeroad-private submodule. However, it shouldn't matter, as anything that
 # uses LAKEROAD_PRIVATE_DIR should check if the directory exists/is nonempty first.
 ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
+
+# Build STP.
+WORKDIR /root
+ENV STP_URL="https://github.com/stp/stp/archive/0510509a85b6823278211891cbb274022340fa5c.tar.gz"
+RUN sudo apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
+  wget ${STP_URL} -nv -O stp.tar.gz && \
+  mkdir stp && \
+  tar xzf stp.tar.gz -C stp --strip-components=1 && \
+  pushd stp && \
+  ./scripts/deps/setup-gtest.sh && \
+  ./scripts/deps/setup-outputcheck.sh && \
+  ./scripts/deps/setup-cms.sh && \
+  ./scripts/deps/setup-minisat.sh && \
+  mkdir build && \
+  pushd build && \
+  cmake .. && \
+  cmake --build .
+ENV PATH="/root/stp/build:${PATH}"
+
+# Build Yices2.
+WORKDIR /root
+ENV YICES2_URL="https://github.com/SRI-CSL/yices2/archive/e27cf308cffb0ecc6cc7165c10e81ca65bc303b3.tar.gz"
+RUN sudo apt-get install -y gperf && \
+  wget ${YICES2_URL} -nv -O yices2.tar.gz && \
+  mkdir yices2 && \
+  tar xvf yices2.tar.gz -C yices2 --strip-components=1 && \
+  pushd yices2 && \
+  autoconf && \
+  ./configure && \
+  make && \
+  # If this line fails, it's presumably because we're on a different architecture.
+  [ -d build/x86_64-pc-linux-gnu-release/bin ]
+ENV PATH="/root/yices2/build/x86_64-pc-linux-gnu-release/bin/:${PATH}"
+
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]

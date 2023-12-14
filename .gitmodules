@@ -7,3 +7,6 @@
 [submodule "lakeroad-egglog/yosys"]
 	path = lakeroad-egglog/yosys
 	url = git@github.com:uwsampl/yosys
+[submodule "rosette"]
+	path = rosette
+	url = git@github.com:gussmith23/rosette
