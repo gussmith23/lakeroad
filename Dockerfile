@@ -158,7 +158,7 @@ ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
 # Build STP.
 WORKDIR /root
 ENV STP_URL="https://github.com/stp/stp/archive/0510509a85b6823278211891cbb274022340fa5c.tar.gz"
-RUN sudo apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
+RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   wget ${STP_URL} -nv -O stp.tar.gz && \
   mkdir stp && \
   tar xzf stp.tar.gz -C stp --strip-components=1 && \
@@ -176,7 +176,7 @@ ENV PATH="/root/stp/build:${PATH}"
 # Build Yices2.
 WORKDIR /root
 ENV YICES2_URL="https://github.com/SRI-CSL/yices2/archive/e27cf308cffb0ecc6cc7165c10e81ca65bc303b3.tar.gz"
-RUN sudo apt-get install -y gperf && \
+RUN apt-get install -y gperf && \
   wget ${YICES2_URL} -nv -O yices2.tar.gz && \
   mkdir yices2 && \
   tar xvf yices2.tar.gz -C yices2 --strip-components=1 && \
