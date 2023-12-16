@@ -8,8 +8,10 @@ RUN apt update \
   &&  add-apt-repository ppa:plt/racket \
   && apt update
 
-## Install dependencies
-# apt dependencies
+# Install apt dependencies
+# `noninteractive` prevents the tzdata package from asking for a timezone on the
+# command line.
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt install -y \
   autoconf \
   bison \
