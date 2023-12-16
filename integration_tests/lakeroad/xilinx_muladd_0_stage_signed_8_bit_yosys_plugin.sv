@@ -34,7 +34,7 @@
 
 (* template = "dsp" *) 
 (* architecture = "xilinx-ultrascale-plus" *) 
-(* initiation_interval = 0 *) 
+(* pipeline_depth = 0 *)
 module in_module(
 	(* data *)
 	input signed [7:0] a,

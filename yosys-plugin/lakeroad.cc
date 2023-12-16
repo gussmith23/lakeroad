@@ -50,7 +50,7 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 
 	auto template_ = f("\\template").decode_string();
 	auto architecture = f("\\architecture").decode_string();
-	auto initiation_interval = f("\\initiation_interval").as_int();
+	auto pipeline_depth = f("\\pipeline_depth").as_int();
 
 	auto find_attr = [&](std::string attr)
 	{
@@ -74,7 +74,7 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 
 	log_debug("Template: %s\n", template_.c_str());
 	log_debug("Architecture: %s\n", architecture.c_str());
-	log_debug("Initiation interval: %d\n", initiation_interval);
+	log_debug("Pipeline depth: %d\n", pipeline_depth);
 	if (clk_port_id != module->ports.end())
 	{
 		log_debug("Clock port: %s\n", clk_port_id->c_str());
@@ -117,8 +117,8 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 	}
 	for (auto port : data_ports)
 			ss << " --input-signal " << port.substr(1) << ":" << module->wire(port)->width;
-	if (initiation_interval != 0)
-		ss << " --initiation-interval " << initiation_interval;
+	if (pipeline_depth != 0)
+		ss << " --initiation-interval " << pipeline_depth;
 	// clang-format on
 
 	log("Executing Lakeroad:\n%s\n", ss.str().c_str());
