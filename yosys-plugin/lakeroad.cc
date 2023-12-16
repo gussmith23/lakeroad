@@ -43,7 +43,8 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 
 	auto f = [&](std::string key)
 	{
-		assert(module->attributes.count(key) == 1);
+		if (module->attributes.count(key) != 1)
+			log_error("Module %s is missing attribute %s.\n", module->name.c_str(), key.c_str());
 		return module->attributes[key];
 	};
 
