@@ -1,4 +1,3 @@
-
 lakeroad.so: lakeroad.cc
 	$(CXX) $(shell yosys-config --cxxflags --ldflags) -o $@ lakeroad.cc
 
