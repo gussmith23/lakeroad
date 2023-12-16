@@ -183,6 +183,9 @@ RUN apt-get install -y gperf && \
   [ -d build/x86_64-pc-linux-gnu-release/bin ]
 ENV PATH="/root/yices2/build/x86_64-pc-linux-gnu-release/bin/:${PATH}"
 
+# Build the Lakeroad Yosys plugin.
+WORKDIR /root/lakeroad/yosys-plugin
+RUN make -j${MAKE_JOBS}
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
