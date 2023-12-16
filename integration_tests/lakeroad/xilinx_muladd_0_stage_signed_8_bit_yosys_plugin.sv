@@ -1,32 +1,18 @@
 // RUN: outfile=$(mktemp)
 // RUN: yosys -m "$LAKEROAD_DIR/yosys-plugin/lakeroad.so" -p " \
 // RUN:  read_verilog %s; \
-// RUN:  hierarchy -top top; \
-// RUN:  lakeroad top; \
-// RUN:  write_verilog" 
-
-// RUN:  --solver bitwuzla \
-// RUN:  --verilog-module-filepath %s \
-// RUN:  --architecture xilinx-ultrascale-plus \
-// RUN:  --template dsp \
-// RUN:  --out-format verilog \
-// RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal out:8 \
-// RUN:  --initiation-interval 0 \
-// RUN:  --module-name test_module \
-// RUN:  --input-signal a:8 \
-// RUN:  --input-signal b:8 \
-// RUN:  --input-signal c:8 \
-// RUN:  --timeout 120 \
-// RUN:  > $outfile
+// RUN:  hierarchy -top in_module; \
+// RUN:  lakeroad in_module; \
+// RUN:  rename in_module out_module; \
+// RUN:  write_verilog $outfile"
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
 // RUN:   exit 0; \
 // RUN: else \
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --test_module_name test_module \
-// RUN:    --ground_truth_module_name top \
+// RUN:    --test_module_name out_module \
+// RUN:    --ground_truth_module_name in_module \
 // RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
@@ -49,7 +35,7 @@
 (* template = "dsp" *) 
 (* architecture = "xilinx-ultrascale-plus" *) 
 (* initiation_interval = 0 *) 
-module top(
+module in_module(
 	(* data *)
 	input signed [7:0] a,
 	(* data *)
@@ -57,13 +43,11 @@ module top(
 	(* data *)
 	input signed [7:0] c,
 	(* out *)
-	output [7:0] out,
-	(* clk *)
-	input clk);
+	output [7:0] out);
 
 	assign out = (a * b) + c;
 endmodule
 
-// CHECK: module test_module(a, b, c, out);
+// CHECK: module out_module(a, b, c, out);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule
