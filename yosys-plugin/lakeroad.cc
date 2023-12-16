@@ -62,19 +62,27 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 		};
 	};
 
+	// Clock may or may not be present.
 	auto clk_port_id = std::find_if(module->ports.begin(), module->ports.end(), find_attr("\\clk"));
-	assert(clk_port_id != module->ports.end());
 
 	std::vector<IdString> data_ports;
 	std::copy_if(module->ports.begin(), module->ports.end(), std::back_inserter(data_ports), find_attr("\\data"));
 
+	// Out should definitely be present.
 	auto out_port_id = std::find_if(module->ports.begin(), module->ports.end(), find_attr("\\out"));
 	assert(out_port_id != module->ports.end());
 
 	log_debug("Template: %s\n", template_.c_str());
 	log_debug("Architecture: %s\n", architecture.c_str());
 	log_debug("Initiation interval: %d\n", initiation_interval);
-	log_debug("Clock port: %s\n", clk_port_id->c_str());
+	if (clk_port_id != module->ports.end())
+	{
+		log_debug("Clock port: %s\n", clk_port_id->c_str());
+	}
+	else
+	{
+		log_debug("No clock port.\n");
+	}
 	for (auto port : data_ports)
 		log_debug("Data port: %s\n", port.c_str());
 	log_debug("Out port: %s\n", out_port_id->c_str());
@@ -103,8 +111,10 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 			<< " --verilog-module-out-signal " << out_port_id->substr(1) << ":" << module->wire(*out_port_id)->width
 			<< " --architecture " << architecture
 			<< " --template " << template_
-			<< " --module-name " << temp_module_name
-			<< " --clock-name " << clk_port_id->substr(1);
+			<< " --module-name " << temp_module_name;
+	if (clk_port_id != module->ports.end()){
+			ss << " --clock-name " << clk_port_id->substr(1);
+	}
 	for (auto port : data_ports)
 			ss << " --input-signal " << port.substr(1) << ":" << module->wire(port)->width;
 	if (initiation_interval != 0)
