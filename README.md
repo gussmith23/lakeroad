@@ -138,3 +138,7 @@ TODO(@gussmith23): this is unintuitive and not user-friendly.
 The [./import_all_primitives.sh](./import_all_primitives.sh) script uses sed, which it expects to be GNU sed. On Mac, you can install GNU sed via Homebrew and add it to your PATH temporarily or permanently.
 
 TODO(@gussmith23): Find better cross-platform regex. I thought Perl might be the answer.
+
+## Yosys Plugin
+
+Lakeroad is usable via a Yosys plugin, which can be built separately and loaded directly into your existing Yosys installation.
