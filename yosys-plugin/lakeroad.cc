@@ -36,7 +36,98 @@
 
 USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 
-		struct LakeroadPass : public Pass
+		void
+		compileWithLakeroad(RTLIL::Module *module, RTLIL::Design *design)
+{
+	log_debug("Compiling module %s with Lakeroad.\n", module->name.c_str());
+
+	auto f = [&](std::string key)
+	{
+		assert(module->attributes.count(key) == 1);
+		return module->attributes[key];
+	};
+
+	auto template_ = f("\\template").decode_string();
+	auto architecture = f("\\architecture").decode_string();
+	auto initiation_interval = f("\\initiation_interval").as_int();
+
+	auto find_attr = [&](std::string attr)
+	{
+		return [&, attr](IdString port)
+		{
+			auto w = module->wire(port);
+			assert(w);
+			return w->attributes.count(attr) > 0;
+		};
+	};
+
+	auto clk_port_id = std::find_if(module->ports.begin(), module->ports.end(), find_attr("\\clk"));
+	assert(clk_port_id != module->ports.end());
+
+	std::vector<IdString> data_ports;
+	std::copy_if(module->ports.begin(), module->ports.end(), std::back_inserter(data_ports), find_attr("\\data"));
+
+	auto out_port_id = std::find_if(module->ports.begin(), module->ports.end(), find_attr("\\out"));
+	assert(out_port_id != module->ports.end());
+
+	log_debug("Template: %s\n", template_.c_str());
+	log_debug("Architecture: %s\n", architecture.c_str());
+	log_debug("Initiation interval: %d\n", initiation_interval);
+	log_debug("Clock port: %s\n", clk_port_id->c_str());
+	for (auto port : data_ports)
+		log_debug("Data port: %s\n", port.c_str());
+	log_debug("Out port: %s\n", out_port_id->c_str());
+
+	auto top_module_name = module->name.substr(1);
+	// auto module_name = sprintf("%s_synthesized_by_lakeroad", top_module_name.c_str());
+
+	// Who knew getting a named temporary file was so hard in C++? This isn't a
+	// great solution.
+	auto verilog_filename = (boost::filesystem::temp_directory_path() / boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.v")).native();
+	auto out_verilog_filename = (boost::filesystem::temp_directory_path() / boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.v")).native();
+	std::vector<std::string> write_verilog_args;
+	write_verilog_args.push_back("write_verilog");
+	write_verilog_args.push_back(verilog_filename);
+	Pass::call(design, write_verilog_args);
+
+	auto temp_module_name = top_module_name + "_temp_output_from_lakeroad";
+
+	std::stringstream ss;
+	// clang-format off
+	ss << getenv("LAKEROAD_DIR") << "/bin/main.rkt"
+			<< " --verilog-module-filepath " << verilog_filename 
+			<< " --top-module-name " << top_module_name
+			<< " --out-filepath " << out_verilog_filename
+			<< " --out-format verilog" 
+			<< " --verilog-module-out-signal " << out_port_id->substr(1) << ":" << module->wire(*out_port_id)->width
+			<< " --architecture " << architecture
+			<< " --template " << template_
+			<< " --module-name " << temp_module_name
+			<< " --clock-name " << clk_port_id->substr(1);
+	for (auto port : data_ports)
+			ss << " --input-signal " << port.substr(1) << ":" << module->wire(port)->width;
+	if (initiation_interval != 0)
+		ss << " --initiation-interval " << initiation_interval;
+	// clang-format on
+
+	log("Executing Lakeroad:\n%s\n", ss.str().c_str());
+	if (system(ss.str().c_str()) != 0)
+		log_error("Lakeroad execution failed.\n");
+
+	std::vector<std::string> read_verilog_args;
+	read_verilog_args.push_back("read_verilog");
+	read_verilog_args.push_back(out_verilog_filename);
+	Pass::call(design, read_verilog_args);
+
+	log("Replacing module %s with the output of Lakeroad\n", top_module_name.c_str());
+	design->remove(module);
+	auto new_module = design->module(RTLIL::escape_id(temp_module_name));
+	if (new_module == nullptr)
+		log_error("Lakeroad returned OK, but no module named %s found.\n", top_module_name.c_str());
+	design->rename(new_module, RTLIL::escape_id(top_module_name));
+}
+
+struct LakeroadPass : public Pass
 {
 	LakeroadPass() : Pass("lakeroad", "Invoke Lakeroad for technology mapping.") {}
 	void help() override
@@ -50,7 +141,7 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 		log("library to a target architecture.\n");
 		log("\n");
 	}
-	void execute(std::vector<std::string> args, RTLIL::Design *design) override
+	void execute(std::vector<std::string>, RTLIL::Design *design) override
 	{
 		log_header(design, "Executing Lakeroad pass (technology mapping using Lakeroad).\n");
 		log_push();
@@ -58,67 +149,13 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 		if (!getenv("LAKEROAD_DIR"))
 			log_error("LAKEROAD_DIR environment variable not set. Please set it to the location of the Lakeroad directory.\n");
 
-		if (args.size() != 9 && args.size() != 10)
-			log_cmd_error("Invalid number of arguments!\n");
-		auto top_module_name = args[1];
-		auto output_signal_name = args[2];
-		auto architecture = args[3];
-		auto templ8 = args[4];
-		auto initiation_interval = args[5];
-		auto clock_name = args[6];
-		auto input_a = args[7];
-		auto input_b = args[8];
-		auto input_c = args.size() == 10 ? args[9] : "";
-
-		auto module_name = top_module_name + "_synthesized_by_lakeroad";
-
-		// Who knew getting a named temporary file was so hard in C++? This isn't a
-		// great solution.
-		auto verilog_filename = (boost::filesystem::temp_directory_path() / boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.v")).native();
-		auto out_verilog_filename =
-				(boost::filesystem::temp_directory_path() / boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.v")).native();
-		std::vector<std::string> write_verilog_args;
-		write_verilog_args.push_back("write_verilog");
-		write_verilog_args.push_back(verilog_filename);
-		Pass::call(design, write_verilog_args);
-
-		std::stringstream ss;
-		// clang-format off
-		ss << getenv("LAKEROAD_DIR") << "/bin/main.rkt"
-		   << " --verilog-module-filepath " << verilog_filename 
-			 << " --top-module-name " << top_module_name
-			 << " --out-filepath " << out_verilog_filename
-		   << " --out-format verilog" 
-			 << " --verilog-module-out-signal " << output_signal_name
-			 << " --architecture " << architecture
-			 << " --template " << templ8
-			 << " --module-name " << module_name
-			 << " --clock-name " << clock_name
-			 << " --input-signal " << input_a
-			 << " --input-signal " << input_b;
-		if (initiation_interval != "0")
-			ss << " --initiation-interval " << initiation_interval;
-		if (input_c != "")
-			ss << " --input-signal " << input_c;
-		// clang-format on
-
-		log("Executing Lakeroad:\n%s\n", ss.str().c_str());
-		if (system(ss.str().c_str()) != 0)
-			log_error("Lakeroad execution failed.\n");
-
-		std::vector<std::string> read_verilog_args;
-		read_verilog_args.push_back("read_verilog");
-		read_verilog_args.push_back(out_verilog_filename);
-		Pass::call(design, read_verilog_args);
-
-		auto new_module = design->module(RTLIL::escape_id(module_name));
-		if (new_module == nullptr)
-			log_error("Lakeroad returned OK, but no module named %s found.\n", module_name.c_str());
-
-		log("Replacing module %s with the output of Lakeroad", top_module_name.c_str());
-
-		design->remove(design->module(RTLIL::escape_id(top_module_name)));
-		design->rename(new_module, RTLIL::escape_id(top_module_name));
+		// Have to get around the reference counting that modules() does.
+		std::vector<IdString> module_names;
+		std::transform(design->modules().begin(), design->modules().end(), std::back_inserter(module_names),
+									 [](Module *module)
+									 { return module->name; });
+		for (auto name : module_names)
+			compileWithLakeroad(design->module(name), design);
 
 		log_pop();
 	}
