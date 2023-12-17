@@ -3,12 +3,6 @@
 
 ARG MAKE_JOBS=2
 
-# Build the Lakeroad Yosys plugin.
-FROM yosyshq/plugin_build:20.04 as plugin_build
-ADD yosys-plugin /root/lakeroad/yosys-plugin
-WORKDIR /root/lakeroad/yosys-plugin
-RUN make -j${MAKE_JOBS}
-
 FROM ubuntu:22.04
 
 # Update, get add-apt-repository, add PPA for Racket, update again.
@@ -71,41 +65,46 @@ ENV PATH="/root/.local/bin:${PATH}"
 # Install a bunch of useful tools from prebuilt binaries. Thanks to YosysHQ for
 # making this available!
 #
-# We currently use the following binaries from oss-cad-suite:
-# yosys, verilator, cvc5, boolector.
-#
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
-#
-# TODO(@gussmith23): Could shrink Docker image by deleting unneeded binaries.
 WORKDIR /root
-RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-08-06/oss-cad-suite-linux-x64-20230806.tgz -q -O oss-cad-suite.tgz; \
+ADD dependencies.sh /root/dependencies.sh
+RUN source /root/dependencies.sh \
+  && if [ "$(uname -m)" = "x86_64" ] ; then \
+  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$OSS_CAD_SUITE_DATE_NO_HYPHENS.tgz -q -O oss-cad-suite.tgz; \
   else \
   exit 1; \
   fi \
-  && tar xf oss-cad-suite.tgz
-ENV PATH="/root/oss-cad-suite/bin:${PATH}"
+  && tar xf oss-cad-suite.tgz \
+  # Copy only the binaries and share files we need.
+  && cp oss-cad-suite/bin/cvc5 /root/.local/bin \
+  && cp oss-cad-suite/bin/verilator /root/.local/bin \
+  && mkdir -p /root/.local/share \
+  && cp -r oss-cad-suite/share/verilator /root/.local/share
+# TODO(@gussmith23): Commenting this out to see what breaks. Eventually we want
+# to remove this altogether, and delete the oss-cad-suite folder.
+#ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
 # pip dependencies
 WORKDIR /root/lakeroad
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-# Build Bitwuzla from version tracked in submodule.
+# Build Bitwuzla.
 WORKDIR /root
-ADD bitwuzla bitwuzla
-RUN cd bitwuzla \
-  && ./configure.py \
+RUN source /root/dependencies.sh \
+  && mkdir bitwuzla \
+  && wget -qO- https://github.com/bitwuzla/bitwuzla/archive/$BITWUZLA_COMMIT_HASH.tar.gz | tar xvz -C bitwuzla --strip-components=1 \
+  && cd bitwuzla \
+  && ./configure.py --prefix=/root/.local \
   && cd build \
-  && ninja -j${MAKE_JOBS}
+  && ninja -j${MAKE_JOBS} install
 # Put it on the path. Note that there's a bitwuzla in oss-cad-suite, so we need
 # to make sure this one takes precedence.
 ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
 
 # Install raco (Racket) dependencies. 
 WORKDIR /root
-ARG FMT_COMMIT_HASH=bd44477
 RUN \
   # First, fix https://github.com/racket/racket/issues/2691 by building the
   # docs.
@@ -119,7 +118,8 @@ RUN \
   && cd /root \
   && git clone https://github.com/sorawee/fmt \
   && cd fmt \
-  && git checkout ${FMT_COMMIT_HASH} \
+  && source /root/dependencies.sh \
+  && git checkout $RACKET_FMT_COMMIT_HASH \
   && raco pkg install --deps search-auto --batch
 
 # Install Rust
@@ -155,9 +155,9 @@ ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
 
 # Build STP.
 WORKDIR /root
-ENV STP_URL="https://github.com/stp/stp/archive/0510509a85b6823278211891cbb274022340fa5c.tar.gz"
 RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
-  wget ${STP_URL} -nv -O stp.tar.gz && \
+  source /root/dependencies.sh && \
+  wget https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz -nv -O stp.tar.gz && \
   mkdir stp && \
   tar xzf stp.tar.gz -C stp --strip-components=1 && \
   cd stp && \
@@ -173,9 +173,9 @@ ENV PATH="/root/stp/build:${PATH}"
 
 # Build Yices2.
 WORKDIR /root
-ENV YICES2_URL="https://github.com/SRI-CSL/yices2/archive/e27cf308cffb0ecc6cc7165c10e81ca65bc303b3.tar.gz"
 RUN apt-get install -y gperf && \
-  wget ${YICES2_URL} -nv -O yices2.tar.gz && \
+  source /root/dependencies.sh && \
+  wget https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz -nv -O yices2.tar.gz && \
   mkdir yices2 && \
   tar xvf yices2.tar.gz -C yices2 --strip-components=1 && \
   cd yices2 && \
@@ -186,7 +186,16 @@ RUN apt-get install -y gperf && \
   [ -d build/x86_64-pc-linux-gnu-release/bin ]
 ENV PATH="/root/yices2/build/x86_64-pc-linux-gnu-release/bin/:${PATH}"
 
-COPY --from=plugin_build /root/yosys-plugin/lakeroad.so /root/lakeroad/yosys-plugin/lakeroad.so
+# Build Yosys.
+WORKDIR /root
+RUN source /root/dependencies.sh && \
+  && mkdir yosys && cd yosys \
+  && wget -qO- https://github.com/YosysHQ/yosys/archive/$YOSYS_COMMIT_HASH.tar.gz | tar xvz --strip-components=1 \
+  && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install
+
+# Build Yosys plugin.
+WORKDIR /root/lakeroad/yosys-plugin
+RUN make -j ${MAKE_JOBS}
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
