@@ -25,10 +25,12 @@ RUN apt install -y \
   g++ \
   git \
   git \
+  libboost-filesystem-dev \
   libfl-dev \
   libfl2 \
   libgmp-dev \
   libgoogle-perftools-dev \
+  libreadline-dev \
   libssl-dev \
   libzmq3-dev \
   llvm-14 \
