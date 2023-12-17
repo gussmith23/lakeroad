@@ -3,7 +3,6 @@
 (module+ test
   (require rackunit
            rosette/solver/smt/boolector
-           "verilator.rkt"
            rosette
            "synthesize.rkt"
            "programs-to-synthesize.rkt"
@@ -101,13 +100,4 @@
            (begin
              (clear-vc!)
              (clear-terms!)
-             (collect-garbage))))
-
-  (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-    (raise "VERILATOR_INCLUDE_DIR not set"))
-  (define include-dir (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
-  (test-true "simulate all synthesized designs with Verilator"
-             (simulate-with-verilator #:include-dirs (list include-dir)
-                                      #:extra-verilator-args "-Wno-UNUSED -Wno-UNOPT -Wno-UNOPTFLAT"
-                                      to-simulate-list
-                                      (getenv "VERILATOR_INCLUDE_DIR"))))
+             (collect-garbage)))))

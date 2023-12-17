@@ -32,7 +32,6 @@ Please see the [Dockerfile](./Dockerfile)
 
 - `LAKEROAD_DIR`
 - `LAKEROAD_PRIVATE_DIR`
-- `VERILATOR_INCLUDE_DIR`
 - `LLVM_CONFIG`
 
 ## Testing in Lakeroad

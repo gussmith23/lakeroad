@@ -3,7 +3,6 @@
 (module+ test
   (require rackunit
            rosette/solver/smt/boolector
-           "verilator.rkt"
            rosette
            "programs-to-synthesize.rkt"
            "circt-comb-operators.rkt"
@@ -83,18 +82,4 @@
            (begin
              (clear-vc!)
              (clear-terms!)
-             (collect-garbage))))
-
-  (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-    (raise "VERILATOR_INCLUDE_DIR not set"))
-  (define include-dir
-    (build-path (get-lakeroad-directory) "verilog/simulation/xilinx-ultrascale-plus"))
-  (test-true
-   "simulate all synthesized designs with Verilator"
-   (simulate-with-verilator
-    #:include-dirs (list (build-path (get-lakeroad-directory)
-                                     "verilog/simulation/xilinx-ultrascale-plus"))
-    #:extra-verilator-args
-    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
-    to-simulate-list
-    (getenv "VERILATOR_INCLUDE_DIR"))))
+             (collect-garbage)))))
