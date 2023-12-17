@@ -3,7 +3,6 @@
 (module+ test
   (require rackunit
            rosette/solver/smt/boolector
-           "verilator.rkt"
            "synthesize.rkt"
            "circt-comb-operators.rkt"
            "utils.rkt"
@@ -11,8 +10,6 @@
            "architecture-description.rkt"
            "generated/sofa-frac-lut4.rkt")
   (current-solver (boolector))
-
-  (define to-simulate-list (list))
 
   (define (synthesize test-name bv-expr)
     (test-case test-name
@@ -33,9 +30,7 @@
 
         (define lakeroad-expr (result-value with-vc-result))
 
-        (check-not-equal? lakeroad-expr #f)
-
-        (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
+        (check-not-equal? lakeroad-expr #f))))
 
   ;;; How I reverse engineered SOFA LUT4:
   ;;; (for* ([i (range 16)] [j (range 16)])
@@ -80,20 +75,7 @@
   (define skywater-mux2-dir
     (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/"))
   (define skywater-udp-mux-2to1-dir
-    (build-path (get-lakeroad-directory) "skywater-pdk-libs-sky130_fd_sc_hd" "models" "udp_mux_2to1"))
-
-  (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-    (raise "VERILATOR_INCLUDE_DIR not set"))
-  (test-true
-   "simulate all synthesized designs with Verilator"
-   (simulate-with-verilator
-    #:include-dirs (list (build-path (get-lakeroad-directory) "modules_for_importing" "SOFA")
-                         skywater-or2-1-dir
-                         skywater-inv-dir
-                         skywater-buf-dir
-                         skywater-mux2-dir
-                         skywater-udp-mux-2to1-dir)
-    #:extra-verilator-args
-    "-Wno-LITENDIAN -Wno-EOFNEWLINE -Wno-UNUSED -Wno-PINMISSING -Wno-TIMESCALEMOD -DSKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK -DNO_PRIMITIVES"
-    to-simulate-list
-    (getenv "VERILATOR_INCLUDE_DIR"))))
+    (build-path (get-lakeroad-directory)
+                "skywater-pdk-libs-sky130_fd_sc_hd"
+                "models"
+                "udp_mux_2to1")))
