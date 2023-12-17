@@ -1,5 +1,14 @@
 # syntax=docker/dockerfile-upstream:master-labs
 # The above enables use of ADD of git repo.
+
+ARG MAKE_JOBS=2
+
+# Build the Lakeroad Yosys plugin.
+FROM yosyshq/plugin_build:20.04 as plugin_build
+ADD yosys-plugin /root/lakeroad/yosys-plugin
+WORKDIR /root/lakeroad/yosys-plugin
+RUN make -j${MAKE_JOBS}
+
 FROM ubuntu:22.04
 
 # Update, get add-apt-repository, add PPA for Racket, update again.
@@ -93,7 +102,6 @@ RUN pip install -r requirements.txt
 
 # Build Bitwuzla from version tracked in submodule.
 WORKDIR /root
-ARG MAKE_JOBS=2
 ADD bitwuzla bitwuzla
 RUN cd bitwuzla \
   && ./configure.py \
@@ -186,9 +194,7 @@ RUN apt-get install -y gperf && \
   [ -d build/x86_64-pc-linux-gnu-release/bin ]
 ENV PATH="/root/yices2/build/x86_64-pc-linux-gnu-release/bin/:${PATH}"
 
-# Build the Lakeroad Yosys plugin.
-WORKDIR /root/lakeroad/yosys-plugin
-RUN make -j${MAKE_JOBS}
+COPY --from=plugin_build /root/yosys-plugin/lakeroad.so /root/lakeroad/yosys-plugin/lakeroad.so
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
