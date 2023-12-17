@@ -1,9 +1,8 @@
 # syntax=docker/dockerfile-upstream:master-labs
 # The above enables use of ADD of git repo.
 
-ARG MAKE_JOBS=2
-
 FROM ubuntu:22.04
+ARG MAKE_JOBS=2
 SHELL ["/bin/bash", "-c"] 
 
 # Update, get add-apt-repository, add PPA for Racket, update again.
