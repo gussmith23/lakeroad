@@ -94,7 +94,7 @@ RUN pip install -r requirements.txt
 WORKDIR /root
 RUN source /root/dependencies.sh \
   && mkdir bitwuzla \
-  && wget -qO- https://github.com/bitwuzla/bitwuzla/archive/$BITWUZLA_COMMIT_HASH.tar.gz | tar xvz -C bitwuzla --strip-components=1 \
+  && wget -qO- https://github.com/bitwuzla/bitwuzla/archive/$BITWUZLA_COMMIT_HASH.tar.gz | tar xz -C bitwuzla --strip-components=1 \
   && cd bitwuzla \
   && ./configure.py --prefix=/root/.local \
   && cd build \
@@ -189,9 +189,9 @@ ENV PATH="/root/yices2/build/x86_64-pc-linux-gnu-release/bin/:${PATH}"
 
 # Build Yosys.
 WORKDIR /root
-RUN source /root/dependencies.sh && \
+RUN source /root/dependencies.sh \
   && mkdir yosys && cd yosys \
-  && wget -qO- https://github.com/YosysHQ/yosys/archive/$YOSYS_COMMIT_HASH.tar.gz | tar xvz --strip-components=1 \
+  && wget -qO- https://github.com/YosysHQ/yosys/archive/$YOSYS_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
   && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install
 
 # Build Yosys plugin.
