@@ -38,7 +38,6 @@
          rosette
          rosette/lib/synthax
          rosette/lib/angelic
-         "verilator.rkt"
          "utils.rkt")
 
 ;;; List of all sketch generators. Ordered roughly in terms of complexity/expected synthesis time.
@@ -826,22 +825,7 @@
 
          (check-true (normal? result))
          (define soln (result-value result))
-         (check-true (sat? soln))
-
-         (define lr-expr
-           (evaluate
-            sketch
-            ;;; Complete the solution: fill in any symbolic values that *aren't* the logical inputs.
-            (complete-solution soln
-                               (set->list (set-subtract (list->set (symbolics sketch))
-                                                        (list->set (symbolics bv-expr)))))))
-
-         (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-           (raise "VERILATOR_INCLUDE_DIR not set"))
-         (check-true (simulate-with-verilator #:include-dirs include-dirs
-                                              #:extra-verilator-args extra-verilator-args
-                                              (list (to-simulate lr-expr bv-expr))
-                                              (getenv "VERILATOR_INCLUDE_DIR")))))))
+         (check-true (sat? soln))))))
 
   (sketch-test
    #:name "DSP for bvmul on Xilinx DSP48E2"

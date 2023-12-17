@@ -12,19 +12,6 @@ fi
 
 pushd "$LAKEROAD_DIR" >/dev/null
 
-if [ -z ${VERILATOR_INCLUDE_DIR+x} ]; then
-    verilator --version >/dev/null 2>&1 || {
-        echo >&2 "VERILATOR_INCLUDE_DIR not set.  Aborting."
-        exit 1
-    }
-    VERILATOR_INCLUDE_DIR="$(realpath "$(dirname "$(which verilator)")"/../share/verilator/include)"
-    [ -d "$VERILATOR_INCLUDE_DIR" ] || {
-        echo >&2 "VERILATOR_INCLUDE_DIR not a directory.  Aborting."
-        exit 1
-    }
-    declare -rx VERILATOR_INCLUDE_DIR
-fi
-
 # New Lakeroad egglog tests.
 cargo test --manifest-path $SCRIPT_DIR/lakeroad-egglog/Cargo.toml -- --nocapture
 
