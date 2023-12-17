@@ -42,6 +42,7 @@ RUN apt install -y \
   python3 \
   python3-pip \
   racket \
+  tcl \
   tcl8.6-dev \
   wget \
   zlib1g \
