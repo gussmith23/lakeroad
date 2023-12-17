@@ -99,7 +99,8 @@ RUN source /root/dependencies.sh \
   && cd bitwuzla \
   && ./configure.py --prefix=/root/.local \
   && cd build \
-  && ninja -j${MAKE_JOBS} install
+  && ninja -j${MAKE_JOBS} \
+  && ninja install
 # Put it on the path. Note that there's a bitwuzla in oss-cad-suite, so we need
 # to make sure this one takes precedence.
 ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
