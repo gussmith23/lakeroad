@@ -4,6 +4,7 @@
 ARG MAKE_JOBS=2
 
 FROM ubuntu:22.04
+SHELL ["/bin/bash", "-c"] 
 
 # Update, get add-apt-repository, add PPA for Racket, update again.
 RUN apt update \
