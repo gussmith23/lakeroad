@@ -15,8 +15,6 @@
 
   (current-solver (boolector))
 
-  (define to-simulate-list (list))
-
   ;;; Test synthesis of bv-expr, and add result to list.
   (define (synthesize test-name bv-expr)
     (test-case test-name
@@ -40,9 +38,7 @@
 
         (define lakeroad-expr (result-value with-vc-result))
 
-        (check-not-equal? lakeroad-expr #f)
-
-        (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
+        (check-not-equal? lakeroad-expr #f))))
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])

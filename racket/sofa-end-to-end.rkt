@@ -11,8 +11,6 @@
            "generated/sofa-frac-lut4.rkt")
   (current-solver (boolector))
 
-  (define to-simulate-list (list))
-
   (define (synthesize test-name bv-expr)
     (test-case test-name
       (begin
@@ -32,9 +30,7 @@
 
         (define lakeroad-expr (result-value with-vc-result))
 
-        (check-not-equal? lakeroad-expr #f)
-
-        (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
+        (check-not-equal? lakeroad-expr #f))))
 
   ;;; How I reverse engineered SOFA LUT4:
   ;;; (for* ([i (range 16)] [j (range 16)])

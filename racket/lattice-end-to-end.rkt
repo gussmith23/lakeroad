@@ -14,8 +14,6 @@
 
   (current-solver (boolector))
 
-  (define to-simulate-list (list))
-
   ;;; Test synthesis of bv-expr, and add result to list.
   ;;; Expect a timeout when this is a bvmul w/ bitwidth > 10
   (define (synthesize test-name
@@ -49,11 +47,7 @@
         (if expect-timeout?
             ;;; TODO(@gussmith23): Standardize what the synthesis functions return when they fail.
             (check-equal? lakeroad-expr #f)
-            (check-not-equal? lakeroad-expr #f))
-
-        ;;; Add the result to the list of things to simulate, when the result is expected to be valid.
-        (when (not expect-timeout?)
-          (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list))))))
+            (check-not-equal? lakeroad-expr #f)))))
 
   (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])
     ;;; Setup: Make symbolic terms.
