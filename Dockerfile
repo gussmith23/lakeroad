@@ -81,6 +81,8 @@ RUN source /root/dependencies.sh \
   && tar xf oss-cad-suite.tgz \
   # Copy only the binaries and share files we need.
   && cp oss-cad-suite/bin/cvc5 /root/.local/bin \
+  && cp oss-cad-suite/bin/boolector /root/.local/bin \
+  && cp oss-cad-suite/bin/yices-smt2 /root/.local/bin \
   && cp oss-cad-suite/bin/verilator /root/.local/bin \
   && mkdir -p /root/.local/share \
   && cp -r oss-cad-suite/share/verilator /root/.local/share
@@ -174,21 +176,6 @@ RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   cmake .. && \
   cmake --build .
 ENV PATH="/root/stp/build:${PATH}"
-
-# Build Yices2.
-WORKDIR /root
-RUN apt-get install -y gperf && \
-  source /root/dependencies.sh && \
-  wget https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz -nv -O yices2.tar.gz && \
-  mkdir yices2 && \
-  tar xvf yices2.tar.gz -C yices2 --strip-components=1 && \
-  cd yices2 && \
-  autoconf && \
-  ./configure && \
-  make && \
-  # If this line fails, it's presumably because we're on a different architecture.
-  [ -d build/x86_64-pc-linux-gnu-release/bin ]
-ENV PATH="/root/yices2/build/x86_64-pc-linux-gnu-release/bin/:${PATH}"
 
 # Build Yosys.
 WORKDIR /root
