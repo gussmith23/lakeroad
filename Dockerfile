@@ -24,7 +24,6 @@ RUN apt install -y \
   flex \
   g++ \
   git \
-  git \
   libboost-filesystem-dev \
   libfl-dev \
   libfl2 \
