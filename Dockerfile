@@ -70,6 +70,10 @@ ENV PATH="/root/.local/bin:${PATH}"
 #
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
+#
+# TODO(@gussmith23): Could shrink Docker image by deleting a bunch of uneeded
+# binaries, or only taking the binaries we need. However, I found that moving
+# stuff out of oss-cad-suite causes things to break.
 WORKDIR /root
 ADD dependencies.sh /root/dependencies.sh
 RUN source /root/dependencies.sh \
@@ -79,17 +83,16 @@ RUN source /root/dependencies.sh \
   exit 1; \
   fi \
   && tar xf oss-cad-suite.tgz \
-  # Copy only the binaries and share files we need.
-  && cp oss-cad-suite/bin/cvc5 /root/.local/bin \
-  && cp oss-cad-suite/bin/boolector /root/.local/bin \
-  && cp oss-cad-suite/bin/yices-smt2 /root/.local/bin \
-  && cp oss-cad-suite/bin/verilator /root/.local/bin \
-  && cp oss-cad-suite/bin/verilator_bin /root/.local/bin \
-  && mkdir -p /root/.local/share \
-  && cp -r oss-cad-suite/share/verilator /root/.local/share \
-  && rm -r oss-cad-suite
-# TODO(@gussmith23): Commenting this out to see what breaks. Eventually we want
-# to remove this altogether, and delete the oss-cad-suite folder.
+  && rm oss-cad-suite.tgz \
+  # Delete binaries we don't need (and that we explicitly build other versions
+  # of).
+  && rm oss-cad-suite/bin/yosys \
+  && rm oss-cad-suite/bin/bitwuzla
+# Make sure that .local/bin has precedence over oss-cad-suite/bin. I realize
+# we add ./local/bin to the PATH twice, but I just want to document that we want
+# things in .local/bin to take precedence, and duplicate PATH entries won't
+# break anything.
+ENV PATH="/root/.local/bin:/root/oss-cad-suite/bin:${PATH}"
 
 # pip dependencies
 WORKDIR /root/lakeroad
@@ -106,9 +109,6 @@ RUN source /root/dependencies.sh \
   && cd build \
   && ninja -j${MAKE_JOBS} \
   && ninja install
-# Put it on the path. Note that there's a bitwuzla in oss-cad-suite, so we need
-# to make sure this one takes precedence.
-ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
 
 # Install raco (Racket) dependencies. 
 WORKDIR /root
