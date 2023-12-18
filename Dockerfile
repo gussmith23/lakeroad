@@ -78,7 +78,7 @@ WORKDIR /root
 ADD dependencies.sh /root/dependencies.sh
 RUN source /root/dependencies.sh \
   && if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$OSS_CAD_SUITE_DATE_NO_HYPHENS.tgz -q -O oss-cad-suite.tgz; \
+  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz; \
   else \
   exit 1; \
   fi \
