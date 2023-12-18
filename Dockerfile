@@ -165,7 +165,7 @@ WORKDIR /root
 RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   source /root/dependencies.sh && \
   mkdir stp && cd stp && \
-  wget -q0- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1 && \
+  wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1 && \
   ./scripts/deps/setup-gtest.sh && \
   ./scripts/deps/setup-outputcheck.sh && \
   ./scripts/deps/setup-cms.sh && \
@@ -181,7 +181,7 @@ ENV PATH="/root/stp/build:${PATH}"
 WORKDIR /root
 RUN source /root/dependencies.sh \
   && mkdir yosys && cd yosys \
-  && wget -q0- https://github.com/YosysHQ/yosys/archive/$YOSYS_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
+  && wget -qO- https://github.com/YosysHQ/yosys/archive/$YOSYS_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
   && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make config-gcc \
   && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install \
   && rm -rf /root/yosys
