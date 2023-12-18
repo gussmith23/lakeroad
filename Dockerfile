@@ -84,11 +84,12 @@ RUN source /root/dependencies.sh \
   && cp oss-cad-suite/bin/boolector /root/.local/bin \
   && cp oss-cad-suite/bin/yices-smt2 /root/.local/bin \
   && cp oss-cad-suite/bin/verilator /root/.local/bin \
+  && cp oss-cad-suite/bin/verilator_bin /root/.local/bin \
   && mkdir -p /root/.local/share \
-  && cp -r oss-cad-suite/share/verilator /root/.local/share
+  && cp -r oss-cad-suite/share/verilator /root/.local/share \
+  && rm -r oss-cad-suite
 # TODO(@gussmith23): Commenting this out to see what breaks. Eventually we want
 # to remove this altogether, and delete the oss-cad-suite folder.
-#ENV PATH="/root/oss-cad-suite/bin:${PATH}"
 
 # pip dependencies
 WORKDIR /root/lakeroad
