@@ -172,8 +172,9 @@ RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   ./scripts/deps/setup-minisat.sh && \
   mkdir build && \
   cd build && \
-  cmake .. && \
-  cmake --install . --prefix /root/.local -- -j ${MAKE_JOBS} && \
+  cmake .. -DCMAKE_INSTALL_PREFIX=/root/.local && \
+  make -j ${MAKE_JOBS} && \
+  make install && \
   rm -rf /root/stp
 ENV PATH="/root/stp/build:${PATH}"
 
