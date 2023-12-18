@@ -140,4 +140,6 @@ TODO(@gussmith23): Find better cross-platform regex. I thought Perl might be the
 
 ## Yosys Plugin
 
-Lakeroad is usable via a Yosys plugin, which can be built separately and loaded directly into your existing Yosys installation.
+Lakeroad is usable via a Yosys plugin, which can be built separately and loaded directly into your existing Yosys installation. The plugin is located in [./yosys-plugin/](./yosys-plugin/) and can be built using the Makefile in that directory. The plugin can be loaded into Yosys using Yosys's `-m` option, e.g. `yosys -m lakeroad.so ...`. An example of this can be seen in [this integration test.](./integration_tests/lakeroad/xilinx_muladd_0_stage_signed_8_bit_yosys_plugin.sv)
+
+Note: the Lakeroad plugin needs to be built in the same environment (i.e. same glibc version) as the Yosys executable it's being loaded into. This can be an issue e.g. when using the Yosys executable in `oss-cad-suite`. The easiest way to prevent this is to build Yosys yourself using their directions.
