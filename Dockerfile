@@ -173,7 +173,7 @@ RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   mkdir build && \
   cd build && \
   cmake .. && \
-  cmake --install . --prefix /root/.local -j ${MAKE_JOBS} && \
+  cmake --install . --prefix /root/.local -- -j ${MAKE_JOBS} && \
   rm -rf /root/stp
 ENV PATH="/root/stp/build:${PATH}"
 
