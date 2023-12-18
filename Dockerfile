@@ -107,7 +107,8 @@ RUN source /root/dependencies.sh \
   && ./configure.py --prefix=/root/.local \
   && cd build \
   && ninja -j${MAKE_JOBS} \
-  && ninja install
+  && ninja install \
+  && rm -rf /root/bitwuzla
 
 # Install raco (Racket) dependencies. 
 WORKDIR /root
@@ -163,10 +164,8 @@ ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
 WORKDIR /root
 RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   source /root/dependencies.sh && \
-  wget https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz -nv -O stp.tar.gz && \
-  mkdir stp && \
-  tar xzf stp.tar.gz -C stp --strip-components=1 && \
-  cd stp && \
+  mkdir stp && cd stp && \
+  wget -q0- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1 && \
   ./scripts/deps/setup-gtest.sh && \
   ./scripts/deps/setup-outputcheck.sh && \
   ./scripts/deps/setup-cms.sh && \
@@ -174,7 +173,8 @@ RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   mkdir build && \
   cd build && \
   cmake .. && \
-  cmake --build .
+  cmake --install . --prefix /root/.local -j ${MAKE_JOBS} && \
+  rm -rf /root/stp
 ENV PATH="/root/stp/build:${PATH}"
 
 # Build Yosys.
@@ -183,7 +183,8 @@ RUN source /root/dependencies.sh \
   && mkdir yosys && cd yosys \
   && wget -qO- https://github.com/YosysHQ/yosys/archive/$YOSYS_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
   && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make config-gcc \
-  && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install
+  && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install \
+  && rm -rf /root/yosys
 
 # Build Yosys plugin.
 WORKDIR /root/lakeroad/yosys-plugin
