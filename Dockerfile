@@ -173,9 +173,12 @@ RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
   mkdir build && \
   cd build && \
   cmake .. -DCMAKE_INSTALL_PREFIX=/root/.local && \
-  make -j ${MAKE_JOBS} && \
-  make install && \
-  rm -rf /root/stp
+  make -j ${MAKE_JOBS}
+# TODO(@gussmith23): Install and delete folder once
+# https://github.com/stp/stp/issues/479 is fixed.
+# make install && \
+# rm -rf /root/stp
+# And after that we also don't need to add STP to the path.
 ENV PATH="/root/stp/build:${PATH}"
 
 # Build Yosys.
