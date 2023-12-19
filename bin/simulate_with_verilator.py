@@ -77,11 +77,6 @@ def simulate_with_verilator(
     makefile_filepath.parent.mkdir(parents=True, exist_ok=True)
 
     # Instantiate Makefile template for our code.
-    if "VERILATOR_INCLUDE_DIR" not in os.environ:
-        raise Exception(
-            "VERILATOR_INCLUDE_DIR environment variable must be set to the "
-            "directory where Verilator's include directory is located."
-        )
     if "LAKEROAD_DIR" not in os.environ:
         raise Exception(
             "LAKEROAD_DIR environment variable must be set to the "

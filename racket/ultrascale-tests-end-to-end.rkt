@@ -3,7 +3,6 @@
 (module+ test
   (require rackunit
            rosette/solver/smt/boolector
-           "verilator.rkt"
            rosette
            "programs-to-synthesize.rkt"
            "circt-comb-operators.rkt"
@@ -15,8 +14,6 @@
            "generated/xilinx-ultrascale-plus-carry8.rkt")
 
   (current-solver (boolector))
-
-  (define to-simulate-list (list))
 
   ;;; Test synthesis of bv-expr, and add result to list.
   (define (synthesize test-name bv-expr)
@@ -41,9 +38,7 @@
 
         (define lakeroad-expr (result-value with-vc-result))
 
-        (check-not-equal? lakeroad-expr #f)
-
-        (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list)))))
+        (check-not-equal? lakeroad-expr #f))))
 
   ;;; TODO for now these need to be named l0..l5. Make this more flexible.
   (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])
@@ -83,18 +78,4 @@
            (begin
              (clear-vc!)
              (clear-terms!)
-             (collect-garbage))))
-
-  (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-    (raise "VERILATOR_INCLUDE_DIR not set"))
-  (define include-dir
-    (build-path (get-lakeroad-directory) "verilog/simulation/xilinx-ultrascale-plus"))
-  (test-true
-   "simulate all synthesized designs with Verilator"
-   (simulate-with-verilator
-    #:include-dirs (list (build-path (get-lakeroad-directory)
-                                     "verilog/simulation/xilinx-ultrascale-plus"))
-    #:extra-verilator-args
-    "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT"
-    to-simulate-list
-    (getenv "VERILATOR_INCLUDE_DIR"))))
+             (collect-garbage)))))

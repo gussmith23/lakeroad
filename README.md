@@ -32,7 +32,6 @@ Please see the [Dockerfile](./Dockerfile)
 
 - `LAKEROAD_DIR`
 - `LAKEROAD_PRIVATE_DIR`
-- `VERILATOR_INCLUDE_DIR`
 - `LLVM_CONFIG`
 
 ## Testing in Lakeroad
@@ -138,3 +137,9 @@ TODO(@gussmith23): this is unintuitive and not user-friendly.
 The [./import_all_primitives.sh](./import_all_primitives.sh) script uses sed, which it expects to be GNU sed. On Mac, you can install GNU sed via Homebrew and add it to your PATH temporarily or permanently.
 
 TODO(@gussmith23): Find better cross-platform regex. I thought Perl might be the answer.
+
+## Yosys Plugin
+
+Lakeroad is usable via a Yosys plugin, which can be built separately and loaded directly into your existing Yosys installation. The plugin is located in [./yosys-plugin/](./yosys-plugin/) and can be built using the Makefile in that directory. The plugin can be loaded into Yosys using Yosys's `-m` option, e.g. `yosys -m lakeroad.so ...`. An example of this can be seen in [this integration test.](./integration_tests/lakeroad/xilinx_muladd_0_stage_signed_8_bit_yosys_plugin.sv)
+
+Note: the Lakeroad plugin needs to be built in the same environment (i.e. same glibc version) as the Yosys executable it's being loaded into. This can be an issue e.g. when using the Yosys executable in `oss-cad-suite`. The easiest way to prevent this is to build Yosys yourself using their directions.

@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile-upstream:master-labs
 # The above enables use of ADD of git repo.
+
 FROM ubuntu:22.04
+ARG MAKE_JOBS=2
+SHELL ["/bin/bash", "-c"] 
 
 # Update, get add-apt-repository, add PPA for Racket, update again.
 RUN apt update \
@@ -8,8 +11,10 @@ RUN apt update \
   &&  add-apt-repository ppa:plt/racket \
   && apt update
 
-## Install dependencies
-# apt dependencies
+# Install apt dependencies
+# `noninteractive` prevents the tzdata package from asking for a timezone on the
+# command line.
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt install -y \
   autoconf \
   bison \
@@ -19,11 +24,12 @@ RUN apt install -y \
   flex \
   g++ \
   git \
-  git \
+  libboost-filesystem-dev \
   libfl-dev \
   libfl2 \
   libgmp-dev \
   libgoogle-perftools-dev \
+  libreadline-dev \
   libssl-dev \
   libzmq3-dev \
   llvm-14 \
@@ -37,6 +43,8 @@ RUN apt install -y \
   python3 \
   python3-pip \
   racket \
+  tcl \
+  tcl8.6-dev \
   wget \
   zlib1g \
   zlib1g-dev
@@ -59,50 +67,51 @@ ENV PATH="/root/.local/bin:${PATH}"
 # Install a bunch of useful tools from prebuilt binaries. Thanks to YosysHQ for
 # making this available!
 #
-# We currently use the following binaries from oss-cad-suite:
-# yosys, verilator, cvc5, boolector.
-#
 # If we get an error here, we likely just need to add other branches for other
 # architectures.
 #
-# TODO(@gussmith23): Could shrink Docker image by deleting unneeded binaries.
+# TODO(@gussmith23): Could shrink Docker image by deleting a bunch of uneeded
+# binaries, or only taking the binaries we need. However, I found that moving
+# stuff out of oss-cad-suite causes things to break.
 WORKDIR /root
-RUN if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-08-06/oss-cad-suite-linux-x64-20230806.tgz -q -O oss-cad-suite.tgz; \
+ADD dependencies.sh /root/dependencies.sh
+RUN source /root/dependencies.sh \
+  && if [ "$(uname -m)" = "x86_64" ] ; then \
+  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz; \
   else \
   exit 1; \
   fi \
-  && tar xf oss-cad-suite.tgz
-ENV PATH="/root/oss-cad-suite/bin:${PATH}"
-
-# This environment variable is needed to test with Verilator in Lakeroad.
-#
-# TODO(@gussmith23): I don't think this is actually needed. Verilator generates
-# Makefiles that we should be using to make .a libraries to link against. Then,
-# we don't have to worry about getting the right includes etc. when trying to
-# compile Verilator files.
-ENV VERILATOR_INCLUDE_DIR=/root/oss-cad-suite/share/verilator/include
+  && tar xf oss-cad-suite.tgz \
+  && rm oss-cad-suite.tgz \
+  # Delete binaries we don't need (and that we explicitly build other versions
+  # of).
+  && rm oss-cad-suite/bin/yosys \
+  && rm oss-cad-suite/bin/bitwuzla
+# Make sure that .local/bin has precedence over oss-cad-suite/bin. I realize
+# we add ./local/bin to the PATH twice, but I just want to document that we want
+# things in .local/bin to take precedence, and duplicate PATH entries won't
+# break anything.
+ENV PATH="/root/.local/bin:/root/oss-cad-suite/bin:${PATH}"
 
 # pip dependencies
 WORKDIR /root/lakeroad
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-# Build Bitwuzla from version tracked in submodule.
+# Build Bitwuzla.
 WORKDIR /root
-ARG MAKE_JOBS=2
-ADD bitwuzla bitwuzla
-RUN cd bitwuzla \
-  && ./configure.py \
+RUN source /root/dependencies.sh \
+  && mkdir bitwuzla \
+  && wget -qO- https://github.com/bitwuzla/bitwuzla/archive/$BITWUZLA_COMMIT_HASH.tar.gz | tar xz -C bitwuzla --strip-components=1 \
+  && cd bitwuzla \
+  && ./configure.py --prefix=/root/.local \
   && cd build \
-  && ninja -j${MAKE_JOBS}
-# Put it on the path. Note that there's a bitwuzla in oss-cad-suite, so we need
-# to make sure this one takes precedence.
-ENV PATH="/root/bitwuzla/build/src/main/:${PATH}"
+  && ninja -j${MAKE_JOBS} \
+  && ninja install \
+  && rm -rf /root/bitwuzla
 
 # Install raco (Racket) dependencies. 
 WORKDIR /root
-ARG FMT_COMMIT_HASH=bd44477
 RUN \
   # First, fix https://github.com/racket/racket/issues/2691 by building the
   # docs.
@@ -116,7 +125,8 @@ RUN \
   && cd /root \
   && git clone https://github.com/sorawee/fmt \
   && cd fmt \
-  && git checkout ${FMT_COMMIT_HASH} \
+  && source /root/dependencies.sh \
+  && git checkout $RACKET_FMT_COMMIT_HASH \
   && raco pkg install --deps search-auto --batch
 
 # Install Rust
@@ -149,6 +159,40 @@ RUN raco make /root/lakeroad/bin/main.rkt
 # the lakeroad-private submodule. However, it shouldn't matter, as anything that
 # uses LAKEROAD_PRIVATE_DIR should check if the directory exists/is nonempty first.
 ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
+
+# Build STP.
+WORKDIR /root
+RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
+  source /root/dependencies.sh && \
+  mkdir stp && cd stp && \
+  wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1 && \
+  ./scripts/deps/setup-gtest.sh && \
+  ./scripts/deps/setup-outputcheck.sh && \
+  ./scripts/deps/setup-cms.sh && \
+  ./scripts/deps/setup-minisat.sh && \
+  mkdir build && \
+  cd build && \
+  cmake .. -DCMAKE_INSTALL_PREFIX=/root/.local && \
+  make -j ${MAKE_JOBS}
+# TODO(@gussmith23): Install and delete folder once
+# https://github.com/stp/stp/issues/479 is fixed.
+# make install && \
+# rm -rf /root/stp
+# And after that we also don't need to add STP to the path.
+ENV PATH="/root/stp/build:${PATH}"
+
+# Build Yosys.
+WORKDIR /root
+RUN source /root/dependencies.sh \
+  && mkdir yosys && cd yosys \
+  && wget -qO- https://github.com/YosysHQ/yosys/archive/$YOSYS_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
+  && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make config-gcc \
+  && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install \
+  && rm -rf /root/yosys
+
+# Build Yosys plugin.
+WORKDIR /root/lakeroad/yosys-plugin
+RUN make -j ${MAKE_JOBS}
 
 WORKDIR /root/lakeroad
 CMD [ "/bin/bash", "run-tests.sh" ]
