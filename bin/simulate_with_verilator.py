@@ -51,6 +51,12 @@ def simulate_with_verilator(
       expect_all_zero_outputs: If True, we will expect that all outputs are
         always 0 on all inputs. This should almost always be False.
     """
+    # This is an annoying fact. It's totally natural that the modules **would**
+    # have the same name; they're two implementations of the same thing, after
+    # all. But this will lead to a name collision from Verilator, and until
+    # there are namespaces in Verilog (how are there not???) this is what we're
+    # stuck with.
+    assert test_module_name != ground_truth_module_name, "Modules cannot have the same name."
 
     if ignore_missing_test_module_file and not all(
         [Path(path).exists() for path in verilog_filepaths]
