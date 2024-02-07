@@ -1,1 +1,0 @@
-(binop add 8 (binop and 8 (var x 8) (var y 8)) (binop asr 8 (binop xor 8 (var x 8) (var y 8)) (const 1 8)))
