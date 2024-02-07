@@ -1,1 +1,0 @@
-These files are copied from <https://github.com/google/skywater-pdk-libs-sky130_fd_sc_hd>.
