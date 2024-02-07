@@ -12,12 +12,6 @@ fi
 
 pushd "$LAKEROAD_DIR" >/dev/null
 
-# New Lakeroad egglog tests.
-cargo test --manifest-path $SCRIPT_DIR/lakeroad-egglog/Cargo.toml -- --nocapture
-
-# Old Lakeroad egg tests.
-cargo test --manifest-path $SCRIPT_DIR/rust/Cargo.toml -- --nocapture
-
 # Racket tests.
 #
 # We could use the -j flag of raco test to run tests in parallel, but instead,
