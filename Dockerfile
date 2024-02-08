@@ -64,7 +64,7 @@ ADD --keep-git-dir=false . .
 
 # Build Rust package.
 WORKDIR /root/churchroad
-RUN cargo build --manifest-path
+RUN cargo build
 
 WORKDIR /root/churchroad
 CMD [ "/bin/bash", "run-tests.sh" ]
