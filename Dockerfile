@@ -129,17 +129,8 @@ RUN \
   && git checkout $RACKET_FMT_COMMIT_HASH \
   && raco pkg install --deps search-auto --batch
 
-# Install Rust
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-ENV PATH="/root/.cargo/bin:$PATH"
-
 ENV LAKEROAD_DIR=/root/lakeroad
 ENV PYTHONPATH="${LAKEROAD_DIR}/python:${PYTHONPATH}"
-
-# Build Rust package.
-WORKDIR /root/lakeroad
-ADD ./rust ./rust
-RUN cargo build --manifest-path /root/lakeroad/rust/Cargo.toml
 
 # Add other Lakeroad files. It's useful to put this as far down as possible. In
 # general, only ADD files just before they're needed. This maximizes the ability

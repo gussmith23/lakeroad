@@ -1,1 +1,0 @@
-(unop not 8 (binop sub 8 (var x 8) (var y 8)))
