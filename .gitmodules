@@ -1,6 +1,3 @@
-[submodule "lakeroad-private"]
-	path = lakeroad-private
-	url = git@github.com:uwsampl/lakeroad-private
 [submodule "lakeroad-egglog/yosys"]
-	path = lakeroad-egglog/yosys
+	path = yosys
 	url = git@github.com:uwsampl/yosys
