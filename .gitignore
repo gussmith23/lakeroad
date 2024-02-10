@@ -9,3 +9,6 @@
 **/.lit_test_times.txt
 **/Output/
 **/__pycache__
+
+target
+Cargo.lock
