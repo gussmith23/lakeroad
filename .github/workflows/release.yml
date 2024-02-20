@@ -43,11 +43,18 @@ jobs:
         with:
           python-version: '3.10' 
 
-      - name: raco exe
+      - name: Run `raco exe` on `bin/main.rkt`
         run: raco exe -o lakeroad-single-solver bin/main.rkt
 
+      - name: Create zip (Windows)
+        if: matrix.os-name == 'windows'
+        run: |
+          7z a lakeroad-${{ matrix.os-name }}.zip lakeroad-single-solver
+          # TODO(@gussmith23): Get SHA on Windows.
+          # sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
 
-      - name: Zip everything
+      - name: Create zip (Linux, macOS)
+        if: matrix.os-name == 'ubuntu' || matrix.os-name == 'macOS'
         run: |
           zip -r lakeroad-${{ matrix.os-name }}.zip lakeroad-single-solver
           sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
@@ -59,12 +66,13 @@ jobs:
           name: lakeroad-${{ matrix.os-name }}.zip
           if-no-files-found: error
 
-      - name: Upload pre-built egg-herbie checksum
-        uses: actions/upload-artifact@v4
-        with:
-          path: lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
-          name: lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
-          if-no-files-found: error
+      # TODO(@gussmith23): Re-enable once we generate SHA on Windows.
+      # - name: Upload checksum
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     path: lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
+      #     name: lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
+      #     if-no-files-found: error
 
   release:
     name: Create Initial Release
