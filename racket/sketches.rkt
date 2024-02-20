@@ -215,17 +215,18 @@
                      (car (sketch-inputs-rst inputs))
                      (lr:bv (bv->signal (bv 0 1))))]
 
-       [make-dsp-expr (lambda (internal-data out-width
-                                             clk-expr
-                                             rst-expr
-                                             a-expr
-                                             a-width
-                                             b-expr
-                                             b-width
-                                             c-expr
-                                             c-width
-                                             d-expr
-                                             d-width)
+       [make-dsp-expr (lambda (internal-data
+                               out-width
+                               clk-expr
+                               rst-expr
+                               a-expr
+                               a-width
+                               b-expr
+                               b-width
+                               c-expr
+                               c-width
+                               d-expr
+                               d-width)
                         (match-define (list dsp-expr ignored-internal-data)
                           (construct-interface architecture-description
                                                (interface-identifier "DSP"
