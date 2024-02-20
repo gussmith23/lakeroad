@@ -7,6 +7,8 @@ on:
     tags:
     - 'v*'
   workflow_dispatch:
+  # DO NOT MERGE: we are just including this so that we can test the release
+  # while working on the PR.
   pull_request:
 
 jobs:
