@@ -57,7 +57,8 @@ jobs:
         if: matrix.os-name == 'ubuntu' || matrix.os-name == 'macOS'
         run: |
           zip -r lakeroad-${{ matrix.os-name }}.zip lakeroad-single-solver
-          sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
+          # TODO(@gussmith23): Doesn't work on Mac, may need to have one case for each OS.
+          # sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
