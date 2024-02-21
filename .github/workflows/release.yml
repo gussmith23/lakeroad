@@ -49,7 +49,7 @@ jobs:
       - name: Create zip (Windows)
         if: matrix.os-name == 'windows'
         run: |
-          7z a lakeroad-${{ matrix.os-name }}.zip lakeroad-single-solver
+          7z a lakeroad-${{ matrix.os-name }}.zip lakeroad-single-solver.exe
           # TODO(@gussmith23): Get SHA on Windows.
           # sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
 
