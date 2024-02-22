@@ -76,6 +76,12 @@
 (define solver (make-parameter "bitwuzla"))
 (define extra-cycles (make-parameter 0))
 (define solver-flags (make-parameter (make-hash)))
+(define bitwuzla-path (make-parameter #f))
+(define cvc5-path (make-parameter #f))
+(define stp-path (make-parameter #f))
+(define yices-path (make-parameter #f))
+(define cvc4-path (make-parameter #f))
+(define boolector-path (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -150,6 +156,30 @@
   "Name of the reset signal of both modules. Currently assumes they're the same, but this need not be"
   " the case."
   (reset-name v)]
+ ["--bitwuzla-path"
+  v
+  "Path to the Bitwuzla binary. If not set, Rosette will assume the binary is on your PATH."
+  (bitwuzla-path v)]
+ ["--cvc5-path"
+  v
+  "Path to the cvc5 binary. If not set, Rosette will assume the binary is on your PATH."
+  (cvc5-path v)]
+ ["--stp-path"
+  v
+  "Path to the STP binary. If not set, Rosette will assume the binary is on your PATH."
+  (stp-path v)]
+ ["--yices-path"
+  v
+  "Path to the Yices2 binary. If not set, Rosette will assume the binary is on your PATH."
+  (yices-path v)]
+ ["--cvc4-path"
+  v
+  "Path to the cvc4 binary. If not set, Rosette will assume the binary is on your PATH."
+  (cvc4-path v)]
+ ["--boolector-path"
+  v
+  "Path to the boolector binary. If not set, Rosette will assume the binary is on your PATH."
+  (boolector-path v)]
  #:once-any
  #:multi
  [("--solver-flag")
@@ -180,12 +210,14 @@
 
 ;;; Set solver.
 (match (solver)
-  ["cvc5" (current-solver (cvc5 #:logic 'QF_BV #:options (solver-flags)))]
-  ["cvc4" (current-solver (cvc4 #:logic 'QF_BV #:options (solver-flags)))]
-  ["bitwuzla" (current-solver (bitwuzla #:logic 'QF_BV #:options (solver-flags)))]
-  ["boolector" (current-solver (boolector #:logic 'QF_BV #:options (solver-flags)))]
-  ["stp" (current-solver (stp #:logic 'QF_BV #:options (solver-flags)))]
-  ["yices" (current-solver (yices #:logic 'QF_BV #:options (solver-flags)))]
+  ["cvc5" (current-solver (cvc5 #:path (cvc5-path) #:logic 'QF_BV #:options (solver-flags)))]
+  ["cvc4" (current-solver (cvc4 #:path (cvc4-path) #:logic 'QF_BV #:options (solver-flags)))]
+  ["bitwuzla"
+   (current-solver (bitwuzla #:path (bitwuzla-path) #:logic 'QF_BV #:options (solver-flags)))]
+  ["boolector"
+   (current-solver (boolector #:path (boolector-path) #:logic 'QF_BV #:options (solver-flags)))]
+  ["stp" (current-solver (stp #:path (stp-path) #:logic 'QF_BV #:options (solver-flags)))]
+  ["yices" (current-solver (yices #:path (yices-path) #:logic 'QF_BV #:options (solver-flags)))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
 ;;; Parse instruction. Returns a Racket function in the format currently expected by synthesis:
