@@ -104,6 +104,12 @@ parser.add_argument(
     type=argparse.FileType("w"),
     default=None,
 )
+parser.add_argument(
+    "--lakeroad-executable-filepath",
+    help=("Path to the Lakeroad executable."),
+    type=str,
+    default=str(pathlib.Path(os.path.abspath(__file__)).parent / "main.rkt"),
+)
 args, rest = parser.parse_known_args()
 
 # Process the "--" flag which marks the end of the flags for the script.
@@ -158,8 +164,7 @@ def start_with_solver(
     outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
     process = psutil.Popen(
         [
-            "racket",
-            pathlib.Path(os.path.abspath(__file__)).parent / "main.rkt",
+            args.lakeroad_executable_filepath,
             "--solver",
             solver,
             "--out-filepath",
