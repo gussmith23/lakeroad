@@ -67,10 +67,19 @@ jobs:
           echo >lakeroad/bin/lakeroad <<EOF
           #!/bin/bash
           SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-          "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad" $@
+          "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad" \
+            --lakeroad-executable-filepath "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad-single-solver" \
+            --cvc5-path "$SCRIPT_DIR/../deps/cvc5/bin/cvc5" \
+            --bitwuzla-path "$SCRIPT_DIR/../deps/bitwuzla/bin/bitwuzla" \
+            --stp-path "$SCRIPT_DIR/../deps/stp/bin/stp" \
+            --yices-path "$SCRIPT_DIR/../deps/yices/bin/yices" \
+            $@
           EOF
 
-          zip -r lakeroad-${{ matrix.os-name }}.zip lakeroad-single-solver
+          cp lakeroad-single-solver lakeroad/deps/lakeroad/bin/lakeroad-single-solver
+          cp dist/lakeroad lakeroad/deps/lakeroad/bin/lakeroad
+
+          zip -r lakeroad-${{ matrix.os-name }}.zip lakeroad
           # TODO(@gussmith23): Doesn't work on Mac, may need to have one case for each OS.
           # sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
 
