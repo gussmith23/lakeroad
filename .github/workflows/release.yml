@@ -50,8 +50,11 @@ jobs:
       - name: Run PyInstaller
         run: pyinstaller --onefile --name lakeroad bin/lakeroad-portfolio.py
 
-      - name: Run `raco exe` on `bin/main.rkt`
-        run: raco exe -o lakeroad-single-solver bin/main.rkt
+      - name: Run `raco exe` and `raco distribute` on `bin/main.rkt`
+        run: |
+          mkdir -p lakeroad/deps/lakeroad/
+          raco exe -o lakeroad-single-solver bin/main.rkt
+          raco distribute lakeroad/deps/lakeroad/ lakeroad-single-solver
 
       - name: Create zip (Windows)
         if: matrix.os-name == 'windows'
@@ -79,8 +82,6 @@ jobs:
           EOF
           chmod +x lakeroad/bin/lakeroad
 
-          mkdir -p lakeroad/deps/lakeroad/bin
-          cp lakeroad-single-solver lakeroad/deps/lakeroad/bin/lakeroad-single-solver
           cp dist/lakeroad lakeroad/deps/lakeroad/bin/lakeroad
 
           zip -r lakeroad-${{ matrix.os-name }}.zip lakeroad
