@@ -43,8 +43,9 @@ jobs:
         with:
           python-version: '3.10' 
 
-      - name: Install PyInstaller
-        run: pip install pyinstaller
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt && pip install pyinstaller
+
 
       - name: Run PyInstaller
         run: pyinstaller --onefile --name lakeroad bin/lakeroad-portfolio.py
