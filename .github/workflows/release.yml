@@ -43,6 +43,12 @@ jobs:
         with:
           python-version: '3.10' 
 
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Run PyInstaller
+        run: pyinstaller --onefile --name lakeroad bin/lakeroad-portfolio.py
+
       - name: Run `raco exe` on `bin/main.rkt`
         run: raco exe -o lakeroad-single-solver bin/main.rkt
 
@@ -56,6 +62,14 @@ jobs:
       - name: Create zip (Linux, macOS)
         if: matrix.os-name == 'ubuntu' || matrix.os-name == 'macOS'
         run: |
+          mkdir lakeroad
+          mkdir lakeroad/bin
+          echo >lakeroad/bin/lakeroad <<EOF
+          #!/bin/bash
+          SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+          "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad" $@
+          EOF
+
           zip -r lakeroad-${{ matrix.os-name }}.zip lakeroad-single-solver
           # TODO(@gussmith23): Doesn't work on Mac, may need to have one case for each OS.
           # sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
