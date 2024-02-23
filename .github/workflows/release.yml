@@ -63,6 +63,7 @@ jobs:
         if: matrix.os-name == 'ubuntu' || matrix.os-name == 'macOS'
         run: |
           mkdir lakeroad
+
           mkdir lakeroad/bin
           echo >lakeroad/bin/lakeroad <<EOF
           #!/bin/bash
@@ -75,7 +76,9 @@ jobs:
             --yices-path "$SCRIPT_DIR/../deps/yices/bin/yices" \
             $@
           EOF
+          chmod +x lakeroad/bin/lakeroad
 
+          mkdir -p lakeroad/deps/lakeroad/bin
           cp lakeroad-single-solver lakeroad/deps/lakeroad/bin/lakeroad-single-solver
           cp dist/lakeroad lakeroad/deps/lakeroad/bin/lakeroad
 
