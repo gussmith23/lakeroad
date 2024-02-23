@@ -53,8 +53,8 @@ jobs:
       - name: Run `raco exe` and `raco distribute` on `bin/main.rkt`
         run: |
           mkdir -p lakeroad/deps/lakeroad/
-          raco exe -o lakeroad-single-solver bin/main.rkt
-          raco distribute lakeroad/deps/lakeroad/ lakeroad-single-solver
+          raco exe -v -o lakeroad-single-solver bin/main.rkt
+          raco distribute -v lakeroad/deps/lakeroad/ lakeroad-single-solver
 
       - name: Create zip (Windows)
         if: matrix.os-name == 'windows'
