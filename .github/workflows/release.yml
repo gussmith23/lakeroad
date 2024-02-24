@@ -70,7 +70,7 @@ jobs:
           tar xf oss-cad-suite.tgz
 
           # Copy solvers into Rosette.
-          cp oss-cad-suite/bin/{yices-smt2,cvc4,cvc5} ${{ env.RACKET_PKG_DIR }}/rosette/bin
+          cp oss-cad-suite/bin/{boolector,yices-smt2,cvc4,cvc5} ${{ env.RACKET_PKG_DIR }}/rosette/bin
 
           # Build Bitwuzla.
           sudo apt-get install -y ninja-build
