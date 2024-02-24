@@ -79,7 +79,7 @@ jobs:
           cd build
           ninja -j${{ env.MAKE_JOBS }}
           cd ../..
-          cp bitwuzla/build/bitwuzla ${{ env.RACKET_PKG_DIR }}/rosette/bin
+          cp bitwuzla/build/src/main/bitwuzla ${{ env.RACKET_PKG_DIR }}/rosette/bin
 
           # Build STP.
           sudo apt-get install -y git cmake bison flex libboost-all-dev python2 perl
