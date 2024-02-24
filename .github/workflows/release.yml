@@ -71,7 +71,7 @@ jobs:
           cp oss-cad-suite/bin/{yices-smt2,cvc4,cvc5} ${{ env.RACKET_PKG_DIR }}/rosette/bin
 
           # Build Bitwuzla.
-          apt install -y ninja-build
+          sudo apt-get install -y ninja-build
           mkdir bitwuzla
           wget -qO- https://github.com/bitwuzla/bitwuzla/archive/$BITWUZLA_COMMIT_HASH.tar.gz | tar xz -C bitwuzla --strip-components=1
           cd bitwuzla
@@ -82,7 +82,7 @@ jobs:
           cp bitwuzla/build/bitwuzla ${{ env.RACKET_PKG_DIR }}/rosette/bin
 
           # Build STP.
-          apt-get install -y git cmake bison flex libboost-all-dev python2 perl
+          sudo apt-get install -y git cmake bison flex libboost-all-dev python2 perl
           mkdir stp && cd stp
           wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           ./scripts/deps/setup-gtest.sh
