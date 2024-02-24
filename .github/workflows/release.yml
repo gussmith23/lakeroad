@@ -59,6 +59,8 @@ jobs:
         run: |
           source ${{ env.LAKEROAD_DIR }}/dependencies.sh
           
+          sudo apt-get update
+
           # Download oss-cad-suite.
           if [ "$(uname -m)" = "x86_64" ] ; then
             wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz;
