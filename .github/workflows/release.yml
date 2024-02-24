@@ -117,23 +117,19 @@ jobs:
       - name: Create zip (Linux, macOS)
         if: matrix.os-name == 'ubuntu' || matrix.os-name == 'macOS'
         run: |
-          mkdir lakeroad
+          mkdir ${{ env.RELEASE_DIR }}
 
-          mkdir lakeroad/bin
-          cat >lakeroad/bin/lakeroad <<'EOF'
+          mkdir ${{ env.RELEASE_DIR }}/bin
+          cat >${{ env.RELEASE_DIR }}/bin/lakeroad <<'EOF'
           #!/bin/bash
           SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
           "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad" \
             --lakeroad-executable-filepath "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad-single-solver" \
-            --cvc5-path "$SCRIPT_DIR/../deps/cvc5/bin/cvc5" \
-            --bitwuzla-path "$SCRIPT_DIR/../deps/bitwuzla/bin/bitwuzla" \
-            --stp-path "$SCRIPT_DIR/../deps/stp/bin/stp" \
-            --yices-path "$SCRIPT_DIR/../deps/yices/bin/yices" \
             $@
           EOF
-          chmod +x lakeroad/bin/lakeroad
+          chmod +x ${{ env.RELEASE_DIR }}/bin/lakeroad
 
-          cp dist/lakeroad lakeroad/deps/lakeroad/bin/lakeroad
+          cp dist/lakeroad ${{ env.RELEASE_DIR }}/deps/lakeroad/bin/lakeroad
 
           zip -r lakeroad-${{ matrix.os-name }}.zip lakeroad
           # TODO(@gussmith23): Doesn't work on Mac, may need to have one case for each OS.
