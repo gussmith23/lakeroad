@@ -24,12 +24,12 @@ jobs:
       # manual matrix: I think this was an easy way to make (os, os-name) pairs.
       matrix:
         include:
-          - os: windows-latest
-            os-name: windows
+          # - os: windows-latest
+          #   os-name: windows
           - os: ubuntu-latest
             os-name: ubuntu
-          - os: macos-latest
-            os-name: macOS
+          # - os: macos-latest
+          #   os-name: macOS
 
     runs-on: ${{ matrix.os }}
 
