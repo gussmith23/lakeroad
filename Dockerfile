@@ -189,7 +189,7 @@ RUN source /root/dependencies.sh \
 # Build CVC5.
 RUN source /root/dependencies.sh \
   && mkdir cvc5 && cd cvc5 \
-  && wget -qO- https://github.com/cvc5/cvc5/archive/$CVC5_COMMIT_HASH.zip  | tar xz --strip-components=1 \
+  && wget -qO- https://github.com/cvc5/cvc5/archive/$CVC5_COMMIT_HASH.tar.gz  | tar xz --strip-components=1 \
   && ./configure.sh --prefix="/root/.local"  --auto-download \
   && cd ./build \
   && make -j ${MAKE_JOBS} \
@@ -199,7 +199,7 @@ RUN source /root/dependencies.sh \
 # Build Yices2.
 RUN source /root/dependencies.sh \
   && mkdir yices2 && cd yices2 \
-  && wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.zip | tar xz --strip-components=1 \
+  && wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
   && autoconf \
   && ./configure --prefix="/root/.local" \
   && make -j ${MAKE_JOBS} \
@@ -209,7 +209,7 @@ RUN source /root/dependencies.sh \
 # Build Verilator.
 RUN source /root/dependencies.sh \
   && mkdir verilator && cd verilator \
-  && wget -qO- https://github.com/verilator/verilator/archive/$VERILATOR_COMMIT_HASH.zip | tar xz --strip-components=1 \
+  && wget -qO- https://github.com/verilator/verilator/archive/$VERILATOR_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
   && autoconf \
   && ./configure --prefix="/root/.local" \
   && make -j ${MAKE_JOBS} \
