@@ -179,6 +179,7 @@ RUN source /root/dependencies.sh \
 
 # Build Yices2.
 RUN source /root/dependencies.sh \
+  && apt-get install -y gperf \
   && mkdir yices2 && cd yices2 \
   && wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
   && autoconf \
