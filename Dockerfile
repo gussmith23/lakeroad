@@ -137,25 +137,6 @@ RUN \
 ENV LAKEROAD_DIR=/root/lakeroad
 ENV PYTHONPATH="${LAKEROAD_DIR}/python:${PYTHONPATH}"
 
-# Add other Lakeroad files. It's useful to put this as far down as possible. In
-# general, only ADD files just before they're needed. This maximizes the ability
-# to cache intermediate containers and minimizes rebuilding.
-#
-# In reality, we use the git functionality of ADD (enabled in our case via the
-# optional flag --keep-git-dir) to add all of the checked-in files of the
-# Lakeroad repo (but not including the .git directory itself). We could cut this
-# down further if we wanted, but I think this is a clean approach for now.
-WORKDIR /root/lakeroad
-ADD --keep-git-dir=false . .
-
-# Build Racket bytecode; makes Lakeroad much faster.
-RUN raco make /root/lakeroad/bin/main.rkt
-
-# Point to lakeroad-private repo. This may or may not exist, if you didn't clone
-# the lakeroad-private submodule. However, it shouldn't matter, as anything that
-# uses LAKEROAD_PRIVATE_DIR should check if the directory exists/is nonempty first.
-ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
-
 # Build STP.
 WORKDIR /root
 RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
@@ -214,6 +195,25 @@ RUN source /root/dependencies.sh \
   && ./configure --prefix="/root/.local" \
   && make -j ${MAKE_JOBS} \
   && make -j ${MAKE_JOBS} install
+
+# Add other Lakeroad files. It's useful to put this as far down as possible. In
+# general, only ADD files just before they're needed. This maximizes the ability
+# to cache intermediate containers and minimizes rebuilding.
+#
+# In reality, we use the git functionality of ADD (enabled in our case via the
+# optional flag --keep-git-dir) to add all of the checked-in files of the
+# Lakeroad repo (but not including the .git directory itself). We could cut this
+# down further if we wanted, but I think this is a clean approach for now.
+WORKDIR /root/lakeroad
+ADD --keep-git-dir=false . .
+
+# Build Racket bytecode; makes Lakeroad much faster.
+RUN raco make /root/lakeroad/bin/main.rkt
+
+# Point to lakeroad-private repo. This may or may not exist, if you didn't clone
+# the lakeroad-private submodule. However, it shouldn't matter, as anything that
+# uses LAKEROAD_PRIVATE_DIR should check if the directory exists/is nonempty first.
+ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
 
 # Build Yosys plugin.
 WORKDIR /root/lakeroad/yosys-plugin
