@@ -184,6 +184,35 @@ RUN source /root/dependencies.sh \
   && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install \
   && rm -rf /root/yosys
 
+# Build CVC5.
+RUN source /root/dependencies.sh \
+  && mkdir cvc5 && cd cvc5 \
+  && wget -qO- https://github.com/cvc5/cvc5/archive/$CVC5_COMMIT_HASH.zip  | tar xz --strip-components=1 \
+  && ./configure.sh --prefix="/root/.local"  --auto-download \
+  && cd ./build \
+  && make -j ${MAKE_JOBS} \
+  && make -j ${MAKE_JOBS} install \
+  && rm -rf /root/cvc5
+
+# Build Yices2.
+RUN source /root/dependencies.sh \
+  && mkdir yices2 && cd yices2 \
+  && wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.zip | tar xz --strip-components=1 \
+  && autoconf \
+  && ./configure --prefix="/root/.local" \
+  && make -j ${MAKE_JOBS} \
+  && make -j ${MAKE_JOBS} install \
+  && rm -rf /root/yices2
+
+# Build Verilator.
+RUN source /root/dependencies.sh \
+  && mkdir verilator && cd verilator \
+  && wget -qO- https://github.com/verilator/verilator/archive/$VERILATOR_COMMIT_HASH.zip | tar xz --strip-components=1 \
+  && autoconf \
+  && ./configure --prefix="/root/.local" \
+  && make -j ${MAKE_JOBS} \
+  && make -j ${MAKE_JOBS} install
+
 # Build Yosys plugin.
 WORKDIR /root/lakeroad/yosys-plugin
 RUN make -j ${MAKE_JOBS}
