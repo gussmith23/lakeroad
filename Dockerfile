@@ -73,25 +73,28 @@ ENV PATH="/root/.local/bin:${PATH}"
 # TODO(@gussmith23): Could shrink Docker image by deleting a bunch of uneeded
 # binaries, or only taking the binaries we need. However, I found that moving
 # stuff out of oss-cad-suite causes things to break.
-WORKDIR /root
-ADD dependencies.sh /root/dependencies.sh
-RUN source /root/dependencies.sh \
-  && if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz; \
-  else \
-  exit 1; \
-  fi \
-  && tar xf oss-cad-suite.tgz \
-  && rm oss-cad-suite.tgz \
-  # Delete binaries we don't need (and that we explicitly build other versions
-  # of).
-  && rm oss-cad-suite/bin/yosys \
-  && rm oss-cad-suite/bin/bitwuzla
-# Make sure that .local/bin has precedence over oss-cad-suite/bin. I realize
-# we add ./local/bin to the PATH twice, but I just want to document that we want
-# things in .local/bin to take precedence, and duplicate PATH entries won't
-# break anything.
-ENV PATH="/root/.local/bin:/root/oss-cad-suite/bin:${PATH}"
+#
+# WIP: I'm working on removing dependence on oss-cad-suite.
+#
+# WORKDIR /root
+# ADD dependencies.sh /root/dependencies.sh
+# RUN source /root/dependencies.sh \
+#   && if [ "$(uname -m)" = "x86_64" ] ; then \
+#   wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz; \
+#   else \
+#   exit 1; \
+#   fi \
+#   && tar xf oss-cad-suite.tgz \
+#   && rm oss-cad-suite.tgz \
+#   # Delete binaries we don't need (and that we explicitly build other versions
+#   # of).
+#   && rm oss-cad-suite/bin/yosys \
+#   && rm oss-cad-suite/bin/bitwuzla
+# # Make sure that .local/bin has precedence over oss-cad-suite/bin. I realize
+# # we add ./local/bin to the PATH twice, but I just want to document that we want
+# # things in .local/bin to take precedence, and duplicate PATH entries won't
+# # break anything.
+# ENV PATH="/root/.local/bin:/root/oss-cad-suite/bin:${PATH}"
 
 # pip dependencies
 WORKDIR /root/lakeroad
