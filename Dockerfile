@@ -77,7 +77,6 @@ ENV PATH="/root/.local/bin:${PATH}"
 # WIP: I'm working on removing dependence on oss-cad-suite.
 #
 # WORKDIR /root
-# ADD dependencies.sh /root/dependencies.sh
 # RUN source /root/dependencies.sh \
 #   && if [ "$(uname -m)" = "x86_64" ] ; then \
 #   wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz; \
@@ -100,6 +99,9 @@ ENV PATH="/root/.local/bin:${PATH}"
 WORKDIR /root/lakeroad
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+
+# This file tracks the commit hashes of the various dependencies we use.
+ADD dependencies.sh /root/dependencies.sh
 
 # Build Bitwuzla.
 WORKDIR /root
