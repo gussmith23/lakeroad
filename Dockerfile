@@ -194,7 +194,6 @@ RUN source /root/dependencies.sh \
   && apt-get install -y libgoogle-perftools-dev numactl perl-doc \
   && apt-get install -y libfl2  \
   && apt-get install -y libfl-dev  \
-  && apt-get install -y zlibc zlib1g zlib1g-dev \
   && mkdir verilator && cd verilator \
   && wget -qO- https://github.com/verilator/verilator/archive/$VERILATOR_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
   && autoconf \
