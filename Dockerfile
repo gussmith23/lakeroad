@@ -73,30 +73,35 @@ ENV PATH="/root/.local/bin:${PATH}"
 # TODO(@gussmith23): Could shrink Docker image by deleting a bunch of uneeded
 # binaries, or only taking the binaries we need. However, I found that moving
 # stuff out of oss-cad-suite causes things to break.
-WORKDIR /root
-ADD dependencies.sh /root/dependencies.sh
-RUN source /root/dependencies.sh \
-  && if [ "$(uname -m)" = "x86_64" ] ; then \
-  wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz; \
-  else \
-  exit 1; \
-  fi \
-  && tar xf oss-cad-suite.tgz \
-  && rm oss-cad-suite.tgz \
-  # Delete binaries we don't need (and that we explicitly build other versions
-  # of).
-  && rm oss-cad-suite/bin/yosys \
-  && rm oss-cad-suite/bin/bitwuzla
-# Make sure that .local/bin has precedence over oss-cad-suite/bin. I realize
-# we add ./local/bin to the PATH twice, but I just want to document that we want
-# things in .local/bin to take precedence, and duplicate PATH entries won't
-# break anything.
-ENV PATH="/root/.local/bin:/root/oss-cad-suite/bin:${PATH}"
+#
+# WIP: I'm working on removing dependence on oss-cad-suite.
+#
+# WORKDIR /root
+# RUN source /root/dependencies.sh \
+#   && if [ "$(uname -m)" = "x86_64" ] ; then \
+#   wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz; \
+#   else \
+#   exit 1; \
+#   fi \
+#   && tar xf oss-cad-suite.tgz \
+#   && rm oss-cad-suite.tgz \
+#   # Delete binaries we don't need (and that we explicitly build other versions
+#   # of).
+#   && rm oss-cad-suite/bin/yosys \
+#   && rm oss-cad-suite/bin/bitwuzla
+# # Make sure that .local/bin has precedence over oss-cad-suite/bin. I realize
+# # we add ./local/bin to the PATH twice, but I just want to document that we want
+# # things in .local/bin to take precedence, and duplicate PATH entries won't
+# # break anything.
+# ENV PATH="/root/.local/bin:/root/oss-cad-suite/bin:${PATH}"
 
 # pip dependencies
 WORKDIR /root/lakeroad
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+
+# This file tracks the commit hashes of the various dependencies we use.
+ADD dependencies.sh /root/dependencies.sh
 
 # Build Bitwuzla.
 WORKDIR /root
@@ -132,25 +137,6 @@ RUN \
 ENV LAKEROAD_DIR=/root/lakeroad
 ENV PYTHONPATH="${LAKEROAD_DIR}/python:${PYTHONPATH}"
 
-# Add other Lakeroad files. It's useful to put this as far down as possible. In
-# general, only ADD files just before they're needed. This maximizes the ability
-# to cache intermediate containers and minimizes rebuilding.
-#
-# In reality, we use the git functionality of ADD (enabled in our case via the
-# optional flag --keep-git-dir) to add all of the checked-in files of the
-# Lakeroad repo (but not including the .git directory itself). We could cut this
-# down further if we wanted, but I think this is a clean approach for now.
-WORKDIR /root/lakeroad
-ADD --keep-git-dir=false . .
-
-# Build Racket bytecode; makes Lakeroad much faster.
-RUN raco make /root/lakeroad/bin/main.rkt
-
-# Point to lakeroad-private repo. This may or may not exist, if you didn't clone
-# the lakeroad-private submodule. However, it shouldn't matter, as anything that
-# uses LAKEROAD_PRIVATE_DIR should check if the directory exists/is nonempty first.
-ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
-
 # Build STP.
 WORKDIR /root
 RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
@@ -180,6 +166,59 @@ RUN source /root/dependencies.sh \
   && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make config-gcc \
   && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install \
   && rm -rf /root/yosys
+
+# Build CVC5.
+RUN source /root/dependencies.sh \
+  && mkdir cvc5 && cd cvc5 \
+  && wget -qO- https://github.com/cvc5/cvc5/archive/$CVC5_COMMIT_HASH.tar.gz  | tar xz --strip-components=1 \
+  && ./configure.sh --prefix="/root/.local"  --auto-download \
+  && cd ./build \
+  && make -j ${MAKE_JOBS} \
+  && make -j ${MAKE_JOBS} install \
+  && rm -rf /root/cvc5
+
+# Build Yices2.
+RUN source /root/dependencies.sh \
+  && apt-get install -y gperf \
+  && mkdir yices2 && cd yices2 \
+  && wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
+  && autoconf \
+  && ./configure --prefix="/root/.local" \
+  && make -j ${MAKE_JOBS} \
+  && make -j ${MAKE_JOBS} install \
+  && rm -rf /root/yices2
+
+# Build Verilator.
+RUN source /root/dependencies.sh \
+  && apt-get install -y git help2man perl python3 make autoconf g++ flex bison ccache \
+  && apt-get install -y libgoogle-perftools-dev numactl perl-doc \
+  && apt-get install -y libfl2  \
+  && apt-get install -y libfl-dev  \
+  && mkdir verilator && cd verilator \
+  && wget -qO- https://github.com/verilator/verilator/archive/$VERILATOR_COMMIT_HASH.tar.gz | tar xz --strip-components=1 \
+  && autoconf \
+  && ./configure --prefix="/root/.local" \
+  && make -j ${MAKE_JOBS} \
+  && make -j ${MAKE_JOBS} install
+
+# Add other Lakeroad files. It's useful to put this as far down as possible. In
+# general, only ADD files just before they're needed. This maximizes the ability
+# to cache intermediate containers and minimizes rebuilding.
+#
+# In reality, we use the git functionality of ADD (enabled in our case via the
+# optional flag --keep-git-dir) to add all of the checked-in files of the
+# Lakeroad repo (but not including the .git directory itself). We could cut this
+# down further if we wanted, but I think this is a clean approach for now.
+WORKDIR /root/lakeroad
+ADD --keep-git-dir=false . .
+
+# Build Racket bytecode; makes Lakeroad much faster.
+RUN raco make /root/lakeroad/bin/main.rkt
+
+# Point to lakeroad-private repo. This may or may not exist, if you didn't clone
+# the lakeroad-private submodule. However, it shouldn't matter, as anything that
+# uses LAKEROAD_PRIVATE_DIR should check if the directory exists/is nonempty first.
+ENV LAKEROAD_PRIVATE_DIR=/root/lakeroad/lakeroad-private
 
 # Build Yosys plugin.
 WORKDIR /root/lakeroad/yosys-plugin

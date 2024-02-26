@@ -5,10 +5,10 @@
          rackunit
          "generated/intel-altmult-accum.rkt"
          "signal.rkt"
-         rosette/solver/smt/boolector
+         rosette/solver/smt/bitwuzla
          rosette/lib/synthax)
 
-(current-solver (boolector))
+(current-solver (bitwuzla))
 
 (define current-index (make-parameter 0))
 (define (index!)

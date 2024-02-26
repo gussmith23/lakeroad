@@ -2,7 +2,7 @@
 
 (module+ test
   (require rackunit
-           rosette/solver/smt/boolector
+           rosette/solver/smt/bitwuzla
            rosette
            "synthesize.rkt"
            "programs-to-synthesize.rkt"
@@ -12,7 +12,7 @@
            "generated/lattice-ecp5-ccu2c.rkt"
            "architecture-description.rkt")
 
-  (current-solver (boolector))
+  (current-solver (bitwuzla))
 
   ;;; Test synthesis of bv-expr, and add result to list.
   ;;; Expect a timeout when this is a bvmul w/ bitwidth > 10

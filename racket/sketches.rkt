@@ -779,9 +779,9 @@
            "generated/xilinx-ultrascale-plus-carry8.rkt"
            "generated/xilinx-ultrascale-plus-dsp48e2.rkt"
            "generated/sofa-frac-lut4.rkt"
-           rosette/solver/smt/boolector)
+           rosette/solver/smt/bitwuzla)
 
-  (current-solver (boolector))
+  (current-solver (bitwuzla))
 
   (error-print-width 10000000000)
   (define-syntax-rule (sketch-test #:name name
