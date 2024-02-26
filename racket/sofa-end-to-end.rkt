@@ -2,14 +2,14 @@
 
 (module+ test
   (require rackunit
-           rosette/solver/smt/boolector
+           rosette/solver/smt/bitwuzla
            "synthesize.rkt"
            "circt-comb-operators.rkt"
            "utils.rkt"
            rosette
            "architecture-description.rkt"
            "generated/sofa-frac-lut4.rkt")
-  (current-solver (boolector))
+  (current-solver (bitwuzla))
 
   (define (synthesize test-name bv-expr)
     (test-case test-name

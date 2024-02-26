@@ -2,7 +2,7 @@
 
 (module+ test
   (require rackunit
-           rosette/solver/smt/boolector
+           rosette/solver/smt/bitwuzla
            rosette
            "programs-to-synthesize.rkt"
            "circt-comb-operators.rkt"
@@ -13,7 +13,7 @@
            "generated/xilinx-ultrascale-plus-lut6.rkt"
            "generated/xilinx-ultrascale-plus-carry8.rkt")
 
-  (current-solver (boolector))
+  (current-solver (bitwuzla))
 
   ;;; Test synthesis of bv-expr, and add result to list.
   (define (synthesize test-name bv-expr)
