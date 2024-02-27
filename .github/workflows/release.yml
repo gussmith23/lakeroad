@@ -120,7 +120,7 @@ jobs:
           mkdir yices2 && cd yices2
           wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           autoconf
-          ./configure.sh --prefix=${{ env.RELEASE_DIR }}/deps/yices/
+          ./configure --prefix=${{ env.RELEASE_DIR }}/deps/yices/
           make -j ${{ env.MAKE_JOBS }}
           make -j ${{ env.MAKE_JOBS }} install
           cd ..
