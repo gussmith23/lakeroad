@@ -61,7 +61,6 @@ jobs:
           
           sudo apt-get update
 
-
           # Put dummy versions of cvc4 and boolector into Rosette.
           mkdir -p ${{ env.RACKET_PKG_DIR }}/rosette/bin/
           cat >${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc4 <<'EOF'
@@ -106,6 +105,7 @@ jobs:
           ln -s ${{ env.RACKET_PKG_DIR }}/deps/stp/bin/stp ${{ env.RACKET_PKG_DIR }}/rosette/bin/stp
 
           # Build CVC5.
+          pip install pyparsing
           mkdir cvc5 && cd cvc5
           wget -qO- https://github.com/cvc5/cvc5/archive/$CVC5_COMMIT_HASH.tar.gz  | tar xz --strip-components=1
           ./configure.sh --auto-download --prefix=${{ env.RACKET_PKG_DIR }}/deps/cvc5/
