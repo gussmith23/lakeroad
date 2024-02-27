@@ -255,9 +255,9 @@
 
 (module+ test
   (require rackunit
-           rosette/solver/smt/boolector)
+           rosette/solver/smt/bitwuzla)
 
-  (current-solver (boolector))
+  (current-solver (bitwuzla))
 
   (test-case "bitwise with mask"
     (begin
@@ -294,8 +294,8 @@
 
 (module+ test
   (require rackunit
-           rosette/solver/smt/boolector)
-  (current-solver (boolector))
+           rosette/solver/smt/bitwuzla)
+  (current-solver (bitwuzla))
 
   (test-true
    "test lr:ltop-uf"
