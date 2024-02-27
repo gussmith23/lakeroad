@@ -61,15 +61,9 @@ jobs:
           
           sudo apt-get update
 
-          # Download oss-cad-suite.
-          if [ "$(uname -m)" = "x86_64" ] ; then
-            wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$OSS_CAD_SUITE_DATE/oss-cad-suite-linux-x64-$(echo $OSS_CAD_SUITE_DATE | tr -d "-").tgz -q -O oss-cad-suite.tgz;
-          else
-            exit 1
-          fi
-          tar xf oss-cad-suite.tgz
 
           # Put dummy versions of cvc4 and boolector into Rosette.
+          mkdir -p ${{ env.RACKET_PKG_DIR }}/rosette/bin/
           cat >${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc4 <<'EOF'
           #!/bin/bash
           echo "Please do not use cvc4 with Lakeroad."
