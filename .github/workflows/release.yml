@@ -89,6 +89,7 @@ jobs:
           ln -s ${{ env.RELEASE_DIR }}/deps/bitwuzla/bin/bitwuzla ${{ env.RACKET_PKG_DIR }}/rosette/bin/bitwuzla
 
           # Build STP.
+          sudo apt install -y patchelf
           sudo apt-get install -y git cmake bison flex libboost-all-dev python2 perl
           mkdir stp && cd stp
           wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
@@ -106,9 +107,10 @@ jobs:
           # It seems wrong that we need to do this manually. Shouldn't they be
           # installed during install?
           cp stp/deps/install/lib/*.so* ${{ env.RELEASE_DIR }}/deps/stp/lib/
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/lib/*so*
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
 
           # Build CVC5.
-          sudo apt install -y patchelf
           pip install pyparsing
           mkdir cvc5 && cd cvc5
           wget -qO- https://github.com/cvc5/cvc5/archive/$CVC5_COMMIT_HASH.tar.gz  | tar xz --strip-components=1
