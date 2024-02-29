@@ -1,6 +1,6 @@
 // RUN: outfile=$(mktemp)
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver bitwuzla \
+// RUN:  --solver yices \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture intel-cyclone10lp \
 // RUN:  --template dsp \

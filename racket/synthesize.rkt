@@ -17,7 +17,7 @@
          rosette/lib/synthax
          rosette/lib/angelic
          racket/sandbox
-         rosette/solver/smt/boolector
+         rosette/solver/smt/bitwuzla
          "utils.rkt"
          "logical-to-physical.rkt"
          (prefix-in lr: "language.rkt")
@@ -1177,10 +1177,10 @@
   (rosette-synthesize bv-expr lakeroad-expr (symbolics bv-expr)))
 
 (module+ test
-  (require rosette/solver/smt/boolector
+  (require rosette/solver/smt/bitwuzla
            rosette
            rackunit)
-  (current-solver (boolector))
+  (current-solver (bitwuzla))
   (with-terms (begin
                 (define-symbolic a (bitvector 4))
                 (let ([lrexpr (synthesize-wire (bvshl a (bv 0 4)))]) (check-not-false lrexpr))

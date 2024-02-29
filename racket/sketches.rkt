@@ -215,17 +215,18 @@
                      (car (sketch-inputs-rst inputs))
                      (lr:bv (bv->signal (bv 0 1))))]
 
-       [make-dsp-expr (lambda (internal-data out-width
-                                             clk-expr
-                                             rst-expr
-                                             a-expr
-                                             a-width
-                                             b-expr
-                                             b-width
-                                             c-expr
-                                             c-width
-                                             d-expr
-                                             d-width)
+       [make-dsp-expr (lambda (internal-data
+                               out-width
+                               clk-expr
+                               rst-expr
+                               a-expr
+                               a-width
+                               b-expr
+                               b-width
+                               c-expr
+                               c-width
+                               d-expr
+                               d-width)
                         (match-define (list dsp-expr ignored-internal-data)
                           (construct-interface architecture-description
                                                (interface-identifier "DSP"
@@ -778,9 +779,9 @@
            "generated/xilinx-ultrascale-plus-carry8.rkt"
            "generated/xilinx-ultrascale-plus-dsp48e2.rkt"
            "generated/sofa-frac-lut4.rkt"
-           rosette/solver/smt/boolector)
+           rosette/solver/smt/bitwuzla)
 
-  (current-solver (boolector))
+  (current-solver (bitwuzla))
 
   (error-print-width 10000000000)
   (define-syntax-rule (sketch-test #:name name

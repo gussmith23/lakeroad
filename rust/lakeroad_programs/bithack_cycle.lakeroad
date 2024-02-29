@@ -1,1 +1,0 @@
-(binop xor 8 (binop xor 8 (binop and 8 (unop neg 8 (binop eq 8 (var x 8) (var c 8))) (binop xor 8 (var a 8) (var c 8))) (binop and 8 (unop neg 8 (binop eq 8 (var x 8) (var a 8))) (binop xor 8 (var b 8) (var c 8)))) (var c 8))

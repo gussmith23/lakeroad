@@ -121,10 +121,7 @@ jobs:
       - name: Pull image
         run: docker pull ${{ env.IMAGE_TAG }}
 
-      - name: Racket format check
+      - name: Format check
         run: |
           docker run ${{ env.IMAGE_TAG }} \
-            bash -c 'raco fmt -i racket/*.rkt && git diff && [ -z "$(git status --porcelain)" ]'
-
-      - name: Rust format check
-        run: docker run ${{ env.IMAGE_TAG }} cargo fmt --manifest-path ./rust/Cargo.toml -- --check
+            bash -c './fmt.sh && git diff && [ -z "$(git status --porcelain)" ]'
