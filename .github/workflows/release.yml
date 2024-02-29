@@ -105,7 +105,7 @@ jobs:
           ln -s ${{ env.RELEASE_DIR }}/deps/stp/bin/stp ${{ env.RACKET_PKG_DIR }}/rosette/bin/stp
           # It seems wrong that we need to do this manually. Shouldn't they be
           # installed during install?
-          cp stp/deps/install/lib/* ${{ env.RELEASE_DIR }}/deps/stp/lib/
+          cp stp/deps/install/lib/*.so* ${{ env.RELEASE_DIR }}/deps/stp/lib/
 
           # Build CVC5.
           sudo apt install -y patchelf
