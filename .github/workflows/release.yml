@@ -103,8 +103,12 @@ jobs:
           make -j ${{ env.MAKE_JOBS }} install
           cd ../..
           ln -s ${{ env.RELEASE_DIR }}/deps/stp/bin/stp ${{ env.RACKET_PKG_DIR }}/rosette/bin/stp
+          # It seems wrong that we need to do this manually. Shouldn't they be
+          # installed during install?
+          cp stp/deps/install/lib/* ${{ env.RELEASE_DIR }}/deps/stp/lib/
 
           # Build CVC5.
+          sudo apt install -y patchelf
           pip install pyparsing
           mkdir cvc5 && cd cvc5
           wget -qO- https://github.com/cvc5/cvc5/archive/$CVC5_COMMIT_HASH.tar.gz  | tar xz --strip-components=1
@@ -114,6 +118,10 @@ jobs:
           make -j ${{ env.MAKE_JOBS }} install
           cd ../..
           ln -s ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5 ${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc5
+          # Manually set the RPATH. Would be nice to do this in a cleaner way.
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/lib/*so*
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5
+
         
           # Build Yices2.
           sudo apt-get install -y gperf
