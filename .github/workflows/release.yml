@@ -145,6 +145,22 @@ jobs:
           raco exe -v -o lakeroad-single-solver ${{ env.LAKEROAD_DIR }}/bin/main.rkt
           raco distribute -v ${{ env.RELEASE_DIR }}/deps/lakeroad/ lakeroad-single-solver
 
+      - name: Clean up issues after `raco distribute` (Ubuntu)
+        if: matrix.os-name == 'ubuntu'
+        run: |
+          # Re-link the solvers.
+          # Due to this behavior in Racket:
+          # https://github.com/racket/racket/issues/4945
+          # we need to re-link the solvers after `raco distribute`. Distribute
+          # copies the solvers into the `bin` directory, but it copies the
+          # executables themselves, not the symbolic links. The copied
+          # executables have broken RPATHS. So simply re-link.
+          rm ${{ env.RELEASE_DIR }}/deps/lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/{stp,yices-smt2,cvc5,bitwuzla}
+          ln -s ${{ env.RELEASE_DIR }}/deps/yices/bin/yices-smt2 ${{ env.RELEASE_DIR }}/deps/lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/yices-smt2 
+          ln -s ${{ env.RELEASE_DIR }}/deps/stp/bin/stp ${{ env.RELEASE_DIR }}/deps/lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/stp
+          ln -s ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5 ${{ env.RELEASE_DIR }}/deps/lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/cvc5
+          ln -s ${{ env.RELEASE_DIR }}/deps/bitwuzla/bin/bitwuzla ${{ env.RELEASE_DIR }}/deps/lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/bitwuzla
+
       - name: Create zip (Windows)
         if: matrix.os-name == 'windows'
         run: |
