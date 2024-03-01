@@ -169,7 +169,9 @@ jobs:
 
           cp dist/lakeroad ${{ env.RELEASE_DIR }}/deps/lakeroad/bin/lakeroad
 
-          zip -r lakeroad-${{ matrix.os-name }}.zip lakeroad
+          # Important to preserve symbolic links here, otherwise the work we do
+          # to fix the RPATH in the solvers is useless.
+          zip --symlinks -r lakeroad-${{ matrix.os-name }}.zip lakeroad
           # TODO(@gussmith23): Doesn't work on Mac, may need to have one case for each OS.
           # sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
 
