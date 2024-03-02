@@ -159,10 +159,10 @@ jobs:
           # Also it's important that these links are relative so that they're
           # relocatable.
           rm ${{ env.RELEASE_DIR }}/deps/lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/{stp,yices-smt2,cvc5,bitwuzla}
-          ln -s ${{ env.RELEASE_DIR }}/deps/yices/bin/yices-smt2 ../../lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/yices-smt2 
-          ln -s ${{ env.RELEASE_DIR }}/deps/stp/bin/stp ../../lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/stp
-          ln -s ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5 ../../lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/cvc5
-          ln -s ${{ env.RELEASE_DIR }}/deps/bitwuzla/bin/bitwuzla ../../lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/bitwuzla
+          ln -s ../../lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/yices-smt2  ${{ env.RELEASE_DIR }}/deps/yices/bin/yices-smt2
+          ln -s ../../lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/stp ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
+          ln -s ../../lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/cvc5 ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5
+          ln -s ../../lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/bitwuzla ${{ env.RELEASE_DIR }}/deps/bitwuzla/bin/bitwuzla
 
       - name: Create zip (Windows)
         if: matrix.os-name == 'windows'
