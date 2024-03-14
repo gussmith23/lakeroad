@@ -30,7 +30,31 @@ implementations:
       SEL_PATTERN: 5,
       USE_PATTERN_DETECT: 5,
 
+      ## Ports
+      INMODE: 5,
+      CARRYIN: 1,
+      OPMODE: 7,
+      CARRYINSEL: 3,
+      BCIN: 18,
+      ACIN: 30,
+      ALUMODE: 4,
+      PCIN: 48,
+      CARRYCASCIN: 1,
+      MULTSIGNIN: 1,
     }
+    constraints : []
+    modules:
+      - module_name: DSP48E1
+        instance_name: DSP48E1
+        filepath: unused
+        racket_import_filepath: unused
+        ports:
+          [
+            { name: A, direction: input, bitwidth: 30, value: A },
+            { name: B, direction: input, bitwidth: 18, value: B },
+            { name: C, direction: input, bitwidth: 48, value: C },
+            {}
+          ]
   ##############################################################################
   - interface: { name: DSP, parameters: { out-width: 48, a-width: 30, b-width: 18, c-width: 48, d-width: 27 } }
     internal_data: {
