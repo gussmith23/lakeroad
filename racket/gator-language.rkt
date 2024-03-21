@@ -1,17 +1,24 @@
 #lang rosette
 
 ;;; Gator language definition.
-;;; Ideally, this is as close to the LR semantics submitted in the ASPLOS paper
-;;; as possible.
 
-(provide (struct-out bv)
+(provide (struct-out int)
+         (struct-out str)
+         (struct-out bvop)
+         (struct-out bv)
          (struct-out var)
-         (struct-out op)
          (struct-out reg)
-         (struct-out prim))
+         (struct-out op)
+         (struct-out extract)
+         (struct-out concat))
 
-(struct bv (value bitwidth) #:transparent)
-(struct var (name) #:transparent)
-(struct op (operator operand-ids) #:transparent)
-(struct reg (reg-id init-bv) #:transparent)
-(struct prim (env-prime prog-id) #:transparent)
+(struct int (value) #:transparent)
+(struct str (value) #:transparent)
+(struct bvop (fn-name) #:transparent)
+(struct bv (value-id bitwidth-id) #:transparent)
+(struct var (name-id bitwidth-id) #:transparent)
+(struct reg (init-id) #:transparent)
+(struct op (fn-id operand-ids) #:transparent)
+(struct extract (high-id low-id) #:transparent)
+(struct concat (top-id bottom-id) #:transparent)
+;;; TODO: prim

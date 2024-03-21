@@ -70,7 +70,7 @@
   (filter (lambda (expr) (not (void? expr))) (map gen-gator-expr (hash-keys id-map))))
 
 ;;; sort elements by their first element
-(define unsorted-elements (gen-gator-prog (read-json-file "output.json")))
+(define unsorted-elements (gen-gator-prog (read-json-file "counter.json")))
 (define elements (sort unsorted-elements (lambda (a b) (< (car a) (car b)))))
 (for ([element elements] [i (in-naturals)])
   (displayln (format "~a" element)))
