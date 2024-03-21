@@ -1,6 +1,7 @@
 #lang racket
 
-(require json)
+(require json
+         (prefix-in gator: "gator-language.rkt"))
 
 (define (read-json-file filename)
   (with-input-from-file filename (lambda () (read-json))))
@@ -25,52 +26,43 @@
   (define node->eclass
     (for/hash ([(node-id node) (in-hash (dict-ref egraph-json 'nodes))])
       (values node-id (string->symbol (dict-ref node 'eclass)))))
-
-  (displayln (format "id-map: ~a" id-map))
-  ;;; todo: add prim-map back here
   (define (gen-gator-expr eclass)
+    (define (gen-op node children)
+      (define (gen-children children)
+        (map (lambda (child)
+               (define child-id (hash-ref id-map (hash-ref node->eclass (string->symbol child))))
+               child-id)
+             children))
+      (define child-ids (gen-children children))
+      (match (dict-ref node 'op)
+        ["Var" (apply gator:var child-ids)]
+        ["Extract" (apply gator:extract child-ids)]
+        ["Concat" (apply gator:concat child-ids)]
+        ["Op0" (gator:op (car child-ids) (cdr child-ids))]
+        ["Op1" (gator:op (car child-ids) (cdr child-ids))]
+        ["Op2" (gator:op (car child-ids) (cdr child-ids))]
+        ["Reg" (apply gator:reg child-ids)]
+        ["BV" (apply gator:bv child-ids)]
+        [other (error (format "gen-op: unknown op ~a" other))]))
     (define id (hash-ref id-map eclass))
-    ;;; (displayln (format "id: ~a" id))
     (define node
       ;;; we're grabbing the first node thdat matches the eclass and skipping the rest
       (car (for/list ([(node-id node) (in-hash (dict-ref egraph-json 'nodes))]
                       #:when (equal? (dict-ref node 'eclass) (symbol->string eclass)))
              node)))
-    ;;; (displayln (format "node: ~a" node))
     (define type (dict-ref (dict-ref class-data eclass) 'type))
     (define children (dict-ref node 'children))
-    ;;; TODO: match statement here
-    ;;; (displayln (format "eclass: ~a, children: ~a, type: ~a" eclass children type))
-    ;;; if node.type is 'op' and children is empty, then let's skip it.
-    ;;; TODO: ask gus about this, and why these nodes are in the egraph
-
     (define expr
       (match type
-        ["i64" (format "(Int ~a)" (dict-ref node 'op))]
-        ["String" (format "(String ~a)" (dict-ref node 'op))]
-        ["Expr"
-         (format "(~a ~a)"
-                 (dict-ref node 'op)
-                 (map (lambda (child)
-                        (define child-id
-                          (hash-ref id-map (hash-ref node->eclass (string->symbol child))))
-                        child-id)
-                      children))]
-        ["Op"
-         (if (empty? children)
-             (format "(Bvop ~a)" (dict-ref node 'op))
-             (format "(~a ~a)"
-                     (dict-ref node 'op)
-                     (map (lambda (child)
-                            (define child-id
-                              (hash-ref id-map (hash-ref node->eclass (string->symbol child))))
-                            child-id)
-                          children)))]))
+        ["i64" (gator:int (dict-ref node 'op))]
+        ["String" (gator:string (dict-ref node 'op))]
+        ["Expr" (gen-op node children)]
+        ["Op" (if (empty? children) (gator:bvop (dict-ref node 'op)) (gen-op node children))]))
     (cons id expr))
-  (filter (lambda (expr) (not (void? expr))) (map gen-gator-expr (hash-keys id-map))))
+  (define unsorted-exprs (map gen-gator-expr (hash-keys id-map)))
+  (sort unsorted-exprs (lambda (a b) (< (car a) (car b)))))
 
 ;;; sort elements by their first element
-(define unsorted-elements (gen-gator-prog (read-json-file "counter.json")))
-(define elements (sort unsorted-elements (lambda (a b) (< (car a) (car b)))))
+(define elements (gen-gator-prog (read-json-file "counter.json")))
 (for ([element elements] [i (in-naturals)])
   (displayln (format "~a" element)))

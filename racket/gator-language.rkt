@@ -3,7 +3,7 @@
 ;;; Gator language definition.
 
 (provide (struct-out int)
-         (struct-out str)
+         (struct-out string)
          (struct-out bvop)
          (struct-out bv)
          (struct-out var)
@@ -13,7 +13,7 @@
          (struct-out concat))
 
 (struct int (value) #:transparent)
-(struct str (value) #:transparent)
+(struct string (value) #:transparent)
 (struct bvop (fn-name) #:transparent)
 (struct bv (value-id bitwidth-id) #:transparent)
 (struct var (name-id bitwidth-id) #:transparent)
