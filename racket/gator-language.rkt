@@ -10,7 +10,8 @@
          (struct-out reg)
          (struct-out op)
          (struct-out extract)
-         (struct-out concat))
+         (struct-out concat)
+         (struct-out type))
 
 (struct int (value) #:transparent)
 (struct string (value) #:transparent)
@@ -21,4 +22,5 @@
 (struct op (fn-id operand-ids) #:transparent)
 (struct extract (high-id low-id) #:transparent)
 (struct concat (top-id bottom-id) #:transparent)
+(struct type (type-id children-ids) #:transparent)
 ;;; TODO: prim

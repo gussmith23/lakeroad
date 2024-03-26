@@ -57,12 +57,17 @@
         ["i64" (gator:int (dict-ref node 'op))]
         ["String" (gator:string (dict-ref node 'op))]
         ["Expr" (gen-op node children)]
-        ["Op" (if (empty? children) (gator:bvop (dict-ref node 'op)) (gen-op node children))]))
+        ["Op" (if (empty? children) (gator:bvop (dict-ref node 'op)) (gen-op node children))]
+        ["Type"
+         (gator:type (dict-ref node 'op)
+                     (map (lambda (child-eclass)
+                            (hash-ref id-map (hash-ref node->eclass (string->symbol child-eclass))))
+                          children))]))
     (cons id expr))
   (define unsorted-exprs (map gen-gator-expr (hash-keys id-map)))
   (sort unsorted-exprs (lambda (a b) (< (car a) (car b)))))
 
 ;;; sort elements by their first element
-(define elements (gen-gator-prog (read-json-file "counter.json")))
+(define elements (gen-gator-prog (read-json-file "counter-withtypes.json")))
 (for ([element elements] [i (in-naturals)])
   (displayln (format "~a" element)))
