@@ -15,6 +15,7 @@
     (for/hash ([(label data) (in-hash (dict-ref egraph-json 'class_data))]
                #:when (not (equal? label (string->symbol "Unit-0"))))
       (values label data)))
+  (define nodes (dict-ref egraph-json 'nodes))
 
   ;;; id-map: maps eclass to natural number
   (define id-map
@@ -22,11 +23,29 @@
       (for ([label (in-hash-keys class-data)] [i (in-naturals)])
         (hash-set! id-map label i))
       id-map))
+
   ;;; node->eclass is a map from node-id to eclass
   (define node->eclass
     (for/hash ([(node-id node) (in-hash (dict-ref egraph-json 'nodes))])
       (values node-id (string->symbol (dict-ref node 'eclass)))))
+
+  ;;; id->type is a map from id to type. only used for mapping Reg to its type,
+  ;;; although other information is in this map.
+  (define id->type
+    (for/hash ([(node-id node) (in-hash (dict-ref egraph-json 'nodes))]
+               #:when (and (equal? (dict-ref node 'eclass) "Unit-0")
+                           (equal? (dict-ref node 'op) "HasType")))
+      (when (not (equal? (length (dict-ref node 'children)) 2))
+        (error "HasType should have exactly 2 children"))
+
+      (match-let ([(list id type) (dict-ref node 'children)])
+        (values (hash-ref id-map (hash-ref node->eclass (string->symbol id)))
+                (hash-ref id-map (hash-ref node->eclass (string->symbol type)))))))
+
+  (displayln (format "id->type: ~a" id->type))
+
   (define (gen-gator-expr eclass)
+    (define id (hash-ref id-map eclass))
     (define (gen-op node children)
       (define (gen-children children)
         (map (lambda (child)
@@ -38,13 +57,23 @@
         ["Var" (apply gator:var child-ids)]
         ["Extract" (apply gator:extract child-ids)]
         ["Concat" (apply gator:concat child-ids)]
-        ["Op0" (gator:op (car child-ids) (cdr child-ids))]
-        ["Op1" (gator:op (car child-ids) (cdr child-ids))]
-        ["Op2" (gator:op (car child-ids) (cdr child-ids))]
+        ["Op0" (gator:op (car child-ids) 'none (cdr child-ids))]
+        ["Op1" (gator:op (car child-ids) 'none (cdr child-ids))]
+        ["Op2"
+         (let ([is-child-reg?
+                (equal? (dict-ref (dict-ref nodes (string->symbol (car children)) #f) 'op #f) "Reg")])
+           (if is-child-reg?
+               (begin
+                 (match-let ([(list reg-id clock-id data-id)
+                              (map (lambda (id)
+                                     (dict-ref id-map (dict-ref node->eclass (string->symbol id))))
+                                   children)])
+                   (gator:op reg-id (dict-ref id->type data-id) (list clock-id data-id))))
+
+               (gator:op (car child-ids) (cdr child-ids))))]
         ["Reg" (apply gator:reg child-ids)]
         ["BV" (apply gator:bv child-ids)]
         [other (error (format "gen-op: unknown op ~a" other))]))
-    (define id (hash-ref id-map eclass))
     (define node
       ;;; we're grabbing the first node thdat matches the eclass and skipping the rest
       (car (for/list ([(node-id node) (in-hash (dict-ref egraph-json 'nodes))]

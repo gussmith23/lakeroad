@@ -19,7 +19,7 @@
 (struct bv (value-id bitwidth-id) #:transparent)
 (struct var (name-id bitwidth-id) #:transparent)
 (struct reg (init-id) #:transparent)
-(struct op (fn-id operand-ids) #:transparent)
+(struct op (fn-id type-id operand-ids) #:transparent)
 (struct extract (high-id low-id) #:transparent)
 (struct concat (top-id bottom-id) #:transparent)
 (struct type (type-id children-ids) #:transparent)
