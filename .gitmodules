@@ -1,3 +1,6 @@
 [submodule "lakeroad-private"]
 	path = lakeroad-private
 	url = git@github.com:uwsampl/lakeroad-private
+[submodule "gator-frontend"]
+	path = gator-frontend
+	url = git@github.com:ninehusky/gator-frontend.git
