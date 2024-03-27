@@ -56,9 +56,8 @@
       (match (dict-ref node 'op)
         ["Var" (apply gator:var child-ids)]
         ["Extract" (apply gator:extract child-ids)]
-        ["Concat" (apply gator:concat child-ids)]
-        ["Op0" (gator:op (car child-ids) 'none (cdr child-ids))]
-        ["Op1" (gator:op (car child-ids) 'none (cdr child-ids))]
+        ["Op0" (gator:op (car child-ids) (cdr child-ids))]
+        ["Op1" (gator:op (car child-ids) (cdr child-ids))]
         ["Op2"
          (let ([is-child-reg?
                 (equal? (dict-ref (dict-ref nodes (string->symbol (car children)) #f) 'op #f) "Reg")])
@@ -68,8 +67,7 @@
                               (map (lambda (id)
                                      (dict-ref id-map (dict-ref node->eclass (string->symbol id))))
                                    children)])
-                   (gator:op reg-id (dict-ref id->type data-id) (list clock-id data-id))))
-
+                   (gator:op-reg reg-id (dict-ref id->type data-id) (list clock-id data-id))))
                (gator:op (car child-ids) (cdr child-ids))))]
         ["Reg" (apply gator:reg child-ids)]
         ["BV" (apply gator:bv child-ids)]
@@ -97,6 +95,6 @@
   (sort unsorted-exprs (lambda (a b) (< (car a) (car b)))))
 
 ;;; sort elements by their first element
-(define elements (gen-gator-prog (read-json-file "counter-withtypes.json")))
+(define elements (gen-gator-prog (read-json-file "ander.json")))
 (for ([element elements] [i (in-naturals)])
   (displayln (format "~a" element)))
