@@ -7,8 +7,8 @@
 (provide gator-interpret)
 
 (define (gator-interpret prog env id t cache)
-  ;;; Maps symbols to their corresponding bvop
-  (define bvops (list (cons 'And bvand) (cons 'Add bvadd) (cons 'Concat concat)))
+  ;;; Maps symbols to their corresponding func
+  (define funcs (list (cons 'And bvand) (cons 'Add bvadd) (cons 'Concat concat)))
   (when (< t 0)
     (error 'gator-interpret "i broke your stupid crap moron"))
   (destruct
@@ -16,7 +16,7 @@
    [(gator:int val) val] ; this might not be good -- now, this might not return a bv, so
    ; it doesn't exactly reflect the coq stuff we did.
    [(gator:string val) val]
-   [(gator:bvop bvop) (dict-ref bvops bvop)]
+   [(gator:func func) (dict-ref funcs func)]
    [(gator:bv val-id bw-id)
     (bv (gator-interpret prog env val-id t cache) (gator-interpret prog env bw-id t cache))]
    [(gator:var name-id bw-id) ; we don't do anything with bw
@@ -40,7 +40,7 @@
         (if (= t 0) (bv init-val bitwidth) (gator-interpret prog env data-expr-id (- t 1) cache))))]
    [(gator:op fn-id op-ids)
     (match (list-ref prog fn-id)
-      [(gator:bvop ??)
+      [(gator:func ??)
        (apply (gator-interpret prog env fn-id t cache)
               (map (lambda (id) (gator-interpret prog env id t cache)) op-ids))]
       [(gator:reg init-id) (error 'gator-interpret "ops should be referring only to op-regs")]
@@ -61,7 +61,7 @@
 
   (test-interpret #:name "interpret int" (list (gator:int 1)) '() 0 0 (list) 1)
   (test-interpret #:name "interpret string" (list (gator:string "hi")) '() 0 0 (list) "hi")
-  (test-interpret #:name "interpret bvop" (list (gator:bvop 'And)) '() 0 0 (list) bvand)
+  (test-interpret #:name "interpret func" (list (gator:func 'And)) '() 0 0 (list) bvand)
   (test-interpret #:name "interpret BV"
                   (list (gator:bv 1 2) (gator:int 1) (gator:int 8))
                   '()
@@ -79,9 +79,9 @@
                   0
                   (list)
                   (bv 10 4))
-  (test-interpret #:name "interpret bvop Op"
+  (test-interpret #:name "interpret func Op"
                   (list (gator:op 1 (list 2 3))
-                        (gator:bvop 'Add)
+                        (gator:func 'Add)
                         (gator:bv 4 6)
                         (gator:bv 5 6)
                         (gator:int 1)
@@ -142,7 +142,7 @@
       (check-true (bveq (gator-interpret prog env id t cache) (bv 3 2)))))
   (test-case "interpret concat"
     (let ([prog (list (gator:op 1 (list 2 3))
-                      (gator:bvop 'Concat)
+                      (gator:func 'Concat)
                       (gator:bv 4 5)
                       (gator:bv 6 7)
                       (gator:int 0)

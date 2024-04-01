@@ -4,7 +4,7 @@
 
 (provide (struct-out int)
          (struct-out string)
-         (struct-out bvop)
+         (struct-out func)
          (struct-out bv)
          (struct-out var)
          (struct-out reg)
@@ -15,7 +15,7 @@
 
 (struct int (value) #:transparent)
 (struct string (value) #:transparent)
-(struct bvop (fn-name) #:transparent)
+(struct func (fn-name) #:transparent)
 (struct bv (value-id bitwidth-id) #:transparent)
 (struct var (name-id bitwidth-id) #:transparent)
 (struct reg (init-id) #:transparent)

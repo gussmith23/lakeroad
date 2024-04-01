@@ -69,6 +69,7 @@
                                    children)])
                    (gator:op-reg reg-id (dict-ref id->type data-id) (list clock-id data-id))))
                (gator:op (car child-ids) (cdr child-ids))))]
+        ["Op3" (gator:op (car child-ids) (cdr child-ids))]
         ["Reg" (apply gator:reg child-ids)]
         ["BV" (apply gator:bv child-ids)]
         [other (error (format "gen-op: unknown op ~a" other))]))
@@ -84,7 +85,7 @@
         ["i64" (gator:int (dict-ref node 'op))]
         ["String" (gator:string (dict-ref node 'op))]
         ["Expr" (gen-op node children)]
-        ["Op" (if (empty? children) (gator:bvop (dict-ref node 'op)) (gen-op node children))]
+        ["Op" (if (empty? children) (gator:func (dict-ref node 'op)) (gen-op node children))]
         ["Type"
          (gator:type (dict-ref node 'op)
                      (map (lambda (child-eclass)
@@ -95,6 +96,6 @@
   (sort unsorted-exprs (lambda (a b) (< (car a) (car b)))))
 
 ;;; sort elements by their first element
-(define elements (gen-gator-prog (read-json-file "ander.json")))
+(define elements (gen-gator-prog (read-json-file "ALU.json")))
 (for ([element elements] [i (in-naturals)])
   (displayln (format "~a" element)))
