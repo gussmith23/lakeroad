@@ -31,9 +31,6 @@
       (extract (gator-interpret prog env high-id t cache)
                (gator-interpret prog env low-id t cache)
                bv))]
-   [(gator:concat bv1-id bv2-id)
-    (lambda (bv1 bv2)
-      (concat (gator-interpret prog env bv1-id t cache) (gator-interpret prog env bv2-id t cache)))]
    [(gator:op-reg reg-id type-id op-ids)
     (match-let* ([(list clock-id data-expr-id) op-ids]
                  [(gator:reg init-id) (list-ref prog reg-id)]

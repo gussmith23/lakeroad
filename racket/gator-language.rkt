@@ -11,7 +11,6 @@
          (struct-out op)
          (struct-out op-reg)
          (struct-out extract)
-         (struct-out concat)
          (struct-out type))
 
 (struct int (value) #:transparent)
