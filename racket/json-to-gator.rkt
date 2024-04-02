@@ -103,6 +103,6 @@
   (map cdr (sort unsorted-exprs (lambda (a b) (< (car a) (car b))))))
 
 ;;; sort elements by their first element
-(define elements (gen-gator-prog (read-json-file "ALU.json")))
+(define elements (gen-gator-prog (read-json-file "DSP48E2.json")))
 (for ([element elements] [i (in-naturals)])
   (displayln (format "~a" element)))

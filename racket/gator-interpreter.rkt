@@ -2,13 +2,30 @@
 
 (require rosette
          rosette/lib/destruct
+         "utils.rkt"
          (prefix-in gator: "gator-language.rkt"))
 
 (provide gator-interpret)
 
 (define (gator-interpret prog env id t cache)
+  (define bvne (lambda (bv1 bv2) (not (bveq bv1 bv2))))
+  (define bvlogicand (lambda (bv1 bv2) (if (or (bvzero? bv1) (bvzero? bv2)) (bv 0 1) (bv 1 1))))
+  (define bvlogicor (lambda (bv1 bv2) (if (bvzero? (bvor bv1 bv2)) (bv 0 1) (bv 1 1))))
+  ;;; if there is a zero in the bitvector, return 0, else return 1
+  (define bvreduceand (lambda (bitvec) (if (bvzero? (bvxor bitvec (bv 0 (bitwidth bv))) (bv 1 1) (bv 0 1)))))
+  (define bvreduceor (lambda (bv) (if (bvzero? bv) (bv 0 1) (bv 1 1))))
+  (define bvreducexor (lambda (bv) ('error 'gator-interpret "i don't know how to implement this shit")))
   ;;; Maps symbols to their corresponding func
-  (define bv-funcs (list (cons 'And bvand) (cons 'Or bvor) (cons 'Add bvadd) (cons 'Concat concat)))
+  (define bv-funcs
+    (list (cons 'And bvand)
+          (cons 'Or bvor)
+          (cons 'Add bvadd)
+          (cons 'Sub bvsub)
+          (cons 'Concat concat)
+          (cons 'Ne bvne)
+          (cons 'Mul bvmul)
+          (cons 'LogicAnd bvlogicand)
+          (cons 'LogicOr bvlogicor)))
   (when (< t 0)
     (error 'gator-interpret "i broke your stupid crap moron"))
   (destruct
