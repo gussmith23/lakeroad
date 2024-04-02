@@ -8,7 +8,7 @@
 
 (define (gator-interpret prog env id t cache)
   ;;; Maps symbols to their corresponding func
-  (define funcs (list (cons 'And bvand) (cons 'Add bvadd) (cons 'Concat concat)))
+  (define bv-funcs (list (cons 'And bvand) (cons 'Or bvor) (cons 'Add bvadd) (cons 'Concat concat)))
   (when (< t 0)
     (error 'gator-interpret "i broke your stupid crap moron"))
   (destruct
@@ -16,11 +16,11 @@
    [(gator:int val) val] ; this might not be good -- now, this might not return a bv, so
    ; it doesn't exactly reflect the coq stuff we did.
    [(gator:string val) val]
-   [(gator:func func) (dict-ref funcs func)]
+   [(gator:func func) (dict-ref bv-funcs func)]
    [(gator:bv val-id bw-id)
     (bv (gator-interpret prog env val-id t cache) (gator-interpret prog env bw-id t cache))]
    [(gator:var name-id bw-id) ; we don't do anything with bw
-    (env (gator-interpret prog env name-id t cache) t)]
+    ((env (string-replace (gator-interpret prog env name-id t cache) "\"" "")) t)]
    [(gator:reg init-id) "reg: You shouldn't be evaluating me directly"]
    ;;; a bitvector type will just evaluate to its bitwidth
    [(gator:type type child-ids)
@@ -40,6 +40,10 @@
         (if (= t 0) (bv init-val bitwidth) (gator-interpret prog env data-expr-id (- t 1) cache))))]
    [(gator:op fn-id op-ids)
     (match (list-ref prog fn-id)
+      [(gator:func 'Mux)
+       (if (bveq (gator-interpret prog env (car op-ids) t cache) (bv 1 1))
+           (gator-interpret prog env (cadr op-ids) t cache)
+           (gator-interpret prog env (caddr op-ids) t cache))]
       [(gator:func ??)
        (apply (gator-interpret prog env fn-id t cache)
               (map (lambda (id) (gator-interpret prog env id t cache)) op-ids))]
@@ -71,10 +75,10 @@
                   (bv 1 8))
   (test-interpret #:name "interpret Var"
                   (list (gator:var 1 200) (gator:string "x"))
-                  (lambda (var t)
+                  (lambda (var)
                     (when (not (equal? var "x"))
                       (error 'test-interpret "panic!"))
-                    (bv 10 4))
+                    (lambda (t) (bv 10 4)))
                   0
                   0
                   (list)
