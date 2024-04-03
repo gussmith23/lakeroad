@@ -117,6 +117,7 @@ implementations:
             ## Feature Control Attributes
             # Direct
             { name: A_INPUT, value: (bv 1 5) }
+            # Direct
             { name: B_INPUT, value: (bv 1 5) }
             # True
             { name: USE_DPORT, value: (bv 9 5) }
