@@ -1,8 +1,8 @@
 #lang racket/base
-(provide xilinx-ultrascale-plus-dsp48e1)
+(provide xilinx-virtex-dsp48e1)
 (require (file "/Users/vishalc/files/CS/research/lakeroad/racket/signal.rkt"))
 (require rosette)
-(define xilinx-ultrascale-plus-dsp48e1
+(define xilinx-virtex-dsp48e1
   (λ (#:A
       (A (bv->signal (constant 'A (bitvector 30))))
       #:ACASCREG
