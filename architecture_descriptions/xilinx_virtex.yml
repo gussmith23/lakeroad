@@ -1,5 +1,5 @@
 implementations:
-  -interface: {name: DSP, parameters: {out-width: 48, a-width: 30, b-width: 18, c-width: 48, d-width: 25}}
+  - interface: {name: DSP, parameters: {out-width: 48, a-width: 30, b-width: 18, c-width: 48, d-width: 25}}
     internal_data: {
       ## REGISTER CONTROL ATTRIBUTES
       ACASCREG: 2,
@@ -30,6 +30,13 @@ implementations:
       SEL_PATTERN: 5,
       USE_PATTERN_DETECT: 5,
 
+      ## INVERSION
+      IS_ALUMODE_INVERTED: 4,
+      IS_INMODE_INVERTED: 5,
+      IS_OPMODE_INVERTED: 7,
+      IS_CARRYIN_INVERTED: 1,
+      IS_CLK_INVERTED: 1,
+
       ## Ports
       INMODE: 5,
       CARRYIN: 1,
@@ -42,7 +49,13 @@ implementations:
       CARRYCASCIN: 1,
       MULTSIGNIN: 1,
     }
-    constraints : []
+    constraints : [
+      # AREG is 2 bits wide, but valid values only from 0-2
+      "(not (bveq AREG (bv 3 2)))",
+      # BREG is 2 bits wide, but valid values only from 0-2
+      "(not (bveq BREG (bv 3 2)))",
+
+    ]
     modules:
       - module_name: DSP48E1
         instance_name: DSP48E1
@@ -116,26 +129,51 @@ implementations:
 
             ## Feature Control Attributes
             # Direct
-            { name: A_INPUT, value: (bv 1 5) }
+            { name: A_INPUT, value: (bv 1 5) },
+            # { name: A_INPUT, value: A_INPUT},
             # Direct
-            { name: B_INPUT, value: (bv 1 5) }
+            { name: B_INPUT, value: (bv 1 5) },
+            # { name: B_INPUT, value: B_INPUT},
             # True
-            { name: USE_DPORT, value: (bv 9 5) }
+            { name: USE_DPORT, value: (bv 9 5) },
+            # { name: USE_DPORT, value: USE_DPORT},
             # Multiply
-            { name: USE_MULT, value: (bv 5 5) }
+            { name: USE_MULT, value: (bv 5 5) },
+            # { name: USE_MULT, value: USE_MULT},
             # One48
-            { name: USE_SIMD, value: (bv 7 5) }
+            { name: USE_SIMD, value: (bv 7 5) },
+            # { name: USE_SIMD, value: USE_SIMD},
 
             ## Pattern Detection Attributes
             # NO_RESET
             {name: AUTORESET_PATDET, value: (bv 0 5) },
+            # {name: AUTORESET_PATDET, value: AUTORESET_PATDET},
             {name: MASK, value: (bv 0 48) },
+            
+            # {name: MASK, value: MASK },
             {name: PATTERN, value: (bv 0 48) },
+            # {name: PATTERN, value: PATTERN},
             # MASK
             {name: SEL_MASK, value: (bv 2 5) },
+            # {name: SEL_MASK, value: SEL_MASK },
             # PATTERN
             {name: SEL_PATTERN, value: (bv 3 5) },
+            # {name: SEL_PATTERN, value:  SEL_PATTERN },
             # NO_PATDET
             {name: USE_PATTERN_DETECT, value: (bv 6 5) },
+            # {name: USE_PATTERN_DETECT, value: USE_PATTERN_DETECT },
+
+            ## Inversion
+            {name: IS_ALUMODE_INVERTED, value: (bv 0 4) },
+            # {name: IS_ALUMODE_INVERTED, value:  IS_ALUMODE_INVERTED},
+            {name: IS_INMODE_INVERTED, value: (bv 0 5) },
+            # {name: IS_INMODE_INVERTED, value: IS_INMODE_INVERTED},
+            {name: IS_OPMODE_INVERTED, value: (bv 0 7) },
+            # {name: IS_OPMODE_INVERTED, value: IS_OPMODE_INVERTED},
+            {name: IS_CARRYIN_INVERTED, value: (bv 0 1) },
+            # {name: IS_CARRYIN_INVERTED, value: IS_CARRYIN_INVERTED},
+            {name: IS_CLK_INVERTED, value: (bv 0 1) },
+            # {name: IS_CLK_INVERTED, value: IS_CLK_INVERTED},
+
           ]
     outputs: { O : (get DSP48E1 P) }
