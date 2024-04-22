@@ -28,8 +28,8 @@ jobs:
           #   os-name: windows
           - os: ubuntu-latest
             os-name: ubuntu
-          # - os: macos-latest
-          #   os-name: macOS
+          - os: macos-latest
+            os-name: macOS
 
     runs-on: ${{ matrix.os }}
 
@@ -134,6 +134,85 @@ jobs:
           make -j ${{ env.MAKE_JOBS }}
           make -j ${{ env.MAKE_JOBS }} install
           cd ..
+  
+      - name: Build solvers and copy into Rosette (MacOS)
+        if: matrix.os-name == 'macOS'
+        run: |
+          source ${{ env.LAKEROAD_DIR }}/dependencies.sh
+          
+          # Put dummy versions of cvc4 and boolector into Rosette.
+          mkdir -p ${{ env.RACKET_PKG_DIR }}/rosette/bin/
+          cat >${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc4 <<'EOF'
+          #!/bin/bash
+          echo "Please do not use cvc4 with Lakeroad."
+          exit 1
+          EOF
+          chmod +x ${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc4
+          cat >${{ env.RACKET_PKG_DIR }}/rosette/bin/boolector <<'EOF'
+          #!/bin/bash
+          echo "Please do not use boolector with Lakeroad."
+          exit 1
+          EOF
+          chmod +x ${{ env.RACKET_PKG_DIR }}/rosette/bin/boolector
+
+          # Build Bitwuzla.
+          NONINTERACTIVE=1 brew install ninja-build
+          mkdir bitwuzla
+          wget -qO- https://github.com/bitwuzla/bitwuzla/archive/$BITWUZLA_COMMIT_HASH.tar.gz | tar xz -C bitwuzla --strip-components=1
+          cd bitwuzla
+          ./configure.py --prefix=${{ env.RELEASE_DIR }}/deps/bitwuzla/
+          cd build
+          ninja -j${{ env.MAKE_JOBS }}
+          ninja -j${{ env.MAKE_JOBS }} install
+          cd ../..
+          ln -s ${{ env.RELEASE_DIR }}/deps/bitwuzla/bin/bitwuzla ${{ env.RACKET_PKG_DIR }}/rosette/bin/bitwuzla
+
+          # Build STP.
+          NONINTERACTIVE=1 brew install patchelf
+          NONINTERACTIVE=1 brew install bison flex boost
+          mkdir stp && cd stp
+          wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
+          ./scripts/deps/setup-gtest.sh
+          ./scripts/deps/setup-outputcheck.sh
+          ./scripts/deps/setup-cms.sh
+          ./scripts/deps/setup-minisat.sh
+          mkdir build
+          cd build
+          cmake -DCMAKE_INSTALL_PREFIX=${{ env.RELEASE_DIR }}/deps/stp/ ..
+          make -j ${{ env.MAKE_JOBS }}
+          make -j ${{ env.MAKE_JOBS }} install
+          cd ../..
+          ln -s ${{ env.RELEASE_DIR }}/deps/stp/bin/stp ${{ env.RACKET_PKG_DIR }}/rosette/bin/stp
+          # It seems wrong that we need to do this manually. Shouldn't they be
+          # installed during install?
+          cp stp/deps/install/lib/*.so* ${{ env.RELEASE_DIR }}/deps/stp/lib/
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/lib/*so*
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
+
+          # Build CVC5.
+          pip install pyparsing
+          mkdir cvc5 && cd cvc5
+          wget -qO- https://github.com/cvc5/cvc5/archive/$CVC5_COMMIT_HASH.tar.gz  | tar xz --strip-components=1
+          ./configure.sh --auto-download --prefix=${{ env.RELEASE_DIR }}/deps/cvc5/
+          cd ./build
+          make -j ${{ env.MAKE_JOBS }}
+          make -j ${{ env.MAKE_JOBS }} install
+          cd ../..
+          ln -s ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5 ${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc5
+          # Manually set the RPATH. Would be nice to do this in a cleaner way.
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/lib/*so*
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5
+
+        
+          # Build Yices2.
+          NONINTERACTIVE=1 brew install gperf
+          mkdir yices2 && cd yices2
+          wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz | tar xz --strip-components=1
+          autoconf
+          ./configure --prefix=${{ env.RELEASE_DIR }}/deps/yices/
+          make -j ${{ env.MAKE_JOBS }}
+          make -j ${{ env.MAKE_JOBS }} install
+          cd ..
           ln -s ${{ env.RELEASE_DIR }}/deps/yices/bin/yices-smt2 ${{ env.RACKET_PKG_DIR }}/rosette/bin/yices-smt2
 
       - name: Run PyInstaller
@@ -146,7 +225,7 @@ jobs:
           raco distribute -v ${{ env.RELEASE_DIR }}/deps/lakeroad/ lakeroad-single-solver
 
       - name: Clean up issues after `raco distribute` (Ubuntu)
-        if: matrix.os-name == 'ubuntu'
+        if: matrix.os-name == 'ubuntu' || matrix.os-name == 'macOS'
         run: |
           # Re-link the solvers.
           # Due to this behavior in Racket:
