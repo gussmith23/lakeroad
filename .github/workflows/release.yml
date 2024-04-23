@@ -192,25 +192,11 @@ jobs:
           export LDFLAGS="-L/usr/local/Cellar/gmp/lib"
           export CPPFLAGS="-I/usr/local/Cellar/gmp/include"
           mkdir stp && cd stp
-          wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
+          # TODO(@gussmith23): Change back to normal STP once https://github.com/stp/stp/pull/482 merged.
+          #wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
+          wget -qO- https://github.com/gussmith23/stp/archive/d67a525e3d234779f7f7e1984df1e3ba6d6dc4f6.tar.gz | tar xz --strip-components=1
           ./scripts/deps/setup-gtest.sh
           ./scripts/deps/setup-outputcheck.sh
-          ### TODO(@gussmith23): Remove this once https://github.com/stp/stp/pull/482 is merged and you update to new STP.
-          cd deps/
-          git clone https://github.com/meelgroup/cadical
-          cd cadical
-          git checkout c90592e
-          ./configure 
-          make -j"$(nproc)"
-          cd ..
-          git clone https://github.com/meelgroup/cadiback
-          cd cadiback
-          git checkout 34236f1 
-          ./configure 
-          make -j"$(nproc)"
-          cd ..
-          cd ..
-          ### end code to delete.
           ./scripts/deps/setup-cms.sh
           ./scripts/deps/setup-minisat.sh
           mkdir build
