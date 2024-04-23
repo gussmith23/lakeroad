@@ -207,8 +207,8 @@ jobs:
           cd ../..
           # It seems wrong that we need to do this manually. Shouldn't they be
           # installed during install?
-          cp stp/deps/install/lib/*.so* ${{ env.RELEASE_DIR }}/deps/stp/lib/
-          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/lib/*so*
+          cp stp/deps/install/lib/*dylib* ${{ env.RELEASE_DIR }}/deps/stp/lib/
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/lib/*dylib*
           patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
 
           # Build CVC5.
@@ -221,7 +221,7 @@ jobs:
           make -j ${{ env.MAKE_JOBS }} install
           cd ../..
           # Manually set the RPATH. Would be nice to do this in a cleaner way.
-          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/lib/*so*
+          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/lib/*dylib*
           patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5
 
         
