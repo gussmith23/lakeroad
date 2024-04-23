@@ -170,7 +170,7 @@ jobs:
           chmod +x ${{ matrix.RACKET_PKG_DIR }}/rosette/bin/boolector
 
           # Build Bitwuzla.
-          NONINTERACTIVE=1 brew install ninja-build
+          NONINTERACTIVE=1 brew install ninja
           mkdir bitwuzla
           wget -qO- https://github.com/bitwuzla/bitwuzla/archive/$BITWUZLA_COMMIT_HASH.tar.gz | tar xz -C bitwuzla --strip-components=1
           cd bitwuzla
