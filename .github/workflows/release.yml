@@ -256,7 +256,7 @@ jobs:
           raco exe -v -o lakeroad-single-solver ${{ env.LAKEROAD_DIR }}/bin/main.rkt
           raco distribute -v ${{ env.RELEASE_DIR }}/deps/lakeroad/ lakeroad-single-solver
 
-      - name: Clean up issues after `raco distribute` (Ubuntu)
+      - name: Clean up issues after `raco distribute` (Ubuntu, MacOS)
         if: matrix.os-name == 'ubuntu' || matrix.os-name == 'macOS'
         run: |
           # Re-link the solvers.
