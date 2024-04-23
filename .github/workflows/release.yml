@@ -208,8 +208,11 @@ jobs:
           # It seems wrong that we need to do this manually. Shouldn't they be
           # installed during install?
           cp stp/deps/install/lib/*dylib* ${{ env.RELEASE_DIR }}/deps/stp/lib/
-          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/lib/*dylib*
-          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
+          install_name_tool -add_rpath '@executable_path/../lib' ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
+          cp stp/deps/cadiback/libcadiback.so ${{ env.RELEASE_DIR }}/deps/stp/lib
+          cp stp/deps/cadical/bin/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/lib
+          install_name_tool -change libcadiback.so @rpath/libcadiback.so ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
+          install_name_tool -change libcadical.so @rpath/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/lib/libcadiback.so
 
           # Build CVC5.
           pip install pyparsing
@@ -221,8 +224,8 @@ jobs:
           make -j ${{ env.MAKE_JOBS }} install
           cd ../..
           # Manually set the RPATH. Would be nice to do this in a cleaner way.
-          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/lib/*dylib*
-          patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5
+          install_name_tool -add_rpath '@executable_path/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/lib/*dylib*
+          install_name_tool -add_rpath '@executable_path/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5
 
         
           # Build Yices2.
