@@ -180,6 +180,10 @@ jobs:
           ninja -j${{ env.MAKE_JOBS }} install
           cd ../..
 
+          # Install coreutils and make them visible over default mac tools.
+          NONINTERACTIVE=1 brew install coreutils
+          export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
           # Build STP.
           NONINTERACTIVE=1 brew install patchelf
           NONINTERACTIVE=1 brew install bison flex boost
