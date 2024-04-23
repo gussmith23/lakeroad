@@ -187,16 +187,13 @@ jobs:
           export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
           # Build STP.
-          NONINTERACTIVE=1 brew install patchelf
           NONINTERACTIVE=1 brew install bison flex boost gmp
-          # TODO(@gussmith23): using hardcoded gmp paths here. brew link doesn't seem to do what i expected.
-          brew link --force gmp
-          export LDFLAGS="-L/usr/local/Cellar/gmp/lib"
-          export CPPFLAGS="-I/usr/local/Cellar/gmp/include"
           mkdir stp && cd stp
           # TODO(@gussmith23): Change back to normal STP once https://github.com/stp/stp/pull/482 merged.
           #wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           wget -qO- https://github.com/gussmith23/stp/archive/4570d4e8671cd8e4ee872b9a4bdc8bc48a690457.tar.gz | tar xz --strip-components=1
+          export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+          which readlink
           ./scripts/deps/setup-gtest.sh
           ./scripts/deps/setup-outputcheck.sh
           ./scripts/deps/setup-cms.sh
