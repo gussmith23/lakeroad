@@ -212,7 +212,7 @@ jobs:
           cp stp/deps/install/lib/*dylib* ${{ env.RELEASE_DIR }}/deps/stp/lib/
           install_name_tool -add_rpath '@executable_path/../lib' ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
           cp stp/deps/cadiback/libcadiback.so ${{ env.RELEASE_DIR }}/deps/stp/lib
-          cp stp/deps/cadical/bin/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/lib
+          cp stp/deps/cadical/build/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/lib
           install_name_tool -change libcadiback.so @rpath/libcadiback.so ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
           install_name_tool -change libcadical.so @rpath/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/lib/libcadiback.so
 
