@@ -186,7 +186,7 @@ jobs:
 
           # Build STP.
           NONINTERACTIVE=1 brew install patchelf
-          NONINTERACTIVE=1 brew install bison flex boost
+          NONINTERACTIVE=1 brew install bison flex boost gmp
           mkdir stp && cd stp
           wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           ./scripts/deps/setup-gtest.sh
