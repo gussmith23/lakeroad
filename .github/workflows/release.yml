@@ -152,6 +152,8 @@ jobs:
       - name: Build solvers and copy into Rosette (MacOS)
         if: matrix.os-name == 'macOS'
         run: |
+          set -x
+
           source ${{ env.LAKEROAD_DIR }}/dependencies.sh
           
           # Put dummy versions of cvc4 and boolector into Rosette.
