@@ -14,7 +14,6 @@ on:
 env:
   LAKEROAD_DIR: ${{ github.workspace }}/lakeroad_checkout
   RELEASE_DIR: ${{ github.workspace }}/lakeroad
-  RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
   MAKE_JOBS: 2
 
 jobs:
@@ -28,8 +27,10 @@ jobs:
           #   os-name: windows
           - os: ubuntu-latest
             os-name: ubuntu
+            RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
           - os: macos-latest
             os-name: macOS
+            RACKET_PKG_DIR: /Users/runner/.local/share/racket/8.11/pkgs
 
     runs-on: ${{ matrix.os }}
 
@@ -62,19 +63,19 @@ jobs:
           sudo apt-get update
 
           # Put dummy versions of cvc4 and boolector into Rosette.
-          mkdir -p ${{ env.RACKET_PKG_DIR }}/rosette/bin/
-          cat >${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc4 <<'EOF'
+          mkdir -p ${{ matrix.RACKET_PKG_DIR }}/rosette/bin/
+          cat >${{ matrix.RACKET_PKG_DIR }}/rosette/bin/cvc4 <<'EOF'
           #!/bin/bash
           echo "Please do not use cvc4 with Lakeroad."
           exit 1
           EOF
-          chmod +x ${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc4
-          cat >${{ env.RACKET_PKG_DIR }}/rosette/bin/boolector <<'EOF'
+          chmod +x ${{ matrix.RACKET_PKG_DIR }}/rosette/bin/cvc4
+          cat >${{ matrix.RACKET_PKG_DIR }}/rosette/bin/boolector <<'EOF'
           #!/bin/bash
           echo "Please do not use boolector with Lakeroad."
           exit 1
           EOF
-          chmod +x ${{ env.RACKET_PKG_DIR }}/rosette/bin/boolector
+          chmod +x ${{ matrix.RACKET_PKG_DIR }}/rosette/bin/boolector
 
           # Build Bitwuzla.
           sudo apt-get install -y ninja-build
@@ -154,19 +155,19 @@ jobs:
           source ${{ env.LAKEROAD_DIR }}/dependencies.sh
           
           # Put dummy versions of cvc4 and boolector into Rosette.
-          mkdir -p ${{ env.RACKET_PKG_DIR }}/rosette/bin/
-          cat >${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc4 <<'EOF'
+          mkdir -p ${{ matrix.RACKET_PKG_DIR }}/rosette/bin/
+          cat >${{ matrix.RACKET_PKG_DIR }}/rosette/bin/cvc4 <<'EOF'
           #!/bin/bash
           echo "Please do not use cvc4 with Lakeroad."
           exit 1
           EOF
-          chmod +x ${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc4
-          cat >${{ env.RACKET_PKG_DIR }}/rosette/bin/boolector <<'EOF'
+          chmod +x ${{ matrix.RACKET_PKG_DIR }}/rosette/bin/cvc4
+          cat >${{ matrix.RACKET_PKG_DIR }}/rosette/bin/boolector <<'EOF'
           #!/bin/bash
           echo "Please do not use boolector with Lakeroad."
           exit 1
           EOF
-          chmod +x ${{ env.RACKET_PKG_DIR }}/rosette/bin/boolector
+          chmod +x ${{ matrix.RACKET_PKG_DIR }}/rosette/bin/boolector
 
           # Build Bitwuzla.
           NONINTERACTIVE=1 brew install ninja-build
@@ -250,10 +251,10 @@ jobs:
           # Make a placeholder for the solver binaries. In a later step, we will
           # delete and replace them with symbolic links to the actual binaries,
           # but `raco distribute` expects the files to exist here.
-          touch "${{ env.RACKET_PKG_DIR }}/rosette/bin/yices-smt2"
-          touch "${{ env.RACKET_PKG_DIR }}/rosette/bin/stp"
-          touch "${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc5"
-          touch "${{ env.RACKET_PKG_DIR }}/rosette/bin/bitwuzla"
+          touch "${{ matrix.RACKET_PKG_DIR }}/rosette/bin/yices-smt2"
+          touch "${{ matrix.RACKET_PKG_DIR }}/rosette/bin/stp"
+          touch "${{ matrix.RACKET_PKG_DIR }}/rosette/bin/cvc5"
+          touch "${{ matrix.RACKET_PKG_DIR }}/rosette/bin/bitwuzla"
 
           raco exe -v -o lakeroad-single-solver ${{ env.LAKEROAD_DIR }}/bin/main.rkt
           raco distribute -v ${{ env.RELEASE_DIR }}/deps/lakeroad/ lakeroad-single-solver
