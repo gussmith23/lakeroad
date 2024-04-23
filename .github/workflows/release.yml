@@ -95,6 +95,22 @@ jobs:
           wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           ./scripts/deps/setup-gtest.sh
           ./scripts/deps/setup-outputcheck.sh
+          ### TODO(@gussmith23): Remove this once https://github.com/stp/stp/pull/482 is merged and you update to new STP.
+          cd deps/
+          git clone https://github.com/meelgroup/cadical
+          cd cadical
+          git checkout c90592e
+          ./configure 
+          make -j"$(nproc)"
+          cd ..
+          git clone https://github.com/meelgroup/cadiback
+          cd cadiback
+          git checkout 34236f1 
+          ./configure 
+          make -j"$(nproc)"
+          cd ..
+          cd ..
+          ### end code to delete.
           ./scripts/deps/setup-cms.sh
           ./scripts/deps/setup-minisat.sh
           mkdir build
@@ -174,6 +190,22 @@ jobs:
           wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           ./scripts/deps/setup-gtest.sh
           ./scripts/deps/setup-outputcheck.sh
+          ### TODO(@gussmith23): Remove this once https://github.com/stp/stp/pull/482 is merged and you update to new STP.
+          cd deps/
+          git clone https://github.com/meelgroup/cadical
+          cd cadical
+          git checkout c90592e
+          ./configure 
+          make -j"$(nproc)"
+          cd ..
+          git clone https://github.com/meelgroup/cadiback
+          cd cadiback
+          git checkout 34236f1 
+          ./configure 
+          make -j"$(nproc)"
+          cd ..
+          cd ..
+          ### end code to delete.
           ./scripts/deps/setup-cms.sh
           ./scripts/deps/setup-minisat.sh
           mkdir build
