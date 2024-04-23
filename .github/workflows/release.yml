@@ -194,7 +194,7 @@ jobs:
           mkdir stp && cd stp
           # TODO(@gussmith23): Change back to normal STP once https://github.com/stp/stp/pull/482 merged.
           #wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
-          wget -qO- https://github.com/gussmith23/stp/archive/d67a525e3d234779f7f7e1984df1e3ba6d6dc4f6.tar.gz | tar xz --strip-components=1
+          wget -qO- https://github.com/gussmith23/stp/archive/4570d4e8671cd8e4ee872b9a4bdc8bc48a690457.tar.gz | tar xz --strip-components=1
           ./scripts/deps/setup-gtest.sh
           ./scripts/deps/setup-outputcheck.sh
           ./scripts/deps/setup-cms.sh
