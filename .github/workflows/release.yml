@@ -45,7 +45,7 @@ jobs:
           version: 8.11
       
       - name: Set up Racket dependencies
-        run: raco pkg install --auto --batch rosette yaml
+        run: raco pkg install --no-docs --auto --batch rosette yaml
 
       - name: Install Python
         uses: actions/setup-python@v5
