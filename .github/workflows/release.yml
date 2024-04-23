@@ -181,7 +181,10 @@ jobs:
           ninja -j${{ env.MAKE_JOBS }}
           ninja -j${{ env.MAKE_JOBS }} install
           cd ../..
-          ln -s ${{ env.RELEASE_DIR }}/deps/bitwuzla/bin/bitwuzla ${{ env.RACKET_PKG_DIR }}/rosette/bin/bitwuzla
+          # Make a placeholder for the solver binary. In a later step, we will
+          # delete this and replace it with a symbolic link to the actual
+          # binary, but `raco distribute` expects a file to exist here.
+          touch ${{ env.RACKET_PKG_DIR }}/rosette/bin/bitwuzla
 
           # Build STP.
           NONINTERACTIVE=1 brew install patchelf
@@ -214,7 +217,10 @@ jobs:
           make -j ${{ env.MAKE_JOBS }}
           make -j ${{ env.MAKE_JOBS }} install
           cd ../..
-          ln -s ${{ env.RELEASE_DIR }}/deps/stp/bin/stp ${{ env.RACKET_PKG_DIR }}/rosette/bin/stp
+          # Make a placeholder for the solver binary. In a later step, we will
+          # delete this and replace it with a symbolic link to the actual
+          # binary, but `raco distribute` expects a file to exist here.
+          touch ${{ env.RACKET_PKG_DIR }}/rosette/bin/stp
           # It seems wrong that we need to do this manually. Shouldn't they be
           # installed during install?
           cp stp/deps/install/lib/*.so* ${{ env.RELEASE_DIR }}/deps/stp/lib/
@@ -230,7 +236,10 @@ jobs:
           make -j ${{ env.MAKE_JOBS }}
           make -j ${{ env.MAKE_JOBS }} install
           cd ../..
-          ln -s ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5 ${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc5
+          # Make a placeholder for the solver binary. In a later step, we will
+          # delete this and replace it with a symbolic link to the actual
+          # binary, but `raco distribute` expects a file to exist here.
+          touch ${{ env.RACKET_PKG_DIR }}/rosette/bin/cvc5
           # Manually set the RPATH. Would be nice to do this in a cleaner way.
           patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/lib/*so*
           patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5
@@ -245,7 +254,10 @@ jobs:
           make -j ${{ env.MAKE_JOBS }}
           make -j ${{ env.MAKE_JOBS }} install
           cd ..
-          ln -s ${{ env.RELEASE_DIR }}/deps/yices/bin/yices-smt2 ${{ env.RACKET_PKG_DIR }}/rosette/bin/yices-smt2
+          # Make a placeholder for the solver binary. In a later step, we will
+          # delete this and replace it with a symbolic link to the actual
+          # binary, but `raco distribute` expects a file to exist here.
+          touch ${{ env.RACKET_PKG_DIR }}/rosette/bin/yices-smt2
 
       - name: Run PyInstaller
         run: pyinstaller --onefile --name lakeroad ${{ env.LAKEROAD_DIR }}/bin/lakeroad-portfolio.py
