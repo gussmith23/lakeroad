@@ -187,7 +187,10 @@ jobs:
           # Build STP.
           NONINTERACTIVE=1 brew install patchelf
           NONINTERACTIVE=1 brew install bison flex boost gmp
+          # TODO(@gussmith23): using hardcoded gmp paths here. brew link doesn't seem to do what i expected.
           brew link --force gmp
+          export LDFLAGS="-L/usr/local/Cellar/gmp/lib"
+          export CPPFLAGS="-I/usr/local/Cellar/gmp/include"
           mkdir stp && cd stp
           wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           ./scripts/deps/setup-gtest.sh
