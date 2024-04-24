@@ -157,6 +157,8 @@ RUN apt-get install -y git cmake bison flex libboost-all-dev python2 perl && \
 # rm -rf /root/stp
 # And after that we also don't need to add STP to the path.
 ENV PATH="/root/stp/build:${PATH}"
+# TODO(@gussmith23): We shouldn't need this once https://github.com/stp/stp/issues/481 is fixed or https://github.com/stp/stp/pull/482 works correctly.
+ENV LD_LIBRARY_PATH="/root/stp/deps/cadical/build:/root/stp/deps/cadiback/:$LD_LIBRARY_PATH"
 
 # Build Yosys.
 WORKDIR /root
