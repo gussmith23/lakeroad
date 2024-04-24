@@ -184,7 +184,7 @@ jobs:
 
           # Install coreutils and make them visible over default mac tools.
           NONINTERACTIVE=1 brew install coreutils
-          export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+          export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH
 
           # Build STP.
           NONINTERACTIVE=1 brew install bison flex boost gmp
@@ -192,8 +192,6 @@ jobs:
           # TODO(@gussmith23): Change back to normal STP once https://github.com/stp/stp/pull/482 merged.
           #wget -qO- https://github.com/stp/stp/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           wget -qO- https://github.com/gussmith23/stp/archive/4570d4e8671cd8e4ee872b9a4bdc8bc48a690457.tar.gz | tar xz --strip-components=1
-          export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-          which readlink
           ./scripts/deps/setup-gtest.sh
           ./scripts/deps/setup-outputcheck.sh
           ./scripts/deps/setup-cms.sh
