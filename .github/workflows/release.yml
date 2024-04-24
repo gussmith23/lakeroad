@@ -228,8 +228,9 @@ jobs:
 
         
           # Build Yices2.
-          export LDFLAGS="-L/usr/local/Cellar/gmp/lib"
-          export CPPFLAGS="-I/usr/local/Cellar/gmp/include"
+          # TODO(@gussmith23): hardcoded versions will break eventually.
+          export LDFLAGS="-L/usr/local/Cellar/gmp/6.3.0/lib"
+          export CPPFLAGS="-I/usr/local/Cellar/gmp/6.3.0/include"
           NONINTERACTIVE=1 brew install gperf autoconf
           mkdir yices2 && cd yices2
           wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz | tar xz --strip-components=1
