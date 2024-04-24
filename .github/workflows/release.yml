@@ -217,6 +217,7 @@ jobs:
           cp stp/deps/cadiback/libcadiback.so ${{ env.RELEASE_DIR }}/deps/stp/lib
           cp stp/deps/cadical/build/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/lib
           install_name_tool -change libcadiback.so @rpath/libcadiback.so ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
+          install_name_tool -change libcadical.so @rpath/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
           install_name_tool -change libcadical.so @rpath/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/lib/libcadiback.so
 
           # Build CVC5.
