@@ -28,7 +28,10 @@ jobs:
           - os: ubuntu-latest
             os-name: ubuntu
             RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
-          - os: macos-latest
+          - os: macos-13
+            os-name: macOS
+            RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
+          - os: macos-14
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
 
