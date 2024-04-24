@@ -249,6 +249,16 @@ jobs:
           make -j ${{ env.MAKE_JOBS }} install
           cd ..
 
+          # Insert an "activate" script (taken from oss-cad-suite)
+          cat >${{ env.RELEASE_DIR }}/activate <<'EOF'
+          #!/bin/bash
+          echo "Please wait"
+          echo "Removing quarantine flag from all files ..."
+          sudo find . -type f -exec xattr -d com.apple.quarantine {} 2> /dev/null \;
+          echo "Done"
+          EOF
+          chmod +x ${{ env.RELEASE_DIR }}/activate
+
       - name: Run PyInstaller
         run: pyinstaller --onefile --name lakeroad ${{ env.LAKEROAD_DIR }}/bin/lakeroad-portfolio.py
 
