@@ -31,9 +31,11 @@ jobs:
           - os: macos-13
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
+            coreutils_gnubin_path: /usr/local/opt/coreutils/libexec/gnubin
           - os: macos-14
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
+            coreutils_gnubin_path: /opt/homebrew/opt/coreutils/libexec/gnubin
 
     runs-on: ${{ matrix.os }}
 
@@ -187,7 +189,7 @@ jobs:
 
           # Install coreutils and make them visible over default mac tools.
           NONINTERACTIVE=1 brew install coreutils
-          export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+          export PATH="${{ matrix.coreutils_gnubin_path }}:$PATH"
 
           # Build STP.
           NONINTERACTIVE=1 brew install bison flex boost gmp
