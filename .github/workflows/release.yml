@@ -228,7 +228,7 @@ jobs:
 
         
           # Build Yices2.
-          NONINTERACTIVE=1 brew install gperf
+          NONINTERACTIVE=1 brew install gperf autoconf
           mkdir yices2 && cd yices2
           wget -qO- https://github.com/SRI-CSL/yices2/archive/$YICES2_COMMIT_HASH.tar.gz | tar xz --strip-components=1
           autoconf
