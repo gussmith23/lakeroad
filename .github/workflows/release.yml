@@ -311,9 +311,9 @@ jobs:
 
           # Important to preserve symbolic links here, otherwise the work we do
           # to fix the RPATH in the solvers is useless.
-          zip --symlinks -r lakeroad-${{ matrix.os-name }}.zip lakeroad
+          zip --symlinks -r lakeroad-${{ matrix.os-name }}-${{ matrix.arch }}.zip lakeroad
           # TODO(@gussmith23): Doesn't work on Mac, may need to have one case for each OS.
-          # sha256sum lakeroad-${{ matrix.os-name }}.zip > lakeroad-${{ matrix.os-name }}.zip.CHECKSUM
+          # sha256sum lakeroad-${{ matrix.os-name }}-${{ matrix.arch }}.zip > lakeroad-${{ matrix.os-name }}-${{ matrix.arch }}.zip.CHECKSUM
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
