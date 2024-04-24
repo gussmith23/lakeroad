@@ -234,7 +234,9 @@ jobs:
           # Apparently this one already has this rpath, which will throw an error from install_name_tool.
           #install_name_tool -add_rpath '@executable_path/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/lib/libcvc5.1.dylib
           install_name_tool -add_rpath '@executable_path/../lib' ${{ env.RELEASE_DIR }}/deps/cvc5/bin/cvc5
-
+          # TODO(@gussmith23): Remove when https://github.com/cvc5/cvc5/issues/10681 resolved.
+          install_name_tool -change "/Users/runner/work/lakeroad/lakeroad/cvc5/build/deps/lib/libpoly.0.dylib" @rpath/libpoly.0.dylib "${{ env.RELEASE_DIR }}/deps/cvc5/lib/libcvc5.1.dylib"
+          install_name_tool -change "/Users/runner/work/lakeroad/lakeroad/cvc5/build/deps/lib/libpolyxx.0.dylib" @rpath/libpolyxx.0.dylib "${{ env.RELEASE_DIR }}/deps/cvc5/lib/libcvc5.1.dylib"
         
           # Build Yices2.
           # TODO(@gussmith23): hardcoded versions will break eventually.
