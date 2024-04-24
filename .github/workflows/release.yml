@@ -28,14 +28,17 @@ jobs:
           - os: ubuntu-latest
             os-name: ubuntu
             RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
+            arch: x64
           - os: macos-13
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
             coreutils_gnubin_path: /usr/local/opt/coreutils/libexec/gnubin
+            arch: x64
           - os: macos-14
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
             coreutils_gnubin_path: /opt/homebrew/opt/coreutils/libexec/gnubin
+            arch: arm64
 
     runs-on: ${{ matrix.os }}
 
@@ -315,8 +318,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: lakeroad-${{ matrix.os-name }}.zip
-          name: lakeroad-${{ matrix.os-name }}.zip
+          path: lakeroad-${{ matrix.os-name }}-${{ matrix.arch }}.zip
+          name: lakeroad-${{ matrix.os-name }}-${{ matrix.arch }}.zip
           if-no-files-found: error
 
       # TODO(@gussmith23): Re-enable once we generate SHA on Windows.
