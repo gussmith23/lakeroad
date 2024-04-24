@@ -184,7 +184,7 @@ jobs:
 
           # Install coreutils and make them visible over default mac tools.
           NONINTERACTIVE=1 brew install coreutils
-          export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH
+          export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 
           # Build STP.
           NONINTERACTIVE=1 brew install bison flex boost gmp
