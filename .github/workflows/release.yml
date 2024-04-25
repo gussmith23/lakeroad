@@ -121,6 +121,8 @@ jobs:
           cp stp/deps/install/lib/*.so* ${{ env.RELEASE_DIR }}/deps/stp/lib/
           patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/lib/*so*
           patchelf --set-rpath '$ORIGIN/../lib' ${{ env.RELEASE_DIR }}/deps/stp/bin/stp
+          cp stp/deps/cadiback/libcadiback.so ${{ env.RELEASE_DIR }}/deps/stp/lib
+          cp stp/deps/cadical/build/libcadical.so ${{ env.RELEASE_DIR }}/deps/stp/lib
 
           # Build CVC5.
           pip install pyparsing
