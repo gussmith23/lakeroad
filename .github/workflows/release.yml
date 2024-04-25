@@ -25,7 +25,11 @@ jobs:
         include:
           # - os: windows-latest
           #   os-name: windows
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
+            os-name: ubuntu
+            RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
+            arch: x64
+          - os: ubuntu-20.04
             os-name: ubuntu
             RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
             arch: x64
