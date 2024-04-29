@@ -285,6 +285,11 @@ jobs:
           ln -f -s ../../../../../../../../cvc5/bin/cvc5  "${{ env.RELEASE_DIR }}/deps/lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/cvc5"
           ln -f -s ../../../../../../../../bitwuzla/bin/bitwuzla  "${{ env.RELEASE_DIR }}/deps/lakeroad/lib/plt/lakeroad-single-solver/exts/ert/r1/bin/bitwuzla"
 
+      - name: Copy in README and examples
+        if: matrix.os-name == 'ubuntu' || matrix.os-name == 'macOS'
+        run: |
+            cp -r ${{ env.LAKEROAD_DIR }}/release_files/* ${{ env.RELEASE_DIR }}
+
       - name: Create zip (Windows)
         if: matrix.os-name == 'windows'
         run: |
