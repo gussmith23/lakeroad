@@ -1,15 +1,18 @@
-# lakeroad
+# Lakeroad
+
+See the paper [here.](https://arxiv.org/abs/2401.16526)
 
 Lakeroad
-  is a synthesizer
-  for FPGAs.
+  is a technology mapper for FPGAs
+  built using sketch-guided program synthesis
+  provided by [Rosette](https://emina.github.io/rosette/).
 Given a description
   of an FPGA's resources,
-  it can synthesize
-  FPGA configurations
-  (e.g. LUT programmings)
-  to implement high-level programs
-  (e.g. 8-bit add with carry).
+  it can compile input designs
+  to FPGA primitives.
+It is especially powerful for complex,
+  programmable primitives
+  like DSPs.
 
 ## Dependencies
 
