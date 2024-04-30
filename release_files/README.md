@@ -7,6 +7,8 @@ Thanks for downloading a release of Lakeroad.
 
 To install Lakeroad on your system, simply add `./bin` to your `$PATH`.
 
+On MacOS, run the `activate` script to un-quarantine the binaries.
+
 To run the examples, run
 
 ```sh
