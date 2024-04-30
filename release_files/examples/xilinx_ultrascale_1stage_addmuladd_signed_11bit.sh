@@ -4,7 +4,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 "$SCRIPT_DIR/../bin/lakeroad" \
  --bitwuzla --stp --yices --cvc5 \
- --verilog-module-filepath "$SCRIPT_DIR/verilog/xilinx_ultrascale_1stage_addmuladd_signed_11bit.sh" \
+ --verilog-module-filepath "$SCRIPT_DIR/verilog/xilinx_ultrascale_1stage_addmuladd_signed_11bit.sv" \
  --architecture xilinx-ultrascale-plus \
  --template dsp \
  --out-format verilog \
