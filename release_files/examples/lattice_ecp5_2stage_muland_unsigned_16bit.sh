@@ -3,7 +3,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 "$SCRIPT_DIR/../bin/lakeroad" \
- --solver bitwuzla \
+ --bitwuzla --stp --yices --cvc5 \
  --verilog-module-filepath "$SCRIPT_DIR/verilog/lattice_ecp5_2stage_muland_unsigned_16bit.sv" \
  --architecture lattice-ecp5 \
  --template dsp \
