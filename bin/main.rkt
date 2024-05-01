@@ -116,7 +116,11 @@
   "File containing the Verilog module to synthesize against."
   " Can be specified as an alternative to --instruction. If this is specified, you must also"
   " provide the flags --top-module-name and --verilog-module-out-signal."
-  (verilog-module-filepath v)]
+  (begin
+    ; Error if file doesn't exist.
+    (when (not (file-exists? v))
+      (error (format "File ~a does not exist." v)))
+    (verilog-module-filepath v))]
  ["--top-module-name"
   v
   "Top module name if --verilog-module-filepath is specified."
