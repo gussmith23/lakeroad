@@ -7,6 +7,8 @@ Thanks for downloading a release of Lakeroad.
 
 To install Lakeroad on your system, simply add `./bin` to your `$PATH`.
 
+Lakeroad depends on Yosys, which can be installed on Mac via `brew install yosys` or on Ubuntu via `apt-get install yosys`.
+
 On MacOS, run the `activate` script to un-quarantine the binaries.
 
 To run the examples, run
