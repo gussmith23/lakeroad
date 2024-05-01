@@ -30,3 +30,7 @@ and
 ```
 
 Note that `./bin/lakeroad` is a wrapper over the core Lakeroad binary, `lakeroad-single-solver`. To see Lakeroad's full options, please run the core Lakeroad binary with `--help`.
+
+## Known Bugs
+
+- An input filename with spaces may cause issues. See #436.
