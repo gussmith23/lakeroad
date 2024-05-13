@@ -54,7 +54,48 @@ implementations:
       "(not (bveq AREG (bv 3 2)))",
       # BREG is 2 bits wide, but valid values only from 0-2
       "(not (bveq BREG (bv 3 2)))",
+      # ACASCREG/BCASCREG is 2 bits wide, but valid values only from 0-2
+      "(not (bveq ACASCREG (bv 3 2)))",
+      "(not (bveq BCASCREG (bv 3 2)))",
+      
+      # PREG must be 1 when OPMODE[6:4] is 010, 110, or 100
+      "(=> (bveq (extract 6 4 OPMODE) (bv 2 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq (extract 6 4 OPMODE) (bv 4 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq (extract 6 4 OPMODE) (bv 6 3)) (bveq PREG (bv 1 1)))",
 
+      # PREG must be 1 when OPMODE[1:0] is 10
+      "(=> (bveq (extract 1 0 OPMODE) (bv 2 2)) (bveq PREG (bv 1 1)))",
+
+      #PREG must be 1 when CARRYINSEL is 100, 101, 111
+      "(=> (bveq CARRYINSEL (bv 2 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq CARRYINSEL (bv 4 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq CARRYINSEL (bv 6 3)) (bveq PREG (bv 1 1)))",
+
+      #ACASCREG/BCASCREG must be equal to AREG/BREG when AREG/BREG is 0, 1
+      # See https://docs.amd.com/v/u/en-US/ug479_7Series_DSP48E1.pdf, Table 2-3
+      "(=> (bveq AREG (bv 0 2)) (bveq ACASCREG (bv 0 2)))",
+      "(=> (bveq AREG (bv 1 2)) (bveq ACASCREG (bv 1 2)))",
+      "(=> (bveq AREG (bv 2 2)) (|| (bveq ACASCREG (bv 2 2)) (bveq ACASCREG (bv 1 2))))",
+      "(=> (bveq BREG (bv 0 2)) (bveq BCASCREG (bv 0 2)))",
+      "(=> (bveq BREG (bv 1 2)) (bveq BCASCREG (bv 1 2)))",
+      "(=> (bveq BREG (bv 2 2)) (|| (bveq BCASCREG (bv 2 2)) (bveq BCASCREG (bv 1 2))))",
+
+      # Attributes can only be a few of the ENUM_VALS (see Table 2-3 in the DSP48E1 documentation)
+
+      # A_INPUT can be DIRECT(1) or CASCADE(8)
+      # "(|| (bveq A_INPUT (bv 1 5)) (bveq A_INPUT (bv 8 5)))",
+      # B_INPUT can be DIRECT(1) or CASCADE(8)
+      # "(|| (bveq B_INPUT (bv 1 5)) (bveq B_INPUT (bv 8 5)))",
+
+      # USE_DPORT can be TRUE(9) or FALSE(4)
+      # "(|| (bveq USE_DPORT (bv 9 5)) (bveq USE_DPORT (bv 4 5)))",
+      #USE_MULT can be NONE(11) or MULTIPLY(5)
+      # "(|| (bveq USE_MULT (bv 11 5)) (bveq USE_MULT (bv 5 5)))",
+      # "(|| (bveq USE_SIMD (bv 7 5)) (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 13 5)))",
+
+      # When USE_SIMD is two24 or four12, mult must be set to none
+      # "(=> (bveq USE_SIMD (bv 12 5)) (bveq USE_MULT (bv 11 5)))",
+      # "(=> (bveq USE_SIMD (bv 13 5)) (bveq USE_MULT (bv 11 5)))",
     ]
     modules:
       - module_name: DSP48E1
