@@ -1,0 +1,135 @@
+
+ /----------------------------------------------------------------------------\
+ |                                                                            |
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |                                                                            |
+ |  Copyright (C) 2012 - 2020  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |                                                                            |
+ |  Permission to use, copy, modify, and/or distribute this software for any  |
+ |  purpose with or without fee is hereby granted, provided that the above    |
+ |  copyright notice and this permission notice appear in all copies.         |
+ |                                                                            |
+ |  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES  |
+ |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF          |
+ |  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR   |
+ |  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    |
+ |  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN     |
+ |  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   |
+ |  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            |
+ |                                                                            |
+ \----------------------------------------------------------------------------/
+
+ Yosys 0.31+49 (git sha1 e0ba07aed, x86_64-apple-darwin20.2-clang 10.0.0-4ubuntu1 -fPIC -Os)
+
+
+-- Running command `read_verilog -sv ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v; hierarchy -simcheck -top DSP48E1; debug opt_expr; write_verilog output/tmpoutputv.sv' --
+
+1. Executing Verilog-2005 frontend: ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v
+Parsing SystemVerilog input from `../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v' to AST representation.
+Generating RTLIL representation for module `\DSP48E1'.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1163.5-1167.8 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1193.5-1201.10 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1214.5-1238.8 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1247.5-1261.8 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1266.5-1288.8 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1632.3-1641.6 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1723.5-1736.8 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1739.5-1752.8 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1754.5-1756.8 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1810.5-1811.84 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1814.5-1815.97 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1818.5-1819.102 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1822.5-1823.68 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at ../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1859.5-1870.8 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:410: Warning: Identifier `\GSR' is implicitly declared.
+Successfully finished Verilog frontend.
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Analyzing design hierarchy..
+Top module:  \DSP48E1
+
+2.2. Analyzing design hierarchy..
+Top module:  \DSP48E1
+Removed 0 unused modules.
+
+3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module DSP48E1.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:985$21' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:998$33' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1067$52' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1080$64' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1105$73' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1126$77' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1149$87' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1227$115' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1227$116' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1227$118' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1228$120' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1228$121' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1228$123' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1229$126' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1229$127' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1310$137' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1339$144' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1356$148' in module `DSP48E1' with $logic_not.
+Replacing $pos cell `$extend$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1643$169' (0) in module `\DSP48E1' with constant driver `$extend$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1643$169_Y = 48'000000000000000000000000000000000000000000000000'.
+Replacing $ne cell `$ne$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1686$215' in module `DSP48E1' with $reduce_bool.
+Replacing $ne cell `$ne$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1687$219' in module `DSP48E1' with $reduce_bool.
+Replacing $ne cell `$ne$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1688$225' in module `DSP48E1' with $reduce_bool.
+Replacing $ne cell `$ne$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1689$233' in module `DSP48E1' with $reduce_bool.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1710$240' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1735$245' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1811$263' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1815$270' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1819$277' in module `DSP48E1' with $logic_not.
+Replacing $eq cell `$eq$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1823$284' in module `DSP48E1' with $logic_not.
+Replacing $pos cell `$extend$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1823$286' (0) in module `\DSP48E1' with constant driver `$extend$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1823$286_Y = 48'000000000000000000000000000000000000000000000000'.
+Replacing $shl cell `$shl$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1866$302' (B=1, SHR=-1) in module `DSP48E1' with fixed wiring: { $not$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1866$301_Y [46:0] 1'0 }
+Replacing $shl cell `$shl$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1867$304' (B=2, SHR=-2) in module `DSP48E1' with fixed wiring: { $not$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1867$303_Y [45:0] 2'00 }
+Optimizing away select inverter for $mux cell `$ternary$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1876$310' in module `DSP48E1'.
+Optimizing away select inverter for $mux cell `$ternary$../../../lakeroad-private/DSP48E1/DSP48E1_modified_for_racket_import.v:1877$315' in module `DSP48E1'.
+
+4. Executing Verilog backend.
+
+4.1. Executing BMUXMAP pass.
+
+4.2. Executing DEMUXMAP pass.
+Dumping module `\DSP48E1'.
+Warning: Module DSP48E1 contains unmapped RTLIL processes. RTLIL processes
+can't always be mapped directly to Verilog always blocks. Unintended
+changes in simulation behavior are possible! Use "proc" to convert
+processes to logic networks and registers.
+
+Warnings: 2 unique messages, 2 total
+End of script. Logfile hash: 16d7cd113f, CPU: user 0.10s system 0.01s
+Yosys 0.31+49 (git sha1 e0ba07aed, x86_64-apple-darwin20.2-clang 10.0.0-4ubuntu1 -fPIC -Os)
+Time spent: 56% 2x read_verilog (0 sec), 27% 1x opt_expr (0 sec), ...
