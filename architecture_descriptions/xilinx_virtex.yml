@@ -66,10 +66,18 @@ implementations:
       # PREG must be 1 when OPMODE[1:0] is 10
       "(=> (bveq (extract 1 0 OPMODE) (bv 2 2)) (bveq PREG (bv 1 1)))",
 
+      # OPMODE[3:2] must be 01 when OPMODE[1:0] is 01
+      "(=> (bveq (extract 1 0 OPMODE) (bv 1 2)) (bveq (extract 3 2 OPMODE) (bv 1 2)))",
+      # inverse of the above
+      "(=> (bveq (extract 3 2 OPMODE) (bv 1 2)) (bveq (extract 1 0 OPMODE) (bv 1 2)))",
+
       #PREG must be 1 when CARRYINSEL is 100, 101, 111
       "(=> (bveq CARRYINSEL (bv 2 3)) (bveq PREG (bv 1 1)))",
       "(=> (bveq CARRYINSEL (bv 4 3)) (bveq PREG (bv 1 1)))",
       "(=> (bveq CARRYINSEL (bv 6 3)) (bveq PREG (bv 1 1)))",
+
+      # It is recommended CARRYINSELREG and OPMODEREG are set to the same value
+      "(bveq CARRYINSELREG OPMODEREG)",
 
       #ACASCREG/BCASCREG must be equal to AREG/BREG when AREG/BREG is 0, 1
       # See https://docs.amd.com/v/u/en-US/ug479_7Series_DSP48E1.pdf, Table 2-3
