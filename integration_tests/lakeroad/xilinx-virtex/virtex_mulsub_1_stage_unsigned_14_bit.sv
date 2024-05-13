@@ -35,7 +35,6 @@
 //     --input_signal a:14 \
 //     --input_signal b:14 \
 //     --input_signal c:14 \
-//     --input_signal d:14 \
 //     --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 //     --verilator_extra_arg='-DXIL_XECLIB' \
 //     --verilator_extra_arg='-Wno-UNOPTFLAT' \
