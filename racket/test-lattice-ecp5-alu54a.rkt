@@ -696,10 +696,8 @@
                                                   c-input))))))
 
 (test-case "get an input on the second cycle and return it on the third"
-
   (define-symbolic input (bitvector 54))
   (define-symbolic opcode (bitvector 11))
-
   (define o0
     (helper '()
             ;;; A
@@ -724,7 +722,6 @@
             (bv 0 36)
             ;;; RST
             (bv #b0000 4)))
-
   (define o1
     (helper (signal-state (cdr (assoc 'R0 o0)))
             ;;; A
@@ -749,7 +746,6 @@
             (bv 0 36)
             ;;; RST
             (bv #b0000 4)))
-
   (define o2
     (helper (signal-state (cdr (assoc 'R0 o1)))
             ;;; A
@@ -846,7 +842,6 @@
             (bv 0 36)
             ;;; RST
             (bv #b0000 4)))
-
   (check-true (sat? (synthesize #:forall (list input)
                                 #:guarantee (assert (bveq (concat (signal-value (assoc-ref o5 'R53))
                                                                   (signal-value (assoc-ref o5 'R52))

@@ -435,10 +435,10 @@
     (hash-set! netnames name net-details)))
 
 (define (get-net-details netnames net-name)
-  (hash-ref
-   netnames
-   (as-symbol net-name)
-   (lambda () (error (format "Netnames ~a does not contain net-name ~a" netnames net-name)))))
+  (hash-ref netnames
+            (as-symbol net-name)
+            (lambda ()
+              (error (format "Netnames ~a does not contain net-name ~a" netnames net-name)))))
 
 (define (get-net-details-from-module-in-doc doc mod-name net-name)
   (get-cell (hash-ref (get-module-from-doc doc mod-name) 'netnames) net-name))

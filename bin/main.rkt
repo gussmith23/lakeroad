@@ -370,8 +370,7 @@
     ["intel-cyclone10lp"
      (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
            (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
-    ["xilinx-virtex"
-     (list (cons (cons "DSP48E1" "unused") xilinx-virtex-dsp48e1))]
+    ["xilinx-virtex" (list (cons (cons "DSP48E1" "unused") xilinx-virtex-dsp48e1))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
