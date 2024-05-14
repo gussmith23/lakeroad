@@ -100,8 +100,8 @@
                  [(lr:hw-module-instance module-name ports params _)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
-                         [input-port-symbols (map string->symbol
-                                                  (map module-instance-port-name input-ports))]
+                         [input-port-symbols
+                          (map string->symbol (map module-instance-port-name input-ports))]
                          ;;; Pairs of input symbol with compiled expression.
                          [input-pairs (map (λ (p)
                                              (cons (string->symbol (module-instance-port-name p))
@@ -109,8 +109,8 @@
                                            input-ports)]
                          [output-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'output)) ports)]
-                         [output-port-symbols (map string->symbol
-                                                   (map module-instance-port-name output-ports))]
+                         [output-port-symbols
+                          (map string->symbol (map module-instance-port-name output-ports))]
                          ;;; Pairs of output symbol with allocated bit ids.
                          [output-pairs
                           (map (λ (p)
@@ -246,8 +246,8 @@
                               [(and (equal? module-name "CARRY8")
                                     (equal? (module-instance-parameter-name param) "CARRY_TYPE"))
                                (match (bitvector->natural
-                                       (signal-value (lr:bv-v (module-instance-parameter-value
-                                                               param))))
+                                       (signal-value
+                                        (lr:bv-v (module-instance-parameter-value param))))
                                  [0 "SINGLE_CY8"]
                                  [1 "DUAL_CY4"]
                                  [_
@@ -277,13 +277,13 @@
                                     (member (module-instance-parameter-name param)
                                             (list "A_INPUT"
                                                   "B_INPUT"
-                                                   "USE_DPORT"
-                                                   "USE_MULT"
-                                                   "USE_SIMD"
-                                                   "AUTORESET_PATDET"
-                                                   "SEL_MASK"
-                                                   "SEL_PATTERN"
-                                                   "USE_PATTERN_DETECT")))
+                                                  "USE_DPORT"
+                                                  "USE_MULT"
+                                                  "USE_SIMD"
+                                                  "AUTORESET_PATDET"
+                                                  "SEL_MASK"
+                                                  "SEL_PATTERN"
+                                                  "USE_PATTERN_DETECT")))
                                (dsp48e1-enum-val-to-str (module-instance-parameter-value param))]
                               [(and (or (equal? module-name "MULT18X18C")
                                         (equal? module-name "MULT18X18D")
@@ -431,14 +431,14 @@
                               ;;; Here, we allow for overrides on parameter compilation. This is
                               ;;; because we've had to manually convert string parameters to
                               ;;; bitvectors, and so we need to convert them back for some modules.
-                              (or (compile-parameter-override module-name p)
-                                  (match (module-instance-parameter-value p)
-                                    [(lr:bv (signal v _)) (make-literal-value-from-bv v)]
-                                    ;;; TODO(@gussmith23): This is hardcoded; we should write a little
-                                    ;;; compiler here.
-                                    [(lr:zero-extend (lr:bv (signal v _))
-                                                     (lr:bitvector (bitvector w)))
-                                     (make-literal-value-from-bv (zero-extend v (bitvector w)))]))))
+                              (or
+                               (compile-parameter-override module-name p)
+                               (match (module-instance-parameter-value p)
+                                 [(lr:bv (signal v _)) (make-literal-value-from-bv v)]
+                                 ;;; TODO(@gussmith23): This is hardcoded; we should write a little
+                                 ;;; compiler here.
+                                 [(lr:zero-extend (lr:bv (signal v _)) (lr:bitvector (bitvector w)))
+                                  (make-literal-value-from-bv (zero-extend v (bitvector w)))]))))
                            params)]
                          ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
                          ;;; parameters. We will need to figure out a way around this hack especially
@@ -448,11 +448,11 @@
                                                   (list (cons 'INJECT1_0 "NO")
                                                         (cons 'INJECT1_1 "NO")))
                                           param-pairs)]
-                         [cell (make-cell module-name
-                                          (make-cell-port-directions input-port-symbols
-                                                                     output-port-symbols)
-                                          (make-immutable-hash (append input-pairs output-pairs))
-                                          #:params (make-immutable-hash param-pairs))])
+                         [cell (make-cell
+                                module-name
+                                (make-cell-port-directions input-port-symbols output-port-symbols)
+                                (make-immutable-hash (append input-pairs output-pairs))
+                                #:params (make-immutable-hash param-pairs))])
 
                     (add-cell (string->symbol module-name) cell)
 
@@ -556,8 +556,9 @@
   ;;;             (define module (hash-ref modules 'top))
   ;;;             (check-equal? (hash-count (hash-ref module 'ports)) 5))
 
-  (test-case "test"
-    (define out (lakeroad->jsexpr (lr:bv (bv->signal (bv #b000111 6)))))
-    (check-equal?
-     (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
-     (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output")))))
+  (test-case
+   "test"
+   (define out (lakeroad->jsexpr (lr:bv (bv->signal (bv #b000111 6)))))
+   (check-equal?
+    (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
+    (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output")))))
