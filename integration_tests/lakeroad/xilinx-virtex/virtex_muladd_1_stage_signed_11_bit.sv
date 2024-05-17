@@ -16,6 +16,7 @@
 // RUN:  --extra-cycles 3 \
 // RUN:  --timeout 120 \
 // RUN: > $outfile
+// RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \

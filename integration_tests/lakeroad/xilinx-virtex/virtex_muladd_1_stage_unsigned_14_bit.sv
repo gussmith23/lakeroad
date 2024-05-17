@@ -7,7 +7,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal out:14 \
-// RUN:  --initiation-interval 3 \
+// RUN:  --initiation-interval 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:14 \
@@ -18,6 +18,7 @@
 // RUN:  || true) \
 // RUN:  > $outfile \
 // RUN:  2>&1
+// RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
