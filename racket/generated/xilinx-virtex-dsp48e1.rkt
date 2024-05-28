@@ -1,6 +1,6 @@
 #lang racket/base
 (provide xilinx-virtex-dsp48e1)
-(require "../signal.rkt")
+(require (file "/Users/vishalc/files/CS/research/lakeroad/racket/signal.rkt"))
 (require rosette)
 (define xilinx-virtex-dsp48e1
   (λ (#:A
@@ -152,201 +152,201 @@
             (append
              (list
               (cons
-               (string->symbol (string-append name "state784"))
+               (string->symbol (string-append name "state885"))
                (bv 0 (bitvector 1))))
              (append
               (list
                (cons
-                (string->symbol (string-append name "state782"))
+                (string->symbol (string-append name "state859"))
                 (bv 0 (bitvector 1))))
               (append
                (list
                 (cons
-                 (string->symbol (string-append name "state762"))
+                 (string->symbol (string-append name "state857"))
                  (bv 0 (bitvector 48))))
                (append
                 (list
                  (cons
-                  (string->symbol (string-append name "state760"))
+                  (string->symbol (string-append name "state855"))
                   (bv 0 (bitvector 48))))
                 (append
                  (list
                   (cons
-                   (string->symbol (string-append name "state749"))
+                   (string->symbol (string-append name "state807"))
                    (bv 0 (bitvector 1))))
                  (append
                   (list
                    (cons
-                    (string->symbol (string-append name "state747"))
+                    (string->symbol (string-append name "state801"))
                     (bv 0 (bitvector 1))))
                   (append
                    (list
                     (cons
-                     (string->symbol (string-append name "state742"))
+                     (string->symbol (string-append name "state797"))
                      (bv 0 (bitvector 1))))
                    (append
                     (list
                      (cons
-                      (string->symbol (string-append name "state740"))
+                      (string->symbol (string-append name "state787"))
                       (bv 0 (bitvector 1))))
                     (append
                      (list
                       (cons
-                       (string->symbol (string-append name "state737"))
-                       (bv 0 (bitvector 1))))
+                       (string->symbol (string-append name "state741"))
+                       (bv 0 (bitvector 4))))
                      (append
                       (list
                        (cons
-                        (string->symbol (string-append name "state735"))
-                        (bv 0 (bitvector 1))))
+                        (string->symbol (string-append name "state739"))
+                        (bv 0 (bitvector 4))))
                       (append
                        (list
                         (cons
-                         (string->symbol (string-append name "state726"))
+                         (string->symbol (string-append name "state690"))
                          (bv 0 (bitvector 1))))
                        (append
                         (list
                          (cons
-                          (string->symbol (string-append name "state724"))
+                          (string->symbol (string-append name "state669"))
                           (bv 0 (bitvector 1))))
                         (append
                          (list
                           (cons
-                           (string->symbol (string-append name "state679"))
-                           (bv 0 (bitvector 4))))
+                           (string->symbol (string-append name "state667"))
+                           (bv 0 (bitvector 1))))
                          (append
                           (list
                            (cons
-                            (string->symbol (string-append name "state677"))
-                            (bv 0 (bitvector 4))))
+                            (string->symbol (string-append name "state659"))
+                            (bv 0 (bitvector 1))))
                           (append
                            (list
                             (cons
-                             (string->symbol (string-append name "state629"))
+                             (string->symbol (string-append name "state607"))
                              (bv 0 (bitvector 1))))
                            (append
                             (list
                              (cons
-                              (string->symbol (string-append name "state627"))
-                              (bv 0 (bitvector 1))))
+                              (string->symbol (string-append name "state605"))
+                              (bv 0 (bitvector 4))))
                             (append
                              (list
                               (cons
-                               (string->symbol (string-append name "state614"))
-                               (bv 0 (bitvector 1))))
+                               (string->symbol (string-append name "state597"))
+                               (bv 0 (bitvector 4))))
                              (append
                               (list
                                (cons
                                 (string->symbol
-                                 (string-append name "state612"))
-                                (bv 0 (bitvector 1))))
+                                 (string-append name "state481"))
+                                (bv 0 (bitvector 48))))
                               (append
                                (list
                                 (cons
                                  (string->symbol
-                                  (string-append name "state564"))
-                                 (bv 0 (bitvector 4))))
+                                  (string-append name "state405"))
+                                 (bv 0 (bitvector 48))))
                                (append
                                 (list
                                  (cons
                                   (string->symbol
-                                   (string-append name "state562"))
-                                  (bv 0 (bitvector 4))))
+                                   (string-append name "state390"))
+                                  (bv 0 (bitvector 1))))
                                 (append
                                  (list
                                   (cons
                                    (string->symbol
-                                    (string-append name "state491"))
-                                   (bv 0 (bitvector 48))))
+                                    (string-append name "state388"))
+                                   (bv 0 (bitvector 7))))
                                  (append
                                   (list
                                    (cons
                                     (string->symbol
-                                     (string-append name "state489"))
-                                    (bv 0 (bitvector 48))))
+                                     (string-append name "state380"))
+                                    (bv 0 (bitvector 7))))
                                   (append
                                    (list
                                     (cons
                                      (string->symbol
-                                      (string-append name "state391"))
-                                     (bv 0 (bitvector 7))))
+                                      (string-append name "state351"))
+                                     (bv 0 (bitvector 1))))
                                    (append
                                     (list
                                      (cons
                                       (string->symbol
-                                       (string-append name "state389"))
-                                      (bv 0 (bitvector 7))))
+                                       (string-append name "state349"))
+                                      (bv 0 (bitvector 3))))
                                     (append
                                      (list
                                       (cons
                                        (string->symbol
-                                        (string-append name "state361"))
+                                        (string-append name "state342"))
                                        (bv 0 (bitvector 3))))
                                      (append
                                       (list
                                        (cons
                                         (string->symbol
-                                         (string-append name "state359"))
-                                        (bv 0 (bitvector 3))))
+                                         (string-append name "state334"))
+                                        (bv 0 (bitvector 43))))
                                       (append
                                        (list
                                         (cons
                                          (string->symbol
-                                          (string-append name "state352"))
-                                         (bv 0 (bitvector 43))))
+                                          (string-append name "state197"))
+                                         (bv 0 (bitvector 25))))
                                        (append
                                         (list
                                          (cons
                                           (string->symbol
-                                           (string-append name "state350"))
-                                          (bv 0 (bitvector 43))))
+                                           (string-append name "state180"))
+                                          (bv 0 (bitvector 25))))
                                         (append
                                          (list
                                           (cons
                                            (string->symbol
-                                            (string-append name "state207"))
-                                           (bv 0 (bitvector 25))))
+                                            (string-append name "state165"))
+                                           (bv 0 (bitvector 5))))
                                          (append
                                           (list
                                            (cons
                                             (string->symbol
-                                             (string-append name "state205"))
-                                            (bv 0 (bitvector 25))))
+                                             (string-append name "state151"))
+                                            (bv 0 (bitvector 1))))
                                           (append
                                            (list
                                             (cons
                                              (string->symbol
-                                              (string-append name "state199"))
-                                             (bv 0 (bitvector 25))))
+                                              (string-append name "state149"))
+                                             (bv 0 (bitvector 1))))
                                            (append
                                             (list
                                              (cons
                                               (string->symbol
-                                               (string-append name "state197"))
-                                              (bv 0 (bitvector 25))))
+                                               (string-append name "state140"))
+                                              (bv 0 (bitvector 18))))
                                             (append
                                              (list
                                               (cons
                                                (string->symbol
                                                 (string-append
                                                  name
-                                                 "state186"))
-                                               (bv 0 (bitvector 5))))
+                                                 "state127"))
+                                               (bv 0 (bitvector 18))))
                                              (append
                                               (list
                                                (cons
                                                 (string->symbol
                                                  (string-append
                                                   name
-                                                  "state184"))
-                                                (bv 0 (bitvector 5))))
+                                                  "state111"))
+                                                (bv 0 (bitvector 30))))
                                               (append
                                                (list
                                                 (cons
                                                  (string->symbol
                                                   (string-append
                                                    name
-                                                   "state169"))
+                                                   "state92"))
                                                  (bv 1 (bitvector 1))))
                                                (append
                                                 (list
@@ -354,97 +354,9 @@
                                                   (string->symbol
                                                    (string-append
                                                     name
-                                                    "state166"))
-                                                  (bv 0 (bitvector 1))))
-                                                (append
-                                                 (list
-                                                  (cons
-                                                   (string->symbol
-                                                    (string-append
-                                                     name
-                                                     "state164"))
-                                                   (bv 0 (bitvector 1))))
-                                                 (append
-                                                  (list
-                                                   (cons
-                                                    (string->symbol
-                                                     (string-append
-                                                      name
-                                                      "state155"))
-                                                    (bv 0 (bitvector 18))))
-                                                  (append
-                                                   (list
-                                                    (cons
-                                                     (string->symbol
-                                                      (string-append
-                                                       name
-                                                       "state153"))
-                                                     (bv 0 (bitvector 18))))
-                                                   (append
-                                                    (list
-                                                     (cons
-                                                      (string->symbol
-                                                       (string-append
-                                                        name
-                                                        "state129"))
-                                                      (bv 0 (bitvector 18))))
-                                                    (append
-                                                     (list
-                                                      (cons
-                                                       (string->symbol
-                                                        (string-append
-                                                         name
-                                                         "state127"))
-                                                       (bv 0 (bitvector 18))))
-                                                     (append
-                                                      (list
-                                                       (cons
-                                                        (string->symbol
-                                                         (string-append
-                                                          name
-                                                          "state118"))
-                                                        (bv 0 (bitvector 30))))
-                                                      (append
-                                                       (list
-                                                        (cons
-                                                         (string->symbol
-                                                          (string-append
-                                                           name
-                                                           "state116"))
-                                                         (bv
-                                                          0
-                                                          (bitvector 30))))
-                                                       (append
-                                                        (list
-                                                         (cons
-                                                          (string->symbol
-                                                           (string-append
-                                                            name
-                                                            "state85"))
-                                                          (bv
-                                                           1
-                                                           (bitvector 1))))
-                                                        (append
-                                                         (list
-                                                          (cons
-                                                           (string->symbol
-                                                            (string-append
-                                                             name
-                                                             "state82"))
-                                                           (bv
-                                                            0
-                                                            (bitvector 30))))
-                                                         (append
-                                                          (list
-                                                           (cons
-                                                            (string->symbol
-                                                             (string-append
-                                                              name
-                                                              "state80"))
-                                                            (bv
-                                                             0
-                                                             (bitvector 30))))
-                                                          (list))))))))))))))))))))))))))))))))))))))))))))))))
+                                                    "state89"))
+                                                  (bv 0 (bitvector 30))))
+                                                (list))))))))))))))))))))))))))))))))))))))
            (btor1 (bitvector 30))
            (btor2 A)
            (merged-input-state-hash
@@ -677,78 +589,103 @@
            (btor78 USE_SIMD)
            (merged-input-state-hash
             (merge-states merged-input-state-hash (signal-state USE_SIMD)))
-           (btor79 (bv->signal (bv 0 (bitvector 30))))
+           (btor79 (bv->signal (bv 8 (bitvector 4))))
            (btor80
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state80")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state80"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state80")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state80")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 30))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor82
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state82")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state82"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state82")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state82")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 30))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor84 (bv->signal (bv 1 (bitvector 1))))
+            (bv->signal
+             (zero-extend (signal-value btor79) (bitvector 5))
+             btor79))
+           (btor81
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor13) (signal-value btor80)))
+             (list)))
+           (btor82 (if (bitvector->bool (signal-value btor81)) btor5 btor2))
+           (btor83 (bv->signal (bv 1 (bitvector 1))))
+           (btor84
+            (bv->signal
+             (zero-extend (signal-value btor83) (bitvector 5))
+             btor83))
            (btor85
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor13) (signal-value btor84)))
+             (list)))
+           (btor86 (if (bitvector->bool (signal-value btor85)) btor2 btor82))
+           (btor87
             (let* ((state-value
                     (cond
                      ((assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state85")))
+                       (string->symbol (string-append name "state87")))
                       (bv->signal
                        (car
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state85"))))))
+                         (string->symbol (string-append name "state87"))))))
                      ((assoc-has-key?
                        init-hash
-                       (string->symbol (string-append name "state85")))
+                       (string->symbol (string-append name "state87")))
                       (bv->signal
                        (assoc-ref
                         init-hash
-                        (string->symbol (string-append name "state85")))))
+                        (string->symbol (string-append name "state87")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 30))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor88 (bv->signal (bv 0 (bitvector 30))))
+           (btor89
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state89")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state89"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state89")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state89")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 30))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor91
+            (signal
+             (bvxor (signal-value btor42) (signal-value btor51))
+             (list)))
+           (btor92
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state92")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state92"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state92")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state92")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -757,160 +694,169 @@
                           (bv 0 1))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-           (btor87 (bitvector 2))
-           (btor88
+           (btor94 (bitvector 2))
+           (btor95
             (signal
-             (concat (signal-value btor85) (signal-value btor42))
+             (concat (signal-value btor92) (signal-value btor91))
              (list)))
-           (btor89
-            (bv->signal
-             (zero-extend (signal-value btor84) (bitvector 2))
-             btor84))
-           (btor90
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor88) (signal-value btor89)))
-             (list)))
-           (btor91 (if (bitvector->bool (signal-value btor90)) btor82 btor80))
-           (btor92 (bv->signal (bv 1 (bitvector 2))))
-           (btor93
-            (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
-           (btor94
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor10) (signal-value btor93)))
-             (list)))
-           (btor95 (bv->signal (bv 2 (bitvector 3))))
            (btor96
             (bv->signal
-             (sign-extend (signal-value btor95) (bitvector 32))
-             btor95))
+             (zero-extend (signal-value btor83) (bitvector 2))
+             btor83))
            (btor97
             (signal
              (bool->bitvector
-              (bveq (signal-value btor10) (signal-value btor96)))
+              (bveq (signal-value btor95) (signal-value btor96)))
              (list)))
-           (btor98
-            (signal (bvor (signal-value btor94) (signal-value btor97)) (list)))
-           (btor99 (if (bitvector->bool (signal-value btor98)) btor91 btor79))
-           (btor100 (bv->signal (bv 8 (bitvector 4))))
-           (btor101
+           (btor98 (if (bitvector->bool (signal-value btor97)) btor89 btor87))
+           (btor99 (bv->signal (bv 1 (bitvector 2))))
+           (btor100
             (bv->signal
-             (zero-extend (signal-value btor100) (bitvector 5))
-             btor100))
-           (btor102
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor101
             (signal
              (bool->bitvector
-              (bveq (signal-value btor13) (signal-value btor101)))
+              (bveq (signal-value btor10) (signal-value btor100)))
              (list)))
-           (btor103 (if (bitvector->bool (signal-value btor102)) btor5 btor79))
-           (btor104
+           (btor102 (bv->signal (bv 2 (bitvector 3))))
+           (btor103
             (bv->signal
-             (zero-extend (signal-value btor84) (bitvector 5))
-             btor84))
+             (sign-extend (signal-value btor102) (bitvector 32))
+             btor102))
+           (btor104
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor10) (signal-value btor103)))
+             (list)))
            (btor105
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor13) (signal-value btor104)))
+             (bvor (signal-value btor101) (signal-value btor104))
              (list)))
            (btor106
-            (if (bitvector->bool (signal-value btor105)) btor2 btor103))
+            (if (bitvector->bool (signal-value btor105)) btor98 btor86))
            (btor107
             (signal
              (apply bvor (bitvector->bits (signal-value btor10)))
              (signal-state btor10)))
            (btor108 (signal (bvnot (signal-value btor107)) (list)))
            (btor109
-            (if (bitvector->bool (signal-value btor108)) btor106 btor99))
+            (if (bitvector->bool (signal-value btor108)) btor86 btor106))
            (btor110
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor4)))
-             (signal-state btor4)))
-           (btor111 (signal (bvnot (signal-value btor110)) (list)))
-           (btor112
-            (bv->signal
-             (sign-extend (signal-value btor95) (bitvector 32))
-             btor95))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state110")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state110"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state110")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state110")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 30))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor111
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state111")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state111"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state111")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state111")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 30))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor113
+            (if (bitvector->bool (signal-value btor97)) btor111 btor110))
+           (btor114
+            (if (bitvector->bool (signal-value btor104)) btor113 btor109))
+           (btor115
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor116
             (signal
              (bool->bitvector
-              (bveq (signal-value btor4) (signal-value btor112)))
+              (bveq (signal-value btor4) (signal-value btor115)))
              (list)))
-           (btor114
-            (signal
-             (bvor (signal-value btor111) (signal-value btor113))
-             (list)))
-           (btor115
-            (if (bitvector->bool (signal-value btor114)) btor109 btor79))
-           (btor116
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state116")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state116"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state116")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state116")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 30))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor118
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state118")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state118"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state118")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state118")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 30))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+           (btor117
+            (if (bitvector->bool (signal-value btor116)) btor114 btor109))
+           (btor119
+            (bv->signal
+             (zero-extend (signal-value btor79) (bitvector 5))
+             btor79))
            (btor120
-            (if (bitvector->bool (signal-value btor90)) btor118 btor116))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor19) (signal-value btor119)))
+             (list)))
            (btor121
-            (if (bitvector->bool (signal-value btor97)) btor120 btor109))
+            (if (bitvector->bool (signal-value btor120)) btor17 btor15))
            (btor122
             (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
+             (zero-extend (signal-value btor83) (bitvector 5))
+             btor83))
            (btor123
             (signal
              (bool->bitvector
-              (bveq (signal-value btor4) (signal-value btor122)))
+              (bveq (signal-value btor19) (signal-value btor122)))
              (list)))
            (btor124
-            (if (bitvector->bool (signal-value btor123)) btor121 btor115))
+            (if (bitvector->bool (signal-value btor123)) btor15 btor121))
+           (btor125
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state125")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state125"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state125")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state125")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 18))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor126 (bv->signal (bv 0 (bitvector 18))))
            (btor127
             (let* ((state-value
@@ -939,315 +885,204 @@
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
            (btor129
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state129")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state129"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state129")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state129")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 18))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (if (bitvector->bool (signal-value btor97)) btor127 btor125))
+           (btor130
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
            (btor131
-            (if (bitvector->bool (signal-value btor90)) btor129 btor127))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor18) (signal-value btor130)))
+             (list)))
            (btor132
             (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
+             (sign-extend (signal-value btor102) (bitvector 32))
+             btor102))
            (btor133
             (signal
              (bool->bitvector
               (bveq (signal-value btor18) (signal-value btor132)))
              (list)))
            (btor134
-            (bv->signal
-             (sign-extend (signal-value btor95) (bitvector 32))
-             btor95))
+            (signal
+             (bvor (signal-value btor131) (signal-value btor133))
+             (list)))
            (btor135
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor18) (signal-value btor134)))
-             (list)))
+            (if (bitvector->bool (signal-value btor134)) btor129 btor124))
            (btor136
-            (signal
-             (bvor (signal-value btor133) (signal-value btor135))
-             (list)))
-           (btor137
-            (if (bitvector->bool (signal-value btor136)) btor131 btor126))
-           (btor138
-            (bv->signal
-             (zero-extend (signal-value btor100) (bitvector 5))
-             btor100))
-           (btor139
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor19) (signal-value btor138)))
-             (list)))
-           (btor140
-            (if (bitvector->bool (signal-value btor139)) btor17 btor126))
-           (btor141
-            (bv->signal
-             (zero-extend (signal-value btor84) (bitvector 5))
-             btor84))
-           (btor142
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor19) (signal-value btor141)))
-             (list)))
-           (btor143
-            (if (bitvector->bool (signal-value btor142)) btor15 btor140))
-           (btor144
             (signal
              (apply bvor (bitvector->bits (signal-value btor18)))
              (signal-state btor18)))
-           (btor145 (signal (bvnot (signal-value btor144)) (list)))
+           (btor137 (signal (bvnot (signal-value btor136)) (list)))
+           (btor138
+            (if (bitvector->bool (signal-value btor137)) btor124 btor135))
+           (btor139
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state139")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state139"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state139")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state139")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 18))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor140
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state140")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state140"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state140")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state140")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 18))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor142
+            (if (bitvector->bool (signal-value btor97)) btor140 btor139))
+           (btor143
+            (if (bitvector->bool (signal-value btor133)) btor142 btor138))
+           (btor144
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor145
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor16) (signal-value btor144)))
+             (list)))
            (btor146
-            (if (bitvector->bool (signal-value btor145)) btor143 btor137))
-           (btor147
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor16)))
-             (signal-state btor16)))
-           (btor148 (signal (bvnot (signal-value btor147)) (list)))
+            (if (bitvector->bool (signal-value btor145)) btor143 btor138))
+           (btor148 (bv->signal (bv 0 (bitvector 1))))
            (btor149
-            (bv->signal
-             (sign-extend (signal-value btor95) (bitvector 32))
-             btor95))
-           (btor150
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor16) (signal-value btor149)))
-             (list)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state149")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state149"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state149")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state149")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor151
-            (signal
-             (bvor (signal-value btor148) (signal-value btor150))
-             (list)))
-           (btor152
-            (if (bitvector->bool (signal-value btor151)) btor146 btor126))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state151")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state151"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state151")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state151")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor153
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state153")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state153"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state153")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state153")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 18))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (if (bitvector->bool (signal-value btor97)) btor151 btor149))
+           (btor154
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
            (btor155
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state155")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state155"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state155")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state155")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 18))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor157
-            (if (bitvector->bool (signal-value btor90)) btor155 btor153))
-           (btor158
-            (if (bitvector->bool (signal-value btor135)) btor157 btor146))
-           (btor159
-            (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor62) (signal-value btor154)))
+             (list)))
+           (btor156
+            (if (bitvector->bool (signal-value btor155)) btor153 btor148))
+           (btor157 (bitvector 13))
+           (btor158 (bv->signal (bv 0 (bitvector 48))))
+           (btor159 (bitvector 43))
            (btor160
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor16) (signal-value btor159)))
-             (list)))
-           (btor161
-            (if (bitvector->bool (signal-value btor160)) btor158 btor152))
-           (btor163 (bv->signal (bv 0 (bitvector 1))))
-           (btor164
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state164")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state164"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state164")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state164")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor166
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state166")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state166"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state166")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state166")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor168
-            (signal
-             (bvxor (signal-value btor42) (signal-value btor51))
-             (list)))
-           (btor169
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state169")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state169"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state169")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state169")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor171
-            (signal
-             (concat (signal-value btor169) (signal-value btor168))
-             (list)))
-           (btor172
-            (bv->signal
-             (zero-extend (signal-value btor84) (bitvector 2))
-             btor84))
-           (btor173
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor171) (signal-value btor172)))
-             (list)))
-           (btor174
-            (if (bitvector->bool (signal-value btor173)) btor166 btor164))
-           (btor175
-            (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
-           (btor176
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor62) (signal-value btor175)))
-             (list)))
-           (btor177
-            (if (bitvector->bool (signal-value btor176)) btor174 btor163))
-           (btor178 (bitvector 13))
-           (btor179 (bitvector 43))
-           (btor180
             (signal
              (extract 24 0 (signal-value btor109))
              (signal-state btor109)))
-           (btor181
+           (btor161
             (signal
-             (extract 24 0 (signal-value btor120))
-             (signal-state btor120)))
-           (btor182
+             (extract 24 0 (signal-value btor113))
+             (signal-state btor113)))
+           (btor162
             (signal
              (bvxor (signal-value btor47) (signal-value btor52))
              (list)))
-           (btor183 (bv->signal (bv 0 (bitvector 5))))
-           (btor184
+           (btor163
             (let* ((state-value
                     (cond
                      ((assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state184")))
+                       (string->symbol (string-append name "state163")))
                       (bv->signal
                        (car
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state184"))))))
+                         (string->symbol (string-append name "state163"))))))
                      ((assoc-has-key?
                        init-hash
-                       (string->symbol (string-append name "state184")))
+                       (string->symbol (string-append name "state163")))
                       (bv->signal
                        (assoc-ref
                         init-hash
-                        (string->symbol (string-append name "state184")))))
+                        (string->symbol (string-append name "state163")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1256,24 +1091,25 @@
                           (bv 0 5))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-           (btor186
+           (btor164 (bv->signal (bv 0 (bitvector 5))))
+           (btor165
             (let* ((state-value
                     (cond
                      ((assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state186")))
+                       (string->symbol (string-append name "state165")))
                       (bv->signal
                        (car
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state186"))))))
+                         (string->symbol (string-append name "state165"))))))
                      ((assoc-has-key?
                        init-hash
-                       (string->symbol (string-append name "state186")))
+                       (string->symbol (string-append name "state165")))
                       (bv->signal
                        (assoc-ref
                         init-hash
-                        (string->symbol (string-append name "state186")))))
+                        (string->symbol (string-append name "state165")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1282,32 +1118,158 @@
                           (bv 0 5))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-           (btor188
-            (if (bitvector->bool (signal-value btor173)) btor186 btor184))
-           (btor189
+           (btor167
+            (if (bitvector->bool (signal-value btor97)) btor165 btor163))
+           (btor168
             (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
-           (btor190
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor169
             (signal
              (bool->bitvector
-              (bveq (signal-value btor48) (signal-value btor189)))
+              (bveq (signal-value btor48) (signal-value btor168)))
              (list)))
+           (btor170
+            (if (bitvector->bool (signal-value btor169)) btor167 btor162))
+           (btor171
+            (signal
+             (apply bvor (bitvector->bits (signal-value btor48)))
+             (signal-state btor48)))
+           (btor172 (signal (bvnot (signal-value btor171)) (list)))
+           (btor173
+            (if (bitvector->bool (signal-value btor172)) btor162 btor170))
+           (btor174
+            (signal
+             (extract 0 0 (signal-value btor173))
+             (signal-state btor173)))
+           (btor175
+            (if (bitvector->bool (signal-value btor174)) btor161 btor160))
+           (btor176 (bv->signal (bv 0 (bitvector 25))))
+           (btor177
+            (signal
+             (extract 1 1 (signal-value btor173))
+             (signal-state btor173)))
+           (btor178
+            (if (bitvector->bool (signal-value btor177)) btor176 btor175))
+           (btor179
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state179")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state179"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state179")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state179")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 25))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor180
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state180")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state180"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state180")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state180")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 25))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor182
+            (if (bitvector->bool (signal-value btor97)) btor180 btor179))
+           (btor183
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor184
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor46) (signal-value btor183)))
+             (list)))
+           (btor185
+            (if (bitvector->bool (signal-value btor184)) btor182 btor45))
+           (btor186
+            (signal
+             (apply bvor (bitvector->bits (signal-value btor46)))
+             (signal-state btor46)))
+           (btor187 (signal (bvnot (signal-value btor186)) (list)))
+           (btor188
+            (if (bitvector->bool (signal-value btor187)) btor45 btor185))
+           (btor189
+            (signal
+             (extract 2 2 (signal-value btor173))
+             (signal-state btor173)))
+           (btor190
+            (if (bitvector->bool (signal-value btor189)) btor188 btor176))
            (btor191
-            (if (bitvector->bool (signal-value btor190)) btor188 btor182))
-           (btor192
             (signal
-             (extract 0 0 (signal-value btor191))
-             (signal-state btor191)))
+             (bvadd (signal-value btor178) (signal-value btor190))
+             (list)))
+           (btor192 (signal (bvneg (signal-value btor178)) (list)))
            (btor193
-            (if (bitvector->bool (signal-value btor192)) btor181 btor180))
-           (btor194 (bv->signal (bv 0 (bitvector 25))))
-           (btor195
             (signal
-             (extract 1 1 (signal-value btor191))
-             (signal-state btor191)))
+             (bvadd (signal-value btor192) (signal-value btor190))
+             (list)))
+           (btor194
+            (signal
+             (extract 3 3 (signal-value btor173))
+             (signal-state btor173)))
+           (btor195
+            (if (bitvector->bool (signal-value btor194)) btor193 btor191))
            (btor196
-            (if (bitvector->bool (signal-value btor195)) btor194 btor193))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state196")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state196"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state196")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state196")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 25))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor197
             (let* ((state-value
                     (cond
@@ -1335,579 +1297,471 @@
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
            (btor199
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state199")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state199"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state199")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state199")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 25))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor201
-            (if (bitvector->bool (signal-value btor173)) btor199 btor197))
-           (btor202
+            (if (bitvector->bool (signal-value btor97)) btor197 btor196))
+           (btor200
             (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
-           (btor203
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor201
             (signal
              (bool->bitvector
-              (bveq (signal-value btor6) (signal-value btor202)))
+              (bveq (signal-value btor6) (signal-value btor200)))
              (list)))
-           (btor204
-            (if (bitvector->bool (signal-value btor203)) btor201 btor194))
-           (btor205
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state205")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state205"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state205")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state205")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 25))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor207
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state207")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state207"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state207")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state207")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 25))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor209
-            (if (bitvector->bool (signal-value btor173)) btor207 btor205))
-           (btor210
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor46)))
-             (signal-state btor46)))
-           (btor211 (signal (bvnot (signal-value btor210)) (list)))
-           (btor212
-            (if (bitvector->bool (signal-value btor211)) btor45 btor209))
-           (btor213
-            (signal
-             (extract 2 2 (signal-value btor191))
-             (signal-state btor191)))
-           (btor214
-            (if (bitvector->bool (signal-value btor213)) btor212 btor194))
-           (btor215
-            (signal
-             (bvadd (signal-value btor196) (signal-value btor214))
-             (list)))
-           (btor216 (signal (bvneg (signal-value btor196)) (list)))
-           (btor217
-            (signal
-             (bvadd (signal-value btor216) (signal-value btor214))
-             (list)))
-           (btor218
-            (signal
-             (extract 3 3 (signal-value btor191))
-             (signal-state btor191)))
-           (btor219
-            (if (bitvector->bool (signal-value btor218)) btor217 btor215))
-           (btor220
+           (btor202
+            (if (bitvector->bool (signal-value btor201)) btor199 btor195))
+           (btor203
             (signal
              (apply bvor (bitvector->bits (signal-value btor6)))
              (signal-state btor6)))
-           (btor221 (signal (bvnot (signal-value btor220)) (list)))
-           (btor222
-            (if (bitvector->bool (signal-value btor221)) btor219 btor204))
-           (btor223 (bv->signal (bv 9 (bitvector 4))))
-           (btor224
+           (btor204 (signal (bvnot (signal-value btor203)) (list)))
+           (btor205
+            (if (bitvector->bool (signal-value btor204)) btor195 btor202))
+           (btor206 (bv->signal (bv 9 (bitvector 4))))
+           (btor207
             (bv->signal
-             (zero-extend (signal-value btor223) (bitvector 5))
-             btor223))
-           (btor225
+             (zero-extend (signal-value btor206) (bitvector 5))
+             btor206))
+           (btor208
             (signal
              (bool->bitvector
-              (bveq (signal-value btor75) (signal-value btor224)))
+              (bveq (signal-value btor75) (signal-value btor207)))
              (list)))
+           (btor209
+            (if (bitvector->bool (signal-value btor208)) btor205 btor178))
+           (btor210
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor211 (bitvector 26))
+           (btor212
+            (signal
+             (concat (signal-value btor210) (signal-value btor209))
+             (list)))
+           (btor213
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor214 (bitvector 27))
+           (btor215
+            (signal
+             (concat (signal-value btor213) (signal-value btor212))
+             (list)))
+           (btor216
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor217 (bitvector 28))
+           (btor218
+            (signal
+             (concat (signal-value btor216) (signal-value btor215))
+             (list)))
+           (btor219
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor220 (bitvector 29))
+           (btor221
+            (signal
+             (concat (signal-value btor219) (signal-value btor218))
+             (list)))
+           (btor222
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor223
+            (signal
+             (concat (signal-value btor222) (signal-value btor221))
+             (list)))
+           (btor224
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor225 (bitvector 31))
            (btor226
-            (if (bitvector->bool (signal-value btor225)) btor222 btor196))
+            (signal
+             (concat (signal-value btor224) (signal-value btor223))
+             (list)))
            (btor227
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor228 (bitvector 26))
-           (btor229
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor228
             (signal
              (concat (signal-value btor227) (signal-value btor226))
              (list)))
-           (btor230
+           (btor229
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor231 (bitvector 27))
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor230 (bitvector 33))
+           (btor231
+            (signal
+             (concat (signal-value btor229) (signal-value btor228))
+             (list)))
            (btor232
             (signal
-             (concat (signal-value btor230) (signal-value btor229))
-             (list)))
-           (btor233
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor233 (bitvector 34))
+           (btor234
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor234 (bitvector 28))
+             (concat (signal-value btor232) (signal-value btor231))
+             (list)))
            (btor235
             (signal
-             (concat (signal-value btor233) (signal-value btor232))
-             (list)))
-           (btor236
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor236 (bitvector 35))
+           (btor237
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor237 (bitvector 29))
+             (concat (signal-value btor235) (signal-value btor234))
+             (list)))
            (btor238
             (signal
-             (concat (signal-value btor236) (signal-value btor235))
-             (list)))
-           (btor239
-            (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor239 (bitvector 36))
            (btor240
             (signal
-             (concat (signal-value btor239) (signal-value btor238))
+             (concat (signal-value btor238) (signal-value btor237))
              (list)))
            (btor241
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor242 (bitvector 31))
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor242 (bitvector 37))
            (btor243
             (signal
              (concat (signal-value btor241) (signal-value btor240))
              (list)))
            (btor244
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor245
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor245 (bitvector 38))
+           (btor246
             (signal
              (concat (signal-value btor244) (signal-value btor243))
              (list)))
-           (btor246
+           (btor247
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor247 (bitvector 33))
-           (btor248
-            (signal
-             (concat (signal-value btor246) (signal-value btor245))
-             (list)))
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor248 (bitvector 39))
            (btor249
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor250 (bitvector 34))
-           (btor251
-            (signal
-             (concat (signal-value btor249) (signal-value btor248))
+             (concat (signal-value btor247) (signal-value btor246))
              (list)))
+           (btor250
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor251 (bitvector 40))
            (btor252
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor253 (bitvector 35))
-           (btor254
-            (signal
-             (concat (signal-value btor252) (signal-value btor251))
+             (concat (signal-value btor250) (signal-value btor249))
              (list)))
+           (btor253
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor254 (bitvector 41))
            (btor255
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor256 (bitvector 36))
-           (btor257
-            (signal
-             (concat (signal-value btor255) (signal-value btor254))
+             (concat (signal-value btor253) (signal-value btor252))
              (list)))
+           (btor256
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
+           (btor257 (bitvector 42))
            (btor258
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor259 (bitvector 37))
+             (concat (signal-value btor256) (signal-value btor255))
+             (list)))
+           (btor259
+            (signal
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
            (btor260
             (signal
-             (concat (signal-value btor258) (signal-value btor257))
+             (concat (signal-value btor259) (signal-value btor258))
              (list)))
            (btor261
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor262 (bitvector 38))
+             (extract 4 4 (signal-value btor173))
+             (signal-state btor173)))
+           (btor262
+            (if (bitvector->bool (signal-value btor261)) btor142 btor138))
            (btor263
             (signal
-             (concat (signal-value btor261) (signal-value btor260))
-             (list)))
-           (btor264
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor264 (bitvector 19))
+           (btor265
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor265 (bitvector 39))
+             (concat (signal-value btor263) (signal-value btor262))
+             (list)))
            (btor266
             (signal
-             (concat (signal-value btor264) (signal-value btor263))
-             (list)))
-           (btor267
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor267 (bitvector 20))
+           (btor268
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor268 (bitvector 40))
+             (concat (signal-value btor266) (signal-value btor265))
+             (list)))
            (btor269
             (signal
-             (concat (signal-value btor267) (signal-value btor266))
-             (list)))
-           (btor270
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor270 (bitvector 21))
+           (btor271
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor271 (bitvector 41))
+             (concat (signal-value btor269) (signal-value btor268))
+             (list)))
            (btor272
             (signal
-             (concat (signal-value btor270) (signal-value btor269))
-             (list)))
-           (btor273
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor273 (bitvector 22))
+           (btor274
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
-           (btor274 (bitvector 42))
+             (concat (signal-value btor272) (signal-value btor271))
+             (list)))
            (btor275
             (signal
-             (concat (signal-value btor273) (signal-value btor272))
-             (list)))
-           (btor276
-            (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor276 (bitvector 23))
            (btor277
             (signal
-             (concat (signal-value btor276) (signal-value btor275))
+             (concat (signal-value btor275) (signal-value btor274))
              (list)))
            (btor278
             (signal
-             (extract 4 4 (signal-value btor191))
-             (signal-state btor191)))
-           (btor279
-            (if (bitvector->bool (signal-value btor278)) btor157 btor146))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor279 (bitvector 24))
            (btor280
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor281 (bitvector 19))
+             (concat (signal-value btor278) (signal-value btor277))
+             (list)))
+           (btor281
+            (signal
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor282
             (signal
-             (concat (signal-value btor280) (signal-value btor279))
+             (concat (signal-value btor281) (signal-value btor280))
              (list)))
            (btor283
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor284 (bitvector 20))
-           (btor285
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor284
             (signal
              (concat (signal-value btor283) (signal-value btor282))
              (list)))
+           (btor285
+            (signal
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor286
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor287 (bitvector 21))
+             (concat (signal-value btor285) (signal-value btor284))
+             (list)))
+           (btor287
+            (signal
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor288
             (signal
-             (concat (signal-value btor286) (signal-value btor285))
+             (concat (signal-value btor287) (signal-value btor286))
              (list)))
            (btor289
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor290 (bitvector 22))
-           (btor291
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor290
             (signal
              (concat (signal-value btor289) (signal-value btor288))
              (list)))
+           (btor291
+            (signal
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor292
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor293 (bitvector 23))
+             (concat (signal-value btor291) (signal-value btor290))
+             (list)))
+           (btor293
+            (signal
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor294
             (signal
-             (concat (signal-value btor292) (signal-value btor291))
+             (concat (signal-value btor293) (signal-value btor292))
              (list)))
            (btor295
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor296 (bitvector 24))
-           (btor297
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
+           (btor296
             (signal
              (concat (signal-value btor295) (signal-value btor294))
              (list)))
+           (btor297
+            (signal
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor298
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor297) (signal-value btor296))
+             (list)))
            (btor299
             (signal
-             (concat (signal-value btor298) (signal-value btor297))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor300
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor299) (signal-value btor298))
+             (list)))
            (btor301
             (signal
-             (concat (signal-value btor300) (signal-value btor299))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor302
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor301) (signal-value btor300))
+             (list)))
            (btor303
             (signal
-             (concat (signal-value btor302) (signal-value btor301))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor304
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor303) (signal-value btor302))
+             (list)))
            (btor305
             (signal
-             (concat (signal-value btor304) (signal-value btor303))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor306
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor305) (signal-value btor304))
+             (list)))
            (btor307
             (signal
-             (concat (signal-value btor306) (signal-value btor305))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor308
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor307) (signal-value btor306))
+             (list)))
            (btor309
             (signal
-             (concat (signal-value btor308) (signal-value btor307))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor310
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor309) (signal-value btor308))
+             (list)))
            (btor311
             (signal
-             (concat (signal-value btor310) (signal-value btor309))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor312
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor311) (signal-value btor310))
+             (list)))
            (btor313
             (signal
-             (concat (signal-value btor312) (signal-value btor311))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor314
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor313) (signal-value btor312))
+             (list)))
            (btor315
             (signal
-             (concat (signal-value btor314) (signal-value btor313))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor316
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor315) (signal-value btor314))
+             (list)))
            (btor317
             (signal
-             (concat (signal-value btor316) (signal-value btor315))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor318
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (concat (signal-value btor317) (signal-value btor316))
+             (list)))
            (btor319
             (signal
-             (concat (signal-value btor318) (signal-value btor317))
+             (bvmul (signal-value btor260) (signal-value btor318))
              (list)))
-           (btor320
-            (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor321
-            (signal
-             (concat (signal-value btor320) (signal-value btor319))
-             (list)))
+           (btor320 (bv->signal (bv 0 (bitvector 43))))
+           (btor321 (bv->signal (bv 2 (bitvector 2))))
            (btor322
-            (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+            (bv->signal
+             (zero-extend (signal-value btor321) (bitvector 3))
+             btor321))
            (btor323
             (signal
-             (concat (signal-value btor322) (signal-value btor321))
+             (bool->bitvector
+              (bveq (signal-value btor27) (signal-value btor322)))
              (list)))
            (btor324
-            (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor325
-            (signal
-             (concat (signal-value btor324) (signal-value btor323))
-             (list)))
+            (if (bitvector->bool (signal-value btor323)) btor320 btor319))
+           (btor325 (bv->signal (bv 11 (bitvector 4))))
            (btor326
-            (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+            (bv->signal
+             (zero-extend (signal-value btor325) (bitvector 5))
+             btor325))
            (btor327
             (signal
-             (concat (signal-value btor326) (signal-value btor325))
+             (bool->bitvector
+              (bveq (signal-value btor76) (signal-value btor326)))
              (list)))
-           (btor328
-            (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+           (btor328 (bv->signal (bv 7 (bitvector 3))))
            (btor329
-            (signal
-             (concat (signal-value btor328) (signal-value btor327))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor328) (bitvector 5))
+             btor328))
            (btor330
-            (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor331
-            (signal
-             (concat (signal-value btor330) (signal-value btor329))
-             (list)))
-           (btor332
-            (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor333
-            (signal
-             (concat (signal-value btor332) (signal-value btor331))
-             (list)))
-           (btor334
-            (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
-           (btor335
-            (signal
-             (concat (signal-value btor334) (signal-value btor333))
-             (list)))
-           (btor336
-            (signal
-             (bvmul (signal-value btor277) (signal-value btor335))
-             (list)))
-           (btor337 (bv->signal (bv 0 (bitvector 43))))
-           (btor338 (bv->signal (bv 2 (bitvector 2))))
-           (btor339
-            (bv->signal
-             (zero-extend (signal-value btor338) (bitvector 3))
-             btor338))
-           (btor340
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor27) (signal-value btor339)))
-             (list)))
-           (btor341
-            (if (bitvector->bool (signal-value btor340)) btor337 btor336))
-           (btor342 (bv->signal (bv 11 (bitvector 4))))
-           (btor343
-            (bv->signal
-             (zero-extend (signal-value btor342) (bitvector 5))
-             btor342))
-           (btor344
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor76) (signal-value btor343)))
-             (list)))
-           (btor345 (bv->signal (bv 7 (bitvector 3))))
-           (btor346
-            (bv->signal
-             (zero-extend (signal-value btor345) (bitvector 5))
-             btor345))
-           (btor347
             (signal
              (bool->bitvector
               ((compose1 not bveq)
                (signal-value btor78)
-               (signal-value btor346)))
+               (signal-value btor329)))
              (list)))
-           (btor348
+           (btor331
             (signal
-             (bvor (signal-value btor344) (signal-value btor347))
+             (bvor (signal-value btor327) (signal-value btor330))
              (list)))
-           (btor349
-            (if (bitvector->bool (signal-value btor348)) btor337 btor341))
-           (btor350
+           (btor332
+            (if (bitvector->bool (signal-value btor331)) btor320 btor324))
+           (btor333
             (let* ((state-value
                     (cond
                      ((assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state350")))
+                       (string->symbol (string-append name "state333")))
                       (bv->signal
                        (car
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state350"))))))
+                         (string->symbol (string-append name "state333"))))))
                      ((assoc-has-key?
                        init-hash
-                       (string->symbol (string-append name "state350")))
+                       (string->symbol (string-append name "state333")))
                       (bv->signal
                        (assoc-ref
                         init-hash
-                        (string->symbol (string-append name "state350")))))
+                        (string->symbol (string-append name "state333")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1916,24 +1770,24 @@
                           (bv 0 43))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-           (btor352
+           (btor334
             (let* ((state-value
                     (cond
                      ((assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state352")))
+                       (string->symbol (string-append name "state334")))
                       (bv->signal
                        (car
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state352"))))))
+                         (string->symbol (string-append name "state334"))))))
                      ((assoc-has-key?
                        init-hash
-                       (string->symbol (string-append name "state352")))
+                       (string->symbol (string-append name "state334")))
                       (bv->signal
                        (assoc-ref
                         init-hash
-                        (string->symbol (string-append name "state352")))))
+                        (string->symbol (string-append name "state334")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1942,38 +1796,37 @@
                           (bv 0 43))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-           (btor354
-            (if (bitvector->bool (signal-value btor173)) btor352 btor350))
-           (btor355
+           (btor336
+            (if (bitvector->bool (signal-value btor97)) btor334 btor333))
+           (btor337
             (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
-           (btor356
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor338
             (signal
              (bool->bitvector
-              (bveq (signal-value btor56) (signal-value btor355)))
+              (bveq (signal-value btor56) (signal-value btor337)))
              (list)))
-           (btor357
-            (if (bitvector->bool (signal-value btor356)) btor354 btor349))
-           (btor358 (bv->signal (bv 0 (bitvector 3))))
-           (btor359
+           (btor339
+            (if (bitvector->bool (signal-value btor338)) btor336 btor332))
+           (btor340
             (let* ((state-value
                     (cond
                      ((assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state359")))
+                       (string->symbol (string-append name "state340")))
                       (bv->signal
                        (car
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state359"))))))
+                         (string->symbol (string-append name "state340"))))))
                      ((assoc-has-key?
                        init-hash
-                       (string->symbol (string-append name "state359")))
+                       (string->symbol (string-append name "state340")))
                       (bv->signal
                        (assoc-ref
                         init-hash
-                        (string->symbol (string-append name "state359")))))
+                        (string->symbol (string-append name "state340")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -1982,24 +1835,25 @@
                           (bv 0 3))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-           (btor361
+           (btor341 (bv->signal (bv 0 (bitvector 3))))
+           (btor342
             (let* ((state-value
                     (cond
                      ((assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state361")))
+                       (string->symbol (string-append name "state342")))
                       (bv->signal
                        (car
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state361"))))))
+                         (string->symbol (string-append name "state342"))))))
                      ((assoc-has-key?
                        init-hash
-                       (string->symbol (string-append name "state361")))
+                       (string->symbol (string-append name "state342")))
                       (bv->signal
                        (assoc-ref
                         init-hash
-                        (string->symbol (string-append name "state361")))))
+                        (string->symbol (string-append name "state342")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -2008,281 +1862,501 @@
                           (bv 0 3))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-           (btor363
-            (if (bitvector->bool (signal-value btor173)) btor361 btor359))
-           (btor364
-            (bv->signal
-             (sign-extend (signal-value btor92) (bitvector 32))
-             btor92))
-           (btor365
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor28) (signal-value btor364)))
-             (list)))
-           (btor366
-            (if (bitvector->bool (signal-value btor365)) btor363 btor358))
-           (btor367
+           (btor344
+            (if (bitvector->bool (signal-value btor97)) btor342 btor340))
+           (btor345
             (signal
              (apply bvor (bitvector->bits (signal-value btor28)))
              (signal-state btor28)))
-           (btor368 (signal (bvnot (signal-value btor367)) (list)))
-           (btor369
-            (if (bitvector->bool (signal-value btor368)) btor27 btor366))
-           (btor370
+           (btor346 (signal (bvnot (signal-value btor345)) (list)))
+           (btor347
+            (if (bitvector->bool (signal-value btor346)) btor27 btor344))
+           (btor348
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state348")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state348"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state348")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state348")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 3))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor349
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state349")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state349"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state349")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state349")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 3))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor351
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state351")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state351"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state351")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state351")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor353
+            (if (bitvector->bool (signal-value btor351)) btor349 btor348))
+           (btor354 (signal (bvnot (signal-value btor346)) (list)))
+           (btor355
             (bv->signal
-             (zero-extend (signal-value btor338) (bitvector 3))
-             btor338))
-           (btor371
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor356
             (signal
              (bool->bitvector
-              (bveq (signal-value btor369) (signal-value btor370)))
+              (bveq (signal-value btor28) (signal-value btor355)))
              (list)))
+           (btor357 (signal (bvnot (signal-value btor356)) (list)))
+           (btor358
+            (signal
+             (bvand (signal-value btor354) (signal-value btor357))
+             (list)))
+           (btor359
+            (signal
+             (bvand (signal-value btor354) (signal-value btor358))
+             (list)))
+           (btor360
+            (if (bitvector->bool (signal-value btor359)) btor353 btor347))
+           (btor361
+            (bv->signal
+             (zero-extend (signal-value btor321) (bitvector 3))
+             btor321))
+           (btor362
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor360) (signal-value btor361)))
+             (list)))
+           (btor363
+            (if (bitvector->bool (signal-value btor362)) btor320 btor339))
+           (btor364
+            (signal
+             (extract 42 42 (signal-value btor363))
+             (signal-state btor363)))
+           (btor365 (bitvector 44))
+           (btor366
+            (signal
+             (concat (signal-value btor364) (signal-value btor363))
+             (list)))
+           (btor367
+            (signal
+             (extract 42 42 (signal-value btor363))
+             (signal-state btor363)))
+           (btor368 (bitvector 45))
+           (btor369
+            (signal
+             (concat (signal-value btor367) (signal-value btor366))
+             (list)))
+           (btor370
+            (signal
+             (extract 42 42 (signal-value btor363))
+             (signal-state btor363)))
+           (btor371 (bitvector 46))
            (btor372
-            (if (bitvector->bool (signal-value btor371)) btor337 btor357))
+            (signal
+             (concat (signal-value btor370) (signal-value btor369))
+             (list)))
            (btor373
             (signal
-             (extract 42 42 (signal-value btor372))
-             (signal-state btor372)))
-           (btor374 (bitvector 44))
+             (extract 42 42 (signal-value btor363))
+             (signal-state btor363)))
+           (btor374 (bitvector 47))
            (btor375
             (signal
              (concat (signal-value btor373) (signal-value btor372))
              (list)))
            (btor376
             (signal
-             (extract 42 42 (signal-value btor372))
-             (signal-state btor372)))
-           (btor377 (bitvector 45))
-           (btor378
+             (extract 42 42 (signal-value btor363))
+             (signal-state btor363)))
+           (btor377
             (signal
              (concat (signal-value btor376) (signal-value btor375))
              (list)))
-           (btor379
-            (signal
-             (extract 42 42 (signal-value btor372))
-             (signal-state btor372)))
-           (btor380 (bitvector 46))
-           (btor381
-            (signal
-             (concat (signal-value btor379) (signal-value btor378))
-             (list)))
+           (btor378
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state378")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state378"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state378")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state378")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 7))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor379 (bv->signal (bv 0 (bitvector 7))))
+           (btor380
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state380")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state380"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state380")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state380")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 7))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor382
-            (signal
-             (extract 42 42 (signal-value btor372))
-             (signal-state btor372)))
-           (btor383 (bitvector 47))
-           (btor384
-            (signal
-             (concat (signal-value btor382) (signal-value btor381))
-             (list)))
-           (btor385
-            (signal
-             (extract 42 42 (signal-value btor372))
-             (signal-state btor372)))
-           (btor386
-            (signal
-             (concat (signal-value btor385) (signal-value btor384))
-             (list)))
-           (btor387 (bv->signal (bv 0 (bitvector 48))))
-           (btor388 (bv->signal (bv 0 (bitvector 7))))
-           (btor389
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state389")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state389"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state389")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state389")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 7))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor391
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state391")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state391"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state391")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state391")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 7))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor393
-            (if (bitvector->bool (signal-value btor173)) btor391 btor389))
-           (btor394
+            (if (bitvector->bool (signal-value btor97)) btor380 btor378))
+           (btor383
             (signal
              (bvxor (signal-value btor58) (signal-value btor54))
              (list)))
-           (btor395
+           (btor384
             (signal
              (apply bvor (bitvector->bits (signal-value btor59)))
              (signal-state btor59)))
+           (btor385 (signal (bvnot (signal-value btor384)) (list)))
+           (btor386
+            (if (bitvector->bool (signal-value btor385)) btor383 btor382))
+           (btor387
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state387")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state387"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state387")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state387")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 7))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor388
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state388")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state388"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state388")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state388")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 7))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor390
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state390")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state390"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state390")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state390")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor392
+            (if (bitvector->bool (signal-value btor390)) btor388 btor387))
+           (btor393 (signal (bvnot (signal-value btor385)) (list)))
+           (btor394
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
+           (btor395
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor59) (signal-value btor394)))
+             (list)))
            (btor396 (signal (bvnot (signal-value btor395)) (list)))
            (btor397
-            (if (bitvector->bool (signal-value btor396)) btor394 btor393))
+            (signal
+             (bvand (signal-value btor393) (signal-value btor396))
+             (list)))
            (btor398
             (signal
-             (extract 1 0 (signal-value btor397))
-             (signal-state btor397)))
-           (btor399
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor398) (signal-value btor338)))
+             (bvand (signal-value btor393) (signal-value btor397))
              (list)))
+           (btor399
+            (if (bitvector->bool (signal-value btor398)) btor392 btor386))
            (btor400
             (signal
-             (apply bvor (bitvector->bits (signal-value btor398)))
-             (signal-state btor398)))
-           (btor401 (signal (bvnot (signal-value btor400)) (list)))
+             (extract 1 0 (signal-value btor399))
+             (signal-state btor399)))
+           (btor401
+            (bv->signal
+             (zero-extend (signal-value btor83) (bitvector 2))
+             btor83))
            (btor402
             (signal
-             (concat (signal-value btor401) (signal-value btor399))
+             (bool->bitvector
+              (bveq (signal-value btor400) (signal-value btor401)))
              (list)))
            (btor403
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor402)))
-             (signal-state btor402)))
+            (if (bitvector->bool (signal-value btor402)) btor377 btor158))
            (btor404
-            (if (bitvector->bool (signal-value btor403)) btor387 btor386))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state404")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state404"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state404")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state404")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 48))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor405
-            (signal
-             (concat (signal-value btor109) (signal-value btor146))
-             (list)))
-           (btor406 (bv->signal (bv 5 (bitvector 3))))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state405")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state405"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state405")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state405")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 48))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor407
-            (bv->signal
-             (zero-extend (signal-value btor406) (bitvector 5))
-             btor406))
+            (if (bitvector->bool (signal-value btor97)) btor405 btor404))
            (btor408
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor76) (signal-value btor407)))
+             (concat (signal-value btor109) (signal-value btor138))
              (list)))
-           (btor409
-            (signal
-             (bvand (signal-value btor108) (signal-value btor145))
-             (list)))
+           (btor409 (bv->signal (bv 3 (bitvector 2))))
            (btor410
             (signal
-             (apply bvor (bitvector->bits (signal-value btor56)))
-             (signal-state btor56)))
-           (btor411 (signal (bvnot (signal-value btor410)) (list)))
+             (bool->bitvector
+              (bveq (signal-value btor400) (signal-value btor409)))
+             (list)))
+           (btor411
+            (if (bitvector->bool (signal-value btor410)) btor408 btor407))
            (btor412
             (signal
-             (bvand (signal-value btor409) (signal-value btor411))
+             (bool->bitvector
+              (bveq (signal-value btor400) (signal-value btor321)))
              (list)))
            (btor413
             (signal
-             (apply bvor (bitvector->bits (signal-value btor62)))
-             (signal-state btor62)))
-           (btor414 (signal (bvnot (signal-value btor413)) (list)))
-           (btor415
-            (signal
-             (bvand (signal-value btor409) (signal-value btor414))
+             (bvor (signal-value btor412) (signal-value btor410))
              (list)))
+           (btor414
+            (if (bitvector->bool (signal-value btor413)) btor411 btor403))
+           (btor415 (bv->signal (bv 281474976710655 (bitvector 48))))
            (btor416
-            (signal
-             (bvor (signal-value btor412) (signal-value btor415))
-             (list)))
-           (btor417
-            (signal
-             (bvand (signal-value btor411) (signal-value btor414))
-             (list)))
-           (btor418
-            (signal
-             (bvor (signal-value btor416) (signal-value btor417))
-             (list)))
-           (btor419
-            (signal
-             (bvand (signal-value btor408) (signal-value btor418))
-             (list)))
-           (btor420
-            (if (bitvector->bool (signal-value btor419)) btor387 btor405))
-           (btor421 (bv->signal (bv 3 (bitvector 2))))
-           (btor422
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor398) (signal-value btor421)))
-             (list)))
-           (btor423
-            (if (bitvector->bool (signal-value btor422)) btor420 btor404))
-           (btor424 (bv->signal (bv 281474976710655 (bitvector 48))))
-           (btor425
             (signal
              (concat (signal-value btor57) (signal-value btor57))
              (list)))
+           (btor417
+            (signal
+             (concat (signal-value btor57) (signal-value btor416))
+             (list)))
+           (btor418
+            (signal
+             (concat (signal-value btor57) (signal-value btor417))
+             (list)))
+           (btor419
+            (signal
+             (concat (signal-value btor57) (signal-value btor418))
+             (list)))
+           (btor420 (bitvector 6))
+           (btor421
+            (signal
+             (concat (signal-value btor57) (signal-value btor419))
+             (list)))
+           (btor422
+            (signal
+             (concat (signal-value btor57) (signal-value btor421))
+             (list)))
+           (btor423 (bitvector 8))
+           (btor424
+            (signal
+             (concat (signal-value btor57) (signal-value btor422))
+             (list)))
+           (btor425 (bitvector 9))
            (btor426
             (signal
-             (concat (signal-value btor57) (signal-value btor425))
+             (concat (signal-value btor57) (signal-value btor424))
              (list)))
-           (btor427
+           (btor427 (bitvector 10))
+           (btor428
             (signal
              (concat (signal-value btor57) (signal-value btor426))
              (list)))
-           (btor428
-            (signal
-             (concat (signal-value btor57) (signal-value btor427))
-             (list)))
-           (btor429 (bitvector 6))
+           (btor429 (bitvector 11))
            (btor430
             (signal
              (concat (signal-value btor57) (signal-value btor428))
              (list)))
-           (btor431
+           (btor431 (bitvector 12))
+           (btor432
             (signal
              (concat (signal-value btor57) (signal-value btor430))
              (list)))
-           (btor432 (bitvector 8))
            (btor433
             (signal
-             (concat (signal-value btor57) (signal-value btor431))
+             (concat (signal-value btor57) (signal-value btor432))
              (list)))
-           (btor434 (bitvector 9))
+           (btor434 (bitvector 14))
            (btor435
             (signal
              (concat (signal-value btor57) (signal-value btor433))
              (list)))
-           (btor436 (bitvector 10))
+           (btor436 (bitvector 15))
            (btor437
             (signal
              (concat (signal-value btor57) (signal-value btor435))
              (list)))
-           (btor438 (bitvector 11))
+           (btor438 (bitvector 16))
            (btor439
             (signal
              (concat (signal-value btor57) (signal-value btor437))
              (list)))
-           (btor440 (bitvector 12))
+           (btor440 (bitvector 17))
            (btor441
             (signal
              (concat (signal-value btor57) (signal-value btor439))
@@ -2291,25 +2365,37 @@
             (signal
              (concat (signal-value btor57) (signal-value btor441))
              (list)))
-           (btor443 (bitvector 14))
-           (btor444
+           (btor443
             (signal
              (concat (signal-value btor57) (signal-value btor442))
              (list)))
-           (btor445 (bitvector 15))
-           (btor446
+           (btor444
+            (signal
+             (concat (signal-value btor57) (signal-value btor443))
+             (list)))
+           (btor445
             (signal
              (concat (signal-value btor57) (signal-value btor444))
              (list)))
-           (btor447 (bitvector 16))
-           (btor448
+           (btor446
+            (signal
+             (concat (signal-value btor57) (signal-value btor445))
+             (list)))
+           (btor447
             (signal
              (concat (signal-value btor57) (signal-value btor446))
              (list)))
-           (btor449 (bitvector 17))
-           (btor450
+           (btor448
+            (signal
+             (concat (signal-value btor57) (signal-value btor447))
+             (list)))
+           (btor449
             (signal
              (concat (signal-value btor57) (signal-value btor448))
+             (list)))
+           (btor450
+            (signal
+             (concat (signal-value btor57) (signal-value btor449))
              (list)))
            (btor451
             (signal
@@ -2401,150 +2487,152 @@
              (list)))
            (btor473
             (signal
-             (concat (signal-value btor57) (signal-value btor472))
-             (list)))
-           (btor474
-            (signal
-             (concat (signal-value btor57) (signal-value btor473))
-             (list)))
+             (extract 6 4 (signal-value btor399))
+             (signal-state btor399)))
+           (btor474 (bv->signal (bv 4 (bitvector 3))))
            (btor475
             (signal
-             (concat (signal-value btor57) (signal-value btor474))
+             (bool->bitvector
+              (bveq (signal-value btor473) (signal-value btor474)))
              (list)))
            (btor476
-            (signal
-             (concat (signal-value btor57) (signal-value btor475))
-             (list)))
+            (if (bitvector->bool (signal-value btor475)) btor472 btor415))
            (btor477
             (signal
-             (concat (signal-value btor57) (signal-value btor476))
-             (list)))
+             (extract 3 2 (signal-value btor399))
+             (signal-state btor399)))
            (btor478
             (signal
-             (concat (signal-value btor57) (signal-value btor477))
+             (bool->bitvector
+              (bveq (signal-value btor477) (signal-value btor321)))
              (list)))
            (btor479
-            (signal
-             (concat (signal-value btor57) (signal-value btor478))
-             (list)))
+            (if (bitvector->bool (signal-value btor478)) btor476 btor158))
            (btor480
-            (signal
-             (concat (signal-value btor57) (signal-value btor479))
-             (list)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state480")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state480"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state480")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state480")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 48))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor481
-            (signal
-             (concat (signal-value btor57) (signal-value btor480))
-             (list)))
-           (btor482
-            (signal
-             (extract 6 4 (signal-value btor397))
-             (signal-state btor397)))
-           (btor483 (bv->signal (bv 4 (bitvector 3))))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state481")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state481"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state481")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state481")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 48))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor483
+            (if (bitvector->bool (signal-value btor97)) btor481 btor480))
            (btor484
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor482) (signal-value btor483)))
-             (list)))
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
            (btor485
-            (if (bitvector->bool (signal-value btor484)) btor481 btor424))
-           (btor486
-            (signal
-             (extract 3 2 (signal-value btor397))
-             (signal-state btor397)))
-           (btor487
             (signal
              (bool->bitvector
-              (bveq (signal-value btor486) (signal-value btor338)))
+              (bveq (signal-value btor43) (signal-value btor484)))
              (list)))
-           (btor488
-            (if (bitvector->bool (signal-value btor487)) btor485 btor387))
-           (btor489
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state489")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state489"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state489")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state489")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 48))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor491
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state491")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state491"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state491")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state491")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 48))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor493
-            (if (bitvector->bool (signal-value btor173)) btor491 btor489))
-           (btor494
+           (btor486
+            (if (bitvector->bool (signal-value btor485)) btor483 btor21))
+           (btor487
             (signal
              (apply bvor (bitvector->bits (signal-value btor43)))
              (signal-state btor43)))
-           (btor495 (signal (bvnot (signal-value btor494)) (list)))
+           (btor488 (signal (bvnot (signal-value btor487)) (list)))
+           (btor489
+            (if (bitvector->bool (signal-value btor488)) btor21 btor486))
+           (btor490
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor477) (signal-value btor409)))
+             (list)))
+           (btor491
+            (if (bitvector->bool (signal-value btor490)) btor489 btor479))
+           (btor492
+            (signal
+             (bvand (signal-value btor414) (signal-value btor491))
+             (list)))
+           (btor493
+            (bv->signal
+             (zero-extend (signal-value btor83) (bitvector 3))
+             btor83))
+           (btor494
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor473) (signal-value btor493)))
+             (list)))
+           (btor495
+            (if (bitvector->bool (signal-value btor494)) btor61 btor158))
            (btor496
-            (if (bitvector->bool (signal-value btor495)) btor21 btor493))
+            (bv->signal
+             (zero-extend (signal-value btor409) (bitvector 3))
+             btor409))
            (btor497
             (signal
              (bool->bitvector
-              (bveq (signal-value btor486) (signal-value btor421)))
+              (bveq (signal-value btor473) (signal-value btor496)))
              (list)))
            (btor498
-            (if (bitvector->bool (signal-value btor497)) btor496 btor488))
+            (if (bitvector->bool (signal-value btor497)) btor489 btor495))
            (btor499
-            (signal
-             (bvand (signal-value btor423) (signal-value btor498))
-             (list)))
-           (btor500
-            (bv->signal
-             (zero-extend (signal-value btor421) (bitvector 3))
-             btor421))
-           (btor501
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor482) (signal-value btor500)))
-             (list)))
-           (btor502
-            (if (bitvector->bool (signal-value btor501)) btor496 btor61))
-           (btor503
             (signal
              (extract 47 17 (signal-value btor61))
              (signal-state btor61)))
+           (btor500
+            (signal
+             (extract 47 47 (signal-value btor61))
+             (signal-state btor61)))
+           (btor501
+            (signal
+             (concat (signal-value btor500) (signal-value btor499))
+             (list)))
+           (btor502
+            (signal
+             (extract 47 47 (signal-value btor61))
+             (signal-state btor61)))
+           (btor503
+            (signal
+             (concat (signal-value btor502) (signal-value btor501))
+             (list)))
            (btor504
             (signal
              (extract 47 47 (signal-value btor61))
@@ -2665,1185 +2753,1155 @@
             (signal
              (concat (signal-value btor532) (signal-value btor531))
              (list)))
-           (btor534
-            (signal
-             (extract 47 47 (signal-value btor61))
-             (signal-state btor61)))
+           (btor534 (bv->signal (bv 5 (bitvector 3))))
            (btor535
             (signal
-             (concat (signal-value btor534) (signal-value btor533))
+             (bool->bitvector
+              (bveq (signal-value btor473) (signal-value btor534)))
              (list)))
            (btor536
-            (signal
-             (extract 47 47 (signal-value btor61))
-             (signal-state btor61)))
+            (if (bitvector->bool (signal-value btor535)) btor533 btor407))
            (btor537
             (signal
-             (concat (signal-value btor536) (signal-value btor535))
-             (list)))
+             (extract 47 17 (signal-value btor407))
+             (signal-state btor407)))
            (btor538
             (signal
-             (extract 6 5 (signal-value btor397))
-             (signal-state btor397)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor539
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor538) (signal-value btor421)))
+             (concat (signal-value btor538) (signal-value btor537))
              (list)))
            (btor540
-            (bv->signal
-             (zero-extend (signal-value btor338) (bitvector 3))
-             btor338))
+            (signal
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor541
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor482) (signal-value btor540)))
+             (concat (signal-value btor540) (signal-value btor539))
              (list)))
            (btor542
             (signal
-             (apply bvor (bitvector->bits (signal-value btor482)))
-             (signal-state btor482)))
-           (btor543 (signal (bvnot (signal-value btor542)) (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
+           (btor543
+            (signal
+             (concat (signal-value btor542) (signal-value btor541))
+             (list)))
            (btor544
             (signal
-             (concat (signal-value btor539) (signal-value btor484))
-             (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor545
             (signal
-             (concat (signal-value btor541) (signal-value btor544))
+             (concat (signal-value btor544) (signal-value btor543))
              (list)))
            (btor546
             (signal
-             (concat (signal-value btor543) (signal-value btor545))
-             (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor547
             (signal
-             (apply bvor (bitvector->bits (signal-value btor546)))
-             (signal-state btor546)))
+             (concat (signal-value btor546) (signal-value btor545))
+             (list)))
            (btor548
-            (if (bitvector->bool (signal-value btor547)) btor387 btor537))
+            (signal
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor549
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor482) (signal-value btor406)))
+             (concat (signal-value btor548) (signal-value btor547))
              (list)))
            (btor550
             (signal
-             (bvor (signal-value btor549) (signal-value btor547))
-             (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor551
-            (if (bitvector->bool (signal-value btor550)) btor548 btor502))
+            (signal
+             (concat (signal-value btor550) (signal-value btor549))
+             (list)))
            (btor552
             (signal
-             (bvand (signal-value btor551) (signal-value btor498))
-             (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor553
             (signal
-             (bvor (signal-value btor499) (signal-value btor552))
+             (concat (signal-value btor552) (signal-value btor551))
              (list)))
            (btor554
             (signal
-             (bvand (signal-value btor423) (signal-value btor551))
-             (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor555
             (signal
-             (bvor (signal-value btor553) (signal-value btor554))
+             (concat (signal-value btor554) (signal-value btor553))
              (list)))
-           (btor556 (signal (bvnot (signal-value btor551)) (list)))
+           (btor556
+            (signal
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor557
             (signal
-             (bvand (signal-value btor556) (signal-value btor498))
+             (concat (signal-value btor556) (signal-value btor555))
              (list)))
            (btor558
             (signal
-             (bvor (signal-value btor499) (signal-value btor557))
-             (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor559
             (signal
-             (bvand (signal-value btor423) (signal-value btor556))
+             (concat (signal-value btor558) (signal-value btor557))
              (list)))
            (btor560
             (signal
-             (bvor (signal-value btor558) (signal-value btor559))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
+           (btor561
+            (signal
+             (concat (signal-value btor560) (signal-value btor559))
              (list)))
-           (btor561 (bv->signal (bv 0 (bitvector 4))))
            (btor562
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state562")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state562"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state562")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state562")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 4))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
+           (btor563
+            (signal
+             (concat (signal-value btor562) (signal-value btor561))
+             (list)))
            (btor564
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state564")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state564"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state564")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state564")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 4))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
+           (btor565
+            (signal
+             (concat (signal-value btor564) (signal-value btor563))
+             (list)))
            (btor566
-            (if (bitvector->bool (signal-value btor173)) btor564 btor562))
+            (signal
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor567
-            (signal (bvxor (signal-value btor8) (signal-value btor49)) (list)))
+            (signal
+             (concat (signal-value btor566) (signal-value btor565))
+             (list)))
            (btor568
             (signal
-             (apply bvor (bitvector->bits (signal-value btor9)))
-             (signal-state btor9)))
-           (btor569 (signal (bvnot (signal-value btor568)) (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
+           (btor569
+            (signal
+             (concat (signal-value btor568) (signal-value btor567))
+             (list)))
            (btor570
-            (if (bitvector->bool (signal-value btor569)) btor567 btor566))
+            (signal
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor571
             (signal
-             (extract 0 0 (signal-value btor570))
-             (signal-state btor570)))
+             (concat (signal-value btor570) (signal-value btor569))
+             (list)))
            (btor572
-            (if (bitvector->bool (signal-value btor571)) btor560 btor555))
-           (btor573
-            (signal
-             (extract 2 2 (signal-value btor570))
-             (signal-state btor570)))
-           (btor574
-            (if (bitvector->bool (signal-value btor573)) btor387 btor572))
-           (btor575
-            (signal
-             (extract 35 35 (signal-value btor574))
-             (signal-state btor574)))
-           (btor576 (bv->signal (bv 13 (bitvector 4))))
-           (btor577
-            (bv->signal
-             (zero-extend (signal-value btor576) (bitvector 5))
-             btor576))
-           (btor578
             (signal
              (bool->bitvector
-              (bveq (signal-value btor78) (signal-value btor577)))
+              (bveq (signal-value btor473) (signal-value btor328)))
              (list)))
+           (btor573 (bv->signal (bv 6 (bitvector 3))))
+           (btor574
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor473) (signal-value btor573)))
+             (list)))
+           (btor575
+            (signal
+             (concat (signal-value btor574) (signal-value btor572))
+             (list)))
+           (btor576
+            (signal
+             (apply bvor (bitvector->bits (signal-value btor575)))
+             (signal-state btor575)))
+           (btor577
+            (if (bitvector->bool (signal-value btor576)) btor571 btor536))
+           (btor578
+            (bv->signal
+             (zero-extend (signal-value btor321) (bitvector 3))
+             btor321))
            (btor579
-            (if (bitvector->bool (signal-value btor578)) btor163 btor575))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor473) (signal-value btor578)))
+             (list)))
            (btor580
             (signal
-             (extract 47 36 (signal-value btor574))
-             (signal-state btor574)))
+             (concat (signal-value btor572) (signal-value btor475))
+             (list)))
            (btor581
             (signal
-             (concat (signal-value btor580) (signal-value btor579))
+             (concat (signal-value btor574) (signal-value btor580))
              (list)))
            (btor582
             (signal
-             (bvxor (signal-value btor551) (signal-value btor423))
+             (concat (signal-value btor535) (signal-value btor581))
              (list)))
            (btor583
             (signal
-             (bvxor (signal-value btor582) (signal-value btor498))
+             (concat (signal-value btor579) (signal-value btor582))
              (list)))
            (btor584
             (signal
-             (bvxor (signal-value btor556) (signal-value btor423))
-             (list)))
+             (apply bvor (bitvector->bits (signal-value btor583)))
+             (signal-state btor583)))
            (btor585
-            (signal
-             (bvxor (signal-value btor584) (signal-value btor498))
-             (list)))
+            (if (bitvector->bool (signal-value btor584)) btor577 btor498))
            (btor586
-            (if (bitvector->bool (signal-value btor571)) btor585 btor583))
+            (signal
+             (bvand (signal-value btor585) (signal-value btor491))
+             (list)))
            (btor587
             (signal
-             (extract 3 3 (signal-value btor570))
-             (signal-state btor570)))
+             (bvor (signal-value btor492) (signal-value btor586))
+             (list)))
            (btor588
-            (if (bitvector->bool (signal-value btor587)) btor572 btor586))
+            (signal
+             (bvand (signal-value btor414) (signal-value btor585))
+             (list)))
            (btor589
             (signal
-             (extract 47 36 (signal-value btor588))
-             (signal-state btor588)))
-           (btor590
-            (bv->signal
-             (zero-extend (signal-value btor589) (bitvector 13))
-             btor589))
+             (bvor (signal-value btor587) (signal-value btor588))
+             (list)))
+           (btor590 (signal (bvnot (signal-value btor585)) (list)))
            (btor591
             (signal
-             (bvadd (signal-value btor581) (signal-value btor590))
+             (bvand (signal-value btor590) (signal-value btor491))
              (list)))
            (btor592
             (signal
-             (extract 23 23 (signal-value btor574))
-             (signal-state btor574)))
-           (btor593 (bv->signal (bv 12 (bitvector 4))))
+             (bvor (signal-value btor492) (signal-value btor591))
+             (list)))
+           (btor593
+            (signal
+             (bvand (signal-value btor414) (signal-value btor590))
+             (list)))
            (btor594
-            (bv->signal
-             (zero-extend (signal-value btor593) (bitvector 5))
-             btor593))
+            (signal
+             (bvor (signal-value btor592) (signal-value btor593))
+             (list)))
            (btor595
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor78) (signal-value btor594)))
-             (list)))
-           (btor596
-            (signal
-             (bvor (signal-value btor595) (signal-value btor578))
-             (list)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state595")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state595"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state595")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state595")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 4))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor596 (bv->signal (bv 0 (bitvector 4))))
            (btor597
-            (if (bitvector->bool (signal-value btor596)) btor163 btor592))
-           (btor598
-            (signal
-             (extract 34 24 (signal-value btor574))
-             (signal-state btor574)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state597")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state597"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state597")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state597")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 4))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor599
-            (signal
-             (concat (signal-value btor598) (signal-value btor597))
-             (list)))
+            (if (bitvector->bool (signal-value btor97)) btor597 btor595))
            (btor600
-            (bv->signal
-             (zero-extend (signal-value btor599) (bitvector 13))
-             btor599))
+            (signal (bvxor (signal-value btor8) (signal-value btor49)) (list)))
            (btor601
             (signal
-             (extract 35 24 (signal-value btor588))
-             (signal-state btor588)))
-           (btor602
-            (bv->signal
-             (zero-extend (signal-value btor601) (bitvector 13))
-             btor601))
+             (apply bvor (bitvector->bits (signal-value btor9)))
+             (signal-state btor9)))
+           (btor602 (signal (bvnot (signal-value btor601)) (list)))
            (btor603
-            (signal
-             (bvadd (signal-value btor600) (signal-value btor602))
-             (list)))
+            (if (bitvector->bool (signal-value btor602)) btor600 btor599))
            (btor604
-            (signal
-             (extract 11 11 (signal-value btor574))
-             (signal-state btor574)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state604")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state604"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state604")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state604")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 4))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor605
-            (if (bitvector->bool (signal-value btor578)) btor163 btor604))
-           (btor606
-            (signal
-             (extract 22 12 (signal-value btor574))
-             (signal-state btor574)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state605")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state605"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state605")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state605")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 4))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor607
-            (signal
-             (concat (signal-value btor606) (signal-value btor605))
-             (list)))
-           (btor608
-            (bv->signal
-             (zero-extend (signal-value btor607) (bitvector 13))
-             btor607))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state607")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state607"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state607")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state607")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor609
-            (signal
-             (extract 23 12 (signal-value btor588))
-             (signal-state btor588)))
-           (btor610
-            (bv->signal
-             (zero-extend (signal-value btor609) (bitvector 13))
-             btor609))
+            (if (bitvector->bool (signal-value btor607)) btor605 btor604))
+           (btor610 (signal (bvnot (signal-value btor602)) (list)))
            (btor611
-            (signal
-             (bvadd (signal-value btor608) (signal-value btor610))
-             (list)))
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
            (btor612
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state612")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state612"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state612")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state612")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor9) (signal-value btor611)))
+             (list)))
+           (btor613 (signal (bvnot (signal-value btor612)) (list)))
            (btor614
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state614")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state614"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state614")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state614")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (bvand (signal-value btor610) (signal-value btor613))
+             (list)))
+           (btor615
+            (signal
+             (bvand (signal-value btor610) (signal-value btor614))
+             (list)))
            (btor616
-            (if (bitvector->bool (signal-value btor173)) btor614 btor612))
+            (if (bitvector->bool (signal-value btor615)) btor609 btor603))
            (btor617
             (signal
-             (bvxor (signal-value btor24) (signal-value btor50))
-             (list)))
+             (extract 0 0 (signal-value btor616))
+             (signal-state btor616)))
            (btor618
+            (if (bitvector->bool (signal-value btor617)) btor594 btor589))
+           (btor619
             (signal
-             (apply bvor (bitvector->bits (signal-value btor25)))
-             (signal-state btor25)))
-           (btor619 (signal (bvnot (signal-value btor618)) (list)))
+             (extract 2 2 (signal-value btor616))
+             (signal-state btor616)))
            (btor620
-            (if (bitvector->bool (signal-value btor619)) btor617 btor616))
+            (if (bitvector->bool (signal-value btor619)) btor158 btor618))
            (btor621
             (signal
-             (extract 47 47 (signal-value btor61))
-             (signal-state btor61)))
-           (btor622 (signal (bvnot (signal-value btor621)) (list)))
+             (extract 35 35 (signal-value btor620))
+             (signal-state btor620)))
+           (btor622 (bv->signal (bv 13 (bitvector 4))))
            (btor623
             (bv->signal
-             (zero-extend (signal-value btor84) (bitvector 3))
-             btor84))
+             (zero-extend (signal-value btor622) (bitvector 5))
+             btor622))
            (btor624
             (signal
              (bool->bitvector
-              (bveq (signal-value btor369) (signal-value btor623)))
+              (bveq (signal-value btor78) (signal-value btor623)))
              (list)))
            (btor625
-            (if (bitvector->bool (signal-value btor624)) btor622 btor620))
+            (if (bitvector->bool (signal-value btor624)) btor148 btor621))
            (btor626
-            (if (bitvector->bool (signal-value btor371)) btor23 btor625))
-           (btor627
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state627")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state627"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state627")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state627")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor629
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state629")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state629"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state629")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state629")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor631
-            (if (bitvector->bool (signal-value btor173)) btor629 btor627))
-           (btor632
             (signal
-             (extract 24 24 (signal-value btor226))
-             (signal-state btor226)))
+             (extract 47 36 (signal-value btor620))
+             (signal-state btor620)))
+           (btor627
+            (signal
+             (concat (signal-value btor626) (signal-value btor625))
+             (list)))
+           (btor628
+            (signal
+             (bvxor (signal-value btor585) (signal-value btor414))
+             (list)))
+           (btor629
+            (signal
+             (bvxor (signal-value btor628) (signal-value btor491))
+             (list)))
+           (btor630
+            (signal
+             (bvxor (signal-value btor590) (signal-value btor414))
+             (list)))
+           (btor631
+            (signal
+             (bvxor (signal-value btor630) (signal-value btor491))
+             (list)))
+           (btor632
+            (if (bitvector->bool (signal-value btor617)) btor631 btor629))
            (btor633
             (signal
-             (extract 17 17 (signal-value btor279))
-             (signal-state btor279)))
+             (extract 3 3 (signal-value btor616))
+             (signal-state btor616)))
            (btor634
-            (signal
-             ((lambda (a b) (bvnot (bvxor a b)))
-              (signal-value btor632)
-              (signal-value btor633))
-             (list)))
+            (if (bitvector->bool (signal-value btor633)) btor618 btor632))
            (btor635
-            (if (bitvector->bool (signal-value btor411)) btor634 btor631))
-           (btor636 (bv->signal (bv 6 (bitvector 3))))
+            (signal
+             (extract 47 36 (signal-value btor634))
+             (signal-state btor634)))
+           (btor636
+            (bv->signal
+             (zero-extend (signal-value btor635) (bitvector 13))
+             btor635))
            (btor637
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor369) (signal-value btor636)))
+             (bvadd (signal-value btor627) (signal-value btor636))
              (list)))
            (btor638
-            (if (bitvector->bool (signal-value btor637)) btor635 btor621))
-           (btor639
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor369) (signal-value btor345)))
-             (list)))
+             (extract 23 23 (signal-value btor620))
+             (signal-state btor620)))
+           (btor639 (bv->signal (bv 12 (bitvector 4))))
            (btor640
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor369) (signal-value btor406)))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor639) (bitvector 5))
+             btor639))
            (btor641
             (signal
              (bool->bitvector
-              (bveq (signal-value btor369) (signal-value btor483)))
+              (bveq (signal-value btor78) (signal-value btor640)))
              (list)))
            (btor642
             (signal
-             (concat (signal-value btor640) (signal-value btor639))
+             (bvor (signal-value btor641) (signal-value btor624))
              (list)))
            (btor643
-            (signal
-             (concat (signal-value btor641) (signal-value btor642))
-             (list)))
+            (if (bitvector->bool (signal-value btor642)) btor148 btor638))
            (btor644
             (signal
-             (apply bvor (bitvector->bits (signal-value btor643)))
-             (signal-state btor643)))
+             (extract 34 24 (signal-value btor620))
+             (signal-state btor620)))
            (btor645
-            (if (bitvector->bool (signal-value btor644)) btor163 btor638))
+            (signal
+             (concat (signal-value btor644) (signal-value btor643))
+             (list)))
            (btor646
             (bv->signal
-             (zero-extend (signal-value btor421) (bitvector 3))
-             btor421))
+             (zero-extend (signal-value btor645) (bitvector 13))
+             btor645))
            (btor647
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor369) (signal-value btor646)))
-             (list)))
+             (extract 35 24 (signal-value btor634))
+             (signal-state btor634)))
            (btor648
-            (signal
-             (concat (signal-value btor637) (signal-value btor639))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor647) (bitvector 13))
+             btor647))
            (btor649
             (signal
-             (concat (signal-value btor640) (signal-value btor648))
+             (bvadd (signal-value btor646) (signal-value btor648))
              (list)))
            (btor650
             (signal
-             (concat (signal-value btor641) (signal-value btor649))
-             (list)))
+             (extract 11 11 (signal-value btor620))
+             (signal-state btor620)))
            (btor651
-            (signal
-             (concat (signal-value btor647) (signal-value btor650))
-             (list)))
+            (if (bitvector->bool (signal-value btor624)) btor148 btor650))
            (btor652
             (signal
-             (apply bvor (bitvector->bits (signal-value btor651)))
-             (signal-state btor651)))
+             (extract 22 12 (signal-value btor620))
+             (signal-state btor620)))
            (btor653
-            (if (bitvector->bool (signal-value btor652)) btor645 btor626))
-           (btor654
             (signal
-             (bvor (signal-value btor587) (signal-value btor573))
+             (concat (signal-value btor652) (signal-value btor651))
              (list)))
+           (btor654
+            (bv->signal
+             (zero-extend (signal-value btor653) (bitvector 13))
+             btor653))
            (btor655
-            (if (bitvector->bool (signal-value btor654)) btor163 btor653))
-           (btor656
             (signal
-             (extract 10 0 (signal-value btor574))
-             (signal-state btor574)))
+             (extract 23 12 (signal-value btor634))
+             (signal-state btor634)))
+           (btor656
+            (bv->signal
+             (zero-extend (signal-value btor655) (bitvector 13))
+             btor655))
            (btor657
             (signal
-             (concat (signal-value btor656) (signal-value btor655))
+             (bvadd (signal-value btor654) (signal-value btor656))
              (list)))
            (btor658
-            (bv->signal
-             (zero-extend (signal-value btor657) (bitvector 13))
-             btor657))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state658")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state658"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state658")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state658")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor659
-            (signal
-             (extract 11 0 (signal-value btor588))
-             (signal-state btor588)))
-           (btor660
-            (bv->signal
-             (zero-extend (signal-value btor659) (bitvector 13))
-             btor659))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state659")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state659"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state659")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state659")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor661
-            (signal
-             (bvadd (signal-value btor658) (signal-value btor660))
-             (list)))
+            (if (bitvector->bool (signal-value btor97)) btor659 btor658))
            (btor662
             (signal
-             (extract 12 12 (signal-value btor661))
-             (signal-state btor661)))
+             (bvxor (signal-value btor24) (signal-value btor50))
+             (list)))
            (btor663
-            (if (bitvector->bool (signal-value btor578)) btor163 btor662))
-           (btor664
-            (bv->signal
-             (zero-extend (signal-value btor663) (bitvector 13))
-             btor663))
+            (signal
+             (apply bvor (bitvector->bits (signal-value btor25)))
+             (signal-state btor25)))
+           (btor664 (signal (bvnot (signal-value btor663)) (list)))
            (btor665
-            (signal
-             (bvadd (signal-value btor611) (signal-value btor664))
-             (list)))
+            (if (bitvector->bool (signal-value btor664)) btor662 btor661))
            (btor666
-            (signal
-             (extract 12 12 (signal-value btor665))
-             (signal-state btor665)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state666")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state666"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state666")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state666")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor667
-            (if (bitvector->bool (signal-value btor596)) btor163 btor666))
-           (btor668
-            (bv->signal
-             (zero-extend (signal-value btor667) (bitvector 13))
-             btor667))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state667")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state667"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state667")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state667")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor669
-            (signal
-             (bvadd (signal-value btor603) (signal-value btor668))
-             (list)))
-           (btor670
-            (signal
-             (extract 12 12 (signal-value btor669))
-             (signal-state btor669)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state669")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state669"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state669")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state669")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor671
-            (if (bitvector->bool (signal-value btor578)) btor163 btor670))
-           (btor672
-            (bv->signal
-             (zero-extend (signal-value btor671) (bitvector 13))
-             btor671))
+            (if (bitvector->bool (signal-value btor669)) btor667 btor666))
+           (btor672 (signal (bvnot (signal-value btor664)) (list)))
            (btor673
-            (signal
-             (bvadd (signal-value btor591) (signal-value btor672))
-             (list)))
+            (bv->signal
+             (sign-extend (signal-value btor99) (bitvector 32))
+             btor99))
            (btor674
             (signal
-             (extract 12 12 (signal-value btor673))
-             (signal-state btor673)))
-           (btor675
-            (if (bitvector->bool (signal-value btor414)) btor674 btor177))
+             (bool->bitvector
+              (bveq (signal-value btor25) (signal-value btor673)))
+             (list)))
+           (btor675 (signal (bvnot (signal-value btor674)) (list)))
+           (btor676
+            (signal
+             (bvand (signal-value btor672) (signal-value btor675))
+             (list)))
            (btor677
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state677")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state677"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state677")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state677")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 4))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (bvand (signal-value btor672) (signal-value btor676))
+             (list)))
+           (btor678
+            (if (bitvector->bool (signal-value btor677)) btor671 btor665))
            (btor679
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state679")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state679"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state679")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state679")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 4))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (extract 47 47 (signal-value btor61))
+             (signal-state btor61)))
+           (btor680 (signal (bvnot (signal-value btor679)) (list)))
            (btor681
-            (if (bitvector->bool (signal-value btor173)) btor679 btor677))
-           (btor682
-            (if (bitvector->bool (signal-value btor176)) btor681 btor561))
-           (btor683
-            (signal
-             (bvadd (signal-value btor604) (signal-value btor662))
-             (list)))
-           (btor684 (signal (bvnot (signal-value btor683)) (list)))
-           (btor685
-            (signal
-             (extract 1 1 (signal-value btor570))
-             (signal-state btor570)))
-           (btor686
-            (signal
-             (bvand (signal-value btor571) (signal-value btor685))
-             (list)))
-           (btor687
-            (if (bitvector->bool (signal-value btor686)) btor684 btor683))
-           (btor688
-            (if (bitvector->bool (signal-value btor578)) btor687 btor163))
-           (btor689
-            (signal
-             (extract 3 0 (signal-value btor397))
-             (signal-state btor397)))
-           (btor690
             (bv->signal
-             (zero-extend (signal-value btor406) (bitvector 4))
-             btor406))
-           (btor691
+             (zero-extend (signal-value btor83) (bitvector 3))
+             btor83))
+           (btor682
             (signal
              (bool->bitvector
-              (bveq (signal-value btor689) (signal-value btor690)))
+              (bveq (signal-value btor360) (signal-value btor681)))
              (list)))
-           (btor692
+           (btor683
+            (if (bitvector->bool (signal-value btor682)) btor680 btor678))
+           (btor684
+            (bv->signal
+             (zero-extend (signal-value btor409) (bitvector 3))
+             btor409))
+           (btor685
             (signal
-             (extract 3 2 (signal-value btor570))
-             (signal-state btor570)))
+             (bool->bitvector
+              (bveq (signal-value btor360) (signal-value btor684)))
+             (list)))
+           (btor686
+            (if (bitvector->bool (signal-value btor685)) btor679 btor23))
+           (btor687
+            (signal
+             (bvor (signal-value btor362) (signal-value btor685))
+             (list)))
+           (btor688
+            (if (bitvector->bool (signal-value btor687)) btor686 btor683))
+           (btor689
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state689")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state689"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state689")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state689")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor690
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state690")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state690"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state690")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state690")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor692
+            (if (bitvector->bool (signal-value btor97)) btor690 btor689))
            (btor693
             (signal
-             (apply bvor (bitvector->bits (signal-value btor692)))
-             (signal-state btor692)))
+             (extract 24 24 (signal-value btor209))
+             (signal-state btor209)))
            (btor694
             (signal
-             (bvor (signal-value btor691) (signal-value btor693))
-             (list)))
+             (extract 17 17 (signal-value btor262))
+             (signal-state btor262)))
            (btor695
-            (if (bitvector->bool (signal-value btor694)) btor163 btor688))
+            (signal
+             ((lambda (a b) (bvnot (bvxor a b)))
+              (signal-value btor693)
+              (signal-value btor694))
+             (list)))
            (btor696
             (signal
-             (bvadd (signal-value btor592) (signal-value btor666))
-             (list)))
+             (apply bvor (bitvector->bits (signal-value btor56)))
+             (signal-state btor56)))
            (btor697 (signal (bvnot (signal-value btor696)) (list)))
            (btor698
-            (if (bitvector->bool (signal-value btor686)) btor697 btor696))
+            (if (bitvector->bool (signal-value btor697)) btor695 btor692))
            (btor699
-            (if (bitvector->bool (signal-value btor596)) btor698 btor163))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor360) (signal-value btor573)))
+             (list)))
            (btor700
-            (if (bitvector->bool (signal-value btor694)) btor163 btor699))
+            (if (bitvector->bool (signal-value btor699)) btor698 btor153))
            (btor701
             (signal
-             (bvadd (signal-value btor575) (signal-value btor670))
-             (list)))
+             (extract 47 47 (signal-value btor407))
+             (signal-state btor407)))
            (btor702 (signal (bvnot (signal-value btor701)) (list)))
            (btor703
-            (if (bitvector->bool (signal-value btor686)) btor702 btor701))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor360) (signal-value btor328)))
+             (list)))
            (btor704
-            (if (bitvector->bool (signal-value btor578)) btor703 btor163))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor360) (signal-value btor534)))
+             (list)))
            (btor705
-            (if (bitvector->bool (signal-value btor694)) btor163 btor704))
-           (btor706 (signal (bvnot (signal-value btor674)) (list)))
+            (signal
+             (concat (signal-value btor704) (signal-value btor703))
+             (list)))
+           (btor706
+            (signal
+             (apply bvor (bitvector->bits (signal-value btor705)))
+             (signal-state btor705)))
            (btor707
-            (if (bitvector->bool (signal-value btor686)) btor706 btor674))
+            (if (bitvector->bool (signal-value btor706)) btor702 btor700))
            (btor708
-            (if (bitvector->bool (signal-value btor694)) btor163 btor707))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor360) (signal-value btor474)))
+             (list)))
            (btor709
             (signal
-             (concat (signal-value btor700) (signal-value btor695))
+             (concat (signal-value btor699) (signal-value btor703))
              (list)))
            (btor710
             (signal
-             (concat (signal-value btor705) (signal-value btor709))
+             (concat (signal-value btor704) (signal-value btor709))
              (list)))
            (btor711
             (signal
              (concat (signal-value btor708) (signal-value btor710))
              (list)))
            (btor712
-            (if (bitvector->bool (signal-value btor414)) btor711 btor682))
+            (signal
+             (apply bvor (bitvector->bits (signal-value btor711)))
+             (signal-state btor711)))
            (btor713
-            (signal
-             (extract 0 0 (signal-value btor712))
-             (signal-state btor712)))
+            (if (bitvector->bool (signal-value btor712)) btor707 btor688))
            (btor714
-            (if (bitvector->bool (signal-value btor578)) btor713 btor163))
-           (btor715
             (signal
-             (extract 1 1 (signal-value btor712))
-             (signal-state btor712)))
+             (bvor (signal-value btor633) (signal-value btor619))
+             (list)))
+           (btor715
+            (if (bitvector->bool (signal-value btor714)) btor148 btor713))
            (btor716
-            (if (bitvector->bool (signal-value btor596)) btor715 btor163))
+            (signal
+             (extract 10 0 (signal-value btor620))
+             (signal-state btor620)))
            (btor717
             (signal
-             (extract 2 2 (signal-value btor712))
-             (signal-state btor712)))
+             (concat (signal-value btor716) (signal-value btor715))
+             (list)))
            (btor718
-            (if (bitvector->bool (signal-value btor578)) btor717 btor163))
+            (bv->signal
+             (zero-extend (signal-value btor717) (bitvector 13))
+             btor717))
            (btor719
             (signal
-             (concat (signal-value btor716) (signal-value btor714))
-             (list)))
+             (extract 11 0 (signal-value btor634))
+             (signal-state btor634)))
            (btor720
-            (signal
-             (concat (signal-value btor718) (signal-value btor719))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor719) (bitvector 13))
+             btor719))
            (btor721
             (signal
-             (extract 3 3 (signal-value btor712))
-             (signal-state btor712)))
+             (bvadd (signal-value btor718) (signal-value btor720))
+             (list)))
            (btor722
             (signal
-             (concat (signal-value btor721) (signal-value btor720))
-             (list)))
+             (extract 12 12 (signal-value btor721))
+             (signal-state btor721)))
+           (btor723
+            (if (bitvector->bool (signal-value btor624)) btor148 btor722))
            (btor724
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state724")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state724"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state724")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state724")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (bv->signal
+             (zero-extend (signal-value btor723) (bitvector 13))
+             btor723))
+           (btor725
+            (signal
+             (bvadd (signal-value btor657) (signal-value btor724))
+             (list)))
            (btor726
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state726")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state726"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state726")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state726")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (extract 12 12 (signal-value btor725))
+             (signal-state btor725)))
+           (btor727
+            (if (bitvector->bool (signal-value btor642)) btor148 btor726))
            (btor728
-            (if (bitvector->bool (signal-value btor173)) btor726 btor724))
+            (bv->signal
+             (zero-extend (signal-value btor727) (bitvector 13))
+             btor727))
            (btor729
-            (if (bitvector->bool (signal-value btor176)) btor728 btor163))
+            (signal
+             (bvadd (signal-value btor649) (signal-value btor728))
+             (list)))
            (btor730
             (signal
-             (extract 42 42 (signal-value btor372))
-             (signal-state btor372)))
+             (extract 12 12 (signal-value btor729))
+             (signal-state btor729)))
            (btor731
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor482) (signal-value btor483)))
-             (list)))
+            (if (bitvector->bool (signal-value btor624)) btor148 btor730))
            (btor732
-            (if (bitvector->bool (signal-value btor731)) btor57 btor730))
+            (bv->signal
+             (zero-extend (signal-value btor731) (bitvector 13))
+             btor731))
            (btor733
-            (if (bitvector->bool (signal-value btor414)) btor732 btor729))
-           (btor735
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state735")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state735"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state735")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state735")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor737
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state737")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state737"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state737")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state737")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor739
-            (if (bitvector->bool (signal-value btor173)) btor737 btor735))
-           (btor740
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state740")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state740"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state740")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state740")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor742
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state742")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state742"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state742")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state742")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor744
-            (if (bitvector->bool (signal-value btor173)) btor742 btor740))
-           (btor745 (signal (bvnot (signal-value btor744)) (list)))
-           (btor746
             (signal
-             (bvand (signal-value btor739) (signal-value btor745))
+             (bvadd (signal-value btor637) (signal-value btor732))
              (list)))
+           (btor734
+            (signal
+             (extract 12 12 (signal-value btor733))
+             (signal-state btor733)))
+           (btor735
+            (signal
+             (apply bvor (bitvector->bits (signal-value btor62)))
+             (signal-state btor62)))
+           (btor736 (signal (bvnot (signal-value btor735)) (list)))
+           (btor737
+            (if (bitvector->bool (signal-value btor736)) btor734 btor156))
+           (btor739
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state739")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state739"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state739")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state739")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 4))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor741
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state741")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state741"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state741")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state741")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 4))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor743
+            (if (bitvector->bool (signal-value btor97)) btor741 btor739))
+           (btor744
+            (if (bitvector->bool (signal-value btor155)) btor743 btor596))
+           (btor745
+            (signal
+             (bvadd (signal-value btor650) (signal-value btor722))
+             (list)))
+           (btor746 (signal (bvnot (signal-value btor745)) (list)))
            (btor747
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state747")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state747"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state747")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state747")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (extract 1 1 (signal-value btor616))
+             (signal-state btor616)))
+           (btor748
+            (signal
+             (bvand (signal-value btor617) (signal-value btor747))
+             (list)))
            (btor749
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state749")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state749"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state749")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state749")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (if (bitvector->bool (signal-value btor748)) btor746 btor745))
+           (btor750
+            (if (bitvector->bool (signal-value btor624)) btor749 btor148))
            (btor751
-            (if (bitvector->bool (signal-value btor173)) btor749 btor747))
-           (btor752 (signal (bvnot (signal-value btor751)) (list)))
+            (signal
+             (extract 3 0 (signal-value btor399))
+             (signal-state btor399)))
+           (btor752
+            (bv->signal
+             (zero-extend (signal-value btor534) (bitvector 4))
+             btor534))
            (btor753
             (signal
-             (bvand (signal-value btor746) (signal-value btor752))
+             (bool->bitvector
+              (bveq (signal-value btor751) (signal-value btor752)))
              (list)))
-           (btor754 (bv->signal (bv 10 (bitvector 4))))
+           (btor754
+            (signal
+             (extract 3 2 (signal-value btor616))
+             (signal-state btor616)))
            (btor755
-            (bv->signal
-             (zero-extend (signal-value btor754) (bitvector 5))
-             btor754))
+            (signal
+             (apply bvor (bitvector->bits (signal-value btor754)))
+             (signal-state btor754)))
            (btor756
             (signal
-             (bool->bitvector
-              (bveq (signal-value btor77) (signal-value btor755)))
+             (bvor (signal-value btor753) (signal-value btor755))
              (list)))
            (btor757
-            (signal
-             (bvor (signal-value btor756) (signal-value btor176))
-             (list)))
+            (if (bitvector->bool (signal-value btor756)) btor148 btor750))
            (btor758
-            (if (bitvector->bool (signal-value btor757)) btor753 btor163))
+            (signal
+             (bvadd (signal-value btor638) (signal-value btor726))
+             (list)))
+           (btor759 (signal (bvnot (signal-value btor758)) (list)))
            (btor760
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state760")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state760"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state760")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state760")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 48))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (if (bitvector->bool (signal-value btor748)) btor759 btor758))
+           (btor761
+            (if (bitvector->bool (signal-value btor642)) btor760 btor148))
            (btor762
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state762")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state762"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state762")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state762")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 48))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor764
-            (if (bitvector->bool (signal-value btor173)) btor762 btor760))
+            (if (bitvector->bool (signal-value btor756)) btor148 btor761))
+           (btor763
+            (signal
+             (bvadd (signal-value btor621) (signal-value btor730))
+             (list)))
+           (btor764 (signal (bvnot (signal-value btor763)) (list)))
            (btor765
-            (if (bitvector->bool (signal-value btor176)) btor764 btor387))
+            (if (bitvector->bool (signal-value btor748)) btor764 btor763))
            (btor766
-            (signal
-             (extract 11 0 (signal-value btor661))
-             (signal-state btor661)))
+            (if (bitvector->bool (signal-value btor624)) btor765 btor148))
            (btor767
-            (signal
-             (extract 11 0 (signal-value btor665))
-             (signal-state btor665)))
-           (btor768
-            (signal
-             (concat (signal-value btor767) (signal-value btor766))
-             (list)))
+            (if (bitvector->bool (signal-value btor756)) btor148 btor766))
+           (btor768 (signal (bvnot (signal-value btor734)) (list)))
            (btor769
-            (signal
-             (extract 11 0 (signal-value btor669))
-             (signal-state btor669)))
+            (if (bitvector->bool (signal-value btor748)) btor768 btor734))
            (btor770
-            (signal
-             (concat (signal-value btor769) (signal-value btor768))
-             (list)))
+            (if (bitvector->bool (signal-value btor756)) btor148 btor769))
            (btor771
             (signal
-             (extract 11 0 (signal-value btor673))
-             (signal-state btor673)))
+             (concat (signal-value btor762) (signal-value btor757))
+             (list)))
            (btor772
             (signal
-             (concat (signal-value btor771) (signal-value btor770))
+             (concat (signal-value btor767) (signal-value btor771))
              (list)))
-           (btor773 (signal (bvnot (signal-value btor772)) (list)))
+           (btor773
+            (signal
+             (concat (signal-value btor770) (signal-value btor772))
+             (list)))
            (btor774
-            (if (bitvector->bool (signal-value btor685)) btor773 btor772))
+            (if (bitvector->bool (signal-value btor736)) btor773 btor744))
            (btor775
-            (if (bitvector->bool (signal-value btor414)) btor774 btor765))
+            (signal
+             (extract 0 0 (signal-value btor774))
+             (signal-state btor774)))
+           (btor776
+            (if (bitvector->bool (signal-value btor624)) btor775 btor148))
            (btor777
-            (if (bitvector->bool (signal-value btor176)) btor751 btor163))
+            (signal
+             (extract 1 1 (signal-value btor774))
+             (signal-state btor774)))
+           (btor778
+            (if (bitvector->bool (signal-value btor642)) btor777 btor148))
            (btor779
-            (if (bitvector->bool (signal-value btor176)) btor744 btor163))
+            (signal
+             (extract 2 2 (signal-value btor774))
+             (signal-state btor774)))
+           (btor780
+            (if (bitvector->bool (signal-value btor624)) btor779 btor148))
+           (btor781
+            (signal
+             (concat (signal-value btor778) (signal-value btor776))
+             (list)))
            (btor782
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state782")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state782"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state782")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state782")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
+            (signal
+             (concat (signal-value btor780) (signal-value btor781))
+             (list)))
+           (btor783
+            (signal
+             (extract 3 3 (signal-value btor774))
+             (signal-state btor774)))
            (btor784
+            (signal
+             (concat (signal-value btor783) (signal-value btor782))
+             (list)))
+           (btor786
             (let* ((state-value
                     (cond
                      ((assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state784")))
+                       (string->symbol (string-append name "state786")))
                       (bv->signal
                        (car
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state784"))))))
+                         (string->symbol (string-append name "state786"))))))
                      ((assoc-has-key?
                        init-hash
-                       (string->symbol (string-append name "state784")))
+                       (string->symbol (string-append name "state786")))
                       (bv->signal
                        (assoc-ref
                         init-hash
-                        (string->symbol (string-append name "state784")))))
+                        (string->symbol (string-append name "state786")))))
                      (else
                       (bv->signal
                        ((lambda ()
@@ -3852,1240 +3910,1745 @@
                           (bv 0 1))))))))
               (when (not (signal? state-value)) (error "Expected signal"))
               state-value))
-           (btor786
-            (if (bitvector->bool (signal-value btor173)) btor784 btor782))
            (btor787
-            (signal
-             (bvand (signal-value btor786) (signal-value btor745))
-             (list)))
-           (btor788
-            (signal
-             (bvand (signal-value btor787) (signal-value btor752))
-             (list)))
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state787")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state787"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state787")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state787")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
            (btor789
-            (if (bitvector->bool (signal-value btor757)) btor788 btor163))
+            (if (bitvector->bool (signal-value btor97)) btor787 btor786))
+           (btor790
+            (if (bitvector->bool (signal-value btor155)) btor789 btor148))
            (btor791
-            (bv->signal
-             (zero-extend (signal-value btor663) (bitvector 1))
-             btor663))
+            (signal
+             (extract 42 42 (signal-value btor363))
+             (signal-state btor363)))
            (btor792
-            (bv->signal
-             (zero-extend (signal-value btor667) (bitvector 1))
-             btor667))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor473) (signal-value btor474)))
+             (list)))
            (btor793
-            (bv->signal
-             (zero-extend (signal-value btor671) (bitvector 1))
-             btor671))
+            (if (bitvector->bool (signal-value btor792)) btor57 btor791))
            (btor794
+            (if (bitvector->bool (signal-value btor736)) btor793 btor790))
+           (btor796
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state796")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state796"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state796")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state796")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor797
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state797")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state797"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state797")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state797")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor799
+            (if (bitvector->bool (signal-value btor97)) btor797 btor796))
+           (btor800
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state800")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state800"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state800")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state800")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor801
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state801")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state801"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state801")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state801")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor803
+            (if (bitvector->bool (signal-value btor97)) btor801 btor800))
+           (btor804 (signal (bvnot (signal-value btor803)) (list)))
+           (btor805
+            (signal
+             (bvand (signal-value btor799) (signal-value btor804))
+             (list)))
+           (btor806
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state806")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state806"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state806")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state806")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor807
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state807")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state807"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state807")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state807")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor809
+            (if (bitvector->bool (signal-value btor97)) btor807 btor806))
+           (btor810 (signal (bvnot (signal-value btor809)) (list)))
+           (btor811
+            (signal
+             (bvand (signal-value btor805) (signal-value btor810))
+             (list)))
+           (btor812 (bv->signal (bv 10 (bitvector 4))))
+           (btor813
+            (bv->signal
+             (zero-extend (signal-value btor812) (bitvector 5))
+             btor812))
+           (btor814
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor77) (signal-value btor813)))
+             (list)))
+           (btor815
+            (signal
+             (bvor (signal-value btor814) (signal-value btor155))
+             (list)))
+           (btor816
+            (if (bitvector->bool (signal-value btor815)) btor811 btor148))
+           (btor818
+            (if (bitvector->bool (signal-value btor155)) btor407 btor158))
+           (btor819
+            (signal
+             (extract 11 0 (signal-value btor721))
+             (signal-state btor721)))
+           (btor820
+            (signal
+             (extract 11 0 (signal-value btor725))
+             (signal-state btor725)))
+           (btor821
+            (signal
+             (concat (signal-value btor820) (signal-value btor819))
+             (list)))
+           (btor822
+            (signal
+             (extract 11 0 (signal-value btor729))
+             (signal-state btor729)))
+           (btor823
+            (signal
+             (concat (signal-value btor822) (signal-value btor821))
+             (list)))
+           (btor824
+            (signal
+             (extract 11 0 (signal-value btor733))
+             (signal-state btor733)))
+           (btor825
+            (signal
+             (concat (signal-value btor824) (signal-value btor823))
+             (list)))
+           (btor826 (signal (bvnot (signal-value btor825)) (list)))
+           (btor827
+            (if (bitvector->bool (signal-value btor747)) btor826 btor825))
+           (btor828
+            (if (bitvector->bool (signal-value btor736)) btor827 btor818))
+           (btor830
+            (bv->signal
+             (zero-extend (signal-value btor409) (bitvector 5))
+             btor409))
+           (btor831
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor74) (signal-value btor830)))
+             (list)))
+           (btor832
+            (if (bitvector->bool (signal-value btor831)) btor60 btor489))
+           (btor833
+            (signal
+             (bvxor (signal-value btor832) (signal-value btor827))
+             (list)))
+           (btor834 (bv->signal (bv 14 (bitvector 4))))
+           (btor835
+            (bv->signal
+             (zero-extend (signal-value btor834) (bitvector 5))
+             btor834))
+           (btor836
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor73) (signal-value btor835)))
+             (list)))
+           (btor837
+            (if (bitvector->bool (signal-value btor836)) btor489 btor55))
+           (btor838
+            (signal
+             (extract 46 0 (signal-value btor489))
+             (signal-state btor489)))
+           (btor839 (signal (bvnot (signal-value btor838)) (list)))
+           (btor840
+            (signal
+             (concat (signal-value btor839) (signal-value btor148))
+             (list)))
+           (btor841 (bv->signal (bv 0 (bitvector 2))))
+           (btor842
+            (signal
+             (extract 45 0 (signal-value btor839))
+             (signal-state btor839)))
+           (btor843
+            (signal
+             (concat (signal-value btor842) (signal-value btor841))
+             (list)))
+           (btor844 (bv->signal (bv 16 (bitvector 5))))
+           (btor845
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor73) (signal-value btor844)))
+             (list)))
+           (btor846
+            (if (bitvector->bool (signal-value btor845)) btor843 btor840))
+           (btor847 (bv->signal (bv 15 (bitvector 4))))
+           (btor848
+            (bv->signal
+             (zero-extend (signal-value btor847) (bitvector 5))
+             btor847))
+           (btor849
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor73) (signal-value btor848)))
+             (list)))
+           (btor850
+            (signal
+             (bvor (signal-value btor849) (signal-value btor845))
+             (list)))
+           (btor851
+            (if (bitvector->bool (signal-value btor850)) btor846 btor837))
+           (btor852
+            (bv->signal
+             (zero-extend (signal-value btor573) (bitvector 5))
+             btor573))
+           (btor853
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor77) (signal-value btor852)))
+             (list)))
+           (btor854
+            (if (bitvector->bool (signal-value btor853)) btor415 btor851))
+           (btor855
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state855")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state855"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state855")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state855")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 48))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor857
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state857")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state857"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state857")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state857")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 48))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor859
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state859")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state859"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state859")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state859")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor861
+            (if (bitvector->bool (signal-value btor859)) btor857 btor855))
+           (btor862 (signal (bvnot (signal-value btor853)) (list)))
+           (btor863
+            (bv->signal
+             (zero-extend (signal-value btor321) (bitvector 5))
+             btor321))
+           (btor864
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor73) (signal-value btor863)))
+             (list)))
+           (btor865 (signal (bvnot (signal-value btor864)) (list)))
+           (btor866 (signal (bvnot (signal-value btor836)) (list)))
+           (btor867 (signal (bvnot (signal-value btor849)) (list)))
+           (btor868 (signal (bvnot (signal-value btor845)) (list)))
+           (btor869
+            (signal
+             (bvand (signal-value btor867) (signal-value btor868))
+             (list)))
+           (btor870
+            (signal
+             (bvand (signal-value btor866) (signal-value btor869))
+             (list)))
+           (btor871
+            (signal
+             (bvand (signal-value btor865) (signal-value btor870))
+             (list)))
+           (btor872
+            (signal
+             (bvand (signal-value btor862) (signal-value btor871))
+             (list)))
+           (btor873
+            (if (bitvector->bool (signal-value btor872)) btor861 btor854))
+           (btor874
+            (signal
+             (bvor (signal-value btor833) (signal-value btor873))
+             (list)))
+           (btor875
+            (signal
+             (apply bvand (bitvector->bits (signal-value btor874)))
+             (signal-state btor874)))
+           (btor876
+            (if (bitvector->bool (signal-value btor155)) btor809 btor875))
+           (btor878 (signal (bvnot (signal-value btor833)) (list)))
+           (btor879
+            (signal
+             (bvor (signal-value btor878) (signal-value btor873))
+             (list)))
+           (btor880
+            (signal
+             (apply bvand (bitvector->bits (signal-value btor879)))
+             (signal-state btor879)))
+           (btor881
+            (if (bitvector->bool (signal-value btor155)) btor803 btor880))
+           (btor884
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state884")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state884"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state884")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state884")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor885
+            (let* ((state-value
+                    (cond
+                     ((assoc-has-key?
+                       merged-input-state-hash
+                       (string->symbol (string-append name "state885")))
+                      (bv->signal
+                       (car
+                        (assoc-ref
+                         merged-input-state-hash
+                         (string->symbol (string-append name "state885"))))))
+                     ((assoc-has-key?
+                       init-hash
+                       (string->symbol (string-append name "state885")))
+                      (bv->signal
+                       (assoc-ref
+                        init-hash
+                        (string->symbol (string-append name "state885")))))
+                     (else
+                      (bv->signal
+                       ((lambda ()
+                          (log-warning
+                           "Getting default value of 0 for bitvector, this may be a bad idea!")
+                          (bv 0 1))))))))
+              (when (not (signal? state-value)) (error "Expected signal"))
+              state-value))
+           (btor887
+            (if (bitvector->bool (signal-value btor97)) btor885 btor884))
+           (btor888
+            (signal
+             (bvand (signal-value btor887) (signal-value btor804))
+             (list)))
+           (btor889
+            (signal
+             (bvand (signal-value btor888) (signal-value btor810))
+             (list)))
+           (btor890
+            (if (bitvector->bool (signal-value btor815)) btor889 btor148))
+           (btor892
+            (bv->signal
+             (zero-extend (signal-value btor723) (bitvector 1))
+             btor723))
+           (btor893
+            (bv->signal
+             (zero-extend (signal-value btor727) (bitvector 1))
+             btor727))
+           (btor894
+            (bv->signal
+             (zero-extend (signal-value btor731) (bitvector 1))
+             btor731))
+           (btor895
             (bv->signal
              (zero-extend (signal-value btor49) (bitvector 4))
              btor49))
-           (btor795
+           (btor896
             (bv->signal
              (zero-extend (signal-value btor50) (bitvector 1))
              btor50))
-           (btor796
+           (btor897
             (bv->signal
              (zero-extend (signal-value btor51) (bitvector 1))
              btor51))
-           (btor797
+           (btor898
             (bv->signal
              (zero-extend (signal-value btor52) (bitvector 5))
              btor52))
-           (btor798
+           (btor899
             (bv->signal
              (zero-extend (signal-value btor54) (bitvector 7))
              btor54))
-           (btor799
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 30))
-             btor2))
-           (btor800
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 30))
-             btor2))
-           (btor801
-            (bv->signal
-             (zero-extend (signal-value btor106) (bitvector 30))
-             btor106))
-           (btor802
-            (bv->signal
-             (zero-extend (signal-value btor196) (bitvector 25))
-             btor196))
-           (btor803
-            (bv->signal
-             (zero-extend (signal-value btor5) (bitvector 30))
-             btor5))
-           (btor804
-            (bv->signal
-             (zero-extend (signal-value btor5) (bitvector 30))
-             btor5))
-           (btor805
-            (bv->signal
-             (zero-extend (signal-value btor219) (bitvector 25))
-             btor219))
-           (btor806
-            (bv->signal
-             (zero-extend (signal-value btor226) (bitvector 25))
-             btor226))
-           (btor807 (bitvector 49))
-           (btor808 (bv->signal (bv 0 (bitvector 49))))
-           (btor809
-            (bv->signal
-             (zero-extend (signal-value btor808) (bitvector 49))
-             btor808))
-           (btor810
-            (bv->signal
-             (zero-extend (signal-value btor194) (bitvector 25))
-             btor194))
-           (btor811
-            (bv->signal
-             (zero-extend (signal-value btor194) (bitvector 25))
-             btor194))
-           (btor812
-            (bv->signal
-             (zero-extend (signal-value btor774) (bitvector 48))
-             btor774))
-           (btor813 (bv->signal (bv 0 (bitvector 13))))
-           (btor814
-            (bv->signal
-             (zero-extend (signal-value btor813) (bitvector 13))
-             btor813))
-           (btor815
-            (bv->signal
-             (zero-extend (signal-value btor813) (bitvector 13))
-             btor813))
-           (btor816
-            (bv->signal
-             (zero-extend (signal-value btor813) (bitvector 13))
-             btor813))
-           (btor817
-            (bv->signal
-             (zero-extend (signal-value btor813) (bitvector 13))
-             btor813))
-           (btor818
-            (bv->signal
-             (zero-extend (signal-value btor8) (bitvector 4))
-             btor8))
-           (btor819
-            (bv->signal
-             (zero-extend (signal-value btor567) (bitvector 4))
-             btor567))
-           (btor820
-            (bv->signal
-             (zero-extend (signal-value btor15) (bitvector 18))
-             btor15))
-           (btor821
-            (bv->signal
-             (zero-extend (signal-value btor15) (bitvector 18))
-             btor15))
-           (btor822
-            (bv->signal
-             (zero-extend (signal-value btor279) (bitvector 18))
-             btor279))
-           (btor823
-            (bv->signal
-             (zero-extend (signal-value btor143) (bitvector 18))
-             btor143))
-           (btor824
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 18))
-             btor17))
-           (btor825
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 18))
-             btor17))
-           (btor826
-            (bv->signal
-             (zero-extend (signal-value btor21) (bitvector 48))
-             btor21))
-           (btor827
-            (bv->signal
-             (zero-extend (signal-value btor21) (bitvector 48))
-             btor21))
-           (btor828
-            (bv->signal
-             (zero-extend (signal-value btor23) (bitvector 1))
-             btor23))
-           (btor829
-            (bv->signal
-             (zero-extend (signal-value btor23) (bitvector 1))
-             btor23))
-           (btor830
-            (bv->signal
-             (zero-extend (signal-value btor674) (bitvector 1))
-             btor674))
-           (btor831
-            (bv->signal
-             (zero-extend (signal-value btor675) (bitvector 1))
-             btor675))
-           (btor832
-            (bv->signal
-             (zero-extend (signal-value btor174) (bitvector 1))
-             btor174))
-           (btor833
-            (bv->signal
-             (zero-extend (signal-value btor24) (bitvector 1))
-             btor24))
-           (btor834
-            (bv->signal
-             (zero-extend (signal-value btor617) (bitvector 1))
-             btor617))
-           (btor835
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 3))
-             btor27))
-           (btor836
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 3))
-             btor27))
-           (btor837
-            (bv->signal
-             (zero-extend (signal-value btor711) (bitvector 4))
-             btor711))
-           (btor838
-            (signal
-             (concat (signal-value btor698) (signal-value btor687))
-             (list)))
-           (btor839
-            (signal
-             (concat (signal-value btor703) (signal-value btor838))
-             (list)))
-           (btor840
-            (signal
-             (concat (signal-value btor707) (signal-value btor839))
-             (list)))
-           (btor841
-            (bv->signal
-             (zero-extend (signal-value btor840) (bitvector 4))
-             btor840))
-           (btor842
-            (bv->signal
-             (zero-extend (signal-value btor712) (bitvector 4))
-             btor712))
-           (btor843
-            (bv->signal
-             (zero-extend (signal-value btor681) (bitvector 4))
-             btor681))
-           (btor844
-            (bv->signal
-             (zero-extend (signal-value btor722) (bitvector 4))
-             btor722))
-           (btor845
-            (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
-           (btor846
-            (bv->signal
-             (zero-extend (signal-value btor29) (bitvector 1))
-             btor29))
-           (btor847
-            (bv->signal
-             (zero-extend (signal-value btor29) (bitvector 1))
-             btor29))
-           (btor848
-            (bv->signal
-             (zero-extend (signal-value btor30) (bitvector 1))
-             btor30))
-           (btor849
-            (bv->signal
-             (zero-extend (signal-value btor30) (bitvector 1))
-             btor30))
-           (btor850
-            (bv->signal
-             (zero-extend (signal-value btor31) (bitvector 1))
-             btor31))
-           (btor851
-            (bv->signal
-             (zero-extend (signal-value btor31) (bitvector 1))
-             btor31))
-           (btor852
-            (bv->signal
-             (zero-extend (signal-value btor32) (bitvector 1))
-             btor32))
-           (btor853
-            (bv->signal
-             (zero-extend (signal-value btor32) (bitvector 1))
-             btor32))
-           (btor854
-            (bv->signal
-             (zero-extend (signal-value btor33) (bitvector 1))
-             btor33))
-           (btor855
-            (bv->signal
-             (zero-extend (signal-value btor33) (bitvector 1))
-             btor33))
-           (btor856
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 1))
-             btor34))
-           (btor857
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 1))
-             btor34))
-           (btor858
-            (bv->signal
-             (zero-extend (signal-value btor35) (bitvector 1))
-             btor35))
-           (btor859
-            (bv->signal
-             (zero-extend (signal-value btor35) (bitvector 1))
-             btor35))
-           (btor860
-            (bv->signal
-             (zero-extend (signal-value btor36) (bitvector 1))
-             btor36))
-           (btor861
-            (bv->signal
-             (zero-extend (signal-value btor36) (bitvector 1))
-             btor36))
-           (btor862
-            (bv->signal
-             (zero-extend (signal-value btor37) (bitvector 1))
-             btor37))
-           (btor863
-            (bv->signal
-             (zero-extend (signal-value btor37) (bitvector 1))
-             btor37))
-           (btor864
-            (bv->signal
-             (zero-extend (signal-value btor38) (bitvector 1))
-             btor38))
-           (btor865
-            (bv->signal
-             (zero-extend (signal-value btor38) (bitvector 1))
-             btor38))
-           (btor866
-            (bv->signal
-             (zero-extend (signal-value btor39) (bitvector 1))
-             btor39))
-           (btor867
-            (bv->signal
-             (zero-extend (signal-value btor39) (bitvector 1))
-             btor39))
-           (btor868
-            (bv->signal
-             (zero-extend (signal-value btor40) (bitvector 1))
-             btor40))
-           (btor869
-            (bv->signal
-             (zero-extend (signal-value btor40) (bitvector 1))
-             btor40))
-           (btor870
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 1))
-             btor41))
-           (btor871
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 1))
-             btor41))
-           (btor872
-            (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
-           (btor873
-            (bv->signal
-             (zero-extend (signal-value btor42) (bitvector 1))
-             btor42))
-           (btor874
-            (bv->signal
-             (zero-extend (signal-value btor168) (bitvector 1))
-             btor168))
-           (btor875
-            (bv->signal
-             (zero-extend (signal-value btor572) (bitvector 48))
-             btor572))
-           (btor876
-            (bv->signal
-             (zero-extend (signal-value btor605) (bitvector 1))
-             btor605))
-           (btor877
-            (bv->signal
-             (zero-extend (signal-value btor597) (bitvector 1))
-             btor597))
-           (btor878
-            (bv->signal
-             (zero-extend (signal-value btor579) (bitvector 1))
-             btor579))
-           (btor879
-            (bv->signal
-             (zero-extend (signal-value btor574) (bitvector 48))
-             btor574))
-           (btor880
-            (bv->signal
-             (zero-extend (signal-value btor683) (bitvector 1))
-             btor683))
-           (btor881
-            (bv->signal
-             (zero-extend (signal-value btor696) (bitvector 1))
-             btor696))
-           (btor882
-            (bv->signal
-             (zero-extend (signal-value btor701) (bitvector 1))
-             btor701))
-           (btor883
-            (bv->signal
-             (zero-extend (signal-value btor674) (bitvector 1))
-             btor674))
-           (btor884
-            (bv->signal
-             (zero-extend (signal-value btor45) (bitvector 25))
-             btor45))
-           (btor885
-            (bv->signal
-             (zero-extend (signal-value btor45) (bitvector 25))
-             btor45))
-           (btor886
-            (bv->signal
-             (zero-extend (signal-value btor194) (bitvector 25))
-             btor194))
-           (btor887
-            (bv->signal
-             (zero-extend (signal-value btor47) (bitvector 5))
-             btor47))
-           (btor888
-            (bv->signal
-             (zero-extend (signal-value btor182) (bitvector 5))
-             btor182))
-           (btor889
-            (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
-           (btor890
-            (bv->signal
-             (zero-extend (signal-value btor349) (bitvector 43))
-             btor349))
-           (btor891
-            (bv->signal
-             (zero-extend (signal-value btor57) (bitvector 1))
-             btor57))
-           (btor892
-            (bv->signal
-             (zero-extend (signal-value btor57) (bitvector 1))
-             btor57))
-           (btor893
-            (bv->signal
-             (zero-extend (signal-value btor733) (bitvector 1))
-             btor733))
-           (btor894
-            (bv->signal
-             (zero-extend (signal-value btor732) (bitvector 1))
-             btor732))
-           (btor895
-            (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
-           (btor896
-            (bv->signal
-             (zero-extend (signal-value btor58) (bitvector 7))
-             btor58))
-           (btor897
-            (bv->signal
-             (zero-extend (signal-value btor394) (bitvector 7))
-             btor394))
-           (btor898
-            (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
-           (btor899
-            (bv->signal
-             (zero-extend (signal-value btor758) (bitvector 1))
-             btor758))
            (btor900
             (bv->signal
-             (zero-extend (signal-value btor61) (bitvector 48))
-             btor61))
+             (zero-extend (signal-value btor2) (bitvector 30))
+             btor2))
            (btor901
             (bv->signal
-             (zero-extend (signal-value btor61) (bitvector 48))
-             btor61))
+             (zero-extend (signal-value btor2) (bitvector 30))
+             btor2))
            (btor902
             (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
+             (zero-extend (signal-value btor86) (bitvector 30))
+             btor86))
            (btor903
             (bv->signal
-             (zero-extend (signal-value btor779) (bitvector 1))
-             btor779))
+             (zero-extend (signal-value btor178) (bitvector 25))
+             btor178))
            (btor904
             (bv->signal
-             (zero-extend (signal-value btor744) (bitvector 1))
-             btor744))
+             (zero-extend (signal-value btor5) (bitvector 30))
+             btor5))
            (btor905
             (bv->signal
-             (zero-extend (signal-value btor739) (bitvector 1))
-             btor739))
+             (zero-extend (signal-value btor5) (bitvector 30))
+             btor5))
            (btor906
             (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
+             (zero-extend (signal-value btor195) (bitvector 25))
+             btor195))
            (btor907
-            (bv->signal
-             (zero-extend (signal-value btor777) (bitvector 1))
-             btor777))
-           (btor908
-            (bv->signal
-             (zero-extend (signal-value btor751) (bitvector 1))
-             btor751))
-           (btor909
-            (bv->signal
-             (zero-extend (signal-value btor786) (bitvector 1))
-             btor786))
-           (btor910
-            (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
-           (btor911
-            (bv->signal
-             (zero-extend (signal-value btor109) (bitvector 30))
-             btor109))
-           (btor912
-            (bv->signal
-             (zero-extend (signal-value btor120) (bitvector 30))
-             btor120))
-           (btor913
-            (bv->signal
-             (zero-extend (signal-value btor91) (bitvector 30))
-             btor91))
-           (btor914
-            (bv->signal
-             (zero-extend (signal-value btor124) (bitvector 30))
-             btor124))
-           (btor915
-            (bv->signal
-             (zero-extend (signal-value btor222) (bitvector 25))
-             btor222))
-           (btor916
-            (bv->signal
-             (zero-extend (signal-value btor201) (bitvector 25))
-             btor201))
-           (btor917
-            (bv->signal
-             (zero-extend (signal-value btor570) (bitvector 4))
-             btor570))
-           (btor918
-            (bv->signal
-             (zero-extend (signal-value btor566) (bitvector 4))
-             btor566))
-           (btor919
-            (bv->signal
-             (zero-extend (signal-value btor146) (bitvector 18))
-             btor146))
-           (btor920
-            (bv->signal
-             (zero-extend (signal-value btor157) (bitvector 18))
-             btor157))
-           (btor921
-            (bv->signal
-             (zero-extend (signal-value btor131) (bitvector 18))
-             btor131))
-           (btor922
-            (bv->signal
-             (zero-extend (signal-value btor161) (bitvector 18))
-             btor161))
-           (btor923
-            (bv->signal
-             (zero-extend (signal-value btor496) (bitvector 48))
-             btor496))
-           (btor924
-            (bv->signal
-             (zero-extend (signal-value btor493) (bitvector 48))
-             btor493))
-           (btor925
-            (bv->signal
-             (zero-extend (signal-value btor655) (bitvector 1))
-             btor655))
-           (btor926
-            (bv->signal
-             (zero-extend (signal-value btor620) (bitvector 1))
-             btor620))
-           (btor927
-            (bv->signal
-             (zero-extend (signal-value btor635) (bitvector 1))
-             btor635))
-           (btor928
-            (bv->signal
-             (zero-extend (signal-value btor653) (bitvector 1))
-             btor653))
-           (btor929
-            (bv->signal
-             (zero-extend (signal-value btor163) (bitvector 1))
-             btor163))
-           (btor930
-            (bv->signal
-             (zero-extend (signal-value btor616) (bitvector 1))
-             btor616))
-           (btor931
-            (bv->signal
-             (zero-extend (signal-value btor631) (bitvector 1))
-             btor631))
-           (btor932
-            (bv->signal
-             (zero-extend (signal-value btor369) (bitvector 3))
-             btor369))
-           (btor933
-            (bv->signal
-             (zero-extend (signal-value btor363) (bitvector 3))
-             btor363))
-           (btor934
-            (bv->signal
-             (zero-extend (signal-value btor212) (bitvector 25))
-             btor212))
-           (btor935
             (bv->signal
              (zero-extend (signal-value btor209) (bitvector 25))
              btor209))
+           (btor908
+            (bv->signal
+             (zero-extend (signal-value btor827) (bitvector 48))
+             btor827))
+           (btor909
+            (bv->signal
+             (zero-extend (signal-value btor8) (bitvector 4))
+             btor8))
+           (btor910
+            (bv->signal
+             (zero-extend (signal-value btor600) (bitvector 4))
+             btor600))
+           (btor911
+            (bv->signal
+             (zero-extend (signal-value btor15) (bitvector 18))
+             btor15))
+           (btor912
+            (bv->signal
+             (zero-extend (signal-value btor15) (bitvector 18))
+             btor15))
+           (btor913
+            (bv->signal
+             (zero-extend (signal-value btor262) (bitvector 18))
+             btor262))
+           (btor914
+            (bv->signal
+             (zero-extend (signal-value btor124) (bitvector 18))
+             btor124))
+           (btor915
+            (bv->signal
+             (zero-extend (signal-value btor17) (bitvector 18))
+             btor17))
+           (btor916
+            (bv->signal
+             (zero-extend (signal-value btor17) (bitvector 18))
+             btor17))
+           (btor917
+            (bv->signal
+             (zero-extend (signal-value btor21) (bitvector 48))
+             btor21))
+           (btor918
+            (bv->signal
+             (zero-extend (signal-value btor21) (bitvector 48))
+             btor21))
+           (btor919
+            (bv->signal
+             (zero-extend (signal-value btor23) (bitvector 1))
+             btor23))
+           (btor920
+            (bv->signal
+             (zero-extend (signal-value btor23) (bitvector 1))
+             btor23))
+           (btor921
+            (bv->signal
+             (zero-extend (signal-value btor734) (bitvector 1))
+             btor734))
+           (btor922
+            (bv->signal
+             (zero-extend (signal-value btor737) (bitvector 1))
+             btor737))
+           (btor923
+            (bv->signal
+             (zero-extend (signal-value btor153) (bitvector 1))
+             btor153))
+           (btor924
+            (bv->signal
+             (zero-extend (signal-value btor24) (bitvector 1))
+             btor24))
+           (btor925
+            (bv->signal
+             (zero-extend (signal-value btor662) (bitvector 1))
+             btor662))
+           (btor926
+            (bv->signal
+             (zero-extend (signal-value btor27) (bitvector 3))
+             btor27))
+           (btor927
+            (bv->signal
+             (zero-extend (signal-value btor27) (bitvector 3))
+             btor27))
+           (btor928
+            (bv->signal
+             (zero-extend (signal-value btor773) (bitvector 4))
+             btor773))
+           (btor929
+            (signal
+             (concat (signal-value btor760) (signal-value btor749))
+             (list)))
+           (btor930
+            (signal
+             (concat (signal-value btor765) (signal-value btor929))
+             (list)))
+           (btor931
+            (signal
+             (concat (signal-value btor769) (signal-value btor930))
+             (list)))
+           (btor932
+            (bv->signal
+             (zero-extend (signal-value btor931) (bitvector 4))
+             btor931))
+           (btor933
+            (bv->signal
+             (zero-extend (signal-value btor774) (bitvector 4))
+             btor774))
+           (btor934
+            (bv->signal
+             (zero-extend (signal-value btor743) (bitvector 4))
+             btor743))
+           (btor935
+            (bv->signal
+             (zero-extend (signal-value btor784) (bitvector 4))
+             btor784))
            (btor936
             (bv->signal
-             (zero-extend (signal-value btor191) (bitvector 5))
-             btor191))
+             (zero-extend (signal-value btor29) (bitvector 1))
+             btor29))
            (btor937
             (bv->signal
-             (zero-extend (signal-value btor188) (bitvector 5))
-             btor188))
+             (zero-extend (signal-value btor29) (bitvector 1))
+             btor29))
            (btor938
             (bv->signal
-             (zero-extend (signal-value btor372) (bitvector 43))
-             btor372))
+             (zero-extend (signal-value btor30) (bitvector 1))
+             btor30))
            (btor939
             (bv->signal
-             (zero-extend (signal-value btor354) (bitvector 43))
-             btor354))
+             (zero-extend (signal-value btor30) (bitvector 1))
+             btor30))
            (btor940
             (bv->signal
-             (zero-extend (signal-value btor728) (bitvector 1))
-             btor728))
+             (zero-extend (signal-value btor31) (bitvector 1))
+             btor31))
            (btor941
             (bv->signal
-             (zero-extend (signal-value btor397) (bitvector 7))
-             btor397))
+             (zero-extend (signal-value btor31) (bitvector 1))
+             btor31))
            (btor942
             (bv->signal
-             (zero-extend (signal-value btor393) (bitvector 7))
-             btor393))
+             (zero-extend (signal-value btor32) (bitvector 1))
+             btor32))
            (btor943
             (bv->signal
-             (zero-extend (signal-value btor775) (bitvector 48))
-             btor775))
+             (zero-extend (signal-value btor32) (bitvector 1))
+             btor32))
            (btor944
             (bv->signal
-             (zero-extend (signal-value btor764) (bitvector 48))
-             btor764))
+             (zero-extend (signal-value btor33) (bitvector 1))
+             btor33))
            (btor945
             (bv->signal
-             (zero-extend (signal-value btor423) (bitvector 48))
-             btor423))
+             (zero-extend (signal-value btor33) (bitvector 1))
+             btor33))
            (btor946
             (bv->signal
-             (zero-extend (signal-value btor498) (bitvector 48))
-             btor498))
+             (zero-extend (signal-value btor34) (bitvector 1))
+             btor34))
            (btor947
             (bv->signal
-             (zero-extend (signal-value btor551) (bitvector 48))
-             btor551))
+             (zero-extend (signal-value btor34) (bitvector 1))
+             btor34))
            (btor948
             (bv->signal
-             (zero-extend (signal-value btor63) (bitvector 1))
-             btor63))
+             (zero-extend (signal-value btor35) (bitvector 1))
+             btor35))
            (btor949
             (bv->signal
-             (zero-extend (signal-value btor63) (bitvector 1))
-             btor63))
+             (zero-extend (signal-value btor35) (bitvector 1))
+             btor35))
            (btor950
             (bv->signal
-             (zero-extend (signal-value btor64) (bitvector 1))
-             btor64))
+             (zero-extend (signal-value btor36) (bitvector 1))
+             btor36))
            (btor951
             (bv->signal
-             (zero-extend (signal-value btor64) (bitvector 1))
-             btor64))
+             (zero-extend (signal-value btor36) (bitvector 1))
+             btor36))
            (btor952
             (bv->signal
-             (zero-extend (signal-value btor65) (bitvector 1))
-             btor65))
+             (zero-extend (signal-value btor37) (bitvector 1))
+             btor37))
            (btor953
             (bv->signal
-             (zero-extend (signal-value btor65) (bitvector 1))
-             btor65))
+             (zero-extend (signal-value btor37) (bitvector 1))
+             btor37))
            (btor954
             (bv->signal
-             (zero-extend (signal-value btor66) (bitvector 1))
-             btor66))
+             (zero-extend (signal-value btor38) (bitvector 1))
+             btor38))
            (btor955
             (bv->signal
-             (zero-extend (signal-value btor66) (bitvector 1))
-             btor66))
+             (zero-extend (signal-value btor38) (bitvector 1))
+             btor38))
            (btor956
             (bv->signal
-             (zero-extend (signal-value btor67) (bitvector 1))
-             btor67))
+             (zero-extend (signal-value btor39) (bitvector 1))
+             btor39))
            (btor957
             (bv->signal
-             (zero-extend (signal-value btor67) (bitvector 1))
-             btor67))
+             (zero-extend (signal-value btor39) (bitvector 1))
+             btor39))
            (btor958
             (bv->signal
-             (zero-extend (signal-value btor68) (bitvector 1))
-             btor68))
+             (zero-extend (signal-value btor40) (bitvector 1))
+             btor40))
            (btor959
             (bv->signal
-             (zero-extend (signal-value btor68) (bitvector 1))
-             btor68))
+             (zero-extend (signal-value btor40) (bitvector 1))
+             btor40))
            (btor960
             (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 1))
-             btor69))
+             (zero-extend (signal-value btor41) (bitvector 1))
+             btor41))
            (btor961
             (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 1))
-             btor69))
+             (zero-extend (signal-value btor41) (bitvector 1))
+             btor41))
            (btor962
             (bv->signal
-             (zero-extend (signal-value btor70) (bitvector 1))
-             btor70))
+             (zero-extend (signal-value btor42) (bitvector 1))
+             btor42))
            (btor963
             (bv->signal
-             (zero-extend (signal-value btor70) (bitvector 1))
-             btor70))
+             (zero-extend (signal-value btor91) (bitvector 1))
+             btor91))
            (btor964
             (bv->signal
-             (zero-extend (signal-value btor71) (bitvector 1))
-             btor71))
+             (zero-extend (signal-value btor618) (bitvector 48))
+             btor618))
            (btor965
             (bv->signal
-             (zero-extend (signal-value btor71) (bitvector 1))
-             btor71))
+             (zero-extend (signal-value btor651) (bitvector 1))
+             btor651))
            (btor966
             (bv->signal
-             (zero-extend (signal-value btor72) (bitvector 1))
-             btor72))
+             (zero-extend (signal-value btor643) (bitvector 1))
+             btor643))
            (btor967
             (bv->signal
-             (zero-extend (signal-value btor72) (bitvector 1))
-             btor72))
+             (zero-extend (signal-value btor625) (bitvector 1))
+             btor625))
            (btor968
             (bv->signal
-             (zero-extend (signal-value btor586) (bitvector 48))
-             btor586))
+             (zero-extend (signal-value btor620) (bitvector 48))
+             btor620))
            (btor969
             (bv->signal
-             (zero-extend (signal-value btor661) (bitvector 13))
-             btor661))
+             (zero-extend (signal-value btor745) (bitvector 1))
+             btor745))
            (btor970
             (bv->signal
-             (zero-extend (signal-value btor665) (bitvector 13))
-             btor665))
+             (zero-extend (signal-value btor758) (bitvector 1))
+             btor758))
            (btor971
             (bv->signal
-             (zero-extend (signal-value btor669) (bitvector 13))
-             btor669))
+             (zero-extend (signal-value btor763) (bitvector 1))
+             btor763))
            (btor972
             (bv->signal
-             (zero-extend (signal-value btor673) (bitvector 13))
-             btor673))
+             (zero-extend (signal-value btor734) (bitvector 1))
+             btor734))
            (btor973
             (bv->signal
-             (zero-extend (signal-value btor588) (bitvector 48))
-             btor588))
-           (btor974 (bv->signal (bv 17 (bitvector 5))))
+             (zero-extend (signal-value btor45) (bitvector 25))
+             btor45))
+           (btor974
+            (bv->signal
+             (zero-extend (signal-value btor45) (bitvector 25))
+             btor45))
            (btor975
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor12) (signal-value btor974)))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor47) (bitvector 5))
+             btor47))
            (btor976
-            (signal
-             (bvand (signal-value btor975) (signal-value btor744))
-             (list)))
-           (btor977 (bv->signal (bv 18 (bitvector 5))))
+            (bv->signal
+             (zero-extend (signal-value btor162) (bitvector 5))
+             btor162))
+           (btor977
+            (bv->signal
+             (zero-extend (signal-value btor332) (bitvector 43))
+             btor332))
            (btor978
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor12) (signal-value btor977)))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor57) (bitvector 1))
+             btor57))
            (btor979
-            (signal
-             (bvand (signal-value btor739) (signal-value btor745))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor57) (bitvector 1))
+             btor57))
            (btor980
-            (signal
-             (bvand (signal-value btor978) (signal-value btor979))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor794) (bitvector 1))
+             btor794))
            (btor981
-            (signal
-             (bvor (signal-value btor976) (signal-value btor980))
-             (list)))
+            (bv->signal
+             (zero-extend (signal-value btor793) (bitvector 1))
+             btor793))
            (btor982
             (bv->signal
-             (zero-extend (signal-value btor981) (bitvector 1))
-             btor981))
+             (zero-extend (signal-value btor58) (bitvector 7))
+             btor58))
            (btor983
+            (bv->signal
+             (zero-extend (signal-value btor383) (bitvector 7))
+             btor383))
+           (btor984
+            (bv->signal
+             (zero-extend (signal-value btor816) (bitvector 1))
+             btor816))
+           (btor985
+            (bv->signal
+             (zero-extend (signal-value btor61) (bitvector 48))
+             btor61))
+           (btor986
+            (bv->signal
+             (zero-extend (signal-value btor61) (bitvector 48))
+             btor61))
+           (btor987
+            (bv->signal
+             (zero-extend (signal-value btor880) (bitvector 1))
+             btor880))
+           (btor988
+            (bv->signal
+             (zero-extend (signal-value btor881) (bitvector 1))
+             btor881))
+           (btor989
+            (bv->signal
+             (zero-extend (signal-value btor803) (bitvector 1))
+             btor803))
+           (btor990
+            (bv->signal
+             (zero-extend (signal-value btor799) (bitvector 1))
+             btor799))
+           (btor991
+            (bv->signal
+             (zero-extend (signal-value btor875) (bitvector 1))
+             btor875))
+           (btor992
+            (bv->signal
+             (zero-extend (signal-value btor876) (bitvector 1))
+             btor876))
+           (btor993
+            (bv->signal
+             (zero-extend (signal-value btor809) (bitvector 1))
+             btor809))
+           (btor994
+            (bv->signal
+             (zero-extend (signal-value btor887) (bitvector 1))
+             btor887))
+           (btor995
+            (bv->signal
+             (zero-extend (signal-value btor148) (bitvector 1))
+             btor148))
+           (btor996
+            (bv->signal
+             (zero-extend (signal-value btor109) (bitvector 30))
+             btor109))
+           (btor997
+            (bv->signal
+             (zero-extend (signal-value btor113) (bitvector 30))
+             btor113))
+           (btor998
+            (bv->signal
+             (zero-extend (signal-value btor98) (bitvector 30))
+             btor98))
+           (btor999
+            (bv->signal
+             (zero-extend (signal-value btor117) (bitvector 30))
+             btor117))
+           (btor1000
+            (bv->signal
+             (zero-extend (signal-value btor205) (bitvector 25))
+             btor205))
+           (btor1001
+            (bv->signal
+             (zero-extend (signal-value btor199) (bitvector 25))
+             btor199))
+           (btor1002
+            (bv->signal
+             (zero-extend (signal-value btor616) (bitvector 4))
+             btor616))
+           (btor1003
+            (bv->signal
+             (zero-extend (signal-value btor599) (bitvector 4))
+             btor599))
+           (btor1004
+            (bv->signal
+             (zero-extend (signal-value btor138) (bitvector 18))
+             btor138))
+           (btor1005
+            (bv->signal
+             (zero-extend (signal-value btor142) (bitvector 18))
+             btor142))
+           (btor1006
+            (bv->signal
+             (zero-extend (signal-value btor129) (bitvector 18))
+             btor129))
+           (btor1007
+            (bv->signal
+             (zero-extend (signal-value btor146) (bitvector 18))
+             btor146))
+           (btor1008
+            (bv->signal
+             (zero-extend (signal-value btor489) (bitvector 48))
+             btor489))
+           (btor1009
+            (bv->signal
+             (zero-extend (signal-value btor483) (bitvector 48))
+             btor483))
+           (btor1010
+            (bv->signal
+             (zero-extend (signal-value btor715) (bitvector 1))
+             btor715))
+           (btor1011
+            (bv->signal
+             (zero-extend (signal-value btor678) (bitvector 1))
+             btor678))
+           (btor1012
+            (bv->signal
+             (zero-extend (signal-value btor698) (bitvector 1))
+             btor698))
+           (btor1013
+            (bv->signal
+             (zero-extend (signal-value btor713) (bitvector 1))
+             btor713))
+           (btor1014
+            (bv->signal
+             (zero-extend (signal-value btor661) (bitvector 1))
+             btor661))
+           (btor1015
+            (bv->signal
+             (zero-extend (signal-value btor692) (bitvector 1))
+             btor692))
+           (btor1016
+            (bv->signal
+             (zero-extend (signal-value btor360) (bitvector 3))
+             btor360))
+           (btor1017
+            (bv->signal
+             (zero-extend (signal-value btor344) (bitvector 3))
+             btor344))
+           (btor1018
+            (bv->signal
+             (zero-extend (signal-value btor188) (bitvector 25))
+             btor188))
+           (btor1019
+            (bv->signal
+             (zero-extend (signal-value btor182) (bitvector 25))
+             btor182))
+           (btor1020
+            (bv->signal
+             (zero-extend (signal-value btor173) (bitvector 5))
+             btor173))
+           (btor1021
+            (bv->signal
+             (zero-extend (signal-value btor167) (bitvector 5))
+             btor167))
+           (btor1022
+            (bv->signal
+             (zero-extend (signal-value btor363) (bitvector 43))
+             btor363))
+           (btor1023
+            (bv->signal
+             (zero-extend (signal-value btor336) (bitvector 43))
+             btor336))
+           (btor1024
             (bv->signal
              (zero-extend (signal-value btor789) (bitvector 1))
              btor789))
-           (btor984
+           (btor1025
             (bv->signal
-             (zero-extend (signal-value btor485) (bitvector 48))
-             btor485))
-           (btor986
-            (if (bitvector->bool (signal-value btor94)) btor106 btor120))
-           (btor987
-            (if (bitvector->bool (signal-value btor30)) btor986 btor91))
-           (btor988
-            (if (bitvector->bool (signal-value btor63)) btor79 btor987))
-           (btor992
-            (if (bitvector->bool (signal-value btor29)) btor106 btor120))
-           (btor993
-            (if (bitvector->bool (signal-value btor63)) btor79 btor992))
-           (btor996
-            (if (bitvector->bool (signal-value btor133)) btor143 btor157))
-           (btor997
-            (if (bitvector->bool (signal-value btor34)) btor996 btor131))
-           (btor998
-            (if (bitvector->bool (signal-value btor66)) btor126 btor997))
-           (btor1001
-            (if (bitvector->bool (signal-value btor33)) btor143 btor157))
-           (btor1002
-            (if (bitvector->bool (signal-value btor66)) btor126 btor1001))
-           (btor1005
-            (if (bitvector->bool (signal-value btor41)) btor674 btor174))
-           (btor1006
-            (signal
-             (bvor (signal-value btor72) (signal-value btor981))
-             (list)))
-           (btor1007
-            (if (bitvector->bool (signal-value btor1006)) btor163 btor1005))
-           (btor1011
-            (if (bitvector->bool (signal-value btor39)) btor182 btor188))
-           (btor1012
-            (if (bitvector->bool (signal-value btor70)) btor183 btor1011))
-           (btor1015
-            (if (bitvector->bool (signal-value btor31)) btor219 btor201))
-           (btor1016
-            (if (bitvector->bool (signal-value btor69)) btor194 btor1015))
-           (btor1019
-            (if (bitvector->bool (signal-value btor38)) btor45 btor209))
-           (btor1020
-            (if (bitvector->bool (signal-value btor69)) btor194 btor1019))
-           (btor1023
-            (if (bitvector->bool (signal-value btor40)) btor349 btor354))
-           (btor1024
-            (if (bitvector->bool (signal-value btor71)) btor337 btor1023))
+             (zero-extend (signal-value btor399) (bitvector 7))
+             btor399))
+           (btor1026
+            (bv->signal
+             (zero-extend (signal-value btor382) (bitvector 7))
+             btor382))
            (btor1027
-            (if (bitvector->bool (signal-value btor37)) btor27 btor363))
+            (bv->signal
+             (zero-extend (signal-value btor828) (bitvector 48))
+             btor828))
            (btor1028
-            (if (bitvector->bool (signal-value btor68)) btor358 btor1027))
+            (bv->signal
+             (zero-extend (signal-value btor407) (bitvector 48))
+             btor407))
+           (btor1029
+            (bv->signal
+             (zero-extend (signal-value btor414) (bitvector 48))
+             btor414))
+           (btor1030
+            (bv->signal
+             (zero-extend (signal-value btor491) (bitvector 48))
+             btor491))
            (btor1031
-            (if (bitvector->bool (signal-value btor37)) btor394 btor393))
+            (bv->signal
+             (zero-extend (signal-value btor585) (bitvector 48))
+             btor585))
            (btor1032
-            (if (bitvector->bool (signal-value btor68)) btor388 btor1031))
+            (bv->signal
+             (zero-extend (signal-value btor63) (bitvector 1))
+             btor63))
+           (btor1033
+            (bv->signal
+             (zero-extend (signal-value btor63) (bitvector 1))
+             btor63))
+           (btor1034
+            (bv->signal
+             (zero-extend (signal-value btor64) (bitvector 1))
+             btor64))
            (btor1035
-            (if (bitvector->bool (signal-value btor35)) btor21 btor493))
+            (bv->signal
+             (zero-extend (signal-value btor64) (bitvector 1))
+             btor64))
            (btor1036
-            (if (bitvector->bool (signal-value btor67)) btor387 btor1035))
+            (bv->signal
+             (zero-extend (signal-value btor65) (bitvector 1))
+             btor65))
+           (btor1037
+            (bv->signal
+             (zero-extend (signal-value btor65) (bitvector 1))
+             btor65))
+           (btor1038
+            (bv->signal
+             (zero-extend (signal-value btor66) (bitvector 1))
+             btor66))
            (btor1039
-            (if (bitvector->bool (signal-value btor32)) btor567 btor566))
+            (bv->signal
+             (zero-extend (signal-value btor66) (bitvector 1))
+             btor66))
            (btor1040
-            (if (bitvector->bool (signal-value btor65)) btor561 btor1039))
+            (bv->signal
+             (zero-extend (signal-value btor67) (bitvector 1))
+             btor67))
+           (btor1041
+            (bv->signal
+             (zero-extend (signal-value btor67) (bitvector 1))
+             btor67))
+           (btor1042
+            (bv->signal
+             (zero-extend (signal-value btor68) (bitvector 1))
+             btor68))
            (btor1043
-            (if (bitvector->bool (signal-value btor36)) btor617 btor616))
+            (bv->signal
+             (zero-extend (signal-value btor68) (bitvector 1))
+             btor68))
            (btor1044
-            (if (bitvector->bool (signal-value btor64)) btor163 btor1043))
+            (bv->signal
+             (zero-extend (signal-value btor69) (bitvector 1))
+             btor69))
+           (btor1045
+            (bv->signal
+             (zero-extend (signal-value btor69) (bitvector 1))
+             btor69))
+           (btor1046
+            (bv->signal
+             (zero-extend (signal-value btor70) (bitvector 1))
+             btor70))
            (btor1047
-            (if (bitvector->bool (signal-value btor40)) btor634 btor631))
+            (bv->signal
+             (zero-extend (signal-value btor70) (bitvector 1))
+             btor70))
            (btor1048
-            (if (bitvector->bool (signal-value btor64)) btor163 btor1047))
+            (bv->signal
+             (zero-extend (signal-value btor71) (bitvector 1))
+             btor71))
+           (btor1049
+            (bv->signal
+             (zero-extend (signal-value btor71) (bitvector 1))
+             btor71))
+           (btor1050
+            (bv->signal
+             (zero-extend (signal-value btor72) (bitvector 1))
+             btor72))
            (btor1051
-            (if (bitvector->bool (signal-value btor41)) btor711 btor681))
+            (bv->signal
+             (zero-extend (signal-value btor72) (bitvector 1))
+             btor72))
            (btor1052
-            (if (bitvector->bool (signal-value btor1006)) btor561 btor1051))
+            (bv->signal
+             (zero-extend (signal-value btor632) (bitvector 48))
+             btor632))
+           (btor1053
+            (bv->signal
+             (zero-extend (signal-value btor721) (bitvector 13))
+             btor721))
+           (btor1054
+            (bv->signal
+             (zero-extend (signal-value btor725) (bitvector 13))
+             btor725))
            (btor1055
-            (if (bitvector->bool (signal-value btor41)) btor732 btor728))
+            (bv->signal
+             (zero-extend (signal-value btor729) (bitvector 13))
+             btor729))
            (btor1056
-            (if (bitvector->bool (signal-value btor1006)) btor163 btor1055))
+            (bv->signal
+             (zero-extend (signal-value btor733) (bitvector 13))
+             btor733))
+           (btor1057
+            (bv->signal
+             (zero-extend (signal-value btor634) (bitvector 48))
+             btor634))
+           (btor1058 (bv->signal (bv 17 (bitvector 5))))
            (btor1059
-            (if (bitvector->bool (signal-value btor41)) btor744 btor739))
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor12) (signal-value btor1058)))
+             (list)))
            (btor1060
-            (if (bitvector->bool (signal-value btor1006)) btor163 btor1059))
+            (signal
+             (bvand (signal-value btor1059) (signal-value btor803))
+             (list)))
+           (btor1061 (bv->signal (bv 18 (bitvector 5))))
+           (btor1062
+            (signal
+             (bool->bitvector
+              (bveq (signal-value btor12) (signal-value btor1061)))
+             (list)))
            (btor1063
-            (if (bitvector->bool (signal-value btor41)) btor163 btor744))
+            (signal
+             (bvand (signal-value btor799) (signal-value btor804))
+             (list)))
            (btor1064
-            (if (bitvector->bool (signal-value btor1006)) btor163 btor1063))
+            (signal
+             (bvand (signal-value btor1062) (signal-value btor1063))
+             (list)))
+           (btor1065
+            (signal
+             (bvor (signal-value btor1060) (signal-value btor1064))
+             (list)))
+           (btor1066
+            (bv->signal
+             (zero-extend (signal-value btor1065) (bitvector 1))
+             btor1065))
            (btor1067
-            (if (bitvector->bool (signal-value btor41)) btor163 btor751))
+            (bv->signal
+             (zero-extend (signal-value btor873) (bitvector 48))
+             btor873))
            (btor1068
-            (if (bitvector->bool (signal-value btor1006)) btor163 btor1067))
-           (btor1071
-            (if (bitvector->bool (signal-value btor41)) btor774 btor764))
+            (bv->signal
+             (zero-extend (signal-value btor832) (bitvector 48))
+             btor832))
+           (btor1069
+            (bv->signal
+             (zero-extend (signal-value btor890) (bitvector 1))
+             btor890))
+           (btor1070
+            (bv->signal
+             (zero-extend (signal-value btor476) (bitvector 48))
+             btor476))
            (btor1072
-            (if (bitvector->bool (signal-value btor1006)) btor387 btor1071))
+            (if (bitvector->bool (signal-value btor30)) btor113 btor98))
+           (btor1073
+            (if (bitvector->bool (signal-value btor63)) btor88 btor1072))
+           (btor1074
+            (if (bitvector->bool (signal-value btor104)) btor1073 btor98))
            (btor1075
-            (if (bitvector->bool (signal-value btor41)) btor751 btor786))
+            (if (bitvector->bool (signal-value btor30)) btor86 btor98))
            (btor1076
-            (if (bitvector->bool (signal-value btor1006)) btor163 btor1075))
+            (if (bitvector->bool (signal-value btor63)) btor88 btor1075))
+           (btor1077
+            (if (bitvector->bool (signal-value btor101)) btor1076 btor1074))
+           (btor1081
+            (if (bitvector->bool (signal-value btor29)) btor86 btor113))
+           (btor1082
+            (if (bitvector->bool (signal-value btor63)) btor88 btor1081))
+           (btor1083
+            (if (bitvector->bool (signal-value btor104)) btor1082 btor113))
+           (btor1084
+            (if (bitvector->bool (signal-value btor101)) btor1082 btor1083))
+           (btor1087
+            (if (bitvector->bool (signal-value btor34)) btor142 btor129))
+           (btor1088
+            (if (bitvector->bool (signal-value btor66)) btor126 btor1087))
+           (btor1089
+            (if (bitvector->bool (signal-value btor133)) btor1088 btor129))
+           (btor1090
+            (if (bitvector->bool (signal-value btor34)) btor124 btor129))
+           (btor1091
+            (if (bitvector->bool (signal-value btor66)) btor126 btor1090))
+           (btor1092
+            (if (bitvector->bool (signal-value btor131)) btor1091 btor1089))
+           (btor1095
+            (if (bitvector->bool (signal-value btor33)) btor124 btor142))
+           (btor1096
+            (if (bitvector->bool (signal-value btor66)) btor126 btor1095))
+           (btor1097
+            (if (bitvector->bool (signal-value btor133)) btor1096 btor142))
+           (btor1098
+            (if (bitvector->bool (signal-value btor131)) btor1096 btor1097))
+           (btor1101
+            (if (bitvector->bool (signal-value btor41)) btor734 btor153))
+           (btor1102
+            (signal
+             (bvor (signal-value btor72) (signal-value btor1065))
+             (list)))
+           (btor1103
+            (if (bitvector->bool (signal-value btor1102)) btor148 btor1101))
+           (btor1106
+            (if (bitvector->bool (signal-value btor39)) btor162 btor167))
+           (btor1107
+            (if (bitvector->bool (signal-value btor70)) btor164 btor1106))
+           (btor1110
+            (if (bitvector->bool (signal-value btor38)) btor45 btor182))
+           (btor1111
+            (if (bitvector->bool (signal-value btor69)) btor176 btor1110))
+           (btor1114
+            (if (bitvector->bool (signal-value btor31)) btor195 btor199))
+           (btor1115
+            (if (bitvector->bool (signal-value btor69)) btor176 btor1114))
+           (btor1118
+            (if (bitvector->bool (signal-value btor40)) btor332 btor336))
+           (btor1119
+            (if (bitvector->bool (signal-value btor71)) btor320 btor1118))
+           (btor1122
+            (if (bitvector->bool (signal-value btor37)) btor27 btor344))
+           (btor1123
+            (if (bitvector->bool (signal-value btor68)) btor341 btor1122))
+           (btor1127 (signal (bvnot (signal-value btor359)) (list)))
+           (btor1130
+            (if (bitvector->bool (signal-value btor37)) btor383 btor382))
+           (btor1131
+            (if (bitvector->bool (signal-value btor68)) btor379 btor1130))
+           (btor1135 (signal (bvnot (signal-value btor398)) (list)))
+           (btor1138
+            (if (bitvector->bool (signal-value btor41)) btor827 btor407))
+           (btor1139
+            (if (bitvector->bool (signal-value btor1102)) btor158 btor1138))
+           (btor1142
+            (if (bitvector->bool (signal-value btor35)) btor21 btor483))
+           (btor1143
+            (if (bitvector->bool (signal-value btor67)) btor158 btor1142))
+           (btor1146
+            (if (bitvector->bool (signal-value btor32)) btor600 btor599))
+           (btor1147
+            (if (bitvector->bool (signal-value btor65)) btor596 btor1146))
+           (btor1151 (signal (bvnot (signal-value btor615)) (list)))
+           (btor1154
+            (if (bitvector->bool (signal-value btor36)) btor662 btor661))
+           (btor1155
+            (if (bitvector->bool (signal-value btor64)) btor148 btor1154))
+           (btor1159 (signal (bvnot (signal-value btor677)) (list)))
+           (btor1162
+            (if (bitvector->bool (signal-value btor40)) btor695 btor692))
+           (btor1163
+            (if (bitvector->bool (signal-value btor64)) btor148 btor1162))
+           (btor1166
+            (if (bitvector->bool (signal-value btor41)) btor773 btor743))
+           (btor1167
+            (if (bitvector->bool (signal-value btor1102)) btor596 btor1166))
+           (btor1170
+            (if (bitvector->bool (signal-value btor41)) btor793 btor789))
+           (btor1171
+            (if (bitvector->bool (signal-value btor1102)) btor148 btor1170))
+           (btor1174
+            (if (bitvector->bool (signal-value btor41)) btor803 btor799))
+           (btor1175
+            (if (bitvector->bool (signal-value btor1102)) btor148 btor1174))
+           (btor1178
+            (if (bitvector->bool (signal-value btor41)) btor880 btor803))
+           (btor1179
+            (if (bitvector->bool (signal-value btor1102)) btor148 btor1178))
+           (btor1182
+            (if (bitvector->bool (signal-value btor41)) btor875 btor809))
+           (btor1183
+            (if (bitvector->bool (signal-value btor1102)) btor148 btor1182))
+           (btor1187 (signal (bvnot (signal-value btor872)) (list)))
+           (btor1190
+            (if (bitvector->bool (signal-value btor41)) btor809 btor887))
+           (btor1191
+            (if (bitvector->bool (signal-value btor1102)) btor148 btor1190))
            (output-state
             (remove-duplicates
              (append
               (append
                (list
                 (cons
-                 (string->symbol (string-append name "state784"))
+                 (string->symbol (string-append name "state885"))
                  (cons
-                  (signal-value btor1076)
+                  (signal-value btor1191)
                   (if (assoc-has-key?
                        merged-input-state-hash
-                       (string->symbol (string-append name "state784")))
+                       (string->symbol (string-append name "state885")))
                     (add1
                      (cdr
                       (assoc-ref
                        merged-input-state-hash
-                       (string->symbol (string-append name "state784")))))
+                       (string->symbol (string-append name "state885")))))
                     0))))
                (append
                 (list
                  (cons
-                  (string->symbol (string-append name "state782"))
+                  (string->symbol (string-append name "state884"))
                   (cons
-                   (signal-value btor786)
+                   (signal-value btor887)
                    (if (assoc-has-key?
                         merged-input-state-hash
-                        (string->symbol (string-append name "state782")))
+                        (string->symbol (string-append name "state884")))
                      (add1
                       (cdr
                        (assoc-ref
                         merged-input-state-hash
-                        (string->symbol (string-append name "state782")))))
+                        (string->symbol (string-append name "state884")))))
                      0))))
                 (append
                  (list
                   (cons
-                   (string->symbol (string-append name "state762"))
+                   (string->symbol (string-append name "state859"))
                    (cons
-                    (signal-value btor1072)
+                    (signal-value btor1187)
                     (if (assoc-has-key?
                          merged-input-state-hash
-                         (string->symbol (string-append name "state762")))
+                         (string->symbol (string-append name "state859")))
                       (add1
                        (cdr
                         (assoc-ref
                          merged-input-state-hash
-                         (string->symbol (string-append name "state762")))))
+                         (string->symbol (string-append name "state859")))))
                       0))))
                  (append
                   (list
                    (cons
-                    (string->symbol (string-append name "state760"))
+                    (string->symbol (string-append name "state857"))
                     (cons
-                     (signal-value btor764)
+                     (signal-value btor854)
                      (if (assoc-has-key?
                           merged-input-state-hash
-                          (string->symbol (string-append name "state760")))
+                          (string->symbol (string-append name "state857")))
                        (add1
                         (cdr
                          (assoc-ref
                           merged-input-state-hash
-                          (string->symbol (string-append name "state760")))))
+                          (string->symbol (string-append name "state857")))))
                        0))))
                   (append
                    (list
                     (cons
-                     (string->symbol (string-append name "state749"))
+                     (string->symbol (string-append name "state855"))
                      (cons
-                      (signal-value btor1068)
+                      (signal-value btor873)
                       (if (assoc-has-key?
                            merged-input-state-hash
-                           (string->symbol (string-append name "state749")))
+                           (string->symbol (string-append name "state855")))
                         (add1
                          (cdr
                           (assoc-ref
                            merged-input-state-hash
-                           (string->symbol (string-append name "state749")))))
+                           (string->symbol (string-append name "state855")))))
                         0))))
                    (append
                     (list
                      (cons
-                      (string->symbol (string-append name "state747"))
+                      (string->symbol (string-append name "state807"))
                       (cons
-                       (signal-value btor751)
+                       (signal-value btor1183)
                        (if (assoc-has-key?
                             merged-input-state-hash
-                            (string->symbol (string-append name "state747")))
+                            (string->symbol (string-append name "state807")))
                          (add1
                           (cdr
                            (assoc-ref
                             merged-input-state-hash
-                            (string->symbol (string-append name "state747")))))
+                            (string->symbol (string-append name "state807")))))
                          0))))
                     (append
                      (list
                       (cons
-                       (string->symbol (string-append name "state742"))
+                       (string->symbol (string-append name "state806"))
                        (cons
-                        (signal-value btor1064)
+                        (signal-value btor809)
                         (if (assoc-has-key?
                              merged-input-state-hash
-                             (string->symbol (string-append name "state742")))
+                             (string->symbol (string-append name "state806")))
                           (add1
                            (cdr
                             (assoc-ref
                              merged-input-state-hash
                              (string->symbol
-                              (string-append name "state742")))))
+                              (string-append name "state806")))))
                           0))))
                      (append
                       (list
                        (cons
-                        (string->symbol (string-append name "state740"))
+                        (string->symbol (string-append name "state801"))
                         (cons
-                         (signal-value btor744)
+                         (signal-value btor1179)
                          (if (assoc-has-key?
                               merged-input-state-hash
-                              (string->symbol (string-append name "state740")))
+                              (string->symbol (string-append name "state801")))
                            (add1
                             (cdr
                              (assoc-ref
                               merged-input-state-hash
                               (string->symbol
-                               (string-append name "state740")))))
+                               (string-append name "state801")))))
                            0))))
                       (append
                        (list
                         (cons
-                         (string->symbol (string-append name "state737"))
+                         (string->symbol (string-append name "state800"))
                          (cons
-                          (signal-value btor1060)
+                          (signal-value btor803)
                           (if (assoc-has-key?
                                merged-input-state-hash
                                (string->symbol
-                                (string-append name "state737")))
+                                (string-append name "state800")))
                             (add1
                              (cdr
                               (assoc-ref
                                merged-input-state-hash
                                (string->symbol
-                                (string-append name "state737")))))
+                                (string-append name "state800")))))
                             0))))
                        (append
                         (list
                          (cons
-                          (string->symbol (string-append name "state735"))
+                          (string->symbol (string-append name "state797"))
                           (cons
-                           (signal-value btor739)
+                           (signal-value btor1175)
                            (if (assoc-has-key?
                                 merged-input-state-hash
                                 (string->symbol
-                                 (string-append name "state735")))
+                                 (string-append name "state797")))
                              (add1
                               (cdr
                                (assoc-ref
                                 merged-input-state-hash
                                 (string->symbol
-                                 (string-append name "state735")))))
+                                 (string-append name "state797")))))
                              0))))
                         (append
                          (list
                           (cons
-                           (string->symbol (string-append name "state726"))
+                           (string->symbol (string-append name "state796"))
                            (cons
-                            (signal-value btor1056)
+                            (signal-value btor799)
                             (if (assoc-has-key?
                                  merged-input-state-hash
                                  (string->symbol
-                                  (string-append name "state726")))
+                                  (string-append name "state796")))
                               (add1
                                (cdr
                                 (assoc-ref
                                  merged-input-state-hash
                                  (string->symbol
-                                  (string-append name "state726")))))
+                                  (string-append name "state796")))))
                               0))))
                          (append
                           (list
                            (cons
-                            (string->symbol (string-append name "state724"))
+                            (string->symbol (string-append name "state787"))
                             (cons
-                             (signal-value btor728)
+                             (signal-value btor1171)
                              (if (assoc-has-key?
                                   merged-input-state-hash
                                   (string->symbol
-                                   (string-append name "state724")))
+                                   (string-append name "state787")))
                                (add1
                                 (cdr
                                  (assoc-ref
                                   merged-input-state-hash
                                   (string->symbol
-                                   (string-append name "state724")))))
+                                   (string-append name "state787")))))
                                0))))
                           (append
                            (list
                             (cons
-                             (string->symbol (string-append name "state679"))
+                             (string->symbol (string-append name "state786"))
                              (cons
-                              (signal-value btor1052)
+                              (signal-value btor789)
                               (if (assoc-has-key?
                                    merged-input-state-hash
                                    (string->symbol
-                                    (string-append name "state679")))
+                                    (string-append name "state786")))
                                 (add1
                                  (cdr
                                   (assoc-ref
                                    merged-input-state-hash
                                    (string->symbol
-                                    (string-append name "state679")))))
+                                    (string-append name "state786")))))
                                 0))))
                            (append
                             (list
                              (cons
-                              (string->symbol (string-append name "state677"))
+                              (string->symbol (string-append name "state741"))
                               (cons
-                               (signal-value btor681)
+                               (signal-value btor1167)
                                (if (assoc-has-key?
                                     merged-input-state-hash
                                     (string->symbol
-                                     (string-append name "state677")))
+                                     (string-append name "state741")))
                                  (add1
                                   (cdr
                                    (assoc-ref
                                     merged-input-state-hash
                                     (string->symbol
-                                     (string-append name "state677")))))
+                                     (string-append name "state741")))))
                                  0))))
                             (append
                              (list
                               (cons
-                               (string->symbol (string-append name "state629"))
+                               (string->symbol (string-append name "state739"))
                                (cons
-                                (signal-value btor1048)
+                                (signal-value btor743)
                                 (if (assoc-has-key?
                                      merged-input-state-hash
                                      (string->symbol
-                                      (string-append name "state629")))
+                                      (string-append name "state739")))
                                   (add1
                                    (cdr
                                     (assoc-ref
                                      merged-input-state-hash
                                      (string->symbol
-                                      (string-append name "state629")))))
+                                      (string-append name "state739")))))
                                   0))))
                              (append
                               (list
                                (cons
                                 (string->symbol
-                                 (string-append name "state627"))
+                                 (string-append name "state690"))
                                 (cons
-                                 (signal-value btor631)
+                                 (signal-value btor1163)
                                  (if (assoc-has-key?
                                       merged-input-state-hash
                                       (string->symbol
-                                       (string-append name "state627")))
+                                       (string-append name "state690")))
                                    (add1
                                     (cdr
                                      (assoc-ref
                                       merged-input-state-hash
                                       (string->symbol
-                                       (string-append name "state627")))))
+                                       (string-append name "state690")))))
                                    0))))
                               (append
                                (list
                                 (cons
                                  (string->symbol
-                                  (string-append name "state614"))
+                                  (string-append name "state689"))
                                  (cons
-                                  (signal-value btor1044)
+                                  (signal-value btor692)
                                   (if (assoc-has-key?
                                        merged-input-state-hash
                                        (string->symbol
-                                        (string-append name "state614")))
+                                        (string-append name "state689")))
                                     (add1
                                      (cdr
                                       (assoc-ref
                                        merged-input-state-hash
                                        (string->symbol
-                                        (string-append name "state614")))))
+                                        (string-append name "state689")))))
                                     0))))
                                (append
                                 (list
                                  (cons
                                   (string->symbol
-                                   (string-append name "state612"))
+                                   (string-append name "state669"))
                                   (cons
-                                   (signal-value btor616)
+                                   (signal-value btor1159)
                                    (if (assoc-has-key?
                                         merged-input-state-hash
                                         (string->symbol
-                                         (string-append name "state612")))
+                                         (string-append name "state669")))
                                      (add1
                                       (cdr
                                        (assoc-ref
                                         merged-input-state-hash
                                         (string->symbol
-                                         (string-append name "state612")))))
+                                         (string-append name "state669")))))
                                      0))))
                                 (append
                                  (list
                                   (cons
                                    (string->symbol
-                                    (string-append name "state564"))
+                                    (string-append name "state667"))
                                    (cons
-                                    (signal-value btor1040)
+                                    (signal-value btor665)
                                     (if (assoc-has-key?
                                          merged-input-state-hash
                                          (string->symbol
-                                          (string-append name "state564")))
+                                          (string-append name "state667")))
                                       (add1
                                        (cdr
                                         (assoc-ref
                                          merged-input-state-hash
                                          (string->symbol
-                                          (string-append name "state564")))))
+                                          (string-append name "state667")))))
                                       0))))
                                  (append
                                   (list
                                    (cons
                                     (string->symbol
-                                     (string-append name "state562"))
+                                     (string-append name "state666"))
                                     (cons
-                                     (signal-value btor566)
+                                     (signal-value btor678)
                                      (if (assoc-has-key?
                                           merged-input-state-hash
                                           (string->symbol
-                                           (string-append name "state562")))
+                                           (string-append name "state666")))
                                        (add1
                                         (cdr
                                          (assoc-ref
                                           merged-input-state-hash
                                           (string->symbol
-                                           (string-append name "state562")))))
+                                           (string-append name "state666")))))
                                        0))))
                                   (append
                                    (list
                                     (cons
                                      (string->symbol
-                                      (string-append name "state491"))
+                                      (string-append name "state659"))
                                      (cons
-                                      (signal-value btor1036)
+                                      (signal-value btor1155)
                                       (if (assoc-has-key?
                                            merged-input-state-hash
                                            (string->symbol
-                                            (string-append name "state491")))
+                                            (string-append name "state659")))
                                         (add1
                                          (cdr
                                           (assoc-ref
                                            merged-input-state-hash
                                            (string->symbol
-                                            (string-append name "state491")))))
+                                            (string-append name "state659")))))
                                         0))))
                                    (append
                                     (list
                                      (cons
                                       (string->symbol
-                                       (string-append name "state489"))
+                                       (string-append name "state658"))
                                       (cons
-                                       (signal-value btor493)
+                                       (signal-value btor661)
                                        (if (assoc-has-key?
                                             merged-input-state-hash
                                             (string->symbol
-                                             (string-append name "state489")))
+                                             (string-append name "state658")))
                                          (add1
                                           (cdr
                                            (assoc-ref
@@ -5093,19 +5656,19 @@
                                             (string->symbol
                                              (string-append
                                               name
-                                              "state489")))))
+                                              "state658")))))
                                          0))))
                                     (append
                                      (list
                                       (cons
                                        (string->symbol
-                                        (string-append name "state391"))
+                                        (string-append name "state607"))
                                        (cons
-                                        (signal-value btor1032)
+                                        (signal-value btor1151)
                                         (if (assoc-has-key?
                                              merged-input-state-hash
                                              (string->symbol
-                                              (string-append name "state391")))
+                                              (string-append name "state607")))
                                           (add1
                                            (cdr
                                             (assoc-ref
@@ -5113,21 +5676,21 @@
                                              (string->symbol
                                               (string-append
                                                name
-                                               "state391")))))
+                                               "state607")))))
                                           0))))
                                      (append
                                       (list
                                        (cons
                                         (string->symbol
-                                         (string-append name "state389"))
+                                         (string-append name "state605"))
                                         (cons
-                                         (signal-value btor393)
+                                         (signal-value btor603)
                                          (if (assoc-has-key?
                                               merged-input-state-hash
                                               (string->symbol
                                                (string-append
                                                 name
-                                                "state389")))
+                                                "state605")))
                                            (add1
                                             (cdr
                                              (assoc-ref
@@ -5135,21 +5698,21 @@
                                               (string->symbol
                                                (string-append
                                                 name
-                                                "state389")))))
+                                                "state605")))))
                                            0))))
                                       (append
                                        (list
                                         (cons
                                          (string->symbol
-                                          (string-append name "state361"))
+                                          (string-append name "state604"))
                                          (cons
-                                          (signal-value btor1028)
+                                          (signal-value btor616)
                                           (if (assoc-has-key?
                                                merged-input-state-hash
                                                (string->symbol
                                                 (string-append
                                                  name
-                                                 "state361")))
+                                                 "state604")))
                                             (add1
                                              (cdr
                                               (assoc-ref
@@ -5157,21 +5720,21 @@
                                                (string->symbol
                                                 (string-append
                                                  name
-                                                 "state361")))))
+                                                 "state604")))))
                                             0))))
                                        (append
                                         (list
                                          (cons
                                           (string->symbol
-                                           (string-append name "state359"))
+                                           (string-append name "state597"))
                                           (cons
-                                           (signal-value btor363)
+                                           (signal-value btor1147)
                                            (if (assoc-has-key?
                                                 merged-input-state-hash
                                                 (string->symbol
                                                  (string-append
                                                   name
-                                                  "state359")))
+                                                  "state597")))
                                              (add1
                                               (cdr
                                                (assoc-ref
@@ -5179,21 +5742,21 @@
                                                 (string->symbol
                                                  (string-append
                                                   name
-                                                  "state359")))))
+                                                  "state597")))))
                                              0))))
                                         (append
                                          (list
                                           (cons
                                            (string->symbol
-                                            (string-append name "state352"))
+                                            (string-append name "state595"))
                                            (cons
-                                            (signal-value btor1024)
+                                            (signal-value btor599)
                                             (if (assoc-has-key?
                                                  merged-input-state-hash
                                                  (string->symbol
                                                   (string-append
                                                    name
-                                                   "state352")))
+                                                   "state595")))
                                               (add1
                                                (cdr
                                                 (assoc-ref
@@ -5201,21 +5764,21 @@
                                                  (string->symbol
                                                   (string-append
                                                    name
-                                                   "state352")))))
+                                                   "state595")))))
                                               0))))
                                          (append
                                           (list
                                            (cons
                                             (string->symbol
-                                             (string-append name "state350"))
+                                             (string-append name "state481"))
                                             (cons
-                                             (signal-value btor354)
+                                             (signal-value btor1143)
                                              (if (assoc-has-key?
                                                   merged-input-state-hash
                                                   (string->symbol
                                                    (string-append
                                                     name
-                                                    "state350")))
+                                                    "state481")))
                                                (add1
                                                 (cdr
                                                  (assoc-ref
@@ -5223,21 +5786,21 @@
                                                   (string->symbol
                                                    (string-append
                                                     name
-                                                    "state350")))))
+                                                    "state481")))))
                                                0))))
                                           (append
                                            (list
                                             (cons
                                              (string->symbol
-                                              (string-append name "state207"))
+                                              (string-append name "state480"))
                                              (cons
-                                              (signal-value btor1020)
+                                              (signal-value btor483)
                                               (if (assoc-has-key?
                                                    merged-input-state-hash
                                                    (string->symbol
                                                     (string-append
                                                      name
-                                                     "state207")))
+                                                     "state480")))
                                                 (add1
                                                  (cdr
                                                   (assoc-ref
@@ -5245,21 +5808,21 @@
                                                    (string->symbol
                                                     (string-append
                                                      name
-                                                     "state207")))))
+                                                     "state480")))))
                                                 0))))
                                            (append
                                             (list
                                              (cons
                                               (string->symbol
-                                               (string-append name "state205"))
+                                               (string-append name "state405"))
                                               (cons
-                                               (signal-value btor209)
+                                               (signal-value btor1139)
                                                (if (assoc-has-key?
                                                     merged-input-state-hash
                                                     (string->symbol
                                                      (string-append
                                                       name
-                                                      "state205")))
+                                                      "state405")))
                                                  (add1
                                                   (cdr
                                                    (assoc-ref
@@ -5267,7 +5830,7 @@
                                                     (string->symbol
                                                      (string-append
                                                       name
-                                                      "state205")))))
+                                                      "state405")))))
                                                  0))))
                                             (append
                                              (list
@@ -5275,15 +5838,15 @@
                                                (string->symbol
                                                 (string-append
                                                  name
-                                                 "state199"))
+                                                 "state404"))
                                                (cons
-                                                (signal-value btor1016)
+                                                (signal-value btor407)
                                                 (if (assoc-has-key?
                                                      merged-input-state-hash
                                                      (string->symbol
                                                       (string-append
                                                        name
-                                                       "state199")))
+                                                       "state404")))
                                                   (add1
                                                    (cdr
                                                     (assoc-ref
@@ -5291,7 +5854,7 @@
                                                      (string->symbol
                                                       (string-append
                                                        name
-                                                       "state199")))))
+                                                       "state404")))))
                                                   0))))
                                              (append
                                               (list
@@ -5299,15 +5862,15 @@
                                                 (string->symbol
                                                  (string-append
                                                   name
-                                                  "state197"))
+                                                  "state390"))
                                                 (cons
-                                                 (signal-value btor201)
+                                                 (signal-value btor1135)
                                                  (if (assoc-has-key?
                                                       merged-input-state-hash
                                                       (string->symbol
                                                        (string-append
                                                         name
-                                                        "state197")))
+                                                        "state390")))
                                                    (add1
                                                     (cdr
                                                      (assoc-ref
@@ -5315,7 +5878,7 @@
                                                       (string->symbol
                                                        (string-append
                                                         name
-                                                        "state197")))))
+                                                        "state390")))))
                                                    0))))
                                               (append
                                                (list
@@ -5323,15 +5886,15 @@
                                                  (string->symbol
                                                   (string-append
                                                    name
-                                                   "state186"))
+                                                   "state388"))
                                                  (cons
-                                                  (signal-value btor1012)
+                                                  (signal-value btor386)
                                                   (if (assoc-has-key?
                                                        merged-input-state-hash
                                                        (string->symbol
                                                         (string-append
                                                          name
-                                                         "state186")))
+                                                         "state388")))
                                                     (add1
                                                      (cdr
                                                       (assoc-ref
@@ -5339,7 +5902,7 @@
                                                        (string->symbol
                                                         (string-append
                                                          name
-                                                         "state186")))))
+                                                         "state388")))))
                                                     0))))
                                                (append
                                                 (list
@@ -5347,15 +5910,15 @@
                                                   (string->symbol
                                                    (string-append
                                                     name
-                                                    "state184"))
+                                                    "state387"))
                                                   (cons
-                                                   (signal-value btor188)
+                                                   (signal-value btor399)
                                                    (if (assoc-has-key?
                                                         merged-input-state-hash
                                                         (string->symbol
                                                          (string-append
                                                           name
-                                                          "state184")))
+                                                          "state387")))
                                                      (add1
                                                       (cdr
                                                        (assoc-ref
@@ -5363,7 +5926,7 @@
                                                         (string->symbol
                                                          (string-append
                                                           name
-                                                          "state184")))))
+                                                          "state387")))))
                                                      0))))
                                                 (append
                                                  (list
@@ -5371,15 +5934,15 @@
                                                    (string->symbol
                                                     (string-append
                                                      name
-                                                     "state169"))
+                                                     "state380"))
                                                    (cons
-                                                    (signal-value btor168)
+                                                    (signal-value btor1131)
                                                     (if (assoc-has-key?
                                                          merged-input-state-hash
                                                          (string->symbol
                                                           (string-append
                                                            name
-                                                           "state169")))
+                                                           "state380")))
                                                       (add1
                                                        (cdr
                                                         (assoc-ref
@@ -5387,7 +5950,7 @@
                                                          (string->symbol
                                                           (string-append
                                                            name
-                                                           "state169")))))
+                                                           "state380")))))
                                                       0))))
                                                  (append
                                                   (list
@@ -5395,15 +5958,15 @@
                                                     (string->symbol
                                                      (string-append
                                                       name
-                                                      "state166"))
+                                                      "state378"))
                                                     (cons
-                                                     (signal-value btor1007)
+                                                     (signal-value btor382)
                                                      (if (assoc-has-key?
                                                           merged-input-state-hash
                                                           (string->symbol
                                                            (string-append
                                                             name
-                                                            "state166")))
+                                                            "state378")))
                                                        (add1
                                                         (cdr
                                                          (assoc-ref
@@ -5411,7 +5974,7 @@
                                                           (string->symbol
                                                            (string-append
                                                             name
-                                                            "state166")))))
+                                                            "state378")))))
                                                        0))))
                                                   (append
                                                    (list
@@ -5419,15 +5982,15 @@
                                                      (string->symbol
                                                       (string-append
                                                        name
-                                                       "state164"))
+                                                       "state351"))
                                                      (cons
-                                                      (signal-value btor174)
+                                                      (signal-value btor1127)
                                                       (if (assoc-has-key?
                                                            merged-input-state-hash
                                                            (string->symbol
                                                             (string-append
                                                              name
-                                                             "state164")))
+                                                             "state351")))
                                                         (add1
                                                          (cdr
                                                           (assoc-ref
@@ -5435,7 +5998,7 @@
                                                            (string->symbol
                                                             (string-append
                                                              name
-                                                             "state164")))))
+                                                             "state351")))))
                                                         0))))
                                                    (append
                                                     (list
@@ -5443,15 +6006,15 @@
                                                       (string->symbol
                                                        (string-append
                                                         name
-                                                        "state155"))
+                                                        "state349"))
                                                       (cons
-                                                       (signal-value btor1002)
+                                                       (signal-value btor347)
                                                        (if (assoc-has-key?
                                                             merged-input-state-hash
                                                             (string->symbol
                                                              (string-append
                                                               name
-                                                              "state155")))
+                                                              "state349")))
                                                          (add1
                                                           (cdr
                                                            (assoc-ref
@@ -5459,7 +6022,7 @@
                                                             (string->symbol
                                                              (string-append
                                                               name
-                                                              "state155")))))
+                                                              "state349")))))
                                                          0))))
                                                     (append
                                                      (list
@@ -5467,15 +6030,15 @@
                                                        (string->symbol
                                                         (string-append
                                                          name
-                                                         "state153"))
+                                                         "state348"))
                                                        (cons
-                                                        (signal-value btor157)
+                                                        (signal-value btor360)
                                                         (if (assoc-has-key?
                                                              merged-input-state-hash
                                                              (string->symbol
                                                               (string-append
                                                                name
-                                                               "state153")))
+                                                               "state348")))
                                                           (add1
                                                            (cdr
                                                             (assoc-ref
@@ -5483,7 +6046,7 @@
                                                              (string->symbol
                                                               (string-append
                                                                name
-                                                               "state153")))))
+                                                               "state348")))))
                                                           0))))
                                                      (append
                                                       (list
@@ -5491,15 +6054,16 @@
                                                         (string->symbol
                                                          (string-append
                                                           name
-                                                          "state129"))
+                                                          "state342"))
                                                         (cons
-                                                         (signal-value btor998)
+                                                         (signal-value
+                                                          btor1123)
                                                          (if (assoc-has-key?
                                                               merged-input-state-hash
                                                               (string->symbol
                                                                (string-append
                                                                 name
-                                                                "state129")))
+                                                                "state342")))
                                                            (add1
                                                             (cdr
                                                              (assoc-ref
@@ -5507,7 +6071,7 @@
                                                               (string->symbol
                                                                (string-append
                                                                 name
-                                                                "state129")))))
+                                                                "state342")))))
                                                            0))))
                                                       (append
                                                        (list
@@ -5515,16 +6079,16 @@
                                                          (string->symbol
                                                           (string-append
                                                            name
-                                                           "state127"))
+                                                           "state340"))
                                                          (cons
                                                           (signal-value
-                                                           btor131)
+                                                           btor344)
                                                           (if (assoc-has-key?
                                                                merged-input-state-hash
                                                                (string->symbol
                                                                 (string-append
                                                                  name
-                                                                 "state127")))
+                                                                 "state340")))
                                                             (add1
                                                              (cdr
                                                               (assoc-ref
@@ -5532,7 +6096,7 @@
                                                                (string->symbol
                                                                 (string-append
                                                                  name
-                                                                 "state127")))))
+                                                                 "state340")))))
                                                             0))))
                                                        (append
                                                         (list
@@ -5540,16 +6104,16 @@
                                                           (string->symbol
                                                            (string-append
                                                             name
-                                                            "state118"))
+                                                            "state334"))
                                                           (cons
                                                            (signal-value
-                                                            btor993)
+                                                            btor1119)
                                                            (if (assoc-has-key?
                                                                 merged-input-state-hash
                                                                 (string->symbol
                                                                  (string-append
                                                                   name
-                                                                  "state118")))
+                                                                  "state334")))
                                                              (add1
                                                               (cdr
                                                                (assoc-ref
@@ -5557,7 +6121,7 @@
                                                                 (string->symbol
                                                                  (string-append
                                                                   name
-                                                                  "state118")))))
+                                                                  "state334")))))
                                                              0))))
                                                         (append
                                                          (list
@@ -5565,16 +6129,16 @@
                                                            (string->symbol
                                                             (string-append
                                                              name
-                                                             "state116"))
+                                                             "state333"))
                                                            (cons
                                                             (signal-value
-                                                             btor120)
+                                                             btor336)
                                                             (if (assoc-has-key?
                                                                  merged-input-state-hash
                                                                  (string->symbol
                                                                   (string-append
                                                                    name
-                                                                   "state116")))
+                                                                   "state333")))
                                                               (add1
                                                                (cdr
                                                                 (assoc-ref
@@ -5582,7 +6146,7 @@
                                                                  (string->symbol
                                                                   (string-append
                                                                    name
-                                                                   "state116")))))
+                                                                   "state333")))))
                                                               0))))
                                                          (append
                                                           (list
@@ -5590,16 +6154,16 @@
                                                             (string->symbol
                                                              (string-append
                                                               name
-                                                              "state85"))
+                                                              "state197"))
                                                             (cons
                                                              (signal-value
-                                                              btor42)
+                                                              btor1115)
                                                              (if (assoc-has-key?
                                                                   merged-input-state-hash
                                                                   (string->symbol
                                                                    (string-append
                                                                     name
-                                                                    "state85")))
+                                                                    "state197")))
                                                                (add1
                                                                 (cdr
                                                                  (assoc-ref
@@ -5607,7 +6171,7 @@
                                                                   (string->symbol
                                                                    (string-append
                                                                     name
-                                                                    "state85")))))
+                                                                    "state197")))))
                                                                0))))
                                                           (append
                                                            (list
@@ -5615,16 +6179,16 @@
                                                              (string->symbol
                                                               (string-append
                                                                name
-                                                               "state82"))
+                                                               "state196"))
                                                              (cons
                                                               (signal-value
-                                                               btor988)
+                                                               btor199)
                                                               (if (assoc-has-key?
                                                                    merged-input-state-hash
                                                                    (string->symbol
                                                                     (string-append
                                                                      name
-                                                                     "state82")))
+                                                                     "state196")))
                                                                 (add1
                                                                  (cdr
                                                                   (assoc-ref
@@ -5632,7 +6196,7 @@
                                                                    (string->symbol
                                                                     (string-append
                                                                      name
-                                                                     "state82")))))
+                                                                     "state196")))))
                                                                 0))))
                                                            (append
                                                             (list
@@ -5640,16 +6204,16 @@
                                                               (string->symbol
                                                                (string-append
                                                                 name
-                                                                "state80"))
+                                                                "state180"))
                                                               (cons
                                                                (signal-value
-                                                                btor91)
+                                                                btor1111)
                                                                (if (assoc-has-key?
                                                                     merged-input-state-hash
                                                                     (string->symbol
                                                                      (string-append
                                                                       name
-                                                                      "state80")))
+                                                                      "state180")))
                                                                  (add1
                                                                   (cdr
                                                                    (assoc-ref
@@ -5657,23 +6221,373 @@
                                                                     (string->symbol
                                                                      (string-append
                                                                       name
-                                                                      "state80")))))
+                                                                      "state180")))))
                                                                  0))))
-                                                            (list)))))))))))))))))))))))))))))))))))))))))))))))
+                                                            (append
+                                                             (list
+                                                              (cons
+                                                               (string->symbol
+                                                                (string-append
+                                                                 name
+                                                                 "state179"))
+                                                               (cons
+                                                                (signal-value
+                                                                 btor182)
+                                                                (if (assoc-has-key?
+                                                                     merged-input-state-hash
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state179")))
+                                                                  (add1
+                                                                   (cdr
+                                                                    (assoc-ref
+                                                                     merged-input-state-hash
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state179")))))
+                                                                  0))))
+                                                             (append
+                                                              (list
+                                                               (cons
+                                                                (string->symbol
+                                                                 (string-append
+                                                                  name
+                                                                  "state165"))
+                                                                (cons
+                                                                 (signal-value
+                                                                  btor1107)
+                                                                 (if (assoc-has-key?
+                                                                      merged-input-state-hash
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state165")))
+                                                                   (add1
+                                                                    (cdr
+                                                                     (assoc-ref
+                                                                      merged-input-state-hash
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state165")))))
+                                                                   0))))
+                                                              (append
+                                                               (list
+                                                                (cons
+                                                                 (string->symbol
+                                                                  (string-append
+                                                                   name
+                                                                   "state163"))
+                                                                 (cons
+                                                                  (signal-value
+                                                                   btor167)
+                                                                  (if (assoc-has-key?
+                                                                       merged-input-state-hash
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state163")))
+                                                                    (add1
+                                                                     (cdr
+                                                                      (assoc-ref
+                                                                       merged-input-state-hash
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state163")))))
+                                                                    0))))
+                                                               (append
+                                                                (list
+                                                                 (cons
+                                                                  (string->symbol
+                                                                   (string-append
+                                                                    name
+                                                                    "state151"))
+                                                                  (cons
+                                                                   (signal-value
+                                                                    btor1103)
+                                                                   (if (assoc-has-key?
+                                                                        merged-input-state-hash
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state151")))
+                                                                     (add1
+                                                                      (cdr
+                                                                       (assoc-ref
+                                                                        merged-input-state-hash
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state151")))))
+                                                                     0))))
+                                                                (append
+                                                                 (list
+                                                                  (cons
+                                                                   (string->symbol
+                                                                    (string-append
+                                                                     name
+                                                                     "state149"))
+                                                                   (cons
+                                                                    (signal-value
+                                                                     btor153)
+                                                                    (if (assoc-has-key?
+                                                                         merged-input-state-hash
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state149")))
+                                                                      (add1
+                                                                       (cdr
+                                                                        (assoc-ref
+                                                                         merged-input-state-hash
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state149")))))
+                                                                      0))))
+                                                                 (append
+                                                                  (list
+                                                                   (cons
+                                                                    (string->symbol
+                                                                     (string-append
+                                                                      name
+                                                                      "state140"))
+                                                                    (cons
+                                                                     (signal-value
+                                                                      btor1098)
+                                                                     (if (assoc-has-key?
+                                                                          merged-input-state-hash
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state140")))
+                                                                       (add1
+                                                                        (cdr
+                                                                         (assoc-ref
+                                                                          merged-input-state-hash
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state140")))))
+                                                                       0))))
+                                                                  (append
+                                                                   (list
+                                                                    (cons
+                                                                     (string->symbol
+                                                                      (string-append
+                                                                       name
+                                                                       "state139"))
+                                                                     (cons
+                                                                      (signal-value
+                                                                       btor142)
+                                                                      (if (assoc-has-key?
+                                                                           merged-input-state-hash
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state139")))
+                                                                        (add1
+                                                                         (cdr
+                                                                          (assoc-ref
+                                                                           merged-input-state-hash
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state139")))))
+                                                                        0))))
+                                                                   (append
+                                                                    (list
+                                                                     (cons
+                                                                      (string->symbol
+                                                                       (string-append
+                                                                        name
+                                                                        "state127"))
+                                                                      (cons
+                                                                       (signal-value
+                                                                        btor1092)
+                                                                       (if (assoc-has-key?
+                                                                            merged-input-state-hash
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state127")))
+                                                                         (add1
+                                                                          (cdr
+                                                                           (assoc-ref
+                                                                            merged-input-state-hash
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state127")))))
+                                                                         0))))
+                                                                    (append
+                                                                     (list
+                                                                      (cons
+                                                                       (string->symbol
+                                                                        (string-append
+                                                                         name
+                                                                         "state125"))
+                                                                       (cons
+                                                                        (signal-value
+                                                                         btor129)
+                                                                        (if (assoc-has-key?
+                                                                             merged-input-state-hash
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state125")))
+                                                                          (add1
+                                                                           (cdr
+                                                                            (assoc-ref
+                                                                             merged-input-state-hash
+                                                                             (string->symbol
+                                                                              (string-append
+                                                                               name
+                                                                               "state125")))))
+                                                                          0))))
+                                                                     (append
+                                                                      (list
+                                                                       (cons
+                                                                        (string->symbol
+                                                                         (string-append
+                                                                          name
+                                                                          "state111"))
+                                                                        (cons
+                                                                         (signal-value
+                                                                          btor1084)
+                                                                         (if (assoc-has-key?
+                                                                              merged-input-state-hash
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state111")))
+                                                                           (add1
+                                                                            (cdr
+                                                                             (assoc-ref
+                                                                              merged-input-state-hash
+                                                                              (string->symbol
+                                                                               (string-append
+                                                                                name
+                                                                                "state111")))))
+                                                                           0))))
+                                                                      (append
+                                                                       (list
+                                                                        (cons
+                                                                         (string->symbol
+                                                                          (string-append
+                                                                           name
+                                                                           "state110"))
+                                                                         (cons
+                                                                          (signal-value
+                                                                           btor113)
+                                                                          (if (assoc-has-key?
+                                                                               merged-input-state-hash
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state110")))
+                                                                            (add1
+                                                                             (cdr
+                                                                              (assoc-ref
+                                                                               merged-input-state-hash
+                                                                               (string->symbol
+                                                                                (string-append
+                                                                                 name
+                                                                                 "state110")))))
+                                                                            0))))
+                                                                       (append
+                                                                        (list
+                                                                         (cons
+                                                                          (string->symbol
+                                                                           (string-append
+                                                                            name
+                                                                            "state92"))
+                                                                          (cons
+                                                                           (signal-value
+                                                                            btor91)
+                                                                           (if (assoc-has-key?
+                                                                                merged-input-state-hash
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state92")))
+                                                                             (add1
+                                                                              (cdr
+                                                                               (assoc-ref
+                                                                                merged-input-state-hash
+                                                                                (string->symbol
+                                                                                 (string-append
+                                                                                  name
+                                                                                  "state92")))))
+                                                                             0))))
+                                                                        (append
+                                                                         (list
+                                                                          (cons
+                                                                           (string->symbol
+                                                                            (string-append
+                                                                             name
+                                                                             "state89"))
+                                                                           (cons
+                                                                            (signal-value
+                                                                             btor1077)
+                                                                            (if (assoc-has-key?
+                                                                                 merged-input-state-hash
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state89")))
+                                                                              (add1
+                                                                               (cdr
+                                                                                (assoc-ref
+                                                                                 merged-input-state-hash
+                                                                                 (string->symbol
+                                                                                  (string-append
+                                                                                   name
+                                                                                   "state89")))))
+                                                                              0))))
+                                                                         (append
+                                                                          (list
+                                                                           (cons
+                                                                            (string->symbol
+                                                                             (string-append
+                                                                              name
+                                                                              "state87"))
+                                                                            (cons
+                                                                             (signal-value
+                                                                              btor98)
+                                                                             (if (assoc-has-key?
+                                                                                  merged-input-state-hash
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state87")))
+                                                                               (add1
+                                                                                (cdr
+                                                                                 (assoc-ref
+                                                                                  merged-input-state-hash
+                                                                                  (string->symbol
+                                                                                   (string-append
+                                                                                    name
+                                                                                    "state87")))))
+                                                                               0))))
+                                                                          (list)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
               merged-input-state-hash)
              equal?
              #:key
              car)))
       (list
-       (cons 'PCOUT (signal (signal-value btor775) output-state))
-       (cons 'PATTERNBDETECT (signal (signal-value btor777) output-state))
-       (cons 'CARRYCASCOUT (signal (signal-value btor675) output-state))
-       (cons 'P (signal (signal-value btor775) output-state))
-       (cons 'CARRYOUT (signal (signal-value btor722) output-state))
-       (cons 'UNDERFLOW (signal (signal-value btor789) output-state))
-       (cons 'BCOUT (signal (signal-value btor161) output-state))
-       (cons 'MULTSIGNOUT (signal (signal-value btor733) output-state))
-       (cons 'OVERFLOW (signal (signal-value btor758) output-state))
-       (cons 'ACOUT (signal (signal-value btor124) output-state))
-       (cons 'PATTERNDETECT (signal (signal-value btor779) output-state))))))
+       (cons 'PCOUT (signal (signal-value btor828) output-state))
+       (cons 'PATTERNBDETECT (signal (signal-value btor876) output-state))
+       (cons 'CARRYCASCOUT (signal (signal-value btor737) output-state))
+       (cons 'P (signal (signal-value btor828) output-state))
+       (cons 'CARRYOUT (signal (signal-value btor784) output-state))
+       (cons 'UNDERFLOW (signal (signal-value btor890) output-state))
+       (cons 'BCOUT (signal (signal-value btor146) output-state))
+       (cons 'MULTSIGNOUT (signal (signal-value btor794) output-state))
+       (cons 'OVERFLOW (signal (signal-value btor816) output-state))
+       (cons 'ACOUT (signal (signal-value btor117) output-state))
+       (cons 'PATTERNDETECT (signal (signal-value btor881) output-state))))))
 
