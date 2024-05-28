@@ -22,8 +22,7 @@ pushd "$LAKEROAD_DIR" >/dev/null
 #
 # We also time the tests, as the Racket tests are the slowest part of the testing process.
 
-### DELETE THIS LINE: THIS IS COMMENTED OUT FOR DEBUGGING
-# for f in $SCRIPT_DIR/racket/*.rkt; do time raco test $f; done
+for f in $SCRIPT_DIR/racket/*.rkt; do time raco test $f; done
 
 # Integration tests.
 source $SCRIPT_DIR/integration_tests/run.sh
