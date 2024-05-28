@@ -54,45 +54,22 @@ implementations:
       CEA2: 1,
     }
     constraints : [
+
+      ##############################
+      ### Efficiency Constraints ###
+      ##############################
       # AREG is 2 bits wide, but valid values only from 0-2
       "(not (bveq AREG (bv 3 2)))",
+
       # BREG is 2 bits wide, but valid values only from 0-2
       "(not (bveq BREG (bv 3 2)))",
+
       # ACASCREG/BCASCREG is 2 bits wide, but valid values only from 0-2
       "(not (bveq ACASCREG (bv 3 2)))",
       "(not (bveq BCASCREG (bv 3 2)))",
       
-      # PREG must be 1 when OPMODE[6:4] is 010, 110, or 100
-      "(=> (bveq (extract 6 4 OPMODE) (bv 2 3)) (bveq PREG (bv 1 1)))",
-      "(=> (bveq (extract 6 4 OPMODE) (bv 4 3)) (bveq PREG (bv 1 1)))",
-      "(=> (bveq (extract 6 4 OPMODE) (bv 6 3)) (bveq PREG (bv 1 1)))",
-
-      # PREG must be 1 when OPMODE[1:0] is 10
-      "(=> (bveq (extract 1 0 OPMODE) (bv 2 2)) (bveq PREG (bv 1 1)))",
-
-      # OPMODE[3:2] must be 01 when OPMODE[1:0] is 01
-      "(=> (bveq (extract 1 0 OPMODE) (bv 1 2)) (bveq (extract 3 2 OPMODE) (bv 1 2)))",
-      # inverse of the above
-      "(=> (bveq (extract 3 2 OPMODE) (bv 1 2)) (bveq (extract 1 0 OPMODE) (bv 1 2)))",
-
-      #PREG must be 1 when CARRYINSEL is 100, 101, 111
-      "(=> (bveq CARRYINSEL (bv 2 3)) (bveq PREG (bv 1 1)))",
-      "(=> (bveq CARRYINSEL (bv 4 3)) (bveq PREG (bv 1 1)))",
-      "(=> (bveq CARRYINSEL (bv 6 3)) (bveq PREG (bv 1 1)))",
-
-      # It is recommended CARRYINSELREG and OPMODEREG are set to the same value
-      "(bveq CARRYINSELREG OPMODEREG)",
-
-      #ACASCREG/BCASCREG must be equal to AREG/BREG when AREG/BREG is 0, 1
-      # See https://docs.amd.com/v/u/en-US/ug479_7Series_DSP48E1.pdf, Table 2-3
-      # "(=> (bveq AREG (bv 0 2)) (bveq ACASCREG AREG))",
-      # "(=> (bveq AREG (bv 1 2)) (bveq ACASCREG AREG))",
-      # "(=> (bveq AREG (bv 2 2)) (|| (bveq ACASCREG (bv 2 2)) (bveq ACASCREG (bv 1 2))))",
-      # "(=> (bveq BREG (bv 0 2)) (bveq BCASCREG BREG))",
-      # "(=> (bveq BREG (bv 1 2)) (bveq BCASCREG BREG))",
-      # "(=> (bveq BREG (bv 2 2)) (|| (bveq BCASCREG (bv 2 2)) (bveq BCASCREG (bv 1 2))))",
-
-      # AREG must be set to 2 when the adder is two stage
+      # PCIN should be 0
+      "(bveq PCIN (bv 0 48))",
 
       # Attributes can only be a few of the ENUM_VALS (see Table 2-3 in the DSP48E1 documentation)
 
@@ -105,12 +82,87 @@ implementations:
       # "(|| (bveq USE_MULT (bv 11 5)) (bveq USE_MULT (bv 5 5)))",
       # "(|| (bveq USE_SIMD (bv 7 5)) (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 13 5)))",
 
+      ###############################
+      ### Correctness Constraints ###
+      ###############################
+
+      # PREG must be 1 when OPMODE[6:4] is 010, 110, or 100
+      "(=> (bveq (extract 6 4 OPMODE) (bv 2 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq (extract 6 4 OPMODE) (bv 4 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq (extract 6 4 OPMODE) (bv 6 3)) (bveq PREG (bv 1 1)))",
+      
+      #PREG must be 1 when CARRYINSEL is 100, 101, 111
+      "(=> (bveq CARRYINSEL (bv 2 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq CARRYINSEL (bv 4 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq CARRYINSEL (bv 6 3)) (bveq PREG (bv 1 1)))",
+      
+
+      # PREG must be 1 when OPMODE[1:0] is 10
+      "(=> (bveq (extract 1 0 OPMODE) (bv 2 2)) (bveq PREG (bv 1 1)))",
+
+      # OPMODE[3:2] must be 01 when OPMODE[1:0] is 01
+      "(=> (bveq (extract 1 0 OPMODE) (bv 1 2)) (bveq (extract 3 2 OPMODE) (bv 1 2)))",
+      # inverse of the above
+      "(=> (bveq (extract 3 2 OPMODE) (bv 1 2)) (bveq (extract 1 0 OPMODE) (bv 1 2)))",
+
+      # OPMODE[6:4] = 0b111 is invalid
+      "(not (bveq (extract 6 4 OPMODE) (bv 7 3)))",
+
+      # It is recommended CARRYINSELREG and OPMODEREG are set to the same value
+      "(bveq CARRYINSELREG OPMODEREG)",
+
+      #OPMODE[1:0] = 11 is invalid when USE_MULT = MULTIPLY
+      "(=> (bveq USE_MULT (bv 5 5)) (not (bveq (extract 1 0 OPMODE) (bv 3 2))))",
+
+      # DRC warning : CARRYINSEL is set to 010 with OPMODE set to multiplication (xxx0101). 
+      # This is an illegal mode and may show deviation between simulation results and hardware behavior.
+      "(not (&& (bveq CARRYINSEL (bv 2 3)) (bveq (extract 3 0 OPMODE) (bv 5 4))))",
+
+      # DRC warning: DRC warning : CARRYINSEL is set to 010 with OPMODEREG set to 0. 
+      # This causes unknown values after reset occurs. It is suggested to use 
+      # OPMODEREG = 1 when cascading large adders.
+      "(not (&& (bveq CARRYINSEL (bv 2 3)) (bveq OPMODEREG (bv 0 1))))",
+   
+      # Warning : The OPMODE[3:0] set to 4'b0101 to DSP48E1 is invalid 
+      # when using attributes USE_MULT = NONE, or USE_SIMD = TWO24 or FOUR12 
+      "(not 
+        (&& 
+          (bveq (extract 3 0 OPMODE) (bv 5 4))
+          (|| (bveq USE_MULT (bv 11 5))
+              (bveq USE_SIMD (bv 12 5)) 
+              (bveq USE_SIMD (bv 13 5)))))",
+
+      # Warning : The opmode[1:0] 2'b11 is invalid when 
+      # ((AREG==0 && BREG==0 && MREG==0) || (AREG==0 && BREG==0 && PREG==0) ||
+      # (MREG==0 && PREG==0))
+
+     "(=> (bveq (extract 1 0 OPMODE) (bv 3 2))
+          (not 
+             (&& 
+               (bveq USE_MULT (bv 5 5))
+               (&& (bveq AREG (bv 0 2))
+                   (bveq BREG (bv 0 2))
+                   (bveq MREG (bv 0 1))))))",
+     "(=> (bveq (extract 1 0 OPMODE) (bv 3 2))
+          (not
+             (&& 
+                (bveq USE_MULT (bv 5 5))
+                (&& (bveq AREG (bv 0 2))
+                    (bveq BREG (bv 0 2))
+                    (bveq PREG (bv 0 1))))))",
+     "(=> (bveq (extract 1 0 OPMODE) (bv 3 2))
+          (not 
+             (&&
+               (bveq USE_MULT (bv 5 5))
+               (&& (bveq MREG (bv 0 1))
+                   (bveq PREG (bv 0 1))))))",
+
       # When USE_SIMD is two24 or four12, mult must be set to none
+      # Not needed as USE_SIMD is bound to ONE48
       # "(=> (bveq USE_SIMD (bv 12 5)) (bveq USE_MULT (bv 11 5)))",
       # "(=> (bveq USE_SIMD (bv 13 5)) (bveq USE_MULT (bv 11 5)))",
 
-      # DPORT can be only true or false
-      "(|| (bveq USE_DPORT (bv 9 5)) (bveq USE_DPORT (bv 4 5)))",
+
     ]
     modules:
       - module_name: DSP48E1
@@ -135,7 +187,7 @@ implementations:
             { name: INMODE, direction: input, bitwidth: 5, value: INMODE },
             { name: MULTSIGNIN, direction: input, bitwidth: 1, value: MULTSIGNIN },
             { name: OPMODE, direction: input, bitwidth: 7, value: OPMODE },
-            { name: PCIN, direction: input, bitwidth: 48, value: PCIN },
+            { name: PCIN, direction: input, bitwidth: 48, value: (bv 0 48) },
             # Resets can be set to 0 safely
             { name: RSTA, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: RSTALLCARRYIN, direction: input, bitwidth: 1, value: (bv 0 1) },
@@ -174,7 +226,8 @@ implementations:
             { name: AREG, value: (zero-extend AREG (bitvector 32))},
             { name: BCASCREG, value: (zero-extend BREG (bitvector 32)) },
             { name: BREG, value : (zero-extend BREG (bitvector 32)) },
-            { name: CARRYINREG, value: (bv 0 32) },
+            # { name: CARRYINREG, value: (bv 0 32) },
+            { name: CARRYINREG, value: (zero-extend CARRYINREG (bitvector 32)) },
             { name: CARRYINSELREG, value: (zero-extend CARRYINSELREG (bitvector 32)) },
             { name: CREG, value: (zero-extend CREG (bitvector 32)) },
             { name: DREG, value: (zero-extend DREG (bitvector 32)) },
@@ -192,9 +245,9 @@ implementations:
             # { name: B_INPUT, value: B_INPUT},
             # True or FALSE (see constraints)
             # { name: USE_DPORT, value: (bv 9 5) },
-            { name: USE_DPORT, value: USE_DPORT},
-            # Multiply
-            { name: USE_MULT, value: (bv 5 5) },
+            { name: USE_DPORT, value: (choose (bv 9 5) (bv 4 5))},
+            # Multiply OR 11
+            { name: USE_MULT, value: (choose (bv 5 5) (bv 11 5))},
             # { name: USE_MULT, value: USE_MULT},
             # One48
             { name: USE_SIMD, value: (bv 7 5) },
