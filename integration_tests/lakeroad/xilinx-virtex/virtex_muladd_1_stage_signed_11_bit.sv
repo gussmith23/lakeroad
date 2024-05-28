@@ -52,7 +52,7 @@
 	input signed [10:0] a,
 	input signed [10:0] b,
 	input signed [10:0] c,
-	output [10:0] out,
+	output signed [10:0] out,
 	input clk);
 
 	logic signed [21:0] stage0;
