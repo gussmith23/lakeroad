@@ -21,7 +21,6 @@ pushd "$LAKEROAD_DIR" >/dev/null
 # cause some thrashing.
 #
 # We also time the tests, as the Racket tests are the slowest part of the testing process.
-
 for f in $SCRIPT_DIR/racket/*.rkt; do time raco test $f; done
 
 # Integration tests.
