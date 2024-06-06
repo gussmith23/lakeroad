@@ -3,4 +3,3 @@ psutil==5.9.2
 pytest==6.2.5
 meson==1.2.0
 tomli==2.0.1
-z3-solver==4.8.17.0
