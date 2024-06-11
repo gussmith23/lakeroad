@@ -21,7 +21,6 @@
 # the commit hashes of the dependencies we need, but nothing additional is
 # cloned on a `git clone --recursive`.
 
-# TODO(@gussmith23): switch back to mainline stp when https://github.com/stp/stp/pull/482 merged
 export STP_USER_AND_REPO="stp/stp"
 export STP_COMMIT_HASH="c760db4ebc6bb93a09d371789443d2fe00c713d2"
 export YICES2_COMMIT_HASH="5326f0d645df6e38ae6e7d944381d01ba7d805ab"
