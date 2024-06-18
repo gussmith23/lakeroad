@@ -81,6 +81,8 @@
 (define yices-path (make-parameter #f))
 (define cvc4-path (make-parameter #f))
 (define boolector-path (make-parameter #f))
+(define simulate-with-verilator (make-parameter #f))
+(define simulate-with-verilator-args (make-parameter '()))
 
 (command-line
  #:program "lakeroad"
@@ -183,8 +185,17 @@
   v
   "Path to the boolector binary. If not set, Rosette will assume the binary is on your PATH."
   (boolector-path v)]
+ ["--simulate-with-verilator"
+  v
+  "If set, Lakeroad will simulate the result of synthesis to validate its correctness."
+  (simulate-with-verilator #t)]
  #:once-any
  #:multi
+ ["--simulate-with-verilator-arg"
+  v
+  "Argument to pass through to simulate_with_verilator.py. See the documentation for available flags."
+  " You can see the available flags by running `simulate_with_verilator.py --help`."
+  (simulate-with-verilator-args (append (simulate-with-verilator-args) (list v)))]
  [("--solver-flag")
   v
   "Flag to pass to the solver. A string of the form <flag>=<value>. This flag can be specified"
@@ -519,3 +530,6 @@
        (output-port))]
 
      [_ (error "Invalid output format.")])])
+
+(when (simulate-with-verilator)
+  ())
