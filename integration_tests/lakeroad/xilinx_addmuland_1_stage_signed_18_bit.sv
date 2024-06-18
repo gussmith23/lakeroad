@@ -12,7 +12,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal out:18 \
-// RUN:  --initiation-interval 1 \
+// RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name top \
 // RUN:  --input-signal a:18 \
@@ -36,7 +36,7 @@
 //     --verilog_filepath $outfile \
 //     --verilog_filepath %s \
 //     --clock_name clk \
-//     --initiation_interval 1 \
+//     --pipeline_depth 1 \
 //     --output_signal_name out \
 //     --input_signal a:18 \
 //     --input_signal b:18 \

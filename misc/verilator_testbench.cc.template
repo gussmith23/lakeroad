@@ -23,7 +23,10 @@
 #define SET_MODULE_CLOCK(module, clock) {set_module_clock_body}
 
 #define NUM_INPUTS {num_inputs}
-#define INITIATION_INTERVAL {initiation_interval}
+#define INITIATION_INTERVAL \
+  {                         \
+    pipeline_depth          \
+  }
 
 int main(int argc, char** argv) {{
 

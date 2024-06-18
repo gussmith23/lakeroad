@@ -10,7 +10,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
  --out-format verilog \
  --top-module-name top \
  --verilog-module-out-signal p:16 \
- --initiation-interval 2 \
+ --pipeline-depth 2 \
  --clock-name clk \
  --module-name test_module \
  --input-signal a:16 \

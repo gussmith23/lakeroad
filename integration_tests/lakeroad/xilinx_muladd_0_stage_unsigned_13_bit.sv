@@ -7,7 +7,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal out:13 \
-// RUN:  --initiation-interval 0 \
+// RUN:  --pipeline-depth 0 \
 // RUN:  --module-name top \
 // RUN:  --input-signal a:13 \
 // RUN:  --input-signal b:13 \

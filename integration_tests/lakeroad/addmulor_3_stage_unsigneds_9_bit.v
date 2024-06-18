@@ -8,7 +8,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name addmulor_3_stage_unsigned_9_bit \
 // RUN:  --verilog-module-out-signal out:9 \
-// RUN:  --initiation-interval 3 \
+// RUN:  --pipeline-depth 3 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:9 \
