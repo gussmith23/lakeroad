@@ -33,9 +33,10 @@ Please see the [Dockerfile](./Dockerfile)
 
 ## Environment Variables
 
-- `LAKEROAD_DIR`
-- `LAKEROAD_PRIVATE_DIR`
-- `LLVM_CONFIG`
+See [`.env.template`](./.env.template)
+  for information on the environment variables
+  which need to be set
+  for Lakeroad to function properly.
 
 ## Testing in Lakeroad
 
