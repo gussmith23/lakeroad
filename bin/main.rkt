@@ -6,7 +6,6 @@
          "../racket/utils.rkt"
          "../racket/synthesize.rkt"
          "../racket/compile-to-json.rkt"
-         "../racket/circt-comb-operators.rkt"
          "../racket/sketches.rkt"
          "../racket/architecture-description.rkt"
          json
