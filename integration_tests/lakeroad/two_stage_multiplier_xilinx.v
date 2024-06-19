@@ -6,7 +6,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name two_stage_multiplier \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 2 \
+// RUN:  --pipeline-depth 2 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \

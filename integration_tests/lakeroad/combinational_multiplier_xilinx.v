@@ -6,7 +6,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name combinational_multiplier \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 0 \
+// RUN:  --pipeline-depth 0 \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \
 // RUN:  --input-signal b:16 \

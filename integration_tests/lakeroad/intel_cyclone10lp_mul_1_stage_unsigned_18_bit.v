@@ -10,7 +10,7 @@
 // RUN:  --module-name test_module \
 // RUN:  --input-signal a:18 \
 // RUN:  --input-signal b:18 \
-// RUN:  --initiation-interval 1 \
+// RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk \
 // RUN:  --timeout 60 \
 // RUN:  --extra-cycles 3 \
@@ -27,7 +27,7 @@
 // RUN:    --test_module_name test_module \
 // RUN:    --ground_truth_module_name top \
 // RUN:    --clock_name clk \
-// RUN:    --initiation_interval 1 \
+// RUN:    --pipeline_depth 1 \
 // RUN:    --output_signal p:18 \
 // RUN:    --input_signal a:18 \
 // RUN:    --input_signal b:18 \

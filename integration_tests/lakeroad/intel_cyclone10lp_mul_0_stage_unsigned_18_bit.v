@@ -24,7 +24,7 @@
 // RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
-// RUN:    --initiation_interval 0 \
+// RUN:    --pipeline_depth 0 \
 // RUN:    --input_signal a:18 \
 // RUN:    --input_signal b:18 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/intel_cyclone10lp/" \

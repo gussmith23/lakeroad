@@ -79,7 +79,7 @@ An example of what Lakeroad integration tests will
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name three_stage_multiplier \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 3 \
+// RUN:  --pipeline-depth 3 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \

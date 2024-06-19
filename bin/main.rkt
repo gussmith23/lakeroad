@@ -65,7 +65,7 @@
 (define top-module-name (make-parameter #f))
 (define verilog-module-out-signal (make-parameter #f))
 (define verilog-module-out-bitwidth (make-parameter #f))
-(define initiation-interval (make-parameter 0))
+(define pipeline-depth (make-parameter 0))
 (define clock-name (make-parameter #f))
 (define reset-name (make-parameter #f))
 ;;; Arbitrary exit code choice.
@@ -137,18 +137,18 @@
       (error "Output signal must be specified as <name>:<bw>"))
     (verilog-module-out-signal (first splits))
     (verilog-module-out-bitwidth (string->number (second splits))))]
- ["--initiation-interval"
+ ["--pipeline-depth"
   v
-  "Initiation interval of the module to be compiled. This will also be the initiation interval of the"
+  "Initiation interval of the module to be compiled. This will also be the pipeline depth of the"
   " resulting synthesized Verilog module, though this need not be the case in general."
-  (initiation-interval (string->number v))]
+  (pipeline-depth (string->number v))]
  ["--extra-cycles"
   v
   "Number of extra cycles to run the module for and make assertions about. Defaults to 0. When ==0,"
-  " synthesis runs the module for exactly the initiation interval number of steps and makes a single"
+  " synthesis runs the module for exactly the pipeline depth number of steps and makes a single"
   " assertion about the outputs being equal at the last time step. When >0, synthesis runs the module"
-  " for initiation interval + extra cycles number of steps and makes assertions about all of the"
-  " outputs being equal at each time step greater than or equal to the initiation interval."
+  " for pipeline depth + extra cycles number of steps and makes assertions about all of the"
+  " outputs being equal at each time step greater than or equal to the pipeline depth."
   (extra-cycles (string->number v))]
  ["--clock-name"
   v
@@ -297,7 +297,7 @@
      (define f (eval (first (btor->racket btor)) ns))
      ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
      ;;; path expects a bvexpr, which we can get by just calling the function.
-     (if (> (initiation-interval) 0)
+     (if (> (pipeline-depth) 0)
          f
          ;(signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))
          f)]))
@@ -386,7 +386,7 @@
 ;;; Either a valid LR expression or #f.
 (define lakeroad-expr
   (cond
-    [(> (initiation-interval) 0)
+    [(> (pipeline-depth) 0)
      (let* ([_ "this line prevents autoformatter from messing up comments"]
 
             ;;; Generate the input values: an association list mapping name to value, where the value
@@ -425,7 +425,7 @@
                                                     (make-intermediate-inputs (inputs) iter))
                                               (cons (cons (clock-name) (bv->signal (bv 1 1)))
                                                     (make-intermediate-inputs (inputs) iter))))
-                                      (range 1 (+ (initiation-interval) (extra-cycles))))))]
+                                      (range 1 (+ (pipeline-depth) (extra-cycles))))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
@@ -469,7 +469,7 @@
                   #:assert-equal-on
                   (if (equal? (extra-cycles) 0)
                       #f
-                      (flatten (append (make-list (- (initiation-interval) 1) (list #f #f))
+                      (flatten (append (make-list (- (pipeline-depth) 1) (list #f #f))
                                        (make-list (+ (extra-cycles) 1) (list #f #t))))))))))]
 
     ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
@@ -481,7 +481,7 @@
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
                   (inputs))))
      (define input-symbolic-constants (symbolics envs))
-     ;;; If initiation interval is #f, then do normal combinational synthesis.
+     ;;; If pipeline depth is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
        (call-with-limits
         (timeout)
