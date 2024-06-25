@@ -1,6 +1,6 @@
 #lang racket/base
 (provide xilinx-virtex-dsp48e1)
-(require (file "/home/vishalc/lakeroad-evaluation/lakeroad/racket/signal.rkt"))
+(require (file "../signal.rkt"))
 (require rosette)
 (define xilinx-virtex-dsp48e1
   (λ (#:A
