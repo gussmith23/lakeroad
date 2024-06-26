@@ -118,7 +118,7 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 	for (auto port : data_ports)
 			ss << " --input-signal " << port.substr(1) << ":" << module->wire(port)->width;
 	if (pipeline_depth != 0)
-		ss << " --initiation-interval " << pipeline_depth;
+		ss << " --pipeline-depth " << pipeline_depth;
 	// clang-format on
 
 	log("Executing Lakeroad:\n%s\n", ss.str().c_str());

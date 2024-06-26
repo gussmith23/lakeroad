@@ -1,15 +1,18 @@
-# lakeroad
+# Lakeroad
+
+See the paper [here.](https://arxiv.org/abs/2401.16526)
 
 Lakeroad
-  is a synthesizer
-  for FPGAs.
+  is a technology mapper for FPGAs
+  built using sketch-guided program synthesis
+  provided by [Rosette](https://emina.github.io/rosette/).
 Given a description
   of an FPGA's resources,
-  it can synthesize
-  FPGA configurations
-  (e.g. LUT programmings)
-  to implement high-level programs
-  (e.g. 8-bit add with carry).
+  it can compile input designs
+  to FPGA primitives.
+It is especially powerful for complex,
+  programmable primitives
+  like DSPs.
 
 ## Logging
 
@@ -35,9 +38,10 @@ Please see the [Dockerfile](./Dockerfile)
 
 ## Environment Variables
 
-- `LAKEROAD_DIR`
-- `LAKEROAD_PRIVATE_DIR`
-- `LLVM_CONFIG`
+See [`.env.template`](./.env.template)
+  for information on the environment variables
+  which need to be set
+  for Lakeroad to function properly.
 
 ## Testing in Lakeroad
 
@@ -80,7 +84,7 @@ An example of what Lakeroad integration tests will
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name three_stage_multiplier \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 3 \
+// RUN:  --pipeline-depth 3 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \

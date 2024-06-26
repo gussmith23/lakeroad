@@ -113,7 +113,7 @@ parser.add_argument(
 args, rest = parser.parse_known_args()
 
 # Process the "--" flag which marks the end of the flags for the script.
-rest = rest[1:] if rest[0] == "--" else rest
+rest = rest[1:] if (len(rest) > 0 and rest[0] == "--") else rest
 
 
 def _parse_flag_set(flag_set: str) -> List[str]:

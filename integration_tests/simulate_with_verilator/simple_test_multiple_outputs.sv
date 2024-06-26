@@ -4,7 +4,7 @@
 // RUN:   --input_signal a:2 \
 // RUN:   --input_signal b:2 \
 // RUN:   --clock_name clk \
-// RUN:   --initiation_interval 1 \
+// RUN:   --pipeline_depth 1 \
 // RUN:   --output_signal c:2 \
 // RUN:   --output_signal d:2 \
 // RUN:   --test_module_name test_module \

@@ -3,7 +3,7 @@
 // RUN:   --verilog_filepath %s \
 // RUN:   --input_signal a:1 \
 // RUN:   --input_signal b:1 \
-// RUN:   --initiation_interval 0 \
+// RUN:   --pipeline_depth 0 \
 // RUN:   --output_signal c:1 \
 // RUN:   --test_module_name test_module \
 // RUN:   --ground_truth_module_name ground_truth_module \
