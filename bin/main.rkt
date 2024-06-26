@@ -267,6 +267,12 @@
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
 
+(define (get-log-filename verilog-filepath)
+  (let* ((basename (regexp-replace #rx".*/" verilog-filepath "")) ; Remove directory path
+         (name-no-ext (regexp-replace #rx"\\.sv$" basename ""))   ; Remove .sv extension
+         (log-filename (string-append name-no-ext ".log")))       ; Append .log extension
+    log-filename))
+
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
   (cond
@@ -286,10 +292,11 @@
            (when (not
                   (system
                    (format
-                    ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
+                      ;;; TODO: This is a very important line -- we need to determine whether
                     ;;; clk2fflogic is the correct thing to use. See
                     ;;; https://github.com/uwsampl/lakeroad/issues/238
-                    "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    "yosys -ql ~a -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    (get-log-filename (verilog-module-filepath))
                     (verilog-module-filepath)
                     (top-module-name))))
              (error "Yosys failed."))))))
