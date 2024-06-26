@@ -44,9 +44,9 @@
 // RUN: fi
 
 (* use_dsp = "yes" *) module top(
-	input signed [8:0] a,
-	input signed [8:0] b,
-	output [8:0] out
+	input signed [7:0] a,
+	input signed [7:0] b,
+	output [7:0] out
 	);
 
 	assign out = a * b;
