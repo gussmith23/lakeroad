@@ -121,7 +121,7 @@ else
     | sed 's#(require (file.*#(require "../signal.rkt\")#' )
   echo "$out" > "$LAKEROAD_DIR"/racket/generated/intel-cyclone10lp-mac-out.rkt
 
-  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \                    
+  out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
     --infile "$LAKEROAD_PRIVATE_DIR"/DSP48E1/DSP48E1_modified_for_racket_import.v \
     --top DSP48E1 \
     --function-name xilinx-virtex-dsp48e1 \
