@@ -7,7 +7,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal out:8 \
-// RUN:  --initiation-interval 0 \
+// RUN:  --pipeline-depth 0 \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:8 \
 // RUN:  --input-signal b:8 \
@@ -25,7 +25,7 @@
 // RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
-// RUN:    --initiation_interval 0 \
+// RUN:    --pipeline_depth 0 \
 // RUN:    --output_signal out:8 \
 // RUN:    --input_signal a:8 \
 // RUN:    --input_signal b:8 \ 
