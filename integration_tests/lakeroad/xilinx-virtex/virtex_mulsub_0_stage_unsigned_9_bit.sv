@@ -31,7 +31,6 @@
 // RUN:    --input_signal a:9 \
 // RUN:    --input_signal b:9 \ 
 // RUN:    --input_signal c:9 \
-// RUN:    --testbench_stdout_log_filepath=tmp.txt \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E1/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
