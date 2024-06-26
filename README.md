@@ -11,6 +11,11 @@ Given a description
   to implement high-level programs
   (e.g. 8-bit add with carry).
 
+## Logging
+
+To get logs out of Lakeroad, you can set
+  `PLTSTDERR="info@lakeroad"`.
+
 ## Dependencies
 
 - LLVM

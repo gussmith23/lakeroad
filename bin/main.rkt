@@ -1,6 +1,9 @@
 #!/usr/bin/env racket
 #lang racket/base
 
+(define-logger lakeroad)
+(current-logger lakeroad-logger)
+
 (require rosette
          (prefix-in lr: "../racket/language.rkt")
          "../racket/utils.rkt"
@@ -277,6 +280,7 @@
      (when (not (parameterize ([current-output-port (open-output-nowhere)])
                   (system "yosys --version")))
        (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
+     (log-info "Running Yosys.")
      (define btor
        (parameterize ([current-error-port (open-output-nowhere)])
          (with-output-to-string
@@ -386,6 +390,7 @@
     (displayln "Synthesis Timeout" (current-error-port))
     (exit TIMEOUTCODE)))
 ;;; Either a valid LR expression or #f.
+(log-info "Attempting synthesis.")
 (define lakeroad-expr
   (cond
     [(> (initiation-interval) 0)
