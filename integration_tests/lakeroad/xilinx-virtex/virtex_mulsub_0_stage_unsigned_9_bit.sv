@@ -15,6 +15,7 @@
 // RUN:  --timeout 120 \
 // RUN:  --extra-cycles 3 \
 // RUN:  > $outfile
+// RUN:  FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
 // RUN:   exit 0; \
@@ -54,4 +55,4 @@
   assign out = (a * b) - c;
 endmodule
 
-// CHECK: module top(a, b, c, clk, out);
+// CHECK: module out(a, b, c, out);
