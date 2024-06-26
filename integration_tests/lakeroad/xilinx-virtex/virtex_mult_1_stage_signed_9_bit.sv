@@ -1,5 +1,5 @@
 // RUN: outfile=$(mktemp)
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-virtex \
@@ -14,9 +14,7 @@
 // RUN:  --input-signal b:9 \
 // RUN:  --timeout 120 \
 // RUN:  --extra-cycles 3 \
-// RUN:  || true) \
-// RUN:  > $outfile \
-// RUN:  2>&1
+// RUN:  > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
