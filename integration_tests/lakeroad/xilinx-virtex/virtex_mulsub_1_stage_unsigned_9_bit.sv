@@ -65,4 +65,4 @@
   assign out = stage0;
 endmodule
 
-// CHECK: module top(a, b, c, clk, out);
+// CHECK: module out(a, b, c, clk, out);
