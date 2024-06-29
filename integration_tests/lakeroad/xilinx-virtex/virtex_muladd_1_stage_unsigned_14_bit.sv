@@ -17,7 +17,7 @@
 // RUN:  --extra-cycles 3 \
 // RUN:  || true ) \
 // RUN:  > $outfile \
-// RUN:  2>$1
+// RUN:  2>&1
 // RUN: FileCheck %s < $outfile
 // if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 //   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
