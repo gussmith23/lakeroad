@@ -92,9 +92,9 @@ implementations:
       "(=> (bveq (extract 6 4 OPMODE) (bv 6 3)) (bveq PREG (bv 1 1)))",
       
       #PREG must be 1 when CARRYINSEL is 100, 101, 111
-      "(=> (bveq CARRYINSEL (bv 2 3)) (bveq PREG (bv 1 1)))",
       "(=> (bveq CARRYINSEL (bv 4 3)) (bveq PREG (bv 1 1)))",
-      "(=> (bveq CARRYINSEL (bv 6 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq CARRYINSEL (bv 5 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq CARRYINSEL (bv 7 3)) (bveq PREG (bv 1 1)))",
       
 
       # PREG must be 1 when OPMODE[1:0] is 10
