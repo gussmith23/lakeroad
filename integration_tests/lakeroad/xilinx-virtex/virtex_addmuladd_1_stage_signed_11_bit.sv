@@ -9,7 +9,7 @@
 // RUN:  --verilog-module-out-signal out:11 \
 // RUN:  --pipeline-depth 3 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name top \
+// RUN:  --module-name out \
 // RUN:  --input-signal a:11 \
 // RUN:  --input-signal b:11 \
 // RUN:  --input-signal c:11 \
@@ -68,4 +68,4 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: module top(a, b, c, clk, d, out); 
+// CHECK: module out(a, b, c, clk, d, out); 
