@@ -2,18 +2,18 @@
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
-// RUN:  --architecture xilinx-virtex \
+// RUN:  --architecture xilinx-7-series \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal out:11 \
-// RUN:  --pipeline-depth 1 \
+// RUN:  --verilog-module-out-signal out:18 \
+// RUN:  --pipeline-depth 2 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:11 \
-// RUN:  --input-signal b:11 \
-// RUN:  --input-signal c:11 \
-// RUN:  --input-signal d:11 \
+// RUN:  --input-signal a:18 \
+// RUN:  --input-signal b:18 \
+// RUN:  --input-signal c:18 \
+// RUN:  --input-signal d:18 \
 // RUN:  --timeout 120 \
 // RUN:  --extra-cycles 3 \
 // RUN:  > $outfile
@@ -29,12 +29,12 @@
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
-// RUN:    --pipeline_depth 1 \
-// RUN:    --output_signal out:11 \
-// RUN:    --input_signal a:11 \
-// RUN:    --input_signal b:11 \
-// RUN:    --input_signal c:11 \
-// RUN:    --input_signal d:11 \
+// RUN:    --pipeline_depth 2 \
+// RUN:    --output_signal out:18 \
+// RUN:    --input_signal a:18 \
+// RUN:    --input_signal b:18 \ 
+// RUN:    --input_signal c:18 \ 
+// RUN:    --input_signal d:18 \ 
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E1/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -49,23 +49,25 @@
 // RUN: 	 --verilator_extra_arg='-Wno-CASEINCOMPLETE'; \
 // RUN: fi
 
-
 (* use_dsp = "yes" *) module top(
-	input signed [10:0] a,
-	input signed [10:0] b,
-	input signed [10:0] c,
-	input signed [10:0] d,
-	output [10:0] out,
+	input  [17:0] a,
+	input  [17:0] b,
+	input  [17:0] c,
+	input  [17:0] d,
+	output [17:0] out,
 	input clk);
 
-	logic signed [21:0] stage0;
+	logic  [35:0] stage0;
+	logic  [35:0] stage1;
 
 	always @(posedge clk) begin
-	stage0 <= ((d + a) * b) + c;
-
+	stage0 <= ((d - a) * b) - c;
+	stage1 <= stage0;
 	end
 
-	assign out = stage0;
+	assign out = stage1;
 endmodule
 
-// CHECK: module out(a, b, c, clk, d, out); 
+// CHECK: module out(a, b, c, clk, d, out);
+// CHECK:   DSP48E1 #(
+// CHECK: endmodule

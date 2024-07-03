@@ -2,7 +2,7 @@
 // RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
-// RUN:  --architecture xilinx-virtex \
+// RUN:  --architecture xilinx-7-series \
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \

@@ -1,8 +1,8 @@
 #lang racket/base
-(provide xilinx-virtex-dsp48e1)
+(provide xilinx-7-series-dsp48e1)
 (require "../signal.rkt")
 (require rosette)
-(define xilinx-virtex-dsp48e1
+(define xilinx-7-series-dsp48e1
   (λ (#:A
       (A (bv->signal (constant 'A (bitvector 30))))
       #:ACASCREG

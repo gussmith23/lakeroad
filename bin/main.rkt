@@ -27,7 +27,7 @@
          "../racket/generated/intel-altmult-accum.rkt"
          "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
          "../racket/generated/intel-cyclone10lp-mac-out.rkt"
-         "../racket/generated/xilinx-virtex-dsp48e1.rkt"
+         "../racket/generated/xilinx-7-series-dsp48e1.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -50,7 +50,7 @@
                       [(or "sofa") v]
                       ["intel" v]
                       ["intel-cyclone10lp" v]
-                      ["xilinx-virtex" v]
+                      ["xilinx-7-series" v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -343,9 +343,9 @@
     ["intel-cyclone10lp"
      (parse-architecture-description-file
       (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
-    ["xilinx-virtex"
+    ["xilinx-7-series"
      (parse-architecture-description-file
-      (build-path (get-lakeroad-directory) "architecture_descriptions" "xilinx_virtex.yml"))]
+      (build-path (get-lakeroad-directory) "architecture_descriptions" "xilinx_7_series.yml"))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -378,7 +378,7 @@
     ["intel-cyclone10lp"
      (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
            (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
-    ["xilinx-virtex" (list (cons (cons "DSP48E1" "unused") xilinx-virtex-dsp48e1))]
+    ["xilinx-7-series" (list (cons (cons "DSP48E1" "unused") xilinx-7-series-dsp48e1))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
