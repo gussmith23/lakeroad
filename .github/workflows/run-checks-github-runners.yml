@@ -95,7 +95,7 @@ jobs:
     needs: [build-and-push-image, cleaner]
     steps:
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3.2.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -112,7 +112,7 @@ jobs:
     needs: build-and-push-image
     steps:
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3.2.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
