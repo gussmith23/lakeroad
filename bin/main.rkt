@@ -1,6 +1,9 @@
 #!/usr/bin/env racket
 #lang racket/base
 
+(define-logger lakeroad)
+(current-logger lakeroad-logger)
+
 (require rosette
          (prefix-in lr: "../racket/language.rkt")
          "../racket/utils.rkt"
@@ -24,6 +27,7 @@
          "../racket/generated/intel-altmult-accum.rkt"
          "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
          "../racket/generated/intel-cyclone10lp-mac-out.rkt"
+         "../racket/generated/xilinx-7-series-dsp48e1.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -46,6 +50,7 @@
                       [(or "sofa") v]
                       ["intel" v]
                       ["intel-cyclone10lp" v]
+                      ["xilinx-7-series" v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -279,6 +284,7 @@
      (when (not (parameterize ([current-output-port (open-output-nowhere)])
                   (system "yosys --version")))
        (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
+     (log-info "Running Yosys.")
      (define btor
        (parameterize ([current-error-port (open-output-nowhere)])
          (with-output-to-string
@@ -337,6 +343,9 @@
     ["intel-cyclone10lp"
      (parse-architecture-description-file
       (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
+    ["xilinx-7-series"
+     (parse-architecture-description-file
+      (build-path (get-lakeroad-directory) "architecture_descriptions" "xilinx_7_series.yml"))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -369,6 +378,7 @@
     ["intel-cyclone10lp"
      (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
            (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
+    ["xilinx-7-series" (list (cons (cons "DSP48E1" "unused") xilinx-7-series-dsp48e1))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -384,6 +394,7 @@
     (displayln "Synthesis Timeout" (current-error-port))
     (exit TIMEOUTCODE)))
 ;;; Either a valid LR expression or #f.
+(log-info "Attempting synthesis.")
 (define lakeroad-expr
   (cond
     [(> (pipeline-depth) 0)

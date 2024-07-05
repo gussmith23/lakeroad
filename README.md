@@ -14,6 +14,11 @@ It is especially powerful for complex,
   programmable primitives
   like DSPs.
 
+## Logging
+
+To get logs out of Lakeroad, you can set
+  `PLTSTDERR="info@lakeroad"`.
+
 ## Dependencies
 
 - LLVM
