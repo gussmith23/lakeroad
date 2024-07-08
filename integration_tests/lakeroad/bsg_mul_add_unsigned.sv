@@ -45,6 +45,7 @@
 // RUN: fi
 
 `include "bsg_defines.sv"
+`include "bsg_dff_chain.sv"
   
 (* use_dsp = "yes" *) module top #(
     parameter  width_a_p = 13
@@ -53,14 +54,13 @@
     ,parameter width_o_p = 27
     ,parameter pipeline_p = 0
   ) (
-    ,input [width_a_p-1 : 0] a_i
+     input [width_a_p-1 : 0] a_i
     ,input [width_b_p-1 : 0] b_i
     ,input [width_c_p-1 : 0] c_i
     ,input clk_i
     ,output [width_o_p-1 : 0] o
     );
 
-  initial assert (pipeline_p > 2) else $warning ("%m: pipeline_p is set quite low; most likely frequency will be impacted");
     localparam pre_pipeline_lp = pipeline_p > 2 ? 1 : 0;
     localparam post_pipeline_lp = pipeline_p > 2 ? pipeline_p -1 : pipeline_p; //for excess
 
