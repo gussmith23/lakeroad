@@ -10,10 +10,11 @@
 // RUN:  --module-name out \
 // RUN:  --input-signal i:16 \
 // RUN:  --clock-name clk \
-// RUN:  --timeout 90
+// RUN:  --timeout 90 \
+// RUN: | FileCheck %s
 
 module simple(input clk, input [15:0] i, output [15:0] o);
   assign o = a;
 endmodule
 
-// CHECK: module out(a, b, p);
+// CHECK: module out(clk, i, o);
