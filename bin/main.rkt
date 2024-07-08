@@ -486,11 +486,14 @@
     ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
      (define envs
-       (list (map (λ (p)
-                    (match p
-                      [(cons name bw)
-                       (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                  (inputs))))
+       (list (append (map (λ (p)
+                            (match p
+                              [(cons name bw)
+                               (cons name
+                                     (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                          (inputs))
+                     ; If there's a clock, hardcode it to 0.
+                     (if (clock-name) (list (cons (clock-name) (bv->signal (bv 0 1)))) (list)))))
      (define input-symbolic-constants (symbolics envs))
      ;;; If pipeline depth is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
