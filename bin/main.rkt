@@ -269,7 +269,6 @@
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
 
-
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
   (cond
@@ -293,9 +292,7 @@
                     ;;; clk2fflogic is the correct thing to use. See
                     ;;; https://github.com/uwsampl/lakeroad/issues/238
                     "yosys ~a -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
-                    (if (yosys-log-filepath) 
-                      (format "-ql ~a" (yosys-log-filepath))
-                      "-q")
+                    (if (yosys-log-filepath) (format "-ql ~a" (yosys-log-filepath)) "-q")
                     (verilog-module-filepath)
                     (top-module-name))))
              (error "Yosys failed."))))))
