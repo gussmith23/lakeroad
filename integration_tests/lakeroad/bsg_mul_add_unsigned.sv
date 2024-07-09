@@ -7,13 +7,14 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal o:27 \
-// RUN:  --pipeline-depth 0 \
+// RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk_i \
 // RUN:  --module-name test_module \
 // RUN:  --input-signal a_i:13 \
 // RUN:  --input-signal b_i:13 \
 // RUN:  --input-signal c_i:26 \
 // RUN:  --timeout 270 \
+// RUN:  --yosys-log-filepath bsg_mul_add_unsigned.log \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
@@ -28,12 +29,13 @@
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk_i \
-// RUN:    --pipeline_depth 0 \
+// RUN:    --pipeline_depth 1 \
 // RUN:    --output_signal o:27 \
 // RUN:    --input_signal a_i:13 \
 // RUN:    --input_signal b_i:13 \
 // RUN:    --input_signal c_i:26 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
+// RUN:    --testbench_stdout_log_filepath "tmp.log" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
 // RUN:    --verilator_extra_arg='-Wno-LATCH' \
@@ -52,7 +54,7 @@
     ,parameter width_b_p = 13
     ,parameter width_c_p = 26
     ,parameter width_o_p = 27
-    ,parameter pipeline_p = 0
+    ,parameter pipeline_p = 1
   ) (
      input [width_a_p-1 : 0] a_i
     ,input [width_b_p-1 : 0] b_i
