@@ -268,14 +268,6 @@
                             keywords-sorted))
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
-  
-
-
-(define (get-log-filename verilog-module-filepath)
-  (let* ((basename (regexp-replace #rx".*/" verilog-module-filepath "")) ; Remove directory path
-         (name-no-ext (regexp-replace #rx"\\.v$" basename ""))           ; Remove .sv extension
-         (log-filename (string-append name-no-ext ".log")))              ; Append .log extension
-    log-filename))
 
 
 ;;; The bitvector expression we're trying to synthesize.
