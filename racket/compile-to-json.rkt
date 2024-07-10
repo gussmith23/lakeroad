@@ -193,7 +193,27 @@
                                 [25 "TWO24"]
                                 [26 "XOR12"]
                                 [_ #f]))
-
+                            (define (dsp48e1-enum-val-to-str v)
+                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                                [0 "NO_RESET"]
+                                [1 "DIRECT"]
+                                [2 "MASK"]
+                                [3 "PATTERN"]
+                                [4 "FALSE"]
+                                [5 "MULTIPLY"]
+                                [6 "NO_PATDET"]
+                                [7 "ONE48"]
+                                [8 "CASCADE"]
+                                [9 "TRUE"]
+                                [10 "PATDET"]
+                                [11 "NONE"]
+                                [12 "TWO24"]
+                                [13 "FOUR12"]
+                                [14 "C"]
+                                [15 "ROUNDING_MODE1"]
+                                [16 "ROUNDING_MODE2"]
+                                [17 "RESET_MATCH"]
+                                [18 "RESET_NOT_MATCH"]))
                             (define (lattice-mult18x18d-enum-val-to-str v)
                               (match (bitvector->natural (signal-value (lr:bv-v v)))
                                 [0 "NONE"]
@@ -253,6 +273,18 @@
                                                   "USE_WIDEXOR"
                                                   "XORSIMD")))
                                (dsp48e2-enum-val-to-str (module-instance-parameter-value param))]
+                              [(and (equal? module-name "DSP48E1")
+                                    (member (module-instance-parameter-name param)
+                                            (list "A_INPUT"
+                                                  "B_INPUT"
+                                                  "USE_DPORT"
+                                                  "USE_MULT"
+                                                  "USE_SIMD"
+                                                  "AUTORESET_PATDET"
+                                                  "SEL_MASK"
+                                                  "SEL_PATTERN"
+                                                  "USE_PATTERN_DETECT")))
+                               (dsp48e1-enum-val-to-str (module-instance-parameter-value param))]
                               [(and (or (equal? module-name "MULT18X18C")
                                         (equal? module-name "MULT18X18D")
                                         (equal? module-name "ALU54A"))

@@ -1,0 +1,288 @@
+implementations:
+  - interface: {name: DSP, parameters: {out-width: 48, a-width: 30, b-width: 18, c-width: 48, d-width: 25}}
+    internal_data: {
+      ## REGISTER CONTROL ATTRIBUTES
+      ACASCREG: 2,
+      ADREG: 1,
+      ALUMODEREG: 1,
+      AREG: 2,
+      BCASCREG: 2,
+      BREG: 2,
+      CARRYINREG: 1,
+      CARRYINSELREG: 1,
+      CREG: 1,
+      DREG: 1,
+      INMODEREG: 1,
+      MREG: 1,
+      OPMODEREG: 1,
+      PREG: 1,
+      ## FEATURE CONTROL ATTRIBUTES
+      A_INPUT: 5,
+      B_INPUT: 5,
+      USE_DPORT: 5,
+      USE_MULT: 5,
+      USE_SIMD: 5,
+      ## PATTERN DETECTION ATTRIBUTES
+      AUTORESET_PATDET: 5,
+      MASK: 48,
+      PATTERN: 48,
+      SEL_MASK: 5,
+      SEL_PATTERN: 5,
+      USE_PATTERN_DETECT: 5,
+
+      ## INVERSION
+      IS_ALUMODE_INVERTED: 4,
+      IS_INMODE_INVERTED: 5,
+      IS_OPMODE_INVERTED: 7,
+      IS_CARRYIN_INVERTED: 1,
+      IS_CLK_INVERTED: 1,
+
+      ## Ports
+      INMODE: 5,
+      CARRYIN: 1,
+      OPMODE: 7,
+      CARRYINSEL: 3,
+      BCIN: 18,
+      ACIN: 30,
+      ALUMODE: 4,
+      PCIN: 48,
+      CARRYCASCIN: 1,
+      MULTSIGNIN: 1,
+
+      ## Clock Enables
+      CEA1: 1,
+      CEA2: 1,
+    }
+    constraints : [
+
+      ##############################
+      ### Efficiency Constraints ###
+      ##############################
+      # AREG is 2 bits wide, but valid values only from 0-2
+      "(not (bveq AREG (bv 3 2)))",
+
+      # BREG is 2 bits wide, but valid values only from 0-2
+      "(not (bveq BREG (bv 3 2)))",
+
+      # ACASCREG/BCASCREG is 2 bits wide, but valid values only from 0-2
+      "(not (bveq ACASCREG (bv 3 2)))",
+      "(not (bveq BCASCREG (bv 3 2)))",
+      
+      # PCIN should be 0
+      "(bveq PCIN (bv 0 48))",
+
+      # Attributes can only be a few of the ENUM_VALS (see Table 2-3 in the DSP48E1 documentation)
+
+      # A_INPUT can be DIRECT(1) or CASCADE(8)
+      # "(|| (bveq A_INPUT (bv 1 5)) (bveq A_INPUT (bv 8 5)))",
+      # B_INPUT can be DIRECT(1) or CASCADE(8)
+      # "(|| (bveq B_INPUT (bv 1 5)) (bveq B_INPUT (bv 8 5)))",
+
+      #USE_MULT can be NONE(11) or MULTIPLY(5)
+      # "(|| (bveq USE_MULT (bv 11 5)) (bveq USE_MULT (bv 5 5)))",
+      # "(|| (bveq USE_SIMD (bv 7 5)) (bveq USE_SIMD (bv 12 5)) (bveq USE_SIMD (bv 13 5)))",
+
+      ###############################
+      ### Correctness Constraints ###
+      ###############################
+
+      # PREG must be 1 when OPMODE[6:4] is 010, 110, or 100
+      "(=> (bveq (extract 6 4 OPMODE) (bv 2 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq (extract 6 4 OPMODE) (bv 4 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq (extract 6 4 OPMODE) (bv 6 3)) (bveq PREG (bv 1 1)))",
+      
+      #PREG must be 1 when CARRYINSEL is 100, 101, 111
+      "(=> (bveq CARRYINSEL (bv 4 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq CARRYINSEL (bv 5 3)) (bveq PREG (bv 1 1)))",
+      "(=> (bveq CARRYINSEL (bv 7 3)) (bveq PREG (bv 1 1)))",
+      
+
+      # PREG must be 1 when OPMODE[1:0] is 10
+      "(=> (bveq (extract 1 0 OPMODE) (bv 2 2)) (bveq PREG (bv 1 1)))",
+
+      # OPMODE[3:2] must be 01 when OPMODE[1:0] is 01
+      "(=> (bveq (extract 1 0 OPMODE) (bv 1 2)) (bveq (extract 3 2 OPMODE) (bv 1 2)))",
+      # inverse of the above
+      "(=> (bveq (extract 3 2 OPMODE) (bv 1 2)) (bveq (extract 1 0 OPMODE) (bv 1 2)))",
+
+      # OPMODE[6:4] = 0b111 is invalid
+      "(not (bveq (extract 6 4 OPMODE) (bv 7 3)))",
+
+      # It is recommended CARRYINSELREG and OPMODEREG are set to the same value
+      "(bveq CARRYINSELREG OPMODEREG)",
+
+      #OPMODE[1:0] = 11 is invalid when USE_MULT = MULTIPLY
+      "(=> (bveq USE_MULT (bv 5 5)) (not (bveq (extract 1 0 OPMODE) (bv 3 2))))",
+
+      # DRC warning : CARRYINSEL is set to 010 with OPMODE set to multiplication (xxx0101). 
+      # This is an illegal mode and may show deviation between simulation results and hardware behavior.
+      "(not (&& (bveq CARRYINSEL (bv 2 3)) (bveq (extract 3 0 OPMODE) (bv 5 4))))",
+
+      # DRC warning: DRC warning : CARRYINSEL is set to 010 with OPMODEREG set to 0. 
+      # This causes unknown values after reset occurs. It is suggested to use 
+      # OPMODEREG = 1 when cascading large adders.
+      "(not (&& (bveq CARRYINSEL (bv 2 3)) (bveq OPMODEREG (bv 0 1))))",
+   
+      # Warning : The OPMODE[3:0] set to 4'b0101 to DSP48E1 is invalid 
+      # when using attributes USE_MULT = NONE, or USE_SIMD = TWO24 or FOUR12 
+      "(not 
+        (&& 
+          (bveq (extract 3 0 OPMODE) (bv 5 4))
+          (|| (bveq USE_MULT (bv 11 5))
+              (bveq USE_SIMD (bv 12 5)) 
+              (bveq USE_SIMD (bv 13 5)))))",
+
+      # Warning : The opmode[1:0] 2'b11 is invalid when 
+      # ((AREG==0 && BREG==0 && MREG==0) || (AREG==0 && BREG==0 && PREG==0) ||
+      # (MREG==0 && PREG==0))
+
+     "(=> (bveq (extract 1 0 OPMODE) (bv 3 2))
+          (not 
+             (&& 
+               (bveq USE_MULT (bv 5 5))
+               (&& (bveq AREG (bv 0 2))
+                   (bveq BREG (bv 0 2))
+                   (bveq MREG (bv 0 1))))))",
+     "(=> (bveq (extract 1 0 OPMODE) (bv 3 2))
+          (not
+             (&& 
+                (bveq USE_MULT (bv 5 5))
+                (&& (bveq AREG (bv 0 2))
+                    (bveq BREG (bv 0 2))
+                    (bveq PREG (bv 0 1))))))",
+     "(=> (bveq (extract 1 0 OPMODE) (bv 3 2))
+          (not 
+             (&&
+               (bveq USE_MULT (bv 5 5))
+               (&& (bveq MREG (bv 0 1))
+                   (bveq PREG (bv 0 1))))))",
+
+      # When USE_SIMD is two24 or four12, mult must be set to none
+      # Not needed as USE_SIMD is bound to ONE48
+      # "(=> (bveq USE_SIMD (bv 12 5)) (bveq USE_MULT (bv 11 5)))",
+      # "(=> (bveq USE_SIMD (bv 13 5)) (bveq USE_MULT (bv 11 5)))",
+
+
+    ]
+    modules:
+      - module_name: DSP48E1
+        instance_name: DSP48E1
+        filepath: unused
+        racket_import_filepath: unused
+        ports:
+          [
+            # dsp interface ports
+            { name: A, direction: input, bitwidth: 30, value: A },
+            { name: B, direction: input, bitwidth: 18, value: B },
+            { name: C, direction: input, bitwidth: 48, value: C },
+            { name: D, direction: input, bitwidth : 25, value: D },
+            { name: CLK, direction: input, bitwidth: 1, value: clk },
+            # cascaded input from previous dsp48e1, we're not chaining so we set to 0.
+            { name: ACIN, direction: input, bitwidth: 30,  value: ACIN },
+            { name: ALUMODE, direction: input, bitwidth: 4, value: ALUMODE },
+            { name: BCIN, direction: input, bitwidth: 18, value: BCIN },
+            { name: CARRYCASCIN, direction: input, bitwidth: 1, value: CARRYCASCIN },
+            { name: CARRYIN, direction: input, bitwidth: 1, value: CARRYIN },
+            { name: CARRYINSEL, direction: input, bitwidth: 3, value: CARRYINSEL },
+            { name: INMODE, direction: input, bitwidth: 5, value: INMODE },
+            { name: MULTSIGNIN, direction: input, bitwidth: 1, value: MULTSIGNIN },
+            { name: OPMODE, direction: input, bitwidth: 7, value: OPMODE },
+            { name: PCIN, direction: input, bitwidth: 48, value: (bv 0 48) },
+            # Resets can be set to 0 safely
+            { name: RSTA, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTALLCARRYIN, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTALUMODE, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTB, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTC, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTCTRL, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTD, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTINMODE, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTM, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: RSTP, direction: input, bitwidth: 1, value: (bv 0 1) },
+            
+            #CLK enables can be set to 1
+            { name: CEA1, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEA2, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEAD, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEALUMODE, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEB1, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEB2, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEC, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CECARRYIN, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CECTRL, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CED, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEINMODE, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEM, direction: input, bitwidth: 1, value: (bv 1 1) },
+            { name: CEP, direction: input, bitwidth: 1, value: (bv 1 1) },
+            
+            { name: P, direction: output, bitwidth: 48, value: P },
+          ]
+        parameters:
+          [
+            ## Register Control attributes
+            { name: ACASCREG, value: (zero-extend AREG (bitvector 32)) },
+            { name: ADREG, value: (zero-extend ADREG (bitvector 32)) },
+            { name: ALUMODEREG, value: (zero-extend ALUMODEREG (bitvector 32)) },
+            { name: AREG, value: (zero-extend AREG (bitvector 32))},
+            { name: BCASCREG, value: (zero-extend BREG (bitvector 32)) },
+            { name: BREG, value : (zero-extend BREG (bitvector 32)) },
+            # { name: CARRYINREG, value: (bv 0 32) },
+            { name: CARRYINREG, value: (zero-extend CARRYINREG (bitvector 32)) },
+            { name: CARRYINSELREG, value: (zero-extend CARRYINSELREG (bitvector 32)) },
+            { name: CREG, value: (zero-extend CREG (bitvector 32)) },
+            { name: DREG, value: (zero-extend DREG (bitvector 32)) },
+            { name: INMODEREG, value: (zero-extend INMODEREG (bitvector 32)) },
+            { name: MREG, value: (zero-extend MREG (bitvector 32)) },
+            { name: OPMODEREG, value: (zero-extend OPMODEREG (bitvector 32)) },
+            { name: PREG, value: (zero-extend PREG (bitvector 32)) },
+
+            ## Feature Control Attributes
+            # Direct
+            { name: A_INPUT, value: (bv 1 5) },
+            # { name: A_INPUT, value: A_INPUT},
+            # Direct
+            { name: B_INPUT, value: (bv 1 5) },
+            # { name: B_INPUT, value: B_INPUT},
+            # True or FALSE (see constraints)
+            # { name: USE_DPORT, value: (bv 9 5) },
+            { name: USE_DPORT, value: (choose (bv 9 5) (bv 4 5))},
+            # Multiply OR 11
+            { name: USE_MULT, value: (choose (bv 5 5) (bv 11 5))},
+            # { name: USE_MULT, value: USE_MULT},
+            # One48
+            { name: USE_SIMD, value: (bv 7 5) },
+            # { name: USE_SIMD, value: USE_SIMD},
+
+            ## Pattern Detection Attributes
+            # NO_RESET
+            {name: AUTORESET_PATDET, value: (bv 0 5) },
+            # {name: AUTORESET_PATDET, value: AUTORESET_PATDET},
+            {name: MASK, value: (bv 0 48) },
+            
+            # {name: MASK, value: MASK },
+            {name: PATTERN, value: (bv 0 48) },
+            # {name: PATTERN, value: PATTERN},
+            # MASK
+            {name: SEL_MASK, value: (bv 2 5) },
+            # {name: SEL_MASK, value: SEL_MASK },
+            # PATTERN
+            {name: SEL_PATTERN, value: (bv 3 5) },
+            # {name: SEL_PATTERN, value:  SEL_PATTERN },
+            # NO_PATDET
+            {name: USE_PATTERN_DETECT, value: (bv 6 5) },
+            # {name: USE_PATTERN_DETECT, value: USE_PATTERN_DETECT },
+
+            ## Inversion
+            {name: IS_ALUMODE_INVERTED, value: (bv 0 4) },
+            # {name: IS_ALUMODE_INVERTED, value:  IS_ALUMODE_INVERTED},
+            {name: IS_INMODE_INVERTED, value: (bv 0 5) },
+            # {name: IS_INMODE_INVERTED, value: IS_INMODE_INVERTED},
+            {name: IS_OPMODE_INVERTED, value: (bv 0 7) },
+            # {name: IS_OPMODE_INVERTED, value: IS_OPMODE_INVERTED},
+            {name: IS_CARRYIN_INVERTED, value: (bv 0 1) },
+            # {name: IS_CARRYIN_INVERTED, value: IS_CARRYIN_INVERTED},
+            {name: IS_CLK_INVERTED, value: (bv 0 1) },
+            # {name: IS_CLK_INVERTED, value: IS_CLK_INVERTED},
+
+          ]
+    outputs: { O : (get DSP48E1 P) }
