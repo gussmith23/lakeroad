@@ -14,7 +14,6 @@
 // RUN:  --input-signal b_i:13 \
 // RUN:  --input-signal c_i:26 \
 // RUN:  --timeout 270 \
-// RUN:  --yosys-log-filepath bsg_mul_add_unsigned.log \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile

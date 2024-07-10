@@ -18,5 +18,3 @@ module bsg_dff #(parameter `BSG_INV_PARAM(width_p)
      data_r <= data_i;
 
 endmodule
-
-`BSG_ABSTRACT_MODULE(bsg_dff)
