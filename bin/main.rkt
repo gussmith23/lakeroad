@@ -87,6 +87,7 @@
 (define yices-path (make-parameter #f))
 (define cvc4-path (make-parameter #f))
 (define boolector-path (make-parameter #f))
+(define yosys-log-filepath (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -95,6 +96,7 @@
   v
   "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to bitwuzla."
   (solver v)]
+ ["--yosys-log-filepath" v "Generate a Yosys log file (specify a file)." (yosys-log-filepath v)]
  ["--out-format"
   fmt
   "Output format. Supported: 'verilog' for outputting to raw Verilog,"
@@ -295,7 +297,8 @@
                     ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
                     ;;; clk2fflogic is the correct thing to use. See
                     ;;; https://github.com/uwsampl/lakeroad/issues/238
-                    "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    "yosys ~a -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    (if (yosys-log-filepath) (format "-ql ~a" (yosys-log-filepath)) "-q")
                     (verilog-module-filepath)
                     (top-module-name))))
              (error "Yosys failed."))))))
