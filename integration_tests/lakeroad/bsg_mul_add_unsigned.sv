@@ -1,5 +1,5 @@
 // RUN: outfile=$(mktemp)
-// RUN: racket /home/cknizek/dev/lakeroad/bin/main.rkt \
+// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver yices \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
