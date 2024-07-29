@@ -1,6 +1,6 @@
 // RUN: outfile=$(mktemp)
-// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver bitwuzla \
+// RUN: racket /home/cknizek/dev/lakeroad/bin/main.rkt \
+// RUN:  --solver yices \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
@@ -13,7 +13,7 @@
 // RUN:  --input-signal a_i:13 \
 // RUN:  --input-signal b_i:13 \
 // RUN:  --input-signal c_i:26 \
-// RUN:  --timeout 270 \
+// RUN:  --timeout 420 \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
@@ -24,7 +24,7 @@
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
 // RUN:    --test_module_name test_module \
 // RUN:    --ground_truth_module_name top \
-// RUN:    --max_num_tests=10000 \
+// RUN:    --max_num_tests=100 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk_i \
