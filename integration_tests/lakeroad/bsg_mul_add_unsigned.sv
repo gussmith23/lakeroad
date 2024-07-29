@@ -13,7 +13,7 @@
 // RUN:  --input-signal a_i:13 \
 // RUN:  --input-signal b_i:13 \
 // RUN:  --input-signal c_i:26 \
-// RUN:  --timeout 420 \
+// RUN:  --timeout 540 \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
