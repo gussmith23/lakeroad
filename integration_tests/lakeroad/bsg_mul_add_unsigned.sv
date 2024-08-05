@@ -1,5 +1,5 @@
 // RUN: outfile=$(mktemp)
-// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver cvc5 \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
@@ -13,7 +13,8 @@
 // RUN:  --input-signal a_i:13 \
 // RUN:  --input-signal b_i:13 \
 // RUN:  --input-signal c_i:26 \
-// RUN:  --timeout 541 \
+// RUN:  --timeout 180 \
+// RUN: || true) \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
@@ -24,7 +25,7 @@
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
 // RUN:    --test_module_name test_module \
 // RUN:    --ground_truth_module_name top \
-// RUN:    --max_num_tests=100 \
+// RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk_i \
@@ -34,7 +35,6 @@
 // RUN:    --input_signal b_i:13 \
 // RUN:    --input_signal c_i:26 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
-// RUN:    --testbench_stdout_log_filepath "tmp.log" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
 // RUN:    --verilator_extra_arg='-Wno-LATCH' \
