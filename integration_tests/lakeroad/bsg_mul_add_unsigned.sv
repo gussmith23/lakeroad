@@ -1,6 +1,6 @@
 // RUN: outfile=$(mktemp)
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver cvc5 \
+// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN:  --solver yices \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
@@ -13,8 +13,7 @@
 // RUN:  --input-signal a_i:13 \
 // RUN:  --input-signal b_i:13 \
 // RUN:  --input-signal c_i:26 \
-// RUN:  --timeout 180 \
-// RUN: || true) \
+// RUN:  --timeout 270 \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
@@ -35,6 +34,7 @@
 // RUN:    --input_signal b_i:13 \
 // RUN:    --input_signal c_i:26 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
+// RUN:    --testbench_stdout_log_filepath "tmp.log" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
 // RUN:    --verilator_extra_arg='-Wno-LATCH' \
