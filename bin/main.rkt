@@ -60,7 +60,7 @@
                       [(or "yosys-techmap") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
 (define instruction (make-parameter #f identity))
-(define module-name (make-parameter #f identity))
+(define module-name (make-parameter "top"))
 (define json-filepath (make-parameter (make-temporary-file "rkttmp~a.json") identity))
 (define output-port
   (make-parameter (current-output-port) (lambda (v) (open-output-file v #:exists 'replace))))
@@ -511,6 +511,8 @@
                 #:bv-sequential envs
                 #:lr-sequential envs
                 #:module-semantics module-semantics))))]))
+
+(log-info "Synthesis complete.")
 
 (cond
   [(not lakeroad-expr)
