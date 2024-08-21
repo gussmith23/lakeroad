@@ -279,8 +279,9 @@
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
 
-;;; Send the SMT output to a folder (for logging/collection/debug) 
-(when (output-smt-path) (output-smt (output-smt-path)))
+;;; Send the SMT output to a folder (for logging/collection/debug)
+(when (output-smt-path)
+  (output-smt (output-smt-path)))
 
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
