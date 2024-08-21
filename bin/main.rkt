@@ -544,4 +544,4 @@
                                   (error "Yosys failed."))))
        (output-port))]
 
-     [_ (error "Invalid output format.")])])
+    [_ (error "Invalid output format.")])])
