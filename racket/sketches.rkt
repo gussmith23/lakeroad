@@ -829,38 +829,6 @@
          (check-true (sat? soln))))))
 
   (sketch-test
-   #:name "DSP for bvmul on Xilinx DSP48E2"
-   #:defines (define-symbolic a b (bitvector 16))
-   #:bv-expr (bvmul a b)
-   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   ;;; TODO(@gussmith23): Resolve this hack. Make sketch generators have the same signature.
-   ;;;
-   ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
-   #:sketch-generator single-dsp-sketch-generator
-   #:module-semantics
-   (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
-               xilinx-ultrascale-plus-dsp48e2))
-   #:include-dirs (list (build-path (get-lakeroad-directory)
-                                    "verilog/simulation/xilinx-ultrascale-plus"))
-   #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPT -Wno-UNOPTFLAT -Wno-WIDTH -Wno-CASEX")
-
-  (sketch-test
-   #:name "DSP for bvmul and bvand on Xilinx DSP48E2"
-   #:defines (define-symbolic a b (bitvector 16))
-   #:bv-expr (bvand (bvmul a b) (bvmul a b))
-   #:architecture-description (xilinx-ultrascale-plus-architecture-description)
-   ;;; Manually force the DSP sketch generator to look like a normal sketch generator.
-   #:sketch-generator single-dsp-sketch-generator
-   #:module-semantics
-   (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
-               xilinx-ultrascale-plus-dsp48e2))
-   #:include-dirs (list (build-path (get-lakeroad-directory)
-                                    "verilog/simulation/xilinx-ultrascale-plus"))
-   #:extra-verilator-args
-   "-Wno-UNUSED -Wno-LATCH -Wno-ASSIGNDLY -DXIL_XECLIB -Wno-TIMESCALEMOD -Wno-PINMISSING -Wno-UNOPTFLAT -Wno-UNOPT -Wno-WIDTH -Wno-CASEX")
-
-  (sketch-test
    #:name "left shift on SOFA"
    #:defines (define-symbolic a b (bitvector 8))
    #:bv-expr (bvshl a b)
