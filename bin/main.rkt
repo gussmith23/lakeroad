@@ -129,7 +129,7 @@
     (when (not (file-exists? v))
       (error (format "File ~a does not exist." v)))
     (verilog-module-filepath v))]
- ["--output-smt-path" v "Specify the output of the SMT solver to a file." (output-smt-path v)]
+ ["--output-smt-path" v "Specify the output of the SMT solver to a directory." (output-smt-path v)]
  ["--top-module-name"
   v
   "Top module name if --verilog-module-filepath is specified."
