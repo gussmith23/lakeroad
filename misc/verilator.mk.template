@@ -9,4 +9,4 @@ simulate: {testbench_exe_filepath} {testbench_inputs_filepath}
 	{testbench_exe_filepath} < {testbench_inputs_filepath}
 
 {testbench_exe_filepath}: {testbench_filepath}
-	$(VERILATOR) --top-module testbench -o {testbench_exe_filepath} --assert --main --timing --Mdir {obj_dirpath} --cc --exe --build $^ {extra_verilator_args}
+	$(VERILATOR) --top-module {top_module} -o {testbench_exe_filepath} --assert --main --timing --Mdir {obj_dirpath} --cc --exe --build $^ {extra_verilator_args}
