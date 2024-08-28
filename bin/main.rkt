@@ -88,6 +88,7 @@
 (define cvc4-path (make-parameter #f))
 (define boolector-path (make-parameter #f))
 (define yosys-log-filepath (make-parameter #f))
+(define output-smt-path (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -128,6 +129,7 @@
     (when (not (file-exists? v))
       (error (format "File ~a does not exist." v)))
     (verilog-module-filepath v))]
+ ["--output-smt-path" v "Specify the output of the SMT solver to a file." (output-smt-path v)]
  ["--top-module-name"
   v
   "Top module name if --verilog-module-filepath is specified."
@@ -273,6 +275,9 @@
                             keywords-sorted))
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
+
+(when (output-smt-path)
+  (output-smt (output-smt-path)))
 
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
