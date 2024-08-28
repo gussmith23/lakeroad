@@ -21,7 +21,7 @@ initial begin
   $fscanf(STDIN, "%d %d\n", num_inputs, num_test_cases);
   $display("num_inputs = %d, num_test_cases = %d\n", num_inputs, num_test_cases);
 
-  inputs = new[num_inputs] ;
+  inputs = new[num_inputs];
 
   for (int i = 0; i < num_test_cases; i++) begin
     for (int j = 0; j < num_inputs; j++) begin
