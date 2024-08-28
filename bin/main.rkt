@@ -199,7 +199,8 @@
   v
   "Flag to pass to the solver. A string of the form <flag>=<value>. This flag can be specified"
   "multiple times."
-  (match-let* ([(list key value) (string-split v "=")] [key (string->symbol key)])
+  (match-let* ([(list key value) (string-split v "=")]
+               [key (string->symbol key)])
     (when (hash-has-key? (solver-flags) key)
       (error (format "Flag ~a already specified." key)))
     (hash-set! (solver-flags) key value))]
@@ -214,7 +215,9 @@
   "Name of an input signal to the module in the format `<name>:<bw` e.g. `a:8` This flag can be"
   " specified multiple times. This currently only needs to be specified for sequential synthesis."
   ;;; Parse --input arg: split <name>:<bw> into name and bw, construct Rosette symbolic input.
-  (let* ([splits (string-split v ":")] [name (first splits)] [bw (string->number (second splits))])
+  (let* ([splits (string-split v ":")]
+         [name (first splits)]
+         [bw (string->number (second splits))])
     (when (not (equal? 2 (length splits)))
       (error (format "Invalid input signal specification: ~a" v)))
     (when (assoc name (inputs))
@@ -544,4 +547,4 @@
                                   (error "Yosys failed."))))
        (output-port))]
 
-    [_ (error "Invalid output format.")])])
+     [_ (error "Invalid output format.")])])
