@@ -88,7 +88,6 @@
 (define cvc4-path (make-parameter #f))
 (define boolector-path (make-parameter #f))
 (define yosys-log-filepath (make-parameter #f))
-(define output-smt-path (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -145,7 +144,6 @@
       (error "Output signal must be specified as <name>:<bw>"))
     (verilog-module-out-signal (first splits))
     (verilog-module-out-bitwidth (string->number (second splits))))]
- ["--output-smt-path" v "Specify the output of the SMT solver to a folder." (output-smt-path v)]
  ["--pipeline-depth"
   v
   "Initiation interval of the module to be compiled. This will also be the pipeline depth of the"
@@ -275,10 +273,6 @@
                             keywords-sorted))
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
-
-;;; Send the SMT output to a folder (for logging/collection/debug)
-(when (output-smt-path)
-  (output-smt (output-smt-path)))
 
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
