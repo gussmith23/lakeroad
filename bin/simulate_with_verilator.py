@@ -97,7 +97,7 @@ def simulate_with_verilator(
             testbench_exe_filepath=testbench_exe_filepath,
             testbench_inputs_filepath=testbench_inputs_filepath,
             obj_dirpath=obj_dirpath,
-            testbench_module_name=testbench_module_name,
+            top_module=testbench_module_name,
             extra_verilator_args=" ".join(
                 [str(path) for path in verilog_filepaths]
                 + [f"-I{dir}" for dir in include_dirs]
