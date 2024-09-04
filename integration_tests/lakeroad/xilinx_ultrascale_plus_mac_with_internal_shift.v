@@ -9,9 +9,9 @@
 // RUN:  --verilog-module-out-signal out:48 \
 // RUN:  --pipeline-depth 0 \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:16 \
-// RUN:  --input-signal b:16 \
-// RUN:  --input-signal c:48 \
+// RUN:  --input-signal a:17 \
+// RUN:  --input-signal b:17 \
+// RUN:  --input-signal c:17 \
 // RUN:  --timeout 90 \
 // RUN: > $outfile
 // RUN: FileCheck %s < $outfile
@@ -27,9 +27,9 @@
 // RUN:    --verilog_filepath %s \
 // RUN:    --pipeline_depth 0 \
 // RUN:    --output_signal out:48 \
-// RUN:    --input_signal a:16 \
-// RUN:    --input_signal b:16 \
-// RUN:    --input_signal c:48 \
+// RUN:    --input_signal a:17 \
+// RUN:    --input_signal b:17 \
+// RUN:    --input_signal c:17 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -41,8 +41,8 @@
 // RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
 // RUN: fi
 
-module top(input [15:0] a, b, input [47:0] c, output [47:0] out);
-  assign out = a * b + c;
+module top(input [16:0] a, b, input [16:0] c, output [47:0] out);
+  assign out = a * b + (48'(c) << 17);
 endmodule
 
 // CHECK: module out(a, b, p);
