@@ -17,36 +17,9 @@
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
-// RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
-// RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
-// RUN:   exit 0; \
-// RUN: else \
-// RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --test_module_name test_module \
-// RUN:    --ground_truth_module_name top \
-// RUN:    --max_num_tests=10000 \
-// RUN:    --verilog_filepath $outfile \
-// RUN:    --verilog_filepath %s \
-// RUN:    --clock_name clk_i \
-// RUN:    --pipeline_depth 1 \
-// RUN:    --output_signal o:27 \
-// RUN:    --input_signal a_i:13 \
-// RUN:    --input_signal b_i:13 \
-// RUN:    --input_signal c_i:26 \
-// RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
-// RUN:    --testbench_stdout_log_filepath "tmp.log" \
-// RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
-// RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
-// RUN:    --verilator_extra_arg='-Wno-LATCH' \
-// RUN:    --verilator_extra_arg='-Wno-WIDTH' \
-// RUN:    --verilator_extra_arg='-Wno-STMTDLY' \
-// RUN:    --verilator_extra_arg='-Wno-CASEX' \
-// RUN:    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
-// RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
-// RUN: fi
 
-`include "bsg_defines.sv"
-`include "bsg_dff_chain.sv"
+`include "bsg_mul_add_unsigned/bsg_defines.sv"
+`include "bsg_mul_add_unsigned/bsg_dff_chain.sv"
   
 (* use_dsp = "yes" *) module top #(
     parameter  width_a_p = 13
@@ -63,7 +36,7 @@
     );
 
     localparam pre_pipeline_lp = pipeline_p > 2 ? 1 : 0;
-    localparam post_pipeline_lp = pipeline_p > 2 ? pipeline_p -1 : pipeline_p; //for excess
+    localparam post_pipeline_lp = pipeline_p > 2 ? pipeline_p -1 : pipeline_p; 
 
     wire [width_a_p-1:0] a_r;
     wire [width_b_p-1:0] b_r;
@@ -89,3 +62,4 @@ endmodule
 // CHECK: module test_module(a_i, b_i, c_i, clk_i, o);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule
+
