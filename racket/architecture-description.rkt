@@ -17,8 +17,6 @@
          densely-pack-inputs-into-luts
          (struct-out module-instance-port)
          (struct-out module-instance-parameter)
-         (struct-out architecture-description)
-         (struct-out interface-implementation)
          parse-architecture-description-file)
 
 ;;; TODO: We really shouldn't import all of Rosette here. Undoing this would be a little messy,
