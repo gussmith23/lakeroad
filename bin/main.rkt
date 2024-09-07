@@ -414,7 +414,6 @@
 
 (define sketch-inputs
   (make-sketch-inputs #:output-width output-bitwidth
-                      ;;; #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
                       #:data (map (lambda (p) (cons (first p) (list (second p) (third p)))) (inputs))
                       #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
                       #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
