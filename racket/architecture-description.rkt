@@ -156,17 +156,7 @@
           (interface-port "B" 'input 18)
           (interface-port "C" 'input 1)
           (interface-port "clk" 'input 1)
-          (interface-port "O" 'output 36)))
-   (interface-definition
-    (interface-identifier "DSP"
-                          (hash "out-width" 48 "a-width" 30 "b-width" 18 "c-width" 48 "d-width" 27))
-    (list (interface-port "A" 'input 30)
-          (interface-port "B" 'input 18)
-          (interface-port "C" 'input 48)
-          (interface-port "D" 'input 27)
-          (interface-port "clk" 'input 1)
-          (interface-port "CARRYIN" 'input 1)
-          (interface-port "O" 'output 48)))))
+          (interface-port "O" 'output 36)))))
 
 ;;; Part 2: implementing an interface on a specific architecture.
 
@@ -1044,8 +1034,7 @@
               (lr:list (list (lr:cons (lr:symbol 'O)
                                       (lr:extract (lr:integer (- requested-out-width 1))
                                                   (lr:integer 0)
-                                                  (lr:hash-ref dsp-expr 'O)))
-                             (lr:cons (lr:symbol 'CARRYOUT) (lr:hash-ref dsp-expr 'CARRYOUT)))))
+                                                  (lr:hash-ref dsp-expr 'O))))))
              internal-data))]
 
     [else

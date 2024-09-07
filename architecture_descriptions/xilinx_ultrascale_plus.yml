@@ -226,11 +226,8 @@ implementations:
             { name: B, direction: input, bitwidth: 18, value: B },
             { name: BCIN, direction: input, bitwidth: 18, value: (bv 0 18) },
             { name: C, direction: input, bitwidth: 48, value: C },
-            # TODO(@gussmith23) This could allow users to define invalid DSP
-            #   configurations, wrt to Xilinx place and route, specifically
-            #   CARRYIN must come from a constant or another DSP's CARRYOUT
-            { name: CARRYCASCIN, direction: input, bitwidth: 1, value: CARRYIN},
-            { name: CARRYIN, direction: input, bitwidth: 1, value: (bv 0 1)},
+            { name: CARRYCASCIN, direction: input, bitwidth: 1, value: (bv 0 1) },
+            { name: CARRYIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: CARRYINSEL, direction : input, bitwidth: 3, value: CARRYINSEL },
 
             # Here, we set clock enable inputs to 1.
@@ -265,9 +262,7 @@ implementations:
             { name: RSTM, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: RSTP, direction: input, bitwidth: 1, value: (bv 0 1) },
 
-            { name: P, direction: output, bitwidth: 48, value: unused },
-            { name: CARRYOUT, direction: output, bitwidth: 1, value: unused },
-            { name: CARRYCASCOUT, direction: output, bitwidth: 1, value: unused }
+            { name: P, direction: output, bitwidth: 48, value: P },
           ]
         parameters: [
           # Set to AREG given that we don't use cascade paths.
@@ -331,4 +326,4 @@ implementations:
           # Set to XOR12
           { name: XORSIMD, value: (bv 26 5) },
         ]
-    outputs: { O : (get DSP48E2 P), CARRYOUT: (get DSP48E2 CARRYCASCOUT)}
+    outputs: { O : (get DSP48E2 P) }

@@ -350,9 +350,6 @@
 (define sketch-generator
   (match (template)
     ["dsp" single-dsp-sketch-generator]
-    ["parallel-dsp" parallel-dsp-sketch-generator]
-    ["parallel-add-dsp" parallel-add-dsp-sketch-generator]
-    ;;; ["parallel-dsp-xilinx" xilinx-wide-dsp-sketch-generator]
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
@@ -428,6 +425,7 @@
   (cond
     [(> (pipeline-depth) 0)
      (let* ([_ "this line prevents autoformatter from messing up comments"]
+
             ;;; Generate the input values: an association list mapping name to value, where the value
             ;;; is a signal whose value is a symbolic bitvector.
             ;;;
@@ -556,11 +554,11 @@
 
    (match (out-format)
      [(or "verilog" "yosys-techmap")
-      (display (with-output-to-string
-                (lambda ()
-                  (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
-                                             (json-filepath))))
-                    (error "Yosys failed."))))
-               (output-port))]
+      (display
+       (with-output-to-string (lambda ()
+                                (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
+                                                           (json-filepath))))
+                                  (error "Yosys failed."))))
+       (output-port))]
 
      [_ (error "Invalid output format.")])])
