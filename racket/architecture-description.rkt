@@ -117,6 +117,15 @@
           (interface-port "clk" 'input 1)
           (interface-port "O" 'output 48)))
    (interface-definition
+    (interface-identifier "DSP"
+                          (hash "out-width" 48 "a-width" 30 "b-width" 18 "c-width" 48 "d-width" 25))
+    (list (interface-port "A" 'input 30)
+          (interface-port "B" 'input 18)
+          (interface-port "C" 'input 48)
+          (interface-port "D" 'input 25)
+          (interface-port "clk" 'input 1)
+          (interface-port "O" 'output 48)))
+   (interface-definition
     (interface-identifier "DSP" (hash "out-width" 36 "a-width" 18 "b-width" 18 "c-width" 36))
     (list (interface-port "A" 'input 36)
           (interface-port "B" 'input 18)

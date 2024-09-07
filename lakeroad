@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-LAKEROAD_DIR="$(realpath "$SCRIPT_DIR/..")" racket "$SCRIPT_DIR"/bin/main.rkt "$@"

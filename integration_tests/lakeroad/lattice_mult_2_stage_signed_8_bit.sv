@@ -7,7 +7,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal out:8 \
-// RUN:  --initiation-interval 2 \
+// RUN:  --pipeline-depth 2 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name test_module \
 // RUN:  --input-signal a:8 \
@@ -27,7 +27,7 @@
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
-// RUN:    --initiation_interval 2 \
+// RUN:    --pipeline_depth 2 \
 // RUN:    --output_signal out:8 \
 // RUN:    --input_signal a:8 \
 // RUN:    --input_signal b:8 \

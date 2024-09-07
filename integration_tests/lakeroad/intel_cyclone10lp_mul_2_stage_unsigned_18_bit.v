@@ -10,7 +10,7 @@
 // RUN:  --module-name test_module \
 // RUN:  --input-signal a:18 \
 // RUN:  --input-signal b:18 \
-// RUN:  --initiation-interval 2 \
+// RUN:  --pipeline-depth 2 \
 // RUN:  --clock-name clk \
 // RUN:  --timeout 60 \
 // RUN:  --extra-cycles 3 \
@@ -27,7 +27,7 @@
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
-// RUN:    --initiation_interval 2 \
+// RUN:    --pipeline_depth 2 \
 // RUN:    --output_signal p:18 \
 // RUN:    --input_signal a:18 \
 // RUN:    --input_signal b:18 \

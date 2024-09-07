@@ -19,11 +19,12 @@ attempts to listen for.
 
 import argparse
 import itertools
+import json
 import psutil
 import subprocess
 import os
 import pathlib
-from typing import Tuple
+from typing import List, Tuple
 import sys
 import tempfile
 
@@ -43,14 +44,41 @@ parser.add_argument(
     default=False,
 )
 parser.add_argument(
+    "--bitwuzla-flag-set",
+    type=str,
+    help=(
+        "Solver flag set to pass to bitwuzla. Each flag set (i.e. each"
+        " separate instance of this flag) will generate a separate instance of"
+        " bitwuzla. A flag set is a string of the form"
+        ' "<key>=<value>,<key>=<value>,...". If no flag set is specified but'
+        " the solver is enabled by its corresponding flag, there will be a"
+        " single instance of the solver with no flags."
+    ),
+    default=[],
+    action="append",
+)
+parser.add_argument(
     "--cvc5", action=argparse.BooleanOptionalAction, help="Use cvc5.", default=False
 )
 parser.add_argument(
-    "--seed",
+    "--cvc5-flag-set",
+    type=str,
+    help=(
+        "Solver flag set to pass to cvc5. Each flag set (i.e. each"
+        " separate instance of this flag) will generate a separate instance of"
+        " cvc5. A flag set is a string of the form"
+        ' "<key>=<value>,<key>=<value>,...". If no flag set is specified but'
+        " the solver is enabled by its corresponding flag, there will be a"
+        " single instance of the solver with no flags."
+    ),
+    default=[],
     action="append",
-    type=int,
-    help="Seed for solvers. The script will spawn one instance of each solver with the given seed.",
-    default=[0],
+)
+parser.add_argument(
+    "--stp", action=argparse.BooleanOptionalAction, help="Use stp.", default=False
+)
+parser.add_argument(
+    "--yices", action=argparse.BooleanOptionalAction, help="Use yices2.", default=False
 )
 parser.add_argument(
     "--boolector",
@@ -67,42 +95,81 @@ parser.add_argument(
     type=argparse.FileType("w"),
     default=sys.stdout,
 )
+parser.add_argument(
+    "--metadata-out-filepath",
+    help=(
+        "Path where metadata about this run will be written to (e.g."
+        " information about which solver completed first.)."
+    ),
+    type=argparse.FileType("w"),
+    default=None,
+)
+parser.add_argument(
+    "--lakeroad-executable-filepath",
+    help=("Path to the Lakeroad executable."),
+    type=str,
+    default=str(pathlib.Path(os.path.abspath(__file__)).parent / "main.rkt"),
+)
 args, rest = parser.parse_known_args()
 
 # Process the "--" flag which marks the end of the flags for the script.
-rest = rest[1:] if rest[0] == "--" else rest
+rest = rest[1:] if (len(rest) > 0 and rest[0] == "--") else rest
+
+
+def _parse_flag_set(flag_set: str) -> List[str]:
+    """Parse a flag set.
+
+    A flag set is a string of the form "<key>=<value>,<key>=<value>,...". This
+    function parses a set into a list of strings of the form ["<key>=<value>",
+    "<key>=<value>", ...].
+    """
+    return flag_set.split(",")
+
 
 # Build list of solvers to run.
-solvers = []
+#
+# A list of (solver, flag_set) tuples, where each flag_set is a list of strings
+# of the form "<key>=<value>".
+solvers_and_flag_sets = []
 if args.bitwuzla:
-    solvers.append("bitwuzla")
+    if len(args.bitwuzla_flag_set) == 0:
+        solvers_and_flag_sets.append(("bitwuzla", []))
+    else:
+        solvers_and_flag_sets.extend(
+            ("bitwuzla", _parse_flag_set(set)) for set in args.bitwuzla_flag_set
+        )
 if args.cvc5:
-    solvers.append("cvc5")
+    if len(args.cvc5_flag_set) == 0:
+        solvers_and_flag_sets.append(("cvc5", []))
+    else:
+        solvers_and_flag_sets.extend(
+            ("cvc5", _parse_flag_set(set)) for set in args.cvc5_flag_set
+        )
 if args.boolector:
-    solvers.append("boolector")
-assert solvers != [], "Must specify at least one solver."
+    solvers_and_flag_sets.append(("boolector", []))
+if args.stp:
+    solvers_and_flag_sets.append(("stp", []))
+if args.yices:
+    solvers_and_flag_sets.append(("yices", []))
+assert solvers_and_flag_sets != [], "Must specify at least one solver."
 
-# Remove duplicates from seed list.
-args.seed = list(set(args.seed))
 
 def start_with_solver(
-    solver: str, seed: int
+    solver: str, flags: List[str] = []
 ) -> Tuple[psutil.Popen, tempfile.NamedTemporaryFile]:
-    """Start Lakeroad main.rkt with the given solver and seed.
+    """Start Lakeroad main.rkt with the given solver and flags.
 
     Returns pid and output file for a Lakeroad session started with the given
     solver."""
     outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
     process = psutil.Popen(
         [
-            "racket",
-            pathlib.Path(os.path.abspath(__file__)).parent / "main.rkt",
+            args.lakeroad_executable_filepath,
             "--solver",
             solver,
-            "--seed",
-            str(seed),
             "--out-filepath",
             outfile.name,
+            *_make_solver_flag_lakeroad_args(flags),
             *rest,
         ],
         stdin=sys.stdin,
@@ -112,13 +179,26 @@ def start_with_solver(
     return (process, outfile)
 
 
-processes_and_files = list(
-    map(lambda t: start_with_solver(*t), itertools.product(solvers, args.seed))
-)
-processes, files = zip(*processes_and_files)
+def _make_solver_flag_lakeroad_args(flags: List[str]) -> List[str]:
+    """Prepends the --solver-flag flag before each value in a list."""
+    out = []
+    for flag in flags:
+        out.append("--solver-flag")
+        out.append(flag)
+    return out
 
-# Maps pid to output file.
-pid_to_file = {process.pid: outfile for (process, outfile) in processes_and_files}
+
+# List of (process, outfile, (solver, flag_set)) tuples.
+procs_files_solvers = list(
+    map(lambda t: (*start_with_solver(*t), t), solvers_and_flag_sets)
+)
+processes, files, _ = zip(*procs_files_solvers)
+
+# Maps pid to output file and solver+flagset.
+pid_to_file_and_solver = {
+    process.pid: (outfile, solver_and_flag_set)
+    for (process, outfile, solver_and_flag_set) in procs_files_solvers
+}
 
 
 def _terminate_remaining_processes(p):
@@ -147,11 +227,23 @@ else:
 
 # Write output on success.
 if proc.returncode == SYNTH_SUCCESS_CODE:
-    args.out_filepath.write(pathlib.Path(pid_to_file[proc.pid].name).read_text())
+    args.out_filepath.write(
+        pathlib.Path(pid_to_file_and_solver[proc.pid][0].name).read_text()
+    )
 
 # Close files.
 for outfile in files:
     outfile.close()
+
+# Write metadata.
+if args.metadata_out_filepath is not None:
+    json.dump(
+        {
+            "solver": pid_to_file_and_solver[proc.pid][1][0],
+            "flags": pid_to_file_and_solver[proc.pid][1][1],
+        },
+        args.metadata_out_filepath,
+    )
 
 # Mirror stderr, stdout, returncode.
 sys.stderr.write(proc.stderr.read().decode("utf-8"))

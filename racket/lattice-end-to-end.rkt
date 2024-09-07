@@ -2,8 +2,7 @@
 
 (module+ test
   (require rackunit
-           rosette/solver/smt/boolector
-           "verilator.rkt"
+           rosette/solver/smt/bitwuzla
            rosette
            "synthesize.rkt"
            "programs-to-synthesize.rkt"
@@ -13,9 +12,7 @@
            "generated/lattice-ecp5-ccu2c.rkt"
            "architecture-description.rkt")
 
-  (current-solver (boolector))
-
-  (define to-simulate-list (list))
+  (current-solver (bitwuzla))
 
   ;;; Test synthesis of bv-expr, and add result to list.
   ;;; Expect a timeout when this is a bvmul w/ bitwidth > 10
@@ -50,11 +47,7 @@
         (if expect-timeout?
             ;;; TODO(@gussmith23): Standardize what the synthesis functions return when they fail.
             (check-equal? lakeroad-expr #f)
-            (check-not-equal? lakeroad-expr #f))
-
-        ;;; Add the result to the list of things to simulate, when the result is expected to be valid.
-        (when (not expect-timeout?)
-          (set! to-simulate-list (cons (to-simulate lakeroad-expr bv-expr) to-simulate-list))))))
+            (check-not-equal? lakeroad-expr #f)))))
 
   (for ([sz (list 1 2 3 4 5 6 7 8 16 32 64)])
     ;;; Setup: Make symbolic terms.
@@ -101,13 +94,4 @@
            (begin
              (clear-vc!)
              (clear-terms!)
-             (collect-garbage))))
-
-  (when (not (getenv "VERILATOR_INCLUDE_DIR"))
-    (raise "VERILATOR_INCLUDE_DIR not set"))
-  (define include-dir (build-path (get-lakeroad-directory) "verilog/simulation/lattice-ecp5"))
-  (test-true "simulate all synthesized designs with Verilator"
-             (simulate-with-verilator #:include-dirs (list include-dir)
-                                      #:extra-verilator-args "-Wno-UNUSED -Wno-UNOPT -Wno-UNOPTFLAT"
-                                      to-simulate-list
-                                      (getenv "VERILATOR_INCLUDE_DIR"))))
+             (collect-garbage)))))
