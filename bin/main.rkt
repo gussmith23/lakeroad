@@ -228,10 +228,8 @@
     (ports (append (ports) (list (list port bw)))))]
  [("--input-signal")
   v
-  "Name of an input signal to the module in the format `<name>:<expr>:<bw>` e.g. `a:(port a 8):8` This flag can be"
-  " specified multiple times. This currently only needs to be specified for sequential synthesis."
-  ;;; Parse --input arg: split <id>:<expr>:<bw> into interface-id, expression to be mapped to
-  ;;; interface, and bw, construct Rosette symbolic input.
+  "Name of an input signal to the module in the format `<name>:<expr>:<bw>` e.g. `a:(port a 8):8`"
+  " This flag can be specified multiple times."
   (let* ([splits (string-split v ":")]
          [_ (when (not (equal? 3 (length splits)))
               (error (format "Invalid input signal specification: ~a" v)))]
