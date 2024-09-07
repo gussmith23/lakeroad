@@ -220,21 +220,26 @@
  [("--module-name") v "Name given to the module produced." (module-name v)]
  [("--port")
   v
-  "Name of a verilog port"
-  (let* ([splits (string-split v ":")] [port (first splits)] [bw (string->number (second splits))])
+  "Name of a verilog port, specified as <name>:<bw> e.g. `a:8`."
+  (let* ([splits (string-split v ":")]
+         [_ (when (not (equal? 2 (length splits)))
+              (error "Port must be specified as <name>:<bw>"))]
+         [port (first splits)]
+         [bw (string->number (second splits))])
     (ports (append (ports) (list (list port bw)))))]
  [("--input-signal")
   v
-  "Name of an input signal to the module in the format `<name>:<bw` e.g. `a:8` This flag can be"
+  "Name of an input signal to the module in the format `<name>:<expr>:<bw>` e.g. `a:(port a 8):8` This flag can be"
   " specified multiple times. This currently only needs to be specified for sequential synthesis."
   ;;; Parse --input arg: split <id>:<expr>:<bw> into interface-id, expression to be mapped to
   ;;; interface, and bw, construct Rosette symbolic input.
   (let* ([splits (string-split v ":")]
-         [id (car splits)]
-         [expr (parse-dsl (cadr splits))]
-         [bw (string->number (caddr splits))])
-    (when (not (equal? 3 (length splits)))
-      (error (format "Invalid input signal specification: ~a" v)))
+         [_ (when (not (equal? 3 (length splits)))
+              (error (format "Invalid input signal specification: ~a" v)))]
+         [id (first splits)]
+         [expr (parse-dsl (second splits))]
+         [bw (string->number (third splits))])
+
     (when (assoc id (inputs))
       (error "Signal " id " already present; did you duplicate an --input?"))
     (inputs (append (inputs) (list (list id expr bw)))))])
