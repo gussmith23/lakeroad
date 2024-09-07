@@ -80,7 +80,6 @@
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
 (define ports (make-parameter '()))
-
 (define (parse-dsl expr-str)
   (define expr (read (open-input-string expr-str)))
   (define (recursive-helper expr)
