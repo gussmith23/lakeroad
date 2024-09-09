@@ -532,4 +532,5 @@
                                                            (json-filepath))))
                                   (error "Yosys failed."))))
        (output-port))]
+
      [_ (error "Invalid output format.")])])
