@@ -45,8 +45,8 @@
 // RUN: fi
 
 
-`include "bsg_mul_add_unsigned/bsg_defines.sv"
-`include "bsg_mul_add_unsigned/bsg_dff_chain.sv"
+`include "bsg_defines.sv"
+`include "bsg_dff_chain.sv"
   
 (* use_dsp = "yes" *) module top #(
     parameter  width_a_p = 13
