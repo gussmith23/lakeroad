@@ -1,9 +1,6 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(define-logger lakeroad)
-(current-logger lakeroad-logger)
-
 (require rosette
          (prefix-in lr: "../racket/language.rkt")
          "../racket/utils.rkt"
@@ -27,7 +24,6 @@
          "../racket/generated/intel-altmult-accum.rkt"
          "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
          "../racket/generated/intel-cyclone10lp-mac-out.rkt"
-         "../racket/generated/xilinx-7-series-dsp48e1.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -50,7 +46,6 @@
                       [(or "sofa") v]
                       ["intel" v]
                       ["intel-cyclone10lp" v]
-                      ["xilinx-7-series" v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -87,6 +82,7 @@
 (define yices-path (make-parameter #f))
 (define cvc4-path (make-parameter #f))
 (define boolector-path (make-parameter #f))
+(define yosys-log-filepath (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -95,6 +91,7 @@
   v
   "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to bitwuzla."
   (solver v)]
+ ["--yosys-log-filepath" v "Generate a Yosys log file (specify a file)." (yosys-log-filepath v)]
  ["--out-format"
   fmt
   "Output format. Supported: 'verilog' for outputting to raw Verilog,"
@@ -271,6 +268,15 @@
                             keywords-sorted))
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
+  
+
+
+(define (get-log-filename verilog-module-filepath)
+  (let* ((basename (regexp-replace #rx".*/" verilog-module-filepath "")) ; Remove directory path
+         (name-no-ext (regexp-replace #rx"\\.v$" basename ""))           ; Remove .sv extension
+         (log-filename (string-append name-no-ext ".log")))              ; Append .log extension
+    log-filename))
+
 
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
@@ -284,7 +290,6 @@
      (when (not (parameterize ([current-output-port (open-output-nowhere)])
                   (system "yosys --version")))
        (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
-     (log-info "Running Yosys.")
      (define btor
        (parameterize ([current-error-port (open-output-nowhere)])
          (with-output-to-string
@@ -295,7 +300,10 @@
                     ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
                     ;;; clk2fflogic is the correct thing to use. See
                     ;;; https://github.com/uwsampl/lakeroad/issues/238
-                    "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    "yosys ~a -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    (if (yosys-log-filepath) 
+                      (format "-ql ~a" (yosys-log-filepath))
+                      "-q")
                     (verilog-module-filepath)
                     (top-module-name))))
              (error "Yosys failed."))))))
@@ -343,9 +351,6 @@
     ["intel-cyclone10lp"
      (parse-architecture-description-file
       (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
-    ["xilinx-7-series"
-     (parse-architecture-description-file
-      (build-path (get-lakeroad-directory) "architecture_descriptions" "xilinx_7_series.yml"))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -378,7 +383,6 @@
     ["intel-cyclone10lp"
      (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
            (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
-    ["xilinx-7-series" (list (cons (cons "DSP48E1" "unused") xilinx-7-series-dsp48e1))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -394,7 +398,6 @@
     (displayln "Synthesis Timeout" (current-error-port))
     (exit TIMEOUTCODE)))
 ;;; Either a valid LR expression or #f.
-(log-info "Attempting synthesis.")
 (define lakeroad-expr
   (cond
     [(> (pipeline-depth) 0)
@@ -486,14 +489,11 @@
     ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
      (define envs
-       (list (append (map (λ (p)
-                            (match p
-                              [(cons name bw)
-                               (cons name
-                                     (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                          (inputs))
-                     ; If there's a clock, hardcode it to 0.
-                     (if (clock-name) (list (cons (clock-name) (bv->signal (bv 0 1)))) (list)))))
+       (list (map (λ (p)
+                    (match p
+                      [(cons name bw)
+                       (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                  (inputs))))
      (define input-symbolic-constants (symbolics envs))
      ;;; If pipeline depth is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
