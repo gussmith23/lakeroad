@@ -250,24 +250,14 @@
                         ;;; Ignoring internal data for now, but we could use it in the future.
                         ;(list (lr:hash-ref dsp-expr 'O) internal-data)
                         (lr:hash-ref dsp-expr 'O))]
-       ;;; TODO(@gussmith23): Support a variable number of data inputs, i.e. if they don't
-       ;;; give C.
-       [(list (cons a-expr a-bw) (cons b-expr b-bw) (cons c-expr c-bw) (cons d-expr d-bw))
-        (match (sketch-inputs-data inputs)
-          [(list a-tuple b-tuple c-tuple d-tuple) (list a-tuple b-tuple c-tuple d-tuple)]
-          [(list a-tuple b-tuple c-tuple)
-           (list a-tuple b-tuple c-tuple (cons (lr:bv (bv->signal (bv 0 1))) 1))]
-          [(list a-tuple b-tuple)
-           (list a-tuple
-                 b-tuple
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1))]
-          [(list a-tuple)
-           (list a-tuple
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1)
-                 (cons (lr:bv (bv->signal (bv 0 1))) 1))])]
-
+       [(cons a-expr a-bw) (cdr (or (assoc "a" (sketch-inputs-data inputs))
+                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1)) 1)))))]
+       [(cons b-expr b-bw) (cdr (or (assoc "b" (sketch-inputs-data inputs))
+                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1)) 1)))))]
+       [(cons c-expr c-bw) (cdr (or (assoc "c" (sketch-inputs-data inputs))
+                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1)) 1)))))]
+       [(cons d-expr d-bw) (cdr (or (assoc "d" (sketch-inputs-data inputs))
+                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1)) 1)))))]
        [out-expr
         (choose
          (make-dsp-expr internal-data
