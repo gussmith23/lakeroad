@@ -85,7 +85,11 @@
   (define (recursive-helper expr)
     (match expr
       [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
-      [`(port ,(? symbol? sym) ,width) (lr:var (symbol->string sym) width)]))
+      [`(port ,(? symbol? sym) ,width)
+       ; Add port to list of ports, if it's not there.
+       (unless (assoc sym (ports))
+         (ports (append (ports) (list (list sym width)))))
+       (lr:var (symbol->string sym) width)]))
   (recursive-helper expr))
 (define extra-cycles (make-parameter 0))
 (define solver-flags (make-parameter (make-hash)))
@@ -217,19 +221,13 @@
   " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)]
- [("--port")
-  v
-  "Name of a verilog port, specified as <name>:<bw> e.g. `a:8`."
-  (let* ([splits (string-split v ":")]
-         [_ (when (not (equal? 2 (length splits)))
-              (error "Port must be specified as <name>:<bw>"))]
-         [port (first splits)]
-         [bw (string->number (second splits))])
-    (ports (append (ports) (list (list port bw)))))]
  [("--input-signal")
   v
-  "Name of an input signal to the module in the format `<name>:<expr>:<bw>` e.g. `a:(port a 8):8`"
-  " This flag can be specified multiple times."
+  "Specify an input to the sketch, using a small domain-specific language. Generally, the inputs to"
+  " the sketch will correspond to the input ports of the module you are trying to compile. For"
+  " example, if you were compiling a multiplier module with 8-bit inputs `i0` and `i1` using the `dsp`"
+  " sketch, you would plug the `i0` and `i1` input ports into the `a` and `b` inputs of"
+  " the DSP sketch by specifying `--input-signal 'a:(port i0 8):8' --input-signal 'b:(port i1 8):8'`."
   (let* ([splits (string-split v ":")]
          [_ (when (not (equal? 3 (length splits)))
               (error (format "Invalid input signal specification: ~a" v)))]
