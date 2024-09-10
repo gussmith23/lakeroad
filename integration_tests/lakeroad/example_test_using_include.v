@@ -9,8 +9,8 @@
 // RUN:  --verilog-module-out-signal p:16 \
 // RUN:  --pipeline-depth 0 \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:16 \
-// RUN:  --input-signal b:16 \
+// RUN:  --input-signal 'a:(port a 16):16' \
+// RUN:  --input-signal 'b:(port b 16):16' \
 // RUN:  --timeout 90 \
 // RUN: > $outfile
 // RUN: FileCheck %s < $outfile

@@ -9,10 +9,10 @@
 // RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:12 \
-// RUN:  --input-signal b:12 \
-// RUN:  --input-signal c:12 \
-// RUN:  --input-signal d:12 \
+// RUN:  --input-signal 'a:(port a 12):12' \
+// RUN:  --input-signal 'b:(port b 12):12' \
+// RUN:  --input-signal 'c:(port c 12):12' \
+// RUN:  --input-signal 'd:(port d 12):12' \
 // RUN:  --extra-cycles 3 \
 // RUN:  --timeout 120 \
 // RUN: | FileCheck %s
