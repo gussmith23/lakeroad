@@ -65,11 +65,17 @@
 
 ;;; Simple helper to generate an architecture-specific sketch for the given bitvector expression.
 (define (generate-sketch sketch-generator architecture-description bv-expr)
-  (first (sketch-generator architecture-description
-                           (make-sketch-inputs
-                            #:data (map (lambda (symb) (cons (lr:bv (bv->signal symb)) (bvlen symb)))
-                                        (symbolics bv-expr))
-                            #:output-width (bvlen bv-expr)))))
+  (first (sketch-generator
+          architecture-description
+          (make-sketch-inputs
+           ; TODO(@gussmith23): Using ~a here to make a key is a hack that only works because:
+           ; 1. We use a and b as our symbolics for DSP tests.
+           ; 2. The other sketch generators ignore the key names.
+           ; That being said, this infrastructure in general is only used for testing -- we don't use
+           ; it in main.rkt, and it could likely be deleted (and tests refactored).
+           #:data (map (lambda (symb) (cons (~a symb) (cons (lr:bv (bv->signal symb)) (bvlen symb))))
+                       (symbolics bv-expr))
+           #:output-width (bvlen bv-expr)))))
 
 ;;; Generates a "bitwise" sketch, for operations like AND and OR.
 ;;;
@@ -90,7 +96,7 @@
             (error "Bitwise sketches do not support resets."))]
        ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs` instead.
        ;;; Reconstruct the old `logical-inputs`, plus some other legacy inputs.
-       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+       [logical-inputs (lr:list (map cadr (sketch-inputs-data sketch-inputs)))]
        [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
        [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
@@ -176,7 +182,7 @@
                     (error "Bitwise sketches do not support resets."))]
                ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
                ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
-               [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+               [logical-inputs (lr:list (map cadr (sketch-inputs-data sketch-inputs)))]
                [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
                [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
@@ -303,7 +309,7 @@
             (error "Bitwise sketches do not support resets."))]
        ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs` instead.
        ;;; Reconstruct the old `logical-inputs`, plus some other legacy inputs.
-       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+       [logical-inputs (lr:list (map cadr (sketch-inputs-data sketch-inputs)))]
        [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
        [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
@@ -423,7 +429,7 @@
                     (error "Bitwise sketches do not support resets."))]
                ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
                ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
-               [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+               [logical-inputs (lr:list (map cadr (sketch-inputs-data sketch-inputs)))]
                [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
                ;;; Bitwidth of the data inputs. Check that they are all the same.
                [bitwidth
@@ -491,7 +497,7 @@
                     (error "Bitwise sketches do not support resets."))]
                ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
                ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
-               [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+               [logical-inputs (lr:list (map cadr (sketch-inputs-data sketch-inputs)))]
                [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
                [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
@@ -562,7 +568,7 @@
             (error "Bitwise sketches do not support resets."))]
        ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
        ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
-       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+       [logical-inputs (lr:list (map cadr (sketch-inputs-data sketch-inputs)))]
        [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
        [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
@@ -649,7 +655,7 @@
             (error "Bitwise sketches do not support resets."))]
        ;;; We used to take an input named `logical-inputs`, but now we take `sketch-inputs`
        ;;; instead. Reconstruct the old `logical-inputs`, plus some other legacy inputs.
-       [logical-inputs (lr:list (map car (sketch-inputs-data sketch-inputs)))]
+       [logical-inputs (lr:list (map cadr (sketch-inputs-data sketch-inputs)))]
        [num-logical-inputs (length (sketch-inputs-data sketch-inputs))]
        [bitwidth (sketch-inputs-output-width sketch-inputs)]
 
