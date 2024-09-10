@@ -79,6 +79,7 @@
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
+; List of (port-name:string, width:int) pairs.
 (define ports (make-parameter '()))
 (define (parse-dsl expr-str)
   (define expr (read (open-input-string expr-str)))
@@ -88,7 +89,7 @@
       [`(port ,(? symbol? sym) ,width)
        ; Add port to list of ports, if it's not there.
        (unless (assoc sym (ports))
-         (ports (append (ports) (list (list sym width)))))
+         (ports (append (ports) (list (list (symbol->string sym) width)))))
        (lr:var (symbol->string sym) width)]))
   (recursive-helper expr))
 (define extra-cycles (make-parameter 0))
