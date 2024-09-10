@@ -257,13 +257,13 @@
                         ;(list (lr:hash-ref dsp-expr 'O) internal-data)
                         (lr:hash-ref dsp-expr 'O))]
        [(cons a-expr a-bw) (cdr (or (assoc "a" (sketch-inputs-data inputs))
-                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1)) 1)))))]
+                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1))) 1))))]
        [(cons b-expr b-bw) (cdr (or (assoc "b" (sketch-inputs-data inputs))
-                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1)) 1)))))]
+                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1))) 1))))]
        [(cons c-expr c-bw) (cdr (or (assoc "c" (sketch-inputs-data inputs))
-                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1)) 1)))))]
+                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1))) 1))))]
        [(cons d-expr d-bw) (cdr (or (assoc "d" (sketch-inputs-data inputs))
-                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1)) 1)))))]
+                                    (cons 'unused (cons (lr:bv (bv->signal (bv 0 1))) 1))))]
        [out-expr
         (choose
          (make-dsp-expr internal-data
