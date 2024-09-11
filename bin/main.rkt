@@ -60,7 +60,7 @@
                       [(or "yosys-techmap") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
 (define instruction (make-parameter #f identity))
-(define module-name (make-parameter #f identity))
+(define module-name (make-parameter "top"))
 (define json-filepath (make-parameter (make-temporary-file "rkttmp~a.json") identity))
 (define output-port
   (make-parameter (current-output-port) (lambda (v) (open-output-file v #:exists 'replace))))
@@ -87,6 +87,8 @@
 (define yices-path (make-parameter #f))
 (define cvc4-path (make-parameter #f))
 (define boolector-path (make-parameter #f))
+(define yosys-log-filepath (make-parameter #f))
+(define output-smt-path (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -95,6 +97,7 @@
   v
   "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to bitwuzla."
   (solver v)]
+ ["--yosys-log-filepath" v "Generate a Yosys log file (specify a file)." (yosys-log-filepath v)]
  ["--out-format"
   fmt
   "Output format. Supported: 'verilog' for outputting to raw Verilog,"
@@ -126,6 +129,7 @@
     (when (not (file-exists? v))
       (error (format "File ~a does not exist." v)))
     (verilog-module-filepath v))]
+ ["--output-smt-path" v "Specify the output of the SMT solver to a directory." (output-smt-path v)]
  ["--top-module-name"
   v
   "Top module name if --verilog-module-filepath is specified."
@@ -272,6 +276,9 @@
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
 
+(when (output-smt-path)
+  (output-smt (output-smt-path)))
+
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
   (cond
@@ -295,7 +302,8 @@
                     ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
                     ;;; clk2fflogic is the correct thing to use. See
                     ;;; https://github.com/uwsampl/lakeroad/issues/238
-                    "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    "yosys ~a -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    (if (yosys-log-filepath) (format "-ql ~a" (yosys-log-filepath)) "-q")
                     (verilog-module-filepath)
                     (top-module-name))))
              (error "Yosys failed."))))))
@@ -508,6 +516,8 @@
                 #:bv-sequential envs
                 #:lr-sequential envs
                 #:module-semantics module-semantics))))]))
+
+(log-info "Synthesis complete.")
 
 (cond
   [(not lakeroad-expr)

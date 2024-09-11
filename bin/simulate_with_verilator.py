@@ -29,6 +29,7 @@ def simulate_with_verilator(
     clock_name: Optional[str] = None,
     include_dirs: List[Union[str, Path]] = [],
     extra_args: List[str] = [],
+    testbench_module_name: str = "testbench",
     max_num_tests=MAX_NUM_TESTS,
     ignore_missing_test_module_file: bool = False,
     expect_all_zero_outputs: bool = False,
@@ -96,6 +97,7 @@ def simulate_with_verilator(
             testbench_exe_filepath=testbench_exe_filepath,
             testbench_inputs_filepath=testbench_inputs_filepath,
             obj_dirpath=obj_dirpath,
+            top_module=testbench_module_name,
             extra_verilator_args=" ".join(
                 [str(path) for path in verilog_filepaths]
                 + [f"-I{dir}" for dir in include_dirs]
@@ -112,6 +114,7 @@ def simulate_with_verilator(
     testbench_source = testbench_template_source.format(
         max_input_bitwidth=max([bw for _, bw in module_inputs]),
         test_module_name=test_module_name,
+        testbench_module_name=testbench_module_name,
         ground_truth_module_name=ground_truth_module_name,
         test_module_port_list=",".join(
             [f".{name}({name})" for name, _ in module_inputs]

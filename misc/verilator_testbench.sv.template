@@ -1,4 +1,4 @@
-module testbench;
+module {testbench_module_name};
 
 {input_output_declarations}
 
