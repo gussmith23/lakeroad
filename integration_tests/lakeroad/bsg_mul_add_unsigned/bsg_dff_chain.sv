@@ -22,7 +22,8 @@ module bsg_dff_chain #(
                 ,output[width_p-1:0]             data_o
         );
 
-        logic [1:0][27-1:0] data_delayed;
+        reg [width_p-1:0] data_delayed [1:0];
+        //logic [1:0][width_p-1:0] data_delayed;
 
         if( num_stages_p == 0) begin:pass_through
                 wire unused = clk_i;
