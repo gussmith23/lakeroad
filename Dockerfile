@@ -161,14 +161,13 @@ ENV PATH="/root/stp/build:${PATH}"
 ENV LD_LIBRARY_PATH="/root/stp/deps/cadical/build:/root/stp/deps/cadiback/:$LD_LIBRARY_PATH"
 
 # Build Yosys.
-WORKDIR /root
-RUN git clone https://github.com/YosysHQ/yosys.git 
-WORKDIR /root/yosys
-RUN source /root/dependencies.sh \
-&& cd /root/yosys \
+WORKDIR /root \
+RUN cd /root \
+&& git clone https://github.com/YosysHQ/yosys.git \
+&& cd yosys \
+&& source /root/dependencies.sh \
 && git checkout $YOSYS_COMMIT_HASH \
 && git submodule update --init --recursive \
-&& source /root/dependencies.sh \
 && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make config-gcc \
 && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make -j ${MAKE_JOBS} install \
 && rm -rf /root/yosys
