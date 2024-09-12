@@ -164,7 +164,9 @@ ENV LD_LIBRARY_PATH="/root/stp/deps/cadical/build:/root/stp/deps/cadiback/:$LD_L
 WORKDIR /root
 RUN git clone https://github.com/YosysHQ/yosys.git 
 WORKDIR /root/yosys
-RUN git checkout $YOSYS_COMMIT_HASH \
+RUN source /root/dependencies.sh \
+&& cd /root/yosys \
+&& git checkout $YOSYS_COMMIT_HASH \
 && git submodule update --init --recursive \
 && source /root/dependencies.sh \
 && PREFIX="/root/.local" CPLUS_INCLUDE_PATH="/usr/include/tcl8.6/:$CPLUS_INCLUDE_PATH" make config-gcc \
