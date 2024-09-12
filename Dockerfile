@@ -161,7 +161,7 @@ ENV PATH="/root/stp/build:${PATH}"
 ENV LD_LIBRARY_PATH="/root/stp/deps/cadical/build:/root/stp/deps/cadiback/:$LD_LIBRARY_PATH"
 
 # Build Yosys.
-WORKDIR /root \
+WORKDIR /root 
 RUN cd /root \
 && git clone https://github.com/YosysHQ/yosys.git \
 && cd yosys \
