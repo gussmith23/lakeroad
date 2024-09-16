@@ -359,10 +359,10 @@
        ;;; Bitwidth of the data inputs. Check that they are all the same.
        [input-bitwidth
         (begin
-          (for ([bw (map cdr (sketch-inputs-data sketch-inputs))])
-            (unless (equal? bw (cdr (first (sketch-inputs-data sketch-inputs))))
+          (for ([bw (map cddr (sketch-inputs-data sketch-inputs))])
+            (unless (equal? bw (cddr (first (sketch-inputs-data sketch-inputs))))
               (error "Comparison sketches require all inputs to have the same bitwidth.")))
-          (cdr (first (sketch-inputs-data sketch-inputs))))]
+          (cddr (first (sketch-inputs-data sketch-inputs))))]
 
        ;;; Unpack the internal data.
        [bitwise-sketch-0-internal-data (if internal-data (first internal-data) #f)]
@@ -434,10 +434,10 @@
                ;;; Bitwidth of the data inputs. Check that they are all the same.
                [bitwidth
                 (begin
-                  (for ([bw (map cdr (sketch-inputs-data sketch-inputs))])
-                    (unless (equal? bw (cdr (first (sketch-inputs-data sketch-inputs))))
+                  (for ([bw (map cddr (sketch-inputs-data sketch-inputs))])
+                    (unless (equal? bw (cddr (first (sketch-inputs-data sketch-inputs))))
                       (error "Comparison sketches require all inputs to have the same bitwidth.")))
-                  (cdr (first (sketch-inputs-data sketch-inputs))))]
+                  (cddr (first (sketch-inputs-data sketch-inputs))))]
 
                ;;; Unpack the internal data.
                [(list first-row-internal-data lut-tree-internal-data)
