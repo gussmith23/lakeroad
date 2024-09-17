@@ -624,7 +624,8 @@
          ;;; TODO(@gussmith23): Resolve this hack. We are just calling the sketch generator to get the
          ;;; internal data, so we don't actually need to provide valid inputs, but we do need to
          ;;; indicate that there are two inputs.
-         (make-sketch-inputs #:data (list (cons 'unused 'unused) (cons 'unused 'unused))
+         (make-sketch-inputs #:data (list (cons 'unused (cons 'unused 'unused))
+                                          (cons 'unused (cons 'unused 'unused)))
                              #:output-width bitwidth)
          #:internal-data bitwise-with-carry-internal-data)]
 
@@ -632,8 +633,11 @@
        [fold-fn (lambda (next-to-add-expr acc-expr)
                   (first (bitwise-with-carry-sketch-generator
                           architecture-description
-                          (make-sketch-inputs #:data (list (cons next-to-add-expr bitwidth)
-                                                           (cons acc-expr bitwidth))
+                          ;;; TODO(@gussmith23): The use of 'unused here is ugly, but also the keys
+                          ;;; themselves are unused.
+                          (make-sketch-inputs #:data
+                                              (list (cons 'unused (cons next-to-add-expr bitwidth))
+                                                    (cons 'unused (cons acc-expr bitwidth)))
                                               #:output-width bitwidth)
                           #:internal-data bitwise-with-carry-internal-data)))]
 
