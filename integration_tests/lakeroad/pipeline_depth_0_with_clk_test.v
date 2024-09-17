@@ -8,13 +8,13 @@
 // RUN:  --verilog-module-out-signal o:16 \
 // RUN:  --pipeline-depth 0 \
 // RUN:  --module-name out \
-// RUN:  --input-signal i:16 \
+// RUN:  --input-signal 'c:(port i 16):16' \
 // RUN:  --clock-name clk \
 // RUN:  --timeout 90 \
 // RUN: | FileCheck %s
 
 module simple(input clk, input [15:0] i, output [15:0] o);
-  assign o = a;
+  assign o = i;
 endmodule
 
 // CHECK: module out(clk, i, o);

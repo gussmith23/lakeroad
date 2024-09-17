@@ -10,9 +10,9 @@
 // RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:14 \
-// RUN:  --input-signal b:14 \
-// RUN:  --input-signal c:14 \
+// RUN:  --input-signal 'a:(port a 14):14' \
+// RUN:  --input-signal 'b:(port b 14):14' \
+// RUN:  --input-signal 'c:(port c 14):14' \
 // RUN:  --timeout 120 \
 // RUN:  --extra-cycles 3 \
 // RUN:  || true) \
