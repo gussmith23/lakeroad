@@ -163,6 +163,10 @@ ENV LD_LIBRARY_PATH="/root/stp/deps/cadical/build:/root/stp/deps/cadiback/:$LD_L
 # Build Yosys.
 WORKDIR /root 
 RUN cd /root \
+# TODO(@cknizek?): Replace this with archive download
+# Yosys depends on a submodule (abc) and so downloading an archive doesn't work.
+# Once this issue (https://github.com/dear-github/dear-github/issues/214)...
+# ... is resolved, we can go back to downloading an archive.
 && git clone https://github.com/YosysHQ/yosys.git \
 && cd yosys \
 && source /root/dependencies.sh \
