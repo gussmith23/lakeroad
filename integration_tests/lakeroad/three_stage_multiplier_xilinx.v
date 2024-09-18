@@ -9,8 +9,8 @@
 // RUN:  --pipeline-depth 3 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:16 \
-// RUN:  --input-signal b:16 \
+// RUN:  --input-signal 'a:(port a 16):16' \
+// RUN:  --input-signal 'b:(port b 16):16' \
 // RUN:  --timeout 90 \
 // This one termiates with 2 extra cycles, but not 3.
 // RUN:  --extra-cycles 2 \

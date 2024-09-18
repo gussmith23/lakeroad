@@ -10,8 +10,8 @@
 // RUN:  --pipeline-depth 2 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name test_module \
-// RUN:  --input-signal a:8 \
-// RUN:  --input-signal b:8 \
+// RUN:  --input-signal 'a:(port a 8):8' \
+// RUN:  --input-signal 'b:(port b 8):8' \
 // RUN:  --extra-cycles 3 \
 // RUN:  --timeout 120 \
 // RUN:  > $outfile

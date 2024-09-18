@@ -1,5 +1,5 @@
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver bitwuzla \
+// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN:  --solver yices \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
@@ -8,11 +8,9 @@
 // RUN:  --verilog-module-out-signal p:16 \
 // RUN:  --pipeline-depth 0 \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:16 \
-// RUN:  --input-signal b:16 \
+// RUN:  --input-signal 'a:(port a 16):16' \
+// RUN:  --input-signal 'b:(port b 16):16' \
 // RUN:  --timeout 90 \
-// RUN:  || true) \
-// RUN: 2>&1 \
 // RUN: | FileCheck %s
 
 module combinational_multiplier(input [15:0] a, b, output [15:0] p);

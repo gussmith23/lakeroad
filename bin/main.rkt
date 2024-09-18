@@ -79,6 +79,19 @@
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
+; List of (port-name:string, width:int) pairs.
+(define ports (make-parameter '()))
+(define (parse-dsl expr-str)
+  (define expr (read (open-input-string expr-str)))
+  (define (recursive-helper expr)
+    (match expr
+      [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
+      [`(port ,(? symbol? sym) ,width)
+       ; Add port to list of ports, if it's not there.
+       (unless (assoc sym (ports))
+         (ports (append (ports) (list (list (symbol->string sym) width)))))
+       (lr:var (symbol->string sym) width)]))
+  (recursive-helper expr))
 (define extra-cycles (make-parameter 0))
 (define solver-flags (make-parameter (make-hash)))
 (define bitwuzla-path (make-parameter #f))
@@ -211,16 +224,21 @@
  [("--module-name") v "Name given to the module produced." (module-name v)]
  [("--input-signal")
   v
-  "Name of an input signal to the module in the format `<name>:<bw` e.g. `a:8` This flag can be"
-  " specified multiple times. This currently only needs to be specified for sequential synthesis."
-  ;;; Parse --input arg: split <name>:<bw> into name and bw, construct Rosette symbolic input.
-  (let* ([splits (string-split v ":")] [name (first splits)] [bw (string->number (second splits))])
-    (when (not (equal? 2 (length splits)))
-      (error (format "Invalid input signal specification: ~a" v)))
-    (when (assoc name (inputs))
-      (error "Signal " name " already present; did you duplicate an --input?"))
-    (inputs (append (inputs) (list (cons name bw)))))])
+  "Specify an input to the sketch, using a small domain-specific language. Generally, the inputs to"
+  " the sketch will correspond to the input ports of the module you are trying to compile. For"
+  " example, if you were compiling a multiplier module with 8-bit inputs `i0` and `i1` using the `dsp`"
+  " sketch, you would plug the `i0` and `i1` input ports into the `a` and `b` inputs of"
+  " the DSP sketch by specifying `--input-signal 'a:(port i0 8):8' --input-signal 'b:(port i1 8):8'`."
+  (let* ([splits (string-split v ":")]
+         [_ (when (not (equal? 3 (length splits)))
+              (error (format "Invalid input signal specification: ~a" v)))]
+         [id (first splits)]
+         [expr (parse-dsl (second splits))]
+         [bw (string->number (third splits))])
 
+    (when (assoc id (inputs))
+      (error "Signal " id " already present; did you duplicate an --input?"))
+    (inputs (append (inputs) (list (list id expr bw)))))])
 ;;; Set solver.
 (match (solver)
   ["cvc5" (current-solver (cvc5 #:path (cvc5-path) #:logic 'QF_BV #:options (solver-flags)))]
@@ -393,7 +411,7 @@
 
 (define sketch-inputs
   (make-sketch-inputs #:output-width output-bitwidth
-                      #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
+                      #:data (map (lambda (p) (cons (first p) (cons (second p) (third p)))) (inputs))
                       #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
                       #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
@@ -415,16 +433,16 @@
             [input-values
              (map (λ (p)
                     (match p
-                      [(cons name bw)
+                      [(list name bw)
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                  (inputs))]
+                  (ports))]
 
             ;;; The same environments, but with symbolic values
             [make-intermediate-inputs
              (lambda (inputs iter)
                (map (λ (p)
                       (match p
-                        [(cons name bw)
+                        [(list name bw)
                          (cons name (bv->signal (constant (list name "iter" iter) (bitvector bw))))]))
                     inputs))]
 
@@ -436,14 +454,14 @@
             ;;; First, we tick the clock with the inputs set to their input values.
             [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
                                 (cons (cons (clock-name) (bv->signal (bv 1 1)))
-                                      (make-intermediate-inputs (inputs) 0)))
+                                      (make-intermediate-inputs (ports) 0)))
                           ;;; then, we tick the clock with the inputs set to symbolic values.
                           (apply append
                                  (map (lambda (iter)
                                         (list (cons (cons (clock-name) (bv->signal (bv 0 1)))
-                                                    (make-intermediate-inputs (inputs) iter))
+                                                    (make-intermediate-inputs (ports) iter))
                                               (cons (cons (clock-name) (bv->signal (bv 1 1)))
-                                                    (make-intermediate-inputs (inputs) iter))))
+                                                    (make-intermediate-inputs (ports) iter))))
                                       (range 1 (+ (pipeline-depth) (extra-cycles))))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
@@ -496,10 +514,10 @@
      (define envs
        (list (append (map (λ (p)
                             (match p
-                              [(cons name bw)
+                              [(list name bw)
                                (cons name
                                      (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                          (inputs))
+                          (ports))
                      ; If there's a clock, hardcode it to 0.
                      (if (clock-name) (list (cons (clock-name) (bv->signal (bv 0 1)))) (list)))))
      (define input-symbolic-constants (symbolics envs))

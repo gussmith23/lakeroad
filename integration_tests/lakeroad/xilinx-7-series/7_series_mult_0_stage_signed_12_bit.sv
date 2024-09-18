@@ -9,8 +9,8 @@
 // RUN:  --verilog-module-out-signal out:12 \
 // RUN:  --pipeline-depth 0 \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:12 \
-// RUN:  --input-signal b:12 \
+// RUN:  --input-signal 'a:(port a 12):12' \
+// RUN:  --input-signal 'b:(port b 12):12' \
 // RUN:  --timeout 120 \
 // RUN:  --extra-cycles 3 \
 // RUN:  > $outfile

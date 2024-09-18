@@ -15,10 +15,10 @@
 // RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name top \
-// RUN:  --input-signal a:18 \
-// RUN:  --input-signal b:18 \
-// RUN:  --input-signal c:18 \
-// RUN:  --input-signal d:18 \
+// RUN:  --input-signal 'a:(port a 18):18' \
+// RUN:  --input-signal 'b:(port b 18):18' \
+// RUN:  --input-signal 'c:(port c 18):18' \
+// RUN:  --input-signal 'd:(port d 18):18' \
 // RUN:  --timeout 60 \
 // RUN:  --extra-cycles 3 \
 // RUN: || true) 2>&1 \

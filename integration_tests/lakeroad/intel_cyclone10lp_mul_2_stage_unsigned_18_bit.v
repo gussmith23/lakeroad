@@ -8,8 +8,8 @@
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal p:18 \
 // RUN:  --module-name test_module \
-// RUN:  --input-signal a:18 \
-// RUN:  --input-signal b:18 \
+// RUN:  --input-signal 'a:(port a 18):18' \
+// RUN:  --input-signal 'b:(port b 18):18' \
 // RUN:  --pipeline-depth 2 \
 // RUN:  --clock-name clk \
 // RUN:  --timeout 60 \
