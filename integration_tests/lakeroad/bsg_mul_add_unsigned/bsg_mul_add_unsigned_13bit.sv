@@ -10,9 +10,9 @@
 // RUN:  --pipeline-depth 0 \
 // RUN:  --clock-name clk_i \
 // RUN:  --module-name test_module \
-// RUN:  --input-signal 'a_i:(port a 13):13' \
-// RUN:  --input-signal 'b_i:(port b 13):13' \
-// RUN:  --input-signal 'c_i:(port c 26):26' \
+// RUN:  --input-signal 'a:(port a 13):13' \
+// RUN:  --input-signal 'b:(port b 13):13' \
+// RUN:  --input-signal 'c:(port c 26):26' \
 // RUN:  --timeout 270 \
 // RUN: > $outfile
 // RUN: cat $outfile
@@ -30,9 +30,9 @@
 // RUN:    --clock_name clk_i \
 // RUN:    --pipeline_depth 0 \
 // RUN:    --output_signal o:27 \
-// RUN:    --input_signal a_i:13 \
-// RUN:    --input_signal b_i:13 \
-// RUN:    --input_signal c_i:26 \
+// RUN:    --input_signal a:13 \
+// RUN:    --input_signal b:13 \
+// RUN:    --input_signal c:26 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -55,9 +55,9 @@
     ,parameter width_o_p = 27
     ,parameter pipeline_p = 0
   ) (
-     input [width_a_p-1 : 0] a_i
-    ,input [width_b_p-1 : 0] b_i
-    ,input [width_c_p-1 : 0] c_i
+     input [width_a_p-1 : 0] a
+    ,input [width_b_p-1 : 0] b
+    ,input [width_c_p-1 : 0] c
     ,input clk_i
     ,output [width_o_p-1 : 0] o
     );
@@ -72,7 +72,7 @@
     bsg_dff_chain #(width_a_p + width_b_p + width_c_p, pre_pipeline_lp)
         pre_mul_add (
             .clk_i(clk_i)
-            ,.data_i({a_i, b_i, c_i})
+            ,.data_i({a, b, c})
             ,.data_o({a_r, b_r, c_r})
         );
 
@@ -86,7 +86,7 @@
         );
 endmodule
 
-// CHECK: module test_module(a_i, b_i, c_i, clk_i, o);
+// CHECK: module test_module(a, b, c, clk_i, o);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule
 
