@@ -10,9 +10,9 @@
 // RUN:  --pipeline-depth 0 \
 // RUN:  --clock-name clk_i \
 // RUN:  --module-name test_module \
-// RUN:  --input-signal a_i:13 \
-// RUN:  --input-signal b_i:13 \
-// RUN:  --input-signal c_i:26 \
+// RUN:  --input-signal 'a:(port a_i 13):13' \
+// RUN:  --input-signal 'b:(port b_i 13):13' \
+// RUN:  --input-signal 'c:(port c_i 26):26' \
 // RUN:  --timeout 270 \
 // RUN: > $outfile
 // RUN: cat $outfile
