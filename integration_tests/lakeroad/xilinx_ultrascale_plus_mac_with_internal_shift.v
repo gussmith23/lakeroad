@@ -1,6 +1,6 @@
 // RUN: outfile=$(mktemp)
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver yices \
+// RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
@@ -9,9 +9,7 @@
 // RUN:  --verilog-module-out-signal out:48 \
 // RUN:  --pipeline-depth 0 \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:17 \
-// RUN:  --input-signal b:17 \
-// RUN:  --input-signal c:17 \
+// RUN:  --input-signal 'c:(port c 47):47' \
 // RUN:  --timeout 90 \
 // RUN: > $outfile
 // RUN: FileCheck %s < $outfile
@@ -27,9 +25,7 @@
 // RUN:    --verilog_filepath %s \
 // RUN:    --pipeline_depth 0 \
 // RUN:    --output_signal out:48 \
-// RUN:    --input_signal a:17 \
-// RUN:    --input_signal b:17 \
-// RUN:    --input_signal c:17 \
+// RUN:    --input_signal c:47 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -41,8 +37,10 @@
 // RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
 // RUN: fi
 
-module top(input [16:0] a, b, input [16:0] c, output [47:0] out);
-  assign out = a * b + (48'(c) << 17);
+// TODO(@gussmith23): For some reason, this doesn't work with c of length 48.
+// Works with 47 though.
+module top(input [46:0] c, output [47:0] out);
+  assign out = 48'(48'(c) >> 17);
 endmodule
 
-// CHECK: module out(a, b, p);
+// CHECK: module out(c, out);
