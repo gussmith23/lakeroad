@@ -351,6 +351,7 @@
 (define sketch-generator
   (match (template)
     ["dsp" single-dsp-sketch-generator]
+    ["experimental-two-dsp" two-dsp-sketch-generator]
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]

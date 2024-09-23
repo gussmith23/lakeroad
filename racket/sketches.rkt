@@ -29,7 +29,8 @@
          multiplication-sketch-generator
          shift-sketch-generator
          single-dsp-sketch-generator
-         make-sketch-inputs)
+         make-sketch-inputs
+         two-dsp-sketch-generator)
 
 (require "architecture-description.rkt"
          "logical-to-physical.rkt"
@@ -293,6 +294,104 @@
          ;;; b-bw)
          )])
     (list out-expr internal-data)))
+
+;;; Experimental two-DSP sketch generator, mostly to show that solvers will spin on this problem.
+;;;
+;;; Takes two data inputs. The `a` input can be up to 32 bits and its bitwidth must be divisible by 2,
+;;; and the `b` input can be up to 16.
+;;; Implements multiplication by using two DSP blocks: the first DSP block multiplies the upper half
+;;; of `a` by `b`. The second DSP block multiplies the lower half of `a` by `b` and adds the result
+;;; to the result of the first DSP block, which has been left-shifted.
+(define (two-dsp-sketch-generator architecture-description inputs #:internal-data [internal-data #f])
+  (match-let* ([_ 1] ;;; Dummy line to prevent formatter from messing up comment structure
+               ;;; Unpack clk and rst signals; default to 0 if neither is set.
+               [clk-expr (if (sketch-inputs-clk inputs)
+                             (car (sketch-inputs-clk inputs))
+                             (lr:bv (bv->signal (bv 0 1))))]
+               [rst-expr (if (sketch-inputs-rst inputs)
+                             (car (sketch-inputs-rst inputs))
+                             (lr:bv (bv->signal (bv 0 1))))]
+
+               [make-dsp-expr (lambda (internal-data
+                                       out-width
+                                       clk-expr
+                                       rst-expr
+                                       a-expr
+                                       a-width
+                                       b-expr
+                                       b-width
+                                       c-expr
+                                       c-width
+                                       d-expr
+                                       d-width)
+                                (match-define (list dsp-expr ignored-internal-data)
+                                  (construct-interface architecture-description
+                                                       (interface-identifier "DSP"
+                                                                             (hash "out-width"
+                                                                                   out-width
+                                                                                   "a-width"
+                                                                                   a-width
+                                                                                   "b-width"
+                                                                                   b-width
+                                                                                   "c-width"
+                                                                                   c-width
+                                                                                   "d-width"
+                                                                                   d-width))
+                                                       (list (cons "clk" clk-expr)
+                                                             (cons "rst" rst-expr)
+                                                             (cons "A" a-expr)
+                                                             (cons "B" b-expr)
+                                                             (cons "C" c-expr)
+                                                             (cons "D" d-expr))
+                                                       #:internal-data internal-data))
+                                ;;; Ignoring internal data for now, but we could use it in the future.
+                                ;(list (lr:hash-ref dsp-expr 'O) internal-data)
+                                (lr:hash-ref dsp-expr 'O))]
+               [_ (when (not (equal? (length (sketch-inputs-data inputs)) 2))
+                    (error "Two-DSP sketches require exactly two inputs labeled a and b."))]
+               [(cons a-expr a-bw)
+                (cdr (or (assoc "a" (sketch-inputs-data inputs))
+                         (error "Two-DSP sketches require exactly two inputs labeled a and b.")))]
+               [(cons b-expr b-bw)
+                (cdr (or (assoc "b" (sketch-inputs-data inputs))
+                         (error "Two-DSP sketches require exactly two inputs labeled a and b.")))]
+               [_ (when (> b-bw 16)
+                    (error "Two-DSP sketches require the b input to be 16 bits or less."))]
+               [_ (when (> a-bw 32)
+                    (error "Two-DSP sketches require the a input to be 32 bits or less."))]
+               [_ (when (not (equal? (modulo a-bw 2) 0))
+                    (error "Two-DSP sketches require the a input bitwidth be divisible by 2."))]
+               [dsp0-expr (make-dsp-expr
+                           internal-data
+                           48
+                           clk-expr
+                           rst-expr
+                           (lr:extract (lr:integer (- a-bw 1)) (lr:integer (/ a-bw 2)) a-expr)
+                           (/ a-bw 2)
+                           b-expr
+                           b-bw
+                           (lr:bv (bv->signal (bv 0 1)))
+                           1
+                           (lr:bv (bv->signal (bv 0 1)))
+                           1)]
+               [dsp1-expr
+                (make-dsp-expr
+                 internal-data
+                 (sketch-inputs-output-width inputs)
+                 clk-expr
+                 rst-expr
+                 (lr:extract (lr:integer (- (/ a-bw 2) 1)) (lr:integer 0) a-expr)
+                 (/ a-bw 2)
+                 b-expr
+                 b-bw
+                 (lr:concat
+                  (lr:list (list (lr:extract (lr:integer (- 47 (/ a-bw 2))) (lr:integer 0) dsp0-expr)
+                                 (lr:zero-extend (lr:bv (bv->signal (bv 0 1)))
+                                                 (lr:bitvector (bitvector (/ a-bw 2)))))))
+                 48
+                 (lr:bv (bv->signal (bv 0 1)))
+                 1)])
+    (list dsp1-expr internal-data)))
 
 ;;; Bitwise with carry sketch generator.
 ;;;
