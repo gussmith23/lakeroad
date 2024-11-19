@@ -7,12 +7,12 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal out:14 \
-// RUN:  --initiation-interval 1 \
+// RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name test_module \
-// RUN:  --input-signal a:14 \
-// RUN:  --input-signal b:14 \
-// RUN:  --input-signal c:14 \
+// RUN:  --input-signal 'a:(port a 14):14' \
+// RUN:  --input-signal 'b:(port b 14):14' \
+// RUN:  --input-signal 'c:(port c 14):14' \
 // RUN:  --timeout 90 \
 // RUN:  --extra-cycles 3 \
 // RUN:  > $outfile \
@@ -29,7 +29,7 @@
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
-// RUN:    --initiation_interval 1 \
+// RUN:    --pipeline_depth 1 \
 // RUN:    --output_signal out:14 \
 // RUN:    --input_signal a:14 \
 // RUN:    --input_signal b:14 \

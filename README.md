@@ -14,6 +14,11 @@ It is especially powerful for complex,
   programmable primitives
   like DSPs.
 
+## Logging
+
+To get logs out of Lakeroad, you can set
+  `PLTSTDERR="info@lakeroad"`.
+
 ## Dependencies
 
 - LLVM
@@ -33,9 +38,10 @@ Please see the [Dockerfile](./Dockerfile)
 
 ## Environment Variables
 
-- `LAKEROAD_DIR`
-- `LAKEROAD_PRIVATE_DIR`
-- `LLVM_CONFIG`
+See [`.env.template`](./.env.template)
+  for information on the environment variables
+  which need to be set
+  for Lakeroad to function properly.
 
 ## Testing in Lakeroad
 
@@ -78,7 +84,7 @@ An example of what Lakeroad integration tests will
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name three_stage_multiplier \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 3 \
+// RUN:  --pipeline-depth 3 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
 // RUN:  --input-signal a:16 \
@@ -146,3 +152,10 @@ TODO(@gussmith23): Find better cross-platform regex. I thought Perl might be the
 Lakeroad is usable via a Yosys plugin, which can be built separately and loaded directly into your existing Yosys installation. The plugin is located in [./yosys-plugin/](./yosys-plugin/) and can be built using the Makefile in that directory. The plugin can be loaded into Yosys using Yosys's `-m` option, e.g. `yosys -m lakeroad.so ...`. An example of this can be seen in [this integration test.](./integration_tests/lakeroad/xilinx_muladd_0_stage_signed_8_bit_yosys_plugin.sv)
 
 Note: the Lakeroad plugin needs to be built in the same environment (i.e. same glibc version) as the Yosys executable it's being loaded into. This can be an issue e.g. when using the Yosys executable in `oss-cad-suite`. The easiest way to prevent this is to build Yosys yourself using their directions.
+
+## Debugging for Developers
+
+Debugging Racket and Rosette can be very frustrating. Here are notes that may be useful.
+
+- Use errortrace in Racket.
+- Use the Rosette symbolic debugger `symtrace`.

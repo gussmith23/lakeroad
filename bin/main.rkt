@@ -1,6 +1,9 @@
 #!/usr/bin/env racket
 #lang racket/base
 
+(define-logger lakeroad)
+(current-logger lakeroad-logger)
+
 (require rosette
          (prefix-in lr: "../racket/language.rkt")
          "../racket/utils.rkt"
@@ -23,6 +26,7 @@
          "../racket/generated/intel-altmult-accum.rkt"
          "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
          "../racket/generated/intel-cyclone10lp-mac-out.rkt"
+         "../racket/generated/xilinx-7-series-dsp48e1.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -45,6 +49,7 @@
                       [(or "sofa") v]
                       ["intel" v]
                       ["intel-cyclone10lp" v]
+                      ["xilinx-7-series" v]
                       [other (error (format "Unsupported architecture ~a." other))]))))
 (define out-format
   (make-parameter ""
@@ -54,7 +59,7 @@
                       [(or "yosys-techmap") v]
                       [other (error (format "Unsupported output format ~a." other))]))))
 (define instruction (make-parameter #f identity))
-(define module-name (make-parameter #f identity))
+(define module-name (make-parameter "top"))
 (define json-filepath (make-parameter (make-temporary-file "rkttmp~a.json") identity))
 (define output-port
   (make-parameter (current-output-port) (lambda (v) (open-output-file v #:exists 'replace))))
@@ -64,7 +69,7 @@
 (define top-module-name (make-parameter #f))
 (define verilog-module-out-signal (make-parameter #f))
 (define verilog-module-out-bitwidth (make-parameter #f))
-(define initiation-interval (make-parameter 0))
+(define pipeline-depth (make-parameter 0))
 (define clock-name (make-parameter #f))
 (define reset-name (make-parameter #f))
 ;;; Arbitrary exit code choice.
@@ -73,6 +78,19 @@
 ;;; inputs is an association list mapping input name to an integer bitwidth.
 (define inputs (make-parameter '()))
 (define solver (make-parameter "bitwuzla"))
+; List of (port-name:string, width:int) pairs.
+(define ports (make-parameter '()))
+(define (parse-dsl expr-str)
+  (define expr (read (open-input-string expr-str)))
+  (define (recursive-helper expr)
+    (match expr
+      [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
+      [`(port ,(? symbol? sym) ,width)
+       ; Add port to list of ports, if it's not there.
+       (unless (assoc sym (ports))
+         (ports (append (ports) (list (list (symbol->string sym) width)))))
+       (lr:var (symbol->string sym) width)]))
+  (recursive-helper expr))
 (define extra-cycles (make-parameter 0))
 (define solver-flags (make-parameter (make-hash)))
 (define bitwuzla-path (make-parameter #f))
@@ -83,6 +101,8 @@
 (define boolector-path (make-parameter #f))
 (define simulate-with-verilator (make-parameter #f))
 (define simulate-with-verilator-args (make-parameter '()))
+(define yosys-log-filepath (make-parameter #f))
+(define output-smt-path (make-parameter #f))
 
 (command-line
  #:program "lakeroad"
@@ -91,6 +111,7 @@
   v
   "Solver to use. Supported: cvc5, bitwuzla, boolector. Defaults to bitwuzla."
   (solver v)]
+ ["--yosys-log-filepath" v "Generate a Yosys log file (specify a file)." (yosys-log-filepath v)]
  ["--out-format"
   fmt
   "Output format. Supported: 'verilog' for outputting to raw Verilog,"
@@ -122,6 +143,7 @@
     (when (not (file-exists? v))
       (error (format "File ~a does not exist." v)))
     (verilog-module-filepath v))]
+ ["--output-smt-path" v "Specify the output of the SMT solver to a directory." (output-smt-path v)]
  ["--top-module-name"
   v
   "Top module name if --verilog-module-filepath is specified."
@@ -138,18 +160,18 @@
       (error "Output signal must be specified as <name>:<bw>"))
     (verilog-module-out-signal (first splits))
     (verilog-module-out-bitwidth (string->number (second splits))))]
- ["--initiation-interval"
+ ["--pipeline-depth"
   v
-  "Initiation interval of the module to be compiled. This will also be the initiation interval of the"
+  "Initiation interval of the module to be compiled. This will also be the pipeline depth of the"
   " resulting synthesized Verilog module, though this need not be the case in general."
-  (initiation-interval (string->number v))]
+  (pipeline-depth (string->number v))]
  ["--extra-cycles"
   v
   "Number of extra cycles to run the module for and make assertions about. Defaults to 0. When ==0,"
-  " synthesis runs the module for exactly the initiation interval number of steps and makes a single"
+  " synthesis runs the module for exactly the pipeline depth number of steps and makes a single"
   " assertion about the outputs being equal at the last time step. When >0, synthesis runs the module"
-  " for initiation interval + extra cycles number of steps and makes assertions about all of the"
-  " outputs being equal at each time step greater than or equal to the initiation interval."
+  " for pipeline depth + extra cycles number of steps and makes assertions about all of the"
+  " outputs being equal at each time step greater than or equal to the pipeline depth."
   (extra-cycles (string->number v))]
  ["--clock-name"
   v
@@ -212,16 +234,21 @@
  [("--module-name") v "Name given to the module produced." (module-name v)]
  [("--input-signal")
   v
-  "Name of an input signal to the module in the format `<name>:<bw` e.g. `a:8` This flag can be"
-  " specified multiple times. This currently only needs to be specified for sequential synthesis."
-  ;;; Parse --input arg: split <name>:<bw> into name and bw, construct Rosette symbolic input.
-  (let* ([splits (string-split v ":")] [name (first splits)] [bw (string->number (second splits))])
-    (when (not (equal? 2 (length splits)))
-      (error (format "Invalid input signal specification: ~a" v)))
-    (when (assoc name (inputs))
-      (error "Signal " name " already present; did you duplicate an --input?"))
-    (inputs (append (inputs) (list (cons name bw)))))])
+  "Specify an input to the sketch, using a small domain-specific language. Generally, the inputs to"
+  " the sketch will correspond to the input ports of the module you are trying to compile. For"
+  " example, if you were compiling a multiplier module with 8-bit inputs `i0` and `i1` using the `dsp`"
+  " sketch, you would plug the `i0` and `i1` input ports into the `a` and `b` inputs of"
+  " the DSP sketch by specifying `--input-signal 'a:(port i0 8):8' --input-signal 'b:(port i1 8):8'`."
+  (let* ([splits (string-split v ":")]
+         [_ (when (not (equal? 3 (length splits)))
+              (error (format "Invalid input signal specification: ~a" v)))]
+         [id (first splits)]
+         [expr (parse-dsl (second splits))]
+         [bw (string->number (third splits))])
 
+    (when (assoc id (inputs))
+      (error "Signal " id " already present; did you duplicate an --input?"))
+    (inputs (append (inputs) (list (list id expr bw)))))])
 ;;; Set solver.
 (match (solver)
   ["cvc5" (current-solver (cvc5 #:path (cvc5-path) #:logic 'QF_BV #:options (solver-flags)))]
@@ -277,6 +304,9 @@
        (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
   (eval out-fn ns))
 
+(when (output-smt-path)
+  (output-smt (output-smt-path)))
+
 ;;; The bitvector expression we're trying to synthesize.
 (define bv-expr
   (cond
@@ -289,6 +319,7 @@
      (when (not (parameterize ([current-output-port (open-output-nowhere)])
                   (system "yosys --version")))
        (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
+     (log-info "Running Yosys.")
      (define btor
        (parameterize ([current-error-port (open-output-nowhere)])
          (with-output-to-string
@@ -299,7 +330,8 @@
                     ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
                     ;;; clk2fflogic is the correct thing to use. See
                     ;;; https://github.com/uwsampl/lakeroad/issues/238
-                    "yosys -q -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    "yosys ~a -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
+                    (if (yosys-log-filepath) (format "-ql ~a" (yosys-log-filepath)) "-q")
                     (verilog-module-filepath)
                     (top-module-name))))
              (error "Yosys failed."))))))
@@ -307,7 +339,7 @@
      (define f (eval (first (btor->racket btor)) ns))
      ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
      ;;; path expects a bvexpr, which we can get by just calling the function.
-     (if (> (initiation-interval) 0)
+     (if (> (pipeline-depth) 0)
          f
          ;(signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))
          f)]))
@@ -329,6 +361,7 @@
 (define sketch-generator
   (match (template)
     ["dsp" single-dsp-sketch-generator]
+    ["experimental-two-dsp" two-dsp-sketch-generator]
     ["bitwise" bitwise-sketch-generator]
     ["carry" carry-sketch-generator]
     ["bitwise-with-carry" bitwise-with-carry-sketch-generator]
@@ -347,6 +380,9 @@
     ["intel-cyclone10lp"
      (parse-architecture-description-file
       (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
+    ["xilinx-7-series"
+     (parse-architecture-description-file
+      (build-path (get-lakeroad-directory) "architecture_descriptions" "xilinx_7_series.yml"))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -379,13 +415,14 @@
     ["intel-cyclone10lp"
      (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
            (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
+    ["xilinx-7-series" (list (cons (cons "DSP48E1" "unused") xilinx-7-series-dsp48e1))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
 
 (define sketch-inputs
   (make-sketch-inputs #:output-width output-bitwidth
-                      #:data (map (λ (p) (cons (lr:var (car p) (cdr p)) (cdr p))) (inputs))
+                      #:data (map (lambda (p) (cons (first p) (cons (second p) (third p)))) (inputs))
                       #:clk (if (clock-name) (cons (lr:var (clock-name) 1) 1) #f)
                       #:rst (if (reset-name) (cons (lr:var (reset-name) 1) 1) #f)))
 (define sketch (first (sketch-generator architecture-description sketch-inputs)))
@@ -394,9 +431,10 @@
     (displayln "Synthesis Timeout" (current-error-port))
     (exit TIMEOUTCODE)))
 ;;; Either a valid LR expression or #f.
+(log-info "Attempting synthesis.")
 (define lakeroad-expr
   (cond
-    [(> (initiation-interval) 0)
+    [(> (pipeline-depth) 0)
      (let* ([_ "this line prevents autoformatter from messing up comments"]
 
             ;;; Generate the input values: an association list mapping name to value, where the value
@@ -406,16 +444,16 @@
             [input-values
              (map (λ (p)
                     (match p
-                      [(cons name bw)
+                      [(list name bw)
                        (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                  (inputs))]
+                  (ports))]
 
             ;;; The same environments, but with symbolic values
             [make-intermediate-inputs
              (lambda (inputs iter)
                (map (λ (p)
                       (match p
-                        [(cons name bw)
+                        [(list name bw)
                          (cons name (bv->signal (constant (list name "iter" iter) (bitvector bw))))]))
                     inputs))]
 
@@ -427,15 +465,15 @@
             ;;; First, we tick the clock with the inputs set to their input values.
             [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
                                 (cons (cons (clock-name) (bv->signal (bv 1 1)))
-                                      (make-intermediate-inputs (inputs) 0)))
+                                      (make-intermediate-inputs (ports) 0)))
                           ;;; then, we tick the clock with the inputs set to symbolic values.
                           (apply append
                                  (map (lambda (iter)
                                         (list (cons (cons (clock-name) (bv->signal (bv 0 1)))
-                                                    (make-intermediate-inputs (inputs) iter))
+                                                    (make-intermediate-inputs (ports) iter))
                                               (cons (cons (clock-name) (bv->signal (bv 1 1)))
-                                                    (make-intermediate-inputs (inputs) iter))))
-                                      (range 1 (+ (initiation-interval) (extra-cycles))))))]
+                                                    (make-intermediate-inputs (ports) iter))))
+                                      (range 1 (+ (pipeline-depth) (extra-cycles))))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
             [envs (if (reset-name)
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
@@ -479,19 +517,22 @@
                   #:assert-equal-on
                   (if (equal? (extra-cycles) 0)
                       #f
-                      (flatten (append (make-list (- (initiation-interval) 1) (list #f #f))
+                      (flatten (append (make-list (- (pipeline-depth) 1) (list #f #f))
                                        (make-list (+ (extra-cycles) 1) (list #f #t))))))))))]
 
     ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
      (define envs
-       (list (map (λ (p)
-                    (match p
-                      [(cons name bw)
-                       (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                  (inputs))))
+       (list (append (map (λ (p)
+                            (match p
+                              [(list name bw)
+                               (cons name
+                                     (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                          (ports))
+                     ; If there's a clock, hardcode it to 0.
+                     (if (clock-name) (list (cons (clock-name) (bv->signal (bv 0 1)))) (list)))))
      (define input-symbolic-constants (symbolics envs))
-     ;;; If initiation interval is #f, then do normal combinational synthesis.
+     ;;; If pipeline depth is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
        (call-with-limits
         (timeout)
@@ -504,6 +545,8 @@
                 #:bv-sequential envs
                 #:lr-sequential envs
                 #:module-semantics module-semantics))))]))
+
+(log-info "Synthesis complete.")
 
 (cond
   [(not lakeroad-expr)

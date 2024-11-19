@@ -1,4 +1,4 @@
-module testbench;
+module {testbench_module_name};
 
 {input_output_declarations}
 
@@ -14,7 +14,7 @@ localparam STDIN = 32'h8000_0000;
 
 // Tracks whether the outputs have been all zeroes. This is a common failure
 // mode when tests aren't set up correctly; for example, if we have the wrong
-// initiation interval.
+// pipeline depth.
 logic seen_a_one = 1'b0;
 
 initial begin
@@ -37,14 +37,14 @@ initial begin
 
     // For each requested clock cycle, finish the last half of the current clock
     // cycle and then start the first half of the next clock cycle.
-    for (int clk_i = 0; clk_i < {initiation_interval}; clk_i++) begin
+    for (int clk_i = 0; clk_i < {pipeline_depth}; clk_i++) begin
       // Second half of cycle clk_i (inputs=random, clock=1)
       {randomize_inputs} 
       {set_clock}
       #CLK_PERIOD;
 
       // First half of cycle clk_i+1 (inputs=random, clock=0)
-      if (clk_i < {initiation_interval}-1) begin
+      if (clk_i < {pipeline_depth}-1) begin
         {clear_clock} 
         {randomize_inputs}
         #CLK_PERIOD;

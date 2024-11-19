@@ -6,12 +6,12 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 3 \
+// RUN:  --pipeline-depth 3 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name out \
-// RUN:  --input-signal a:16 \
-// RUN:  --input-signal b:16 \
-// RUN:  --input-signal c:16 \
+// RUN:  --input-signal 'a:(port a 16):16' \
+// RUN:  --input-signal 'b:(port b 16):16' \
+// RUN:  --input-signal 'c:(port c 16):16' \
 // RUN:  --extra-cycles 3 \
 // RUN:  --timeout 120 \
 // RUN: || true) \

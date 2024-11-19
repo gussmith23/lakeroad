@@ -116,9 +116,9 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 			ss << " --clock-name " << clk_port_id->substr(1);
 	}
 	for (auto port : data_ports)
-			ss << " --input-signal " << port.substr(1) << ":" << module->wire(port)->width;
+			ss << " --input-signal '" << port.substr(1) << ":(port "  << port.substr(1) << " " << module->wire(port)->width << "):" << module->wire(port)->width << "'";
 	if (pipeline_depth != 0)
-		ss << " --initiation-interval " << pipeline_depth;
+		ss << " --pipeline-depth " << pipeline_depth;
 	// clang-format on
 
 	log("Executing Lakeroad:\n%s\n", ss.str().c_str());

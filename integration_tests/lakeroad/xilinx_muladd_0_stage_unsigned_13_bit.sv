@@ -7,11 +7,11 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal out:13 \
-// RUN:  --initiation-interval 0 \
+// RUN:  --pipeline-depth 0 \
 // RUN:  --module-name top \
-// RUN:  --input-signal a:13 \
-// RUN:  --input-signal b:13 \
-// RUN:  --input-signal c:13 \
+// RUN:  --input-signal 'a:(port a 13):13' \
+// RUN:  --input-signal 'b:(port b 13):13' \
+// RUN:  --input-signal 'c:(port c 13):13' \
 // RUN:  --timeout 90 \
 // RUN:  > $outfile
 // RUN: FileCheck %s < $outfile

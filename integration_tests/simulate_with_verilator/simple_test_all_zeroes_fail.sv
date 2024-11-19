@@ -4,7 +4,7 @@
 // RUN:   --input_signal a:1 \
 // RUN:   --input_signal b:1 \
 // RUN:   --clock_name clk \
-// RUN:   --initiation_interval 2 \
+// RUN:   --pipeline_depth 2 \
 // RUN:   --output_signal c:1 \
 // RUN:   --test_module_name test_module \
 // RUN:   --ground_truth_module_name ground_truth_module \

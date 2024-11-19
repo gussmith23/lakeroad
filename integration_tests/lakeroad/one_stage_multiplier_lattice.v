@@ -7,11 +7,11 @@
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
 // RUN:  --verilog-module-out-signal p:16 \
-// RUN:  --initiation-interval 1 \
+// RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk \
 // RUN:  --module-name test_module \
-// RUN:  --input-signal a:16 \
-// RUN:  --input-signal b:16 \
+// RUN:  --input-signal 'a:(port a 16):16' \
+// RUN:  --input-signal 'b:(port b 16):16' \
 // RUN:  --extra-cycles 3 \
 // RUN:  --timeout 120 \
 // RUN:  > $outfile
@@ -27,7 +27,7 @@
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
 // RUN:    --clock_name clk \
-// RUN:    --initiation_interval 1 \
+// RUN:    --pipeline_depth 1 \
 // RUN:    --output_signal p:16 \
 // RUN:    --input_signal a:16 \
 // RUN:    --input_signal b:16 \

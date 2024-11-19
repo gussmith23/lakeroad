@@ -18,7 +18,7 @@ def simulate_with_verilator(
     obj_dirpath: Union[str, Path],
     verilog_filepaths: List[Union[str, Path]],
     module_inputs: List[Tuple[str, int]],
-    initiation_interval: int,
+    pipeline_depth: int,
     testbench_sv_filepath: Union[str, Path],
     testbench_exe_filepath: Union[str, Path],
     testbench_inputs_filepath: Union[str, Path],
@@ -29,6 +29,7 @@ def simulate_with_verilator(
     clock_name: Optional[str] = None,
     include_dirs: List[Union[str, Path]] = [],
     extra_args: List[str] = [],
+    testbench_module_name: str = "testbench",
     max_num_tests=MAX_NUM_TESTS,
     ignore_missing_test_module_file: bool = False,
     expect_all_zero_outputs: bool = False,
@@ -96,6 +97,7 @@ def simulate_with_verilator(
             testbench_exe_filepath=testbench_exe_filepath,
             testbench_inputs_filepath=testbench_inputs_filepath,
             obj_dirpath=obj_dirpath,
+            top_module=testbench_module_name,
             extra_verilator_args=" ".join(
                 [str(path) for path in verilog_filepaths]
                 + [f"-I{dir}" for dir in include_dirs]
@@ -112,6 +114,7 @@ def simulate_with_verilator(
     testbench_source = testbench_template_source.format(
         max_input_bitwidth=max([bw for _, bw in module_inputs]),
         test_module_name=test_module_name,
+        testbench_module_name=testbench_module_name,
         ground_truth_module_name=ground_truth_module_name,
         test_module_port_list=",".join(
             [f".{name}({name})" for name, _ in module_inputs]
@@ -148,7 +151,7 @@ def simulate_with_verilator(
             [f"({name}_ground_truth=={name}_test)" for name, _ in module_outputs]
         )
         + ")",
-        initiation_interval=initiation_interval,
+        pipeline_depth=pipeline_depth,
         randomize_inputs=" ".join(
             f"inputs[{i}]=$urandom();" for i in range(len(module_inputs))
         ),
@@ -246,7 +249,7 @@ if __name__ == "__main__":
         default=None,
     )
     parser.add_argument(
-        "--initiation_interval",
+        "--pipeline_depth",
         type=int,
         help="Initiation interval of the module we're testing.",
         default=0,
@@ -343,7 +346,7 @@ if __name__ == "__main__":
         verilog_filepaths=args.verilog_filepath,
         module_inputs=[parse_signal_str(i) for i in args.input_signal],
         clock_name=args.clock_name,
-        initiation_interval=args.initiation_interval,
+        pipeline_depth=args.pipeline_depth,
         testbench_sv_filepath=args.testbench_sv_filepath,
         testbench_exe_filepath=args.testbench_exe_filepath,
         testbench_inputs_filepath=args.testbench_inputs_filepath,
