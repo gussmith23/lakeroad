@@ -4,6 +4,9 @@
 (define-logger lakeroad)
 (current-logger lakeroad-logger)
 
+(require racket/runtime-path)
+(define-runtime-path HERE ".")
+
 (require rosette
          (prefix-in lr: "../racket/language.rkt")
          "../racket/utils.rkt"
@@ -211,9 +214,8 @@
   v
   "If set, Lakeroad will simulate the result of synthesis to validate its correctness."
   (simulate-with-verilator #t)]
- #:once-any
  #:multi
- ["--simulate-with-verilator-arg"
+ [("--simulate-with-verilator-arg")
   v
   "Argument to pass through to simulate_with_verilator.py. See the documentation for available flags."
   " You can see the available flags by running `simulate_with_verilator.py --help`."
@@ -226,12 +228,14 @@
     (when (hash-has-key? (solver-flags) key)
       (error (format "Flag ~a already specified." key)))
     (hash-set! (solver-flags) key value))]
+ #:once-each
  [("--instruction")
   v
   "The instruction to synthesize, written in Rosette bitvector semantics. Use (var <name> <bw>) to"
   " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)]
+ #:multi
  [("--input-signal")
   v
   "Specify an input to the sketch, using a small domain-specific language. Generally, the inputs to"
@@ -575,4 +579,6 @@
      [_ (error "Invalid output format.")])])
 
 (when (simulate-with-verilator)
-  ())
+  (let* ([subproc (subprocess #f #f #f "python" "simulate_with_verilator.py")])
+
+    (subprocess-wait subproc)))

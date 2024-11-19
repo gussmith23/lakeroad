@@ -12,29 +12,14 @@
 // RUN:  --input-signal 'b:(port b 18):18' \
 // RUN:  --timeout 120 \
 // RUN:  --simulate-with-verilator \
-// RUN:  > $outfile
-// RUN: FileCheck %s < $outfile
-// RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
-// RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
-// RUN:   exit 0; \
-// RUN: else \
-// RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --test_module_name test_module \  handled
-// RUN:    --ground_truth_module_name top \  handled
-// RUN:    --output_signal p:18 \             handled
-// RUN:    --max_num_tests=10000 \          not handled
-// RUN:    --verilog_filepath $outfile \        handled
-// RUN:    --verilog_filepath %s \              handled
-// RUN:    --pipeline_depth 0 \           handled
-// RUN:    --input_signal a:18 \             handled
-// RUN:    --input_signal b:18 \              handled
-// RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/intel_cyclone10lp/" \       everything below not handled
-// RUN:    --verilator_extra_arg='-Wno-LATCH' \
-// RUN:    --verilator_extra_arg='-Wno-INITIALDLY' \
-// RUN:    --verilator_extra_arg='-Wno-COMBDLY' \
-// RUN:    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
-// RUN:    --verilator_extra_arg='-Wno-WIDTH'; \
-// RUN: fi
+// RUN:  --simulate-with-verilator-arg=--max_num_tests=10000 \
+// RUN:  --simulate-with-verilator-arg="--verilator_include_dir=$LAKEROAD_PRIVATE_DIR/intel_cyclone10lp/" \
+// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-LATCH" \
+// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-INITIALDLY" \
+// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-COMBDLY" \
+// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-TIMESCALEMOD" \
+// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-WIDTH" \
+// RUN: | FileCheck %s
  
 
 module top(input [17:0] a, b, output [17:0] p);
