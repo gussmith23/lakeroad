@@ -3,8 +3,8 @@
 // either it wasn't that change, or some other change I did after it just
 // further cemented the breakage.
 //
-// outfile=$(mktemp)
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN: outfile=$(mktemp)
+// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
@@ -14,44 +14,42 @@
 // RUN:  --verilog-module-out-signal out:18 \
 // RUN:  --pipeline-depth 1 \
 // RUN:  --clock-name clk \
-// RUN:  --module-name top \
+// RUN:  --module-name out \
 // RUN:  --input-signal 'a:(port a 18):18' \
 // RUN:  --input-signal 'b:(port b 18):18' \
 // RUN:  --input-signal 'c:(port c 18):18' \
 // RUN:  --input-signal 'd:(port d 18):18' \
 // RUN:  --timeout 60 \
 // RUN:  --extra-cycles 3 \
-// RUN: || true) 2>&1 \
-// RUN: | FileCheck %s
-//   > $outfile
-//  FileCheck %s < $outfile
-//  if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
-//    echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
-//    exit 0; \
-//  else \
-//    python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-//     --use_random_intermediate_inputs \
-//     --seed=23 \
-//     --max_num_tests=10000 \
-//     --verilog_filepath $outfile \
-//     --verilog_filepath %s \
-//     --clock_name clk \
-//     --pipeline_depth 1 \
-//     --output_signal_name out \
-//     --input_signal a:18 \
-//     --input_signal b:18 \
-//     --input_signal c:18 \
-//     --input_signal d:18 \
-//     --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
-//     --verilator_extra_arg='-DXIL_XECLIB' \
-//     --verilator_extra_arg='-Wno-UNOPTFLAT' \
-//     --verilator_extra_arg='-Wno-LATCH' \
-//     --verilator_extra_arg='-Wno-WIDTH' \
-//     --verilator_extra_arg='-Wno-STMTDLY' \
-//     --verilator_extra_arg='-Wno-CASEX' \
-//     --verilator_extra_arg='-Wno-TIMESCALEMOD' \
-//     --verilator_extra_arg='-Wno-PINMISSING'; \
-//  fi
+// RUN:  > $outfile
+// RUN: FileCheck %s < $outfile
+// RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
+// RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
+// RUN:   exit 0; \
+// RUN: else \
+// RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
+// RUN:    --test_module_name out \
+// RUN:    --ground_truth_module_name top \
+// RUN:    --max_num_tests=10000 \
+// RUN:    --verilog_filepath $outfile \
+// RUN:    --verilog_filepath %s \
+// RUN:    --clock_name clk \
+// RUN:    --pipeline_depth 1 \
+// RUN:    --output_signal out:18 \
+// RUN:    --input_signal a:18 \
+// RUN:    --input_signal b:18 \
+// RUN:    --input_signal c:18 \
+// RUN:    --input_signal d:18 \
+// RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
+// RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
+// RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
+// RUN:    --verilator_extra_arg='-Wno-LATCH' \
+// RUN:    --verilator_extra_arg='-Wno-WIDTH' \
+// RUN:    --verilator_extra_arg='-Wno-STMTDLY' \
+// RUN:    --verilator_extra_arg='-Wno-CASEX' \
+// RUN:    --verilator_extra_arg='-Wno-TIMESCALEMOD' \
+// RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
+// RUN: fi
 
 (* use_dsp = "yes" *) module top(
 	input signed [17:0] a,
@@ -71,4 +69,4 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: Synthesis Timeout
+// CHECK: module out(a, b, c, clk, d, out);
