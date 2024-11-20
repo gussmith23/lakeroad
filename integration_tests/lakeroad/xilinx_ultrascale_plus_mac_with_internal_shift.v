@@ -6,34 +6,30 @@
 // RUN:  --template dsp \
 // RUN:  --out-format verilog \
 // RUN:  --top-module-name top \
-// RUN:  --verilog-module-out-signal out:14 \
-// RUN:  --pipeline-depth 1 \
-// RUN:  --clock-name clk \
-// RUN:  --module-name test_module \
-// RUN:  --input-signal 'a:(port a 14):14' \
-// RUN:  --input-signal 'b:(port b 14):14' \
-// RUN:  --input-signal 'c:(port c 14):14' \
+// RUN:  --verilog-module-out-signal out:48 \
+// RUN:  --pipeline-depth 0 \
+// RUN:  --module-name out \
+// RUN:  --input-signal 'a:(port a 16):16' \
+// RUN:  --input-signal 'b:(port b 16):16' \
+// RUN:  --input-signal 'c:(port c 48):48' \
 // RUN:  --timeout 90 \
-// RUN:  --extra-cycles 3 \
-// RUN:  > $outfile \
-// RUN:  2>&1
+// RUN: > $outfile
 // RUN: FileCheck %s < $outfile
 // RUN: if [ -z ${LAKEROAD_PRIVATE_DIR+x} ]; then \
 // RUN:   echo "Warning: LAKEROAD_PRIVATE_DIR is not set. Skipping simulation."; \
 // RUN:   exit 0; \
 // RUN: else \
 // RUN:   python3 $LAKEROAD_DIR/bin/simulate_with_verilator.py \
-// RUN:    --max_num_tests=10000 \
-// RUN:    --test_module_name test_module \
+// RUN:    --test_module_name out \
 // RUN:    --ground_truth_module_name top \
+// RUN:    --max_num_tests=10000 \
 // RUN:    --verilog_filepath $outfile \
 // RUN:    --verilog_filepath %s \
-// RUN:    --clock_name clk \
-// RUN:    --pipeline_depth 1 \
-// RUN:    --output_signal out:14 \
-// RUN:    --input_signal a:14 \
-// RUN:    --input_signal b:14 \
-// RUN:    --input_signal c:14 \
+// RUN:    --pipeline_depth 0 \
+// RUN:    --output_signal out:48 \
+// RUN:    --input_signal a:30 \
+// RUN:    --input_signal b:18 \
+// RUN:    --input_signal c:48 \
 // RUN:    --verilator_include_dir "$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
 // RUN:    --verilator_extra_arg='-DXIL_XECLIB' \
 // RUN:    --verilator_extra_arg='-Wno-UNOPTFLAT' \
@@ -45,22 +41,9 @@
 // RUN:    --verilator_extra_arg='-Wno-PINMISSING'; \
 // RUN: fi
 
-(* use_dsp = "yes" *) module top(
-    input [13:0] a,
-    input [13:0] b,
-    input [13:0] c,
-    output [13:0] out,
-    input clk
-);
-
-  logic [27:0] stage0;
-
-  always @(posedge clk) begin
-    stage0 <= (a * b) - c;
-
-  end
-
-  assign out = stage0;
+module top(input [15:0] a, input [15:0] b, input [47:0] c, output [47:0] out);
+  logic [31:0] mul_result = a * b;
+  assign out = mul_result + {{17{c[47]}}, c[47:17]};
 endmodule
 
-// CHECK: module test_module(a, b, c, clk, out);
+// CHECK: module out(a, b, c, out);
