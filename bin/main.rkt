@@ -211,7 +211,6 @@
   "Path to the boolector binary. If not set, Rosette will assume the binary is on your PATH."
   (boolector-path v)]
  ["--simulate-with-verilator"
-  v
   "If set, Lakeroad will simulate the result of synthesis to validate its correctness."
   (simulate-with-verilator #t)]
  #:multi

@@ -12,13 +12,13 @@
 // RUN:  --input-signal 'b:(port b 18):18' \
 // RUN:  --timeout 120 \
 // RUN:  --simulate-with-verilator \
-// RUN:  --simulate-with-verilator-arg=--max_num_tests=10000 \
-// RUN:  --simulate-with-verilator-arg="--verilator_include_dir=$LAKEROAD_PRIVATE_DIR/intel_cyclone10lp/" \
-// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-LATCH" \
-// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-INITIALDLY" \
-// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-COMBDLY" \
-// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-TIMESCALEMOD" \
-// RUN:  --simulate-with-verilator-arg="--verilator_extra_arg=-Wno-WIDTH" \
+// RUN:  --simulate-with-verilator-arg "--max_num_tests=10000" \
+// RUN:  --simulate-with-verilator-arg "--verilator_include_dir=$LAKEROAD_PRIVATE_DIR/intel_cyclone10lp/" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg=-Wno-LATCH" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg=-Wno-INITIALDLY" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg=-Wno-COMBDLY" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg=-Wno-TIMESCALEMOD" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg=-Wno-WIDTH" \
 // RUN: | FileCheck %s
  
 
