@@ -164,7 +164,8 @@ implementations:
       # connectivity or OPMODE value to allow for proper implementation.
       #
       # TODO(@gussmith23): deal with this when we support multiple DSPs.
-      "(not (bveq (extract 5 4 OPMODE) (bv #b01 2)))",
+      # This is the line that we need to get rid of to use PCIN.
+      # "(not (bveq (extract 5 4 OPMODE) (bv #b01 2)))",
 
       # ERROR: [DRC DSPS-4] Invalid PCIN Connection for CARRYINSEL value: DSP48E2 cell DSP48E2_0
       # has CARRYINSEL[2:0] set to 011 which uses the input of the PCIN bus for its computation,
@@ -250,7 +251,7 @@ implementations:
             { name: INMODE, direction: input, bitwidth: 5, value: INMODE },
             { name: MULTSIGNIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: OPMODE, direction: input, bitwidth: 9, value: OPMODE },
-            { name: PCIN, direction: input, bitwidth: 48, value: (bv 0 48) },
+            { name: PCIN, direction: input, bitwidth: 48, value: (choose (zero-extend C (bitvector 48)) (bv 0 48)) },
             { name: RSTA, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: RSTALLCARRYIN, direction: input, bitwidth: 1, value: (bv 0 1) },
             { name: RSTALUMODE, direction: input, bitwidth: 1, value: (bv 0 1) },
