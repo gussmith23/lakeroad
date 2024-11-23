@@ -578,6 +578,40 @@
      [_ (error "Invalid output format.")])])
 
 (when (simulate-with-verilator)
-  (let* ([subproc (subprocess #f #f #f "python" "simulate_with_verilator.py")])
-
-    (subprocess-wait subproc)))
+  ; TODO(@gussmith23): shouldn't use "python3" directly here.
+  (let*-values
+      ([(path) (build-path HERE "simulate_with_verilator.py")]
+       [(_) (log-debug "running simulate_with_verilator.py at ~a" path)]
+       [(out-verilog-filepath) (make-temporary-file "rkttmp~a.v")]
+       [(_) (with-output-to-file
+             out-verilog-filepath
+             (lambda ()
+               (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
+                                          (json-filepath))))
+                 (error "Yosys failed.")))
+             #:exists 'must-truncate)]
+       [(args) (list "--verilog_filepath"
+                     (verilog-module-filepath)
+                     "--verilog_filepath"
+                     out-verilog-filepath
+                     "--test_module_name"
+                     (module-name)
+                     "--ground_truth_module_name"
+                     (top-module-name)
+                     "--output_signal"
+                     (format "~a:~a" (verilog-module-out-signal) (verilog-module-out-bitwidth)))]
+       [(args) (append args
+                       (flatten (map (lambda (port-pair)
+                                       (list "--input_signal"
+                                             (format "~a:~a" (first port-pair) (second port-pair))))
+                                     (ports))))]
+       [(args) (append args (simulate-with-verilator-args))]
+       [(sp out in err) (apply subprocess #f #f #f (find-executable-path "python3") path args)]
+       [(_) (subprocess-wait sp)]
+       [(return-code) (subprocess-status sp)])
+    (when (not (equal? return-code 0))
+      (error (format
+              "simulate_with_verilator.py failed with return code ~a\n\nstderr:\n~a\n\nstdout:~a"
+              return-code
+              (port->string err)
+              (port->string out))))))

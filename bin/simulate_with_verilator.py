@@ -8,8 +8,11 @@ import random
 import sys
 from typing import List, Optional, Tuple, Union
 import subprocess
+import logging
 
 MAX_NUM_TESTS = 2**18
+
+LOGGING_ENV_VAR = "SIMULATE_WITH_VERILOG_LOG_LEVEL"
 
 
 def simulate_with_verilator(
@@ -57,12 +60,16 @@ def simulate_with_verilator(
     # all. But this will lead to a name collision from Verilator, and until
     # there are namespaces in Verilog (how are there not???) this is what we're
     # stuck with.
-    assert test_module_name != ground_truth_module_name, "Modules cannot have the same name."
+    assert (
+        test_module_name != ground_truth_module_name
+    ), "Modules cannot have the same name."
 
     if ignore_missing_test_module_file and not all(
         [Path(path).exists() for path in verilog_filepaths]
     ):
-        missing = list(filter(lambda path: not Path(path).exists(), verilog_filepaths))[0]
+        missing = list(filter(lambda path: not Path(path).exists(), verilog_filepaths))[
+            0
+        ]
         logging.warning(
             f"Required Verilog file {missing} does not exist. " "Skipping simulation."
         )
@@ -183,12 +190,15 @@ def simulate_with_verilator(
         for one_set_of_inputs in all_inputs:
             print(" ".join([str(hex(x)) for x in one_set_of_inputs]), file=f)
 
+    logging.debug(f"Running make -f {makefile_filepath} in {makefile_filepath.parent}")
+
     # --environment-overrides is a brute-force way to allow users to use CXX=...
     # to override the C++ compiler with an environment variable. Overriding
     # doesn't normally work due to the issues brought up here:
     # https://github.com/verilator/verilator/issues/4549
     proc = subprocess.run(
-        ["make", "--environment-overrides", "--always-make", "-f", makefile_filepath], capture_output=True
+        ["make", "--environment-overrides", "--always-make", "-f", makefile_filepath],
+        capture_output=True,
     )
     Path(testbench_stdout_log_filepath).write_bytes(proc.stdout)
     Path(testbench_stderr_log_filepath).write_bytes(proc.stderr)
@@ -328,6 +338,10 @@ if __name__ == "__main__":
         default=False,
         help="Whether to expect that all outputs are always 0 on all inputs.",
     )
+    parser.add_argument(
+        "--log_level",
+        help=f"Provide logging level. Example --loglevel debug, default=no logging. Logging can also be controlled by the {LOGGING_ENV_VAR} environment variable.",
+    )
 
     args = parser.parse_args()
 
@@ -338,6 +352,10 @@ if __name__ == "__main__":
 
     # Parse something like <signal_name>:<bitwidth> into a tuple.
     parse_signal_str = lambda x: (str(x.split(":")[0]), int(x.split(":")[1]))
+
+    if args.log_level or os.environ.get(LOGGING_ENV_VAR):
+        logging.basicConfig(level=args.log_level.upper() if args.log_level else os.environ.get(LOGGING_ENV_VAR))
+
 
     simulate_with_verilator(
         test_module_name=args.test_module_name,
