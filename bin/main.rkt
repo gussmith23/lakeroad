@@ -4,12 +4,14 @@
 (define-logger lakeroad)
 (current-logger lakeroad-logger)
 
+(require racket/runtime-path)
+(define-runtime-path HERE ".")
+
 (require rosette
          (prefix-in lr: "../racket/language.rkt")
          "../racket/utils.rkt"
          "../racket/synthesize.rkt"
          "../racket/compile-to-json.rkt"
-         "../racket/circt-comb-operators.rkt"
          "../racket/sketches.rkt"
          "../racket/architecture-description.rkt"
          json
@@ -100,6 +102,8 @@
 (define yices-path (make-parameter #f))
 (define cvc4-path (make-parameter #f))
 (define boolector-path (make-parameter #f))
+(define simulate-with-verilator (make-parameter #f))
+(define simulate-with-verilator-args (make-parameter '()))
 (define yosys-log-filepath (make-parameter #f))
 (define output-smt-path (make-parameter #f))
 
@@ -206,8 +210,15 @@
   v
   "Path to the boolector binary. If not set, Rosette will assume the binary is on your PATH."
   (boolector-path v)]
- #:once-any
+ ["--simulate-with-verilator"
+  "If set, Lakeroad will simulate the result of synthesis to validate its correctness."
+  (simulate-with-verilator #t)]
  #:multi
+ [("--simulate-with-verilator-arg")
+  v
+  "Argument to pass through to simulate_with_verilator.py. See the documentation for available flags."
+  " You can see the available flags by running `simulate_with_verilator.py --help`."
+  (simulate-with-verilator-args (append (simulate-with-verilator-args) (list v)))]
  [("--solver-flag")
   v
   "Flag to pass to the solver. A string of the form <flag>=<value>. This flag can be specified"
@@ -216,12 +227,14 @@
     (when (hash-has-key? (solver-flags) key)
       (error (format "Flag ~a already specified." key)))
     (hash-set! (solver-flags) key value))]
+ #:once-each
  [("--instruction")
   v
   "The instruction to synthesize, written in Rosette bitvector semantics. Use (var <name> <bw>) to"
   " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
   (instruction v)]
  [("--module-name") v "Name given to the module produced." (module-name v)]
+ #:multi
  [("--input-signal")
   v
   "Specify an input to the sketch, using a small domain-specific language. Generally, the inputs to"
@@ -563,3 +576,42 @@
        (output-port))]
 
      [_ (error "Invalid output format.")])])
+
+(when (simulate-with-verilator)
+  ; TODO(@gussmith23): shouldn't use "python3" directly here.
+  (let*-values
+      ([(path) (build-path HERE "simulate_with_verilator.py")]
+       [(_) (log-debug "running simulate_with_verilator.py at ~a" path)]
+       [(out-verilog-filepath) (make-temporary-file "rkttmp~a.v")]
+       [(_) (with-output-to-file
+             out-verilog-filepath
+             (lambda ()
+               (when (not (system (format "yosys -q -p 'read_json ~a; write_verilog'"
+                                          (json-filepath))))
+                 (error "Yosys failed.")))
+             #:exists 'must-truncate)]
+       [(args) (list "--verilog_filepath"
+                     (verilog-module-filepath)
+                     "--verilog_filepath"
+                     out-verilog-filepath
+                     "--test_module_name"
+                     (module-name)
+                     "--ground_truth_module_name"
+                     (top-module-name)
+                     "--output_signal"
+                     (format "~a:~a" (verilog-module-out-signal) (verilog-module-out-bitwidth)))]
+       [(args) (append args
+                       (flatten (map (lambda (port-pair)
+                                       (list "--input_signal"
+                                             (format "~a:~a" (first port-pair) (second port-pair))))
+                                     (ports))))]
+       [(args) (append args (simulate-with-verilator-args))]
+       [(sp out in err) (apply subprocess #f #f #f (find-executable-path "python3") path args)]
+       [(_) (subprocess-wait sp)]
+       [(return-code) (subprocess-status sp)])
+    (when (not (equal? return-code 0))
+      (error (format
+              "simulate_with_verilator.py failed with return code ~a\n\nstderr:\n~a\n\nstdout:~a"
+              return-code
+              (port->string err)
+              (port->string out))))))
