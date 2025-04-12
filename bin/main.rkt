@@ -598,6 +598,10 @@
                      (module-name)
                      "--ground_truth_module_name"
                      (top-module-name)
+                     "--pipeline_depth"
+                     (number->string (pipeline-depth))
+                     "--clock_name"
+                     (clock-name)
                      "--output_signal"
                      (format "~a:~a" (verilog-module-out-signal) (verilog-module-out-bitwidth)))]
        [(args) (append args
@@ -606,7 +610,9 @@
                                              (format "~a:~a" (first port-pair) (second port-pair))))
                                      (ports))))]
        [(args) (append args (simulate-with-verilator-args))]
-       [(sp out in err) (apply subprocess #f #f #f (find-executable-path "python3") path args)]
+       [(cmd) (append (list (find-executable-path "python3") path) args)]
+       [(_) (log-debug "Running command: ~a" cmd)]
+       [(sp out in err) (apply subprocess #f #f #f cmd)]
        [(_) (subprocess-wait sp)]
        [(return-code) (subprocess-status sp)])
     (when (not (equal? return-code 0))
