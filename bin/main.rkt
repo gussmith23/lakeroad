@@ -600,10 +600,9 @@
                      (top-module-name)
                      "--pipeline_depth"
                      (number->string (pipeline-depth))
-                     "--clock_name"
-                     (clock-name)
                      "--output_signal"
                      (format "~a:~a" (verilog-module-out-signal) (verilog-module-out-bitwidth)))]
+       [(args) (append args (if (clock-name) (list "--clock_name" (clock-name)) (list)))]
        [(args) (append args
                        (flatten (map (lambda (port-pair)
                                        (list "--input_signal"
