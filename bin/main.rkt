@@ -509,6 +509,23 @@
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
                       envs)]
 
+            [assumes
+             (begin
+               ; To make the assumes, we map over the list of envs. For each env, we map each lambda
+               ; in the (assumes) list to generate an assume. This should produce a list of lists that
+               ; we then flatten.
+
+               (flatten
+                (map (λ (env)
+                       ; For the env, first generate the hashmap mapping port names to their values.
+                       ; Then, for each assume, generate the assume.
+                       (define port-map
+                         (make-hash (map (λ (p) (cons (car p) (signal-value (cdr p)))) env)))
+                       (define assumes (map (lambda (assume-fn) (assume-fn port-map)) (assume-fns)))
+
+                       assumes)
+                     envs)))]
+
             [input-symbolic-constants (symbolics envs)])
 
        ;;; Throw error if we're not passing all values to the bv-expr.
@@ -548,7 +565,8 @@
                   (if (equal? (extra-cycles) 0)
                       #f
                       (flatten (append (make-list (- (pipeline-depth) 1) (list #f #f))
-                                       (make-list (+ (extra-cycles) 1) (list #f #t))))))))))]
+                                       (make-list (+ (extra-cycles) 1) (list #f #t)))))
+                  #:assumes assumes)))))]
 
     ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
@@ -561,6 +579,21 @@
                           (ports))
                      ; If there's a clock, hardcode it to 0.
                      (if (clock-name) (list (cons (clock-name) (bv->signal (bv 0 1)))) (list)))))
+     (define assumes
+       (begin
+         ; To make the assumes, we map over the list of envs. For each env, we map each lambda
+         ; in the (assumes) list to generate an assume. This should produce a list of lists that
+         ; we then flatten.
+
+         (flatten (map (λ (env)
+                         ; For the env, first generate the hashmap mapping port names to their values.
+                         ; Then, for each assume, generate the assume.
+                         (define port-map
+                           (make-hash (map (λ (p) (cons (car p) (signal-value (cdr p)))) env)))
+                         (define assumes (map (lambda (assume-fn) (assume-fn port-map)) (assume-fns)))
+
+                         assumes)
+                       envs))))
      (define input-symbolic-constants (symbolics envs))
      ;;; If pipeline depth is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
@@ -574,7 +607,8 @@
                 input-symbolic-constants
                 #:bv-sequential envs
                 #:lr-sequential envs
-                #:module-semantics module-semantics))))]))
+                #:module-semantics module-semantics
+                #:assumes assumes))))]))
 
 (log-info "Synthesis complete.")
 
