@@ -125,6 +125,7 @@
 (define simulate-with-verilator-args (make-parameter '()))
 (define yosys-log-filepath (make-parameter #f))
 (define output-smt-path (make-parameter #f))
+(define assume-fns (make-parameter '()))
 
 (command-line
  #:program "lakeroad"
@@ -270,7 +271,14 @@
 
     (when (assoc id (inputs))
       (error "Signal " id " already present; did you duplicate an --input?"))
-    (inputs (append (inputs) (list (list id expr bw)))))])
+    (inputs (append (inputs) (list (list id expr bw)))))]
+ [("--assume")
+  v
+  "Assumption to make about the output of the module. This is a bitvector expression in Rosette"
+  " semantics. For example, if you want to assume that the input of the module is less than 8, you"
+  " would specify `--assume '(bvult (port a 8) (bv 8 8))'`."
+  (assume-fns (append (assume-fns) (list (parse-assume-dsl v))))])
+
 ;;; Set solver.
 (match (solver)
   ["cvc5" (current-solver (cvc5 #:path (cvc5-path) #:logic 'QF_BV #:options (solver-flags)))]
