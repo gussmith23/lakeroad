@@ -605,6 +605,11 @@
      [_ (error "Invalid output format.")])])
 
 (when (simulate-with-verilator)
+  ; Assumptions aren't currently supported here.
+  (when (not (equal? (assume-fns) '()))
+    ; TODO: should at least supply a way of manually simulating while constraining input sizes.
+    (error "Assumptions are not currently supported with --simulate-with-verilator."))
+
   ; TODO(@gussmith23): shouldn't use "python3" directly here.
   (let*-values
       ([(path) (build-path HERE "simulate_with_verilator.py")]
