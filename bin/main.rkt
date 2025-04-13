@@ -94,6 +94,25 @@
          (ports (append (ports) (list (list (symbol->string sym) width)))))
        (lr:var (symbol->string sym) width)]))
   (recursive-helper expr))
+; Returns a function that takes a hash table mapping port names to expressions. When called, the
+; returned function will return a bitvector expression.
+(define (parse-assume-dsl expr-str)
+  (define expr (read (open-input-string expr-str)))
+  (define (recursive-helper expr)
+    (match expr
+      [`(bv ,(? number? val) ,(? number? bw)) (lambda (var-map) (bv val bw))]
+
+      ; Could definitely do the ops more cleverly. Need a way to go from a symbol 'bvule to the actual
+      ; Rosette fn.
+      [`(bvult ,a ,b)
+       (lambda (var-map) (bvult ((recursive-helper a) var-map) ((recursive-helper b) var-map)))]
+      [`(bvule ,a ,b)
+       (lambda (var-map) (bvule ((recursive-helper a) var-map) ((recursive-helper b) var-map)))]
+      [`(bveq ,a ,b)
+       (lambda (var-map) (bveq ((recursive-helper a) var-map) ((recursive-helper b) var-map)))]
+
+      [`(port ,(? symbol? sym) ,width) (lambda (var-map) (hash-ref var-map (symbol->string sym)))]))
+  (recursive-helper expr))
 (define extra-cycles (make-parameter 0))
 (define solver-flags (make-parameter (make-hash)))
 (define bitwuzla-path (make-parameter #f))
