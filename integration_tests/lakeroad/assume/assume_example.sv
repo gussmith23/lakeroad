@@ -24,8 +24,8 @@
 // RUN:  --module-name test_module \
 // RUN:  --input-signal 'a:(extract 15 0 (port a 32)):16' \
 // RUN:  --input-signal 'b:(extract 15 0 (port b 32)):16' \
-// RUN:  --assume '(bveq (port a 32) (bv 0 32))' \
-// RUN:  --assume '(bveq (port b 32) (bv 0 32))' \
+// RUN:  --assume '(bvule (port a 32) (bv 65535 32))' \
+// RUN:  --assume '(bvule (port b 32) (bv 65535 32))' \
 // RUN:  --verilog-module-out-signal out:32 \
 // RUN:  --extra-cycles 3 \
 // RUN:  --timeout 120 \
