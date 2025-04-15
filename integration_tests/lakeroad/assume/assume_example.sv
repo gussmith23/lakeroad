@@ -13,7 +13,7 @@
 // have about `a` and `b`, which we do via `assume` statements.
 //
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver cvc5 \
+// RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
