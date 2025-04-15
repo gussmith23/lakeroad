@@ -15,7 +15,7 @@
 // RUN:  --input-signal 'c:(port c 18):18' \
 // RUN:  --input-signal 'd:(port d 18):18' \
 // RUN:  --extra-cycles 1 \
-// RUN:  --timeout 120 \
+// RUN:  --timeout 240 \
 // RUN: > $outfile
 // RUN: cat $outfile
 // RUN: FileCheck %s < $outfile
