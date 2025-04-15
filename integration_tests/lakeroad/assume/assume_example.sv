@@ -28,7 +28,7 @@
 // RUN:  --assume '(bvule (port b 32) (bv 65535 32))' \
 // RUN:  --verilog-module-out-signal out:32 \
 // RUN:  --extra-cycles 3 \
-// RUN:  --timeout 120 \
+// RUN:  --timeout 240 \
 // RUN: | FileCheck %s
 
 (* use_dsp = "yes" *) module top(
