@@ -94,6 +94,25 @@
          (ports (append (ports) (list (list (symbol->string sym) width)))))
        (lr:var (symbol->string sym) width)]))
   (recursive-helper expr))
+; Returns a function that takes a hash table mapping port names to expressions. When called, the
+; returned function will return a bitvector expression.
+(define (parse-assume-dsl expr-str)
+  (define expr (read (open-input-string expr-str)))
+  (define (recursive-helper expr)
+    (match expr
+      [`(bv ,(? number? val) ,(? number? bw)) (lambda (var-map) (bv val bw))]
+
+      ; Could definitely do the ops more cleverly. Need a way to go from a symbol 'bvule to the actual
+      ; Rosette fn.
+      [`(bvult ,a ,b)
+       (lambda (var-map) (bvult ((recursive-helper a) var-map) ((recursive-helper b) var-map)))]
+      [`(bvule ,a ,b)
+       (lambda (var-map) (bvule ((recursive-helper a) var-map) ((recursive-helper b) var-map)))]
+      [`(bveq ,a ,b)
+       (lambda (var-map) (bveq ((recursive-helper a) var-map) ((recursive-helper b) var-map)))]
+
+      [`(port ,(? symbol? sym) ,width) (lambda (var-map) (hash-ref var-map (symbol->string sym)))]))
+  (recursive-helper expr))
 (define extra-cycles (make-parameter 0))
 (define solver-flags (make-parameter (make-hash)))
 (define bitwuzla-path (make-parameter #f))
@@ -106,6 +125,7 @@
 (define simulate-with-verilator-args (make-parameter '()))
 (define yosys-log-filepath (make-parameter #f))
 (define output-smt-path (make-parameter #f))
+(define assume-fns (make-parameter '()))
 
 (command-line
  #:program "lakeroad"
@@ -251,7 +271,14 @@
 
     (when (assoc id (inputs))
       (error "Signal " id " already present; did you duplicate an --input?"))
-    (inputs (append (inputs) (list (list id expr bw)))))])
+    (inputs (append (inputs) (list (list id expr bw)))))]
+ [("--assume")
+  v
+  "Assumption to make about the output of the module. This is a bitvector expression in Rosette"
+  " semantics. For example, if you want to assume that the input of the module is less than 8, you"
+  " would specify `--assume '(bvult (port a 8) (bv 8 8))'`."
+  (assume-fns (append (assume-fns) (list (parse-assume-dsl v))))])
+
 ;;; Set solver.
 (match (solver)
   ["cvc5" (current-solver (cvc5 #:path (cvc5-path) #:logic 'QF_BV #:options (solver-flags)))]
@@ -482,6 +509,23 @@
                       (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
                       envs)]
 
+            [assumes
+             (begin
+               ; To make the assumes, we map over the list of envs. For each env, we map each lambda
+               ; in the (assumes) list to generate an assume. This should produce a list of lists that
+               ; we then flatten.
+
+               (flatten
+                (map (λ (env)
+                       ; For the env, first generate the hashmap mapping port names to their values.
+                       ; Then, for each assume, generate the assume.
+                       (define port-map
+                         (make-hash (map (λ (p) (cons (car p) (signal-value (cdr p)))) env)))
+                       (define assumes (map (lambda (assume-fn) (assume-fn port-map)) (assume-fns)))
+
+                       assumes)
+                     envs)))]
+
             [input-symbolic-constants (symbolics envs)])
 
        ;;; Throw error if we're not passing all values to the bv-expr.
@@ -521,7 +565,8 @@
                   (if (equal? (extra-cycles) 0)
                       #f
                       (flatten (append (make-list (- (pipeline-depth) 1) (list #f #f))
-                                       (make-list (+ (extra-cycles) 1) (list #f #t))))))))))]
+                                       (make-list (+ (extra-cycles) 1) (list #f #t)))))
+                  #:assumes assumes)))))]
 
     ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
     [else
@@ -534,6 +579,21 @@
                           (ports))
                      ; If there's a clock, hardcode it to 0.
                      (if (clock-name) (list (cons (clock-name) (bv->signal (bv 0 1)))) (list)))))
+     (define assumes
+       (begin
+         ; To make the assumes, we map over the list of envs. For each env, we map each lambda
+         ; in the (assumes) list to generate an assume. This should produce a list of lists that
+         ; we then flatten.
+
+         (flatten (map (λ (env)
+                         ; For the env, first generate the hashmap mapping port names to their values.
+                         ; Then, for each assume, generate the assume.
+                         (define port-map
+                           (make-hash (map (λ (p) (cons (car p) (signal-value (cdr p)))) env)))
+                         (define assumes (map (lambda (assume-fn) (assume-fn port-map)) (assume-fns)))
+
+                         assumes)
+                       envs))))
      (define input-symbolic-constants (symbolics envs))
      ;;; If pipeline depth is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
@@ -547,7 +607,8 @@
                 input-symbolic-constants
                 #:bv-sequential envs
                 #:lr-sequential envs
-                #:module-semantics module-semantics))))]))
+                #:module-semantics module-semantics
+                #:assumes assumes))))]))
 
 (log-info "Synthesis complete.")
 
@@ -578,6 +639,11 @@
      [_ (error "Invalid output format.")])])
 
 (when (simulate-with-verilator)
+  ; Assumptions aren't currently supported here.
+  (when (not (equal? (assume-fns) '()))
+    ; TODO: should at least supply a way of manually simulating while constraining input sizes.
+    (error "Assumptions are not currently supported with --simulate-with-verilator."))
+
   ; TODO(@gussmith23): shouldn't use "python3" directly here.
   (let*-values
       ([(path) (build-path HERE "simulate_with_verilator.py")]

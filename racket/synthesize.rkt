@@ -875,7 +875,8 @@
                             #:bv-sequential [bv-sequential #f]
                             #:lr-sequential [lr-sequential #f]
                             #:module-semantics [module-semantics '()]
-                            #:assert-equal-on [assert-equal-on #f])
+                            #:assert-equal-on [assert-equal-on #f]
+                            #:assumes [assumes '()])
 
   (when (not (equal? assert-equal-on #f))
     (when (not (and (equal? (length lr-sequential) (length bv-sequential))
@@ -961,6 +962,9 @@
      #:forall inputs
      #:guarantee ;;; [this comment just helps force a prettier formatting]
      (begin
+       (for ([assumption assumes])
+         (log-debug (format "Assuming: ~a" assumption))
+         (assume assumption))
        (match assert-equal-on
          [#f (assert (bveq (last bv-expr-evaluated) (last lr-expr-evaluated)))]
          [(list bools ...)
