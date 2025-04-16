@@ -1,5 +1,5 @@
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver cvc5 \
+// RUN:  --solver yices \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-7-series \
 // RUN:  --template dsp \
