@@ -26,8 +26,8 @@
 // RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-TIMESCALEMOD'" \
 // RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-PINMISSING'" \
 // RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-COMBDLY'" \
-// RUN:  --simulate-with-verilator-arg "-verilator_extra_arg='-Wno-INITIALDLY'" \
-// RUN:  --simulate-with-verilator-arg "-verilator_extra_arg='-Wno-CASEINCOMPLETE'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-INITIALDLY'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-CASEINCOMPLETE'" \
 // RUN: | FileCheck %s
 
 (* use_dsp = "yes" *) module top(
