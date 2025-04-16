@@ -1,6 +1,6 @@
 // RUN: outfile=$(mktemp)
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver cvc5 \
+// RUN:  --solver stp \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \

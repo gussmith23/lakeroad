@@ -1,6 +1,6 @@
 // RUN: outfile=$(mktemp)
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver bitwuzla \
+// RUN:  --solver cvc5 \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-7-series \
 // RUN:  --template dsp \
@@ -49,6 +49,6 @@
 	assign out = stage0;
 endmodule
 
-// CHECK: module test_module(a, b, c, clk, d, out);
+// CHECK: module out(a, b, c, clk, d, out);
 // CHECK:   DSP48E2 #(
 // CHECK: endmodule
