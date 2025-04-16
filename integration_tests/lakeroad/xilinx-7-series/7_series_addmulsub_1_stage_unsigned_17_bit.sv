@@ -50,5 +50,5 @@
 endmodule
 
 // CHECK: module out(a, b, c, clk, d, out);
-// CHECK:   DSP48E2 #(
+// CHECK:   DSP48E1 #(
 // CHECK: endmodule
