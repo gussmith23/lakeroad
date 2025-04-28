@@ -13,9 +13,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
  --pipeline-depth 1 \
  --clock-name clk \
  --module-name out \
- --input-signal a:11 \
- --input-signal b:11 \
- --input-signal c:11 \
- --input-signal d:11 \
+ --input-signal 'a:(port a 11):11' \
+ --input-signal 'b:(port b 11):11' \
+ --input-signal 'c:(port c 11):11' \
+ --input-signal 'd:(port d 11):11' \
  --extra-cycles 3 \
  --timeout 120
