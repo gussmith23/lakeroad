@@ -13,8 +13,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
  --pipeline-depth 2 \
  --clock-name clk \
  --module-name test_module \
- --input-signal a:16 \
- --input-signal b:16 \
- --input-signal c:16 \
+ --input-signal 'a:(port a 16):16' \
+ --input-signal 'b:(port b 16):16' \
+ --input-signal 'c:(port c 16):16' \
  --timeout 90 \
  --extra-cycles 3
