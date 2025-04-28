@@ -30,10 +30,6 @@ jobs:
             os-name: ubuntu
             RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
             zip-name: lakeroad-ubuntu-22.04-x64.zip
-          - os: ubuntu-20.04
-            os-name: ubuntu
-            RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
-            zip-name: lakeroad-ubuntu-20.04-x64.zip
           - os: macos-15
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
