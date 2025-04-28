@@ -22,6 +22,10 @@ jobs:
         include:
           # - os: windows-latest
           #   os-name: windows
+          - os: ubuntu-24.04
+            os-name: ubuntu
+            RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
+            zip-name: lakeroad-ubuntu-24.04-x64.zip
           - os: ubuntu-22.04
             os-name: ubuntu
             RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
@@ -30,16 +34,21 @@ jobs:
             os-name: ubuntu
             RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
             zip-name: lakeroad-ubuntu-20.04-x64.zip
+          - os: macos-15
+            os-name: macOS
+            RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
+            coreutils_gnubin_path: /usr/homebrew/opt/coreutils/libexec/gnubin
+            zip-name: lakeroad-macos-15-arm64.zip
           - os: macos-13
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
             coreutils_gnubin_path: /usr/local/opt/coreutils/libexec/gnubin
-            zip-name: lakeroad-macos-x64.zip
+            zip-name: lakeroad-macos-13-x64.zip
           - os: macos-14
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
             coreutils_gnubin_path: /opt/homebrew/opt/coreutils/libexec/gnubin
-            zip-name: lakeroad-macos-arm64.zip
+            zip-name: lakeroad-macos-14-arm64.zip
 
     runs-on: ${{ matrix.os }}
 
