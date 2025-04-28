@@ -18,7 +18,6 @@ attempts to listen for.
 """
 
 import argparse
-import itertools
 import json
 import psutil
 import subprocess
@@ -27,6 +26,7 @@ import pathlib
 from typing import List, Tuple
 import sys
 import tempfile
+import logging
 
 
 # These are set in main.rkt.
@@ -110,10 +110,19 @@ parser.add_argument(
     type=str,
     default=str(pathlib.Path(os.path.abspath(__file__)).parent / "main.rkt"),
 )
+parser.add_argument(
+    "--log",
+    default="WARNING",
+    help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+)
 args, rest = parser.parse_known_args()
 
 # Process the "--" flag which marks the end of the flags for the script.
 rest = rest[1:] if (len(rest) > 0 and rest[0] == "--") else rest
+
+logging.basicConfig(level=args.log.upper())
+
+logging.debug("Rest of arguments:\n%s", "\n".join(rest))
 
 
 def _parse_flag_set(flag_set: str) -> List[str]:
@@ -162,16 +171,18 @@ def start_with_solver(
     Returns pid and output file for a Lakeroad session started with the given
     solver."""
     outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
+    cmd = [
+        args.lakeroad_executable_filepath,
+        "--solver",
+        solver,
+        "--out-filepath",
+        outfile.name,
+        *_make_solver_flag_lakeroad_args(flags),
+        *rest,
+    ]
+    logging.debug("Running command: %s", cmd)
     process = psutil.Popen(
-        [
-            args.lakeroad_executable_filepath,
-            "--solver",
-            solver,
-            "--out-filepath",
-            outfile.name,
-            *_make_solver_flag_lakeroad_args(flags),
-            *rest,
-        ],
+        cmd,
         stdin=sys.stdin,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
