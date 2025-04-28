@@ -2,7 +2,7 @@
 """Run Lakeroad with a portfolio of solvers in parallel.
 
 This script accepts the same flags as main.rkt, in addition to those detailed
-below. 
+below.
 
 Note that this script accepts -- as a separator between lakeroad-portfolio.py
 flags and main.rkt flags, but it's not necessary.
