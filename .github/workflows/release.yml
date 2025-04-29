@@ -254,7 +254,9 @@ jobs:
           chmod +x ${{ env.RELEASE_DIR }}/activate
 
       - name: Run PyInstaller
-        run: pyinstaller --onefile --name lakeroad ${{ env.LAKEROAD_DIR }}/bin/lakeroad-portfolio.py
+        run: |
+          pyinstaller --version
+          pyinstaller --onefile --name lakeroad ${{ env.LAKEROAD_DIR }}/bin/lakeroad-portfolio.py
 
       - name: Run `raco exe` and `raco distribute` on `bin/main.rkt`
         run: |
