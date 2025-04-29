@@ -316,7 +316,7 @@ jobs:
           SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
           "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad" \
             --lakeroad-executable-filepath "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad-single-solver" \
-            $@
+            "$@"
           EOF
           chmod +x ${{ env.RELEASE_DIR }}/bin/lakeroad
 
