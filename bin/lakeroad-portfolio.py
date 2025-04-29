@@ -122,7 +122,8 @@ rest = rest[1:] if (len(rest) > 0 and rest[0] == "--") else rest
 
 logging.basicConfig(level=args.log.upper())
 
-logging.debug("Rest of arguments:\n%s", "\n".join(rest))
+logging.debug("Argv before parsing:\n%s", sys.argv)
+logging.debug("Rest of arguments after parsing:\n%s", "\n".join(rest))
 
 
 def _parse_flag_set(flag_set: str) -> List[str]:
