@@ -172,8 +172,27 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 	{
 		log_debug("No clock port.\n");
 	}
+
+	// Prepare the input signal flags for Lakeroad.
+	std::vector<std::string> input_signal_flags;
+	// First, go through data ports marked with (* data *).
 	for (auto port : data_ports)
-		log_debug("Data port: %s\n", port.c_str());
+	{
+		input_signal_flags.push_back("--input-signal '" + port.substr(1) + ":(port " + port.substr(1) + " " + std::to_string(module->wire(port)->width) + "):" + std::to_string(module->wire(port)->width) + "'");
+	}
+	// Look for extra_input_signal_flags attribute.
+	std::string extra_input_signal_flags = "";
+	if (module->attributes.count("\\extra_input_signal_flags") == 1)
+	{
+		extra_input_signal_flags = module->attributes["\\extra_input_signal_flags"].decode_string();
+		if (extra_input_signal_flags.empty())
+			log_error("extra_input_signal_flags attribute is empty.\n");
+	}
+	else if (module->attributes.count("\\extra_input_signal_flags") > 1)
+	{
+		log_error("Module %s has multiple extra_input_signal_flags attributes.\n", module->name.c_str());
+	}
+
 	log_debug("Out port: %s\n", out_port_id->c_str());
 
 	auto top_module_name = module->name.substr(1);
@@ -210,8 +229,12 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 	if (clk_port_id != module->ports.end()){
 			ss << " --clock-name " << clk_port_id->substr(1);
 	}
-	for (auto port : data_ports)
-			ss << " --input-signal '" << port.substr(1) << ":(port "  << port.substr(1) << " " << module->wire(port)->width << "):" << module->wire(port)->width << "'";
+	for (auto input_signal : input_signal_flags)
+			ss << " " << input_signal << " ";
+	if (!extra_input_signal_flags.empty())
+	{
+		ss << " " << extra_input_signal_flags << " ";
+	}
 	if (pipeline_depth != std::nullopt)
 		ss << " --pipeline-depth " << pipeline_depth.value();
 	// clang-format on
