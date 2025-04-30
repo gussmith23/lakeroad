@@ -90,7 +90,7 @@
       [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
       [`(port ,(? symbol? sym) ,width)
        ; Add port to list of ports, if it's not there.
-       (unless (assoc sym (ports))
+       (unless (assoc (symbol->string sym) (ports))
          (ports (append (ports) (list (list (symbol->string sym) width)))))
        (lr:var (symbol->string sym) width)]))
   (recursive-helper expr))
