@@ -64,7 +64,8 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 	}
 	else
 	{
-		pipeline_depth = std::nullopt;
+		// I don't think pipeline depth should be optional.
+		log_error("Module %s is missing pipeline_depth attribute.\n", module->name.c_str());
 	}
 
 	// Parse timeout attribute.
