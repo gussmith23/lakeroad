@@ -23,6 +23,7 @@
 #include "kernel/log.h"
 #include "kernel/register.h"
 #include "kernel/sigtools.h"
+#include <boost/algorithm/string/join.hpp>
 #include <boost/filesystem.hpp>
 #include <cctype>
 #include <cerrno>
@@ -50,7 +51,79 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 
 	auto template_ = f("\\template").decode_string();
 	auto architecture = f("\\architecture").decode_string();
-	auto pipeline_depth = f("\\pipeline_depth").as_int();
+
+	// Parse pipeline_depth attribute.
+	std::optional<int> pipeline_depth;
+	if (module->attributes.count("\\pipeline_depth") > 1)
+		log_error("Module %s has multiple pipeline_depth attributes.\n", module->name.c_str());
+	if (module->attributes.count("\\pipeline_depth") == 1)
+	{
+		pipeline_depth = module->attributes["\\pipeline_depth"].as_int();
+		if (pipeline_depth.value() < 0)
+			log_error("Pipeline depth must be a non-negative integer.\n");
+	}
+	else
+	{
+		pipeline_depth = std::nullopt;
+	}
+
+	// Parse timeout attribute.
+	std::optional<int> timeout;
+	if (module->attributes.count("\\timeout") > 1)
+		log_error("Module %s has multiple timeout attributes.\n", module->name.c_str());
+	if (module->attributes.count("\\timeout") == 1)
+	{
+		timeout = module->attributes["\\timeout"].as_int();
+		if (timeout.value() < 0)
+			log_error("Timeout must be a non-negative integer.\n");
+	}
+	else
+	{
+		timeout = std::nullopt;
+	}
+
+	// Parse extra_cycles attribute.
+	std::optional<int> extra_cycles;
+	if (module->attributes.count("\\extra_cycles") > 1)
+		log_error("Module %s has multiple extra_cycles attributes.\n", module->name.c_str());
+	if (module->attributes.count("\\extra_cycles") == 1)
+	{
+		extra_cycles = module->attributes["\\extra_cycles"].as_int();
+		if (extra_cycles.value() < 0)
+			log_error("Extra cycles must be a non-negative integer.\n");
+	}
+	else
+	{
+		extra_cycles = std::nullopt;
+	}
+
+	// Initialize solvers with "bitwuzla", "stp", "yices", "cvc5" as default.
+	std::vector<std::string> solvers = {"bitwuzla", "stp", "yices", "cvc5"};
+	if (!(module->attributes.count("\\solvers") == 1 || module->attributes.count("\\solvers") == 0))
+	{
+		log_error("solvers attribute should be specified 0 or 1 times.\n");
+	}
+	if (module->attributes.count("\\solvers") == 1)
+	{
+		auto attr = module->attributes["\\solvers"].decode_string();
+		if (attr.empty())
+			log_error("solvers attribute is empty.\n");
+		// Strip whitespace and commas from beginning and end, and split by commas.
+		attr.erase(0, attr.find_first_not_of(" ,"));
+		attr.erase(attr.find_last_not_of(" ,") + 1);
+		// Split by commas.
+		std::stringstream ss(attr);
+		std::string token;
+		solvers.clear();
+		while (std::getline(ss, token, ','))
+		{
+			token.erase(0, token.find_first_not_of(" ,"));
+			token.erase(token.find_last_not_of(" ,") + 1);
+			if (!token.empty())
+				solvers.push_back(token);
+		}
+		log_debug("Using solvers: %s\n", boost::algorithm::join(solvers, ", ").c_str());
+	}
 
 	auto find_attr = [&](std::string attr)
 	{
@@ -74,7 +147,22 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 
 	log_debug("Template: %s\n", template_.c_str());
 	log_debug("Architecture: %s\n", architecture.c_str());
-	log_debug("Pipeline depth: %d\n", pipeline_depth);
+	if (timeout != std::nullopt)
+	{
+		log_debug("Timeout: %d seconds\n", timeout.value());
+	}
+	else
+	{
+		log_debug("No timeout specified.\n");
+	}
+	if (pipeline_depth != std::nullopt)
+	{
+		log_debug("Pipeline depth: %d\n", pipeline_depth.value());
+	}
+	else
+	{
+		log_debug("No pipeline depth specified.\n");
+	}
 	if (clk_port_id != module->ports.end())
 	{
 		log_debug("Clock port: %s\n", clk_port_id->c_str());
@@ -101,9 +189,15 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 
 	auto temp_module_name = top_module_name + "_temp_output_from_lakeroad";
 
+	std::string lakeroad_cmd = "lakeroad";
+	if (getenv("LAKEROAD"))
+		lakeroad_cmd = std::string(getenv("LAKEROAD"));
+
+	log_debug("Using Lakeroad command: %s\n", lakeroad_cmd.c_str());
+
 	std::stringstream ss;
 	// clang-format off
-	ss << getenv("LAKEROAD_DIR") << "/bin/main.rkt"
+	ss << lakeroad_cmd
 			<< " --verilog-module-filepath " << verilog_filename 
 			<< " --top-module-name " << top_module_name
 			<< " --out-filepath " << out_verilog_filename
@@ -117,9 +211,14 @@ USING_YOSYS_NAMESPACE PRIVATE_NAMESPACE_BEGIN
 	}
 	for (auto port : data_ports)
 			ss << " --input-signal '" << port.substr(1) << ":(port "  << port.substr(1) << " " << module->wire(port)->width << "):" << module->wire(port)->width << "'";
-	if (pipeline_depth != 0)
-		ss << " --pipeline-depth " << pipeline_depth;
+	if (pipeline_depth != std::nullopt)
+		ss << " --pipeline-depth " << pipeline_depth.value();
 	// clang-format on
+
+	for (auto &solver : solvers)
+	{
+		ss << " --" << solver << " ";
+	}
 
 	log("Executing Lakeroad:\n%s\n", ss.str().c_str());
 	if (system(ss.str().c_str()) != 0)
@@ -156,9 +255,6 @@ struct LakeroadPass : public Pass
 	{
 		log_header(design, "Executing Lakeroad pass (technology mapping using Lakeroad).\n");
 		log_push();
-
-		if (!getenv("LAKEROAD_DIR"))
-			log_error("LAKEROAD_DIR environment variable not set. Please set it to the location of the Lakeroad directory.\n");
 
 		// Have to get around the reference counting that modules() does.
 		std::vector<IdString> module_names;
