@@ -4,7 +4,7 @@
 // The plugin expects a "lakeroad" command to be available in the PATH, or for
 // the LAKEROAD environment variable to be set to a command that runs the
 // lakeroad-portfolio.py script.
-// RUN: LAKEROAD="python $LAKEROAD_DIR/bin/lakeroad-portfolio.py" \
+// RUN: LAKEROAD="python3 $LAKEROAD_DIR/bin/lakeroad-portfolio.py" \
 // RUN: yosys -m "$LAKEROAD_DIR/yosys-plugin/lakeroad.so" -p " \
 // RUN:  read_verilog %s; \
 // RUN:  hierarchy -top top; \
