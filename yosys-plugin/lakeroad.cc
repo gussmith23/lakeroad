@@ -25,6 +25,7 @@
 #include "kernel/sigtools.h"
 #include <boost/algorithm/string/join.hpp>
 #include <boost/filesystem.hpp>
+#include <optional>
 #include <cctype>
 #include <cerrno>
 #include <climits>
