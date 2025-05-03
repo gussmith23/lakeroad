@@ -30,14 +30,10 @@ jobs:
             os-name: ubuntu
             RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
             zip-name: lakeroad-ubuntu-22.04-x64.zip
-          - os: ubuntu-20.04
-            os-name: ubuntu
-            RACKET_PKG_DIR: /home/runner/.local/share/racket/8.11/pkgs
-            zip-name: lakeroad-ubuntu-20.04-x64.zip
           - os: macos-15
             os-name: macOS
             RACKET_PKG_DIR: /Users/runner/Library/Racket/8.11/pkgs
-            coreutils_gnubin_path: /usr/homebrew/opt/coreutils/libexec/gnubin
+            coreutils_gnubin_path: /opt/homebrew/opt/coreutils/libexec/gnubin
             zip-name: lakeroad-macos-15-arm64.zip
           - os: macos-13
             os-name: macOS
@@ -108,7 +104,7 @@ jobs:
 
           # Build STP.
           sudo apt install -y patchelf
-          sudo apt-get install -y git cmake bison flex libboost-all-dev python2 perl
+          sudo apt-get install -y git cmake bison flex libboost-all-dev python3 perl libtinfo-dev build-essential
           mkdir stp && cd stp
           # TODO(@gussmith23): Change back to normal STP once https://github.com/stp/stp/pull/482 merged.
           wget -qO- https://github.com/$STP_USER_AND_REPO/archive/$STP_COMMIT_HASH.tar.gz | tar xz --strip-components=1 && \
@@ -258,7 +254,9 @@ jobs:
           chmod +x ${{ env.RELEASE_DIR }}/activate
 
       - name: Run PyInstaller
-        run: pyinstaller --onefile --name lakeroad ${{ env.LAKEROAD_DIR }}/bin/lakeroad-portfolio.py
+        run: |
+          pyinstaller --version
+          pyinstaller --onefile --name lakeroad ${{ env.LAKEROAD_DIR }}/bin/lakeroad-portfolio.py
 
       - name: Run `raco exe` and `raco distribute` on `bin/main.rkt`
         run: |
@@ -318,7 +316,7 @@ jobs:
           SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
           "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad" \
             --lakeroad-executable-filepath "$SCRIPT_DIR/../deps/lakeroad/bin/lakeroad-single-solver" \
-            $@
+            "$@"
           EOF
           chmod +x ${{ env.RELEASE_DIR }}/bin/lakeroad
 

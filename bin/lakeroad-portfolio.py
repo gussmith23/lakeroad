@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Run Lakeroad with a portfolio of solvers in parallel.
 
-This script accepts the same flags as main.rkt, in addition to those detailed
-below. 
+This script accepts two sets of flags: flags for this script itself, and flags
+for the Lakeroad binary. If you are seeing this message as a result of running
+this script with the --help flag, then the flags for this script are detailed
+below; the flags for the Lakeroad binary are detailed later in this help text.
 
-Note that this script accepts -- as a separator between lakeroad-portfolio.py
-flags and main.rkt flags, but it's not necessary.
+This script accepts -- as a separator between lakeroad-portfolio.py flags and
+main.rkt flags, but it's not necessary.
 
 This script will run Lakeroad with each solver in parallel, and return the
 output of the first Lakeroad instance that finishes.
@@ -18,7 +20,6 @@ attempts to listen for.
 """
 
 import argparse
-import itertools
 import json
 import psutil
 import subprocess
@@ -27,6 +28,7 @@ import pathlib
 from typing import List, Tuple
 import sys
 import tempfile
+import logging
 
 
 # These are set in main.rkt.
@@ -35,7 +37,15 @@ SYNTH_FAILURE_CODE = 25
 SYNTH_TIMEOUT_CODE = 26
 
 parser = argparse.ArgumentParser(
-    description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
+    # We'll implement our own help.
+    add_help=False,
+)
+parser.add_argument(
+    "-h",
+    "--help",
+    action="store_true",
+    help="Show this help message and exit.",
 )
 parser.add_argument(
     "--bitwuzla",
@@ -99,7 +109,7 @@ parser.add_argument(
     "--metadata-out-filepath",
     help=(
         "Path where metadata about this run will be written to (e.g."
-        " information about which solver completed first.)."
+        " information about which solver completed first)."
     ),
     type=argparse.FileType("w"),
     default=None,
@@ -110,11 +120,54 @@ parser.add_argument(
     type=str,
     default=str(pathlib.Path(os.path.abspath(__file__)).parent / "main.rkt"),
 )
+parser.add_argument(
+    "--log",
+    default="WARNING",
+    help="Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+)
 args, rest = parser.parse_known_args()
 
 # Process the "--" flag which marks the end of the flags for the script.
 rest = rest[1:] if (len(rest) > 0 and rest[0] == "--") else rest
 
+logging.basicConfig(level=args.log.upper())
+
+logging.debug("Argv before parsing:\n%s", sys.argv)
+logging.debug("Rest of arguments after parsing:\n%s", "\n".join(rest))
+
+
+def _print_help_and_exit():
+    """Print help and exit."""
+    # Execute lakeroad executable with --help to get its help text.
+    assert pathlib.Path(args.lakeroad_executable_filepath).exists()
+    p = subprocess.run(
+        [args.lakeroad_executable_filepath, "--help"],
+        check=True,
+        capture_output=True,
+    )
+    lakeroad_help = p.stdout.decode("utf-8")
+
+
+    help_text = f"""\
+{parser.format_help()}
+  --                    Separates lakeroad-portfolio.py flags from the Lakeroad
+                        binary flags. This is optional.
+
+This script is a wrapper over the Lakeroad binary. Here is the help text for
+the Lakeroad binary. These flags may also be passed to this script, ideally
+after the "--" separator. Certain flags are not supported by this script, namely
+flags that are overridden by this wrapper script, such as --solver,
+--out-filepath, and --solver-flag. Other flags are required, for example
+--verilog-module-filepath, --input-signal, and --output-signal.
+
+{lakeroad_help}
+"""
+    sys.stderr.write(help_text)
+    sys.exit(0)
+
+
+if args.help:
+    _print_help_and_exit()
 
 def _parse_flag_set(flag_set: str) -> List[str]:
     """Parse a flag set.
@@ -162,16 +215,18 @@ def start_with_solver(
     Returns pid and output file for a Lakeroad session started with the given
     solver."""
     outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
+    cmd = [
+        args.lakeroad_executable_filepath,
+        "--solver",
+        solver,
+        "--out-filepath",
+        outfile.name,
+        *_make_solver_flag_lakeroad_args(flags),
+        *rest,
+    ]
+    logging.debug("Running command: %s", cmd)
     process = psutil.Popen(
-        [
-            args.lakeroad_executable_filepath,
-            "--solver",
-            solver,
-            "--out-filepath",
-            outfile.name,
-            *_make_solver_flag_lakeroad_args(flags),
-            *rest,
-        ],
+        cmd,
         stdin=sys.stdin,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
