@@ -28,7 +28,7 @@ If you would like to learn how to use Lakeroad, we recommend you start by readin
 
 While you can use Lakeroad directly from the command line, we recommend using Lakeroad via Yosys. See the examples in `./examples/`, which currently serve as the documentation for using the plugin.
 
-To use Lakeroad via Yosys, you must have Yosys installed on your system (including its header files.) To quickly clone Yosys, build it, and install it to a local folder, you can use this set of commands:
+To use Lakeroad via Yosys, you must have the development version of Yosys installed on your system (i.e. including the Yosys header files.) This can be installed on Mac via `brew install yosys` or on Ubuntu via `apt-get install yosys-dev`. For other systems, you can quickly clone Yosys, build it, and install it to a local folder using this set of commands:
 
 ```sh
 git clone --recurse-submodules https://github.com/YosysHQ/yosys.git
