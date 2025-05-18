@@ -119,6 +119,8 @@
 ;;; (synthesize-with finish-when (list synthesize-wire (synthesize-using-lut 'sofa 1 4)) bv-expr))
 
 (module+ test
+  (define-logger lakeroad)
+  (current-logger lakeroad-logger)
   (require rackunit)
   (define-syntax-rule (simple-test f before-call args ...)
     (test-true (format "~a simple test" f)
