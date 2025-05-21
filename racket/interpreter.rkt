@@ -149,9 +149,23 @@
                 outputs-assoc)]
              ;;; Lakeroad language.
              [(lr:logical-to-physical-mapping f inputs)
-              (interpret-logical-to-physical-mapping interpret-helper f inputs)]
+              (log-debug "Logical to physical mapping: ~a"
+                         (interpret-logical-to-physical-mapping (lambda (e)
+                                                                  (interpret-helper e state))
+                                                                f
+                                                                inputs))
+              (interpret-logical-to-physical-mapping (lambda (e) (interpret-helper e state))
+                                                     f
+                                                     inputs)]
              [(lr:physical-to-logical-mapping f outputs)
-              (interpret-physical-to-logical-mapping interpret-helper f outputs)]
+              (log-debug "Physical to logical mapping: ~a"
+                         (interpret-physical-to-logical-mapping (lambda (e)
+                                                                  (interpret-helper e state))
+                                                                f
+                                                                outputs))
+              (interpret-physical-to-logical-mapping (lambda (e) (interpret-helper e state))
+                                                     f
+                                                     outputs)]
              ;;; Returns a list of:
              ;;; - a (bitvector n): the result of the addition.
              ;;; - a (bitvector 1): the carry out.

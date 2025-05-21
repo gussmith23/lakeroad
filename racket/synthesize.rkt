@@ -812,15 +812,21 @@
 ;                                (cons (cons "ALU24B" "") lattice-ecp5-alu24b))))))
 
 ; Convert a simple Rosette bitvector expression to the list format expected by `rosette-synthesize`.
-(define (convert-bv-expr-to-spec-list expr)
-  (list (lambda _ (void))
-        ; output function just returns whatever is input; input should be expr!
-        (lambda (in)
-          (when (not (equal? in expr))
-            (error "input to output-fn should be the same as the input to the spec function"))
-          in)
-        (lambda _ (void))
-        (lambda _ (list expr 'this-should-not-be-used))))
+; - expr: A Rosette bitvector expression.
+; - output-name: The name of the output port. This should be the same as the name of the output port
+;     you'll use in the call to `rosette-synthesize`.
+(define (convert-bv-expr-to-spec-list expr output-name)
+  (list
+   (lambda _ (void))
+   ; output function just returns whatever is input; input should be expr!
+   (lambda (in)
+     (match in
+       [(list (cons output-name expr)) in]
+       [_
+        (error
+         "input to output-fn should be a list of the form (list (cons <output-name> <expr>)), as produced via the function defined below this message.")]))
+   (lambda _ (void))
+   (lambda _ (list (list (cons output-name expr)) 'this-should-not-be-used))))
 
 ;;; Returns a concrete Lakeroad expression, or #f if synthesis failed.
 ;;;
@@ -847,18 +853,32 @@
 ;;;   evaluation stages' outputs we should make assertions over. #f means no assertion at this stage,
 ;;;   #t means an assertion at this stage. If #f, we default to making assertions only at the last
 ;;;   stage.
+;;; - assumes: A list of Rosette expressions to assume.
+;;; - output-ports: A list of output ports that will be asserted equal. Currently expected to be
+;;;   length 1.
+;;;   TODO(@gussmith23): Support synthesis of multiple output ports.
+;;;   To implement this correctly, we will also need to change the sketches so that they don't get
+;;;   the output port, i.e. they return the full hash map.
 (define (rosette-synthesize spec
                             lr-expr
                             inputs
                             spec-envs
                             lr-expr-envs
+                            output-ports
                             #:module-semantics [module-semantics '()]
                             #:assert-equal-on [assert-equal-on #f]
                             #:assumes [assumes '()])
 
+  (when (not (equal? 1 (length output-ports)))
+    (error "Currently exactly one output port is expected. See lakeroad/issues/503."))
+  (define output-port (first output-ports))
+
   (when (empty? spec-envs)
     (error
      "spec-envs must not be empty. If you're using convert-bv-expr-to-spec-list, you should pass a list with one element: (list (list))"))
+  (when (empty? lr-expr-envs)
+    (error
+     "lr-expr-envs must not be empty. If the expression has no variables, you should pass a list of one empty environment: (list (list))"))
 
   (match-define (list spec-input-fn spec-output-fn spec-initial-state spec-fn) spec)
 
@@ -874,15 +894,25 @@
                                                       ;;; Last iteration's state.
                                                       (second (first prev-values)))])
                 (cons (list (spec-output-fn out) state) prev-values)))]
-           [final-value
-            (foldl interpret-one-iter (list (list 'unused spec-initial-state)) spec-envs)])
-      ;;; Fold to get the list of values from each step; map to get the values and ignore the states,
-      ;;; reverse to get the values in the right order (newest last); cdr to drop the
-      ;;; initial value.
-      (map first (drop (reverse final-value) 1))))
+           [final-value (foldl interpret-one-iter (list (list 'unused spec-initial-state)) spec-envs)]
+           ;;; Fold to get the list of values from each step; map to get the values and ignore the states,
+           ;;; reverse to get the values in the right order (newest last); cdr to drop the
+           ;;; initial value.
+           [spec-evaluated (map first (drop (reverse final-value) 1))]
+
+           ; TODO(#503): This logic should be colocated with similar logic for lr-expr-evaluated when we
+           ; implement #503.
+           [spec-evaluated
+            (map (lambda (assoc-list)
+                   (cdr (or (assoc output-port assoc-list)
+                            (error (format "output ~a not found in ~a" output-port assoc-list)))))
+                 spec-evaluated)])
+      spec-evaluated))
 
   (define lr-expr-initial-state (generate-initial-state-map lr-expr module-semantics))
 
+  ; TODO(#503): In the future, this should end up producing a list of hashmaps/assoc lists, which we
+  ; then need to index using the output ports.
   (define lr-expr-evaluated
     (let* (;;; Interpret the Lakeroad expression once, using one of the environments from `envs`
            ;;; (stored in `this-iter-env`). `prev-values` are the values from the previous call to
@@ -937,7 +967,6 @@
 
 (module+ test
   (require rackunit)
-  (output-smt "tmp")
 
   (test-case "sequential synthesis test"
     (begin
@@ -983,13 +1012,15 @@
 
       ;;; Check: we *can't* synthesize an add with a single clock cycle.
       (check-false (rosette-synthesize
-                    (convert-bv-expr-to-spec-list (bvadd a b))
+                    (convert-bv-expr-to-spec-list (bvadd a b) "O")
                     lr-expr
                     (list a b)
                     ; Empty, because we're using a simple bitvector expression.
                     (list (list))
                     ;;; Tick the clock once (eval with clk=0, eval with clk=1).
                     (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
+                    ; output
+                    (list "O")
                     #:module-semantics
                     (list (cons (cons "two-stage-adder" "unused filepath")
                                 (list (lambda (in)
@@ -1006,7 +1037,7 @@
       ;;; no free symbolics to be solved for. So `rosette-synthesize` actually just verifies whether
       ;;; bv-expr == lr-expr for all inputs.
       (check-not-false (rosette-synthesize
-                        (convert-bv-expr-to-spec-list (bvadd a b))
+                        (convert-bv-expr-to-spec-list (bvadd a b) "O")
                         lr-expr
                         (list a b)
                         ; Don't need to pass envs for bv-expr, as it's already evaluated.
@@ -1016,6 +1047,7 @@
                               (make-env (bv 1 1) a b)
                               (make-env (bv 0 1) (bv 0 8) (bv 0 8))
                               (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                        (list "O")
                         #:module-semantics
                         (list (cons (cons "two-stage-adder" "unused filepath")
                                     (list (lambda (in)
@@ -1037,12 +1069,12 @@
         (let* ([clk (two-stage-adder-inputs-clk inputs)]
                [a (two-stage-adder-inputs-a inputs)]
                [b (two-stage-adder-inputs-b inputs)]
-               [old-clk (two-stage-adder-state-old-clk state)]
+               [old-clk (two-stage-adder-2-state-old-clk state)]
                [old-sum (two-stage-adder-2-state-old-sum state)]
                [sum (bvadd a b)]
                [clk-ticked (and (bveq clk (bv 1 1)) (bveq old-clk (bv 0 1)))]
                [new-sum (if clk-ticked sum old-sum)]
-               [out old-sum])
+               [out (two-stage-adder-outputs old-sum)])
           (list out (two-stage-adder-2-state new-sum clk))))
       (define two-stage-adder-2-initial-state (two-stage-adder-2-state (bv 0 8) (bv 0 1)))
 
@@ -1060,14 +1092,15 @@
         lr-expr
         (list a b)
         ;;; Tick the clock twice, on both designs.
-        #:bv-sequential (list (make-env (bv 0 1) a b)
-                              (make-env (bv 1 1) a b)
-                              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
-                              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
-        #:lr-sequential (list (make-env (bv 0 1) a b)
-                              (make-env (bv 1 1) a b)
-                              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
-                              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+        (list (make-env (bv 0 1) a b)
+              (make-env (bv 1 1) a b)
+              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+        (list (make-env (bv 0 1) a b)
+              (make-env (bv 1 1) a b)
+              (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+              (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+        (list "O")
         #:module-semantics
         (list (cons (cons "two-stage-adder" "unused filepath")
                     (list (lambda (in)
@@ -1080,14 +1113,21 @@
 
       ;;; If you don't tick the clock twice on the `bv-expr`, then the synthesis will fail.
       (check-false (rosette-synthesize
-                    two-stage-adder-2
+                    (list (lambda (in)
+                            (two-stage-adder-inputs (cdr (assoc "a" in))
+                                                    (cdr (assoc "b" in))
+                                                    (cdr (assoc "clk" in))))
+                          (lambda (out) (list (cons "O" (two-stage-adder-outputs-o out))))
+                          two-stage-adder-2-initial-state
+                          two-stage-adder-2)
                     lr-expr
                     (list a b)
-                    #:bv-sequential (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
-                    #:lr-sequential (list (make-env (bv 0 1) a b)
-                                          (make-env (bv 1 1) a b)
-                                          (make-env (bv 0 1) (bv 0 8) (bv 0 8))
-                                          (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                    (list (make-env (bv 0 1) a b) (make-env (bv 1 1) a b))
+                    (list (make-env (bv 0 1) a b)
+                          (make-env (bv 1 1) a b)
+                          (make-env (bv 0 1) (bv 0 8) (bv 0 8))
+                          (make-env (bv 1 1) (bv 0 8) (bv 0 8)))
+                    (list "O")
                     #:module-semantics
                     (list (cons (cons "two-stage-adder" "unused filepath")
                                 (list (lambda (in)
@@ -1173,11 +1213,13 @@
       [else (error "Invalid shift-by: ~a" shift-by)]))
 
   (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
-  (rosette-synthesize (convert-bv-expr-to-spec-list bv-expr)
+  (log-debug "lakeroad-expr: ~a" lakeroad-expr)
+  (rosette-synthesize (convert-bv-expr-to-spec-list bv-expr "O")
                       lakeroad-expr
                       (symbolics bv-expr)
-                      (list)
-                      (list)))
+                      (list (list))
+                      (list (list))
+                      (list "O")))
 
 (module+ test
   (require rosette/solver/smt/bitwuzla

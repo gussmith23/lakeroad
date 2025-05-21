@@ -423,14 +423,16 @@
      ; Association list mapping module identifier (name, filename) to a list of:
      ; (module inputs keyword helper, module outputs keyword helper, initial state struct, module semantics fn)
      ; as defined by the Yosys Rosette backend.
-     (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
-                 xilinx-ultrascale-plus-lut2)
-           (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
-                 xilinx-ultrascale-plus-lut6)
-           (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
-                 xilinx-ultrascale-plus-carry8)
-           (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
-                 (list DSP48E2_inputs_kw DSP48E2_outputs_kw DSP48E2_initial xilinx-ultrascale-plus-dsp48e2)))]
+     (list
+      (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
+            xilinx-ultrascale-plus-lut2)
+      (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+            xilinx-ultrascale-plus-lut6)
+      (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
+            xilinx-ultrascale-plus-carry8)
+      (cons
+       (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
+       (list DSP48E2_inputs_kw DSP48E2_outputs_kw DSP48E2_initial xilinx-ultrascale-plus-dsp48e2)))]
     ["lattice-ecp5"
      (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
            (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c)
