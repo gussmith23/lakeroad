@@ -125,9 +125,6 @@
 
                 ; Update the state.
                 (hash-set! state inst-name new-state)
-                (log-debug "State from last time: ~a" this-module-instance-state)
-                (log-debug "State after this time: ~a" new-state)
-                (log-debug "New state value in hash: ~a" (hash-ref state inst-name))
 
                 ;;; Warn if we didn't pass all arguments (except for unnamed inputs).
                 ;;; TODO(@gussmith23): handle unnammed inputs more intelligently, maybe in yml?
@@ -145,24 +142,13 @@
                   (displayln (format "WARNING: Not passing all inputs to module semantics, Missing ~a"
                                      missing-keys)
                              (current-error-port)))
-                (log-debug "Results of module ~a:~n~a" module-name outputs-assoc)
                 outputs-assoc)]
              ;;; Lakeroad language.
              [(lr:logical-to-physical-mapping f inputs)
-              (log-debug "Logical to physical mapping: ~a"
-                         (interpret-logical-to-physical-mapping (lambda (e)
-                                                                  (interpret-helper e state))
-                                                                f
-                                                                inputs))
               (interpret-logical-to-physical-mapping (lambda (e) (interpret-helper e state))
                                                      f
                                                      inputs)]
              [(lr:physical-to-logical-mapping f outputs)
-              (log-debug "Physical to logical mapping: ~a"
-                         (interpret-physical-to-logical-mapping (lambda (e)
-                                                                  (interpret-helper e state))
-                                                                f
-                                                                outputs))
               (interpret-physical-to-logical-mapping (lambda (e) (interpret-helper e state))
                                                      f
                                                      outputs)]
@@ -229,7 +215,7 @@
              [(lr:integer v) v]
              ;;; This needs to be near the end, as nearly everything's a list!
              ;;; Maybe make this tighter somehow? If it's a list of specific types?
-             [(lr:list v) (map interpret-helper v)]))
+             [(lr:list v) (map (lambda (e) (interpret-helper e state)) v)]))
           (hash-set! interpreter-memo-hash expr out)
           out)))
   (list (interpret-helper expr out-state) out-state))

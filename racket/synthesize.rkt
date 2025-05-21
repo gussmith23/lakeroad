@@ -944,12 +944,14 @@
        (match assert-equal-on
          [#f
           (log-debug "asserting: ~a" (bveq (last spec-evaluated) (last lr-expr-evaluated)))
-          (when (not (bveq (last spec-evaluated) (last lr-expr-evaluated)))
-            (error
-             (format
-              "spec and lakeroad-expr are trivially not equal. spec-evaluated:~n~a~nlr-expr-evaluated:~n~a"
-              spec-evaluated
-              lr-expr-evaluated)))
+          ; TODO(@gussmith23): This is captured by Rosette, but we really want it to actually raise
+          ; the error all the way to the user.
+          ; (when (not (bveq (last spec-evaluated) (last lr-expr-evaluated)))
+          ;   (error
+          ;    (format
+          ;     "spec and lakeroad-expr are trivially not equal. spec-evaluated:~n~a~nlr-expr-evaluated:~n~a"
+          ;     spec-evaluated
+          ;     lr-expr-evaluated)))
           (assert (bveq (last spec-evaluated) (last lr-expr-evaluated)))]
          [(list bools ...)
           (for ([i (in-range (length bools))])
@@ -987,7 +989,6 @@
                [new-a (if clk-ticked a old-a)]
                [new-b (if clk-ticked b old-b)]
                [out (two-stage-adder-outputs (bvadd old-a old-b))])
-          (log-debug "~a" (list clk a b old-clk old-a old-b clk-ticked new-a new-b out))
           (list out (two-stage-adder-state new-a new-b clk))))
       ;;; Helper function used by the below tests.
       (define (make-env clk a b)
@@ -1213,7 +1214,6 @@
       [else (error "Invalid shift-by: ~a" shift-by)]))
 
   (define lakeroad-expr (make-wire-lrexpr logical-inputs shift-by-concrete out-bw))
-  (log-debug "lakeroad-expr: ~a" lakeroad-expr)
   (rosette-synthesize (convert-bv-expr-to-spec-list bv-expr "O")
                       lakeroad-expr
                       (symbolics bv-expr)
