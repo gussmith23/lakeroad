@@ -97,7 +97,7 @@
                                                    v))))])
                     new-h)]
                  [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) k)]
-                 [(lr:hw-module-instance module-name ports params _)
+                 [(lr:hw-module-instance module-name inst-name ports params _)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
                          [input-port-symbols (map string->symbol
@@ -454,7 +454,7 @@
                                           (make-immutable-hash (append input-pairs output-pairs))
                                           #:params (make-immutable-hash param-pairs))])
 
-                    (add-cell (string->symbol module-name) cell)
+                    (add-cell (string->symbol inst-name) cell)
 
                     ;;; Return a hashmap of output port symbols to values.
                     (make-immutable-hash output-pairs))]
