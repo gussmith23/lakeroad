@@ -254,12 +254,14 @@
   (require rackunit
            rosette)
 
-  (check-equal? (interpret (lr:physical-to-logical-mapping (lr:ptol-bitwise)
-                                                           (lr:list (list (lr:bv (bv #b1 1))
-                                                                          (lr:bv (bv #b0 1))))))
+  (check-equal? (first (interpret (lr:physical-to-logical-mapping (lr:ptol-bitwise)
+                                                                  (lr:list (list (lr:bv (bv #b1 1))
+                                                                                 (lr:bv (bv #b0 1)))))
+                                  (hash)))
                 (list (bv #b01 2)))
 
-  (check-equal? (interpret (lr:logical-to-physical-mapping (lr:ltop-bitwise)
-                                                           (lr:list (list (lr:bv (bv 1 1))
-                                                                          (lr:bv (bv 0 1))))))
+  (check-equal? (first (interpret (lr:logical-to-physical-mapping (lr:ltop-bitwise)
+                                                                  (lr:list (list (lr:bv (bv 1 1))
+                                                                                 (lr:bv (bv 0 1)))))
+                                  (hash)))
                 (list (bv #b01 2))))
