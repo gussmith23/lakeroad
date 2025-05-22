@@ -232,6 +232,9 @@
   (define state-map (make-hash))
   (define (helper expr)
     (match expr
+      ; Do nothing for these.
+      [(or (lr:var _ _) (lr:symbol _)) (void)]
+
       [(lr:hw-module-instance module-name inst-name _ _ filepath)
        (define initial
          (third (cdr (or (assoc (cons module-name filepath) funcs)
@@ -244,6 +247,13 @@
       [(lr:first lst) (helper lst)]
       [(lr:list lst) (map helper lst)]
       [(lr:hash-ref h _) (helper h)]
+      [(lr:make-immutable-hash list-expr) (helper list-expr)]
+      [(lr:cons v0 v1)
+       (begin
+         (helper v0)
+         (helper v1))]
+      [(lr:extract _ _ v) (helper v)]
+
       [_ (error "not yet implemented: " expr)]))
 
   (helper expr)
