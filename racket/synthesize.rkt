@@ -890,7 +890,7 @@
   (define spec-evaluated
     (let* ([interpret-one-iter
             (lambda (this-iter-env prev-values)
-              (match-let* ([(list out state) (spec-fn (spec-input-fn this-iter-env)
+              (match-let* ([(cons out state) (spec-fn (spec-input-fn this-iter-env)
                                                       ;;; Last iteration's state.
                                                       (second (first prev-values)))])
                 (cons (list (spec-output-fn out) state) prev-values)))]
