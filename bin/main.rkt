@@ -298,32 +298,29 @@
 (when (not (parameterize ([current-output-port (open-output-nowhere)])
              (system "yosys --version")))
   (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
-(log-info "Running Yosys.")
-(when (not (parameterize ([current-error-port (open-output-nowhere)])
-             (system
-              ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether ;;
-              ;clk2fflogic is the correct thing to use. See ;;
-              ;https://github.com/uwsampl/lakeroad/issues/238
-              (format
-               "yosys ~a -p 'read_verilog -sv ~a; prep; clk2fflogic; write_functional_rosette;'"
-               (if (yosys-log-filepath) (format "-ql ~a" (yosys-log-filepath)) "-q")
-               (verilog-module-filepath)
-               (top-module-name)))))
+(define yosys-command
+  (format
+   "yosys -q ~a -p 'read_verilog -sv ~a; hierarchy -top ~a; prep; clk2fflogic; write_functional_rosette -provides -assoc-list-helpers ~a;'"
+   (if (yosys-log-filepath) (format "-l ~a" (yosys-log-filepath)) "")
+   (verilog-module-filepath)
+   (top-module-name)
+   converted-rosette-filepath))
+(log-info (format "Running Yosys command: ~a" yosys-command))
+(when (not (system yosys-command))
   (error "Yosys failed."))
 
 (log-debug (format "Yosys succeeded, output in ~a" converted-rosette-filepath))
 
 (define spec-fn (dynamic-require converted-rosette-filepath (string->symbol (top-module-name))))
-(log-debug (format "Spec fn: ~a" spec-fn))
 (define input-fn
   (dynamic-require converted-rosette-filepath
-                   (format "~a_Input_helper" (string->symbol (top-module-name)))))
+                   (string->symbol (format "~a_inputs_helper" (top-module-name)))))
 (define output-fn
   (dynamic-require converted-rosette-filepath
-                   (format "~a_Output_helper" (string->symbol (top-module-name)))))
+                   (string->symbol (format "~a_outputs_helper" (top-module-name)))))
 (define initial-state
   (dynamic-require converted-rosette-filepath
-                   (format "~a_Initial" (string->symbol (top-module-name)))))
+                   (string->symbol (format "~a_initial" (top-module-name)))))
 ; (define f (eval (first (btor->racket btor)) ns)) ;;; If we're doing sequential synthesis, return the
 ; function as-is. Otherwise, the legacy code ;;; path expects a bvexpr, which we can get by just
 ; calling the function. (if (> (pipeline-depth) 0) f ;(signal-value (assoc-ref (f) (string->symbol
@@ -409,7 +406,6 @@
   (when (exn:fail:resource? e)
     (displayln "Synthesis Timeout" (current-error-port))
     (exit TIMEOUTCODE)))
-;;; Either a valid LR expression or #f.
 (log-info "Attempting synthesis.")
 (define lakeroad-expr
   (cond
@@ -483,9 +479,7 @@
                   input-symbolic-constants
                   envs
                   envs
-                  (begin
-                    ; Get output signal name.
-                    )
+                  (list (verilog-module-out-signal))
                   #:module-semantics module-semantics
                   #:assert-equal-on
                   (if (equal? (extra-cycles) 0)
@@ -522,18 +516,16 @@
      (define input-symbolic-constants (symbolics envs))
      ;;; If pipeline depth is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
-       (call-with-limits
-        (timeout)
-        #f
-        (thunk (rosette-synthesize
-                (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
-                         bv-expr)
-                sketch
-                input-symbolic-constants
-                #:bv-sequential envs
-                #:lr-sequential envs
-                #:module-semantics module-semantics
-                #:assumes assumes))))]))
+       (call-with-limits (timeout)
+                         #f
+                         (thunk (rosette-synthesize (list input-fn output-fn initial-state spec-fn)
+                                                    sketch
+                                                    input-symbolic-constants
+                                                    envs
+                                                    envs
+                                                    (verilog-module-out-signal)
+                                                    #:module-semantics module-semantics
+                                                    #:assumes assumes))))]))
 
 (log-info "Synthesis complete.")
 
