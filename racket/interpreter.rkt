@@ -183,11 +183,11 @@
                        (list-ref (interpret-helper l state) n))]
              [(lr:map f lsts) (apply map f (interpret-helper lsts state))]
              ;;; Rosette functions lifted to our language.
-             [(lr:zero-extend v _)
-              (let* ([v (interpret-helper v state)] [bv (interpret-helper v state)])
+             [(lr:zero-extend v bv)
+              (let* ([v (interpret-helper v state)] [bv (interpret-helper bv state)])
                 (zero-extend v bv))]
-             [(lr:sign-extend v _)
-              (let* ([v (interpret-helper v state)] [bv (interpret-helper v state)])
+             [(lr:sign-extend v bv)
+              (let* ([v (interpret-helper v state)] [bv (interpret-helper bv state)])
                 (sign-extend v bv))]
              ;;; TODO: without this wacky syntax, Rosette will aggressively merge things into symbolic unions.
              ;;; E.g. (choose `(zero-extend v b) `(dup-extend v b)) becomes
