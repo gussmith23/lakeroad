@@ -1,6 +1,7 @@
 #lang racket
 
-(provide bvlen
+(provide assoc-ref
+         bvlen
          bvtype
          dup-extend
          bvexpr->cexpr
@@ -418,3 +419,6 @@
     [(= (length xs) 0) (list)]
     [(<= (length xs) size) (list xs)]
     [else (cons (take xs size) (window (drop xs size) size))]))
+
+(define (assoc-ref v alist)
+  (cdr (or (assoc v alist) (error (format "Key ~a not found in alist ~a" v alist)))))
