@@ -1,5 +1,5 @@
 ;;; Interpreter for the Lakeroad FPGA modeling DSL.
-#lang racket
+#lang errortrace racket
 
 (provide interpret
          report-memoization
@@ -52,7 +52,10 @@
              expr
              [(lr:var name _)
               (cdr (or (assoc name environment) (error "variable " name " not found")))]
-             [(lr:symbol s) s]
+             [(lr:symbol s)
+              (when (not (string? s))
+                (error (format "~a should be a string" s)))
+              s]
              [(lr:make-immutable-hash list-expr) (interpret-helper list-expr state)]
              [(lr:cons v0-expr v1-expr)
               (cons (interpret-helper v0-expr state) (interpret-helper v1-expr state))]
@@ -75,6 +78,8 @@
                        h)])
                 new-h)]
              [(lr:hash-ref h-expr k)
+              (when (not (string? k))
+                (error (format "Key value should be a string, but got ~a" k)))
               (let* ([h (interpret-helper h-expr state)]
                      [out (cdr (or (assoc k h) (error (format "key ~a not found" k))))])
                 out)]
@@ -117,8 +122,8 @@
                                                  inst-name
                                                  state))))]
                      [outputs-and-state (module-semantics-fn inputs this-module-instance-state)]
-                     [outputs (first outputs-and-state)]
-                     [new-state (second outputs-and-state)]
+                     [outputs (car outputs-and-state)]
+                     [new-state (cdr outputs-and-state)]
 
                      [output-helper-fn (second fns)]
                      [outputs-assoc (output-helper-fn outputs)])

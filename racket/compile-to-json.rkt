@@ -1,4 +1,4 @@
-#lang racket/base
+#lang errortrace racket/base
 
 (provide lakeroad->jsexpr)
 
@@ -43,28 +43,25 @@
 
   (define ports (hasheq-helper))
   (define (add-port k v)
-    (hasheq-helper #:base ports k v))
+    (hasheq-helper #:base ports (string->symbol k) v))
 
-  (define next-cell-id 0)
   (define cells (hasheq-helper))
   (define (add-cell k v)
     (hasheq-helper
      #:base cells
      (string->symbol
-      (format "~a~a_~a"
+      (format "~a~a"
               ;;; Prefix with `TECHMAP_REPLACE.` if we're outputting in Yosys techmapping format.
               (if yosys-techmap-format "TECHMAP_REPLACE." "")
-              (symbol->string k)
-              next-cell-id))
+              k))
      v)
-    (set! next-cell-id (add1 next-cell-id))
     (void))
 
   (define next-netname-id 0)
   (define netnames (hasheq-helper))
   (define (add-netname k v)
     (hasheq-helper #:base netnames
-                   (string->symbol (string-append (symbol->string k) (format "_~a" next-netname-id)))
+                   (string->symbol (string-append k (format "_~a" next-netname-id)))
                    v)
     (set! next-netname-id (add1 next-netname-id))
     (void))
@@ -83,7 +80,10 @@
         (let ([out
                (match expr
                  [(lr:bitvector v) v]
-                 [(lr:symbol s) s]
+                 [(lr:symbol s)
+                  (when (not (string? s))
+                    (error "Expected a string, got: " s))
+                  s]
                  [(lr:make-immutable-hash list-expr) (make-immutable-hash (compile list-expr))]
                  [(lr:cons v0-expr v1-expr) (cons (compile v0-expr) (compile v1-expr))]
                  [(lr:hash-remap-keys h-expr ks)
@@ -95,12 +95,11 @@
                                                             (error "old key not found: " k)))
                                                    v))))])
                     new-h)]
-                 [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) k)]
+                 [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) (string->symbol k))]
                  [(lr:hw-module-instance module-name inst-name ports params _)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
-                         [input-port-symbols (map string->symbol
-                                                  (map module-instance-port-name input-ports))]
+                         [input-port-symbols (map module-instance-port-name input-ports)]
                          ;;; Pairs of input symbol with compiled expression.
                          [input-pairs (map (λ (p)
                                              (cons (string->symbol (module-instance-port-name p))
@@ -108,14 +107,12 @@
                                            input-ports)]
                          [output-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'output)) ports)]
-                         [output-port-symbols (map string->symbol
-                                                   (map module-instance-port-name output-ports))]
+                         [output-port-symbols (map module-instance-port-name output-ports)]
                          ;;; Pairs of output symbol with allocated bit ids.
                          [output-pairs
                           (map (λ (p)
                                  (let ([bits (get-bits (module-instance-port-bitwidth p))])
-                                   (add-netname (string->symbol (module-instance-port-name p))
-                                                (make-net-details bits))
+                                   (add-netname (module-instance-port-name p) (make-net-details bits))
                                    (cons (string->symbol (module-instance-port-name p)) bits)))
                                output-ports)]
 
@@ -450,7 +447,7 @@
                                           (make-immutable-hash (append input-pairs output-pairs))
                                           #:params (make-immutable-hash param-pairs))])
 
-                    (add-cell (string->symbol inst-name) cell)
+                    (add-cell inst-name cell)
 
                     ;;; Return a hashmap of output port symbols to values.
                     (make-immutable-hash output-pairs))]
@@ -488,29 +485,19 @@
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
                  [(lr:bv (? bv? (? symbolic? (? constant? s))))
-                  ;;; Get the port details if they exist; create and return them if they don't.
-                  (define port-details
-                    (hash-ref ports
-                              (string->symbol (~a s))
-                              (lambda ()
-                                (define bits (get-bits (bitvector-size (type-of s))))
-                                (define port-details (make-port-details "input" bits))
-                                (add-port (string->symbol (~a s)) port-details)
-                                port-details)))
-
-                  ;;; Return the bits.
-                  (hash-ref port-details 'bits)]
+                  (error "Symbolic bitvector constants are not supported.")
+                  (void)]
 
                  ;;; Vars correspond to module inputs!
                  [(lr:var name bw)
                   ;;; Get the port details if they exist; create and return them if they don't.
                   (define port-details
                     (hash-ref ports
-                              name
+                              (string->symbol name)
                               (lambda ()
                                 (define bits (get-bits bw))
                                 (define port-details (make-port-details "input" bits))
-                                (add-port (string->symbol name) port-details)
+                                (add-port name port-details)
                                 port-details)))
 
                   ;;; Return the bits.
@@ -530,12 +517,12 @@
 
   (define outputs (compile expr))
 
-  (add-port (string->symbol output-signal-name) (make-port-details "output" outputs))
+  (add-port output-signal-name (make-port-details "output" outputs))
 
   (define doc (make-lakeroad-json-doc))
   (add-module-to-doc
    doc
-   (string->symbol module-name)
+   module-name
    (make-module ports cells netnames #:parameter-default-values parameter-default-values))
 
   doc)

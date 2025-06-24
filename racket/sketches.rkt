@@ -152,7 +152,7 @@
                                   (interface-identifier "LUT" (hash "num_inputs" num-logical-inputs))
                                   port-map
                                   #:internal-data lut-internal-data))
-                          'O))))]
+                          "O"))))]
 
        ;;; Construct the output by mapping the physical outputs back to logical space and taking the
        ;;; first result.
@@ -196,7 +196,7 @@
                                                      (lr:list-ref logical-inputs (lr:integer 1))
                                                      (lr:bv (?? (bitvector bitwidth))))))
                                      #:internal-data internal-data)]
-               [out-expr (lr:hash-ref carry-expr 'O)])
+               [out-expr (lr:hash-ref carry-expr "O")])
     (list out-expr internal-data)))
 
 ;;; Using a DSP block, where "A" is the first logical input and "B" is the second logical input.
@@ -250,8 +250,8 @@
                                                      (cons "D" d-expr))
                                                #:internal-data internal-data))
                         ;;; Ignoring internal data for now, but we could use it in the future.
-                        ;(list (lr:hash-ref dsp-expr 'O) internal-data)
-                        (lr:hash-ref dsp-expr 'O))]
+                        ;(list (lr:hash-ref dsp-expr "O") internal-data)
+                        (lr:hash-ref dsp-expr "O"))]
        [(cons a-expr a-bw) (cdr (or (assoc "a" (sketch-inputs-data inputs))
                                     (cons 'unused (cons (lr:bv (bv 0 1)) 1))))]
        [(cons b-expr b-bw) (cdr (or (assoc "b" (sketch-inputs-data inputs))
@@ -337,8 +337,8 @@
                                                      (cons "D" d-expr))
                                                #:internal-data internal-data))
                         ;;; Ignoring internal data for now, but we could use it in the future.
-                        ;(list (lr:hash-ref dsp-expr 'O) internal-data)
-                        (lr:hash-ref dsp-expr 'O))]
+                        ;(list (lr:hash-ref dsp-expr "O") internal-data)
+                        (lr:hash-ref dsp-expr "O"))]
        [_ (when (not (equal? (length (sketch-inputs-data inputs)) 2))
             (error "Two-DSP sketches require exactly two inputs labeled a and b."))]
        [(cons a-expr a-bw)
@@ -422,7 +422,7 @@
                              #:internal-data carry-internal-data)]
 
        ;;; Get the output from the carry.
-       [out-expr (lr:hash-ref carry-expr 'O)])
+       [out-expr (lr:hash-ref carry-expr "O")])
 
     (list out-expr (list bitwise-sketch-internal-data carry-internal-data))))
 
@@ -481,7 +481,7 @@
                              #:internal-data carry-internal-data)]
 
        ;;; Return the carry out signal.
-       [out-expr (lr:hash-ref carry-expr 'CO)])
+       [out-expr (lr:hash-ref carry-expr "CO")])
 
     (list out-expr
           (list bitwise-sketch-0-internal-data bitwise-sketch-1-internal-data carry-internal-data))))
@@ -703,7 +703,7 @@
                                   (cons "I1"
                                         (lr:extract (lr:integer row-i) (lr:integer row-i) b-expr)))
                             #:internal-data and-lut-internal-data))
-                    'O)))))))]
+                    "O")))))))]
 
        ;;; Generate the internal data that will be shared across all of the sketches used to compute
        ;;; the additions.
@@ -798,7 +798,7 @@
                                                                       (lr:integer (+ stage-i i))
                                                                       b-expr)))
                                                   #:internal-data or-internal-data))
-                                          'O))]
+                                          "O"))]
                  [make-mux-fn
                   (lambda (bit-i)
                     (let* (;;; The bit to select for the i0 input of this mux.
@@ -847,7 +847,7 @@
                            ;;; solver performance. Choosing to go with this one. Both PRs are here:
                            ;;; This one: https://github.com/uwsampl/lakeroad/pull/198
                            ;;; Mux fix: https://github.com/uwsampl/lakeroad/pull/199
-                           [out-expr (lr:hash-ref (choose* mux-expr-right mux-expr-left) 'O)])
+                           [out-expr (lr:hash-ref (choose* mux-expr-right mux-expr-left) "O")])
 
                       out-expr))]
 

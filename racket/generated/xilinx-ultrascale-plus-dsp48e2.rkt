@@ -1,4 +1,5 @@
-#lang rosette/safe
+#lang errortrace racket
+(require rosette)
 (provide (all-defined-out))
 (struct
   DSP48E2_Inputs

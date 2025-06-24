@@ -523,7 +523,7 @@
                                                     input-symbolic-constants
                                                     envs
                                                     envs
-                                                    (verilog-module-out-signal)
+                                                    (list (verilog-module-out-signal))
                                                     #:module-semantics module-semantics
                                                     #:assumes assumes))))]))
 
