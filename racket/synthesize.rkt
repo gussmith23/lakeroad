@@ -955,6 +955,11 @@
               [final-value (foldl interpret-one-iter (list (signal 'unused '())) envs)])
          (cdr (reverse (map signal-value final-value))))]))
 
+  (log-debug "bv-expr-evaluated: ~a" bv-expr-evaluated)
+  (log-debug "lr-expr-evaluated: ~a" lr-expr-evaluated)
+  (log-debug "(last bv-expr-evaluated): ~a" (last bv-expr-evaluated))
+  (log-debug "(last lr-expr-evaluated): ~a" (last lr-expr-evaluated))
+
   ;;; This block of code should be restructured. Instead of running synthesis in here, this `define`
   ;;; should interpret the Lakeroad expression, and then synthesis should be moved to another define.
   (define soln
