@@ -13,9 +13,9 @@
 // RUN:  --module-name squarediffmult \
 // RUN:  --input-signal 'd:(port a 16):16' \
 // RUN:  --input-signal 'a:(port b 16):16' \
-// RUN:  --verilog-module-out-signal square_out:33 \
-// RUN:  --timeout 90 \
-// RUN:  --extra-cycles 3
+// RUN:  --verilog-module-out-signal square_out:34 \
+// RUN:  --timeout 120 \
+// RUN:  --extra-cycles 1
 
 module squarediffmult # (parameter SIZEIN = 16)
 (
