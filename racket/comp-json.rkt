@@ -423,7 +423,7 @@
          [out (make-net-details (list 10 11 12 13))]
          [LUT_Z_1_B (make-net-details (list 14) #:hide-name 1)]
 
-         [netnames (hasheq-helper "a" a "b" b "out" out "LUT_Z_1_B" LUT_Z_1_B)])
+         [netnames (hasheq-helper 'a a 'b b 'out out 'LUT_Z_1_B LUT_Z_1_B)])
     (check-equal? (hash-ref (get-net-details netnames "a") 'bits) (list 2 3 4 5))
     (check-equal? (hash-ref (get-net-details netnames "b") 'bits) (list 6 7 8 9))
     (check-equal? (hash-ref (get-net-details netnames "out") 'bits) (list 10 11 12 13))

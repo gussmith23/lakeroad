@@ -13,12 +13,14 @@ fi
 # the .rkt file to be emptied out, which then causes Lakeroad's Racket files not
 # to load. It's probably due to some incorrect chain of dependencies.
 
-out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
-  --infile $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/CCU2C.v \
-  --top CCU2C \
-  --function-name lattice-ecp5-ccu2c \
-  | sed 's#(require (file.*#(require "../signal.rkt\")#' )
-echo "$out" > $LAKEROAD_DIR/racket/generated/lattice-ecp5-ccu2c.rkt
+yosys -q -p "
+  read_verilog $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/CCU2C.v;
+  write_functional_rosette -assoc-list-helpers" \
+  | sed '1 a\
+  (provide (rename-out CCU2C lattice-ecp5-ccu2c) (rename-out CCU2C_initial lattice-ecp5-ccu2c-initial) (rename-out CCU2C_inputs_helper lattice-ecp5-ccu2c-inputs) (rename-out CCU2C_outputs_helper lattice-ecp5-ccu2c-outputs))' \
+> $LAKEROAD_DIR/racket/generated/lattice-ecp5-ccu2c.rkt
+
+exit 1
 
 out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   --infile $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/LUT2.v \
