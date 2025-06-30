@@ -1,7 +1,5 @@
-#lang errortrace racket
-(require rosette)
-(provide (all-defined-out))
-(struct
+#lang rosette/safe
+    (provide (rename-out [DSP48E2 xilinx-ultrascale-plus-dsp48e2] [DSP48E2_initial xilinx-ultrascale-plus-dsp48e2-initial] [DSP48E2_inputs_helper xilinx-ultrascale-plus-dsp48e2-inputs] [DSP48E2_outputs_helper xilinx-ultrascale-plus-dsp48e2-outputs]))(struct
   DSP48E2_Inputs
   (XORSIMD
     USE_WIDEXOR

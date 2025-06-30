@@ -13,56 +13,68 @@ fi
 # the .rkt file to be emptied out, which then causes Lakeroad's Racket files not
 # to load. It's probably due to some incorrect chain of dependencies.
 
-yosys -q -p "
-  read_verilog $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/CCU2C.v;
-  write_functional_rosette -assoc-list-helpers" \
-  | sed '1 a\
-  (provide (rename-out CCU2C lattice-ecp5-ccu2c) (rename-out CCU2C_initial lattice-ecp5-ccu2c-initial) (rename-out CCU2C_inputs_helper lattice-ecp5-ccu2c-inputs) (rename-out CCU2C_outputs_helper lattice-ecp5-ccu2c-outputs))' \
-> $LAKEROAD_DIR/racket/generated/lattice-ecp5-ccu2c.rkt
+# Write a function
+function convert_to_rosette_via_yosys {
+  IN_FILEPATH=$1
+  OUT_FILEPATH=$2
+  IN_MODULE_NAME=$3
+  OUT_FUNCTION_NAME=$4
+  yosys -q -p "
+    read_verilog -sv $IN_FILEPATH;
+    hierarchy -check -top $IN_MODULE_NAME;
+    prep;
+    flatten;
+    clk2fflogic;
+    write_functional_rosette -assoc-list-helpers" \
+    | sed "1 a\\
+    (provide (rename-out [$IN_MODULE_NAME $OUT_FUNCTION_NAME] [""$IN_MODULE_NAME""_initial ""$OUT_FUNCTION_NAME""-initial] [""$IN_MODULE_NAME""_inputs_helper ""$OUT_FUNCTION_NAME""-inputs] [""$IN_MODULE_NAME""_outputs_helper ""$OUT_FUNCTION_NAME""-outputs]))" \
+  > $OUT_FILEPATH
+}
 
-exit 1
+convert_to_rosette_via_yosys \
+  $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/CCU2C.v \
+  $LAKEROAD_DIR/racket/generated/lattice-ecp5-ccu2c.rkt \
+  CCU2C \
+  lattice-ecp5-ccu2c
 
-out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
-  --infile $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/LUT2.v \
-  --top LUT2 \
-  --function-name lattice-ecp5-lut2 \
-  | sed 's#(require (file.*#(require "../signal.rkt\")#' )
-echo "$out" > $LAKEROAD_DIR/racket/generated/lattice-ecp5-lut2.rkt
+convert_to_rosette_via_yosys \
+  $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/LUT2.v \
+  $LAKEROAD_DIR/racket/generated/lattice-ecp5-lut2.rkt \
+  LUT2 \
+  lattice-ecp5-lut2
 
-out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
-  --infile $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/LUT4.v \
-  --top LUT4 \
-  --function-name lattice-ecp5-lut4 \
-  | sed 's#(require (file.*#(require "../signal.rkt\")#' )
-echo "$out" > $LAKEROAD_DIR/racket/generated/lattice-ecp5-lut4.rkt
+convert_to_rosette_via_yosys \
+  $LAKEROAD_DIR/modules_for_importing/lattice_ecp5/LUT4.v \
+  $LAKEROAD_DIR/racket/generated/lattice-ecp5-lut4.rkt \
+  LUT4 \
+  lattice-ecp5-lut4
   
-out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
-  --infile $LAKEROAD_DIR/modules_for_importing/SOFA/frac_lut4.v \
-  --top frac_lut4 \
-  --function-name sofa-frac-lut4 \
-  --include $LAKEROAD_DIR/verilog/simulation/skywater \
-  --define SKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK \
-  --define NO_PRIMITIVES \
-  --define FUNCTIONAL \
-  | sed 's#(require (file.*#(require "../signal.rkt\")#' )
-echo "$out" > $LAKEROAD_DIR/racket/generated/sofa-frac-lut4.rkt
+# TODO(@gussmith23): get this working
+# out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
+#   --infile $LAKEROAD_DIR/modules_for_importing/SOFA/frac_lut4.v \
+#   --top frac_lut4 \
+#   --function-name sofa-frac-lut4 \
+#   --include $LAKEROAD_DIR/verilog/simulation/skywater \
+#   --define SKY130_FD_SC_HD__UDP_MUX_2TO1_LAKEROAD_HACK \
+#   --define NO_PRIMITIVES \
+#   --define FUNCTIONAL \
+#   | sed 's#(require (file.*#(require "../signal.rkt\")#' )
+# echo "$out" > $LAKEROAD_DIR/racket/generated/sofa-frac-lut4.rkt
 
-out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
-  --infile $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/CARRY8.v \
-  --top CARRY8 \
-  --function-name xilinx-ultrascale-plus-carry8 \
-  | sed 's#(require (file.*#(require "../signal.rkt\")#' )
-echo "$out" > $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-carry8.rkt
+convert_to_rosette_via_yosys \
+  $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/CARRY8.v \
+  $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-carry8.rkt \
+  CARRY8 \
+  xilinx-ultrascale-plus-carry8
 
-# Note: requires GNU sed. Install with Brew on Mac.
-out=$("$LAKEROAD_DIR"/bin/verilog_to_racket.py \
-  --infile "$LAKEROAD_DIR"/modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v \
-  --top DSP48E2 \
-  --define XIL_XECLIB \
-  --function-name xilinx-ultrascale-plus-dsp48e2 \
-  | sed 's#(require (file.*#(require "../signal.rkt\")#' \
-  | sed "s/constant 'unnamed-input-[[:digit:]]\+ (bitvector \([[:digit:]]\+\))/bv 0 \1/" )
-echo "$out" > "$LAKEROAD_DIR"/racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt
+convert_to_rosette_via_yosys \
+  $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/DSP48E2.v \
+  $LAKEROAD_DIR/racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt \
+  DSP48E2 \
+  xilinx-ultrascale-plus-dsp48e2
+
+# TODO do the rest
+exit 1
 
 out=$($LAKEROAD_DIR/bin/verilog_to_racket.py \
   --infile $LAKEROAD_DIR/modules_for_importing/xilinx_ultrascale_plus/LUT6_2.v \
