@@ -1,9 +1,4 @@
 # Architecture description for Intel Cyclone 10 LP.
-#
-# This replaces the old intel.yml 
-# generic-ish altmult_accum block found in Quartus. It's unclear what
-# architecture this is actually for. We are adding support for a specific Intel
-# architecture (Cyclone 10 LP) instead.
 implementations:
   # TODO(@gussmith23): support optional parameters like c-width/d-width in this case.
   - interface: { name: DSP, parameters: { out-width: 36, a-width: 18, b-width: 18, c-width: 1, d-width: 1 } }
