@@ -57,7 +57,7 @@
     input clk
 );
 
-  logic [27:0] stage0;
+  logic [13:0] stage0;
 
   always @(posedge clk) begin
     stage0 <= (a * b) - c;

@@ -53,9 +53,9 @@
 	output [17:0] out,
 	input clk);
 
-	logic signed [35:0] stage0;
-	logic signed [35:0] stage1;
-	logic signed [35:0] stage2;
+	logic signed [17:0] stage0;
+	logic signed [17:0] stage1;
+	logic signed [17:0] stage2;
 
 	always @(posedge clk) begin
 	stage0 <= (d + a) * b;

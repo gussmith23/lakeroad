@@ -30,9 +30,9 @@ module addmulor_3_stage_unsigned_9_bit (
     input clk
 );
 
-  logic [17:0] stage0;
-  logic [17:0] stage1;
-  logic [17:0] stage2;
+  logic [8:0] stage0;
+  logic [8:0] stage1;
+  logic [8:0] stage2;
 
   always @(posedge clk) begin
     stage0 <= ((d + a) * b) | c;
