@@ -373,7 +373,10 @@
      ; (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
      ;       xilinx-ultrascale-plus-carry8)
      (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
-                 (list DSP48E2_inputs_helper DSP48E2_outputs_helper DSP48E2_initial DSP48E2)))]
+                 (list xilinx-ultrascale-plus-dsp48e2-inputs
+                       xilinx-ultrascale-plus-dsp48e2-outputs
+                       xilinx-ultrascale-plus-dsp48e2-initial
+                       xilinx-ultrascale-plus-dsp48e2)))]
     ; ["lattice-ecp5"
     ;  (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
     ;        (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c)
