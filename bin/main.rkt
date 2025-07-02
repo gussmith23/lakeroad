@@ -295,8 +295,15 @@
              (system "yosys --version")))
   (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
 (define yosys-command
+  ; TODO(@gussmith23): setundef avoids errors with the functional backend, though i'm not sure what
+  ; the best settings are for it.
   (format
-   "yosys -q ~a -p 'read_verilog -sv ~a; hierarchy -top ~a; prep; clk2fflogic; write_functional_rosette -provides -assoc-list-helpers ~a;'"
+   "yosys -q ~a -p 'read_verilog -sv ~a;
+    hierarchy -top ~a;
+    prep;
+    clk2fflogic;
+    setundef -undriven -random 23;
+    write_functional_rosette -provides -assoc-list-helpers ~a;'"
    (if (yosys-log-filepath) (format "-l ~a" (yosys-log-filepath)) "")
    (verilog-module-filepath)
    (top-module-name)
