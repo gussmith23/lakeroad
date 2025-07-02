@@ -1,4 +1,4 @@
-#lang errortrace racket/base
+#lang racket/base
 
 (provide lakeroad->jsexpr)
 
