@@ -245,7 +245,15 @@
       ; Do nothing for these.
       [(or (lr:var _ _) (lr:symbol _)) (void)]
 
-      [(lr:hw-module-instance module-name inst-name _ _ filepath)
+      [(lr:hw-module-instance module-name inst-name ports _ filepath)
+
+       ; Recurse on input port expressions.
+       (for ([port ports])
+         (define port-value (module-instance-port-value port))
+         (define port-direction (module-instance-port-direction port))
+         (when (equal? 'input port-direction)
+           (helper port-value)))
+
        (define initial
          (third (cdr (or (assoc (cons module-name filepath) funcs)
                          (error "No entry found for module and filepath: " module-name filepath)))))
@@ -285,3 +293,29 @@
                                                                                  (lr:bv (bv 0 1)))))
                                   (hash)))
                 (list (bv #b01 2))))
+
+(module+ test
+  (require (only-in "architecture-description.rkt" module-instance-port))
+  (test-case "generate initial state for nested modules"
+    (define expr
+      (lr:hw-module-instance
+       "modtype1"
+       "instance1"
+       (list (module-instance-port
+              "input1"
+              (lr:hash-ref (lr:hw-module-instance "modtype2" "instance2" (list) (list) 'unused)
+                           'dataout)
+              'input
+              36))
+       (list)
+       'unused))
+    (define initial-state
+      (generate-initial-state-map
+       expr
+       (list (cons (cons "modtype1" 'unused) (list 'unused 'unused 'unused '((input1 . (bv #b0 36)))))
+             (cons (cons "modtype2" 'unused)
+                   (list 'unused 'unused 'unused '((dataout . (bv #b0 36))))))))
+
+    ; Make sure both modules are present.
+    (check-true (hash-has-key? initial-state "instance1"))
+    (check-true (hash-has-key? initial-state "instance2"))))
