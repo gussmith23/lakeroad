@@ -15,21 +15,17 @@
          "../racket/sketches.rkt"
          "../racket/architecture-description.rkt"
          json
-         ;"../racket/generated/lattice-ecp5-lut4.rkt"
-         ;"../racket/generated/lattice-ecp5-ccu2c.rkt"
-         ;"../racket/xilinx-ultrascale-plus-lut2.rkt"
-         ;"../racket/generated/xilinx-ultrascale-plus-lut6.rkt"
-         ;"../racket/generated/xilinx-ultrascale-plus-carry8.rkt"
+         "../racket/generated/lattice-ecp5-lut4.rkt"
+         "../racket/generated/lattice-ecp5-ccu2c.rkt"
+         "../racket/generated/xilinx-ultrascale-plus-lut6.rkt"
+         "../racket/generated/xilinx-ultrascale-plus-carry8.rkt"
          "../racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt"
-         ;"../racket/generated/sofa-frac-lut4.rkt"
-         ;"../racket/generated/lattice-ecp5-mult18x18d.rkt"
-         ;"../racket/generated/lattice-ecp5-mult18x18c.rkt"
-         ;"../racket/generated/lattice-ecp5-alu24b.rkt"
-         ;"../racket/generated/lattice-ecp5-alu54a.rkt"
-         ;"../racket/generated/intel-altmult-accum.rkt"
-         ;"../racket/generated/intel-cyclone10lp-mac-mult.rkt"
-         ;"../racket/generated/intel-cyclone10lp-mac-out.rkt"
-         ;"../racket/generated/xilinx-7-series-dsp48e1.rkt"
+         "../racket/generated/lattice-ecp5-mult18x18d.rkt"
+         "../racket/generated/lattice-ecp5-mult18x18c.rkt"
+         "../racket/generated/lattice-ecp5-alu54a.rkt"
+         "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
+         "../racket/generated/intel-cyclone10lp-mac-out.rkt"
+         "../racket/generated/xilinx-7-series-dsp48e1.rkt"
          rosette/solver/smt/boolector
          rosette/solver/smt/cvc5
          rosette/solver/smt/cvc4
@@ -349,7 +345,6 @@
     ["xilinx-ultrascale-plus" (xilinx-ultrascale-plus-architecture-description)]
     ["lattice-ecp5" (lattice-ecp5-architecture-description)]
     ["sofa" (sofa-architecture-description)]
-    ["intel" (intel-architecture-description)]
     ["intel-cyclone10lp"
      (parse-architecture-description-file
       (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
@@ -366,35 +361,76 @@
      ; Association list mapping module identifier (name, filename) to a list of: (module inputs
      ; keyword helper, module outputs keyword helper, initial state struct, module semantics fn) as
      ; defined by the Yosys Rosette backend.
-     ; (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
-     ;       xilinx-ultrascale-plus-lut2)
-     ; (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
-     ;       xilinx-ultrascale-plus-lut6)
-     ; (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
-     ;       xilinx-ultrascale-plus-carry8)
+     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+           (list xilinx-ultrascale-plus-lut6-inputs
+                 xilinx-ultrascale-plus-lut6-outputs
+                 xilinx-ultrascale-plus-lut6-initial
+                 xilinx-ultrascale-plus-lut6))
+     (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
+           (list xilinx-ultrascale-plus-carry8-inputs
+                 xilinx-ultrascale-plus-carry8-outputs
+                 xilinx-ultrascale-plus-carry8-initial
+                 xilinx-ultrascale-plus-carry8))
      (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
                  (list xilinx-ultrascale-plus-dsp48e2-inputs
                        xilinx-ultrascale-plus-dsp48e2-outputs
                        xilinx-ultrascale-plus-dsp48e2-initial
                        xilinx-ultrascale-plus-dsp48e2)))]
-    ; ["lattice-ecp5"
-    ;  (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
-    ;        (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c)
-    ;        (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
-    ;              lattice-ecp5-mult18x18d)
-    ;        (cons (cons "MULT18X18C" "../lakeroad-private/lattice_ecp5/MULT18X18C.v")
-    ;              lattice-ecp5-mult18x18c)
-    ;        (cons (cons "ALU24B" "") lattice-ecp5-alu24b)
-    ;        (cons (cons "ALU54A"
-    ;                    "../lakeroad-private/lattice_ecp5/ALU54A_modified_for_racket_import.v")
-    ;              lattice-ecp5-alu54a))]
+    ["lattice-ecp5"
+     (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
+                 (list lattice-ecp5-lut4-inputs
+                       lattice-ecp5-lut4-outputs
+                       lattice-ecp5-lut4-initial
+                       lattice-ecp5-lut4))
+           (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v")
+                 (list lattice-ecp5-ccu2c-inputs
+                       lattice-ecp5-ccu2c-outputs
+                       lattice-ecp5-ccu2c-initial
+                       lattice-ecp5-ccu2c))
+           (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
+                 (list lattice-ecp5-mult18x18d-inputs
+                       lattice-ecp5-mult18x18d-outputs
+                       lattice-ecp5-mult18x18d-initial
+                       lattice-ecp5-mult18x18d))
+           (cons (cons "MULT18X18C" "../lakeroad-private/lattice_ecp5/MULT18X18C.v")
+                 (list lattice-ecp5-mult18x18c-inputs
+                       lattice-ecp5-mult18x18c-outputs
+                       lattice-ecp5-mult18x18c-initial
+                       lattice-ecp5-mult18x18c))
+           ;  (cons (cons "ALU24B" "")
+           ;        (list lattice-ecp5-alu24b-inputs
+           ;              lattice-ecp5-alu24b-outputs
+           ;              lattice-ecp5-alu24b-initial
+           ;              lattice-ecp5-alu24b))
+           (cons (cons "ALU54A"
+                       "../lakeroad-private/lattice_ecp5/ALU54A_modified_for_racket_import.v")
+                 (list lattice-ecp5-alu54a-inputs
+                       lattice-ecp5-alu54a-outputs
+                       lattice-ecp5-alu54a-initial
+                       lattice-ecp5-alu54a)))]
+    ; TODO(@gussmith23): if this is wanted again, we need to fix the semantics import.
     ; ["sofa"
-    ;  (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
-    ; ["intel" (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))]
-    ; ["intel-cyclone10lp"
-    ;  (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
-    ;        (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
-    ; ["xilinx-7-series" (list (cons (cons "DSP48E1" "unused") xilinx-7-series-dsp48e1))]
+    ;  (list
+    ;   (cons
+    ;    (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v")
+    ;    (list sofa-frac-lut4-inputs sofa-frac-lut4-outputs sofa-frac-lut4-initial sofa-frac-lut4)))]
+    ["intel-cyclone10lp"
+     (list (cons (cons "cyclone10lp_mac_mult" "unused")
+                 (list intel-cyclone10lp-mac-mult-inputs
+                       intel-cyclone10lp-mac-mult-outputs
+                       intel-cyclone10lp-mac-mult-initial
+                       intel-cyclone10lp-mac-mult))
+           (cons (cons "cyclone10lp_mac_out" "unused")
+                 (list intel-cyclone10lp-mac-out-inputs
+                       intel-cyclone10lp-mac-out-outputs
+                       intel-cyclone10lp-mac-out-initial
+                       intel-cyclone10lp-mac-out)))]
+    ["xilinx-7-series"
+     (list (cons (cons "DSP48E1" "unused")
+                 (list xilinx-7-series-dsp48e1-inputs
+                       xilinx-7-series-dsp48e1-outputs
+                       xilinx-7-series-dsp48e1-initial
+                       xilinx-7-series-dsp48e1)))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))

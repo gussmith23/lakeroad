@@ -1,4 +1,4 @@
-#lang racket/base
+#lang errortrace racket/base
 
 (provide lakeroad->jsexpr)
 
@@ -95,7 +95,16 @@
                                                             (error "old key not found: " k)))
                                                    v))))])
                     new-h)]
-                 [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) k)]
+                 [(lr:hash-ref h-expr k)
+                  ; TODO(@gussmith23): We need to get a handle on strings vs. symbols here. The root
+                  ; of all evil is the JSON library which doesn't allow string keys.
+                  (when (not (or (symbol? k) (string? k)))
+                    (error "Key must be a symbol or string, not: " k))
+                  (when (not (symbol? k))
+                    (log-warning "Converting key to symbol when compiling: ~a" k))
+                  ;;; Compile the hash expression and return the value for the key.
+                  ;;; If the key is not found, this will raise an error.
+                  (hash-ref (compile h-expr) (if (symbol? k) k (string->symbol k)))]
                  [(lr:hw-module-instance module-name inst-name ports params _)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]

@@ -52,13 +52,10 @@
              expr
              [(lr:var name _)
               (cdr (or (assoc name environment) (error "variable " name " not found")))]
-             [(lr:symbol s)
-              (when (not (string? s))
-                (error (format "~a should be a string" s)))
-              s]
              [(lr:make-immutable-hash list-expr) (interpret-helper list-expr state)]
              [(lr:cons v0-expr v1-expr)
               (cons (interpret-helper v0-expr state) (interpret-helper v1-expr state))]
+             [(lr:symbol s) s]
              [(lr:hash-remap-keys h-expr ks)
               (let* ([h (interpret-helper h-expr state)]
                      [_ (when (not (list? h))
@@ -78,10 +75,8 @@
                        h)])
                 new-h)]
              [(lr:hash-ref h-expr k)
-              (when (not (string? k))
-                (error (format "Key value should be a string, but got ~a" k)))
               (let* ([h (interpret-helper h-expr state)]
-                     [out (cdr (or (assoc k h) (error (format "key ~a not found" k))))])
+                     [out (cdr (or (assoc k h) (error "key " k " not found")))])
                 out)]
              [(lr:hw-module-instance module-name inst-name ports params filepath)
               (let* (; List of functions for this module. See main.rkt for the expected order.
@@ -126,7 +121,17 @@
                      [new-state (cdr outputs-and-state)]
 
                      [output-helper-fn (second fns)]
-                     [outputs-assoc (output-helper-fn outputs)])
+                     [outputs-assoc (output-helper-fn outputs)]
+
+                     ; TODO(@gusssmith23): Another symbol/string hack spot. Would really like to get
+                     ; this sorted out. Here, we convert the keys to symbols, as the rest of the
+                     ; downstream flow expects symbols as keys, though the Yosys helpers use strings
+                     ; (which I think is saner).
+                     [outputs-assoc
+                      (map (λ (pair)
+                             (cons (if (symbol? (car pair)) (car pair) (string->symbol (car pair)))
+                                   (cdr pair)))
+                           outputs-assoc)])
 
                 ; Update the state.
                 (hash-set! state inst-name new-state)

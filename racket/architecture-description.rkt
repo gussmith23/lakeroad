@@ -270,7 +270,7 @@
                                    (interface-identifier "LUT" (hash "num_inputs" biggest-lut-size))
                                    port-map
                                    #:internal-data lut-internal-data))
-                           "O")))
+                           'O)))
           lut-internal-data)))
 
 ;;; (module+ test
@@ -373,7 +373,7 @@
   (define expr (read (open-input-string expr-str)))
   (define (recursive-helper expr)
     (match expr
-      [`(get ,module ,key) (lr:hash-ref (recursive-helper module) (symbol->string key))]
+      [`(get ,module ,key) (lr:hash-ref (recursive-helper module) key)]
       [`(choose ,exprs ...) (apply choose* (map recursive-helper exprs))]
       [`(extract ,i ,j ,expr) (lr:extract (lr:integer i) (lr:integer j) (recursive-helper expr))]
       [`(bv ,val ,width) (lr:bv (bv val width))]
@@ -487,7 +487,7 @@
                  (for/list ([p (hash->list (interface-implementation-output-map
                                             interface-implementation))])
 
-                   (lr:cons (lr:symbol (car p))
+                   (lr:cons (lr:symbol (string->symbol (car p)))
                             (parse-dsl
                              (cdr p)
                              (lambda (s)
@@ -516,7 +516,7 @@
       (check-true
        (match expr
          [(lr:make-immutable-hash
-           (lr:list (list (lr:cons (lr:symbol "O")
+           (lr:list (list (lr:cons (lr:symbol 'O)
                                    (lr:hash-ref (lr:hw-module-instance
                                                  "LUT4"
                                                  inst-name-unchecked
@@ -527,7 +527,7 @@
                                                        (module-instance-port "Z" "O" 'output 1))
                                                  (list (module-instance-parameter "init" s))
                                                  filepath-unchecked)
-                                                "Z")))))
+                                                'Z)))))
           (check-equal? v (bv 0 1))
           #t]
          [else #f])))))
@@ -659,13 +659,13 @@
                                                                      smaller-lut-ports
                                                                      #:internal-data
                                                                      lut-0-internal-data)]
-          [lut-O-expr0 (lr:hash-ref lut-expr0 "O")]
+          [lut-O-expr0 (lr:hash-ref lut-expr0 'O)]
           [(list lut-expr1 lut-1-internal-data) (construct-interface architecture-description
                                                                      smaller-lut-interface-identifier
                                                                      smaller-lut-ports
                                                                      #:internal-data
                                                                      lut-1-internal-data)]
-          [lut-O-expr1 (lr:hash-ref lut-expr1 "O")]
+          [lut-O-expr1 (lr:hash-ref lut-expr1 'O)]
           ;;; TODO(@gussmith23): IT just so happens that the output of the mux and the output of the
           ;;; LUT are both named O. In the future, we will need to add support for remapping names.
           [(list mux-expr mux-internal-data)
@@ -736,7 +736,7 @@
            (lambda (carry-i carry-expr)
              (match-let*
                  (;;; This carry's carryin is the previous carry's carryout.
-                  [this-ci (if (equal? 'first carry-expr) ci-expr (lr:hash-ref carry-expr "CO"))]
+                  [this-ci (if (equal? 'first carry-expr) ci-expr (lr:hash-ref carry-expr 'CO))]
                   ;;; This carry's DI/S signals are a portion of the overall DI/S signals provided by
                   ;;; the user.
                   ;;;
@@ -766,15 +766,15 @@
                   ;;; carry we just created.
                   [new-carry-expr
                    (lr:make-immutable-hash
-                    (lr:list (list (lr:cons (lr:symbol "O") (lr:hash-ref this-carry "O"))
-                                   (lr:cons (lr:symbol "O")
+                    (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref this-carry 'CO))
+                                   (lr:cons (lr:symbol 'O)
                                             ;;; The first time, we don't have a previous carry to
                                             ;;; concat with.
                                             (if (equal? 'first carry-expr)
-                                                (lr:hash-ref this-carry "O")
-                                                (lr:concat (lr:list (list (lr:hash-ref this-carry "O")
+                                                (lr:hash-ref this-carry 'O)
+                                                (lr:concat (lr:list (list (lr:hash-ref this-carry 'O)
                                                                           (lr:hash-ref carry-expr
-                                                                                       "O")))))))))])
+                                                                                       'O)))))))))])
                new-carry-expr))]
 
           ;;; Perform the fold.
@@ -782,11 +782,11 @@
 
           ;;; Finally, extract just the bits that we need from the O output. Leave CO the same.
           [out-expr (lr:make-immutable-hash
-                     (lr:list (list (lr:cons (lr:symbol "CO") (lr:hash-ref out-expr "CO"))
-                                    (lr:cons (lr:symbol "O")
+                     (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref out-expr 'CO))
+                                    (lr:cons (lr:symbol 'O)
                                              (lr:extract (lr:integer (sub1 requested-width))
                                                          (lr:integer 0)
-                                                         (lr:hash-ref out-expr "O"))))))])
+                                                         (lr:hash-ref out-expr 'O))))))])
 
        (list out-expr (list carry-internal-data di-padding-val s-padding-val)))]
 
@@ -837,8 +837,8 @@
                                     #:internal-data lut-internal-data)]
 
               [out-expr (lr:make-immutable-hash
-                         (lr:list (list (lr:cons (lr:symbol "CO") (lr:hash-ref mux-expr "O"))
-                                        (lr:cons (lr:symbol "O") (lr:hash-ref lut-expr "O")))))])
+                         (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref mux-expr 'O))
+                                        (lr:cons (lr:symbol 'O) (lr:hash-ref lut-expr 'O)))))])
 
            (list out-expr (list mux-internal-data lut-internal-data)))
          ;;; Recursive case.
@@ -862,7 +862,7 @@
                 architecture-description
                 (interface-identifier "carry" (hash "width" (sub1 width)))
                 ;;; Carry in is the carry out of the carry of length 1.
-                (list (cons "CI" (lr:hash-ref carry-0-expr "CO"))
+                (list (cons "CI" (lr:hash-ref carry-0-expr 'CO))
                       (cons "DI" (lr:extract (lr:integer (sub1 width)) (lr:integer 1) di-expr))
                       (cons "S" (lr:extract (lr:integer (sub1 width)) (lr:integer 1) s-expr)))
                 #:internal-data internal-data)]
@@ -870,14 +870,14 @@
               [out-expr
                (lr:make-immutable-hash
                 ;;; Carry-out is computed by the last mux.
-                (lr:list (list (lr:cons (lr:symbol "CO") (lr:hash-ref carry-1-expr "CO"))
+                (lr:list (list (lr:cons (lr:symbol 'CO) (lr:hash-ref carry-1-expr 'CO))
                                ;;; Sum output of the entire carry is all of the output sum bits
                                ;;; concatted together. In the case of width=1, it's just the single
                                ;;; output sum bit computed by the lut.
-                               (lr:cons (lr:symbol "O")
-                                        (lr:concat (lr:list (list (lr:hash-ref carry-1-expr "O")
+                               (lr:cons (lr:symbol 'O)
+                                        (lr:concat (lr:list (list (lr:hash-ref carry-1-expr 'O)
                                                                   (lr:hash-ref carry-0-expr
-                                                                               "O"))))))))])
+                                                                               'O))))))))])
 
            (list out-expr internal-data)))]
 
@@ -1018,10 +1018,10 @@
             #:internal-data internal-data)])
 
        (list (lr:make-immutable-hash
-              (lr:list (list (lr:cons (lr:symbol "O")
+              (lr:list (list (lr:cons (lr:symbol 'O)
                                       (lr:extract (lr:integer (- requested-out-width 1))
                                                   (lr:integer 0)
-                                                  (lr:hash-ref dsp-expr "O"))))))
+                                                  (lr:hash-ref dsp-expr 'O))))))
              internal-data))]
 
     [else
@@ -1048,13 +1048,13 @@
          [(lr:make-immutable-hash
            (lr:list
             (list (lr:cons
-                   (lr:symbol "O")
+                   (lr:symbol 'O)
                    (lr:extract
                     (lr:integer 7)
                     (lr:integer 0)
                     (lr:hash-ref
                      (lr:make-immutable-hash
-                      (lr:list (list (lr:cons (lr:symbol "O")
+                      (lr:list (list (lr:cons (lr:symbol 'O)
                                               (lr:hash-ref
                                                (lr:hw-module-instance
                                                 "DSP48E2"
@@ -1074,8 +1074,8 @@
                                                       others ...)
                                                 params
                                                 filepath)
-                                               "P")))))
-                     "O")))
+                                               'P)))))
+                     'O)))
                   others ...)))
           #t]
          [else #f]))))
@@ -1104,7 +1104,7 @@
            (lr:list
             (list
              (lr:cons
-              (lr:symbol "O")
+              (lr:symbol 'O)
               (lr:hash-ref
                (lr:hw-module-instance
                 "LUT4"
@@ -1113,7 +1113,7 @@
                        "A"
                        (lr:hash-ref
                         (lr:make-immutable-hash
-                         (lr:list (list (lr:cons (lr:symbol "O")
+                         (lr:list (list (lr:cons (lr:symbol 'O)
                                                  (lr:hash-ref
                                                   (lr:hw-module-instance
                                                    "LUT4"
@@ -1125,15 +1125,15 @@
                                                          (module-instance-port "Z" "O" 'output 1))
                                                    (list (module-instance-parameter "init" _))
                                                    _)
-                                                  "Z")))))
-                        "O")
+                                                  'Z)))))
+                        'O)
                        'input
                        1)
                       (module-instance-port
                        "B"
                        (lr:hash-ref
                         (lr:make-immutable-hash
-                         (lr:list (list (lr:cons (lr:symbol "O")
+                         (lr:list (list (lr:cons (lr:symbol 'O)
                                                  (lr:hash-ref
                                                   (lr:hw-module-instance
                                                    "LUT4"
@@ -1145,8 +1145,8 @@
                                                          (module-instance-port "Z" "O" 'output 1))
                                                    (list (module-instance-parameter "init" _))
                                                    _)
-                                                  "Z")))))
-                        "O")
+                                                  'Z)))))
+                        'O)
                        'input
                        1)
                       (module-instance-port "C" (? (λ (v) (bveq v (bv 0 1)))) 'input 1)
@@ -1154,7 +1154,7 @@
                       (module-instance-port "Z" "O" 'output 1))
                 (list (module-instance-parameter "init" _))
                 _)
-               "Z")))))
+               'Z)))))
           #t]
          [_ #f])))))
 
@@ -1435,7 +1435,7 @@
       (check-true
        (match expr
          [(lr:make-immutable-hash
-           (lr:list (list (lr:cons (lr:symbol "O")
+           (lr:list (list (lr:cons (lr:symbol 'O)
                                    (lr:hash-ref (lr:hw-module-instance
                                                  "LUT4"
                                                  inst-name-0-unchecked
@@ -1446,7 +1446,7 @@
                                                        (module-instance-port "Z" "O" 'output 1))
                                                  (list (module-instance-parameter "init" (lr:bv s0)))
                                                  filepath-unchecked)
-                                                "Z")))))
+                                                'Z)))))
           (check-equal? v0 (bv 0 1))
           (check-equal? v1 (bv 1 1))
           #t]
@@ -1465,10 +1465,10 @@
                    #t]
                   [else #f]))
     (match-define (lr:make-immutable-hash
-                   (lr:list (list (lr:cons (lr:symbol "O")
-                                           (lr:concat (lr:list (list (lr:hash-ref mod-expr "S1")
-                                                                     (lr:hash-ref mod-expr "S0")))))
-                                  (lr:cons (lr:symbol "CO") (lr:hash-ref mod-expr "COUT")))))
+                   (lr:list (list (lr:cons (lr:symbol 'O)
+                                           (lr:concat (lr:list (list (lr:hash-ref mod-expr 'S1)
+                                                                     (lr:hash-ref mod-expr 'S0)))))
+                                  (lr:cons (lr:symbol 'CO) (lr:hash-ref mod-expr 'COUT)))))
       expr)
     (check-true
      (match mod-expr
@@ -1507,8 +1507,8 @@
     (check-true (match internal-data
                   [(list (cons "sram" (lr:bv (? (bitvector 16) _)))) #t]
                   [else #f]))
-    (match-define (lr:make-immutable-hash
-                   (lr:list (list (lr:cons (lr:symbol "O") (lr:hash-ref mod-expr "lut4_out")))))
+    (match-define (lr:make-immutable-hash (lr:list (list (lr:cons (lr:symbol 'O)
+                                                                  (lr:hash-ref mod-expr 'lut4_out)))))
       expr)
     (check-true
      (match mod-expr
@@ -1564,7 +1564,7 @@
     (list (cons "I0" 'i0-input)))
    (list (lr:make-immutable-hash
           (lr:list
-           (list (lr:cons (lr:symbol "O")
+           (list (lr:cons (lr:symbol 'O)
                           (lr:hash-ref
                            (lr:hw-module-instance
                             "module1"
@@ -1578,11 +1578,11 @@
                                                        (module-instance-port "out" 'unused 'output 1))
                                                  '()
                                                  'unused)
-                                                "out")
+                                                'out)
                                    'input
                                    1)
                                   (module-instance-port "out" 'unused 'output 1))
                             '()
                             'unused)
-                           "out")))))
+                           'out)))))
          '())))
