@@ -270,9 +270,10 @@
           (helper v0)
           (helper v1))]
        [(lr:extract _ _ v) (helper v)]
+       [(lr:concat vs) (helper vs)]
        [(or (lr:sign-extend v _) (lr:zero-extend v _)) (helper v)]
        [_
-        (let ([message (format "Not yet implemented: ~a" expr)])
+        (let ([message (format "Not yet implemented: ~a" (object-name expr))])
           (log-error message)
           (error message))])))
 
