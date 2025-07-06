@@ -1,5 +1,5 @@
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver stp \
+// RUN:  --solver bitwuzla \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-7-series \
 // RUN:  --template dsp \
@@ -13,7 +13,7 @@
 // RUN:  --input-signal 'b:(port b 17):17' \
 // RUN:  --input-signal 'c:(port c 17):17' \
 // RUN:  --input-signal 'd:(port d 17):17' \
-// RUN:  --extra-cycles 3 \
+// RUN:  --extra-cycles 2 \
 // RUN:  --timeout 120 \
 // RUN:  --simulate-with-verilator-arg "--max_num_tests=10000" \
 // RUN:  --simulate-with-verilator-arg "--verilator_include_dir=$LAKEROAD_PRIVATE_DIR/DSP48E1/" \

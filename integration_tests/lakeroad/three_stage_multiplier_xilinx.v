@@ -1,5 +1,5 @@
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
-// RUN:  --solver bitwuzla \
+// RUN:  --solver cvc5 \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-ultrascale-plus \
 // RUN:  --template dsp \
@@ -11,7 +11,7 @@
 // RUN:  --module-name out \
 // RUN:  --input-signal 'a:(port a 16):16' \
 // RUN:  --input-signal 'b:(port b 16):16' \
-// RUN:  --timeout 90 \
+// RUN:  --timeout 120 \
 // RUN:  --extra-cycles 2 \
 // RUN:  --simulate-with-verilator \
 // RUN:  --simulate-with-verilator-arg "--max_num_tests=10000" \
@@ -41,3 +41,6 @@ module three_stage_multiplier(input clk, input [15:0] a, b, output [15:0] p);
 endmodule
 
 // CHECK: module out(a, b, clk, p);
+// CHECK:   DSP48E2 #(
+// CHECK: endmodule
+
