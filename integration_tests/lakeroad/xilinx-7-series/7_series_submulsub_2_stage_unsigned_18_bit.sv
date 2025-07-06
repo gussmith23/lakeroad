@@ -1,4 +1,4 @@
-// RUN: (racket $LAKEROAD_DIR/bin/main.rkt \
+// RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver stp \
 // RUN:  --verilog-module-filepath %s \
 // RUN:  --architecture xilinx-7-series \
@@ -15,9 +15,21 @@
 // RUN:  --input-signal 'd:(port d 18):18' \
 // RUN:  --timeout 120 \
 // RUN:  --extra-cycles 3 \
-// RUN: || true) \
-// RUN: 2>&1 \
-// RUN: | FileCheck %s 
+// RUN:  --simulate-with-verilator \
+// RUN:  --simulate-with-verilator-arg "--max_num_tests=10000" \
+// RUN:  --simulate-with-verilator-arg "--verilator_include_dir="$LAKEROAD_PRIVATE_DIR/DSP48E1/"" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-DXIL_XECLIB'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-UNOPTFLAT'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-LATCH'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-WIDTH'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-STMTDLY'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-CASEX'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-TIMESCALEMOD'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-PINMISSING'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-COMBDLY'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-INITIALDLY'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-CASEINCOMPLETE'" \
+// RUN: | FileCheck %s
 
 (* use_dsp = "yes" *) module top(
 	input  [17:0] a,
@@ -38,4 +50,6 @@
 	assign out = stage1;
 endmodule
 
-// CHECK: Synthesis Timeout
+// CHECK: module out(a, b, c, clk, d, out);
+// CHECK:   DSP48E1 #(
+// CHECK: endmodule
