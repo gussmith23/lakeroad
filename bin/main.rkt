@@ -297,10 +297,12 @@
 (define yosys-command
   ; TODO(@gussmith23): setundef avoids errors with the functional backend, though i'm not sure what
   ; the best settings are for it.
+  ;
+  ; See https://github.com/YosysHQ/yosys/issues/5207
   (format
    "yosys -q ~a -p 'read_verilog -sv ~a;
     hierarchy -top ~a;
-    prep;
+    prep -flatten;
     clk2fflogic;
     setundef -undriven -random 23;
     write_functional_rosette -provides -assoc-list-helpers ~a;'"
