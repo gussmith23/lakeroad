@@ -11,7 +11,6 @@
          (struct-out interface-identifier)
          xilinx-ultrascale-plus-architecture-description
          lattice-ecp5-architecture-description
-         intel-architecture-description
          sofa-architecture-description
          find-biggest-lut-size
          densely-pack-inputs-into-luts
@@ -1267,11 +1266,6 @@
   (parse-architecture-description-file
    (build-path (get-lakeroad-directory) "architecture_descriptions" "sofa.yml")))
 
-;;; Get architecture description of Intel.
-(define (intel-architecture-description)
-  (parse-architecture-description-file
-   (build-path (get-lakeroad-directory) "architecture_descriptions" "intel.yml")))
-
 (module+ test
   (define-symbolic SOME_DATA (bitvector 32))
   (test-case "Test parsing of constraints."
@@ -1280,41 +1274,12 @@
                (|| (bveq SOME_DATA (bv 0 32)) (bveq SOME_DATA (bv 1 32))))))
 
 (module+ test
-  (test-case "Parse Intel YAML"
-    (begin
-      (check-true
-       (match (intel-architecture-description)
-         [(architecture-description
-           (list (interface-implementation
-                  (interface-identifier "DSP"
-                                        (hash-table ("out-width" 36) ("a-width" 18) ("b-width" 18)))
-                  module-instance
-                  internal-data
-                  output-map
-                  constraints)))
-          #t]
-         [else #f])))))
-
-(module+ test
   (test-case "Parse Xilinx UltraScale+ YAML"
     (begin
       (check-true
        (match (xilinx-ultrascale-plus-architecture-description)
          [(architecture-description
            (list (interface-implementation
-                  (interface-identifier "LUT" (hash-table ("num_inputs" 2)))
-                  (list (module-instance "LUT2"
-                                         (list (module-instance-port "I0" "I0" 'input 1)
-                                               (module-instance-port "I1" "I1" 'input 1)
-                                               (module-instance-port "O" "O" 'output 1))
-                                         (list (module-instance-parameter "INIT" "INIT"))
-                                         "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v"
-                                         "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v"
-                                         "LUT2"))
-                  (hash-table ("INIT" 4))
-                  (hash-table ("O" "(get LUT2 O)"))
-                  (list))
-                 (interface-implementation
                   (interface-identifier "LUT" (hash-table ("num_inputs" 6)))
                   (list (module-instance "LUT6"
                                          (list (module-instance-port "I0" "I0" 'input 1)
