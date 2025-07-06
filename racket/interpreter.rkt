@@ -241,38 +241,40 @@
 (define (generate-initial-state-map expr funcs)
   (define state-map (make-hash))
   (define (helper expr)
-    (match expr
-      ; Do nothing for these.
-      [(or (lr:var _ _) (lr:symbol _)) (void)]
+    (for/all
+     ([expr expr #:exhaustive])
+     (match expr
+       ; Do nothing for these.
+       [(or (lr:var _ _) (lr:symbol _)) (void)]
+       [(module-instance-port _ value direction _)
+        (when (equal? 'input direction)
+          (helper value))]
+       [(lr:hw-module-instance module-name inst-name ports _ filepath)
+        ; Recurse on input port expressions.
+        (for ([port ports])
+          (helper port))
+        (define initial
+          (third (cdr (or (assoc (cons module-name filepath) funcs)
+                          (error "No entry found for module and filepath: " module-name filepath)))))
 
-      [(lr:hw-module-instance module-name inst-name ports _ filepath)
-
-       ; Recurse on input port expressions.
-       (for ([port ports])
-         (define port-value (module-instance-port-value port))
-         (define port-direction (module-instance-port-direction port))
-         (when (equal? 'input port-direction)
-           (helper port-value)))
-
-       (define initial
-         (third (cdr (or (assoc (cons module-name filepath) funcs)
-                         (error "No entry found for module and filepath: " module-name filepath)))))
-
-       (hash-set! state-map inst-name initial)]
-      [(or (lr:logical-to-physical-mapping _ inputs) (lr:physical-to-logical-mapping _ inputs))
-       (helper inputs)]
-      [(lr:bv _) (void)]
-      [(lr:first lst) (helper lst)]
-      [(lr:list lst) (map helper lst)]
-      [(lr:hash-ref h _) (helper h)]
-      [(lr:make-immutable-hash list-expr) (helper list-expr)]
-      [(lr:cons v0 v1)
-       (begin
-         (helper v0)
-         (helper v1))]
-      [(lr:extract _ _ v) (helper v)]
-
-      [_ (error "not yet implemented: " expr)]))
+        (hash-set! state-map inst-name initial)]
+       [(or (lr:logical-to-physical-mapping _ inputs) (lr:physical-to-logical-mapping _ inputs))
+        (helper inputs)]
+       [(lr:bv _) (void)]
+       [(lr:first lst) (helper lst)]
+       [(lr:list lst) (map helper lst)]
+       [(lr:hash-ref h _) (helper h)]
+       [(lr:make-immutable-hash list-expr) (helper list-expr)]
+       [(lr:cons v0 v1)
+        (begin
+          (helper v0)
+          (helper v1))]
+       [(lr:extract _ _ v) (helper v)]
+       [(or (lr:sign-extend v _) (lr:zero-extend v _)) (helper v)]
+       [_
+        (let ([message (format "Not yet implemented: ~a" expr)])
+          (log-error message)
+          (error message))])))
 
   (helper expr)
 
