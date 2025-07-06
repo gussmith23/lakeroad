@@ -24,7 +24,8 @@
 // RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-STMTDLY'" \
 // RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-CASEX'" \
 // RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-TIMESCALEMOD'" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-PINMISSING'" 
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-PINMISSING'" \
+// RUN: | FileCheck %s
 
 (* use_dsp = "yes" *) module top(
 	input  [10:0] a,
