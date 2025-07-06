@@ -1,4 +1,3 @@
-// RUN: outfile=$(mktemp)
 // RUN: racket $LAKEROAD_DIR/bin/main.rkt \
 // RUN:  --solver stp \
 // RUN:  --verilog-module-filepath %s \
