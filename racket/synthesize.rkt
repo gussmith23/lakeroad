@@ -206,7 +206,8 @@
                                       (module-instance-port "O" "O" 'output 8))
                                 '()
                                 "unused filepath")
-         "O"))
+         ; TODO(@gussmith23): A good example of the messiness of the symbol/string mixing.
+         'O))
 
       ;;; The next two checks test the `lr-sequential` argument to `rosette-synthesize`.
 
