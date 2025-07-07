@@ -16,18 +16,7 @@
 // RUN:  --out-format verilog \
 // RUN:  --timeout 120 \
 // RUN:  --input-signal 'c:(extract 31 0 (port c 32)):32' \
-// RUN:  --assume '(bvule (port c 32) (bv 4294967295 32))'
-// RUN:  --simulate-with-verilator \
-// RUN:  --simulate-with-verilator-arg "--max_num_tests=10000" \
-// RUN:  --simulate-with-verilator-arg "--verilator_include_dir=$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-DXIL_XECLIB'" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-UNOPTFLAT'" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-LATCH'" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-WIDTH'" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-STMTDLY'" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-CASEX'" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-TIMESCALEMOD'" \
-// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-PINMISSING'" \
+// RUN:  --assume '(bvule (port c 32) (bv 4294967295 32))' \
 // RUN: | FileCheck %s
 
     module top(
@@ -39,10 +28,10 @@
       output [32-1:0] out,
     );
       assign out = wire_Expr_88;
-      logic [32-1:0] wire_Expr_88 = (wire_Expr_82+wire_Expr_87);
+      logic [32-1:0] wire_Expr_88 = (wire_Expr_78+wire_Expr_87);
       logic [32-1:0] wire_Expr_87 = 32'($signed(wire_Expr_86));
       logic [17-1:0] wire_Expr_86 = wire_Expr_85[16:0];
-      logic [34-1:0] wire_Expr_85 = wire_Expr_78 >>> wire_Expr_84;
+      logic [34-1:0] wire_Expr_85 = wire_Expr_82 >>> wire_Expr_84;
       localparam [34-1:0] wire_Expr_84 = 34'd17;
       logic [34-1:0] wire_Expr_78 = (wire_Expr_75*wire_Expr_77);
       logic [34-1:0] wire_Expr_77 = b;
@@ -50,6 +39,5 @@
       logic [32-1:0] wire_Expr_82 = c;
 endmodule
 
-// CHECK: module top(a, b, out);
-// CHECK:   DSP48E2 #(
+// CHECK: module top(a, b, c, out);
 // CHECK:   DSP48E2 #(
