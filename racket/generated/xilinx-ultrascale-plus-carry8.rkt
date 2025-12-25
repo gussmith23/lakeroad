@@ -1,186 +1,218 @@
-#lang racket/base
-(provide xilinx-ultrascale-plus-carry8)
-(require "../signal.rkt")
-(require rosette)
-(define xilinx-ultrascale-plus-carry8
-  (λ (#:CARRY_TYPE
-      (CARRY_TYPE (bv->signal (constant 'CARRY_TYPE (bitvector 1))))
-      #:CI
-      (CI (bv->signal (constant 'CI (bitvector 1))))
-      #:CI_TOP
-      (CI_TOP (bv->signal (constant 'CI_TOP (bitvector 1))))
-      #:DI
-      (DI (bv->signal (constant 'DI (bitvector 8))))
-      #:S
-      (S (bv->signal (constant 'S (bitvector 8))))
-      #:name
-      (name ""))
-    (let* ((merged-input-state-hash (list))
-           (init-hash (list))
-           (btor1 (bitvector 1))
-           (btor2 CARRY_TYPE)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state CARRY_TYPE)))
-           (btor3 CI)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state CI)))
-           (btor4 CI_TOP)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state CI_TOP)))
-           (btor5 (bitvector 8))
-           (btor6 DI)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state DI)))
-           (btor7 S)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state S)))
-           (btor8
-            (signal (extract 0 0 (signal-value btor6)) (signal-state btor6)))
-           (btor9
-            (signal (extract 0 0 (signal-value btor7)) (signal-state btor7)))
-           (btor10 (if (bitvector->bool (signal-value btor9)) btor3 btor8))
-           (btor11
-            (signal (extract 1 1 (signal-value btor6)) (signal-state btor6)))
-           (btor12
-            (signal (extract 1 1 (signal-value btor7)) (signal-state btor7)))
-           (btor13 (if (bitvector->bool (signal-value btor12)) btor10 btor11))
-           (btor14
-            (signal (extract 2 2 (signal-value btor6)) (signal-state btor6)))
-           (btor15
-            (signal (extract 2 2 (signal-value btor7)) (signal-state btor7)))
-           (btor16 (if (bitvector->bool (signal-value btor15)) btor13 btor14))
-           (btor17
-            (signal (extract 3 3 (signal-value btor6)) (signal-state btor6)))
-           (btor18
-            (signal (extract 3 3 (signal-value btor7)) (signal-state btor7)))
-           (btor19 (if (bitvector->bool (signal-value btor18)) btor16 btor17))
-           (btor20
-            (signal (extract 4 4 (signal-value btor6)) (signal-state btor6)))
-           (btor21 (if (bitvector->bool (signal-value btor2)) btor4 btor19))
-           (btor22
-            (signal (extract 4 4 (signal-value btor7)) (signal-state btor7)))
-           (btor23 (if (bitvector->bool (signal-value btor22)) btor21 btor20))
-           (btor24
-            (signal (extract 5 5 (signal-value btor6)) (signal-state btor6)))
-           (btor25
-            (signal (extract 5 5 (signal-value btor7)) (signal-state btor7)))
-           (btor26 (if (bitvector->bool (signal-value btor25)) btor23 btor24))
-           (btor27
-            (signal (extract 6 6 (signal-value btor6)) (signal-state btor6)))
-           (btor28
-            (signal (extract 6 6 (signal-value btor7)) (signal-state btor7)))
-           (btor29 (if (bitvector->bool (signal-value btor28)) btor26 btor27))
-           (btor30
-            (signal (extract 7 7 (signal-value btor6)) (signal-state btor6)))
-           (btor31
-            (signal (extract 7 7 (signal-value btor7)) (signal-state btor7)))
-           (btor32 (if (bitvector->bool (signal-value btor31)) btor29 btor30))
-           (btor33 (bitvector 2))
-           (btor34
-            (signal
-             (concat (signal-value btor13) (signal-value btor10))
-             (list)))
-           (btor35 (bitvector 3))
-           (btor36
-            (signal
-             (concat (signal-value btor16) (signal-value btor34))
-             (list)))
-           (btor37 (bitvector 4))
-           (btor38
-            (signal
-             (concat (signal-value btor19) (signal-value btor36))
-             (list)))
-           (btor39 (bitvector 5))
-           (btor40
-            (signal
-             (concat (signal-value btor23) (signal-value btor38))
-             (list)))
-           (btor41 (bitvector 6))
-           (btor42
-            (signal
-             (concat (signal-value btor26) (signal-value btor40))
-             (list)))
-           (btor43 (bitvector 7))
-           (btor44
-            (signal
-             (concat (signal-value btor29) (signal-value btor42))
-             (list)))
-           (btor45
-            (signal
-             (concat (signal-value btor32) (signal-value btor44))
-             (list)))
-           (btor47
-            (signal
-             (concat (signal-value btor10) (signal-value btor3))
-             (list)))
-           (btor48
-            (signal
-             (concat (signal-value btor13) (signal-value btor47))
-             (list)))
-           (btor49
-            (signal
-             (concat (signal-value btor16) (signal-value btor48))
-             (list)))
-           (btor50
-            (signal
-             (concat (signal-value btor21) (signal-value btor49))
-             (list)))
-           (btor51
-            (signal
-             (concat (signal-value btor23) (signal-value btor50))
-             (list)))
-           (btor52
-            (signal
-             (concat (signal-value btor26) (signal-value btor51))
-             (list)))
-           (btor53
-            (signal
-             (concat (signal-value btor29) (signal-value btor52))
-             (list)))
-           (btor54
-            (signal (bvxor (signal-value btor7) (signal-value btor53)) (list)))
-           (btor56
-            (bv->signal
-             (zero-extend (signal-value btor21) (bitvector 1))
-             btor21))
-           (btor57
-            (bv->signal
-             (zero-extend (signal-value btor10) (bitvector 1))
-             btor10))
-           (btor58
-            (bv->signal
-             (zero-extend (signal-value btor13) (bitvector 1))
-             btor13))
-           (btor59
-            (bv->signal
-             (zero-extend (signal-value btor16) (bitvector 1))
-             btor16))
-           (btor60
-            (bv->signal
-             (zero-extend (signal-value btor19) (bitvector 1))
-             btor19))
-           (btor61
-            (bv->signal
-             (zero-extend (signal-value btor23) (bitvector 1))
-             btor23))
-           (btor62
-            (bv->signal
-             (zero-extend (signal-value btor26) (bitvector 1))
-             btor26))
-           (btor63
-            (bv->signal
-             (zero-extend (signal-value btor29) (bitvector 1))
-             btor29))
-           (btor64
-            (bv->signal
-             (zero-extend (signal-value btor32) (bitvector 1))
-             btor32))
-           (output-state
-            (remove-duplicates
-             (append (list) merged-input-state-hash)
-             equal?
-             #:key
-             car)))
-      (list
-       (cons 'CO (signal (signal-value btor45) output-state))
-       (cons 'O (signal (signal-value btor54) output-state))))))
+#lang rosette/safe
+    (provide (rename-out [CARRY8 xilinx-ultrascale-plus-carry8] [CARRY8_initial xilinx-ultrascale-plus-carry8-initial] [CARRY8_inputs_helper xilinx-ultrascale-plus-carry8-inputs] [CARRY8_outputs_helper xilinx-ultrascale-plus-carry8-outputs]))(struct CARRY8_Inputs (S DI CI_TOP CI CARRY_TYPE) #:transparent
+  ; S (bitvector 8)
+  ; DI (bitvector 8)
+  ; CI_TOP (bitvector 1)
+  ; CI (bitvector 1)
+  ; CARRY_TYPE (bitvector 1)
+)
+(struct CARRY8_Outputs (O CO) #:transparent
+  ; O (bitvector 8)
+  ; CO (bitvector 8)
+)
+(struct CARRY8_State () #:transparent)
+(define
+  (CARRY8_inputs_helper inputs)
+  (CARRY8_Inputs
+    (let
+      (
+        (assoc-result
+          (assoc "S" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "DI" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "CI_TOP" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "CI" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "CARRY_TYPE" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))))
+(define
+  (CARRY8_outputs_helper outputs)
+  (list
+    (cons "O" (CARRY8_Outputs-O outputs))
+    (cons "CO" (CARRY8_Outputs-CO outputs))))
+(define (CARRY8 inputs state)
+  (let ((S (CARRY8_Inputs-S inputs))) ; (bitvector 8)
+  (let ((CI (CARRY8_Inputs-CI inputs))) ; (bitvector 1)
+  (let ((DI (CARRY8_Inputs-DI inputs))) ; (bitvector 8)
+  (let ((n3 (extract 0 0 DI))) ; (bitvector 1)
+  (let ((n4 (extract 0 0 S))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_31$1$_Y
+      (if (bitvector->bool n4) CI n3))) ; (bitvector 1)
+  (let
+    ((n6
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_31$1$_Y
+        CI))) ; (bitvector 2)
+  (let ((n7 (extract 1 1 DI))) ; (bitvector 1)
+  (let ((n8 (extract 1 1 S))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_32$2$_Y
+      (if
+        (bitvector->bool n8)
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_31$1$_Y
+        n7))) ; (bitvector 1)
+  (let
+    ((n10
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_32$2$_Y
+        n6))) ; (bitvector 3)
+  (let ((n11 (extract 2 2 DI))) ; (bitvector 1)
+  (let ((n12 (extract 2 2 S))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_33$3$_Y
+      (if
+        (bitvector->bool n12)
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_32$2$_Y
+        n11))) ; (bitvector 1)
+  (let
+    ((n14
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_33$3$_Y
+        n10))) ; (bitvector 4)
+  (let ((n15 (extract 3 3 DI))) ; (bitvector 1)
+  (let ((n16 (extract 3 3 S))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_34$4$_Y
+      (if
+        (bitvector->bool n16)
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_33$3$_Y
+        n15))) ; (bitvector 1)
+  (let ((CI_TOP (CARRY8_Inputs-CI_TOP inputs))) ; (bitvector 1)
+  (let ((CARRY_TYPE (CARRY8_Inputs-CARRY_TYPE inputs))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_35$6$_Y
+      (if
+        (bitvector->bool CARRY_TYPE)
+        CI_TOP
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_34$4$_Y))) ; (bitvector 1)
+  (let
+    ((n21
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_35$6$_Y
+        n14))) ; (bitvector 5)
+  (let ((n22 (extract 4 4 DI))) ; (bitvector 1)
+  (let ((n23 (extract 4 4 S))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_36$7$_Y
+      (if
+        (bitvector->bool n23)
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_35$6$_Y
+        n22))) ; (bitvector 1)
+  (let
+    ((n25
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_36$7$_Y
+        n21))) ; (bitvector 6)
+  (let ((n26 (extract 5 5 DI))) ; (bitvector 1)
+  (let ((n27 (extract 5 5 S))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_37$8$_Y
+      (if
+        (bitvector->bool n27)
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_36$7$_Y
+        n26))) ; (bitvector 1)
+  (let
+    ((n29
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_37$8$_Y
+        n25))) ; (bitvector 7)
+  (let ((n30 (extract 6 6 DI))) ; (bitvector 1)
+  (let ((n31 (extract 6 6 S))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_38$9$_Y
+      (if
+        (bitvector->bool n31)
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_37$8$_Y
+        n30))) ; (bitvector 1)
+  (let
+    ((n33
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_38$9$_Y
+        n29))) ; (bitvector 8)
+  (let ((O (bvxor S n33))) ; (bitvector 8)
+  (let
+    ((n35
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_32$2$_Y
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_31$1$_Y))) ; (bitvector 2)
+  (let
+    ((n36
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_33$3$_Y
+        n35))) ; (bitvector 3)
+  (let
+    ((n37
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_34$4$_Y
+        n36))) ; (bitvector 4)
+  (let
+    ((n38
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_36$7$_Y
+        n37))) ; (bitvector 5)
+  (let
+    ((n39
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_37$8$_Y
+        n38))) ; (bitvector 6)
+  (let
+    ((n40
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_38$9$_Y
+        n39))) ; (bitvector 7)
+  (let ((n41 (extract 7 7 DI))) ; (bitvector 1)
+  (let ((n42 (extract 7 7 S))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_39$10$_Y
+      (if
+        (bitvector->bool n42)
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_38$9$_Y
+        n41))) ; (bitvector 1)
+  (let
+    ((CO
+      (concat
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_CARRY8.v_39$10$_Y
+        n40))) ; (bitvector 8)
+  (cons
+    (CARRY8_Outputs
+      O ; O
+      CO ; CO
+    )
+    (CARRY8_State))))))))))))))))))))))))))))))))))))))))))))))))
+(define CARRY8_initial
+  (CARRY8_State))

@@ -67,9 +67,13 @@
 
 ;;; Lakeroad construct for a hardware module instance.
 ;;;
+;;; - module-name: the name of the module.
+;;; - inst-name: the name of the instance. This is used to index into the state map and get the state
+;;;   of the module instance; thus, if two module instances have the same name, they will be
+;;;   indistinguishable in the state map.
 ;;; - ports: list of module-instance-ports.
 ;;; - filepath: Used to identify the module at interpretation time. We can use some other identifier.
-(struct hw-module-instance (name ports params filepath) #:transparent)
+(struct hw-module-instance (module-name inst-name ports params filepath) #:transparent)
 
 (struct hash-ref (h k) #:transparent)
 ;;; Remap the keys in h (a Lakeroad expression which produces a hashmap) using the association list

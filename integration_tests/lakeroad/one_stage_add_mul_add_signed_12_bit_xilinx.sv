@@ -15,6 +15,17 @@
 // RUN:  --input-signal 'd:(port d 12):12' \
 // RUN:  --extra-cycles 3 \
 // RUN:  --timeout 120 \
+// RUN:  --simulate-with-verilator \
+// RUN:  --simulate-with-verilator-arg "--max_num_tests=10000" \
+// RUN:  --simulate-with-verilator-arg "--verilator_include_dir=$LAKEROAD_PRIVATE_DIR/DSP48E2/" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-DXIL_XECLIB'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-UNOPTFLAT'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-LATCH'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-WIDTH'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-STMTDLY'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-CASEX'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-TIMESCALEMOD'" \
+// RUN:  --simulate-with-verilator-arg "--verilator_extra_arg='-Wno-PINMISSING'" \
 // RUN: | FileCheck %s
 
 (* use_dsp = "yes" *) module top (

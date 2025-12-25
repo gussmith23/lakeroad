@@ -57,8 +57,8 @@
 	output [17:0] out,
 	input clk);
 
-	logic  [35:0] stage0;
-	logic  [35:0] stage1;
+	logic  [17:0] stage0;
+	logic  [17:0] stage1;
 
 	always @(posedge clk) begin
 	stage0 <= ((d + a) * b) + c;

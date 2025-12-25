@@ -17,16 +17,12 @@
          json
          "../racket/generated/lattice-ecp5-lut4.rkt"
          "../racket/generated/lattice-ecp5-ccu2c.rkt"
-         "../racket/xilinx-ultrascale-plus-lut2.rkt"
          "../racket/generated/xilinx-ultrascale-plus-lut6.rkt"
          "../racket/generated/xilinx-ultrascale-plus-carry8.rkt"
          "../racket/generated/xilinx-ultrascale-plus-dsp48e2.rkt"
-         "../racket/generated/sofa-frac-lut4.rkt"
          "../racket/generated/lattice-ecp5-mult18x18d.rkt"
          "../racket/generated/lattice-ecp5-mult18x18c.rkt"
-         "../racket/generated/lattice-ecp5-alu24b.rkt"
          "../racket/generated/lattice-ecp5-alu54a.rkt"
-         "../racket/generated/intel-altmult-accum.rkt"
          "../racket/generated/intel-cyclone10lp-mac-mult.rkt"
          "../racket/generated/intel-cyclone10lp-mac-out.rkt"
          "../racket/generated/xilinx-7-series-dsp48e1.rkt"
@@ -36,8 +32,6 @@
          rosette/solver/smt/bitwuzla
          rosette/solver/smt/stp
          rosette/solver/smt/yices
-         "../racket/signal.rkt"
-         "../racket/btor.rkt"
          racket/sandbox)
 
 (define-namespace-anchor anc)
@@ -247,13 +241,7 @@
     (when (hash-has-key? (solver-flags) key)
       (error (format "Flag ~a already specified." key)))
     (hash-set! (solver-flags) key value))]
- #:once-each
- [("--instruction")
-  v
-  "The instruction to synthesize, written in Rosette bitvector semantics. Use (var <name> <bw>) to"
-  " indicate a variable. For example, an 8-bit AND is (bvand (var a 8) (var b 8))."
-  (instruction v)]
- [("--module-name") v "Name given to the module produced." (module-name v)]
+ #:once-each [("--module-name") v "Name given to the module produced." (module-name v)]
  #:multi
  [("--input-signal")
   v
@@ -291,102 +279,62 @@
   ["yices" (current-solver (yices #:path (yices-path) #:logic 'QF_BV #:options (solver-flags)))]
   [_ (error (format "Unknown solver: ~a" (solver)))])
 
-;;; Parse instruction. Returns a Racket function in the format currently expected by synthesis:
-;;; A function with keyword arguments, taking signal arguments and returning an association list of
-;;; signals.
-;;;
-;;; expr The instruction to parse, e.g. '(bvadd (var a 8) (var b 8)).
-(define (parse-instruction expr)
-  ;;; A list to collect the args we encounter.
-  (define keywords '())
-  (define (helper expr)
-    (match expr
-      [`(bitvector->bits ,a) `(bitvector->bits ,(helper a))]
-      [`(apply bvxor ,a) `(bvxor ,@(helper a))]
-      [`(bvlshr ,a ,b) `(bvlshr ,(helper a) ,(helper b))]
-      [`(bvashr ,a ,b) `(bvashr ,(helper a) ,(helper b))]
-      [`(bvshl ,a ,b) `(bvshl ,(helper a) ,(helper b))]
-      [`(bvuge ,a ,b) `(bvuge ,(helper a) ,(helper b))]
-      [`(bvule ,a ,b) `(bvule ,(helper a) ,(helper b))]
-      [`(bvult ,a ,b) `(bvult ,(helper a) ,(helper b))]
-      [`(bvugt ,a ,b) `(bvugt ,(helper a) ,(helper b))]
-      [`(not ,a) `(not ,(helper a))]
-      [`(bveq ,a ,b) `(bveq ,(helper a) ,(helper b))]
-      [`(bool->bitvector ,a) `(bool->bitvector ,(helper a))]
-      [`(bvand ,a ,b) `(bvand ,(helper a) ,(helper b))]
-      [`(bvor ,a ,b) `(bvor ,(helper a) ,(helper b))]
-      [`(bvxor ,a ,b) `(bvxor ,(helper a) ,(helper b))]
-      [`(bvadd ,a ,b) `(bvadd ,(helper a) ,(helper b))]
-      [`(bvsub ,a ,b) `(bvsub ,(helper a) ,(helper b))]
-      [`(bvmul ,a ,b) `(bvmul ,(helper a) ,(helper b))]
-      [`(bvnot ,a) `(bvnot ,(helper a))]
-      [`(circt-comb-mux ,s ,a ,b) `(circt-comb-mux ,(helper s) ,(helper a) ,(helper b))]
-      [`(var ,id ,bw)
-       (set! keywords (cons (string->keyword (symbol->string id)) keywords))
-       `(signal-value ,id)]))
-
-  (define body (helper expr))
-
-  (define keywords-sorted (sort keywords keyword<?))
-  (define out-fn
-    `(lambda ,(flatten (map (lambda (kw) (list kw `,(string->symbol (keyword->string kw))))
-                            keywords-sorted))
-       (list (cons ',(string->symbol (verilog-module-out-signal)) (bv->signal ,body)))))
-  (eval out-fn ns))
-
 (when (output-smt-path)
   (output-smt (output-smt-path)))
 
 ;;; The bitvector expression we're trying to synthesize.
-(define bv-expr
-  (cond
-    [(instruction) (parse-instruction (read (open-input-string (instruction))))]
-    [(verilog-module-filepath)
-     (when (not (verilog-module-out-signal))
-       (error "Must set --verilog-module-out-signal."))
-     (when (not (top-module-name))
-       (error "Must set --top-module-name."))
-     (when (not (parameterize ([current-output-port (open-output-nowhere)])
-                  (system "yosys --version")))
-       (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
-     (log-info "Running Yosys.")
-     (define btor
-       (parameterize ([current-error-port (open-output-nowhere)])
-         (with-output-to-string
-          (thunk
-           (when (not
-                  (system
-                   (format
-                    ;;; TODO(@gussmith23): This is a very important line -- we need to determine whether
-                    ;;; clk2fflogic is the correct thing to use. See
-                    ;;; https://github.com/uwsampl/lakeroad/issues/238
-                    "yosys ~a -p 'read_verilog -sv ~a; hierarchy -simcheck -top ~a; prep; proc; flatten; clk2fflogic; write_btor;'"
-                    (if (yosys-log-filepath) (format "-ql ~a" (yosys-log-filepath)) "-q")
-                    (verilog-module-filepath)
-                    (top-module-name))))
-             (error "Yosys failed."))))))
+(when (not (verilog-module-filepath))
+  (error "Must set --verilog-module-filepath."))
 
-     (define f (eval (first (btor->racket btor)) ns))
-     ;;; If we're doing sequential synthesis, return the function as-is. Otherwise, the legacy code
-     ;;; path expects a bvexpr, which we can get by just calling the function.
-     (if (> (pipeline-depth) 0)
-         f
-         ;(signal-value (assoc-ref (f) (string->symbol (verilog-module-out-signal))))
-         f)]))
+(define converted-rosette-filepath (make-temporary-file "rkttmp~a.rkt"))
+(when (not (verilog-module-out-signal))
+  (error "Must set --verilog-module-out-signal."))
+(when (not (top-module-name))
+  (error "Must set --top-module-name."))
+(when (not (parameterize ([current-output-port (open-output-nowhere)])
+             (system "yosys --version")))
+  (error "Something is wrong with Yosys. Is Yosys installed and on your PATH?"))
+(define yosys-command
+  ; TODO(@gussmith23): setundef avoids errors with the functional backend, though i'm not sure what
+  ; the best settings are for it.
+  ;
+  ; See https://github.com/YosysHQ/yosys/issues/5207
+  (format
+   "yosys -q ~a -p 'read_verilog -sv ~a;
+    hierarchy -top ~a;
+    prep -flatten;
+    clk2fflogic;
+    setundef -undriven -random 23;
+    write_functional_rosette -provides -assoc-list-helpers ~a;'"
+   (if (yosys-log-filepath) (format "-l ~a" (yosys-log-filepath)) "")
+   (verilog-module-filepath)
+   (top-module-name)
+   converted-rosette-filepath))
+(log-info (format "Running Yosys command: ~a" yosys-command))
+(when (not (system yosys-command))
+  (error "Yosys failed."))
 
-(when (boolean? bv-expr)
-  (error
-   (format
-    "Expected a bitvector expression but found a boolean ~a: consider wrapping in (bool->bitvector ...)"
-    bv-expr)))
-(when (not (or (bv? bv-expr) (procedure? bv-expr)))
-  (error (format "Expected a bitvector expression or procedure but found ~a" bv-expr)))
+(log-debug (format "Yosys succeeded, output in ~a" converted-rosette-filepath))
 
-(define output-bitwidth
-  (cond
-    [(verilog-module-out-bitwidth) (verilog-module-out-bitwidth)]
-    [(bv? bv-expr) (bvlen bv-expr)]
-    [else (error "Something's wrong!")]))
+(define spec-fn (dynamic-require converted-rosette-filepath (string->symbol (top-module-name))))
+(define input-fn
+  (dynamic-require converted-rosette-filepath
+                   (string->symbol (format "~a_inputs_helper" (top-module-name)))))
+(define output-fn
+  (dynamic-require converted-rosette-filepath
+                   (string->symbol (format "~a_outputs_helper" (top-module-name)))))
+(define initial-state
+  (dynamic-require converted-rosette-filepath
+                   (string->symbol (format "~a_initial" (top-module-name)))))
+; (define f (eval (first (btor->racket btor)) ns)) ;;; If we're doing sequential synthesis, return the
+; function as-is. Otherwise, the legacy code ;;; path expects a bvexpr, which we can get by just
+; calling the function. (if (> (pipeline-depth) 0) f ;(signal-value (assoc-ref (f) (string->symbol
+; (verilog-module-out-signal)))) f))
+
+(when (not (verilog-module-out-bitwidth))
+  (error "Something's wrong."))
+
+(define output-bitwidth (verilog-module-out-bitwidth))
 
 (define sketch-generator
   (match (template)
@@ -406,7 +354,6 @@
     ["xilinx-ultrascale-plus" (xilinx-ultrascale-plus-architecture-description)]
     ["lattice-ecp5" (lattice-ecp5-architecture-description)]
     ["sofa" (sofa-architecture-description)]
-    ["intel" (intel-architecture-description)]
     ["intel-cyclone10lp"
      (parse-architecture-description-file
       (build-path (get-lakeroad-directory) "architecture_descriptions" "intel_cyclone10lp.yml"))]
@@ -420,32 +367,79 @@
 (define module-semantics
   (match (architecture)
     ["xilinx-ultrascale-plus"
-     (list (cons (cons "LUT2" "../verilog/simulation/xilinx-ultrascale-plus/LUT2.v")
-                 xilinx-ultrascale-plus-lut2)
-           (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
-                 xilinx-ultrascale-plus-lut6)
-           (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
-                 xilinx-ultrascale-plus-carry8)
-           (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
-                 xilinx-ultrascale-plus-dsp48e2))]
+     ; Association list mapping module identifier (name, filename) to a list of: (module inputs
+     ; keyword helper, module outputs keyword helper, initial state struct, module semantics fn) as
+     ; defined by the Yosys Rosette backend.
+     (cons (cons "LUT6" "../verilog/simulation/xilinx-ultrascale-plus/LUT6.v")
+           (list xilinx-ultrascale-plus-lut6-inputs
+                 xilinx-ultrascale-plus-lut6-outputs
+                 xilinx-ultrascale-plus-lut6-initial
+                 xilinx-ultrascale-plus-lut6))
+     (cons (cons "CARRY8" "../verilog/simulation/xilinx-ultrascale-plus/CARRY8.v")
+           (list xilinx-ultrascale-plus-carry8-inputs
+                 xilinx-ultrascale-plus-carry8-outputs
+                 xilinx-ultrascale-plus-carry8-initial
+                 xilinx-ultrascale-plus-carry8))
+     (list (cons (cons "DSP48E2" "../verilog/simulation/xilinx-ultrascale-plus/DSP48E2.v")
+                 (list xilinx-ultrascale-plus-dsp48e2-inputs
+                       xilinx-ultrascale-plus-dsp48e2-outputs
+                       xilinx-ultrascale-plus-dsp48e2-initial
+                       xilinx-ultrascale-plus-dsp48e2)))]
     ["lattice-ecp5"
-     (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v") lattice-ecp5-lut4)
-           (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v") lattice-ecp5-ccu2c)
+     (list (cons (cons "LUT4" "../verilog/simulation/lattice-ecp5/LUT4.v")
+                 (list lattice-ecp5-lut4-inputs
+                       lattice-ecp5-lut4-outputs
+                       lattice-ecp5-lut4-initial
+                       lattice-ecp5-lut4))
+           (cons (cons "CCU2C" "../verilog/simulation/lattice-ecp5/CCU2C.v")
+                 (list lattice-ecp5-ccu2c-inputs
+                       lattice-ecp5-ccu2c-outputs
+                       lattice-ecp5-ccu2c-initial
+                       lattice-ecp5-ccu2c))
            (cons (cons "MULT18X18D" "../lakeroad-private/lattice_ecp5/MULT18X18D.v")
-                 lattice-ecp5-mult18x18d)
+                 (list lattice-ecp5-mult18x18d-inputs
+                       lattice-ecp5-mult18x18d-outputs
+                       lattice-ecp5-mult18x18d-initial
+                       lattice-ecp5-mult18x18d))
            (cons (cons "MULT18X18C" "../lakeroad-private/lattice_ecp5/MULT18X18C.v")
-                 lattice-ecp5-mult18x18c)
-           (cons (cons "ALU24B" "") lattice-ecp5-alu24b)
+                 (list lattice-ecp5-mult18x18c-inputs
+                       lattice-ecp5-mult18x18c-outputs
+                       lattice-ecp5-mult18x18c-initial
+                       lattice-ecp5-mult18x18c))
+           ;  (cons (cons "ALU24B" "")
+           ;        (list lattice-ecp5-alu24b-inputs
+           ;              lattice-ecp5-alu24b-outputs
+           ;              lattice-ecp5-alu24b-initial
+           ;              lattice-ecp5-alu24b))
            (cons (cons "ALU54A"
                        "../lakeroad-private/lattice_ecp5/ALU54A_modified_for_racket_import.v")
-                 lattice-ecp5-alu54a))]
-    ["sofa"
-     (list (cons (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v") sofa-frac-lut4))]
-    ["intel" (list (cons (cons "altmult_accum" "unused") intel-altmult-accum))]
+                 (list lattice-ecp5-alu54a-inputs
+                       lattice-ecp5-alu54a-outputs
+                       lattice-ecp5-alu54a-initial
+                       lattice-ecp5-alu54a)))]
+    ; TODO(@gussmith23): if this is wanted again, we need to fix the semantics import.
+    ; ["sofa"
+    ;  (list
+    ;   (cons
+    ;    (cons "frac_lut4" "../modules_for_importing/SOFA/frac_lut4.v")
+    ;    (list sofa-frac-lut4-inputs sofa-frac-lut4-outputs sofa-frac-lut4-initial sofa-frac-lut4)))]
     ["intel-cyclone10lp"
-     (list (cons (cons "cyclone10lp_mac_mult" "unused") intel-cyclone10lp-mac-mult)
-           (cons (cons "cyclone10lp_mac_out" "unused") intel-cyclone10lp-mac-out))]
-    ["xilinx-7-series" (list (cons (cons "DSP48E1" "unused") xilinx-7-series-dsp48e1))]
+     (list (cons (cons "cyclone10lp_mac_mult" "unused")
+                 (list intel-cyclone10lp-mac-mult-inputs
+                       intel-cyclone10lp-mac-mult-outputs
+                       intel-cyclone10lp-mac-mult-initial
+                       intel-cyclone10lp-mac-mult))
+           (cons (cons "cyclone10lp_mac_out" "unused")
+                 (list intel-cyclone10lp-mac-out-inputs
+                       intel-cyclone10lp-mac-out-outputs
+                       intel-cyclone10lp-mac-out-initial
+                       intel-cyclone10lp-mac-out)))]
+    ["xilinx-7-series"
+     (list (cons (cons "DSP48E1" "unused")
+                 (list xilinx-7-series-dsp48e1-inputs
+                       xilinx-7-series-dsp48e1-outputs
+                       xilinx-7-series-dsp48e1-initial
+                       xilinx-7-series-dsp48e1)))]
     [other
      (error (format "Invalid architecture given (value: ~a). Did you specify --architecture?"
                     other))]))
@@ -460,7 +454,6 @@
   (when (exn:fail:resource? e)
     (displayln "Synthesis Timeout" (current-error-port))
     (exit TIMEOUTCODE)))
-;;; Either a valid LR expression or #f.
 (log-info "Attempting synthesis.")
 (define lakeroad-expr
   (cond
@@ -474,40 +467,37 @@
             [input-values
              (map (λ (p)
                     (match p
-                      [(list name bw)
-                       (cons name (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
+                      [(list name bw) (cons name (constant (list "main.rkt" name) (bitvector bw)))]))
                   (ports))]
 
             ;;; The same environments, but with symbolic values
             [make-intermediate-inputs
              (lambda (inputs iter)
-               (map (λ (p)
-                      (match p
-                        [(list name bw)
-                         (cons name (bv->signal (constant (list name "iter" iter) (bitvector bw))))]))
-                    inputs))]
+               (map
+                (λ (p)
+                  (match p
+                    [(list name bw) (cons name (constant (list name "iter" iter) (bitvector bw)))]))
+                inputs))]
 
-            ;;; Environments for sequential synthesis. Each environment represents one set of input
-            ;;; states. For each set of input states, we run the interpreter with the given inputs,
-            ;;; get the output (including all of the internal state), and then pass that state on to
-            ;;; the next iteration. See `rosette-synthesize`.
-            ;;; (apply append == flatten once; Racket's `flatten` flattens too much.)
-            ;;; First, we tick the clock with the inputs set to their input values.
-            [envs (append (list (cons (cons (clock-name) (bv->signal (bv 0 1))) input-values)
-                                (cons (cons (clock-name) (bv->signal (bv 1 1)))
+            ;;; Environments for sequential synthesis. Each environment represents one set of input ;;
+            ;states. For each set of input states, we run the interpreter with the given inputs, ;;
+            ;get the output (including all of the internal state), and then pass that state on to ;;
+            ;the next iteration. See `rosette-synthesize`. ;; (apply append == flatten once; Racket's
+            ;`flatten` flattens too much.) ;; First, we tick the clock with the inputs set to their
+            ;input values.
+            [envs (append (list (cons (cons (clock-name) (bv 0 1)) input-values)
+                                (cons (cons (clock-name) (bv 1 1))
                                       (make-intermediate-inputs (ports) 0)))
                           ;;; then, we tick the clock with the inputs set to symbolic values.
                           (apply append
                                  (map (lambda (iter)
-                                        (list (cons (cons (clock-name) (bv->signal (bv 0 1)))
+                                        (list (cons (cons (clock-name) (bv 0 1))
                                                     (make-intermediate-inputs (ports) iter))
-                                              (cons (cons (clock-name) (bv->signal (bv 1 1)))
+                                              (cons (cons (clock-name) (bv 1 1))
                                                     (make-intermediate-inputs (ports) iter))))
                                       (range 1 (+ (pipeline-depth) (extra-cycles))))))]
             ;;; If there's a reset signal, set it to 0 in all envs.
-            [envs (if (reset-name)
-                      (map (λ (env) (cons (cons (reset-name) (bv->signal (bv 0 1))) env)) envs)
-                      envs)]
+            [envs (if (reset-name) (map (λ (env) (cons (cons (reset-name) (bv 0 1)) env)) envs) envs)]
 
             [assumes
              (begin
@@ -519,8 +509,7 @@
                 (map (λ (env)
                        ; For the env, first generate the hashmap mapping port names to their values.
                        ; Then, for each assume, generate the assume.
-                       (define port-map
-                         (make-hash (map (λ (p) (cons (car p) (signal-value (cdr p)))) env)))
+                       (define port-map (make-hash (map (λ (p) (cons (car p) (cdr p))) env)))
                        (define assumes (map (lambda (assume-fn) (assume-fn port-map)) (assume-fns)))
 
                        assumes)
@@ -528,38 +517,17 @@
 
             [input-symbolic-constants (symbolics envs)])
 
-       ;;; Throw error if we're not passing all values to the bv-expr.
-       ;;; TODO(@gussmith23): This check would be better elsewhere, but the use of `compose` below
-       ;;; makes it not possible to use `procedure-keywords` in `rosette-synthesize` itself.
-       ;;; TODO(@gussmith23): Even better would be to end the headache of using keyword arguments
-       ;;; altogether.
-       (match-define-values (_ keywords) (procedure-keywords bv-expr))
-       ;;; Filter out unnamed inputs, which are an artifact of the Verilog-to-Racket importer. Also
-       ;;; filter out #:name.
-       (define keywords-minus-unnamed
-         (apply set
-                (filter (λ (k)
-                          (not (or (string-prefix? (keyword->string k) "unnamed-input-")
-                                   (equal? (keyword->string k) "name"))))
-                        keywords)))
-       (for ([env envs])
-         (define env-keys-set (apply set (map (compose1 string->keyword car) env)))
-         (define missing-keys (set-subtract keywords-minus-unnamed env-keys-set))
-         (when (not (equal? 0 (set-count missing-keys)))
-           ;;; TODO(@gussmith23): Figure out how to use Racket logging...
-           (displayln (format "WARNING: Not passing all inputs to bv-expr, Missing ~a" missing-keys)
-                      (current-error-port))))
        (with-handlers ([exn:fail:resource? exit-timeout])
          (call-with-limits
           (timeout)
           #f
           (thunk (rosette-synthesize
-                  (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
-                           bv-expr)
+                  (list input-fn output-fn initial-state spec-fn)
                   sketch
                   input-symbolic-constants
-                  #:bv-sequential envs
-                  #:lr-sequential envs
+                  envs
+                  envs
+                  (list (verilog-module-out-signal))
                   #:module-semantics module-semantics
                   #:assert-equal-on
                   (if (equal? (extra-cycles) 0)
@@ -568,28 +536,27 @@
                                        (make-list (+ (extra-cycles) 1) (list #f #t)))))
                   #:assumes assumes)))))]
 
-    ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different orders e.g. (c a b).
+    ;;; Ah, the bug with combinational at least is that the symbolics are coming in in different
+    ;orders e.g. (c a b).
     [else
      (define envs
-       (list (append (map (λ (p)
-                            (match p
-                              [(list name bw)
-                               (cons name
-                                     (bv->signal (constant (list "main.rkt" name) (bitvector bw))))]))
-                          (ports))
-                     ; If there's a clock, hardcode it to 0.
-                     (if (clock-name) (list (cons (clock-name) (bv->signal (bv 0 1)))) (list)))))
+       (list (append
+              (map (λ (p)
+                     (match p
+                       [(list name bw) (cons name (constant (list "main.rkt" name) (bitvector bw)))]))
+                   (ports))
+              ; If there's a clock, hardcode it to 0.
+              (if (clock-name) (list (cons (clock-name) (bv 0 1))) (list)))))
      (define assumes
        (begin
-         ; To make the assumes, we map over the list of envs. For each env, we map each lambda
-         ; in the (assumes) list to generate an assume. This should produce a list of lists that
-         ; we then flatten.
+         ; To make the assumes, we map over the list of envs. For each env, we map each lambda in the
+         ; (assumes) list to generate an assume. This should produce a list of lists that we then
+         ; flatten.
 
          (flatten (map (λ (env)
                          ; For the env, first generate the hashmap mapping port names to their values.
                          ; Then, for each assume, generate the assume.
-                         (define port-map
-                           (make-hash (map (λ (p) (cons (car p) (signal-value (cdr p)))) env)))
+                         (define port-map (make-hash (map (λ (p) (cons (car p) (cdr p))) env)))
                          (define assumes (map (lambda (assume-fn) (assume-fn port-map)) (assume-fns)))
 
                          assumes)
@@ -597,18 +564,16 @@
      (define input-symbolic-constants (symbolics envs))
      ;;; If pipeline depth is #f, then do normal combinational synthesis.
      (with-handlers ([exn:fail:resource? exit-timeout])
-       (call-with-limits
-        (timeout)
-        #f
-        (thunk (rosette-synthesize
-                (compose (lambda (out) (assoc-ref out (string->symbol (verilog-module-out-signal))))
-                         bv-expr)
-                sketch
-                input-symbolic-constants
-                #:bv-sequential envs
-                #:lr-sequential envs
-                #:module-semantics module-semantics
-                #:assumes assumes))))]))
+       (call-with-limits (timeout)
+                         #f
+                         (thunk (rosette-synthesize (list input-fn output-fn initial-state spec-fn)
+                                                    sketch
+                                                    input-symbolic-constants
+                                                    envs
+                                                    envs
+                                                    (list (verilog-module-out-signal))
+                                                    #:module-semantics module-semantics
+                                                    #:assumes assumes))))]))
 
 (log-info "Synthesis complete.")
 

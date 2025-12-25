@@ -1,4155 +1,3162 @@
-#lang racket/base
-(provide xilinx-ultrascale-plus-lut6)
-(require "../signal.rkt")
-(require rosette)
-(define xilinx-ultrascale-plus-lut6
-  (λ (#:I0
-      (I0 (bv->signal (constant 'I0 (bitvector 1))))
-      #:I1
-      (I1 (bv->signal (constant 'I1 (bitvector 1))))
-      #:I2
-      (I2 (bv->signal (constant 'I2 (bitvector 1))))
-      #:I3
-      (I3 (bv->signal (constant 'I3 (bitvector 1))))
-      #:I4
-      (I4 (bv->signal (constant 'I4 (bitvector 1))))
-      #:I5
-      (I5 (bv->signal (constant 'I5 (bitvector 1))))
-      #:INIT
-      (INIT (bv->signal (constant 'INIT (bitvector 64))))
-      #:unnamed-input-10
-      (unnamed-input-10
-       (bv->signal (constant 'unnamed-input-10 (bitvector 1))))
-      #:unnamed-input-12
-      (unnamed-input-12
-       (bv->signal (constant 'unnamed-input-12 (bitvector 1))))
-      #:unnamed-input-167
-      (unnamed-input-167
-       (bv->signal (constant 'unnamed-input-167 (bitvector 1))))
-      #:unnamed-input-173
-      (unnamed-input-173
-       (bv->signal (constant 'unnamed-input-173 (bitvector 1))))
-      #:unnamed-input-182
-      (unnamed-input-182
-       (bv->signal (constant 'unnamed-input-182 (bitvector 1))))
-      #:unnamed-input-278
-      (unnamed-input-278
-       (bv->signal (constant 'unnamed-input-278 (bitvector 1))))
-      #:unnamed-input-280
-      (unnamed-input-280
-       (bv->signal (constant 'unnamed-input-280 (bitvector 1))))
-      #:unnamed-input-282
-      (unnamed-input-282
-       (bv->signal (constant 'unnamed-input-282 (bitvector 1))))
-      #:unnamed-input-378
-      (unnamed-input-378
-       (bv->signal (constant 'unnamed-input-378 (bitvector 1))))
-      #:unnamed-input-380
-      (unnamed-input-380
-       (bv->signal (constant 'unnamed-input-380 (bitvector 1))))
-      #:unnamed-input-382
-      (unnamed-input-382
-       (bv->signal (constant 'unnamed-input-382 (bitvector 1))))
-      #:unnamed-input-478
-      (unnamed-input-478
-       (bv->signal (constant 'unnamed-input-478 (bitvector 1))))
-      #:unnamed-input-480
-      (unnamed-input-480
-       (bv->signal (constant 'unnamed-input-480 (bitvector 1))))
-      #:unnamed-input-482
-      (unnamed-input-482
-       (bv->signal (constant 'unnamed-input-482 (bitvector 1))))
-      #:unnamed-input-578
-      (unnamed-input-578
-       (bv->signal (constant 'unnamed-input-578 (bitvector 1))))
-      #:unnamed-input-580
-      (unnamed-input-580
-       (bv->signal (constant 'unnamed-input-580 (bitvector 1))))
-      #:unnamed-input-582
-      (unnamed-input-582
-       (bv->signal (constant 'unnamed-input-582 (bitvector 1))))
-      #:unnamed-input-678
-      (unnamed-input-678
-       (bv->signal (constant 'unnamed-input-678 (bitvector 1))))
-      #:unnamed-input-680
-      (unnamed-input-680
-       (bv->signal (constant 'unnamed-input-680 (bitvector 1))))
-      #:unnamed-input-682
-      (unnamed-input-682
-       (bv->signal (constant 'unnamed-input-682 (bitvector 1))))
-      #:unnamed-input-778
-      (unnamed-input-778
-       (bv->signal (constant 'unnamed-input-778 (bitvector 1))))
-      #:unnamed-input-780
-      (unnamed-input-780
-       (bv->signal (constant 'unnamed-input-780 (bitvector 1))))
-      #:unnamed-input-782
-      (unnamed-input-782
-       (bv->signal (constant 'unnamed-input-782 (bitvector 1))))
-      #:unnamed-input-878
-      (unnamed-input-878
-       (bv->signal (constant 'unnamed-input-878 (bitvector 1))))
-      #:unnamed-input-880
-      (unnamed-input-880
-       (bv->signal (constant 'unnamed-input-880 (bitvector 1))))
-      #:unnamed-input-1050
-      (unnamed-input-1050
-       (bv->signal (constant 'unnamed-input-1050 (bitvector 8))))
-      #:unnamed-input-1052
-      (unnamed-input-1052
-       (bv->signal (constant 'unnamed-input-1052 (bitvector 3))))
-      #:unnamed-input-1054
-      (unnamed-input-1054
-       (bv->signal (constant 'unnamed-input-1054 (bitvector 8))))
-      #:unnamed-input-1056
-      (unnamed-input-1056
-       (bv->signal (constant 'unnamed-input-1056 (bitvector 3))))
-      #:unnamed-input-1058
-      (unnamed-input-1058
-       (bv->signal (constant 'unnamed-input-1058 (bitvector 8))))
-      #:unnamed-input-1060
-      (unnamed-input-1060
-       (bv->signal (constant 'unnamed-input-1060 (bitvector 3))))
-      #:unnamed-input-1062
-      (unnamed-input-1062
-       (bv->signal (constant 'unnamed-input-1062 (bitvector 8))))
-      #:unnamed-input-1064
-      (unnamed-input-1064
-       (bv->signal (constant 'unnamed-input-1064 (bitvector 3))))
-      #:unnamed-input-1066
-      (unnamed-input-1066
-       (bv->signal (constant 'unnamed-input-1066 (bitvector 8))))
-      #:unnamed-input-1068
-      (unnamed-input-1068
-       (bv->signal (constant 'unnamed-input-1068 (bitvector 3))))
-      #:unnamed-input-1070
-      (unnamed-input-1070
-       (bv->signal (constant 'unnamed-input-1070 (bitvector 8))))
-      #:unnamed-input-1072
-      (unnamed-input-1072
-       (bv->signal (constant 'unnamed-input-1072 (bitvector 3))))
-      #:unnamed-input-1074
-      (unnamed-input-1074
-       (bv->signal (constant 'unnamed-input-1074 (bitvector 8))))
-      #:unnamed-input-1076
-      (unnamed-input-1076
-       (bv->signal (constant 'unnamed-input-1076 (bitvector 3))))
-      #:unnamed-input-1078
-      (unnamed-input-1078
-       (bv->signal (constant 'unnamed-input-1078 (bitvector 8))))
-      #:unnamed-input-1080
-      (unnamed-input-1080
-       (bv->signal (constant 'unnamed-input-1080 (bitvector 3))))
-      #:unnamed-input-1082
-      (unnamed-input-1082
-       (bv->signal (constant 'unnamed-input-1082 (bitvector 8))))
-      #:unnamed-input-1084
-      (unnamed-input-1084
-       (bv->signal (constant 'unnamed-input-1084 (bitvector 3))))
-      #:name
-      (name ""))
-    (let* ((merged-input-state-hash (list))
-           (init-hash (list))
-           (btor1 (bitvector 1))
-           (btor2 I0)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state I0)))
-           (btor3 I1)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state I1)))
-           (btor4 I2)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state I2)))
-           (btor5 I3)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state I3)))
-           (btor6 I4)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state I4)))
-           (btor7 I5)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state I5)))
-           (btor8 (bitvector 64))
-           (btor9 INIT)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state INIT)))
-           (btor10 unnamed-input-10)
-           (btor11 (bitvector 8))
-           (btor12 unnamed-input-12)
-           (btor13
-            (signal (extract 7 0 (signal-value btor9)) (signal-state btor9)))
-           (btor14 (bitvector 2))
-           (btor15 (bv->signal (bv 0 (bitvector 2))))
-           (btor16 (bitvector 3))
-           (btor17
-            (signal
-             (concat (signal-value btor4) (signal-value btor15))
-             (list)))
-           (btor18
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 8))
-             btor17))
-           (btor19
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor18))
-             (list)))
-           (btor20
-            (signal (extract 0 0 (signal-value btor19)) (signal-state btor19)))
-           (btor21 (bv->signal (bv 1 (bitvector 1))))
-           (btor22
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor4) (signal-value btor21)))
-             (list)))
-           (btor23 (bv->signal (bv 0 (bitvector 1))))
-           (btor24
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor4) (signal-value btor23)))
-             (list)))
-           (btor25
-            (signal (bvor (signal-value btor22) (signal-value btor24)) (list)))
-           (btor26 (bv->signal (bv 1 (bitvector 2))))
-           (btor27
-            (signal
-             (concat (signal-value btor4) (signal-value btor26))
-             (list)))
-           (btor28
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 8))
-             btor27))
-           (btor29
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor28))
-             (list)))
-           (btor30
-            (signal (extract 0 0 (signal-value btor29)) (signal-state btor29)))
-           (btor31
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor20) (signal-value btor30)))
-             (list)))
-           (btor32
-            (signal
-             (bvand (signal-value btor25) (signal-value btor31))
-             (list)))
-           (btor33 (bv->signal (bv 2 (bitvector 2))))
-           (btor34
-            (signal
-             (concat (signal-value btor4) (signal-value btor33))
-             (list)))
-           (btor35
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 8))
-             btor34))
-           (btor36
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor35))
-             (list)))
-           (btor37
-            (signal (extract 0 0 (signal-value btor36)) (signal-state btor36)))
-           (btor38
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor20) (signal-value btor37)))
-             (list)))
-           (btor39
-            (signal
-             (bvand (signal-value btor32) (signal-value btor38))
-             (list)))
-           (btor40 (bv->signal (bv 3 (bitvector 2))))
-           (btor41
-            (signal
-             (concat (signal-value btor4) (signal-value btor40))
-             (list)))
-           (btor42
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 8))
-             btor41))
-           (btor43
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor42))
-             (list)))
-           (btor44
-            (signal (extract 0 0 (signal-value btor43)) (signal-state btor43)))
-           (btor45
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor20) (signal-value btor44)))
-             (list)))
-           (btor46
-            (signal
-             (bvand (signal-value btor39) (signal-value btor45))
-             (list)))
-           (btor47 (if (bitvector->bool (signal-value btor46)) btor20 btor12))
-           (btor48
-            (signal
-             (concat (signal-value btor3) (signal-value btor23))
-             (list)))
-           (btor49
-            (bv->signal
-             (zero-extend (signal-value btor48) (bitvector 8))
-             btor48))
-           (btor50
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor49))
-             (list)))
-           (btor51
-            (signal (extract 0 0 (signal-value btor50)) (signal-state btor50)))
-           (btor52
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor3) (signal-value btor21)))
-             (list)))
-           (btor53
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor3) (signal-value btor23)))
-             (list)))
-           (btor54
-            (signal (bvor (signal-value btor52) (signal-value btor53)) (list)))
-           (btor55
-            (signal
-             (concat (signal-value btor3) (signal-value btor21))
-             (list)))
-           (btor56
-            (bv->signal
-             (zero-extend (signal-value btor55) (bitvector 8))
-             btor55))
-           (btor57
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor56))
-             (list)))
-           (btor58
-            (signal (extract 0 0 (signal-value btor57)) (signal-state btor57)))
-           (btor59
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor51) (signal-value btor58)))
-             (list)))
-           (btor60
-            (signal
-             (bvand (signal-value btor54) (signal-value btor59))
-             (list)))
-           (btor61
-            (signal
-             (concat (signal-value btor3) (signal-value btor23))
-             (list)))
-           (btor62
-            (signal
-             (concat (signal-value btor21) (signal-value btor61))
-             (list)))
-           (btor63
-            (bv->signal
-             (zero-extend (signal-value btor62) (bitvector 8))
-             btor62))
-           (btor64
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor63))
-             (list)))
-           (btor65
-            (signal (extract 0 0 (signal-value btor64)) (signal-state btor64)))
-           (btor66
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor51) (signal-value btor65)))
-             (list)))
-           (btor67
-            (signal
-             (bvand (signal-value btor60) (signal-value btor66))
-             (list)))
-           (btor68
-            (signal
-             (concat (signal-value btor3) (signal-value btor21))
-             (list)))
-           (btor69
-            (signal
-             (concat (signal-value btor21) (signal-value btor68))
-             (list)))
-           (btor70
-            (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 8))
-             btor69))
-           (btor71
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor70))
-             (list)))
-           (btor72
-            (signal (extract 0 0 (signal-value btor71)) (signal-state btor71)))
-           (btor73
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor51) (signal-value btor72)))
-             (list)))
-           (btor74
-            (signal
-             (bvand (signal-value btor67) (signal-value btor73))
-             (list)))
-           (btor75 (if (bitvector->bool (signal-value btor74)) btor51 btor47))
-           (btor76
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 8))
-             btor2))
-           (btor77
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor76))
-             (list)))
-           (btor78
-            (signal (extract 0 0 (signal-value btor77)) (signal-state btor77)))
-           (btor79
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor2) (signal-value btor21)))
-             (list)))
-           (btor80
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor2) (signal-value btor23)))
-             (list)))
-           (btor81
-            (signal (bvor (signal-value btor79) (signal-value btor80)) (list)))
-           (btor82
-            (signal
-             (concat (signal-value btor21) (signal-value btor2))
-             (list)))
-           (btor83
-            (bv->signal
-             (zero-extend (signal-value btor82) (bitvector 8))
-             btor82))
-           (btor84
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor83))
-             (list)))
-           (btor85
-            (signal (extract 0 0 (signal-value btor84)) (signal-state btor84)))
-           (btor86
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor78) (signal-value btor85)))
-             (list)))
-           (btor87
-            (signal
-             (bvand (signal-value btor81) (signal-value btor86))
-             (list)))
-           (btor88
-            (signal
-             (concat (signal-value btor33) (signal-value btor2))
-             (list)))
-           (btor89
-            (bv->signal
-             (zero-extend (signal-value btor88) (bitvector 8))
-             btor88))
-           (btor90
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor89))
-             (list)))
-           (btor91
-            (signal (extract 0 0 (signal-value btor90)) (signal-state btor90)))
-           (btor92
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor78) (signal-value btor91)))
-             (list)))
-           (btor93
-            (signal
-             (bvand (signal-value btor87) (signal-value btor92))
-             (list)))
-           (btor94
-            (signal
-             (concat (signal-value btor40) (signal-value btor2))
-             (list)))
-           (btor95
-            (bv->signal
-             (zero-extend (signal-value btor94) (bitvector 8))
-             btor94))
-           (btor96
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor95))
-             (list)))
-           (btor97
-            (signal (extract 0 0 (signal-value btor96)) (signal-state btor96)))
-           (btor98
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor78) (signal-value btor97)))
-             (list)))
-           (btor99
-            (signal
-             (bvand (signal-value btor93) (signal-value btor98))
-             (list)))
-           (btor100 (if (bitvector->bool (signal-value btor99)) btor78 btor75))
-           (btor101
-            (signal
-             (concat (signal-value btor3) (signal-value btor23))
-             (list)))
-           (btor102
-            (signal
-             (concat (signal-value btor4) (signal-value btor101))
-             (list)))
-           (btor103
-            (bv->signal
-             (zero-extend (signal-value btor102) (bitvector 8))
-             btor102))
-           (btor104
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor103))
-             (list)))
-           (btor105
-            (signal
-             (extract 0 0 (signal-value btor104))
-             (signal-state btor104)))
-           (btor106
-            (signal (bvxor (signal-value btor4) (signal-value btor3)) (list)))
-           (btor107
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor106) (signal-value btor21)))
-             (list)))
-           (btor108
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor106) (signal-value btor23)))
-             (list)))
-           (btor109
-            (signal
-             (bvor (signal-value btor107) (signal-value btor108))
-             (list)))
-           (btor110
-            (signal
-             (concat (signal-value btor3) (signal-value btor21))
-             (list)))
-           (btor111
-            (signal
-             (concat (signal-value btor4) (signal-value btor110))
-             (list)))
-           (btor112
-            (bv->signal
-             (zero-extend (signal-value btor111) (bitvector 8))
-             btor111))
-           (btor113
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor112))
-             (list)))
-           (btor114
-            (signal
-             (extract 0 0 (signal-value btor113))
-             (signal-state btor113)))
-           (btor115
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor105) (signal-value btor114)))
-             (list)))
-           (btor116
-            (signal
-             (bvand (signal-value btor109) (signal-value btor115))
-             (list)))
-           (btor117
-            (if (bitvector->bool (signal-value btor116)) btor105 btor100))
-           (btor118
-            (signal
-             (concat (signal-value btor23) (signal-value btor2))
-             (list)))
-           (btor119
-            (signal
-             (concat (signal-value btor4) (signal-value btor118))
-             (list)))
-           (btor120
-            (bv->signal
-             (zero-extend (signal-value btor119) (bitvector 8))
-             btor119))
-           (btor121
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor120))
-             (list)))
-           (btor122
-            (signal
-             (extract 0 0 (signal-value btor121))
-             (signal-state btor121)))
-           (btor123
-            (signal (bvxor (signal-value btor4) (signal-value btor2)) (list)))
-           (btor124
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor123) (signal-value btor21)))
-             (list)))
-           (btor125
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor123) (signal-value btor23)))
-             (list)))
-           (btor126
-            (signal
-             (bvor (signal-value btor124) (signal-value btor125))
-             (list)))
-           (btor127
-            (signal
-             (concat (signal-value btor21) (signal-value btor2))
-             (list)))
-           (btor128
-            (signal
-             (concat (signal-value btor4) (signal-value btor127))
-             (list)))
-           (btor129
-            (bv->signal
-             (zero-extend (signal-value btor128) (bitvector 8))
-             btor128))
-           (btor130
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor129))
-             (list)))
-           (btor131
-            (signal
-             (extract 0 0 (signal-value btor130))
-             (signal-state btor130)))
-           (btor132
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor122) (signal-value btor131)))
-             (list)))
-           (btor133
-            (signal
-             (bvand (signal-value btor126) (signal-value btor132))
-             (list)))
-           (btor134
-            (if (bitvector->bool (signal-value btor133)) btor122 btor117))
-           (btor135
-            (signal (concat (signal-value btor3) (signal-value btor2)) (list)))
-           (btor136
-            (bv->signal
-             (zero-extend (signal-value btor135) (bitvector 8))
-             btor135))
-           (btor137
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor136))
-             (list)))
-           (btor138
-            (signal
-             (extract 0 0 (signal-value btor137))
-             (signal-state btor137)))
-           (btor139
-            (signal (bvxor (signal-value btor2) (signal-value btor3)) (list)))
-           (btor140
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor139) (signal-value btor21)))
-             (list)))
-           (btor141
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor139) (signal-value btor23)))
-             (list)))
-           (btor142
-            (signal
-             (bvor (signal-value btor140) (signal-value btor141))
-             (list)))
-           (btor143
-            (signal (concat (signal-value btor3) (signal-value btor2)) (list)))
-           (btor144
-            (signal
-             (concat (signal-value btor21) (signal-value btor143))
-             (list)))
-           (btor145
-            (bv->signal
-             (zero-extend (signal-value btor144) (bitvector 8))
-             btor144))
-           (btor146
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor145))
-             (list)))
-           (btor147
-            (signal
-             (extract 0 0 (signal-value btor146))
-             (signal-state btor146)))
-           (btor148
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor138) (signal-value btor147)))
-             (list)))
-           (btor149
-            (signal
-             (bvand (signal-value btor142) (signal-value btor148))
-             (list)))
-           (btor150
-            (if (bitvector->bool (signal-value btor149)) btor138 btor134))
-           (btor151
-            (signal (extract 0 0 (signal-value btor9)) (signal-state btor9)))
-           (btor152
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor13)))
-             (signal-state btor13)))
-           (btor153 (signal (bvnot (signal-value btor152)) (list)))
-           (btor154
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor13)))
-             (signal-state btor13)))
-           (btor155
-            (signal
-             (bvor (signal-value btor153) (signal-value btor154))
-             (list)))
-           (btor156
-            (if (bitvector->bool (signal-value btor155)) btor151 btor150))
-           (btor157
-            (signal (concat (signal-value btor3) (signal-value btor2)) (list)))
-           (btor158
-            (signal
-             (concat (signal-value btor4) (signal-value btor157))
-             (list)))
-           (btor159
-            (bv->signal
-             (zero-extend (signal-value btor158) (bitvector 8))
-             btor158))
-           (btor160
-            (signal
-             (bvlshr (signal-value btor13) (signal-value btor159))
-             (list)))
-           (btor161
-            (signal
-             (extract 0 0 (signal-value btor160))
-             (signal-state btor160)))
-           (btor162
-            (signal
-             (bvxor (signal-value btor106) (signal-value btor2))
-             (list)))
-           (btor163
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor162) (signal-value btor21)))
-             (list)))
-           (btor164
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor162) (signal-value btor23)))
-             (list)))
-           (btor165
-            (signal
-             (bvor (signal-value btor163) (signal-value btor164))
-             (list)))
-           (btor166
-            (if (bitvector->bool (signal-value btor165)) btor161 btor156))
-           (btor167 unnamed-input-167)
-           (btor168
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor9)))
-             (signal-state btor9)))
-           (btor169 (signal (bvnot (signal-value btor168)) (list)))
-           (btor170
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor9)))
-             (signal-state btor9)))
-           (btor171
-            (signal
-             (bvor (signal-value btor169) (signal-value btor170))
-             (list)))
-           (btor172
-            (if (bitvector->bool (signal-value btor171)) btor167 btor166))
-           (btor173 unnamed-input-173)
-           (btor174
-            (signal
-             (bvxor (signal-value btor139) (signal-value btor4))
-             (list)))
-           (btor175
-            (signal
-             (bvxor (signal-value btor174) (signal-value btor5))
-             (list)))
-           (btor176
-            (signal
-             (bvxor (signal-value btor175) (signal-value btor6))
-             (list)))
-           (btor177
-            (signal
-             (bvxor (signal-value btor176) (signal-value btor7))
-             (list)))
-           (btor178
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor177) (signal-value btor23)))
-             (list)))
-           (btor179
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor177) (signal-value btor21)))
-             (list)))
-           (btor180
-            (signal
-             (bvor (signal-value btor178) (signal-value btor179))
-             (list)))
-           (btor181
-            (if (bitvector->bool (signal-value btor180)) btor173 btor172))
-           (btor182 unnamed-input-182)
-           (btor183
-            (signal (extract 15 8 (signal-value btor9)) (signal-state btor9)))
-           (btor184
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 8))
-             btor17))
-           (btor185
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor184))
-             (list)))
-           (btor186
-            (signal
-             (extract 0 0 (signal-value btor185))
-             (signal-state btor185)))
-           (btor187
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 8))
-             btor27))
-           (btor188
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor187))
-             (list)))
-           (btor189
-            (signal
-             (extract 0 0 (signal-value btor188))
-             (signal-state btor188)))
-           (btor190
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor186) (signal-value btor189)))
-             (list)))
-           (btor191
-            (signal
-             (bvand (signal-value btor25) (signal-value btor190))
-             (list)))
-           (btor192
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 8))
-             btor34))
-           (btor193
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor192))
-             (list)))
-           (btor194
-            (signal
-             (extract 0 0 (signal-value btor193))
-             (signal-state btor193)))
-           (btor195
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor186) (signal-value btor194)))
-             (list)))
-           (btor196
-            (signal
-             (bvand (signal-value btor191) (signal-value btor195))
-             (list)))
-           (btor197
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 8))
-             btor41))
-           (btor198
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor197))
-             (list)))
-           (btor199
-            (signal
-             (extract 0 0 (signal-value btor198))
-             (signal-state btor198)))
-           (btor200
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor186) (signal-value btor199)))
-             (list)))
-           (btor201
-            (signal
-             (bvand (signal-value btor196) (signal-value btor200))
-             (list)))
-           (btor202
-            (if (bitvector->bool (signal-value btor201)) btor186 btor182))
-           (btor203
-            (bv->signal
-             (zero-extend (signal-value btor48) (bitvector 8))
-             btor48))
-           (btor204
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor203))
-             (list)))
-           (btor205
-            (signal
-             (extract 0 0 (signal-value btor204))
-             (signal-state btor204)))
-           (btor206
-            (bv->signal
-             (zero-extend (signal-value btor55) (bitvector 8))
-             btor55))
-           (btor207
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor206))
-             (list)))
-           (btor208
-            (signal
-             (extract 0 0 (signal-value btor207))
-             (signal-state btor207)))
-           (btor209
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor205) (signal-value btor208)))
-             (list)))
-           (btor210
-            (signal
-             (bvand (signal-value btor54) (signal-value btor209))
-             (list)))
-           (btor211
-            (bv->signal
-             (zero-extend (signal-value btor62) (bitvector 8))
-             btor62))
-           (btor212
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor211))
-             (list)))
-           (btor213
-            (signal
-             (extract 0 0 (signal-value btor212))
-             (signal-state btor212)))
-           (btor214
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor205) (signal-value btor213)))
-             (list)))
-           (btor215
-            (signal
-             (bvand (signal-value btor210) (signal-value btor214))
-             (list)))
-           (btor216
-            (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 8))
-             btor69))
-           (btor217
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor216))
-             (list)))
-           (btor218
-            (signal
-             (extract 0 0 (signal-value btor217))
-             (signal-state btor217)))
-           (btor219
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor205) (signal-value btor218)))
-             (list)))
-           (btor220
-            (signal
-             (bvand (signal-value btor215) (signal-value btor219))
-             (list)))
-           (btor221
-            (if (bitvector->bool (signal-value btor220)) btor205 btor202))
-           (btor222
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 8))
-             btor2))
-           (btor223
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor222))
-             (list)))
-           (btor224
-            (signal
-             (extract 0 0 (signal-value btor223))
-             (signal-state btor223)))
-           (btor225
-            (bv->signal
-             (zero-extend (signal-value btor82) (bitvector 8))
-             btor82))
-           (btor226
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor225))
-             (list)))
-           (btor227
-            (signal
-             (extract 0 0 (signal-value btor226))
-             (signal-state btor226)))
-           (btor228
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor224) (signal-value btor227)))
-             (list)))
-           (btor229
-            (signal
-             (bvand (signal-value btor81) (signal-value btor228))
-             (list)))
-           (btor230
-            (bv->signal
-             (zero-extend (signal-value btor88) (bitvector 8))
-             btor88))
-           (btor231
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor230))
-             (list)))
-           (btor232
-            (signal
-             (extract 0 0 (signal-value btor231))
-             (signal-state btor231)))
-           (btor233
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor224) (signal-value btor232)))
-             (list)))
-           (btor234
-            (signal
-             (bvand (signal-value btor229) (signal-value btor233))
-             (list)))
-           (btor235
-            (bv->signal
-             (zero-extend (signal-value btor94) (bitvector 8))
-             btor94))
-           (btor236
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor235))
-             (list)))
-           (btor237
-            (signal
-             (extract 0 0 (signal-value btor236))
-             (signal-state btor236)))
-           (btor238
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor224) (signal-value btor237)))
-             (list)))
-           (btor239
-            (signal
-             (bvand (signal-value btor234) (signal-value btor238))
-             (list)))
-           (btor240
-            (if (bitvector->bool (signal-value btor239)) btor224 btor221))
-           (btor241
-            (bv->signal
-             (zero-extend (signal-value btor102) (bitvector 8))
-             btor102))
-           (btor242
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor241))
-             (list)))
-           (btor243
-            (signal
-             (extract 0 0 (signal-value btor242))
-             (signal-state btor242)))
-           (btor244
-            (bv->signal
-             (zero-extend (signal-value btor111) (bitvector 8))
-             btor111))
-           (btor245
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor244))
-             (list)))
-           (btor246
-            (signal
-             (extract 0 0 (signal-value btor245))
-             (signal-state btor245)))
-           (btor247
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor243) (signal-value btor246)))
-             (list)))
-           (btor248
-            (signal
-             (bvand (signal-value btor109) (signal-value btor247))
-             (list)))
-           (btor249
-            (if (bitvector->bool (signal-value btor248)) btor243 btor240))
-           (btor250
-            (bv->signal
-             (zero-extend (signal-value btor119) (bitvector 8))
-             btor119))
-           (btor251
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor250))
-             (list)))
-           (btor252
-            (signal
-             (extract 0 0 (signal-value btor251))
-             (signal-state btor251)))
-           (btor253
-            (bv->signal
-             (zero-extend (signal-value btor128) (bitvector 8))
-             btor128))
-           (btor254
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor253))
-             (list)))
-           (btor255
-            (signal
-             (extract 0 0 (signal-value btor254))
-             (signal-state btor254)))
-           (btor256
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor252) (signal-value btor255)))
-             (list)))
-           (btor257
-            (signal
-             (bvand (signal-value btor126) (signal-value btor256))
-             (list)))
-           (btor258
-            (if (bitvector->bool (signal-value btor257)) btor252 btor249))
-           (btor259
-            (bv->signal
-             (zero-extend (signal-value btor135) (bitvector 8))
-             btor135))
-           (btor260
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor259))
-             (list)))
-           (btor261
-            (signal
-             (extract 0 0 (signal-value btor260))
-             (signal-state btor260)))
-           (btor262
-            (bv->signal
-             (zero-extend (signal-value btor144) (bitvector 8))
-             btor144))
-           (btor263
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor262))
-             (list)))
-           (btor264
-            (signal
-             (extract 0 0 (signal-value btor263))
-             (signal-state btor263)))
-           (btor265
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor261) (signal-value btor264)))
-             (list)))
-           (btor266
-            (signal
-             (bvand (signal-value btor142) (signal-value btor265))
-             (list)))
-           (btor267
-            (if (bitvector->bool (signal-value btor266)) btor261 btor258))
-           (btor268
-            (signal (extract 8 8 (signal-value btor9)) (signal-state btor9)))
-           (btor269
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor183)))
-             (signal-state btor183)))
-           (btor270 (signal (bvnot (signal-value btor269)) (list)))
-           (btor271
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor183)))
-             (signal-state btor183)))
-           (btor272
-            (signal
-             (bvor (signal-value btor270) (signal-value btor271))
-             (list)))
-           (btor273
-            (if (bitvector->bool (signal-value btor272)) btor268 btor267))
-           (btor274
-            (bv->signal
-             (zero-extend (signal-value btor158) (bitvector 8))
-             btor158))
-           (btor275
-            (signal
-             (bvlshr (signal-value btor183) (signal-value btor274))
-             (list)))
-           (btor276
-            (signal
-             (extract 0 0 (signal-value btor275))
-             (signal-state btor275)))
-           (btor277
-            (if (bitvector->bool (signal-value btor165)) btor276 btor273))
-           (btor278 unnamed-input-278)
-           (btor279
-            (if (bitvector->bool (signal-value btor171)) btor278 btor277))
-           (btor280 unnamed-input-280)
-           (btor281
-            (if (bitvector->bool (signal-value btor180)) btor280 btor279))
-           (btor282 unnamed-input-282)
-           (btor283
-            (signal (extract 23 16 (signal-value btor9)) (signal-state btor9)))
-           (btor284
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 8))
-             btor17))
-           (btor285
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor284))
-             (list)))
-           (btor286
-            (signal
-             (extract 0 0 (signal-value btor285))
-             (signal-state btor285)))
-           (btor287
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 8))
-             btor27))
-           (btor288
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor287))
-             (list)))
-           (btor289
-            (signal
-             (extract 0 0 (signal-value btor288))
-             (signal-state btor288)))
-           (btor290
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor286) (signal-value btor289)))
-             (list)))
-           (btor291
-            (signal
-             (bvand (signal-value btor25) (signal-value btor290))
-             (list)))
-           (btor292
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 8))
-             btor34))
-           (btor293
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor292))
-             (list)))
-           (btor294
-            (signal
-             (extract 0 0 (signal-value btor293))
-             (signal-state btor293)))
-           (btor295
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor286) (signal-value btor294)))
-             (list)))
-           (btor296
-            (signal
-             (bvand (signal-value btor291) (signal-value btor295))
-             (list)))
-           (btor297
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 8))
-             btor41))
-           (btor298
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor297))
-             (list)))
-           (btor299
-            (signal
-             (extract 0 0 (signal-value btor298))
-             (signal-state btor298)))
-           (btor300
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor286) (signal-value btor299)))
-             (list)))
-           (btor301
-            (signal
-             (bvand (signal-value btor296) (signal-value btor300))
-             (list)))
-           (btor302
-            (if (bitvector->bool (signal-value btor301)) btor286 btor282))
-           (btor303
-            (bv->signal
-             (zero-extend (signal-value btor48) (bitvector 8))
-             btor48))
-           (btor304
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor303))
-             (list)))
-           (btor305
-            (signal
-             (extract 0 0 (signal-value btor304))
-             (signal-state btor304)))
-           (btor306
-            (bv->signal
-             (zero-extend (signal-value btor55) (bitvector 8))
-             btor55))
-           (btor307
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor306))
-             (list)))
-           (btor308
-            (signal
-             (extract 0 0 (signal-value btor307))
-             (signal-state btor307)))
-           (btor309
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor305) (signal-value btor308)))
-             (list)))
-           (btor310
-            (signal
-             (bvand (signal-value btor54) (signal-value btor309))
-             (list)))
-           (btor311
-            (bv->signal
-             (zero-extend (signal-value btor62) (bitvector 8))
-             btor62))
-           (btor312
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor311))
-             (list)))
-           (btor313
-            (signal
-             (extract 0 0 (signal-value btor312))
-             (signal-state btor312)))
-           (btor314
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor305) (signal-value btor313)))
-             (list)))
-           (btor315
-            (signal
-             (bvand (signal-value btor310) (signal-value btor314))
-             (list)))
-           (btor316
-            (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 8))
-             btor69))
-           (btor317
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor316))
-             (list)))
-           (btor318
-            (signal
-             (extract 0 0 (signal-value btor317))
-             (signal-state btor317)))
-           (btor319
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor305) (signal-value btor318)))
-             (list)))
-           (btor320
-            (signal
-             (bvand (signal-value btor315) (signal-value btor319))
-             (list)))
-           (btor321
-            (if (bitvector->bool (signal-value btor320)) btor305 btor302))
-           (btor322
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 8))
-             btor2))
-           (btor323
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor322))
-             (list)))
-           (btor324
-            (signal
-             (extract 0 0 (signal-value btor323))
-             (signal-state btor323)))
-           (btor325
-            (bv->signal
-             (zero-extend (signal-value btor82) (bitvector 8))
-             btor82))
-           (btor326
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor325))
-             (list)))
-           (btor327
-            (signal
-             (extract 0 0 (signal-value btor326))
-             (signal-state btor326)))
-           (btor328
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor324) (signal-value btor327)))
-             (list)))
-           (btor329
-            (signal
-             (bvand (signal-value btor81) (signal-value btor328))
-             (list)))
-           (btor330
-            (bv->signal
-             (zero-extend (signal-value btor88) (bitvector 8))
-             btor88))
-           (btor331
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor330))
-             (list)))
-           (btor332
-            (signal
-             (extract 0 0 (signal-value btor331))
-             (signal-state btor331)))
-           (btor333
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor324) (signal-value btor332)))
-             (list)))
-           (btor334
-            (signal
-             (bvand (signal-value btor329) (signal-value btor333))
-             (list)))
-           (btor335
-            (bv->signal
-             (zero-extend (signal-value btor94) (bitvector 8))
-             btor94))
-           (btor336
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor335))
-             (list)))
-           (btor337
-            (signal
-             (extract 0 0 (signal-value btor336))
-             (signal-state btor336)))
-           (btor338
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor324) (signal-value btor337)))
-             (list)))
-           (btor339
-            (signal
-             (bvand (signal-value btor334) (signal-value btor338))
-             (list)))
-           (btor340
-            (if (bitvector->bool (signal-value btor339)) btor324 btor321))
-           (btor341
-            (bv->signal
-             (zero-extend (signal-value btor102) (bitvector 8))
-             btor102))
-           (btor342
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor341))
-             (list)))
-           (btor343
-            (signal
-             (extract 0 0 (signal-value btor342))
-             (signal-state btor342)))
-           (btor344
-            (bv->signal
-             (zero-extend (signal-value btor111) (bitvector 8))
-             btor111))
-           (btor345
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor344))
-             (list)))
-           (btor346
-            (signal
-             (extract 0 0 (signal-value btor345))
-             (signal-state btor345)))
-           (btor347
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor343) (signal-value btor346)))
-             (list)))
-           (btor348
-            (signal
-             (bvand (signal-value btor109) (signal-value btor347))
-             (list)))
-           (btor349
-            (if (bitvector->bool (signal-value btor348)) btor343 btor340))
-           (btor350
-            (bv->signal
-             (zero-extend (signal-value btor119) (bitvector 8))
-             btor119))
-           (btor351
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor350))
-             (list)))
-           (btor352
-            (signal
-             (extract 0 0 (signal-value btor351))
-             (signal-state btor351)))
-           (btor353
-            (bv->signal
-             (zero-extend (signal-value btor128) (bitvector 8))
-             btor128))
-           (btor354
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor353))
-             (list)))
-           (btor355
-            (signal
-             (extract 0 0 (signal-value btor354))
-             (signal-state btor354)))
-           (btor356
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor352) (signal-value btor355)))
-             (list)))
-           (btor357
-            (signal
-             (bvand (signal-value btor126) (signal-value btor356))
-             (list)))
-           (btor358
-            (if (bitvector->bool (signal-value btor357)) btor352 btor349))
-           (btor359
-            (bv->signal
-             (zero-extend (signal-value btor135) (bitvector 8))
-             btor135))
-           (btor360
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor359))
-             (list)))
-           (btor361
-            (signal
-             (extract 0 0 (signal-value btor360))
-             (signal-state btor360)))
-           (btor362
-            (bv->signal
-             (zero-extend (signal-value btor144) (bitvector 8))
-             btor144))
-           (btor363
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor362))
-             (list)))
-           (btor364
-            (signal
-             (extract 0 0 (signal-value btor363))
-             (signal-state btor363)))
-           (btor365
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor361) (signal-value btor364)))
-             (list)))
-           (btor366
-            (signal
-             (bvand (signal-value btor142) (signal-value btor365))
-             (list)))
-           (btor367
-            (if (bitvector->bool (signal-value btor366)) btor361 btor358))
-           (btor368
-            (signal (extract 16 16 (signal-value btor9)) (signal-state btor9)))
-           (btor369
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor283)))
-             (signal-state btor283)))
-           (btor370 (signal (bvnot (signal-value btor369)) (list)))
-           (btor371
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor283)))
-             (signal-state btor283)))
-           (btor372
-            (signal
-             (bvor (signal-value btor370) (signal-value btor371))
-             (list)))
-           (btor373
-            (if (bitvector->bool (signal-value btor372)) btor368 btor367))
-           (btor374
-            (bv->signal
-             (zero-extend (signal-value btor158) (bitvector 8))
-             btor158))
-           (btor375
-            (signal
-             (bvlshr (signal-value btor283) (signal-value btor374))
-             (list)))
-           (btor376
-            (signal
-             (extract 0 0 (signal-value btor375))
-             (signal-state btor375)))
-           (btor377
-            (if (bitvector->bool (signal-value btor165)) btor376 btor373))
-           (btor378 unnamed-input-378)
-           (btor379
-            (if (bitvector->bool (signal-value btor171)) btor378 btor377))
-           (btor380 unnamed-input-380)
-           (btor381
-            (if (bitvector->bool (signal-value btor180)) btor380 btor379))
-           (btor382 unnamed-input-382)
-           (btor383
-            (signal (extract 31 24 (signal-value btor9)) (signal-state btor9)))
-           (btor384
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 8))
-             btor17))
-           (btor385
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor384))
-             (list)))
-           (btor386
-            (signal
-             (extract 0 0 (signal-value btor385))
-             (signal-state btor385)))
-           (btor387
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 8))
-             btor27))
-           (btor388
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor387))
-             (list)))
-           (btor389
-            (signal
-             (extract 0 0 (signal-value btor388))
-             (signal-state btor388)))
-           (btor390
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor386) (signal-value btor389)))
-             (list)))
-           (btor391
-            (signal
-             (bvand (signal-value btor25) (signal-value btor390))
-             (list)))
-           (btor392
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 8))
-             btor34))
-           (btor393
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor392))
-             (list)))
-           (btor394
-            (signal
-             (extract 0 0 (signal-value btor393))
-             (signal-state btor393)))
-           (btor395
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor386) (signal-value btor394)))
-             (list)))
-           (btor396
-            (signal
-             (bvand (signal-value btor391) (signal-value btor395))
-             (list)))
-           (btor397
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 8))
-             btor41))
-           (btor398
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor397))
-             (list)))
-           (btor399
-            (signal
-             (extract 0 0 (signal-value btor398))
-             (signal-state btor398)))
-           (btor400
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor386) (signal-value btor399)))
-             (list)))
-           (btor401
-            (signal
-             (bvand (signal-value btor396) (signal-value btor400))
-             (list)))
-           (btor402
-            (if (bitvector->bool (signal-value btor401)) btor386 btor382))
-           (btor403
-            (bv->signal
-             (zero-extend (signal-value btor48) (bitvector 8))
-             btor48))
-           (btor404
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor403))
-             (list)))
-           (btor405
-            (signal
-             (extract 0 0 (signal-value btor404))
-             (signal-state btor404)))
-           (btor406
-            (bv->signal
-             (zero-extend (signal-value btor55) (bitvector 8))
-             btor55))
-           (btor407
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor406))
-             (list)))
-           (btor408
-            (signal
-             (extract 0 0 (signal-value btor407))
-             (signal-state btor407)))
-           (btor409
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor405) (signal-value btor408)))
-             (list)))
-           (btor410
-            (signal
-             (bvand (signal-value btor54) (signal-value btor409))
-             (list)))
-           (btor411
-            (bv->signal
-             (zero-extend (signal-value btor62) (bitvector 8))
-             btor62))
-           (btor412
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor411))
-             (list)))
-           (btor413
-            (signal
-             (extract 0 0 (signal-value btor412))
-             (signal-state btor412)))
-           (btor414
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor405) (signal-value btor413)))
-             (list)))
-           (btor415
-            (signal
-             (bvand (signal-value btor410) (signal-value btor414))
-             (list)))
-           (btor416
-            (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 8))
-             btor69))
-           (btor417
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor416))
-             (list)))
-           (btor418
-            (signal
-             (extract 0 0 (signal-value btor417))
-             (signal-state btor417)))
-           (btor419
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor405) (signal-value btor418)))
-             (list)))
-           (btor420
-            (signal
-             (bvand (signal-value btor415) (signal-value btor419))
-             (list)))
-           (btor421
-            (if (bitvector->bool (signal-value btor420)) btor405 btor402))
-           (btor422
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 8))
-             btor2))
-           (btor423
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor422))
-             (list)))
-           (btor424
-            (signal
-             (extract 0 0 (signal-value btor423))
-             (signal-state btor423)))
-           (btor425
-            (bv->signal
-             (zero-extend (signal-value btor82) (bitvector 8))
-             btor82))
-           (btor426
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor425))
-             (list)))
-           (btor427
-            (signal
-             (extract 0 0 (signal-value btor426))
-             (signal-state btor426)))
-           (btor428
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor424) (signal-value btor427)))
-             (list)))
-           (btor429
-            (signal
-             (bvand (signal-value btor81) (signal-value btor428))
-             (list)))
-           (btor430
-            (bv->signal
-             (zero-extend (signal-value btor88) (bitvector 8))
-             btor88))
-           (btor431
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor430))
-             (list)))
-           (btor432
-            (signal
-             (extract 0 0 (signal-value btor431))
-             (signal-state btor431)))
-           (btor433
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor424) (signal-value btor432)))
-             (list)))
-           (btor434
-            (signal
-             (bvand (signal-value btor429) (signal-value btor433))
-             (list)))
-           (btor435
-            (bv->signal
-             (zero-extend (signal-value btor94) (bitvector 8))
-             btor94))
-           (btor436
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor435))
-             (list)))
-           (btor437
-            (signal
-             (extract 0 0 (signal-value btor436))
-             (signal-state btor436)))
-           (btor438
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor424) (signal-value btor437)))
-             (list)))
-           (btor439
-            (signal
-             (bvand (signal-value btor434) (signal-value btor438))
-             (list)))
-           (btor440
-            (if (bitvector->bool (signal-value btor439)) btor424 btor421))
-           (btor441
-            (bv->signal
-             (zero-extend (signal-value btor102) (bitvector 8))
-             btor102))
-           (btor442
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor441))
-             (list)))
-           (btor443
-            (signal
-             (extract 0 0 (signal-value btor442))
-             (signal-state btor442)))
-           (btor444
-            (bv->signal
-             (zero-extend (signal-value btor111) (bitvector 8))
-             btor111))
-           (btor445
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor444))
-             (list)))
-           (btor446
-            (signal
-             (extract 0 0 (signal-value btor445))
-             (signal-state btor445)))
-           (btor447
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor443) (signal-value btor446)))
-             (list)))
-           (btor448
-            (signal
-             (bvand (signal-value btor109) (signal-value btor447))
-             (list)))
-           (btor449
-            (if (bitvector->bool (signal-value btor448)) btor443 btor440))
-           (btor450
-            (bv->signal
-             (zero-extend (signal-value btor119) (bitvector 8))
-             btor119))
-           (btor451
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor450))
-             (list)))
-           (btor452
-            (signal
-             (extract 0 0 (signal-value btor451))
-             (signal-state btor451)))
-           (btor453
-            (bv->signal
-             (zero-extend (signal-value btor128) (bitvector 8))
-             btor128))
-           (btor454
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor453))
-             (list)))
-           (btor455
-            (signal
-             (extract 0 0 (signal-value btor454))
-             (signal-state btor454)))
-           (btor456
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor452) (signal-value btor455)))
-             (list)))
-           (btor457
-            (signal
-             (bvand (signal-value btor126) (signal-value btor456))
-             (list)))
-           (btor458
-            (if (bitvector->bool (signal-value btor457)) btor452 btor449))
-           (btor459
-            (bv->signal
-             (zero-extend (signal-value btor135) (bitvector 8))
-             btor135))
-           (btor460
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor459))
-             (list)))
-           (btor461
-            (signal
-             (extract 0 0 (signal-value btor460))
-             (signal-state btor460)))
-           (btor462
-            (bv->signal
-             (zero-extend (signal-value btor144) (bitvector 8))
-             btor144))
-           (btor463
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor462))
-             (list)))
-           (btor464
-            (signal
-             (extract 0 0 (signal-value btor463))
-             (signal-state btor463)))
-           (btor465
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor461) (signal-value btor464)))
-             (list)))
-           (btor466
-            (signal
-             (bvand (signal-value btor142) (signal-value btor465))
-             (list)))
-           (btor467
-            (if (bitvector->bool (signal-value btor466)) btor461 btor458))
-           (btor468
-            (signal (extract 24 24 (signal-value btor9)) (signal-state btor9)))
-           (btor469
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor383)))
-             (signal-state btor383)))
-           (btor470 (signal (bvnot (signal-value btor469)) (list)))
-           (btor471
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor383)))
-             (signal-state btor383)))
-           (btor472
-            (signal
-             (bvor (signal-value btor470) (signal-value btor471))
-             (list)))
-           (btor473
-            (if (bitvector->bool (signal-value btor472)) btor468 btor467))
-           (btor474
-            (bv->signal
-             (zero-extend (signal-value btor158) (bitvector 8))
-             btor158))
-           (btor475
-            (signal
-             (bvlshr (signal-value btor383) (signal-value btor474))
-             (list)))
-           (btor476
-            (signal
-             (extract 0 0 (signal-value btor475))
-             (signal-state btor475)))
-           (btor477
-            (if (bitvector->bool (signal-value btor165)) btor476 btor473))
-           (btor478 unnamed-input-478)
-           (btor479
-            (if (bitvector->bool (signal-value btor171)) btor478 btor477))
-           (btor480 unnamed-input-480)
-           (btor481
-            (if (bitvector->bool (signal-value btor180)) btor480 btor479))
-           (btor482 unnamed-input-482)
-           (btor483
-            (signal (extract 39 32 (signal-value btor9)) (signal-state btor9)))
-           (btor484
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 8))
-             btor17))
-           (btor485
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor484))
-             (list)))
-           (btor486
-            (signal
-             (extract 0 0 (signal-value btor485))
-             (signal-state btor485)))
-           (btor487
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 8))
-             btor27))
-           (btor488
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor487))
-             (list)))
-           (btor489
-            (signal
-             (extract 0 0 (signal-value btor488))
-             (signal-state btor488)))
-           (btor490
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor486) (signal-value btor489)))
-             (list)))
-           (btor491
-            (signal
-             (bvand (signal-value btor25) (signal-value btor490))
-             (list)))
-           (btor492
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 8))
-             btor34))
-           (btor493
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor492))
-             (list)))
-           (btor494
-            (signal
-             (extract 0 0 (signal-value btor493))
-             (signal-state btor493)))
-           (btor495
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor486) (signal-value btor494)))
-             (list)))
-           (btor496
-            (signal
-             (bvand (signal-value btor491) (signal-value btor495))
-             (list)))
-           (btor497
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 8))
-             btor41))
-           (btor498
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor497))
-             (list)))
-           (btor499
-            (signal
-             (extract 0 0 (signal-value btor498))
-             (signal-state btor498)))
-           (btor500
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor486) (signal-value btor499)))
-             (list)))
-           (btor501
-            (signal
-             (bvand (signal-value btor496) (signal-value btor500))
-             (list)))
-           (btor502
-            (if (bitvector->bool (signal-value btor501)) btor486 btor482))
-           (btor503
-            (bv->signal
-             (zero-extend (signal-value btor48) (bitvector 8))
-             btor48))
-           (btor504
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor503))
-             (list)))
-           (btor505
-            (signal
-             (extract 0 0 (signal-value btor504))
-             (signal-state btor504)))
-           (btor506
-            (bv->signal
-             (zero-extend (signal-value btor55) (bitvector 8))
-             btor55))
-           (btor507
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor506))
-             (list)))
-           (btor508
-            (signal
-             (extract 0 0 (signal-value btor507))
-             (signal-state btor507)))
-           (btor509
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor505) (signal-value btor508)))
-             (list)))
-           (btor510
-            (signal
-             (bvand (signal-value btor54) (signal-value btor509))
-             (list)))
-           (btor511
-            (bv->signal
-             (zero-extend (signal-value btor62) (bitvector 8))
-             btor62))
-           (btor512
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor511))
-             (list)))
-           (btor513
-            (signal
-             (extract 0 0 (signal-value btor512))
-             (signal-state btor512)))
-           (btor514
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor505) (signal-value btor513)))
-             (list)))
-           (btor515
-            (signal
-             (bvand (signal-value btor510) (signal-value btor514))
-             (list)))
-           (btor516
-            (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 8))
-             btor69))
-           (btor517
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor516))
-             (list)))
-           (btor518
-            (signal
-             (extract 0 0 (signal-value btor517))
-             (signal-state btor517)))
-           (btor519
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor505) (signal-value btor518)))
-             (list)))
-           (btor520
-            (signal
-             (bvand (signal-value btor515) (signal-value btor519))
-             (list)))
-           (btor521
-            (if (bitvector->bool (signal-value btor520)) btor505 btor502))
-           (btor522
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 8))
-             btor2))
-           (btor523
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor522))
-             (list)))
-           (btor524
-            (signal
-             (extract 0 0 (signal-value btor523))
-             (signal-state btor523)))
-           (btor525
-            (bv->signal
-             (zero-extend (signal-value btor82) (bitvector 8))
-             btor82))
-           (btor526
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor525))
-             (list)))
-           (btor527
-            (signal
-             (extract 0 0 (signal-value btor526))
-             (signal-state btor526)))
-           (btor528
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor524) (signal-value btor527)))
-             (list)))
-           (btor529
-            (signal
-             (bvand (signal-value btor81) (signal-value btor528))
-             (list)))
-           (btor530
-            (bv->signal
-             (zero-extend (signal-value btor88) (bitvector 8))
-             btor88))
-           (btor531
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor530))
-             (list)))
-           (btor532
-            (signal
-             (extract 0 0 (signal-value btor531))
-             (signal-state btor531)))
-           (btor533
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor524) (signal-value btor532)))
-             (list)))
-           (btor534
-            (signal
-             (bvand (signal-value btor529) (signal-value btor533))
-             (list)))
-           (btor535
-            (bv->signal
-             (zero-extend (signal-value btor94) (bitvector 8))
-             btor94))
-           (btor536
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor535))
-             (list)))
-           (btor537
-            (signal
-             (extract 0 0 (signal-value btor536))
-             (signal-state btor536)))
-           (btor538
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor524) (signal-value btor537)))
-             (list)))
-           (btor539
-            (signal
-             (bvand (signal-value btor534) (signal-value btor538))
-             (list)))
-           (btor540
-            (if (bitvector->bool (signal-value btor539)) btor524 btor521))
-           (btor541
-            (bv->signal
-             (zero-extend (signal-value btor102) (bitvector 8))
-             btor102))
-           (btor542
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor541))
-             (list)))
-           (btor543
-            (signal
-             (extract 0 0 (signal-value btor542))
-             (signal-state btor542)))
-           (btor544
-            (bv->signal
-             (zero-extend (signal-value btor111) (bitvector 8))
-             btor111))
-           (btor545
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor544))
-             (list)))
-           (btor546
-            (signal
-             (extract 0 0 (signal-value btor545))
-             (signal-state btor545)))
-           (btor547
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor543) (signal-value btor546)))
-             (list)))
-           (btor548
-            (signal
-             (bvand (signal-value btor109) (signal-value btor547))
-             (list)))
-           (btor549
-            (if (bitvector->bool (signal-value btor548)) btor543 btor540))
-           (btor550
-            (bv->signal
-             (zero-extend (signal-value btor119) (bitvector 8))
-             btor119))
-           (btor551
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor550))
-             (list)))
-           (btor552
-            (signal
-             (extract 0 0 (signal-value btor551))
-             (signal-state btor551)))
-           (btor553
-            (bv->signal
-             (zero-extend (signal-value btor128) (bitvector 8))
-             btor128))
-           (btor554
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor553))
-             (list)))
-           (btor555
-            (signal
-             (extract 0 0 (signal-value btor554))
-             (signal-state btor554)))
-           (btor556
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor552) (signal-value btor555)))
-             (list)))
-           (btor557
-            (signal
-             (bvand (signal-value btor126) (signal-value btor556))
-             (list)))
-           (btor558
-            (if (bitvector->bool (signal-value btor557)) btor552 btor549))
-           (btor559
-            (bv->signal
-             (zero-extend (signal-value btor135) (bitvector 8))
-             btor135))
-           (btor560
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor559))
-             (list)))
-           (btor561
-            (signal
-             (extract 0 0 (signal-value btor560))
-             (signal-state btor560)))
-           (btor562
-            (bv->signal
-             (zero-extend (signal-value btor144) (bitvector 8))
-             btor144))
-           (btor563
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor562))
-             (list)))
-           (btor564
-            (signal
-             (extract 0 0 (signal-value btor563))
-             (signal-state btor563)))
-           (btor565
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor561) (signal-value btor564)))
-             (list)))
-           (btor566
-            (signal
-             (bvand (signal-value btor142) (signal-value btor565))
-             (list)))
-           (btor567
-            (if (bitvector->bool (signal-value btor566)) btor561 btor558))
-           (btor568
-            (signal (extract 32 32 (signal-value btor9)) (signal-state btor9)))
-           (btor569
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor483)))
-             (signal-state btor483)))
-           (btor570 (signal (bvnot (signal-value btor569)) (list)))
-           (btor571
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor483)))
-             (signal-state btor483)))
-           (btor572
-            (signal
-             (bvor (signal-value btor570) (signal-value btor571))
-             (list)))
-           (btor573
-            (if (bitvector->bool (signal-value btor572)) btor568 btor567))
-           (btor574
-            (bv->signal
-             (zero-extend (signal-value btor158) (bitvector 8))
-             btor158))
-           (btor575
-            (signal
-             (bvlshr (signal-value btor483) (signal-value btor574))
-             (list)))
-           (btor576
-            (signal
-             (extract 0 0 (signal-value btor575))
-             (signal-state btor575)))
-           (btor577
-            (if (bitvector->bool (signal-value btor165)) btor576 btor573))
-           (btor578 unnamed-input-578)
-           (btor579
-            (if (bitvector->bool (signal-value btor171)) btor578 btor577))
-           (btor580 unnamed-input-580)
-           (btor581
-            (if (bitvector->bool (signal-value btor180)) btor580 btor579))
-           (btor582 unnamed-input-582)
-           (btor583
-            (signal (extract 47 40 (signal-value btor9)) (signal-state btor9)))
-           (btor584
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 8))
-             btor17))
-           (btor585
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor584))
-             (list)))
-           (btor586
-            (signal
-             (extract 0 0 (signal-value btor585))
-             (signal-state btor585)))
-           (btor587
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 8))
-             btor27))
-           (btor588
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor587))
-             (list)))
-           (btor589
-            (signal
-             (extract 0 0 (signal-value btor588))
-             (signal-state btor588)))
-           (btor590
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor586) (signal-value btor589)))
-             (list)))
-           (btor591
-            (signal
-             (bvand (signal-value btor25) (signal-value btor590))
-             (list)))
-           (btor592
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 8))
-             btor34))
-           (btor593
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor592))
-             (list)))
-           (btor594
-            (signal
-             (extract 0 0 (signal-value btor593))
-             (signal-state btor593)))
-           (btor595
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor586) (signal-value btor594)))
-             (list)))
-           (btor596
-            (signal
-             (bvand (signal-value btor591) (signal-value btor595))
-             (list)))
-           (btor597
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 8))
-             btor41))
-           (btor598
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor597))
-             (list)))
-           (btor599
-            (signal
-             (extract 0 0 (signal-value btor598))
-             (signal-state btor598)))
-           (btor600
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor586) (signal-value btor599)))
-             (list)))
-           (btor601
-            (signal
-             (bvand (signal-value btor596) (signal-value btor600))
-             (list)))
-           (btor602
-            (if (bitvector->bool (signal-value btor601)) btor586 btor582))
-           (btor603
-            (bv->signal
-             (zero-extend (signal-value btor48) (bitvector 8))
-             btor48))
-           (btor604
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor603))
-             (list)))
-           (btor605
-            (signal
-             (extract 0 0 (signal-value btor604))
-             (signal-state btor604)))
-           (btor606
-            (bv->signal
-             (zero-extend (signal-value btor55) (bitvector 8))
-             btor55))
-           (btor607
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor606))
-             (list)))
-           (btor608
-            (signal
-             (extract 0 0 (signal-value btor607))
-             (signal-state btor607)))
-           (btor609
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor605) (signal-value btor608)))
-             (list)))
-           (btor610
-            (signal
-             (bvand (signal-value btor54) (signal-value btor609))
-             (list)))
-           (btor611
-            (bv->signal
-             (zero-extend (signal-value btor62) (bitvector 8))
-             btor62))
-           (btor612
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor611))
-             (list)))
-           (btor613
-            (signal
-             (extract 0 0 (signal-value btor612))
-             (signal-state btor612)))
-           (btor614
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor605) (signal-value btor613)))
-             (list)))
-           (btor615
-            (signal
-             (bvand (signal-value btor610) (signal-value btor614))
-             (list)))
-           (btor616
-            (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 8))
-             btor69))
-           (btor617
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor616))
-             (list)))
-           (btor618
-            (signal
-             (extract 0 0 (signal-value btor617))
-             (signal-state btor617)))
-           (btor619
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor605) (signal-value btor618)))
-             (list)))
-           (btor620
-            (signal
-             (bvand (signal-value btor615) (signal-value btor619))
-             (list)))
-           (btor621
-            (if (bitvector->bool (signal-value btor620)) btor605 btor602))
-           (btor622
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 8))
-             btor2))
-           (btor623
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor622))
-             (list)))
-           (btor624
-            (signal
-             (extract 0 0 (signal-value btor623))
-             (signal-state btor623)))
-           (btor625
-            (bv->signal
-             (zero-extend (signal-value btor82) (bitvector 8))
-             btor82))
-           (btor626
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor625))
-             (list)))
-           (btor627
-            (signal
-             (extract 0 0 (signal-value btor626))
-             (signal-state btor626)))
-           (btor628
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor624) (signal-value btor627)))
-             (list)))
-           (btor629
-            (signal
-             (bvand (signal-value btor81) (signal-value btor628))
-             (list)))
-           (btor630
-            (bv->signal
-             (zero-extend (signal-value btor88) (bitvector 8))
-             btor88))
-           (btor631
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor630))
-             (list)))
-           (btor632
-            (signal
-             (extract 0 0 (signal-value btor631))
-             (signal-state btor631)))
-           (btor633
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor624) (signal-value btor632)))
-             (list)))
-           (btor634
-            (signal
-             (bvand (signal-value btor629) (signal-value btor633))
-             (list)))
-           (btor635
-            (bv->signal
-             (zero-extend (signal-value btor94) (bitvector 8))
-             btor94))
-           (btor636
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor635))
-             (list)))
-           (btor637
-            (signal
-             (extract 0 0 (signal-value btor636))
-             (signal-state btor636)))
-           (btor638
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor624) (signal-value btor637)))
-             (list)))
-           (btor639
-            (signal
-             (bvand (signal-value btor634) (signal-value btor638))
-             (list)))
-           (btor640
-            (if (bitvector->bool (signal-value btor639)) btor624 btor621))
-           (btor641
-            (bv->signal
-             (zero-extend (signal-value btor102) (bitvector 8))
-             btor102))
-           (btor642
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor641))
-             (list)))
-           (btor643
-            (signal
-             (extract 0 0 (signal-value btor642))
-             (signal-state btor642)))
-           (btor644
-            (bv->signal
-             (zero-extend (signal-value btor111) (bitvector 8))
-             btor111))
-           (btor645
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor644))
-             (list)))
-           (btor646
-            (signal
-             (extract 0 0 (signal-value btor645))
-             (signal-state btor645)))
-           (btor647
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor643) (signal-value btor646)))
-             (list)))
-           (btor648
-            (signal
-             (bvand (signal-value btor109) (signal-value btor647))
-             (list)))
-           (btor649
-            (if (bitvector->bool (signal-value btor648)) btor643 btor640))
-           (btor650
-            (bv->signal
-             (zero-extend (signal-value btor119) (bitvector 8))
-             btor119))
-           (btor651
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor650))
-             (list)))
-           (btor652
-            (signal
-             (extract 0 0 (signal-value btor651))
-             (signal-state btor651)))
-           (btor653
-            (bv->signal
-             (zero-extend (signal-value btor128) (bitvector 8))
-             btor128))
-           (btor654
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor653))
-             (list)))
-           (btor655
-            (signal
-             (extract 0 0 (signal-value btor654))
-             (signal-state btor654)))
-           (btor656
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor652) (signal-value btor655)))
-             (list)))
-           (btor657
-            (signal
-             (bvand (signal-value btor126) (signal-value btor656))
-             (list)))
-           (btor658
-            (if (bitvector->bool (signal-value btor657)) btor652 btor649))
-           (btor659
-            (bv->signal
-             (zero-extend (signal-value btor135) (bitvector 8))
-             btor135))
-           (btor660
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor659))
-             (list)))
-           (btor661
-            (signal
-             (extract 0 0 (signal-value btor660))
-             (signal-state btor660)))
-           (btor662
-            (bv->signal
-             (zero-extend (signal-value btor144) (bitvector 8))
-             btor144))
-           (btor663
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor662))
-             (list)))
-           (btor664
-            (signal
-             (extract 0 0 (signal-value btor663))
-             (signal-state btor663)))
-           (btor665
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor661) (signal-value btor664)))
-             (list)))
-           (btor666
-            (signal
-             (bvand (signal-value btor142) (signal-value btor665))
-             (list)))
-           (btor667
-            (if (bitvector->bool (signal-value btor666)) btor661 btor658))
-           (btor668
-            (signal (extract 40 40 (signal-value btor9)) (signal-state btor9)))
-           (btor669
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor583)))
-             (signal-state btor583)))
-           (btor670 (signal (bvnot (signal-value btor669)) (list)))
-           (btor671
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor583)))
-             (signal-state btor583)))
-           (btor672
-            (signal
-             (bvor (signal-value btor670) (signal-value btor671))
-             (list)))
-           (btor673
-            (if (bitvector->bool (signal-value btor672)) btor668 btor667))
-           (btor674
-            (bv->signal
-             (zero-extend (signal-value btor158) (bitvector 8))
-             btor158))
-           (btor675
-            (signal
-             (bvlshr (signal-value btor583) (signal-value btor674))
-             (list)))
-           (btor676
-            (signal
-             (extract 0 0 (signal-value btor675))
-             (signal-state btor675)))
-           (btor677
-            (if (bitvector->bool (signal-value btor165)) btor676 btor673))
-           (btor678 unnamed-input-678)
-           (btor679
-            (if (bitvector->bool (signal-value btor171)) btor678 btor677))
-           (btor680 unnamed-input-680)
-           (btor681
-            (if (bitvector->bool (signal-value btor180)) btor680 btor679))
-           (btor682 unnamed-input-682)
-           (btor683
-            (signal (extract 55 48 (signal-value btor9)) (signal-state btor9)))
-           (btor684
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 8))
-             btor17))
-           (btor685
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor684))
-             (list)))
-           (btor686
-            (signal
-             (extract 0 0 (signal-value btor685))
-             (signal-state btor685)))
-           (btor687
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 8))
-             btor27))
-           (btor688
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor687))
-             (list)))
-           (btor689
-            (signal
-             (extract 0 0 (signal-value btor688))
-             (signal-state btor688)))
-           (btor690
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor686) (signal-value btor689)))
-             (list)))
-           (btor691
-            (signal
-             (bvand (signal-value btor25) (signal-value btor690))
-             (list)))
-           (btor692
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 8))
-             btor34))
-           (btor693
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor692))
-             (list)))
-           (btor694
-            (signal
-             (extract 0 0 (signal-value btor693))
-             (signal-state btor693)))
-           (btor695
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor686) (signal-value btor694)))
-             (list)))
-           (btor696
-            (signal
-             (bvand (signal-value btor691) (signal-value btor695))
-             (list)))
-           (btor697
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 8))
-             btor41))
-           (btor698
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor697))
-             (list)))
-           (btor699
-            (signal
-             (extract 0 0 (signal-value btor698))
-             (signal-state btor698)))
-           (btor700
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor686) (signal-value btor699)))
-             (list)))
-           (btor701
-            (signal
-             (bvand (signal-value btor696) (signal-value btor700))
-             (list)))
-           (btor702
-            (if (bitvector->bool (signal-value btor701)) btor686 btor682))
-           (btor703
-            (bv->signal
-             (zero-extend (signal-value btor48) (bitvector 8))
-             btor48))
-           (btor704
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor703))
-             (list)))
-           (btor705
-            (signal
-             (extract 0 0 (signal-value btor704))
-             (signal-state btor704)))
-           (btor706
-            (bv->signal
-             (zero-extend (signal-value btor55) (bitvector 8))
-             btor55))
-           (btor707
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor706))
-             (list)))
-           (btor708
-            (signal
-             (extract 0 0 (signal-value btor707))
-             (signal-state btor707)))
-           (btor709
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor705) (signal-value btor708)))
-             (list)))
-           (btor710
-            (signal
-             (bvand (signal-value btor54) (signal-value btor709))
-             (list)))
-           (btor711
-            (bv->signal
-             (zero-extend (signal-value btor62) (bitvector 8))
-             btor62))
-           (btor712
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor711))
-             (list)))
-           (btor713
-            (signal
-             (extract 0 0 (signal-value btor712))
-             (signal-state btor712)))
-           (btor714
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor705) (signal-value btor713)))
-             (list)))
-           (btor715
-            (signal
-             (bvand (signal-value btor710) (signal-value btor714))
-             (list)))
-           (btor716
-            (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 8))
-             btor69))
-           (btor717
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor716))
-             (list)))
-           (btor718
-            (signal
-             (extract 0 0 (signal-value btor717))
-             (signal-state btor717)))
-           (btor719
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor705) (signal-value btor718)))
-             (list)))
-           (btor720
-            (signal
-             (bvand (signal-value btor715) (signal-value btor719))
-             (list)))
-           (btor721
-            (if (bitvector->bool (signal-value btor720)) btor705 btor702))
-           (btor722
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 8))
-             btor2))
-           (btor723
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor722))
-             (list)))
-           (btor724
-            (signal
-             (extract 0 0 (signal-value btor723))
-             (signal-state btor723)))
-           (btor725
-            (bv->signal
-             (zero-extend (signal-value btor82) (bitvector 8))
-             btor82))
-           (btor726
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor725))
-             (list)))
-           (btor727
-            (signal
-             (extract 0 0 (signal-value btor726))
-             (signal-state btor726)))
-           (btor728
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor724) (signal-value btor727)))
-             (list)))
-           (btor729
-            (signal
-             (bvand (signal-value btor81) (signal-value btor728))
-             (list)))
-           (btor730
-            (bv->signal
-             (zero-extend (signal-value btor88) (bitvector 8))
-             btor88))
-           (btor731
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor730))
-             (list)))
-           (btor732
-            (signal
-             (extract 0 0 (signal-value btor731))
-             (signal-state btor731)))
-           (btor733
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor724) (signal-value btor732)))
-             (list)))
-           (btor734
-            (signal
-             (bvand (signal-value btor729) (signal-value btor733))
-             (list)))
-           (btor735
-            (bv->signal
-             (zero-extend (signal-value btor94) (bitvector 8))
-             btor94))
-           (btor736
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor735))
-             (list)))
-           (btor737
-            (signal
-             (extract 0 0 (signal-value btor736))
-             (signal-state btor736)))
-           (btor738
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor724) (signal-value btor737)))
-             (list)))
-           (btor739
-            (signal
-             (bvand (signal-value btor734) (signal-value btor738))
-             (list)))
-           (btor740
-            (if (bitvector->bool (signal-value btor739)) btor724 btor721))
-           (btor741
-            (bv->signal
-             (zero-extend (signal-value btor102) (bitvector 8))
-             btor102))
-           (btor742
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor741))
-             (list)))
-           (btor743
-            (signal
-             (extract 0 0 (signal-value btor742))
-             (signal-state btor742)))
-           (btor744
-            (bv->signal
-             (zero-extend (signal-value btor111) (bitvector 8))
-             btor111))
-           (btor745
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor744))
-             (list)))
-           (btor746
-            (signal
-             (extract 0 0 (signal-value btor745))
-             (signal-state btor745)))
-           (btor747
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor743) (signal-value btor746)))
-             (list)))
-           (btor748
-            (signal
-             (bvand (signal-value btor109) (signal-value btor747))
-             (list)))
-           (btor749
-            (if (bitvector->bool (signal-value btor748)) btor743 btor740))
-           (btor750
-            (bv->signal
-             (zero-extend (signal-value btor119) (bitvector 8))
-             btor119))
-           (btor751
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor750))
-             (list)))
-           (btor752
-            (signal
-             (extract 0 0 (signal-value btor751))
-             (signal-state btor751)))
-           (btor753
-            (bv->signal
-             (zero-extend (signal-value btor128) (bitvector 8))
-             btor128))
-           (btor754
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor753))
-             (list)))
-           (btor755
-            (signal
-             (extract 0 0 (signal-value btor754))
-             (signal-state btor754)))
-           (btor756
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor752) (signal-value btor755)))
-             (list)))
-           (btor757
-            (signal
-             (bvand (signal-value btor126) (signal-value btor756))
-             (list)))
-           (btor758
-            (if (bitvector->bool (signal-value btor757)) btor752 btor749))
-           (btor759
-            (bv->signal
-             (zero-extend (signal-value btor135) (bitvector 8))
-             btor135))
-           (btor760
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor759))
-             (list)))
-           (btor761
-            (signal
-             (extract 0 0 (signal-value btor760))
-             (signal-state btor760)))
-           (btor762
-            (bv->signal
-             (zero-extend (signal-value btor144) (bitvector 8))
-             btor144))
-           (btor763
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor762))
-             (list)))
-           (btor764
-            (signal
-             (extract 0 0 (signal-value btor763))
-             (signal-state btor763)))
-           (btor765
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor761) (signal-value btor764)))
-             (list)))
-           (btor766
-            (signal
-             (bvand (signal-value btor142) (signal-value btor765))
-             (list)))
-           (btor767
-            (if (bitvector->bool (signal-value btor766)) btor761 btor758))
-           (btor768
-            (signal (extract 48 48 (signal-value btor9)) (signal-state btor9)))
-           (btor769
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor683)))
-             (signal-state btor683)))
-           (btor770 (signal (bvnot (signal-value btor769)) (list)))
-           (btor771
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor683)))
-             (signal-state btor683)))
-           (btor772
-            (signal
-             (bvor (signal-value btor770) (signal-value btor771))
-             (list)))
-           (btor773
-            (if (bitvector->bool (signal-value btor772)) btor768 btor767))
-           (btor774
-            (bv->signal
-             (zero-extend (signal-value btor158) (bitvector 8))
-             btor158))
-           (btor775
-            (signal
-             (bvlshr (signal-value btor683) (signal-value btor774))
-             (list)))
-           (btor776
-            (signal
-             (extract 0 0 (signal-value btor775))
-             (signal-state btor775)))
-           (btor777
-            (if (bitvector->bool (signal-value btor165)) btor776 btor773))
-           (btor778 unnamed-input-778)
-           (btor779
-            (if (bitvector->bool (signal-value btor171)) btor778 btor777))
-           (btor780 unnamed-input-780)
-           (btor781
-            (if (bitvector->bool (signal-value btor180)) btor780 btor779))
-           (btor782 unnamed-input-782)
-           (btor783
-            (signal (extract 63 56 (signal-value btor9)) (signal-state btor9)))
-           (btor784
-            (bv->signal
-             (zero-extend (signal-value btor17) (bitvector 8))
-             btor17))
-           (btor785
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor784))
-             (list)))
-           (btor786
-            (signal
-             (extract 0 0 (signal-value btor785))
-             (signal-state btor785)))
-           (btor787
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 8))
-             btor27))
-           (btor788
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor787))
-             (list)))
-           (btor789
-            (signal
-             (extract 0 0 (signal-value btor788))
-             (signal-state btor788)))
-           (btor790
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor786) (signal-value btor789)))
-             (list)))
-           (btor791
-            (signal
-             (bvand (signal-value btor25) (signal-value btor790))
-             (list)))
-           (btor792
-            (bv->signal
-             (zero-extend (signal-value btor34) (bitvector 8))
-             btor34))
-           (btor793
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor792))
-             (list)))
-           (btor794
-            (signal
-             (extract 0 0 (signal-value btor793))
-             (signal-state btor793)))
-           (btor795
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor786) (signal-value btor794)))
-             (list)))
-           (btor796
-            (signal
-             (bvand (signal-value btor791) (signal-value btor795))
-             (list)))
-           (btor797
-            (bv->signal
-             (zero-extend (signal-value btor41) (bitvector 8))
-             btor41))
-           (btor798
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor797))
-             (list)))
-           (btor799
-            (signal
-             (extract 0 0 (signal-value btor798))
-             (signal-state btor798)))
-           (btor800
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor786) (signal-value btor799)))
-             (list)))
-           (btor801
-            (signal
-             (bvand (signal-value btor796) (signal-value btor800))
-             (list)))
-           (btor802
-            (if (bitvector->bool (signal-value btor801)) btor786 btor782))
-           (btor803
-            (bv->signal
-             (zero-extend (signal-value btor48) (bitvector 8))
-             btor48))
-           (btor804
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor803))
-             (list)))
-           (btor805
-            (signal
-             (extract 0 0 (signal-value btor804))
-             (signal-state btor804)))
-           (btor806
-            (bv->signal
-             (zero-extend (signal-value btor55) (bitvector 8))
-             btor55))
-           (btor807
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor806))
-             (list)))
-           (btor808
-            (signal
-             (extract 0 0 (signal-value btor807))
-             (signal-state btor807)))
-           (btor809
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor805) (signal-value btor808)))
-             (list)))
-           (btor810
-            (signal
-             (bvand (signal-value btor54) (signal-value btor809))
-             (list)))
-           (btor811
-            (bv->signal
-             (zero-extend (signal-value btor62) (bitvector 8))
-             btor62))
-           (btor812
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor811))
-             (list)))
-           (btor813
-            (signal
-             (extract 0 0 (signal-value btor812))
-             (signal-state btor812)))
-           (btor814
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor805) (signal-value btor813)))
-             (list)))
-           (btor815
-            (signal
-             (bvand (signal-value btor810) (signal-value btor814))
-             (list)))
-           (btor816
-            (bv->signal
-             (zero-extend (signal-value btor69) (bitvector 8))
-             btor69))
-           (btor817
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor816))
-             (list)))
-           (btor818
-            (signal
-             (extract 0 0 (signal-value btor817))
-             (signal-state btor817)))
-           (btor819
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor805) (signal-value btor818)))
-             (list)))
-           (btor820
-            (signal
-             (bvand (signal-value btor815) (signal-value btor819))
-             (list)))
-           (btor821
-            (if (bitvector->bool (signal-value btor820)) btor805 btor802))
-           (btor822
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 8))
-             btor2))
-           (btor823
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor822))
-             (list)))
-           (btor824
-            (signal
-             (extract 0 0 (signal-value btor823))
-             (signal-state btor823)))
-           (btor825
-            (bv->signal
-             (zero-extend (signal-value btor82) (bitvector 8))
-             btor82))
-           (btor826
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor825))
-             (list)))
-           (btor827
-            (signal
-             (extract 0 0 (signal-value btor826))
-             (signal-state btor826)))
-           (btor828
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor824) (signal-value btor827)))
-             (list)))
-           (btor829
-            (signal
-             (bvand (signal-value btor81) (signal-value btor828))
-             (list)))
-           (btor830
-            (bv->signal
-             (zero-extend (signal-value btor88) (bitvector 8))
-             btor88))
-           (btor831
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor830))
-             (list)))
-           (btor832
-            (signal
-             (extract 0 0 (signal-value btor831))
-             (signal-state btor831)))
-           (btor833
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor824) (signal-value btor832)))
-             (list)))
-           (btor834
-            (signal
-             (bvand (signal-value btor829) (signal-value btor833))
-             (list)))
-           (btor835
-            (bv->signal
-             (zero-extend (signal-value btor94) (bitvector 8))
-             btor94))
-           (btor836
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor835))
-             (list)))
-           (btor837
-            (signal
-             (extract 0 0 (signal-value btor836))
-             (signal-state btor836)))
-           (btor838
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor824) (signal-value btor837)))
-             (list)))
-           (btor839
-            (signal
-             (bvand (signal-value btor834) (signal-value btor838))
-             (list)))
-           (btor840
-            (if (bitvector->bool (signal-value btor839)) btor824 btor821))
-           (btor841
-            (bv->signal
-             (zero-extend (signal-value btor102) (bitvector 8))
-             btor102))
-           (btor842
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor841))
-             (list)))
-           (btor843
-            (signal
-             (extract 0 0 (signal-value btor842))
-             (signal-state btor842)))
-           (btor844
-            (bv->signal
-             (zero-extend (signal-value btor111) (bitvector 8))
-             btor111))
-           (btor845
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor844))
-             (list)))
-           (btor846
-            (signal
-             (extract 0 0 (signal-value btor845))
-             (signal-state btor845)))
-           (btor847
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor843) (signal-value btor846)))
-             (list)))
-           (btor848
-            (signal
-             (bvand (signal-value btor109) (signal-value btor847))
-             (list)))
-           (btor849
-            (if (bitvector->bool (signal-value btor848)) btor843 btor840))
-           (btor850
-            (bv->signal
-             (zero-extend (signal-value btor119) (bitvector 8))
-             btor119))
-           (btor851
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor850))
-             (list)))
-           (btor852
-            (signal
-             (extract 0 0 (signal-value btor851))
-             (signal-state btor851)))
-           (btor853
-            (bv->signal
-             (zero-extend (signal-value btor128) (bitvector 8))
-             btor128))
-           (btor854
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor853))
-             (list)))
-           (btor855
-            (signal
-             (extract 0 0 (signal-value btor854))
-             (signal-state btor854)))
-           (btor856
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor852) (signal-value btor855)))
-             (list)))
-           (btor857
-            (signal
-             (bvand (signal-value btor126) (signal-value btor856))
-             (list)))
-           (btor858
-            (if (bitvector->bool (signal-value btor857)) btor852 btor849))
-           (btor859
-            (bv->signal
-             (zero-extend (signal-value btor135) (bitvector 8))
-             btor135))
-           (btor860
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor859))
-             (list)))
-           (btor861
-            (signal
-             (extract 0 0 (signal-value btor860))
-             (signal-state btor860)))
-           (btor862
-            (bv->signal
-             (zero-extend (signal-value btor144) (bitvector 8))
-             btor144))
-           (btor863
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor862))
-             (list)))
-           (btor864
-            (signal
-             (extract 0 0 (signal-value btor863))
-             (signal-state btor863)))
-           (btor865
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor861) (signal-value btor864)))
-             (list)))
-           (btor866
-            (signal
-             (bvand (signal-value btor142) (signal-value btor865))
-             (list)))
-           (btor867
-            (if (bitvector->bool (signal-value btor866)) btor861 btor858))
-           (btor868
-            (signal (extract 56 56 (signal-value btor9)) (signal-state btor9)))
-           (btor869
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor783)))
-             (signal-state btor783)))
-           (btor870 (signal (bvnot (signal-value btor869)) (list)))
-           (btor871
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor783)))
-             (signal-state btor783)))
-           (btor872
-            (signal
-             (bvor (signal-value btor870) (signal-value btor871))
-             (list)))
-           (btor873
-            (if (bitvector->bool (signal-value btor872)) btor868 btor867))
-           (btor874
-            (bv->signal
-             (zero-extend (signal-value btor158) (bitvector 8))
-             btor158))
-           (btor875
-            (signal
-             (bvlshr (signal-value btor783) (signal-value btor874))
-             (list)))
-           (btor876
-            (signal
-             (extract 0 0 (signal-value btor875))
-             (signal-state btor875)))
-           (btor877
-            (if (bitvector->bool (signal-value btor165)) btor876 btor873))
-           (btor878 unnamed-input-878)
-           (btor879
-            (if (bitvector->bool (signal-value btor171)) btor878 btor877))
-           (btor880 unnamed-input-880)
-           (btor881
-            (if (bitvector->bool (signal-value btor180)) btor880 btor879))
-           (btor882
-            (signal
-             (concat (signal-value btor281) (signal-value btor181))
-             (list)))
-           (btor883
-            (signal
-             (concat (signal-value btor381) (signal-value btor882))
-             (list)))
-           (btor884 (bitvector 4))
-           (btor885
-            (signal
-             (concat (signal-value btor481) (signal-value btor883))
-             (list)))
-           (btor886 (bitvector 5))
-           (btor887
-            (signal
-             (concat (signal-value btor581) (signal-value btor885))
-             (list)))
-           (btor888 (bitvector 6))
-           (btor889
-            (signal
-             (concat (signal-value btor681) (signal-value btor887))
-             (list)))
-           (btor890 (bitvector 7))
-           (btor891
-            (signal
-             (concat (signal-value btor781) (signal-value btor889))
-             (list)))
-           (btor892
-            (signal
-             (concat (signal-value btor881) (signal-value btor891))
-             (list)))
-           (btor893
-            (signal
-             (concat (signal-value btor7) (signal-value btor15))
-             (list)))
-           (btor894
-            (bv->signal
-             (zero-extend (signal-value btor893) (bitvector 8))
-             btor893))
-           (btor895
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor894))
-             (list)))
-           (btor896
-            (signal
-             (extract 0 0 (signal-value btor895))
-             (signal-state btor895)))
-           (btor897
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor7) (signal-value btor21)))
-             (list)))
-           (btor898
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor7) (signal-value btor23)))
-             (list)))
-           (btor899
-            (signal
-             (bvor (signal-value btor897) (signal-value btor898))
-             (list)))
-           (btor900
-            (signal
-             (concat (signal-value btor7) (signal-value btor26))
-             (list)))
-           (btor901
-            (bv->signal
-             (zero-extend (signal-value btor900) (bitvector 8))
-             btor900))
-           (btor902
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor901))
-             (list)))
-           (btor903
-            (signal
-             (extract 0 0 (signal-value btor902))
-             (signal-state btor902)))
-           (btor904
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor896) (signal-value btor903)))
-             (list)))
-           (btor905
-            (signal
-             (bvand (signal-value btor899) (signal-value btor904))
-             (list)))
-           (btor906
-            (signal
-             (concat (signal-value btor7) (signal-value btor33))
-             (list)))
-           (btor907
-            (bv->signal
-             (zero-extend (signal-value btor906) (bitvector 8))
-             btor906))
-           (btor908
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor907))
-             (list)))
-           (btor909
-            (signal
-             (extract 0 0 (signal-value btor908))
-             (signal-state btor908)))
-           (btor910
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor896) (signal-value btor909)))
-             (list)))
-           (btor911
-            (signal
-             (bvand (signal-value btor905) (signal-value btor910))
-             (list)))
-           (btor912
-            (signal
-             (concat (signal-value btor7) (signal-value btor40))
-             (list)))
-           (btor913
-            (bv->signal
-             (zero-extend (signal-value btor912) (bitvector 8))
-             btor912))
-           (btor914
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor913))
-             (list)))
-           (btor915
-            (signal
-             (extract 0 0 (signal-value btor914))
-             (signal-state btor914)))
-           (btor916
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor896) (signal-value btor915)))
-             (list)))
-           (btor917
-            (signal
-             (bvand (signal-value btor911) (signal-value btor916))
-             (list)))
-           (btor918
-            (if (bitvector->bool (signal-value btor917)) btor896 btor10))
-           (btor919
-            (signal
-             (concat (signal-value btor6) (signal-value btor23))
-             (list)))
-           (btor920
-            (bv->signal
-             (zero-extend (signal-value btor919) (bitvector 8))
-             btor919))
-           (btor921
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor920))
-             (list)))
-           (btor922
-            (signal
-             (extract 0 0 (signal-value btor921))
-             (signal-state btor921)))
-           (btor923
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor6) (signal-value btor21)))
-             (list)))
-           (btor924
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor6) (signal-value btor23)))
-             (list)))
-           (btor925
-            (signal
-             (bvor (signal-value btor923) (signal-value btor924))
-             (list)))
-           (btor926
-            (signal
-             (concat (signal-value btor6) (signal-value btor21))
-             (list)))
-           (btor927
-            (bv->signal
-             (zero-extend (signal-value btor926) (bitvector 8))
-             btor926))
-           (btor928
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor927))
-             (list)))
-           (btor929
-            (signal
-             (extract 0 0 (signal-value btor928))
-             (signal-state btor928)))
-           (btor930
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor922) (signal-value btor929)))
-             (list)))
-           (btor931
-            (signal
-             (bvand (signal-value btor925) (signal-value btor930))
-             (list)))
-           (btor932
-            (signal
-             (concat (signal-value btor6) (signal-value btor23))
-             (list)))
-           (btor933
-            (signal
-             (concat (signal-value btor21) (signal-value btor932))
-             (list)))
-           (btor934
-            (bv->signal
-             (zero-extend (signal-value btor933) (bitvector 8))
-             btor933))
-           (btor935
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor934))
-             (list)))
-           (btor936
-            (signal
-             (extract 0 0 (signal-value btor935))
-             (signal-state btor935)))
-           (btor937
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor922) (signal-value btor936)))
-             (list)))
-           (btor938
-            (signal
-             (bvand (signal-value btor931) (signal-value btor937))
-             (list)))
-           (btor939
-            (signal
-             (concat (signal-value btor6) (signal-value btor21))
-             (list)))
-           (btor940
-            (signal
-             (concat (signal-value btor21) (signal-value btor939))
-             (list)))
-           (btor941
-            (bv->signal
-             (zero-extend (signal-value btor940) (bitvector 8))
-             btor940))
-           (btor942
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor941))
-             (list)))
-           (btor943
-            (signal
-             (extract 0 0 (signal-value btor942))
-             (signal-state btor942)))
-           (btor944
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor922) (signal-value btor943)))
-             (list)))
-           (btor945
-            (signal
-             (bvand (signal-value btor938) (signal-value btor944))
-             (list)))
-           (btor946
-            (if (bitvector->bool (signal-value btor945)) btor922 btor918))
-           (btor947
-            (bv->signal
-             (zero-extend (signal-value btor5) (bitvector 8))
-             btor5))
-           (btor948
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor947))
-             (list)))
-           (btor949
-            (signal
-             (extract 0 0 (signal-value btor948))
-             (signal-state btor948)))
-           (btor950
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor5) (signal-value btor21)))
-             (list)))
-           (btor951
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor5) (signal-value btor23)))
-             (list)))
-           (btor952
-            (signal
-             (bvor (signal-value btor950) (signal-value btor951))
-             (list)))
-           (btor953
-            (signal
-             (concat (signal-value btor21) (signal-value btor5))
-             (list)))
-           (btor954
-            (bv->signal
-             (zero-extend (signal-value btor953) (bitvector 8))
-             btor953))
-           (btor955
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor954))
-             (list)))
-           (btor956
-            (signal
-             (extract 0 0 (signal-value btor955))
-             (signal-state btor955)))
-           (btor957
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor949) (signal-value btor956)))
-             (list)))
-           (btor958
-            (signal
-             (bvand (signal-value btor952) (signal-value btor957))
-             (list)))
-           (btor959
-            (signal
-             (concat (signal-value btor33) (signal-value btor5))
-             (list)))
-           (btor960
-            (bv->signal
-             (zero-extend (signal-value btor959) (bitvector 8))
-             btor959))
-           (btor961
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor960))
-             (list)))
-           (btor962
-            (signal
-             (extract 0 0 (signal-value btor961))
-             (signal-state btor961)))
-           (btor963
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor949) (signal-value btor962)))
-             (list)))
-           (btor964
-            (signal
-             (bvand (signal-value btor958) (signal-value btor963))
-             (list)))
-           (btor965
-            (signal
-             (concat (signal-value btor40) (signal-value btor5))
-             (list)))
-           (btor966
-            (bv->signal
-             (zero-extend (signal-value btor965) (bitvector 8))
-             btor965))
-           (btor967
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor966))
-             (list)))
-           (btor968
-            (signal
-             (extract 0 0 (signal-value btor967))
-             (signal-state btor967)))
-           (btor969
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor949) (signal-value btor968)))
-             (list)))
-           (btor970
-            (signal
-             (bvand (signal-value btor964) (signal-value btor969))
-             (list)))
-           (btor971
-            (if (bitvector->bool (signal-value btor970)) btor949 btor946))
-           (btor972
-            (signal
-             (concat (signal-value btor6) (signal-value btor23))
-             (list)))
-           (btor973
-            (signal
-             (concat (signal-value btor7) (signal-value btor972))
-             (list)))
-           (btor974
-            (bv->signal
-             (zero-extend (signal-value btor973) (bitvector 8))
-             btor973))
-           (btor975
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor974))
-             (list)))
-           (btor976
-            (signal
-             (extract 0 0 (signal-value btor975))
-             (signal-state btor975)))
-           (btor977
-            (signal (bvxor (signal-value btor7) (signal-value btor6)) (list)))
-           (btor978
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor977) (signal-value btor21)))
-             (list)))
-           (btor979
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor977) (signal-value btor23)))
-             (list)))
-           (btor980
-            (signal
-             (bvor (signal-value btor978) (signal-value btor979))
-             (list)))
-           (btor981
-            (signal
-             (concat (signal-value btor6) (signal-value btor21))
-             (list)))
-           (btor982
-            (signal
-             (concat (signal-value btor7) (signal-value btor981))
-             (list)))
-           (btor983
-            (bv->signal
-             (zero-extend (signal-value btor982) (bitvector 8))
-             btor982))
-           (btor984
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor983))
-             (list)))
-           (btor985
-            (signal
-             (extract 0 0 (signal-value btor984))
-             (signal-state btor984)))
-           (btor986
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor976) (signal-value btor985)))
-             (list)))
-           (btor987
-            (signal
-             (bvand (signal-value btor980) (signal-value btor986))
-             (list)))
-           (btor988
-            (if (bitvector->bool (signal-value btor987)) btor976 btor971))
-           (btor989
-            (signal
-             (concat (signal-value btor23) (signal-value btor5))
-             (list)))
-           (btor990
-            (signal
-             (concat (signal-value btor7) (signal-value btor989))
-             (list)))
-           (btor991
-            (bv->signal
-             (zero-extend (signal-value btor990) (bitvector 8))
-             btor990))
-           (btor992
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor991))
-             (list)))
-           (btor993
-            (signal
-             (extract 0 0 (signal-value btor992))
-             (signal-state btor992)))
-           (btor994
-            (signal (bvxor (signal-value btor7) (signal-value btor5)) (list)))
-           (btor995
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor994) (signal-value btor21)))
-             (list)))
-           (btor996
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor994) (signal-value btor23)))
-             (list)))
-           (btor997
-            (signal
-             (bvor (signal-value btor995) (signal-value btor996))
-             (list)))
-           (btor998
-            (signal
-             (concat (signal-value btor21) (signal-value btor5))
-             (list)))
-           (btor999
-            (signal
-             (concat (signal-value btor7) (signal-value btor998))
-             (list)))
-           (btor1000
-            (bv->signal
-             (zero-extend (signal-value btor999) (bitvector 8))
-             btor999))
-           (btor1001
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor1000))
-             (list)))
-           (btor1002
-            (signal
-             (extract 0 0 (signal-value btor1001))
-             (signal-state btor1001)))
-           (btor1003
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor993) (signal-value btor1002)))
-             (list)))
-           (btor1004
-            (signal
-             (bvand (signal-value btor997) (signal-value btor1003))
-             (list)))
-           (btor1005
-            (if (bitvector->bool (signal-value btor1004)) btor993 btor988))
-           (btor1006
-            (signal (concat (signal-value btor6) (signal-value btor5)) (list)))
-           (btor1007
-            (bv->signal
-             (zero-extend (signal-value btor1006) (bitvector 8))
-             btor1006))
-           (btor1008
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor1007))
-             (list)))
-           (btor1009
-            (signal
-             (extract 0 0 (signal-value btor1008))
-             (signal-state btor1008)))
-           (btor1010
-            (signal (bvxor (signal-value btor6) (signal-value btor5)) (list)))
-           (btor1011
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor1010) (signal-value btor21)))
-             (list)))
-           (btor1012
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor1010) (signal-value btor23)))
-             (list)))
-           (btor1013
-            (signal
-             (bvor (signal-value btor1011) (signal-value btor1012))
-             (list)))
-           (btor1014
-            (signal (concat (signal-value btor6) (signal-value btor5)) (list)))
-           (btor1015
-            (signal
-             (concat (signal-value btor21) (signal-value btor1014))
-             (list)))
-           (btor1016
-            (bv->signal
-             (zero-extend (signal-value btor1015) (bitvector 8))
-             btor1015))
-           (btor1017
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor1016))
-             (list)))
-           (btor1018
-            (signal
-             (extract 0 0 (signal-value btor1017))
-             (signal-state btor1017)))
-           (btor1019
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor1009) (signal-value btor1018)))
-             (list)))
-           (btor1020
-            (signal
-             (bvand (signal-value btor1013) (signal-value btor1019))
-             (list)))
-           (btor1021
-            (if (bitvector->bool (signal-value btor1020)) btor1009 btor1005))
-           (btor1022
-            (signal
-             (apply bvor (bitvector->bits (signal-value btor892)))
-             (signal-state btor892)))
-           (btor1023 (signal (bvnot (signal-value btor1022)) (list)))
-           (btor1024
-            (signal
-             (apply bvand (bitvector->bits (signal-value btor892)))
-             (signal-state btor892)))
-           (btor1025
-            (signal
-             (bvor (signal-value btor1023) (signal-value btor1024))
-             (list)))
-           (btor1026
-            (if (bitvector->bool (signal-value btor1025)) btor181 btor1021))
-           (btor1027
-            (signal (concat (signal-value btor6) (signal-value btor5)) (list)))
-           (btor1028
-            (signal
-             (concat (signal-value btor7) (signal-value btor1027))
-             (list)))
-           (btor1029
-            (bv->signal
-             (zero-extend (signal-value btor1028) (bitvector 8))
-             btor1028))
-           (btor1030
-            (signal
-             (bvlshr (signal-value btor892) (signal-value btor1029))
-             (list)))
-           (btor1031
-            (signal
-             (extract 0 0 (signal-value btor1030))
-             (signal-state btor1030)))
-           (btor1032
-            (signal
-             (bvxor (signal-value btor977) (signal-value btor5))
-             (list)))
-           (btor1033
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor1032) (signal-value btor21)))
-             (list)))
-           (btor1034
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor1032) (signal-value btor23)))
-             (list)))
-           (btor1035
-            (signal
-             (bvor (signal-value btor1033) (signal-value btor1034))
-             (list)))
-           (btor1036
-            (if (bitvector->bool (signal-value btor1035)) btor1031 btor1026))
-           (btor1037
-            (if (bitvector->bool (signal-value btor171)) btor151 btor1036))
-           (btor1038
-            (signal (concat (signal-value btor3) (signal-value btor2)) (list)))
-           (btor1039
-            (signal
-             (concat (signal-value btor4) (signal-value btor1038))
-             (list)))
-           (btor1040
-            (signal
-             (concat (signal-value btor5) (signal-value btor1039))
-             (list)))
-           (btor1041
-            (signal
-             (concat (signal-value btor6) (signal-value btor1040))
-             (list)))
-           (btor1042
-            (signal
-             (concat (signal-value btor7) (signal-value btor1041))
-             (list)))
-           (btor1043
-            (bv->signal
-             (zero-extend (signal-value btor1042) (bitvector 64))
-             btor1042))
-           (btor1044
-            (signal
-             (bvlshr (signal-value btor9) (signal-value btor1043))
-             (list)))
-           (btor1045
-            (signal
-             (extract 0 0 (signal-value btor1044))
-             (signal-state btor1044)))
-           (btor1046
-            (if (bitvector->bool (signal-value btor180)) btor1045 btor1037))
-           (btor1048
-            (bv->signal
-             (zero-extend (signal-value btor9) (bitvector 64))
-             btor9))
-           (btor1049
-            (bv->signal
-             (zero-extend (signal-value btor1046) (bitvector 1))
-             btor1046))
-           (btor1050 unnamed-input-1050)
-           (btor1051
-            (bv->signal
-             (zero-extend (signal-value btor1050) (bitvector 8))
-             btor1050))
-           (btor1052 unnamed-input-1052)
-           (btor1053
-            (bv->signal
-             (zero-extend (signal-value btor1052) (bitvector 3))
-             btor1052))
-           (btor1054 unnamed-input-1054)
-           (btor1055
-            (bv->signal
-             (zero-extend (signal-value btor1054) (bitvector 8))
-             btor1054))
-           (btor1056 unnamed-input-1056)
-           (btor1057
-            (bv->signal
-             (zero-extend (signal-value btor1056) (bitvector 3))
-             btor1056))
-           (btor1058 unnamed-input-1058)
-           (btor1059
-            (bv->signal
-             (zero-extend (signal-value btor1058) (bitvector 8))
-             btor1058))
-           (btor1060 unnamed-input-1060)
-           (btor1061
-            (bv->signal
-             (zero-extend (signal-value btor1060) (bitvector 3))
-             btor1060))
-           (btor1062 unnamed-input-1062)
-           (btor1063
-            (bv->signal
-             (zero-extend (signal-value btor1062) (bitvector 8))
-             btor1062))
-           (btor1064 unnamed-input-1064)
-           (btor1065
-            (bv->signal
-             (zero-extend (signal-value btor1064) (bitvector 3))
-             btor1064))
-           (btor1066 unnamed-input-1066)
-           (btor1067
-            (bv->signal
-             (zero-extend (signal-value btor1066) (bitvector 8))
-             btor1066))
-           (btor1068 unnamed-input-1068)
-           (btor1069
-            (bv->signal
-             (zero-extend (signal-value btor1068) (bitvector 3))
-             btor1068))
-           (btor1070 unnamed-input-1070)
-           (btor1071
-            (bv->signal
-             (zero-extend (signal-value btor1070) (bitvector 8))
-             btor1070))
-           (btor1072 unnamed-input-1072)
-           (btor1073
-            (bv->signal
-             (zero-extend (signal-value btor1072) (bitvector 3))
-             btor1072))
-           (btor1074 unnamed-input-1074)
-           (btor1075
-            (bv->signal
-             (zero-extend (signal-value btor1074) (bitvector 8))
-             btor1074))
-           (btor1076 unnamed-input-1076)
-           (btor1077
-            (bv->signal
-             (zero-extend (signal-value btor1076) (bitvector 3))
-             btor1076))
-           (btor1078 unnamed-input-1078)
-           (btor1079
-            (bv->signal
-             (zero-extend (signal-value btor1078) (bitvector 8))
-             btor1078))
-           (btor1080 unnamed-input-1080)
-           (btor1081
-            (bv->signal
-             (zero-extend (signal-value btor1080) (bitvector 3))
-             btor1080))
-           (btor1082 unnamed-input-1082)
-           (btor1083
-            (bv->signal
-             (zero-extend (signal-value btor1082) (bitvector 8))
-             btor1082))
-           (btor1084 unnamed-input-1084)
-           (btor1085
-            (bv->signal
-             (zero-extend (signal-value btor1084) (bitvector 3))
-             btor1084))
-           (btor1086
-            (bv->signal
-             (zero-extend (signal-value btor23) (bitvector 1))
-             btor23))
-           (output-state
-            (remove-duplicates
-             (append (list) merged-input-state-hash)
-             equal?
-             #:key
-             car)))
-      (list (cons 'O (signal (signal-value btor1046) output-state))))))
+#lang rosette/safe
+    (provide (rename-out [LUT6 xilinx-ultrascale-plus-lut6] [LUT6_initial xilinx-ultrascale-plus-lut6-initial] [LUT6_inputs_helper xilinx-ultrascale-plus-lut6-inputs] [LUT6_outputs_helper xilinx-ultrascale-plus-lut6-outputs]))(struct LUT6_Inputs (INIT I5 I4 I3 I2 I1 I0) #:transparent
+  ; INIT (bitvector 64)
+  ; I5 (bitvector 1)
+  ; I4 (bitvector 1)
+  ; I3 (bitvector 1)
+  ; I2 (bitvector 1)
+  ; I1 (bitvector 1)
+  ; I0 (bitvector 1)
+)
+(struct LUT6_Outputs (O) #:transparent
+  ; O (bitvector 1)
+)
+(struct LUT6_State () #:transparent)
+(define
+  (LUT6_inputs_helper inputs)
+  (LUT6_Inputs
+    (let
+      (
+        (assoc-result
+          (assoc "INIT" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "I5" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "I4" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "I3" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "I2" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "I1" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "I0" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))))
+(define
+  (LUT6_outputs_helper outputs)
+  (list
+    (cons "O" (LUT6_Outputs-O outputs))))
+(define (LUT6 inputs state)
+  (let ((INIT (LUT6_Inputs-INIT inputs))) ; (bitvector 64)
+  (let ((n2 (extract 7 0 INIT))) ; (bitvector 8)
+  (let ((I2 (LUT6_Inputs-I2 inputs))) ; (bitvector 1)
+  (let ((n5 (concat I2 (bv #b00 2)))) ; (bitvector 3)
+  (let ((n6 (bvlshr n2 (zero-extend n5 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$194_Y
+      (extract 0 0 n6))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$191$_Y
+      (bool->bitvector (bveq I2 (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$192$_Y
+      (bool->bitvector (bveq I2 (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$191$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$192$_Y))) ; (bitvector 1)
+  (let ((n14 (concat I2 (bv #b01 2)))) ; (bitvector 3)
+  (let ((n15 (bvlshr n2 (zero-extend n14 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$195_Y
+      (extract 0 0 n15))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$196$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$194_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$195_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$197$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$196$_Y))) ; (bitvector 1)
+  (let ((n20 (concat I2 (bv #b10 2)))) ; (bitvector 3)
+  (let ((n21 (bvlshr n2 (zero-extend n20 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$199_Y
+      (extract 0 0 n21))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$200$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$194_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$199_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$201$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$197$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$200$_Y))) ; (bitvector 1)
+  (let ((n26 (concat I2 (bv #b11 2)))) ; (bitvector 3)
+  (let ((n27 (bvlshr n2 (zero-extend n26 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$203_Y
+      (extract 0 0 n27))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$204$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$194_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$203_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$205$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$201$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$204$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2243$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$205$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$194_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((I1 (LUT6_Inputs-I1 inputs))) ; (bitvector 1)
+  (let ((n33 (concat I1 (bv #b0 1)))) ; (bitvector 2)
+  (let ((n34 (zero-extend n33 (bitvector 3)))) ; (bitvector 3)
+  (let ((n35 (bvlshr n2 (zero-extend n34 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$177_Y
+      (extract 0 0 n35))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$174$_Y
+      (bool->bitvector (bveq I1 (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$175$_Y
+      (bool->bitvector (bveq I1 (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$174$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$175$_Y))) ; (bitvector 1)
+  (let ((n40 (concat I1 (bv #b1 1)))) ; (bitvector 2)
+  (let ((n41 (zero-extend n40 (bitvector 3)))) ; (bitvector 3)
+  (let ((n42 (bvlshr n2 (zero-extend n41 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$178_Y
+      (extract 0 0 n42))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$179$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$177_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$178_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$180$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$179$_Y))) ; (bitvector 1)
+  (let ((n46 (concat I1 (bv #b0 1)))) ; (bitvector 2)
+  (let ((n47 (concat (bv #b1 1) n46))) ; (bitvector 3)
+  (let ((n48 (bvlshr n2 (zero-extend n47 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$182_Y
+      (extract 0 0 n48))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$183$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$177_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$182_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$184$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$180$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$183$_Y))) ; (bitvector 1)
+  (let ((n52 (concat I1 (bv #b1 1)))) ; (bitvector 2)
+  (let ((n53 (concat (bv #b1 1) n52))) ; (bitvector 3)
+  (let ((n54 (bvlshr n2 (zero-extend n53 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$186_Y
+      (extract 0 0 n54))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$187$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$177_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$186_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$188$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$184$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$187$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2273$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$188$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$177_Y
+        $procmux$2243$_Y))) ; (bitvector 1)
+  (let ((I0 (LUT6_Inputs-I0 inputs))) ; (bitvector 1)
+  (let ((n60 (zero-extend I0 (bitvector 3)))) ; (bitvector 3)
+  (let ((n61 (bvlshr n2 (zero-extend n60 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$160_Y
+      (extract 0 0 n61))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$157$_Y
+      (bool->bitvector (bveq I0 (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$158$_Y
+      (bool->bitvector (bveq I0 (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$157$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$158$_Y))) ; (bitvector 1)
+  (let ((n66 (concat (bv #b1 1) I0))) ; (bitvector 2)
+  (let ((n67 (zero-extend n66 (bitvector 3)))) ; (bitvector 3)
+  (let ((n68 (bvlshr n2 (zero-extend n67 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$161_Y
+      (extract 0 0 n68))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$162$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$160_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$161_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$163$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$162$_Y))) ; (bitvector 1)
+  (let ((n72 (concat (bv #b10 2) I0))) ; (bitvector 3)
+  (let ((n73 (bvlshr n2 (zero-extend n72 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$165_Y
+      (extract 0 0 n73))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$166$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$160_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$165_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$167$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$163$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$166$_Y))) ; (bitvector 1)
+  (let ((n77 (concat (bv #b11 2) I0))) ; (bitvector 3)
+  (let ((n78 (bvlshr n2 (zero-extend n77 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$169_Y
+      (extract 0 0 n78))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$170$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$160_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$169_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$171$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$167$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$170$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2300$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$171$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$160_Y
+        $procmux$2273$_Y))) ; (bitvector 1)
+  (let ((n83 (concat I1 (bv #b0 1)))) ; (bitvector 2)
+  (let ((n84 (concat I2 n83))) ; (bitvector 3)
+  (let ((n85 (bvlshr n2 (zero-extend n84 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$151_Y
+      (extract 0 0 n85))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$110_Y
+      (bvxor I2 I1))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$147$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$110_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$149$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$110_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$147$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$149$_Y))) ; (bitvector 1)
+  (let ((n91 (concat I1 (bv #b1 1)))) ; (bitvector 2)
+  (let ((n92 (concat I2 n91))) ; (bitvector 3)
+  (let ((n93 (bvlshr n2 (zero-extend n92 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$152_Y
+      (extract 0 0 n93))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$153$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$151_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$152_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$154$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$153$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2324$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$154$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$151_Y
+        $procmux$2300$_Y))) ; (bitvector 1)
+  (let ((n98 (concat (bv #b0 1) I0))) ; (bitvector 2)
+  (let ((n99 (concat I2 n98))) ; (bitvector 3)
+  (let ((n100 (bvlshr n2 (zero-extend n99 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$140_Y
+      (extract 0 0 n100))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$135_Y
+      (bvxor I2 I0))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$136$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$135_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$138$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$135_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$136$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$138$_Y))) ; (bitvector 1)
+  (let ((n106 (concat (bv #b1 1) I0))) ; (bitvector 2)
+  (let ((n107 (concat I2 n106))) ; (bitvector 3)
+  (let ((n108 (bvlshr n2 (zero-extend n107 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$141_Y
+      (extract 0 0 n108))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$142$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$140_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$141_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$143$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$142$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2345$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$143$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$140_Y
+        $procmux$2324$_Y))) ; (bitvector 1)
+  (let ((n113 (concat I1 I0))) ; (bitvector 2)
+  (let ((n114 (zero-extend n113 (bitvector 3)))) ; (bitvector 3)
+  (let ((n115 (bvlshr n2 (zero-extend n114 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$129_Y
+      (extract 0 0 n115))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$38_Y
+      (bvxor I0 I1))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$125$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$38_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$127$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$38_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$125$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$127$_Y))) ; (bitvector 1)
+  (let ((n121 (concat I1 I0))) ; (bitvector 2)
+  (let ((n122 (concat (bv #b1 1) n121))) ; (bitvector 3)
+  (let ((n123 (bvlshr n2 (zero-extend n122 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$130_Y
+      (extract 0 0 n123))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$131$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$129_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$130_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$132$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$131$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2363$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$132$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$129_Y
+        $procmux$2345$_Y))) ; (bitvector 1)
+  (let ((n128 (extract 0 0 INIT))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$119_Y
+      (apply bvor (bitvector->bits n2)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$120_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$119_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$121_Y
+      (apply bvand (bitvector->bits n2)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$122$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$120_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$121_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2378$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$122$_Y)
+        n128
+        $procmux$2363$_Y))) ; (bitvector 1)
+  (let ((n134 (concat I1 I0))) ; (bitvector 2)
+  (let ((n135 (concat I2 n134))) ; (bitvector 3)
+  (let ((n136 (bvlshr n2 (zero-extend n135 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$118_Y
+      (extract 0 0 n136))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$111_Y
+      (bvxor
+        $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$110_Y
+        I0))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$112$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$111_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$115$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$111_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$112$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$115$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2390$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$118_Y
+        $procmux$2378$_Y))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$79_Y
+      (apply bvor (bitvector->bits INIT)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$80_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$79_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$81_Y
+      (apply bvand (bitvector->bits INIT)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$80_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$81_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2393$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        (bv #b0 1)
+        $procmux$2390$_Y))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$39$_Y
+      (bvxor
+        $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$38_Y
+        I2))) ; (bitvector 1)
+  (let ((I3 (LUT6_Inputs-I3 inputs))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$40$_Y
+      (bvxor
+        $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$39$_Y
+        I3))) ; (bitvector 1)
+  (let ((I4 (LUT6_Inputs-I4 inputs))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$41$_Y
+      (bvxor
+        $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$40$_Y
+        I4))) ; (bitvector 1)
+  (let ((I5 (LUT6_Inputs-I5 inputs))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$42_Y
+      (bvxor
+        $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$41$_Y
+        I5))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$43$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$42_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$49$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$42_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$43$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$49$_Y))) ; (bitvector 1)
+  (let
+    (($3_lut_mux8_f$func$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_128$1.$result_0_0_$117
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        (bv #b0 1)
+        $procmux$2393$_Y))) ; (bitvector 1)
+  (let ((n159 (extract 15 8 INIT))) ; (bitvector 8)
+  (let ((n160 (bvlshr n159 (zero-extend n5 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$292_Y
+      (extract 0 0 n160))) ; (bitvector 1)
+  (let ((n162 (bvlshr n159 (zero-extend n14 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$293_Y
+      (extract 0 0 n162))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$294$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$292_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$293_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$295$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$294$_Y))) ; (bitvector 1)
+  (let ((n166 (bvlshr n159 (zero-extend n20 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$297_Y
+      (extract 0 0 n166))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$298$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$292_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$297_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$299$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$295$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$298$_Y))) ; (bitvector 1)
+  (let ((n170 (bvlshr n159 (zero-extend n26 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$301_Y
+      (extract 0 0 n170))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$302$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$292_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$301_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$303$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$299$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$302$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2087$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$303$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$292_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((n175 (zero-extend n33 (bitvector 3)))) ; (bitvector 3)
+  (let ((n176 (bvlshr n159 (zero-extend n175 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$275_Y
+      (extract 0 0 n176))) ; (bitvector 1)
+  (let ((n178 (zero-extend n40 (bitvector 3)))) ; (bitvector 3)
+  (let ((n179 (bvlshr n159 (zero-extend n178 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$276_Y
+      (extract 0 0 n179))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$277$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$275_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$276_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$278$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$277$_Y))) ; (bitvector 1)
+  (let ((n183 (bvlshr n159 (zero-extend n47 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$280_Y
+      (extract 0 0 n183))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$281$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$275_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$280_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$282$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$278$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$281$_Y))) ; (bitvector 1)
+  (let ((n187 (bvlshr n159 (zero-extend n53 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$284_Y
+      (extract 0 0 n187))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$285$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$275_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$284_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$286$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$282$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$285$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2117$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$286$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$275_Y
+        $procmux$2087$_Y))) ; (bitvector 1)
+  (let ((n192 (zero-extend I0 (bitvector 3)))) ; (bitvector 3)
+  (let ((n193 (bvlshr n159 (zero-extend n192 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$258_Y
+      (extract 0 0 n193))) ; (bitvector 1)
+  (let ((n195 (zero-extend n66 (bitvector 3)))) ; (bitvector 3)
+  (let ((n196 (bvlshr n159 (zero-extend n195 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$259_Y
+      (extract 0 0 n196))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$260$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$258_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$259_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$261$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$260$_Y))) ; (bitvector 1)
+  (let ((n200 (bvlshr n159 (zero-extend n72 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$263_Y
+      (extract 0 0 n200))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$264$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$258_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$263_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$265$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$261$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$264$_Y))) ; (bitvector 1)
+  (let ((n204 (bvlshr n159 (zero-extend n77 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$267_Y
+      (extract 0 0 n204))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$268$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$258_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$267_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$269$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$265$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$268$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2144$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$269$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$258_Y
+        $procmux$2117$_Y))) ; (bitvector 1)
+  (let ((n209 (bvlshr n159 (zero-extend n84 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$249_Y
+      (extract 0 0 n209))) ; (bitvector 1)
+  (let ((n211 (bvlshr n159 (zero-extend n92 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$250_Y
+      (extract 0 0 n211))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$251$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$249_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$250_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$252$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$251$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2168$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$252$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$249_Y
+        $procmux$2144$_Y))) ; (bitvector 1)
+  (let ((n216 (bvlshr n159 (zero-extend n99 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$238_Y
+      (extract 0 0 n216))) ; (bitvector 1)
+  (let ((n218 (bvlshr n159 (zero-extend n107 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$239_Y
+      (extract 0 0 n218))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$240$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$238_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$239_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$241$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$240$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2189$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$241$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$238_Y
+        $procmux$2168$_Y))) ; (bitvector 1)
+  (let ((n223 (zero-extend n113 (bitvector 3)))) ; (bitvector 3)
+  (let ((n224 (bvlshr n159 (zero-extend n223 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$227_Y
+      (extract 0 0 n224))) ; (bitvector 1)
+  (let ((n226 (bvlshr n159 (zero-extend n122 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$228_Y
+      (extract 0 0 n226))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$229$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$227_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$228_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$230$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$229$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2207$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$230$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$227_Y
+        $procmux$2189$_Y))) ; (bitvector 1)
+  (let ((n231 (extract 8 8 INIT))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$217_Y
+      (apply bvor (bitvector->bits n159)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$218_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$217_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$219_Y
+      (apply bvand (bitvector->bits n159)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$220$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$218_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$219_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2222$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$220$_Y)
+        n231
+        $procmux$2207$_Y))) ; (bitvector 1)
+  (let ((n237 (bvlshr n159 (zero-extend n135 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$216_Y
+      (extract 0 0 n237))) ; (bitvector 1)
+  (let
+    (($procmux$2234$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$216_Y
+        $procmux$2222$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2237$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        (bv #b0 1)
+        $procmux$2234$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2240$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        (bv #b0 1)
+        $procmux$2237$_Y))) ; (bitvector 1)
+  (let
+    ((n242
+      (concat
+        $procmux$2240$_Y
+        $3_lut_mux8_f$func$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_128$1.$result_0_0_$117))) ; (bitvector 2)
+  (let ((n243 (extract 23 16 INIT))) ; (bitvector 8)
+  (let ((n244 (bvlshr n243 (zero-extend n5 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$390_Y
+      (extract 0 0 n244))) ; (bitvector 1)
+  (let ((n246 (bvlshr n243 (zero-extend n14 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$391_Y
+      (extract 0 0 n246))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$392$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$390_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$391_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$393$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$392$_Y))) ; (bitvector 1)
+  (let ((n250 (bvlshr n243 (zero-extend n20 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$395_Y
+      (extract 0 0 n250))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$396$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$390_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$395_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$397$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$393$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$396$_Y))) ; (bitvector 1)
+  (let ((n254 (bvlshr n243 (zero-extend n26 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$399_Y
+      (extract 0 0 n254))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$400$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$390_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$399_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$401$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$397$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$400$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1931$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$401$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$390_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((n259 (zero-extend n33 (bitvector 3)))) ; (bitvector 3)
+  (let ((n260 (bvlshr n243 (zero-extend n259 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$373_Y
+      (extract 0 0 n260))) ; (bitvector 1)
+  (let ((n262 (zero-extend n40 (bitvector 3)))) ; (bitvector 3)
+  (let ((n263 (bvlshr n243 (zero-extend n262 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$374_Y
+      (extract 0 0 n263))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$375$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$373_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$374_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$376$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$375$_Y))) ; (bitvector 1)
+  (let ((n267 (bvlshr n243 (zero-extend n47 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$378_Y
+      (extract 0 0 n267))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$379$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$373_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$378_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$380$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$376$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$379$_Y))) ; (bitvector 1)
+  (let ((n271 (bvlshr n243 (zero-extend n53 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$382_Y
+      (extract 0 0 n271))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$383$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$373_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$382_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$384$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$380$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$383$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1961$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$384$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$373_Y
+        $procmux$1931$_Y))) ; (bitvector 1)
+  (let ((n276 (zero-extend I0 (bitvector 3)))) ; (bitvector 3)
+  (let ((n277 (bvlshr n243 (zero-extend n276 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$356_Y
+      (extract 0 0 n277))) ; (bitvector 1)
+  (let ((n279 (zero-extend n66 (bitvector 3)))) ; (bitvector 3)
+  (let ((n280 (bvlshr n243 (zero-extend n279 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$357_Y
+      (extract 0 0 n280))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$358$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$356_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$357_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$359$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$358$_Y))) ; (bitvector 1)
+  (let ((n284 (bvlshr n243 (zero-extend n72 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$361_Y
+      (extract 0 0 n284))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$362$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$356_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$361_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$363$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$359$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$362$_Y))) ; (bitvector 1)
+  (let ((n288 (bvlshr n243 (zero-extend n77 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$365_Y
+      (extract 0 0 n288))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$366$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$356_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$365_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$367$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$363$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$366$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1988$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$367$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$356_Y
+        $procmux$1961$_Y))) ; (bitvector 1)
+  (let ((n293 (bvlshr n243 (zero-extend n84 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$347_Y
+      (extract 0 0 n293))) ; (bitvector 1)
+  (let ((n295 (bvlshr n243 (zero-extend n92 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$348_Y
+      (extract 0 0 n295))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$349$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$347_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$348_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$350$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$349$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2012$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$350$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$347_Y
+        $procmux$1988$_Y))) ; (bitvector 1)
+  (let ((n300 (bvlshr n243 (zero-extend n99 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$336_Y
+      (extract 0 0 n300))) ; (bitvector 1)
+  (let ((n302 (bvlshr n243 (zero-extend n107 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$337_Y
+      (extract 0 0 n302))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$338$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$336_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$337_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$339$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$338$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2033$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$339$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$336_Y
+        $procmux$2012$_Y))) ; (bitvector 1)
+  (let ((n307 (zero-extend n113 (bitvector 3)))) ; (bitvector 3)
+  (let ((n308 (bvlshr n243 (zero-extend n307 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$325_Y
+      (extract 0 0 n308))) ; (bitvector 1)
+  (let ((n310 (bvlshr n243 (zero-extend n122 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$326_Y
+      (extract 0 0 n310))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$327$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$325_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$326_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$328$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$327$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2051$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$328$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$325_Y
+        $procmux$2033$_Y))) ; (bitvector 1)
+  (let ((n315 (extract 16 16 INIT))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$315_Y
+      (apply bvor (bitvector->bits n243)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$316_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$315_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$317_Y
+      (apply bvand (bitvector->bits n243)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$318$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$316_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$317_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2066$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$318$_Y)
+        n315
+        $procmux$2051$_Y))) ; (bitvector 1)
+  (let ((n321 (bvlshr n243 (zero-extend n135 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$314_Y
+      (extract 0 0 n321))) ; (bitvector 1)
+  (let
+    (($procmux$2078$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$314_Y
+        $procmux$2066$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2081$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        (bv #b0 1)
+        $procmux$2078$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2084$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        (bv #b0 1)
+        $procmux$2081$_Y))) ; (bitvector 1)
+  (let ((n326 (concat $procmux$2084$_Y n242))) ; (bitvector 3)
+  (let ((n327 (extract 31 24 INIT))) ; (bitvector 8)
+  (let ((n328 (bvlshr n327 (zero-extend n5 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$488_Y
+      (extract 0 0 n328))) ; (bitvector 1)
+  (let ((n330 (bvlshr n327 (zero-extend n14 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$489_Y
+      (extract 0 0 n330))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$490$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$488_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$489_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$491$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$490$_Y))) ; (bitvector 1)
+  (let ((n334 (bvlshr n327 (zero-extend n20 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$493_Y
+      (extract 0 0 n334))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$494$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$488_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$493_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$495$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$491$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$494$_Y))) ; (bitvector 1)
+  (let ((n338 (bvlshr n327 (zero-extend n26 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$497_Y
+      (extract 0 0 n338))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$498$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$488_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$497_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$499$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$495$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$498$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1775$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$499$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$488_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((n343 (zero-extend n33 (bitvector 3)))) ; (bitvector 3)
+  (let ((n344 (bvlshr n327 (zero-extend n343 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$471_Y
+      (extract 0 0 n344))) ; (bitvector 1)
+  (let ((n346 (zero-extend n40 (bitvector 3)))) ; (bitvector 3)
+  (let ((n347 (bvlshr n327 (zero-extend n346 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$472_Y
+      (extract 0 0 n347))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$473$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$471_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$472_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$474$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$473$_Y))) ; (bitvector 1)
+  (let ((n351 (bvlshr n327 (zero-extend n47 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$476_Y
+      (extract 0 0 n351))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$477$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$471_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$476_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$478$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$474$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$477$_Y))) ; (bitvector 1)
+  (let ((n355 (bvlshr n327 (zero-extend n53 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$480_Y
+      (extract 0 0 n355))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$481$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$471_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$480_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$482$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$478$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$481$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1805$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$482$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$471_Y
+        $procmux$1775$_Y))) ; (bitvector 1)
+  (let ((n360 (zero-extend I0 (bitvector 3)))) ; (bitvector 3)
+  (let ((n361 (bvlshr n327 (zero-extend n360 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$454_Y
+      (extract 0 0 n361))) ; (bitvector 1)
+  (let ((n363 (zero-extend n66 (bitvector 3)))) ; (bitvector 3)
+  (let ((n364 (bvlshr n327 (zero-extend n363 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$455_Y
+      (extract 0 0 n364))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$456$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$454_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$455_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$457$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$456$_Y))) ; (bitvector 1)
+  (let ((n368 (bvlshr n327 (zero-extend n72 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$459_Y
+      (extract 0 0 n368))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$460$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$454_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$459_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$461$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$457$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$460$_Y))) ; (bitvector 1)
+  (let ((n372 (bvlshr n327 (zero-extend n77 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$463_Y
+      (extract 0 0 n372))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$464$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$454_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$463_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$465$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$461$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$464$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1832$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$465$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$454_Y
+        $procmux$1805$_Y))) ; (bitvector 1)
+  (let ((n377 (bvlshr n327 (zero-extend n84 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$445_Y
+      (extract 0 0 n377))) ; (bitvector 1)
+  (let ((n379 (bvlshr n327 (zero-extend n92 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$446_Y
+      (extract 0 0 n379))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$447$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$445_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$446_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$448$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$447$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1856$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$448$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$445_Y
+        $procmux$1832$_Y))) ; (bitvector 1)
+  (let ((n384 (bvlshr n327 (zero-extend n99 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$434_Y
+      (extract 0 0 n384))) ; (bitvector 1)
+  (let ((n386 (bvlshr n327 (zero-extend n107 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$435_Y
+      (extract 0 0 n386))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$436$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$434_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$435_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$437$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$436$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1877$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$437$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$434_Y
+        $procmux$1856$_Y))) ; (bitvector 1)
+  (let ((n391 (zero-extend n113 (bitvector 3)))) ; (bitvector 3)
+  (let ((n392 (bvlshr n327 (zero-extend n391 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$423_Y
+      (extract 0 0 n392))) ; (bitvector 1)
+  (let ((n394 (bvlshr n327 (zero-extend n122 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$424_Y
+      (extract 0 0 n394))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$425$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$423_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$424_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$426$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$425$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1895$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$426$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$423_Y
+        $procmux$1877$_Y))) ; (bitvector 1)
+  (let ((n399 (extract 24 24 INIT))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$413_Y
+      (apply bvor (bitvector->bits n327)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$414_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$413_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$415_Y
+      (apply bvand (bitvector->bits n327)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$416$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$414_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$415_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1910$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$416$_Y)
+        n399
+        $procmux$1895$_Y))) ; (bitvector 1)
+  (let ((n405 (bvlshr n327 (zero-extend n135 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$412_Y
+      (extract 0 0 n405))) ; (bitvector 1)
+  (let
+    (($procmux$1922$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$412_Y
+        $procmux$1910$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1925$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        (bv #b0 1)
+        $procmux$1922$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1928$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        (bv #b0 1)
+        $procmux$1925$_Y))) ; (bitvector 1)
+  (let ((n410 (concat $procmux$1928$_Y n326))) ; (bitvector 4)
+  (let ((n411 (extract 39 32 INIT))) ; (bitvector 8)
+  (let ((n412 (bvlshr n411 (zero-extend n5 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$586_Y
+      (extract 0 0 n412))) ; (bitvector 1)
+  (let ((n414 (bvlshr n411 (zero-extend n14 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$587_Y
+      (extract 0 0 n414))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$588$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$586_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$587_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$589$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$588$_Y))) ; (bitvector 1)
+  (let ((n418 (bvlshr n411 (zero-extend n20 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$591_Y
+      (extract 0 0 n418))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$592$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$586_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$591_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$593$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$589$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$592$_Y))) ; (bitvector 1)
+  (let ((n422 (bvlshr n411 (zero-extend n26 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$595_Y
+      (extract 0 0 n422))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$596$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$586_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$595_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$597$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$593$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$596$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1619$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$597$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$586_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((n427 (zero-extend n33 (bitvector 3)))) ; (bitvector 3)
+  (let ((n428 (bvlshr n411 (zero-extend n427 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$569_Y
+      (extract 0 0 n428))) ; (bitvector 1)
+  (let ((n430 (zero-extend n40 (bitvector 3)))) ; (bitvector 3)
+  (let ((n431 (bvlshr n411 (zero-extend n430 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$570_Y
+      (extract 0 0 n431))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$571$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$569_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$570_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$572$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$571$_Y))) ; (bitvector 1)
+  (let ((n435 (bvlshr n411 (zero-extend n47 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$574_Y
+      (extract 0 0 n435))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$575$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$569_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$574_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$576$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$572$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$575$_Y))) ; (bitvector 1)
+  (let ((n439 (bvlshr n411 (zero-extend n53 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$578_Y
+      (extract 0 0 n439))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$579$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$569_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$578_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$580$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$576$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$579$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1649$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$580$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$569_Y
+        $procmux$1619$_Y))) ; (bitvector 1)
+  (let ((n444 (zero-extend I0 (bitvector 3)))) ; (bitvector 3)
+  (let ((n445 (bvlshr n411 (zero-extend n444 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$552_Y
+      (extract 0 0 n445))) ; (bitvector 1)
+  (let ((n447 (zero-extend n66 (bitvector 3)))) ; (bitvector 3)
+  (let ((n448 (bvlshr n411 (zero-extend n447 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$553_Y
+      (extract 0 0 n448))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$554$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$552_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$553_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$555$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$554$_Y))) ; (bitvector 1)
+  (let ((n452 (bvlshr n411 (zero-extend n72 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$557_Y
+      (extract 0 0 n452))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$558$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$552_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$557_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$559$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$555$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$558$_Y))) ; (bitvector 1)
+  (let ((n456 (bvlshr n411 (zero-extend n77 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$561_Y
+      (extract 0 0 n456))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$562$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$552_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$561_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$563$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$559$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$562$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1676$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$563$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$552_Y
+        $procmux$1649$_Y))) ; (bitvector 1)
+  (let ((n461 (bvlshr n411 (zero-extend n84 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$543_Y
+      (extract 0 0 n461))) ; (bitvector 1)
+  (let ((n463 (bvlshr n411 (zero-extend n92 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$544_Y
+      (extract 0 0 n463))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$545$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$543_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$544_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$546$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$545$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1700$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$546$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$543_Y
+        $procmux$1676$_Y))) ; (bitvector 1)
+  (let ((n468 (bvlshr n411 (zero-extend n99 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$532_Y
+      (extract 0 0 n468))) ; (bitvector 1)
+  (let ((n470 (bvlshr n411 (zero-extend n107 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$533_Y
+      (extract 0 0 n470))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$534$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$532_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$533_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$535$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$534$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1721$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$535$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$532_Y
+        $procmux$1700$_Y))) ; (bitvector 1)
+  (let ((n475 (zero-extend n113 (bitvector 3)))) ; (bitvector 3)
+  (let ((n476 (bvlshr n411 (zero-extend n475 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$521_Y
+      (extract 0 0 n476))) ; (bitvector 1)
+  (let ((n478 (bvlshr n411 (zero-extend n122 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$522_Y
+      (extract 0 0 n478))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$523$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$521_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$522_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$524$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$523$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1739$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$524$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$521_Y
+        $procmux$1721$_Y))) ; (bitvector 1)
+  (let ((n483 (extract 32 32 INIT))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$511_Y
+      (apply bvor (bitvector->bits n411)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$512_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$511_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$513_Y
+      (apply bvand (bitvector->bits n411)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$514$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$512_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$513_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1754$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$514$_Y)
+        n483
+        $procmux$1739$_Y))) ; (bitvector 1)
+  (let ((n489 (bvlshr n411 (zero-extend n135 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$510_Y
+      (extract 0 0 n489))) ; (bitvector 1)
+  (let
+    (($procmux$1766$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$510_Y
+        $procmux$1754$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1769$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        (bv #b0 1)
+        $procmux$1766$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1772$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        (bv #b0 1)
+        $procmux$1769$_Y))) ; (bitvector 1)
+  (let ((n494 (concat $procmux$1772$_Y n410))) ; (bitvector 5)
+  (let ((n495 (extract 47 40 INIT))) ; (bitvector 8)
+  (let ((n496 (bvlshr n495 (zero-extend n5 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$684_Y
+      (extract 0 0 n496))) ; (bitvector 1)
+  (let ((n498 (bvlshr n495 (zero-extend n14 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$685_Y
+      (extract 0 0 n498))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$686$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$684_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$685_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$687$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$686$_Y))) ; (bitvector 1)
+  (let ((n502 (bvlshr n495 (zero-extend n20 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$689_Y
+      (extract 0 0 n502))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$690$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$684_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$689_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$691$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$687$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$690$_Y))) ; (bitvector 1)
+  (let ((n506 (bvlshr n495 (zero-extend n26 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$693_Y
+      (extract 0 0 n506))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$694$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$684_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$693_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$695$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$691$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$694$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1463$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$695$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$684_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((n511 (zero-extend n33 (bitvector 3)))) ; (bitvector 3)
+  (let ((n512 (bvlshr n495 (zero-extend n511 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$667_Y
+      (extract 0 0 n512))) ; (bitvector 1)
+  (let ((n514 (zero-extend n40 (bitvector 3)))) ; (bitvector 3)
+  (let ((n515 (bvlshr n495 (zero-extend n514 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$668_Y
+      (extract 0 0 n515))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$669$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$667_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$668_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$670$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$669$_Y))) ; (bitvector 1)
+  (let ((n519 (bvlshr n495 (zero-extend n47 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$672_Y
+      (extract 0 0 n519))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$673$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$667_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$672_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$674$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$670$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$673$_Y))) ; (bitvector 1)
+  (let ((n523 (bvlshr n495 (zero-extend n53 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$676_Y
+      (extract 0 0 n523))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$677$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$667_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$676_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$678$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$674$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$677$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1493$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$678$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$667_Y
+        $procmux$1463$_Y))) ; (bitvector 1)
+  (let ((n528 (zero-extend I0 (bitvector 3)))) ; (bitvector 3)
+  (let ((n529 (bvlshr n495 (zero-extend n528 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$650_Y
+      (extract 0 0 n529))) ; (bitvector 1)
+  (let ((n531 (zero-extend n66 (bitvector 3)))) ; (bitvector 3)
+  (let ((n532 (bvlshr n495 (zero-extend n531 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$651_Y
+      (extract 0 0 n532))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$652$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$650_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$651_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$653$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$652$_Y))) ; (bitvector 1)
+  (let ((n536 (bvlshr n495 (zero-extend n72 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$655_Y
+      (extract 0 0 n536))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$656$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$650_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$655_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$657$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$653$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$656$_Y))) ; (bitvector 1)
+  (let ((n540 (bvlshr n495 (zero-extend n77 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$659_Y
+      (extract 0 0 n540))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$660$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$650_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$659_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$661$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$657$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$660$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1520$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$661$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$650_Y
+        $procmux$1493$_Y))) ; (bitvector 1)
+  (let ((n545 (bvlshr n495 (zero-extend n84 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$641_Y
+      (extract 0 0 n545))) ; (bitvector 1)
+  (let ((n547 (bvlshr n495 (zero-extend n92 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$642_Y
+      (extract 0 0 n547))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$643$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$641_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$642_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$644$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$643$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1544$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$644$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$641_Y
+        $procmux$1520$_Y))) ; (bitvector 1)
+  (let ((n552 (bvlshr n495 (zero-extend n99 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$630_Y
+      (extract 0 0 n552))) ; (bitvector 1)
+  (let ((n554 (bvlshr n495 (zero-extend n107 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$631_Y
+      (extract 0 0 n554))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$632$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$630_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$631_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$633$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$632$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1565$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$633$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$630_Y
+        $procmux$1544$_Y))) ; (bitvector 1)
+  (let ((n559 (zero-extend n113 (bitvector 3)))) ; (bitvector 3)
+  (let ((n560 (bvlshr n495 (zero-extend n559 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$619_Y
+      (extract 0 0 n560))) ; (bitvector 1)
+  (let ((n562 (bvlshr n495 (zero-extend n122 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$620_Y
+      (extract 0 0 n562))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$621$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$619_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$620_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$622$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$621$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1583$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$622$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$619_Y
+        $procmux$1565$_Y))) ; (bitvector 1)
+  (let ((n567 (extract 40 40 INIT))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$609_Y
+      (apply bvor (bitvector->bits n495)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$610_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$609_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$611_Y
+      (apply bvand (bitvector->bits n495)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$612$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$610_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$611_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1598$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$612$_Y)
+        n567
+        $procmux$1583$_Y))) ; (bitvector 1)
+  (let ((n573 (bvlshr n495 (zero-extend n135 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$608_Y
+      (extract 0 0 n573))) ; (bitvector 1)
+  (let
+    (($procmux$1610$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$608_Y
+        $procmux$1598$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1613$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        (bv #b0 1)
+        $procmux$1610$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1616$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        (bv #b0 1)
+        $procmux$1613$_Y))) ; (bitvector 1)
+  (let ((n578 (concat $procmux$1616$_Y n494))) ; (bitvector 6)
+  (let ((n579 (extract 55 48 INIT))) ; (bitvector 8)
+  (let ((n580 (bvlshr n579 (zero-extend n5 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$782_Y
+      (extract 0 0 n580))) ; (bitvector 1)
+  (let ((n582 (bvlshr n579 (zero-extend n14 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$783_Y
+      (extract 0 0 n582))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$784$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$782_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$783_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$785$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$784$_Y))) ; (bitvector 1)
+  (let ((n586 (bvlshr n579 (zero-extend n20 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$787_Y
+      (extract 0 0 n586))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$788$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$782_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$787_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$789$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$785$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$788$_Y))) ; (bitvector 1)
+  (let ((n590 (bvlshr n579 (zero-extend n26 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$791_Y
+      (extract 0 0 n590))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$792$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$782_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$791_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$793$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$789$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$792$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1307$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$793$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$782_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((n595 (zero-extend n33 (bitvector 3)))) ; (bitvector 3)
+  (let ((n596 (bvlshr n579 (zero-extend n595 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$765_Y
+      (extract 0 0 n596))) ; (bitvector 1)
+  (let ((n598 (zero-extend n40 (bitvector 3)))) ; (bitvector 3)
+  (let ((n599 (bvlshr n579 (zero-extend n598 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$766_Y
+      (extract 0 0 n599))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$767$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$765_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$766_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$768$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$767$_Y))) ; (bitvector 1)
+  (let ((n603 (bvlshr n579 (zero-extend n47 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$770_Y
+      (extract 0 0 n603))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$771$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$765_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$770_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$772$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$768$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$771$_Y))) ; (bitvector 1)
+  (let ((n607 (bvlshr n579 (zero-extend n53 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$774_Y
+      (extract 0 0 n607))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$775$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$765_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$774_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$776$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$772$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$775$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1337$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$776$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$765_Y
+        $procmux$1307$_Y))) ; (bitvector 1)
+  (let ((n612 (zero-extend I0 (bitvector 3)))) ; (bitvector 3)
+  (let ((n613 (bvlshr n579 (zero-extend n612 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$748_Y
+      (extract 0 0 n613))) ; (bitvector 1)
+  (let ((n615 (zero-extend n66 (bitvector 3)))) ; (bitvector 3)
+  (let ((n616 (bvlshr n579 (zero-extend n615 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$749_Y
+      (extract 0 0 n616))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$750$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$748_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$749_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$751$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$750$_Y))) ; (bitvector 1)
+  (let ((n620 (bvlshr n579 (zero-extend n72 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$753_Y
+      (extract 0 0 n620))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$754$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$748_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$753_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$755$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$751$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$754$_Y))) ; (bitvector 1)
+  (let ((n624 (bvlshr n579 (zero-extend n77 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$757_Y
+      (extract 0 0 n624))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$758$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$748_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$757_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$759$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$755$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$758$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1364$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$759$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$748_Y
+        $procmux$1337$_Y))) ; (bitvector 1)
+  (let ((n629 (bvlshr n579 (zero-extend n84 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$739_Y
+      (extract 0 0 n629))) ; (bitvector 1)
+  (let ((n631 (bvlshr n579 (zero-extend n92 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$740_Y
+      (extract 0 0 n631))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$741$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$739_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$740_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$742$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$741$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1388$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$742$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$739_Y
+        $procmux$1364$_Y))) ; (bitvector 1)
+  (let ((n636 (bvlshr n579 (zero-extend n99 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$728_Y
+      (extract 0 0 n636))) ; (bitvector 1)
+  (let ((n638 (bvlshr n579 (zero-extend n107 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$729_Y
+      (extract 0 0 n638))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$730$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$728_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$729_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$731$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$730$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1409$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$731$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$728_Y
+        $procmux$1388$_Y))) ; (bitvector 1)
+  (let ((n643 (zero-extend n113 (bitvector 3)))) ; (bitvector 3)
+  (let ((n644 (bvlshr n579 (zero-extend n643 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$717_Y
+      (extract 0 0 n644))) ; (bitvector 1)
+  (let ((n646 (bvlshr n579 (zero-extend n122 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$718_Y
+      (extract 0 0 n646))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$719$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$717_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$718_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$720$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$719$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1427$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$720$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$717_Y
+        $procmux$1409$_Y))) ; (bitvector 1)
+  (let ((n651 (extract 48 48 INIT))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$707_Y
+      (apply bvor (bitvector->bits n579)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$708_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$707_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$709_Y
+      (apply bvand (bitvector->bits n579)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$710$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$708_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$709_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1442$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$710$_Y)
+        n651
+        $procmux$1427$_Y))) ; (bitvector 1)
+  (let ((n657 (bvlshr n579 (zero-extend n135 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$706_Y
+      (extract 0 0 n657))) ; (bitvector 1)
+  (let
+    (($procmux$1454$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$706_Y
+        $procmux$1442$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1457$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        (bv #b0 1)
+        $procmux$1454$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1460$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        (bv #b0 1)
+        $procmux$1457$_Y))) ; (bitvector 1)
+  (let ((n662 (concat $procmux$1460$_Y n578))) ; (bitvector 7)
+  (let ((n663 (extract 63 56 INIT))) ; (bitvector 8)
+  (let ((n664 (bvlshr n663 (zero-extend n5 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$880_Y
+      (extract 0 0 n664))) ; (bitvector 1)
+  (let ((n666 (bvlshr n663 (zero-extend n14 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$881_Y
+      (extract 0 0 n666))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$882$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$880_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$881_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$883$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$193_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$882$_Y))) ; (bitvector 1)
+  (let ((n670 (bvlshr n663 (zero-extend n20 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$885_Y
+      (extract 0 0 n670))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$886$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$880_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$885_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$887$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$883$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$886$_Y))) ; (bitvector 1)
+  (let ((n674 (bvlshr n663 (zero-extend n26 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$889_Y
+      (extract 0 0 n674))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$890$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$880_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$889_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$891$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$887$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$890$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1151$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$891$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$880_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((n679 (zero-extend n33 (bitvector 3)))) ; (bitvector 3)
+  (let ((n680 (bvlshr n663 (zero-extend n679 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$863_Y
+      (extract 0 0 n680))) ; (bitvector 1)
+  (let ((n682 (zero-extend n40 (bitvector 3)))) ; (bitvector 3)
+  (let ((n683 (bvlshr n663 (zero-extend n682 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$864_Y
+      (extract 0 0 n683))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$865$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$863_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$864_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$866$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$176_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$865$_Y))) ; (bitvector 1)
+  (let ((n687 (bvlshr n663 (zero-extend n47 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$868_Y
+      (extract 0 0 n687))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$869$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$863_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$868_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$870$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$866$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$869$_Y))) ; (bitvector 1)
+  (let ((n691 (bvlshr n663 (zero-extend n53 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$872_Y
+      (extract 0 0 n691))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$873$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$863_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$872_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$874$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$870$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$873$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1181$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$874$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$863_Y
+        $procmux$1151$_Y))) ; (bitvector 1)
+  (let ((n696 (zero-extend I0 (bitvector 3)))) ; (bitvector 3)
+  (let ((n697 (bvlshr n663 (zero-extend n696 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$846_Y
+      (extract 0 0 n697))) ; (bitvector 1)
+  (let ((n699 (zero-extend n66 (bitvector 3)))) ; (bitvector 3)
+  (let ((n700 (bvlshr n663 (zero-extend n699 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$847_Y
+      (extract 0 0 n700))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$848$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$846_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$847_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$849$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$159_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$848$_Y))) ; (bitvector 1)
+  (let ((n704 (bvlshr n663 (zero-extend n72 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$851_Y
+      (extract 0 0 n704))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$852$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$846_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$851_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$853$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$849$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$852$_Y))) ; (bitvector 1)
+  (let ((n708 (bvlshr n663 (zero-extend n77 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$855_Y
+      (extract 0 0 n708))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$856$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$846_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$855_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$857$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$853$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$856$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1208$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$857$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$846_Y
+        $procmux$1181$_Y))) ; (bitvector 1)
+  (let ((n713 (bvlshr n663 (zero-extend n84 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$837_Y
+      (extract 0 0 n713))) ; (bitvector 1)
+  (let ((n715 (bvlshr n663 (zero-extend n92 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$838_Y
+      (extract 0 0 n715))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$839$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$837_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$838_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$840$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$150_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$839$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1232$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$840$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$837_Y
+        $procmux$1208$_Y))) ; (bitvector 1)
+  (let ((n720 (bvlshr n663 (zero-extend n99 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$826_Y
+      (extract 0 0 n720))) ; (bitvector 1)
+  (let ((n722 (bvlshr n663 (zero-extend n107 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$827_Y
+      (extract 0 0 n722))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$828$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$826_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$827_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$829$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$139_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$828$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1253$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$829$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$826_Y
+        $procmux$1232$_Y))) ; (bitvector 1)
+  (let ((n727 (zero-extend n113 (bitvector 3)))) ; (bitvector 3)
+  (let ((n728 (bvlshr n663 (zero-extend n727 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$815_Y
+      (extract 0 0 n728))) ; (bitvector 1)
+  (let ((n730 (bvlshr n663 (zero-extend n122 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$816_Y
+      (extract 0 0 n730))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$817$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$815_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$816_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$818$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$128_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$817$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1271$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$818$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$815_Y
+        $procmux$1253$_Y))) ; (bitvector 1)
+  (let ((n735 (extract 56 56 INIT))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$805_Y
+      (apply bvor (bitvector->bits n663)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$806_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$805_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$807_Y
+      (apply bvand (bitvector->bits n663)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$808$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$806_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$807_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1286$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$808$_Y)
+        n735
+        $procmux$1271$_Y))) ; (bitvector 1)
+  (let ((n741 (bvlshr n663 (zero-extend n135 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$804_Y
+      (extract 0 0 n741))) ; (bitvector 1)
+  (let
+    (($procmux$1298$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$116$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$804_Y
+        $procmux$1286$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1301$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        (bv #b0 1)
+        $procmux$1298$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1304$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        (bv #b0 1)
+        $procmux$1301$_Y))) ; (bitvector 1)
+  (let ((n746 (concat $procmux$1304$_Y n662))) ; (bitvector 8)
+  (let ((n747 (concat I5 (bv #b00 2)))) ; (bitvector 3)
+  (let ((n748 (bvlshr n746 (zero-extend n747 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$978_Y
+      (extract 0 0 n748))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$975$_Y
+      (bool->bitvector (bveq I5 (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$976$_Y
+      (bool->bitvector (bveq I5 (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$977_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$975$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$976$_Y))) ; (bitvector 1)
+  (let ((n753 (concat I5 (bv #b01 2)))) ; (bitvector 3)
+  (let ((n754 (bvlshr n746 (zero-extend n753 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$979_Y
+      (extract 0 0 n754))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$980$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$978_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$979_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$981$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$977_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_106$980$_Y))) ; (bitvector 1)
+  (let ((n758 (concat I5 (bv #b10 2)))) ; (bitvector 3)
+  (let ((n759 (bvlshr n746 (zero-extend n758 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$983_Y
+      (extract 0 0 n759))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$984$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$978_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$983_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$985$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$981$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_107$984$_Y))) ; (bitvector 1)
+  (let ((n763 (concat I5 (bv #b11 2)))) ; (bitvector 3)
+  (let ((n764 (bvlshr n746 (zero-extend n763 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$987_Y
+      (extract 0 0 n764))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$988$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$978_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$987_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$989$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$985$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_108$988$_Y))) ; (bitvector 1)
+  (let
+    (($10_lut_mux8_f$func$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_121$9.$result_0_0_$990
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_105$989$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$978_Y
+        (bv #b0 1)))) ; (bitvector 1)
+  (let ((n769 (concat I4 (bv #b0 1)))) ; (bitvector 2)
+  (let ((n770 (zero-extend n769 (bitvector 3)))) ; (bitvector 3)
+  (let ((n771 (bvlshr n746 (zero-extend n770 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$961_Y
+      (extract 0 0 n771))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$958$_Y
+      (bool->bitvector (bveq I4 (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$959$_Y
+      (bool->bitvector (bveq I4 (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$960_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$958$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$959$_Y))) ; (bitvector 1)
+  (let ((n776 (concat I4 (bv #b1 1)))) ; (bitvector 2)
+  (let ((n777 (zero-extend n776 (bitvector 3)))) ; (bitvector 3)
+  (let ((n778 (bvlshr n746 (zero-extend n777 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$962_Y
+      (extract 0 0 n778))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$963$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$961_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$962_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$964$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$960_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_101$963$_Y))) ; (bitvector 1)
+  (let ((n782 (concat I4 (bv #b0 1)))) ; (bitvector 2)
+  (let ((n783 (concat (bv #b1 1) n782))) ; (bitvector 3)
+  (let ((n784 (bvlshr n746 (zero-extend n783 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$966_Y
+      (extract 0 0 n784))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$967$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$961_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$966_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$968$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$964$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_102$967$_Y))) ; (bitvector 1)
+  (let ((n788 (concat I4 (bv #b1 1)))) ; (bitvector 2)
+  (let ((n789 (concat (bv #b1 1) n788))) ; (bitvector 3)
+  (let ((n790 (bvlshr n746 (zero-extend n789 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$970_Y
+      (extract 0 0 n790))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$971$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$961_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$970_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$972$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$968$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_103$971$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1025$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_100$972$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$961_Y
+        $10_lut_mux8_f$func$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_121$9.$result_0_0_$990))) ; (bitvector 1)
+  (let ((n795 (zero-extend I3 (bitvector 3)))) ; (bitvector 3)
+  (let ((n796 (bvlshr n746 (zero-extend n795 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$944_Y
+      (extract 0 0 n796))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$941$_Y
+      (bool->bitvector (bveq I3 (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$942$_Y
+      (bool->bitvector (bveq I3 (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$943_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$941$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$942$_Y))) ; (bitvector 1)
+  (let ((n801 (concat (bv #b1 1) I3))) ; (bitvector 2)
+  (let ((n802 (zero-extend n801 (bitvector 3)))) ; (bitvector 3)
+  (let ((n803 (bvlshr n746 (zero-extend n802 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$945_Y
+      (extract 0 0 n803))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$946$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$944_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$945_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$947$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$943_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_96$946$_Y))) ; (bitvector 1)
+  (let ((n807 (concat (bv #b10 2) I3))) ; (bitvector 3)
+  (let ((n808 (bvlshr n746 (zero-extend n807 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$949_Y
+      (extract 0 0 n808))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$950$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$944_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$949_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$951$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$947$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_97$950$_Y))) ; (bitvector 1)
+  (let ((n812 (concat (bv #b11 2) I3))) ; (bitvector 3)
+  (let ((n813 (bvlshr n746 (zero-extend n812 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$953_Y
+      (extract 0 0 n813))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$954$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$944_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$953_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$955$_Y
+      (bvand
+        $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$951$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_98$954$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1052$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_95$955$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$944_Y
+        $procmux$1025$_Y))) ; (bitvector 1)
+  (let ((n818 (concat I4 (bv #b0 1)))) ; (bitvector 2)
+  (let ((n819 (concat I5 n818))) ; (bitvector 3)
+  (let ((n820 (bvlshr n746 (zero-extend n819 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$935_Y
+      (extract 0 0 n820))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$894_Y
+      (bvxor I5 I4))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$931$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$894_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$933$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$894_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$934_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$931$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$933$_Y))) ; (bitvector 1)
+  (let ((n826 (concat I4 (bv #b1 1)))) ; (bitvector 2)
+  (let ((n827 (concat I5 n826))) ; (bitvector 3)
+  (let ((n828 (bvlshr n746 (zero-extend n827 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$936_Y
+      (extract 0 0 n828))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$937$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$935_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$936_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$938$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$934_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_93$937$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1076$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_92$938$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$935_Y
+        $procmux$1052$_Y))) ; (bitvector 1)
+  (let ((n833 (concat (bv #b0 1) I3))) ; (bitvector 2)
+  (let ((n834 (concat I5 n833))) ; (bitvector 3)
+  (let ((n835 (bvlshr n746 (zero-extend n834 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$924_Y
+      (extract 0 0 n835))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$919_Y
+      (bvxor I5 I3))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$920$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$919_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$922$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$919_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$923_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$920$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$922$_Y))) ; (bitvector 1)
+  (let ((n841 (concat (bv #b1 1) I3))) ; (bitvector 2)
+  (let ((n842 (concat I5 n841))) ; (bitvector 3)
+  (let ((n843 (bvlshr n746 (zero-extend n842 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$925_Y
+      (extract 0 0 n843))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$926$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$924_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$925_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$927$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$923_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_90$926$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1097$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_89$927$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$924_Y
+        $procmux$1076$_Y))) ; (bitvector 1)
+  (let ((n848 (concat I4 I3))) ; (bitvector 2)
+  (let ((n849 (zero-extend n848 (bitvector 3)))) ; (bitvector 3)
+  (let ((n850 (bvlshr n746 (zero-extend n849 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$913_Y
+      (extract 0 0 n850))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$908_Y
+      (bvxor I4 I3))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$909$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$908_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$911$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$908_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$912_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$909$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$911$_Y))) ; (bitvector 1)
+  (let ((n856 (concat I4 I3))) ; (bitvector 2)
+  (let ((n857 (concat (bv #b1 1) n856))) ; (bitvector 3)
+  (let ((n858 (bvlshr n746 (zero-extend n857 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$914_Y
+      (extract 0 0 n858))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$915$_Y
+      (bool->bitvector
+        (bveq
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$913_Y
+          $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$914_Y)))) ; (bitvector 1)
+  (let
+    (($logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$916$_Y
+      (bvand
+        $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$912_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_87$915$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1115$_Y
+      (if
+        (bitvector->bool
+          $logic_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_86$916$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$913_Y
+        $procmux$1097$_Y))) ; (bitvector 1)
+  (let
+    (($reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$903_Y
+      (apply bvor (bitvector->bits n746)))) ; (bitvector 1)
+  (let
+    (($not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$904_Y
+      (bvnot
+        $reduce_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$903_Y))) ; (bitvector 1)
+  (let
+    (($reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$905_Y
+      (apply bvand (bitvector->bits n746)))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$906$_Y
+      (bvor
+        $not$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$904_Y
+        $reduce_and$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$905_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1130$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_84$906$_Y)
+        $3_lut_mux8_f$func$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_128$1.$result_0_0_$117
+        $procmux$1115$_Y))) ; (bitvector 1)
+  (let ((n868 (concat I4 I3))) ; (bitvector 2)
+  (let ((n869 (concat I5 n868))) ; (bitvector 3)
+  (let ((n870 (bvlshr n746 (zero-extend n869 (bitvector 8))))) ; (bitvector 8)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$902_Y
+      (extract 0 0 n870))) ; (bitvector 1)
+  (let
+    (($xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$895_Y
+      (bvxor
+        $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$894_Y
+        I3))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$896$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$895_Y
+          (bv #b1 1))))) ; (bitvector 1)
+  (let
+    (($eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$899$_Y
+      (bool->bitvector
+        (bveq
+          $xor$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$895_Y
+          (bv #b0 1))))) ; (bitvector 1)
+  (let
+    (($logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$900$_Y
+      (bvor
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$896$_Y
+        $eqx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$899$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$1142$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_82$900$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$902_Y
+        $procmux$1130$_Y))) ; (bitvector 1)
+  (let
+    (($procmux$2399$_Y
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_118$82$_Y)
+        n128
+        $procmux$1142$_Y))) ; (bitvector 1)
+  (let ((n878 (concat I1 I0))) ; (bitvector 2)
+  (let ((n879 (concat I2 n878))) ; (bitvector 3)
+  (let ((n880 (concat I3 n879))) ; (bitvector 4)
+  (let ((n881 (concat I4 n880))) ; (bitvector 5)
+  (let ((n882 (concat I5 n881))) ; (bitvector 6)
+  (let ((n883 (bvlshr INIT (zero-extend n882 (bitvector 64))))) ; (bitvector 64)
+  (let
+    (($shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$78_Y
+      (extract 0 0 n883))) ; (bitvector 1)
+  (let
+    ((O
+      (if
+        (bitvector->bool
+          $logic_or$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_116$50$_Y)
+        $shiftx$_Users_gussmith_lakeroad_modules_for_importing_xilinx_ultrascale_plus_LUT6.v_0$78_Y
+        $procmux$2399$_Y))) ; (bitvector 1)
+  (cons
+    (LUT6_Outputs
+      O ; O
+    )
+    (LUT6_State)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  )))))))))))))))))))))))))))))))))))))
+(define LUT6_initial
+  (LUT6_State))

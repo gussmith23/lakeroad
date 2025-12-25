@@ -1,78 +1,113 @@
-#lang racket/base
-(provide lattice-ecp5-lut4)
-(require "../signal.rkt")
-(require rosette)
-(define lattice-ecp5-lut4
-  (λ (#:A
-      (A (bv->signal (constant 'A (bitvector 1))))
-      #:B
-      (B (bv->signal (constant 'B (bitvector 1))))
-      #:C
-      (C (bv->signal (constant 'C (bitvector 1))))
-      #:D
-      (D (bv->signal (constant 'D (bitvector 1))))
-      #:init
-      (init (bv->signal (constant 'init (bitvector 16))))
-      #:name
-      (name ""))
-    (let* ((merged-input-state-hash (list))
-           (init-hash (list))
-           (btor1 (bitvector 1))
-           (btor2 A)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state A)))
-           (btor3 B)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state B)))
-           (btor4 C)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state C)))
-           (btor5 D)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state D)))
-           (btor6 (bitvector 16))
-           (btor7 init)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state init)))
-           (btor8 (bitvector 8))
-           (btor9
-            (signal (extract 7 0 (signal-value btor7)) (signal-state btor7)))
-           (btor10
-            (signal (extract 15 8 (signal-value btor7)) (signal-state btor7)))
-           (btor11 (if (bitvector->bool (signal-value btor5)) btor10 btor9))
-           (btor12 (bitvector 4))
-           (btor13
-            (signal (extract 3 0 (signal-value btor11)) (signal-state btor11)))
-           (btor14
-            (signal (extract 7 4 (signal-value btor11)) (signal-state btor11)))
-           (btor15 (if (bitvector->bool (signal-value btor4)) btor14 btor13))
-           (btor16 (bitvector 2))
-           (btor17
-            (signal (extract 1 0 (signal-value btor15)) (signal-state btor15)))
-           (btor18
-            (signal (extract 3 2 (signal-value btor15)) (signal-state btor15)))
-           (btor19 (if (bitvector->bool (signal-value btor3)) btor18 btor17))
-           (btor20
-            (signal (extract 0 0 (signal-value btor19)) (signal-state btor19)))
-           (btor21
-            (signal (extract 1 1 (signal-value btor19)) (signal-state btor19)))
-           (btor22 (if (bitvector->bool (signal-value btor2)) btor21 btor20))
-           (btor24
-            (bv->signal
-             (zero-extend (signal-value btor19) (bitvector 2))
-             btor19))
-           (btor25
-            (bv->signal
-             (zero-extend (signal-value btor15) (bitvector 4))
-             btor15))
-           (btor26
-            (bv->signal
-             (zero-extend (signal-value btor11) (bitvector 8))
-             btor11))
-           (output-state
-            (remove-duplicates
-             (append (list) merged-input-state-hash)
-             equal?
-             #:key
-             car)))
-      (list (cons 'Z (signal (signal-value btor22) output-state))))))
+#lang rosette/safe
+    (provide (rename-out [LUT4 lattice-ecp5-lut4] [LUT4_initial lattice-ecp5-lut4-initial] [LUT4_inputs_helper lattice-ecp5-lut4-inputs] [LUT4_outputs_helper lattice-ecp5-lut4-outputs]))(struct LUT4_Inputs (init D C B A) #:transparent
+  ; init (bitvector 16)
+  ; D (bitvector 1)
+  ; C (bitvector 1)
+  ; B (bitvector 1)
+  ; A (bitvector 1)
+)
+(struct LUT4_Outputs (Z) #:transparent
+  ; Z (bitvector 1)
+)
+(struct LUT4_State () #:transparent)
+(define
+  (LUT4_inputs_helper inputs)
+  (LUT4_Inputs
+    (let
+      (
+        (assoc-result
+          (assoc "init" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "D" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "C" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "B" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "A" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))))
+(define
+  (LUT4_outputs_helper outputs)
+  (list
+    (cons "Z" (LUT4_Outputs-Z outputs))))
+(define (LUT4 inputs state)
+  (let ((init (LUT4_Inputs-init inputs))) ; (bitvector 16)
+  (let ((n1 (extract 7 0 init))) ; (bitvector 8)
+  (let ((n2 (extract 15 8 init))) ; (bitvector 8)
+  (let ((D (LUT4_Inputs-D inputs))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_lattice_ecp5_LUT4.v_7$1$_Y
+      (if (bitvector->bool D) n2 n1))) ; (bitvector 8)
+  (let
+    ((n5
+      (extract
+        3
+        0
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_lattice_ecp5_LUT4.v_7$1$_Y))) ; (bitvector 4)
+  (let
+    ((n6
+      (extract
+        7
+        4
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_lattice_ecp5_LUT4.v_7$1$_Y))) ; (bitvector 4)
+  (let ((C (LUT4_Inputs-C inputs))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_modules_for_importing_lattice_ecp5_LUT4.v_8$2$_Y
+      (if (bitvector->bool C) n6 n5))) ; (bitvector 4)
+  (let
+    ((n9
+      (extract
+        1
+        0
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_lattice_ecp5_LUT4.v_8$2$_Y))) ; (bitvector 2)
+  (let
+    ((n10
+      (extract
+        3
+        2
+        $ternary$_Users_gussmith_lakeroad_modules_for_importing_lattice_ecp5_LUT4.v_8$2$_Y))) ; (bitvector 2)
+  (let ((B (LUT4_Inputs-B inputs))) ; (bitvector 1)
+  (let ((s1 (if (bitvector->bool B) n10 n9))) ; (bitvector 2)
+  (let ((n13 (extract 0 0 s1))) ; (bitvector 1)
+  (let ((n14 (extract 1 1 s1))) ; (bitvector 1)
+  (let ((A (LUT4_Inputs-A inputs))) ; (bitvector 1)
+  (let ((Z (if (bitvector->bool A) n14 n13))) ; (bitvector 1)
+  (cons
+    (LUT4_Outputs
+      Z ; Z
+    )
+    (LUT4_State))))))))))))))))))))
+(define LUT4_initial
+  (LUT4_State))

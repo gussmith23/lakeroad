@@ -19,7 +19,6 @@
                   bitvector
                   zero-extend)
          (prefix-in lr: "language.rkt")
-         "signal.rkt"
          "architecture-description.rkt")
 
 ;;; Compile Lakeroad expr to a JSON jsexpr, which can then be used by Yosys.
@@ -96,8 +95,17 @@
                                                             (error "old key not found: " k)))
                                                    v))))])
                     new-h)]
-                 [(lr:hash-ref h-expr k) (hash-ref (compile h-expr) k)]
-                 [(lr:hw-module-instance module-name ports params _)
+                 [(lr:hash-ref h-expr k)
+                  ; TODO(@gussmith23): We need to get a handle on strings vs. symbols here. The root
+                  ; of all evil is the JSON library which doesn't allow string keys.
+                  (when (not (or (symbol? k) (string? k)))
+                    (error "Key must be a symbol or string, not: " k))
+                  (when (not (symbol? k))
+                    (log-warning "Converting key to symbol when compiling: ~a" k))
+                  ;;; Compile the hash expression and return the value for the key.
+                  ;;; If the key is not found, this will raise an error.
+                  (hash-ref (compile h-expr) (if (symbol? k) k (string->symbol k)))]
+                 [(lr:hw-module-instance module-name inst-name ports params _)
                   (let* ([input-ports
                           (filter (λ (p) (equal? (module-instance-port-direction p) 'input)) ports)]
                          [input-port-symbols (map string->symbol
@@ -125,13 +133,13 @@
                           (lambda (module-name param)
 
                             (define (intel-cyclone10lp-enum-val-to-str v)
-                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                              (match (bitvector->natural (lr:bv-v v))
                                 [0 "none"]
                                 [1 "TRUE"]
                                 [_ (error "Unknown Cyclone 10 LP enum value" v)]))
 
                             (define (intel-altmult-accum-enum-val-to-str v)
-                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                              (match (bitvector->natural (lr:bv-v v))
                                 [0 "ACLR0"]
                                 [1 "ACLR1"]
                                 [2 "ACLR2"]
@@ -164,7 +172,7 @@
                                 [_ #f]))
 
                             (define (dsp48e2-enum-val-to-str v)
-                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                              (match (bitvector->natural (lr:bv-v v))
                                 [0 "A"]
                                 [1 "B"]
                                 [2 "AD"]
@@ -194,7 +202,7 @@
                                 [26 "XOR12"]
                                 [_ #f]))
                             (define (dsp48e1-enum-val-to-str v)
-                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                              (match (bitvector->natural (lr:bv-v v))
                                 [0 "NO_RESET"]
                                 [1 "DIRECT"]
                                 [2 "MASK"]
@@ -215,7 +223,7 @@
                                 [17 "RESET_MATCH"]
                                 [18 "RESET_NOT_MATCH"]))
                             (define (lattice-mult18x18d-enum-val-to-str v)
-                              (match (bitvector->natural (signal-value (lr:bv-v v)))
+                              (match (bitvector->natural (lr:bv-v v))
                                 [0 "NONE"]
                                 [1 "CE0"]
                                 [2 "RST0"]
@@ -245,17 +253,15 @@
                             (cond
                               [(and (equal? module-name "CARRY8")
                                     (equal? (module-instance-parameter-name param) "CARRY_TYPE"))
-                               (match (bitvector->natural
-                                       (signal-value (lr:bv-v (module-instance-parameter-value
-                                                               param))))
+                               (match (bitvector->natural (lr:bv-v (module-instance-parameter-value
+                                                                    param)))
                                  [0 "SINGLE_CY8"]
                                  [1 "DUAL_CY4"]
                                  [_
                                   (error (format "Unexpected CARRY_TYPE ~a"
                                                  (module-instance-parameter-name
-                                                  (signal-value
-                                                   (lr:bv-v (module-instance-parameter-value
-                                                             param))))))])]
+                                                  (lr:bv-v (module-instance-parameter-value
+                                                            param)))))])]
                               [(and (equal? module-name "DSP48E2")
                                     (member (module-instance-parameter-name param)
                                             (list "AMULTSEL"
@@ -433,11 +439,10 @@
                               ;;; bitvectors, and so we need to convert them back for some modules.
                               (or (compile-parameter-override module-name p)
                                   (match (module-instance-parameter-value p)
-                                    [(lr:bv (signal v _)) (make-literal-value-from-bv v)]
+                                    [(lr:bv v) (make-literal-value-from-bv v)]
                                     ;;; TODO(@gussmith23): This is hardcoded; we should write a little
                                     ;;; compiler here.
-                                    [(lr:zero-extend (lr:bv (signal v _))
-                                                     (lr:bitvector (bitvector w)))
+                                    [(lr:zero-extend (lr:bv v) (lr:bitvector (bitvector w)))
                                      (make-literal-value-from-bv (zero-extend v (bitvector w)))]))))
                            params)]
                          ;;; TODO(@gussmith23): This is a hack to support CCU2C, which uses string
@@ -491,19 +496,9 @@
                   (make-list (bitvector-size (compile bv-type)) (first (compile v)))]
 
                  ;;; Symbolic bitvector constants correspond to module inputs!
-                 [(lr:bv (signal (? bv? (? symbolic? (? constant? s))) _))
-                  ;;; Get the port details if they exist; create and return them if they don't.
-                  (define port-details
-                    (hash-ref ports
-                              (string->symbol (~a s))
-                              (lambda ()
-                                (define bits (get-bits (bitvector-size (type-of s))))
-                                (define port-details (make-port-details "input" bits))
-                                (add-port (string->symbol (~a s)) port-details)
-                                port-details)))
-
-                  ;;; Return the bits.
-                  (hash-ref port-details 'bits)]
+                 [(lr:bv (? bv? (? symbolic? (? constant? s))))
+                  (error "Symbolic bitvector constants are not supported.")
+                  (void)]
 
                  ;;; Vars correspond to module inputs!
                  [(lr:var name bw)
@@ -520,7 +515,7 @@
                   ;;; Return the bits.
                   (hash-ref port-details 'bits)]
                  ;;; Concrete bitvectors become constants.
-                 [(lr:bv (signal (? bv? (? concrete? s)) _))
+                 [(lr:bv (? bv? (? concrete? s)))
                   (map ~a (map bitvector->natural (bitvector->bits s)))]
 
                  [(lr:integer v) v]
@@ -557,7 +552,7 @@
   ;;;             (check-equal? (hash-count (hash-ref module 'ports)) 5))
 
   (test-case "test"
-    (define out (lakeroad->jsexpr (lr:bv (bv->signal (bv #b000111 6)))))
+    (define out (lakeroad->jsexpr (lr:bv (bv #b000111 6))))
     (check-equal?
      (hash-ref (hash-ref (hash-ref out 'modules) 'top) 'ports)
      (hasheq-helper 'out0 (hasheq-helper 'bits '("1" "1" "1" "0" "0" "0") 'direction "output")))))

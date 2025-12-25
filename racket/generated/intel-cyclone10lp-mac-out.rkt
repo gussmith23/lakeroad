@@ -1,291 +1,168 @@
-#lang racket/base
-(provide intel-cyclone10lp-mac-out)
-(require "../signal.rkt")
-(require rosette)
-(define intel-cyclone10lp-mac-out
-  (λ (#:aclr
-      (aclr (bv->signal (constant 'aclr (bitvector 1))))
-      #:clk
-      (clk (bv->signal (constant 'clk (bitvector 1))))
-      #:dataa
-      (dataa (bv->signal (constant 'dataa (bitvector 36))))
-      #:devclrn
-      (devclrn (bv->signal (constant 'devclrn (bitvector 1))))
-      #:devpor
-      (devpor (bv->signal (constant 'devpor (bitvector 1))))
-      #:ena
-      (ena (bv->signal (constant 'ena (bitvector 1))))
-      #:output_clock
-      (output_clock (bv->signal (constant 'output_clock (bitvector 1))))
-      #:name
-      (name ""))
-    (let* ((merged-input-state-hash (list))
-           (init-hash
-            (append
-             (list
-              (cons
-               (string->symbol (string-append name "state24"))
-               (bv 0 (bitvector 1))))
-             (append
-              (list
-               (cons
-                (string->symbol (string-append name "state16"))
-                (bv 1 (bitvector 1))))
-              (append
-               (list
-                (cons
-                 (string->symbol (string-append name "state13"))
-                 (bv 0 (bitvector 36))))
-               (append
-                (list
-                 (cons
-                  (string->symbol (string-append name "state11"))
-                  (bv 0 (bitvector 36))))
-                (list))))))
-           (btor1 (bitvector 1))
-           (btor2 aclr)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state aclr)))
-           (btor3 clk)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state clk)))
-           (btor4 (bitvector 36))
-           (btor5 dataa)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state dataa)))
-           (btor6 devclrn)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state devclrn)))
-           (btor7 devpor)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state devpor)))
-           (btor8 ena)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state ena)))
-           (btor9 output_clock)
-           (merged-input-state-hash
-            (merge-states merged-input-state-hash (signal-state output_clock)))
-           (btor10 (bv->signal (bv 0 (bitvector 36))))
-           (btor11
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state11")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state11"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state11")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state11")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 36))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor13
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state13")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state13"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state13")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state13")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 36))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor15 (bv->signal (bv 1 (bitvector 1))))
-           (btor16
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state16")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state16"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state16")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state16")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor18 (bitvector 2))
-           (btor19
-            (signal
-             (concat (signal-value btor16) (signal-value btor3))
-             (list)))
-           (btor20
-            (bv->signal
-             (zero-extend (signal-value btor15) (bitvector 2))
-             btor15))
-           (btor21
-            (signal
-             (bool->bitvector
-              (bveq (signal-value btor19) (signal-value btor20)))
-             (list)))
-           (btor22 (if (bitvector->bool (signal-value btor21)) btor13 btor11))
-           (btor23 (bv->signal (bv 0 (bitvector 1))))
-           (btor24
-            (let* ((state-value
-                    (cond
-                     ((assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state24")))
-                      (bv->signal
-                       (car
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state24"))))))
-                     ((assoc-has-key?
-                       init-hash
-                       (string->symbol (string-append name "state24")))
-                      (bv->signal
-                       (assoc-ref
-                        init-hash
-                        (string->symbol (string-append name "state24")))))
-                     (else
-                      (bv->signal
-                       ((lambda ()
-                          (log-warning
-                           "Getting default value of 0 for bitvector, this may be a bad idea!")
-                          (bv 0 1))))))))
-              (when (not (signal? state-value)) (error "Expected signal"))
-              state-value))
-           (btor26 (if (bitvector->bool (signal-value btor24)) btor10 btor22))
-           (btor27 (if (bitvector->bool (signal-value btor2)) btor10 btor26))
-           (btor28 (if (bitvector->bool (signal-value btor9)) btor15 btor23))
-           (btor29 (if (bitvector->bool (signal-value btor28)) btor27 btor5))
-           (btor31
-            (bv->signal
-             (zero-extend (signal-value btor2) (bitvector 1))
-             btor2))
-           (btor32
-            (bv->signal
-             (zero-extend (signal-value btor3) (bitvector 1))
-             btor3))
-           (btor33
-            (bv->signal
-             (zero-extend (signal-value btor5) (bitvector 36))
-             btor5))
-           (btor34
-            (bv->signal
-             (zero-extend (signal-value btor29) (bitvector 36))
-             btor29))
-           (btor35
-            (bv->signal
-             (zero-extend (signal-value btor8) (bitvector 1))
-             btor8))
-           (btor36
-            (bv->signal
-             (zero-extend (signal-value btor27) (bitvector 36))
-             btor27))
-           (btor37
-            (bv->signal
-             (zero-extend (signal-value btor28) (bitvector 1))
-             btor28))
-           (btor39 (if (bitvector->bool (signal-value btor8)) btor5 btor27))
-           (output-state
-            (remove-duplicates
-             (append
-              (append
-               (list
-                (cons
-                 (string->symbol (string-append name "state24"))
-                 (cons
-                  (signal-value btor2)
-                  (if (assoc-has-key?
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state24")))
-                    (add1
-                     (cdr
-                      (assoc-ref
-                       merged-input-state-hash
-                       (string->symbol (string-append name "state24")))))
-                    0))))
-               (append
-                (list
-                 (cons
-                  (string->symbol (string-append name "state16"))
-                  (cons
-                   (signal-value btor3)
-                   (if (assoc-has-key?
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state16")))
-                     (add1
-                      (cdr
-                       (assoc-ref
-                        merged-input-state-hash
-                        (string->symbol (string-append name "state16")))))
-                     0))))
-                (append
-                 (list
-                  (cons
-                   (string->symbol (string-append name "state13"))
-                   (cons
-                    (signal-value btor39)
-                    (if (assoc-has-key?
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state13")))
-                      (add1
-                       (cdr
-                        (assoc-ref
-                         merged-input-state-hash
-                         (string->symbol (string-append name "state13")))))
-                      0))))
-                 (append
-                  (list
-                   (cons
-                    (string->symbol (string-append name "state11"))
-                    (cons
-                     (signal-value btor27)
-                     (if (assoc-has-key?
-                          merged-input-state-hash
-                          (string->symbol (string-append name "state11")))
-                       (add1
-                        (cdr
-                         (assoc-ref
-                          merged-input-state-hash
-                          (string->symbol (string-append name "state11")))))
-                       0))))
-                  (list)))))
-              merged-input-state-hash)
-             equal?
-             #:key
-             car)))
-      (list (cons 'dataout (signal (signal-value btor29) output-state))))))
+#lang rosette/safe
+    (provide (rename-out [cyclone10lp_mac_out intel-cyclone10lp-mac-out] [cyclone10lp_mac_out_initial intel-cyclone10lp-mac-out-initial] [cyclone10lp_mac_out_inputs_helper intel-cyclone10lp-mac-out-inputs] [cyclone10lp_mac_out_outputs_helper intel-cyclone10lp-mac-out-outputs]))(struct
+  cyclone10lp_mac_out_Inputs
+  (output_clock ena devpor devclrn dataa clk aclr)
+  #:transparent
+  ; output_clock (bitvector 1)
+  ; ena (bitvector 1)
+  ; devpor (bitvector 1)
+  ; devclrn (bitvector 1)
+  ; dataa (bitvector 36)
+  ; clk (bitvector 1)
+  ; aclr (bitvector 1)
+)
+(struct cyclone10lp_mac_out_Outputs (dataout) #:transparent
+  ; dataout (bitvector 36)
+)
+(struct
+  cyclone10lp_mac_out_State
+  ($auto$clk2fflogic.cc_86_sample_control_edge$95
+    $auto$clk2fflogic.cc_102_sample_data$91
+    $auto$clk2fflogic.cc_102_sample_data$93
+    $auto$clk2fflogic.cc_74_sample_control$101)
+  #:transparent
+  ; $auto$clk2fflogic.cc_86_sample_control_edge$95 (bitvector 1)
+  ; $auto$clk2fflogic.cc_102_sample_data$91 (bitvector 36)
+  ; $auto$clk2fflogic.cc_102_sample_data$93 (bitvector 36)
+  ; $auto$clk2fflogic.cc_74_sample_control$101 (bitvector 1)
+)
+(define
+  (cyclone10lp_mac_out_inputs_helper inputs)
+  (cyclone10lp_mac_out_Inputs
+    (let
+      (
+        (assoc-result
+          (assoc "output_clock" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "ena" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "devpor" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "devclrn" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "dataa" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "clk" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))
+    (let
+      (
+        (assoc-result
+          (assoc "aclr" inputs)))
+      (if assoc-result
+        (cdr assoc-result)
+        (begin
+          (fprintf (current-error-port) "%s not found in inputs")
+          'not-found)))))
+(define
+  (cyclone10lp_mac_out_outputs_helper outputs)
+  (list
+    (cons "dataout" (cyclone10lp_mac_out_Outputs-dataout outputs))))
+(define (cyclone10lp_mac_out inputs state)
+  (let ((clk (cyclone10lp_mac_out_Inputs-clk inputs))) ; (bitvector 1)
+  (let
+    (($auto$clk2fflogic.cc_95_sample_data$_idataout_reg_sampled$90
+      (cyclone10lp_mac_out_State-$auto$clk2fflogic.cc_102_sample_data$91 state))) ; (bitvector 36)
+  (let
+    (($auto$clk2fflogic.cc_95_sample_data$$0_idataout_reg_35_0__sampled$92
+      (cyclone10lp_mac_out_State-$auto$clk2fflogic.cc_102_sample_data$93 state))) ; (bitvector 36)
+  (let
+    (($auto$clk2fflogic.cc_81_sample_control_edge$_clk_sampled$94
+      (cyclone10lp_mac_out_State-$auto$clk2fflogic.cc_86_sample_control_edge$95
+        state))) ; (bitvector 1)
+  (let
+    ((n4
+      (concat $auto$clk2fflogic.cc_81_sample_control_edge$_clk_sampled$94 clk))) ; (bitvector 2)
+  (let (($auto$rtlil.cc_2974_Eqx$97 (bool->bitvector (bveq n4 (bv #b01 2))))) ; (bitvector 1)
+  (let
+    (($auto$rtlil.cc_3053_Mux$99
+      (if
+        (bitvector->bool $auto$rtlil.cc_2974_Eqx$97)
+        $auto$clk2fflogic.cc_95_sample_data$$0_idataout_reg_35_0__sampled$92
+        $auto$clk2fflogic.cc_95_sample_data$_idataout_reg_sampled$90))) ; (bitvector 36)
+  (let
+    (($auto$clk2fflogic.cc_69_sample_control$_aclr_sampled$100
+      (cyclone10lp_mac_out_State-$auto$clk2fflogic.cc_74_sample_control$101
+        state))) ; (bitvector 1)
+  (let
+    (($auto$rtlil.cc_3053_Mux$103
+      (if
+        (bitvector->bool
+          $auto$clk2fflogic.cc_69_sample_control$_aclr_sampled$100)
+        (bv #b000000000000000000000000000000000000 36)
+        $auto$rtlil.cc_3053_Mux$99))) ; (bitvector 36)
+  (let ((aclr (cyclone10lp_mac_out_Inputs-aclr inputs))) ; (bitvector 1)
+  (let
+    ((idataout_reg
+      (if
+        (bitvector->bool aclr)
+        (bv #b000000000000000000000000000000000000 36)
+        $auto$rtlil.cc_3053_Mux$103))) ; (bitvector 36)
+  (let ((dataa (cyclone10lp_mac_out_Inputs-dataa inputs))) ; (bitvector 36)
+  (let ((ena (cyclone10lp_mac_out_Inputs-ena inputs))) ; (bitvector 1)
+  (let (($0_idataout_reg_35_0_ (if (bitvector->bool ena) dataa idataout_reg))) ; (bitvector 36)
+  (let ((output_clock (cyclone10lp_mac_out_Inputs-output_clock inputs))) ; (bitvector 1)
+  (let
+    (($ternary$_Users_gussmith_lakeroad_lakeroad_private_intel_cyclone10lp_cyclone10lp_mac_mult_modified_for_racket_import.v_464$73$_Y
+      (if (bitvector->bool output_clock) (bv #b1 1) (bv #b0 1)))) ; (bitvector 1)
+  (let
+    ((dataout
+      (if
+        (bitvector->bool
+          $ternary$_Users_gussmith_lakeroad_lakeroad_private_intel_cyclone10lp_cyclone10lp_mac_mult_modified_for_racket_import.v_464$73$_Y)
+        idataout_reg
+        dataa))) ; (bitvector 36)
+  (cons
+    (cyclone10lp_mac_out_Outputs
+      dataout ; dataout
+    )
+    (cyclone10lp_mac_out_State
+      clk ; $auto$clk2fflogic.cc:86:sample_control_edge$95
+      idataout_reg ; $auto$clk2fflogic.cc:102:sample_data$91
+      $0_idataout_reg_35_0_ ; $auto$clk2fflogic.cc:102:sample_data$93
+      aclr ; $auto$clk2fflogic.cc:74:sample_control$101
+    ))))))))))))))))))))
+(define cyclone10lp_mac_out_initial
+  (cyclone10lp_mac_out_State
+    (bv #b1 1)
+    (bv #b000000000000000000000000000000000000 36)
+    (bv #b000000000000000000000000000000000000 36)
+    (bv #b0 1)))
